@@ -12,7 +12,7 @@
                             <p>Dear Mr./Mrs. {{ $recipient }},</p>
                             <p>
                                 We hope this message finds you well and brimming with excitement for <b>STEM+ Wonderlab</b>,
-                                Indonesia's FIRST student makerspace expo. In this event, your child will gain access to
+                                Indonesia's FIRST Student Makerspace Expo. In this event, your child will gain access to
                                 advanced tools, connect with fellow young innovators, collaborate on exciting projects, and
                                 contribute to real impact on global issues!
                             </p>
@@ -32,10 +32,10 @@
                                 It's very simple:
                                 <ul>
                                     <li>
-                                        Step 1: Invite three of your friends by sharing this link: <a href="{{ $param['referral_page'] }}">Here</a>
+                                        Step 1: Invite three of your friends by sharing <a href="{{ $param['referral_page'] }}"><b>this link</b></a>
                                     </li>
                                     <li>
-                                        Step 2: Watch your child's profile shine with a professional photoshoot session by ALL-in
+                                        Step 2: Watch your child's profile shine with a <b>professional photoshoot session</b> by ALL-in
                                         Eduspace
                                     </li>
                                 </ul>
@@ -47,7 +47,7 @@
                             </p>
 
                             <p style="text-align: center;margin: 2.5em auto;">
-                                    <a class="button" href="{{ $param['link'] }}"
+                                    <a class="button" href="{{ $param['referral_page'] }}"
                                         style="background: #3b6cde; 
                                         text-decoration: none; 
                                         padding: .5em 1.5em;
@@ -56,7 +56,7 @@
                                         mso-padding-alt:0;
                                         text-underline-color:#156ab3">
                                         <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%;mso-text-raise:20pt">&nbsp;</i><![endif]-->
-                                        <span style="mso-text-raise:10pt;font-weight:bold;">Secure Your Spot Now!</span>
+                                        <span style="mso-text-raise:10pt;font-weight:bold;">Claim your code here!</span>
                                         <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%">&nbsp;</i><![endif]-->
                                     </a>
                             </p>

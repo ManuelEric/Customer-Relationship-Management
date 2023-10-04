@@ -12,20 +12,6 @@
                             <p>Dear Mr./Mrs. {{$recipient}}, we've noticed you haven't registered for <b>STEM+ Wonderlab</b> yet. It's not
                                 too late to register for Indonesia's FIRST Student Makerspace Expo!</p>
                             <p>
-                            <p style="text-align: center;margin: 2.5em auto;">
-                                <a class="button" href="{{ $param['link'] }}"
-                                    style="background: #3b6cde; 
-                                    text-decoration: none; 
-                                    padding: .5em 1.5em;
-                                    color: #ffffff; 
-                                    border-radius: 2px;
-                                    mso-padding-alt:0;
-                                    text-underline-color:#156ab3">
-                                    <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%;mso-text-raise:20pt">&nbsp;</i><![endif]-->
-                                    <span style="mso-text-raise:10pt;font-weight:bold;">Claim your {{ $notes }} pass</span>
-                                    <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%">&nbsp;</i><![endif]-->
-                                </a>
-                            </p>
                                
                             <p style="text-align: center;">
                                 <b>STEM+ Wonderlab</b>
@@ -40,13 +26,13 @@
                             </p>
                             <ul>
                                 <li>
-                                    Priority access via the dedicated {{ $notes }} lane and fast-track entry for your child to explore event booths.
+                                    <b>Priority access</b> via the dedicated {{ $notes }} lane and fast-track entry for your child to explore event booths.
                                 </li>
                                 <li>
-                                    Delight in exclusive merchandise courtesy of ALL-in, adding to your special experience.
+                                    Delight in <b>exclusive merchandise</b> courtesy of ALL-in, adding to your special experience.
                                 </li>
                                 <li>
-                                    Gain exclusive access to a range of special promotions and premium products offered
+                                    Gain <b>exclusive access</b> to a range of special promotions and premium products offered
                                     by our respected sponsors and partners
                                 </li>
                             </ul>

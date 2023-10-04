@@ -11,7 +11,7 @@
                     <td>
                         <p>Dear Mr./Mrs. {{$recipient}},</p>
                         <p>
-                            We are thrilled to share an exclusive invitation to your family as {{$notes}} guests for STEM+ Wonderlab, Indonesia's FIRST student makerspace expo!                        
+                            We are thrilled to share an exclusive invitation to your family as {{$notes}} guests for <b>STEM+ Wonderlab</b>, Indonesia's FIRST Student Makerspace Expo!                        
                         </p>
                         <p style="text-align: center;">
                             <img src="https://drive.google.com/uc?id=1FnGPGz4aM0uHC7nRvmLTc9zGX0MVXvGe" width="400" height="600">
@@ -35,14 +35,14 @@
                         </p>
                         <ul>
                             <li>
-                                Priority access via the dedicated {{$notes}} lane and fast-track entry for your child to explore
+                                <b>Priority access</b> via the dedicated {{$notes}} lane and fast-track entry for your child to explore
                                 event booths.
                             </li>
                             <li>
-                                Delight in exclusive merchandise courtesy of ALL-in, adding to your special experience.
+                                Delight in <b>exclusive merchandise</b> courtesy of ALL-in, adding to your special experience.
                             </li>
                             <li>
-                                Gain exclusive access to a range of special promotions and premium products offered by our respected sponsors and partners.
+                                Gain <b>exclusive access</b> to a range of special promotions and premium products offered by our respected sponsors and partners.
                             </li>
                         </ul>
                         <p style="text-align: center; font-size:14px; margin-top:20px">

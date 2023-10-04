@@ -107,7 +107,7 @@ trait MailingEventOfflineTrait
         $data['event'] = [
             'eventName' => $event->event_title,
             'eventDate' => date('M d, Y', strtotime($event->event_startdate)),
-            'eventDate_start' => date('l, M d Y', strtotime($event->event_startdate)),
+            'eventDate_start' => date('l, d M Y', strtotime($event->event_startdate)),
             'eventDate_end' => date('M d, Y', strtotime($event->event_enddate)),
             'eventTime_start' => date('g A', strtotime($event->event_startdate)),
             'eventTime_end' => date('H:i', strtotime($event->event_enddate)),
@@ -184,7 +184,7 @@ trait MailingEventOfflineTrait
             $data['event'] = [
                 'eventName' => $event->event_title,
                 'eventDate' => date('M d, Y', strtotime($event->event_startdate)),
-                'eventDate_start' => date('l, M d Y', strtotime($event->event_startdate)),
+                'eventDate_start' => date('l, d M Y', strtotime($event->event_startdate)),
                 'eventDate_end' => date('M d, Y', strtotime($event->event_enddate)),
                 'eventTime_start' => date('g A', strtotime($event->event_startdate)),
                 'eventTime_end' => date('H:i', strtotime($event->event_enddate)),
@@ -252,7 +252,7 @@ trait MailingEventOfflineTrait
                 'event' => [
                     'eventName' => $event->event_title,
                     'eventDate' => date('M d, Y', strtotime($event->event_startdate)),
-                    'eventDate_start' => date('l, M d Y', strtotime($event->event_startdate)),
+                    'eventDate_start' => date('l, d M Y', strtotime($event->event_startdate)),
                     'eventDate_end' => date('M d, Y', strtotime($event->event_enddate)),
                     'eventTime_start' => date('g A', strtotime($event->event_startdate)),
                     'eventTime_end' => date('H:i', strtotime($event->event_enddate)),

@@ -11,20 +11,20 @@
                         <td>
                             <p>Dear Mr./Mrs. {{ $client['name'] }},</p>
                             <p>
-                                Thank you for your {{ $notes }} registration at <b>STEM+ Wonderlab</b>, Indonesia's FIRST student makerspace expo!
+                                Thank you for your {{ $notes }} registration at <b>STEM+ Wonderlab</b>, Indonesia's FIRST Student Makerspace Expo!
                             </p>
                             <p>
                                 By registering for this event, enjoy special privileges as our {{ $notes }} guests, such as
                             </p>
                             <ul>
                                 <li>
-                                    Priority access via the dedicated {{ $notes }} lane and fast-track entry for your child to explore event booths.
+                                    <b>Priority access</b> via the dedicated {{ $notes }} lane and fast-track entry for your child to explore event booths.
                                 </li>
                                 <li>
-                                    Delight in exclusive merchandise courtesy of ALL-in, adding to your special experience.
+                                    Delight in <b>exclusive merchandise</b> courtesy of ALL-in, adding to your special experience.
                                 </li>
                                 <li>
-                                    Gain exclusive access to a range of special promotions and premium products offered
+                                    Gain <b>exclusive access</b> to a range of special promotions and premium products offered
                                     by our respected sponsors and partners
                                 </li>
                             </ul>

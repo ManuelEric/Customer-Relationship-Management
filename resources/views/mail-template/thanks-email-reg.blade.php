@@ -12,8 +12,8 @@
                             <p>Dear Mr./Mrs. {{ $client['name'] }},</p>
                             <p>
                                 Thank you for registering to <b>STEM+ Wonderlab</b>, the FIRST Student Makerspace Expo in
-                                Indonesia! In this event, you will gain access to advanced tools, <b>connect</b> with fellow young
-                                innovators, <b>collaborate</b> on exciting projects, and contribute to real impact on global issues!
+                                Indonesia! In this event, you will gain <b>access</b> to advanced tools, <b>connect</b> with fellow young
+                                innovators, <b>collaborate</b> on exciting projects, and <b>contribute</b> to real impact on global issues!
                             </p>
 
                             <p style="text-align: center;">
@@ -39,9 +39,6 @@
                                     </a>
                                 </p>
                                 
-                            <p class="text-align: center">
-                                This virtual event is <b>FREE</b>.
-                            </p>
                             <p class="text-align: center">
                                 <b>See you there</b>.
                             </p>
