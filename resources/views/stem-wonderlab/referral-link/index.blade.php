@@ -34,10 +34,10 @@
 📍{{ strip_tags($event->event_location) }}
 🗓 {{ date('l, d M Y', strtotime($event->event_startdate)) }} | {{ date('g A', strtotime($event->event_startdate)) }} onwards
 
-As my invited guest, enjoy {{ $notes }} privileges, such as
- - *Priority access* via the dedicated {{ $notes }} lane and fast-track entry for your child to explore event booths.
- - *Exclusive merchandise* courtesy of ALL-in.
- - *Exclusive access* to a range of special promotions and premium products.
+As my invited guest, enjoy VIP privileges, such as
+ - Priority access via the dedicated VIP lane and fast-track entry for your child to explore event booths.
+ - Exclusive merchandise courtesy of ALL-in.
+ - Exclusive access to a range of special promotions and premium products.
 
 Come with me to the event by clicking this link: {{ $link }} See you there!
                             </textarea>
