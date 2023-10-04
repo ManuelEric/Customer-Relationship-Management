@@ -1,4 +1,4 @@
-<div class="modal fade" id="requestSignModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="chooseDirector" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -26,7 +26,7 @@
                         data-bs-dismiss="modal">
                         <i class="bi bi-x-square me-1"></i>
                         Cancel</button>
-                    <button type="submit" id="sendToChoosenPic" class="btn btn-primary btn-sm">
+                    <button type="submit" id="download" class="btn btn-primary btn-sm">
                         <i class="bi bi-save2 me-1"></i>
                         Send</button>
                 </div>
