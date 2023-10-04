@@ -26,7 +26,7 @@
                             </p>
 
                             <p>
-                                As our VIP guest, we're here to remind you to also empower other parents and share the insightful experience
+                                As our {{ $notes }} guest, we're here to remind you to also empower other parents and share the insightful experience
                             </p>
                             <p>
                                 It's very simple:
@@ -42,7 +42,7 @@
                             </p>
 
                             <p>
-                                Don't miss out on these benefits that are reserved for our VIP guests only! Take a moment now
+                                Don't miss out on these benefits that are reserved for our {{ $notes }} guests only! Take a moment now
                                 to complete your registration and secure your place!
                             </p>
 

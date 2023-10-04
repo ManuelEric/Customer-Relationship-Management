@@ -35,7 +35,7 @@ class ReminderRegistrationImport implements ToCollection, WithHeadingRow, WithVa
 
             foreach ($rows as $row) {
                     
-                $this->sendMailReminder($row['email'], $row['event_id'], 'first-send', 'registration');
+                $this->sendMailReminder($row['email'], $row['event_id'], 'first-send', 'registration', $row['index_child'], $row['notes']);
                                    
             }
                 
@@ -51,6 +51,8 @@ class ReminderRegistrationImport implements ToCollection, WithHeadingRow, WithVa
             'event_id' => $data['event_id'],
             'full_name' => $data['full_name'],
             'email' => $data['email'],
+            'index_child' => $data['index_child'],
+            'notes' => $data['notes'],
         ];
 
         return $data;
@@ -62,6 +64,8 @@ class ReminderRegistrationImport implements ToCollection, WithHeadingRow, WithVa
             '*.event_id' => ['required'],
             '*.full_name' => ['required'],
             '*.email' => ['required'],
+            '*.index_child' => ['nullable'],
+            '*.notes' => ['required'],
         ];
     }
 

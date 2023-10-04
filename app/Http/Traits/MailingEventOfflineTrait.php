@@ -213,6 +213,8 @@ trait MailingEventOfflineTrait
             $keyLog = [
                 'client_id' => $client['id'],
                 'event_id' => $data['event_id'],
+                'index_child' => $indexChild,
+                'notes' => $notes,
                 'sent_status' => $sent_mail,
                 'category' => 'invitation-mail'
             ];
@@ -227,7 +229,7 @@ trait MailingEventOfflineTrait
 
     }
 
-    public function sendMailReminder($email, $event_id, $for, $type)
+    public function sendMailReminder($email, $event_id, $for, $type, $indexChild, $notes)
     {
         
         try {
@@ -237,14 +239,15 @@ trait MailingEventOfflineTrait
 
             $data = [
                 'email' => $email,
+                'notes' => $notes,
                 'recipient' => $client->full_name,
-                'title' => $type == 'registration' ? 'Enjoy special privileges as our VIP guest at STEM+ Wonderlab!' : '🔔 Reminder to our VIP guests of STEM+ Wonderlab',
+                'title' => $type == 'registration' ? 'Enjoy special privileges as our '. $notes .' guest at STEM+ Wonderlab!' : '🔔 Reminder to our '. $notes .' guests of STEM+ Wonderlab',
                 'param' => [
                     'referral_page' => route('program.event.referral-page',[
                         'event_slug' => str_replace(' ', '-', $event->event_title),
                         'refcode' => $this->createReferralCode($client->first_name, $client->id)
                     ]),                  
-                    'link' => url('program/event/reg-exp/' . $client['id'] . '/' . $event_id)
+                    'link' => url('program/event/reg-exp/' . $client['id'] . '/' . $event_id .'/'. $notes .'/'. $indexChild)
                 ],
                 'event' => [
                     'eventName' => $event->event_title,
@@ -277,6 +280,8 @@ trait MailingEventOfflineTrait
                 'client_id' => $client['id'],
                 'event_id' => $event_id,
                 'sent_status' => $sent_mail,
+                'index_child' => $indexChild,
+                'notes' => $notes,
                 'category' => 'reminder-'.$type
             ];
             

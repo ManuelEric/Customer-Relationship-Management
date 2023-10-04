@@ -852,7 +852,11 @@ class ClientEventController extends Controller
 
     public function sendMailQrCode($clientEventId, $eventName, $client, $update = false)
     {
-        $subject = 'Welcome to the '.$eventName.'!';
+        $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
+
+        $clientEvent->event_id == 'EVT-0008' ? $eventName = "STEM+ Wonderlab" : null;
+
+        $subject = 'Welcome to the '. $eventName . '!';
         // $mail_resources = 'mail-template.event-registration-success';
         $mail_resources = 'mail-template.thanks-email-reg';
 
@@ -863,7 +867,6 @@ class ClientEventController extends Controller
                         'clientevent' => $clientEventId
                     ]);
 
-        $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
 
         $event = [
             'eventDate_start' => date('l, M d Y', strtotime($clientEvent->event->event_startdate)),

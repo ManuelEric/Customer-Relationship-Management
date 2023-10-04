@@ -22,7 +22,7 @@
                                     mso-padding-alt:0;
                                     text-underline-color:#156ab3">
                                     <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%;mso-text-raise:20pt">&nbsp;</i><![endif]-->
-                                    <span style="mso-text-raise:10pt;font-weight:bold;">Claim your VIP pass</span>
+                                    <span style="mso-text-raise:10pt;font-weight:bold;">Claim your {{ $notes }} pass</span>
                                     <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%">&nbsp;</i><![endif]-->
                                 </a>
                             </p>
@@ -36,11 +36,11 @@
                             </p>
 
                             <p>
-                                Here's what you'll enjoy as a registered VIP guest participant:
+                                Here's what you'll enjoy as a registered {{ $notes }} guest participant:
                             </p>
                             <ul>
                                 <li>
-                                    Priority access via the dedicated VIP lane and fast-track entry for your child to explore event booths.
+                                    Priority access via the dedicated {{ $notes }} lane and fast-track entry for your child to explore event booths.
                                 </li>
                                 <li>
                                     Delight in exclusive merchandise courtesy of ALL-in, adding to your special experience.
@@ -52,7 +52,7 @@
                             </ul>
 
                             <p>
-                                Don't miss out on these benefits that are reserved for our VIP guests only! Take a moment now
+                                Don't miss out on these benefits that are reserved for our {{ $notes }} guests only! Take a moment now
                                 to complete your registration and secure your place!
                             </p>
 
@@ -66,7 +66,7 @@
                                     mso-padding-alt:0;
                                     text-underline-color:#156ab3">
                                     <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%;mso-text-raise:20pt">&nbsp;</i><![endif]-->
-                                    <span style="mso-text-raise:10pt;font-weight:bold;">Claim your VIP pass</span>
+                                    <span style="mso-text-raise:10pt;font-weight:bold;">Claim your {{ $notes }} pass</span>
                                     <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%">&nbsp;</i><![endif]-->
                                 </a>
                             </p>
