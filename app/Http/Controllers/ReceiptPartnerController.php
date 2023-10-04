@@ -210,9 +210,9 @@ class ReceiptPartnerController extends Controller
         $choosen_director = $request->get('selectedDirectorMail');
         $name = $this->getDirectorByEmail($choosen_director);
 
-        $file_name = str_replace('/', '-', $receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf';
-
         $receiptPartner = $this->receiptRepository->getReceiptById($receipt_id);
+
+        $file_name = str_replace('/', '-', $receiptPartner->receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf';
 
         $invb2b_id = isset($receiptPartner->invdtl_id) ? $receiptPartner->invoiceInstallment->invb2b_id : $receiptPartner->invb2b_id;
         $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();        
@@ -302,7 +302,7 @@ class ReceiptPartnerController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Upload receipt failed : ' . $e->getMessage());
+            Log::error('Upload receipt partner failed : ' . $e->getMessage());
             return Redirect::to('receipt/corporate-program/' . $receipt_identifier)->withError('Failed to upload receipt');
         }
 
@@ -319,20 +319,12 @@ class ReceiptPartnerController extends Controller
         $to = $info->recipient;
         $name = $this->getDirectorByEmail($to);
 
-
         # check whether invoiceb2b is installment or not        
         $is_installment = is_null($receipt->invoiceB2b) ? true : false; 
 
         $receipt_id = $receipt->receipt_id;
 
         $receiptAtt = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency);
-
-        $companyDetail = [
-            'name' => env('ALLIN_COMPANY'),
-            'address' => env('ALLIN_ADDRESS'),
-            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-            'city' => env('ALLIN_CITY')
-        ];
 
         $data['email'] = $to;
         $data['recipient'] = $name;
@@ -363,7 +355,7 @@ class ReceiptPartnerController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::info('Failed to request sign receipt partner prog : ' . $e->getMessage());
+            Log::info('Failed to request sign receipt partner : ' . $e->getMessage());
             return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
         }
 

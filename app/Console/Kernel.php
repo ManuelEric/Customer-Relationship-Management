@@ -66,6 +66,9 @@ class Kernel extends ConsoleKernel
 
         // $schedule->command('set:graduation_year')->everyMinute();
 
+        #
+        // $schedule->command('automation:ended_client_program')->everyMinute();
+
         $schedule->command('send:reminder_invoiceprogram')->everyFiveMinutes();
         $schedule->command('send:reminder_invoiceschool_program')->everyFiveMinutes();
         $schedule->command('send:reminder_invoicepartner_program')->everyFiveMinutes();

@@ -758,16 +758,10 @@
                     }
                 })
                 .then(response => {
+
+                    var receiptId = "{{ $receipt->receipt_id }}";
                     
-                    if (type == "idr") {
-                        @php
-                            $file_name = str_replace('/', '-', $receipt->receipt_id) . '-' . 'idr' . '.pdf';
-                        @endphp
-                    } else if (type == "other") {
-                        @php
-                            $file_name = str_replace('/', '-', $receipt->receipt_id) . '-' . 'other' . '.pdf';
-                        @endphp
-                    }
+                    var file_name = receiptId.replace(/\/|_/g, '-') + "-" + type + ".pdf";
 
                     let blob = new Blob([response.data], {
                             type: 'application/pdf'
@@ -779,7 +773,7 @@
                     fileLink.href = url;
 
                     // it forces the name of the downloaded file
-                    fileLink.download = '{{ $file_name }}';
+                    fileLink.download = file_name;
 
                     // triggers the click event
                     fileLink.click();
@@ -795,7 +789,6 @@
                 })
                 .catch(error => {
                     notification('error', 'Something went wrong while exporting the receipt')
-                    swal.close()
                 })  
         }
 

@@ -147,6 +147,7 @@
                         $receiptAttachmentOther = $receiptPartner
                             ->receiptAttachment()
                             ->where('currency', 'other')
+                            ->whereNotNull('attachment')
                             ->first();
                         $receiptAttachmentRequestedOther = $receiptPartner
                             ->receiptAttachment()
@@ -184,7 +185,7 @@
                                     @if (!$receiptAttachmentOther)
                                         <div id="print-other" class="btn btn-sm py-1 border btn-light"
                                             data-bs-toggle="tooltip" data-bs-title="Download">
-                                            <a href="#" class="text-info" id="openModalChooseDirector" data-curr="idr" data-bs-toggle="modal" data-bs-target="#chooseDirector">
+                                            <a href="#" class="text-info" id="openModalChooseDirector" data-curr="other" data-bs-toggle="modal" data-bs-target="#chooseDirector">
                                                 <i class="bi bi-download"></i>
                                             </a>
                                         </div>
@@ -652,49 +653,42 @@
             var selectedDirector = $("input[name=pic_sign]:checked").val();
 
             showLoading()
-                axios
-                    .get(url, {
-                            responseType: 'arraybuffer',
-                            params: {
-                                selectedDirectorMail: selectedDirector
-                            }
-                        })
-                    .then(response => {
-
-                        if (type == "idr") {
-                            @php
-                                $file_name = str_replace('/', '-', $receiptPartner->receipt_id) . '-' . 'idr' . '.pdf';
-                            @endphp
-                        } else if (type == "other") {
-                            @php
-                                $file_name = str_replace('/', '-', $receiptPartner->receipt_id) . '-' . 'other' . '.pdf';
-                            @endphp
+            axios
+                .get(url, {
+                        responseType: 'arraybuffer',
+                        params: {
+                            selectedDirectorMail: selectedDirector
                         }
-
-                        let blob = new Blob([response.data], {
-                                type: 'application/pdf'
-                            }),
-                            url = window.URL.createObjectURL(blob)
-                        // create <a> tag dinamically
-                        var fileLink = document.createElement('a');
-                        fileLink.href = url;
-
-                        // it forces the name of the downloaded file
-                        fileLink.download = '{{ $file_name }}';
-
-                        // triggers the click event
-                        fileLink.click();
-
-                        window.open(url)
-                        // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
-                        swal.close()
-                        notification('success', 'Invoice has been exported')
-                        setTimeout(location.reload.bind(location), 3000);
                     })
-                    .catch(error => {
-                        notification('error', 'Something went wrong while exporting the invoice')
-                        swal.close()
-                    })
+                .then(response => {
+
+                    var receiptId = "{{ $receiptPartner->receipt_id }}";
+
+                    var file_name = receiptId.replace(/\/|_/g, '-') + "-" + type + ".pdf";
+
+                    let blob = new Blob([response.data], {
+                            type: 'application/pdf'
+                        }),
+                        url = window.URL.createObjectURL(blob)
+                    // create <a> tag dinamically
+                    var fileLink = document.createElement('a');
+                    fileLink.href = url;
+
+                    // it forces the name of the downloaded file
+                    fileLink.download = file_name;
+
+                    // triggers the click event
+                    fileLink.click();
+
+                    window.open(url)
+                    // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                    swal.close()
+                    notification('success', 'Invoice has been exported')
+                    setTimeout(location.reload.bind(location), 3000);
+                })
+                .catch(error => {
+                    notification('error', 'Something went wrong while exporting the invoice')
+                })
         }
 
         function requestAcc(link, currency) {

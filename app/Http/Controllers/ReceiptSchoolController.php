@@ -199,41 +199,70 @@ class ReceiptSchoolController extends Controller
         $receipt_id = $request->route('receipt');
         $currency = $request->route('currency');
 
-        $file_name = str_replace('/', '-', $receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf';
+        # directors name
+        $choosen_director = $request->get('selectedDirectorMail');
+        $name = $this->getDirectorByEmail($choosen_director);
 
+        
         $receiptSch = $this->receiptRepository->getReceiptById($receipt_id);
         $invb2b_id = isset($receiptSch->invdtl_id) ? $receiptSch->invoiceInstallment->invb2b_id : $receiptSch->invb2b_id;
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
-
-        # when invoice is installment
-        if (isset($receiptSch->invdtl_id))
-            $director = $receiptSch->invoiceInstallment->invoiceAttachment()->first();
-        else
-            $director = $receiptSch->invoiceB2b->invoiceAttachment()->first();
         
-        # directors name
-        $name = $this->getDirectorByEmail($director->recipient);
+        $file_name = str_replace('/', '-', $receiptSch->receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf';
+        
+        DB::beginTransaction();
+        if (!$this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency)) {
 
-        $companyDetail = [
-            'name' => env('ALLIN_COMPANY'),
-            'address' => env('ALLIN_ADDRESS'),
-            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-            'city' => env('ALLIN_CITY')
-        ];
+            try {
+                
+                $attachmentDetails = [
+                    'receipt_id' => $receiptSch->receipt_id,
+                    'currency' => $currency,
+                    'sign_status' => 'not yet',
+                    'recipient' => $choosen_director, # value of choosen director is email
+                    'send_to_client' => 'not sent'
+                ];
+                $this->receiptAttachmentRepository->createReceiptAttachment($attachmentDetails);
+    
+            } catch (Exception $e) {
+                DB::rollBack();
+                Log::error('Error to store receipt school attachment : '.$e->getMessage().' | Line '.$e->getLine());
+                return response()->json(['message' => $e->getMessage()], 500);
+            }
+        }
+        
+        # generate file
+        try {
 
-        $pdf = PDF::loadView('pages.receipt.school-program.export.receipt-pdf', 
-                [
-                    'receiptSch' => $receiptSch, 
-                    'invoiceSch' => $invoiceSch, 
-                    'currency' => $currency, 
-                    'companyDetail' => $companyDetail,
-                    'director' => $name
-                ]);
+            $companyDetail = [
+                'name' => env('ALLIN_COMPANY'),
+                'address' => env('ALLIN_ADDRESS'),
+                'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+                'city' => env('ALLIN_CITY')
+            ];
+    
+            $pdf = PDF::loadView('pages.receipt.school-program.export.receipt-pdf', 
+                    [
+                        'receiptSch' => $receiptSch, 
+                        'invoiceSch' => $invoiceSch, 
+                        'currency' => $currency, 
+                        'companyDetail' => $companyDetail,
+                        'director' => $name
+                    ]);
+    
+    
+    
+            # Update status download
+            $this->receiptRepository->updateReceipt($receipt_id, ['download_' . $currency => 1]);
+            DB::commit();
 
+        } catch (Exception $e) {
 
-
-        # Update status download
-        $this->receiptRepository->updateReceipt($receipt_id, ['download_' . $currency => 1]);
+            DB::rollBack();
+            Log::info('Export receipt school failed: ' . $e->getMessage());
+            return response()->json(['message' => $e->getMessage()], 500);
+            
+        }
 
         return $pdf->download($file_name . ".pdf");
     }
@@ -252,24 +281,21 @@ class ReceiptSchoolController extends Controller
         $file_name = str_replace('/', '-', $receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
         $path = 'uploaded_file/receipt/sch_prog/';
 
-        $receiptAttachments = [
-            'receipt_id' => $receipt_id,
-            'attachment' => 'storage/' . $path . $file_name,
-            'currency' => $currency,
-        ];
-
         DB::beginTransaction();
         try {
 
             if ($attachment->storeAs('public/' . $path, $file_name)) {
-                $this->receiptAttachmentRepository->createReceiptAttachment($receiptAttachments);
+                # update request status on receipt attachment
+                $attachment = $receipt->receiptAttachment()->where('currency', $currency)->first();
+                $attachment->attachment = 'storage/' . $path . $file_name;
+                $attachment->save();
             }
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Upload receipt failed : ' . $e->getMessage());
+            Log::error('Upload receipt school failed : ' . $e->getMessage());
             return Redirect::to('receipt/school-program/' . $receipt_identifier)->withError('Failed to upload receipt');
         }
 
@@ -280,10 +306,11 @@ class ReceiptSchoolController extends Controller
     {
         $receipt_identifier = $request->route('receipt');
         $currency = $request->route('currency');
-        $to = $request->get('to');
-        $name = $request->get('name');
-
+        
         $receipt = $this->receiptRepository->getReceiptById($receipt_identifier);
+        $info = $receipt->receiptAttachment()->where('currency', $currency)->first();
+        $to = $info->recipient;
+        $name = $this->getDirectorByEmail($to);
         
         # check whether invoiceb2b is installment or not        
         $is_installment = is_null($receipt->invoiceB2b) ? true : false; 
@@ -291,13 +318,6 @@ class ReceiptSchoolController extends Controller
         $receipt_id = $receipt->receipt_id;
 
         $receiptAtt = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency);
-
-        $companyDetail = [
-            'name' => env('ALLIN_COMPANY'),
-            'address' => env('ALLIN_ADDRESS'),
-            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-            'city' => env('ALLIN_CITY')
-        ];
 
         $data['email'] = $to;
         $data['recipient'] = $name;
@@ -314,28 +334,21 @@ class ReceiptSchoolController extends Controller
         try {
 
             # Update status request
-            $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAtt->id, ['request_status' => 'requested', 'recipient' => $to]);
+            $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAtt->id, ['request_status' => 'requested']);
 
-            # create attachment
-            $view = 'pages.receipt.school-program.export.receipt-pdf';
-            $pdf = PDF::loadView($view, [
-                    'receiptSch' => $receipt, 
-                    'invoiceSch' => $is_installment === false ? $receipt->invoiceB2b : $receipt->invoiceInstallment->inv_b2b, 
-                    'currency' => $currency, 
-                    'companyDetail' => $companyDetail
-                ]);
+            $file_name = str_replace('/', '-', $receipt->receipt_id);
 
-            Mail::send('pages.receipt.school-program.mail.view', $data, function ($message) use ($data, $pdf, $receipt) {
+            Mail::send('pages.receipt.school-program.mail.view', $data, function ($message) use ($data, $file_name, $currency) {
                 $message->to($data['email'], $data['recipient'])
                     ->subject($data['title'])
-                    ->attachData($pdf->output(), $receipt->receipt_id . '.pdf');
+                    ->attach(storage_path('app/public/uploaded_file/receipt/sch_prog/'.$file_name.'-'.$currency.'.pdf'));
             });
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::info('Failed to request sign receipt : ' . $e->getMessage());
+            Log::info('Failed to request sign receipt school : ' . $e->getMessage());
             return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
         }
 
