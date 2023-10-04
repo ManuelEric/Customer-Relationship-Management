@@ -205,41 +205,71 @@ class ReceiptPartnerController extends Controller
     {
         $receipt_id = $request->route('receipt');
         $currency = $request->route('currency');
-
-        $file_name = str_replace('/', '-', $receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf';
+        
+        # directors name
+        $choosen_director = $request->get('selectedDirectorMail');
+        $name = $this->getDirectorByEmail($choosen_director);
 
         $receiptPartner = $this->receiptRepository->getReceiptById($receipt_id);
 
+        $file_name = str_replace('/', '-', $receiptPartner->receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf';
+
         $invb2b_id = isset($receiptPartner->invdtl_id) ? $receiptPartner->invoiceInstallment->invb2b_id : $receiptPartner->invb2b_id;
-        $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
+        $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();        
+
+        DB::beginTransaction();
         
-        # when invoice is installment
-        if (isset($receiptPartner->invdtl_id))
-            $director = $receiptPartner->invoiceInstallment->invoiceAttachment()->first();
-        else
-            $director = $receiptPartner->invoiceB2b->invoiceAttachment()->first();
-        
-        # directors name
-        $name = $this->getDirectorByEmail($director->recipient);
+        if (!$this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency)) {
 
-        $companyDetail = [
-            'name' => env('ALLIN_COMPANY'),
-            'address' => env('ALLIN_ADDRESS'),
-            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-            'city' => env('ALLIN_CITY')
-        ];
+            try {
+                
+                $attachmentDetails = [
+                    'receipt_id' => $receiptPartner->receipt_id,
+                    'currency' => $currency,
+                    'sign_status' => 'not yet',
+                    'recipient' => $choosen_director, # value of choosen director is email
+                    'send_to_client' => 'not sent'
+                ];
+                $this->receiptAttachmentRepository->createReceiptAttachment($attachmentDetails);
+    
+            } catch (Exception $e) {
+                DB::rollBack();
+                Log::error('Error to store receipt partner attachment : '.$e->getMessage().' | Line '.$e->getLine());
+                return response()->json(['message' => $e->getMessage()], 500);
+            }
+        }
 
-        $pdf = PDF::loadView('pages.receipt.corporate-program.export.receipt-pdf', 
-            [
-                'receiptPartner' => $receiptPartner, 
-                'invoicePartner' => $invoicePartner, 
-                'currency' => $currency, 
-                'companyDetail' => $companyDetail,
-                'director' => $name
-            ]);
+        # generate file
+        try {
 
-        # Update status download
-        $this->receiptRepository->updateReceipt($receipt_id, ['download_' . $currency => 1]);
+            $companyDetail = [
+                'name' => env('ALLIN_COMPANY'),
+                'address' => env('ALLIN_ADDRESS'),
+                'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+                'city' => env('ALLIN_CITY')
+            ];
+    
+            $pdf = PDF::loadView('pages.receipt.corporate-program.export.receipt-pdf', 
+                [
+                    'receiptPartner' => $receiptPartner, 
+                    'invoicePartner' => $invoicePartner, 
+                    'currency' => $currency, 
+                    'companyDetail' => $companyDetail,
+                    'director' => $name
+                ]);
+    
+            # Update status download
+            $this->receiptRepository->updateReceipt($receipt_id, ['download_' . $currency => 1]);
+            DB::commit();
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::info('Export receipt partner failed: ' . $e->getMessage());
+            return response()->json(['message' => $e->getMessage()], 500);
+
+        }
+
 
         return $pdf->download($file_name . ".pdf");
     }
@@ -258,24 +288,21 @@ class ReceiptPartnerController extends Controller
         $file_name = str_replace('/', '-', $receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
         $path = 'uploaded_file/receipt/partner_prog/';
 
-        $receiptAttachments = [
-            'receipt_id' => $receipt_id,
-            'attachment' => 'storage/' . $path . $file_name,
-            'currency' => $currency,
-        ];
-
         DB::beginTransaction();
         try {
 
             if ($attachment->storeAs('public/' . $path, $file_name)) {
-                $this->receiptAttachmentRepository->createReceiptAttachment($receiptAttachments);
+                # update request status on receipt attachment
+                $attachment = $receipt->receiptAttachment()->where('currency', $currency)->first();
+                $attachment->attachment = 'storage/' . $path . $file_name;
+                $attachment->save();
             }
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Upload receipt failed : ' . $e->getMessage());
+            Log::error('Upload receipt partner failed : ' . $e->getMessage());
             return Redirect::to('receipt/corporate-program/' . $receipt_identifier)->withError('Failed to upload receipt');
         }
 
@@ -286,10 +313,11 @@ class ReceiptPartnerController extends Controller
     {
         $receipt_identifier = $request->route('receipt');
         $currency = $request->route('currency');
-        $to = $request->get('to');
-        $name = $request->get('name');
 
         $receipt = $this->receiptRepository->getReceiptById($receipt_identifier);
+        $info = $receipt->receiptAttachment()->where('currency', $currency)->first();
+        $to = $info->recipient;
+        $name = $this->getDirectorByEmail($to);
 
         # check whether invoiceb2b is installment or not        
         $is_installment = is_null($receipt->invoiceB2b) ? true : false; 
@@ -297,13 +325,6 @@ class ReceiptPartnerController extends Controller
         $receipt_id = $receipt->receipt_id;
 
         $receiptAtt = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency);
-
-        $companyDetail = [
-            'name' => env('ALLIN_COMPANY'),
-            'address' => env('ALLIN_ADDRESS'),
-            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-            'city' => env('ALLIN_CITY')
-        ];
 
         $data['email'] = $to;
         $data['recipient'] = $name;
@@ -320,28 +341,21 @@ class ReceiptPartnerController extends Controller
         try {
 
             # Update status request
-            $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAtt->id, ['request_status' => 'requested', 'recipient' => $to]);
+            $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAtt->id, ['request_status' => 'requested']);
             
-            # create attachment 
-            $view = 'pages.receipt.corporate-program.export.receipt-pdf';
-            $pdf = PDF::loadView($view, [
-                    'receiptPartner' => $receipt, 
-                    'invoicePartner' => $is_installment === false ? $receipt->invoiceB2b : $receipt->invoiceInstallment->inv_b2b, 
-                    'currency' => $currency, 
-                    'companyDetail' => $companyDetail
-                ]);
+            $file_name = str_replace('/', '-', $receipt->receipt_id);
 
-            Mail::send('pages.receipt.corporate-program.mail.view', $data, function ($message) use ($data, $pdf, $receipt) {
+            Mail::send('pages.receipt.corporate-program.mail.view', $data, function ($message) use ($data, $file_name, $currency, $receipt) {
                 $message->to($data['email'], $data['recipient'])
                     ->subject($data['title'])
-                    ->attachData($pdf->output(), $receipt->receipt_id . '.pdf');
+                    ->attach(storage_path('app/public/uploaded_file/receipt/partner_prog/'.$file_name.'-'.$currency.'.pdf'));
             });
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::info('Failed to request sign receipt : ' . $e->getMessage());
+            Log::info('Failed to request sign receipt partner : ' . $e->getMessage());
             return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
         }
 
@@ -457,6 +471,9 @@ class ReceiptPartnerController extends Controller
             $program_name = $receipt->invoiceB2b->partner_prog->program->prog_sub . ' - ' . $receipt->invoiceB2b->partner_prog->program->prog_program;
         }
 
+        if (!$receipt->invoiceB2b->partner_prog->user)
+            return response()->json(['message' => 'The partner program doesn\'t have PIC.'], 500);
+
         $data['email'] = $receipt->invoiceB2b->partner_prog->user->email;
         $data['cc'] = [
             env('CEO_CC'),
@@ -488,7 +505,7 @@ class ReceiptPartnerController extends Controller
         } catch (Exception $e) {
 
             Log::info('Failed to send receipt to client : ' . $e->getMessage());
-            return false;
+            return response()->json(['message' => 'Something went wrong when sending to client']);
         }
 
         return true;
@@ -519,15 +536,6 @@ class ReceiptPartnerController extends Controller
         $invb2b_id = isset($receiptPartner->invdtl_id) ? $receiptPartner->invoiceInstallment->invb2b_id : $receiptPartner->invb2b_id;
         $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
 
-         # when invoice is installment
-        if (isset($receiptPartner->invdtl_id))
-            $director = $receiptPartner->invoiceInstallment->invoiceAttachment()->first();
-        else
-            $director = $receiptPartner->invoiceB2b->invoiceAttachment()->first();
-        
-        # directors name
-        $name = $this->getDirectorByEmail($director->recipient);
-
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),
             'address' => env('ALLIN_ADDRESS'),
@@ -540,8 +548,7 @@ class ReceiptPartnerController extends Controller
                     'receiptPartner' => $receiptPartner, 
                     'invoicePartner' => $invoicePartner, 
                     'currency' => $currency, 
-                    'companyDetail' => $companyDetail,
-                    'director' => $name
+                    'companyDetail' => $companyDetail
                 ]);
 
         return $pdf->stream();
