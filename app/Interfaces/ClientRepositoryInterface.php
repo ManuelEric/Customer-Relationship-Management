@@ -57,6 +57,7 @@ interface ClientRepositoryInterface
     public function createInterestUniversities($studentId, array $interestUnivDetails);
     public function createInterestMajor($studentId, array $interestMajorDetails);
     public function updateClient($clientId, array $newDetails);
+    public function updateClients(array $clientIds, array $newDetails);
     public function updateActiveStatus($clientId, $newStatus);
     public function checkAllProgramStatus($clientId);
     public function checkExistingByPhoneNumber($phone);

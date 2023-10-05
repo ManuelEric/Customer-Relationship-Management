@@ -56,99 +56,100 @@
             </table>
         </div>
     </div>
-
-    {{-- Need Changing --}}
-    <script>
-        var widthView = $(window).width();
-        $(document).ready(function() {
-            var table = $('#programTable').DataTable({
-                dom: 'Bfrtip',
-                lengthMenu: [
-                    [10, 25, 50, 100, -1],
-                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-                ],
-                buttons: [
-                    'pageLength', {
-                        extend: 'excel',
-                        text: 'Export to Excel',
-                    }
-                ],
-                order: [[6, 'desc']],
-                scrollX: true,
-                fixedColumns: {
-                    left: (widthView < 768) ? 1 : 2,
-                    right: 1
-                },
-                processing: true,
-                serverSide: true,
-                ajax: '',
-                columns: [{
-                        data: 'id',
-                        className: 'text-center',
-                        render: function(data, type, row, meta) {
-                            return meta.row + meta.settings._iDisplayStart + 1;
-                        }
-                    },
-                    {
-                        data: 'client_fullname',
-                    },
-                    {
-                        data: 'program_name',
-                        name: 'program.program_name'
-                    },
-                    {
-                        data: 'receipt_id',
-                        className: 'text-center',
-                    },
-                    {
-                        data: 'inv_id',
-                        className: 'text-center',
-                    },
-                    {
-                        data: 'receipt_method',
-                        className: 'text-center',
-                    },
-                    {
-                        data: 'created_at',
-                        className: 'text-center',
-                        render: function(data, type, row) {
-                            let receipt_date = row.created_at ? moment(row
-                                .created_at).format("MMMM Do YYYY") : '-'
-                            return receipt_date
-                        }
-                    },
-                    {
-                        data: 'receipt_amount_idr',
-                        className: 'text-center',
-                    },
-                    {
-                        data: 'id',
-                        className: 'text-center',
-                        render: function(data, type, row) {
-
-                            return '<a href="{{ url('receipt/client-program/') }}/' + data +
-                                '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
-                        }
-                    }
-                ]
-            })
-
-            @php
-                $privilage = $menus['Receipt']->where('submenu_name', 'Client Program')->first();
-            @endphp
-
-            @if ($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false");
-
-                $('body').bind('cut copy paste', function(event) {
-                    event.preventDefault();
-                });
-            @endif
-
-            @if ($privilage['export'] == 0)
-                table.button(1).disable();
-            @endif
-
-        });
-    </script>
 @endsection
+
+@push('scripts')
+{{-- Need Changing --}}
+<script>
+    var widthView = $(window).width();
+    $(document).ready(function() {
+        var table = $('#programTable').DataTable({
+            dom: 'Bfrtip',
+            lengthMenu: [
+                [10, 25, 50, 100, -1],
+                ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
+            ],
+            buttons: [
+                'pageLength', {
+                    extend: 'excel',
+                    text: 'Export to Excel',
+                }
+            ],
+            order: [[6, 'desc']],
+            scrollX: true,
+            fixedColumns: {
+                left: (widthView < 768) ? 1 : 2,
+                right: 1
+            },
+            processing: true,
+            serverSide: true,
+            ajax: '',
+            columns: [{
+                    data: 'id',
+                    className: 'text-center',
+                    render: function(data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                {
+                    data: 'client_fullname',
+                },
+                {
+                    data: 'program_name',
+                    name: 'program.program_name'
+                },
+                {
+                    data: 'receipt_id',
+                    className: 'text-center',
+                },
+                {
+                    data: 'inv_id',
+                    className: 'text-center',
+                },
+                {
+                    data: 'receipt_method',
+                    className: 'text-center',
+                },
+                {
+                    data: 'created_at',
+                    className: 'text-center',
+                    render: function(data, type, row) {
+                        let receipt_date = row.created_at ? moment(row.created_at).format("MMMM Do YYYY") : '-'
+                        return receipt_date
+                    }
+                },
+                {
+                    data: 'receipt_amount_idr',
+                    className: 'text-center',
+                },
+                {
+                    data: 'id',
+                    className: 'text-center',
+                    render: function(data, type, row) {
+
+                        return '<a href="{{ url('receipt/client-program/') }}/' + data +
+                            '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
+                    }
+                }
+            ]
+        })
+
+        @php
+            $privilage = $menus['Receipt']->where('submenu_name', 'Client Program')->first();
+        @endphp
+
+        @if ($privilage['copy'] == 0)
+            document.oncontextmenu = new Function("return false");
+
+            $('body').bind('cut copy paste', function(event) {
+                event.preventDefault();
+            });
+        @endif
+
+        @if ($privilage['export'] == 0)
+            table.button(1).disable();
+        @endif
+
+    });
+</script>
+@endpush
