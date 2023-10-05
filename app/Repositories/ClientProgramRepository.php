@@ -168,6 +168,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         return ClientProgram::whereClientProgramId($clientProgramId);
     }
 
+    public function getClientProgramByClientId($clientId)
+    {
+        return ClientProgram::where('client_id', $clientId)->get();
+    }
+
     public function getClientProgramByDetail(array $detail)
     {
         return ClientProgram::
@@ -502,6 +507,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     public function endedClientProgram(int $clientprog_id, array $newDetails)
     {
         return ClientProgram::whereClientProgramId($clientprog_id)->update($newDetails);
+    }
+
+    public function endedClientPrograms(array $clientprog_ids, array $newDetails)
+    {
+        return ClientProgram::whereIn('clientprog_id', $clientprog_ids)->update($newDetails);
     }
 
     public function deleteClientProgram($clientProgramId)

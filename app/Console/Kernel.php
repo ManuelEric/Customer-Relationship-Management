@@ -67,9 +67,6 @@ class Kernel extends ConsoleKernel
 
         // $schedule->command('set:graduation_year')->everyMinute();
 
-        #
-        // $schedule->command('automation:ended_client_program')->everyMinute();
-
         $schedule->command('send:reminder_invoiceprogram')->everyFiveMinutes();
         $schedule->command('send:reminder_invoiceschool_program')->everyFiveMinutes();
         $schedule->command('send:reminder_invoicepartner_program')->everyFiveMinutes();
@@ -102,6 +99,13 @@ class Kernel extends ConsoleKernel
         # cron for form event
         $schedule->command('automate:resend_qrcode_mail')->everyMinute();
         $schedule->command('automate:resend_thanks_mail_program')->everyMinute();
+        
+        # cron for client
+        // $schedule->command('automate:ended_client_program')->everyMinute();
+        // $schedule->command('set:inactive_client_new_leads')->everyMinute();
+        // $schedule->command('set:inactive_client_potential')->everyMinute();
+        // $schedule->command('ended:client_program_existing_mentee')->everyMinute();
+        // $schedule->command('ended:client_program_existing_non_mentee')->everyMinute();
     }
 
     /**

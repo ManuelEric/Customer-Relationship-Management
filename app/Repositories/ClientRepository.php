@@ -787,6 +787,11 @@ class ClientRepository implements ClientRepositoryInterface
         return UserClient::whereId($clientId)->update($newDetails);
     }
 
+    public function updateClients(array $clientIds, array $newDetails)
+    {
+        return UserClient::whereIn('id', $clientIds)->update($newDetails);
+    }
+
     public function getParentsByStudentId($studentId)
     {
         $student = UserClient::find($studentId);

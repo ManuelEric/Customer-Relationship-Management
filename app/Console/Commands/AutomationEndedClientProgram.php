@@ -23,14 +23,14 @@ class AutomationEndedClientProgram extends Command
      *
      * @var string
      */
-    protected $signature = 'automation:ended_client_program';
+    protected $signature = 'automate:ended_client_program';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Automatically ended the client program after passing the program end date';
+    protected $description = 'Automatically ended the running client program after passing the program end date';
 
     /**
      * Execute the console command.

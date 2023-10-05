@@ -525,7 +525,7 @@ class ClientEventController extends Controller
                 'leads' => $leads,
                 'schools' => $schools,
                 'event' => $event,
-                'tags' => $tags->where('name', '!=', 'Other'),
+                'tags' => $tags,
             ]
         );
     }
