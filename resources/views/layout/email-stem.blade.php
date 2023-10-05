@@ -90,7 +90,9 @@
             <tr>
               <td style="padding:0px 30px;background-color:#ffffff;">
                 
+                <h1 style="margin-top:10px;margin-bottom:1.38em;font-size:1.21em;line-height:1.3;font-weight:bold;letter-spacing:-0.02em; text-align:center">
                     @yield('header')
+                </h1>
 
                 @yield('content')
               </td>
