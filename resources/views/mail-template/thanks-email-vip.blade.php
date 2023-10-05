@@ -1,10 +1,16 @@
-@extends('layout.email')
-@section('header', 'Thanks for Joining')
+@extends('layout.email-stem')
+@section('banner')
+    <img src="{{asset('img/makerspace/header_thank_email.jpg')}}" alt="STEM+ Wonderlab" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
+@endsection
 @section('content')
+
+<h1 style="margin-top:20px;margin-bottom:1.38em;font-size:1.21em;line-height:1.3;font-weight:bold;letter-spacing:-0.02em; text-align:center">
+    Thanks for Joining
+</h1>
     <table role="presentation" class="main">
 
         <!-- START MAIN CONTENT AREA -->
-        <tr>
+        <tr></tr>
             <td class="wrapper">
                 <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                     <tr>
@@ -82,3 +88,7 @@
         <!-- END MAIN CONTENT AREA -->
     </table>
 @endsection
+@section('footer')
+    <img src="{{asset('img/makerspace/email_footer.jpg')}}" alt="STEM+ Wonderlab" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
+@endsection
+

@@ -25,6 +25,23 @@ trait MailingEventOfflineTrait
             'already_join' => false,
         ];
         
+        switch ($notes) {
+            case 'VIP':
+            case 'WxSFs0LGh': # Mean VIP
+                $notes = 'VIP';
+                break;
+
+            case 'VVIP':
+            case 'BtSF0x1hK': # Mean VVIP
+                $notes = 'VVIP';
+                break;
+            
+            default:
+                abort(404);
+                break;
+        }
+        
+
         DB::beginTransaction();
 
         try {
@@ -81,6 +98,21 @@ trait MailingEventOfflineTrait
 
     public function sendMailReferral($clientEvent, $notes, $for)
     {
+        $noteEncrypt = '';
+        switch ($notes) {
+            case 'VIP':
+            case 'WxSFs0LGh': # Mean VIP
+                $notes = 'VIP';
+                $noteEncrypt = 'WxSFs0LGh';
+                break;
+
+            case 'VVIP':
+            case 'BtSF0x1hK': # Mean VVIP
+                $notes = 'VVIP';
+                $noteEncrypt = 'BtSF0x1hK';
+                break;
+        }
+
         $client = $clientEvent->client;
         $event = $clientEvent->event;
         $referralCode = $this->createReferralCode($client->first_name, $client->id);
@@ -101,7 +133,8 @@ trait MailingEventOfflineTrait
         ]);
         $data['referral_page'] = route('program.event.referral-page', [
             'event_slug' => str_replace(' ', '-', $event->event_title),
-            'refcode' => $referralCode
+            'refcode' => $referralCode,
+            'notes' => $noteEncrypt
         ]);
 
         $data['event'] = [
@@ -167,6 +200,21 @@ trait MailingEventOfflineTrait
 
         try {
 
+            $noteEncrypt = '';
+            switch ($notes) {
+                case 'VIP':
+                case 'WxSFs0LGh': # Mean VIP
+                    $notes = 'VIP';
+                    $noteEncrypt = 'WxSFs0LGh';
+                    break;
+    
+                case 'VVIP':
+                case 'BtSF0x1hK': # Mean VVIP
+                    $notes = 'VVIP';
+                    $noteEncrypt = 'BtSF0x1hK';
+                    break;
+            }
+
             $client = UserClient::where('mail', $email)->first();
             $event = Event::where('event_id', $event_id)->first();
 
@@ -177,9 +225,10 @@ trait MailingEventOfflineTrait
             $data['param'] = [
                 'referral_page' => route('program.event.referral-page',[
                     'event_slug' => str_replace(' ', '-', $event->event_title),
-                    'refcode' => $this->createReferralCode($client->first_name, $client->id)
+                    'refcode' => $this->createReferralCode($client->first_name, $client->id),
+                    'notes' => $noteEncrypt
                 ]),                  
-                'link' => url('program/event/reg-exp/' . $client['id'] . '/' . $event_id .'/'. $notes .'/'. $indexChild),
+                'link' => url('program/event/reg-exp/' . $client['id'] . '/' . $event_id .'/'. $noteEncrypt .'/'. $indexChild),
             ];
             $data['event'] = [
                 'eventName' => $event->event_title,
@@ -233,6 +282,22 @@ trait MailingEventOfflineTrait
     {
         
         try {
+
+            $noteEncrypt = '';
+            switch ($notes) {
+                case 'VIP':
+                case 'WxSFs0LGh': # Mean VIP
+                    $notes = 'VIP';
+                    $noteEncrypt = 'WxSFs0LGh';
+                    break;
+    
+                case 'VVIP':
+                case 'BtSF0x1hK': # Mean VVIP
+                    $notes = 'VVIP';
+                    $noteEncrypt = 'BtSF0x1hK';
+                    break;
+            }
+
             $client = UserClient::where('mail', $email)->first();
     
             $event = Event::where('event_id', $event_id)->first();
@@ -245,9 +310,10 @@ trait MailingEventOfflineTrait
                 'param' => [
                     'referral_page' => route('program.event.referral-page',[
                         'event_slug' => str_replace(' ', '-', $event->event_title),
-                        'refcode' => $this->createReferralCode($client->first_name, $client->id)
+                        'refcode' => $this->createReferralCode($client->first_name, $client->id),
+                        'notes' => $noteEncrypt
                     ]),                  
-                    'link' => url('program/event/reg-exp/' . $client['id'] . '/' . $event_id .'/'. $notes .'/'. $indexChild)
+                    'link' => url('program/event/reg-exp/' . $client['id'] . '/' . $event_id .'/'. $noteEncrypt .'/'. $indexChild)
                 ],
                 'event' => [
                     'eventName' => $event->event_title,

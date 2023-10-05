@@ -36,6 +36,7 @@ use App\Interfaces\TagRepositoryInterface;
 use App\Models\Client;
 use App\Models\School;
 use App\Models\UserClientAdditionalInfo;
+use App\Models\ViewClientRefCode;
 use AshAllenDesign\ShortURL\Models\ShortURL;
 use Carbon\Carbon;
 use Exception;
@@ -1280,6 +1281,19 @@ class ClientEventController extends Controller
     {
         $refcode = $request->route('refcode');
         $event_slug = $request->route('event_slug');
+        $noteEncrypt = $request->route('notes');
+        switch ($noteEncrypt) {
+            case 'VIP':
+            case 'WxSFs0LGh': # Mean VIP
+                $notes = 'VIP';
+                break;
+
+            case 'VVIP':
+            case 'BtSF0x1hK': # Mean VVIP
+                $notes = 'VVIP';
+                break;
+        }
+        $event_slug = $request->route('event_slug');
 
         $shortUrl = ShortURL::where('url_key', $refcode)->first();
         
@@ -1292,7 +1306,8 @@ class ClientEventController extends Controller
 
         return view('stem-wonderlab.referral-link.index')->with([
             'link' => $link.$query,
-            'event' => $event
+            'event' => $event,
+            'notes' => $notes
         ]);
     }
 
