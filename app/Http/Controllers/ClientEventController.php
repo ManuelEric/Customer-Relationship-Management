@@ -691,8 +691,11 @@ class ClientEventController extends Controller
 
         # prevent data be stored if
         # choosen role is student and parent name is null or -
-        if ($choosen_role == "student" && ($request->fullname[1] == "-" || $request->fullname[1] === NULL) ) 
-            $relation = 1; $parentNameIsNull = true;
+        if ($choosen_role == "student" && ($request->fullname[1] == "-" || $request->fullname[1] === NULL) ) {
+
+            $relation = 1; 
+            $parentNameIsNull = true;
+        }
 
         while ($loop < $relation) {
 
