@@ -274,7 +274,7 @@
                                     {{-- Branch Address <br> --}}
                                 </td>
                                 <td width="78%">
-                                    : PT. Jawara Edukasih International PTI Ltd <br>
+                                    : PT. Jawara Edukasih Indonesia <br>
                                     : BCA <br>
                                     : 2483016611 <br>
                                     : KCP Pasar Kebayoran Lama Jakarta Selatan

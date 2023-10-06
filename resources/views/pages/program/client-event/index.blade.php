@@ -208,6 +208,9 @@
                     {
                         data: 'register_as',
                         name: 'client.register_as',
+                        render: function(data, type, row, meta) {
+                            return data.charAt(0).toUpperCase() + data.slice(1);
+                        }
                     },
                     {
                         data: 'client_mail',
