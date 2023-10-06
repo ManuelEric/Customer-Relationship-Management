@@ -24,7 +24,7 @@
                             <p style="text-align: center;">
                                 <b>STEM+ Wonderlab</b>
                                 <br>📍{{ strip_tags($event['eventLocation']) }}
-                                <br>🗓{{ $event['eventDate_start'] }} | {{ $event['eventTime_start'] }} WIB
+                                <br>📅{{ $event['eventDate_start'] }} | {{ $event['eventTime_start'] }} WIB
                                 <br>
                                 Show this QR at the registration table at the event
                             </p>
