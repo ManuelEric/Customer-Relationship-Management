@@ -1113,6 +1113,26 @@ class ClientEventController extends Controller
         # initiate variables in order to
         # update student information details
         $isParent = $isStudent = $isTeacher = false;
+
+        $schoolId = $request->school; # can be id when they pick existing school / string when they write a new one
+
+        # when sch_id is "add-new"
+        if (!$this->schoolRepository->getSchoolById($schoolId) && $schoolId !== NULL) {
+
+            $last_id = School::max('sch_id');
+            $school_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 4) : '0000';
+            $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
+
+            $school = [
+                'sch_id' => $school_id_with_label,
+                'sch_name' => $request->school,
+            ];
+
+            # create a new school
+            $school = $this->schoolRepository->createSchool($school);
+            $schoolId = $school->sch_id;
+        }
+
         switch ($client->register_as) { # this is a choosen role
 
             case "parent":
@@ -1134,7 +1154,7 @@ class ClientEventController extends Controller
                     'last_name' => $splitChildName['last_name'],
                     'mail' => $request->email[1],
                     'phone' => $request->fullnumber[1],
-                    'sch_id' => $request->school,
+                    'sch_id' => $schoolId,
                     'graduation_year' => $request->graduation_year
                 ];
 
@@ -1155,7 +1175,7 @@ class ClientEventController extends Controller
                     'last_name' => $splitChildName['last_name'],
                     'mail' => $request->email[0],
                     'phone' => $request->fullnumber[0],
-                    'sch_id' => $request->school,
+                    'sch_id' => $schoolId,
                     'graduation_year' => $request->graduation_year
                 ];
 
