@@ -467,9 +467,17 @@ class ClientEventController extends Controller
 
         $file = $request->file('file');
 
-        $import = new ClientEventImport;
-        $import->import($file);
+        try {
 
+            $import = new ClientEventImport($this->clientRepository);
+            $import->import($file);
+
+        } catch (Exception $e) {
+
+            return back()->withError('Something went wrong. Please try again or contact the administrator.');
+
+        }
+        
         return back()->withSuccess('Client event successfully imported');
     }
 
