@@ -573,6 +573,11 @@ class ClientEventController extends Controller
         // Check existing client by phone number and email
         $choosen_role = $request->role;
 
+        # prevent data be stored if
+        # choosen role is student and parent name is null or -
+        if ($choosen_role == "student" && ($request->fullname[1] == "-" || $request->fullname[1] === NULL) ) 
+            $parentNameIsNull = true;
+
         DB::beginTransaction();
         try {
 
@@ -614,7 +619,7 @@ class ClientEventController extends Controller
             if ($choosen_role == "parent")
                 $clientEventDetails['child_id'] = $createdClient['childId'];
 
-            if ($choosen_role == "student")
+            if ($choosen_role == "student" && !$parentNameIsNull)
                 $clientEventDetails['parent_id'] = $createdClient['parentId'];
 
             # if registration_type is exist
@@ -673,6 +678,12 @@ class ClientEventController extends Controller
 
         $relation = count(array_filter($request->fullname)); # this is the parameter that has maximum length of the requested client (ex: for parent and student the value would be 2 but teacher the value would be 1
         $loop = 0;
+        $parentNameIsNull = false;
+
+        # prevent data be stored if
+        # choosen role is student and parent name is null or -
+        if ($choosen_role == "student" && ($request->fullname[1] == "-" || $request->fullname[1] === NULL) ) 
+            $relation = 1; $parentNameIsNull = true;
 
         while ($loop < $relation) {
 
@@ -777,7 +788,10 @@ class ClientEventController extends Controller
         }
         else if ($choosen_role == 'student')
         {
-            $parentId = $clientArrayIds[1];
+            # to prevent empty parent name being stored into database
+            if (!$parentNameIsNull)
+                $parentId = $clientArrayIds[1];
+
             $childId = $newClientDetails[0]['id'] = $clientArrayIds[0];
         }
         else
@@ -800,11 +814,11 @@ class ClientEventController extends Controller
         if ($choosen_role == "parent")
             $response['childId'] = $childId;
 
-        if ($choosen_role == "student")
+        if ($choosen_role == "student" && !$parentNameIsNull)
             $response['parentId'] = $parentId;
 
         # attaching parent and student
-        if ($choosen_role == 'parent' || $choosen_role == 'student') {
+        if (($choosen_role == 'parent' || $choosen_role == 'student') && !$parentNameIsNull) {
 
             $this->clientRepository->createManyClientRelation($parentId, $childId);
 
