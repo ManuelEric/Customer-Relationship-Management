@@ -57,10 +57,6 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
         $this->clientRepository = $clientRepository;
     }
 
-    public function onError(Throwable $error)
-    {
-        echo 'a';
-    }
 
     public function collection(Collection $rows)
     {
@@ -141,7 +137,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
                     # add to log client event 
                     # to trigger the cron for send the qr email
                     ClientEventLogMail::create([
-                        'clientevent_id' => $insertedClientEvent,
+                        'clientevent_id' => $insertedClientEvent->clientevent_id,
                         'event_id' => $row['event_name'],
                         'sent_status' => 0,
                         'category' => 'qrcode-mail'
@@ -153,6 +149,8 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
 
             DB::rollBack();
             Log::error('Import client event failed : ' . $e->getMessage().' | Line '.$e->getLine());
+
+            throw new Exception($e->getMessage(), 500);
 
         }
 
