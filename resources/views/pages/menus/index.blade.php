@@ -186,8 +186,7 @@
                 'param' : param,
             }).then(function (response) {
 
-                console.log(response);return;
-                // resetCheckboxes('menus')
+                resetCheckboxes('menus')
                 let obj = response.data
                 getActiveMenu(obj.data);
                 swal.close();
