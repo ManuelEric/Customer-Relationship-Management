@@ -176,7 +176,6 @@
                 var link = '{{ url("/") }}/menus/manage/user/access';
             }
 
-
             axios.post(link, {
                 'department_id': department,
                 'menu_id': menus.val(), // menu id value from checkbox
@@ -187,7 +186,8 @@
                 'param' : param,
             }).then(function (response) {
 
-                resetCheckboxes('menus')
+                console.log(response);return;
+                // resetCheckboxes('menus')
                 let obj = response.data
                 getActiveMenu(obj.data);
                 swal.close();

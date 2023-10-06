@@ -79,12 +79,12 @@ class MenuRepository implements MenuRepositoryInterface
 
         # check if the menu has on user
 
-        if ($user->access_menus()->where('menu_id', $menu_id)->first() && $copy === true || $export === true)
+        if ($user->access_menus()->where('menu_id', $menu_id)->first() && ($copy === true || $export === true))
             $user->access_menus()->updateExistingPivot($menu_id, ['copy' => $copy, 'export' => $export]);
-        else if ($param == 'copy' || $param == 'export')
-            $user->access_menus()->attach($menu_id, ['copy' => $copy, 'export' => $export]);
+        // else if ($param == 'copy' || $param == 'export')
+        //     $user->access_menus()->attach($menu_id, ['copy' => $copy, 'export' => $export]);
         else
-            $user->access_menus()->syncWithoutDetaching($menu_id);
+            $user->access_menus()->syncWithoutDetaching([['menu_id' => $menu_id, 'copy' => $copy, 'export' => $export]]);
 
         return $user->access_menus;
     }
