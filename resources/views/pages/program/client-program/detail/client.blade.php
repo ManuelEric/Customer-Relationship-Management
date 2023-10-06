@@ -105,6 +105,17 @@
                                 {{ $student->leadSource }}
                             </div>
                         </div>
+                        <div class="row mb-2 g-1">
+                            <div class="col d-flex justify-content-between">
+                                <label>
+                                    Register As
+                                </label>
+                                <label>:</label>
+                            </div>
+                            <div class="col-md-8 col-8">
+                                {{ $student->register_as }}
+                            </div>
+                        </div>
                     </div>
                 </div>
 

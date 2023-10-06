@@ -18,6 +18,7 @@ return new class extends Migration
         CREATE OR REPLACE VIEW clientprogram AS
         SELECT cp.*, 
             c.st_grade,
+            c.register_as,
             UpdateGradeStudent (
                 year(CURDATE()),
                 year(c.created_at),

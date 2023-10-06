@@ -128,6 +128,7 @@
                         <th>School</th>
                         <th>Grade</th>
                         <th>Program Name</th>
+                        <th>Register As</th>
                         <th>Parent Name</th>
                         <th>Parent Phone</th>
                         <th>Mentor/Tutor Name</th>
@@ -276,6 +277,9 @@
                         }
                     },
                     {
+                        data: 'register_as',
+                    },
+                    {
                         data: 'parent_fullname',
                     },
                     {
@@ -389,7 +393,13 @@
                         className: 'text-center',
                         defaultContent: '<button type="button"class="btn btn-sm btn-outline-warning showClientProgram"><i class="bi bi-eye"></i></button>'
                     }
-                ]
+                ],
+                createdRow: function(row, data, index) {
+                    let currentDate = new Date().toJSON().slice(0, 10);
+                    if (data['created_at'].slice(0, 10) == currentDate) {
+                        $('td', row).addClass('table-success');
+                    }
+                }
             })
 
             realtimeData(table)
