@@ -467,8 +467,23 @@ class ClientEventController extends Controller
 
         $file = $request->file('file');
 
-        $import = new ClientEventImport;
+        $import = new ClientEventImport($this->clientRepository);
         $import->import($file);
+        dd($import->failures());
+
+        if ($import->failures()->isNotEmpty()) {
+            $failures = $import->failures();
+
+            foreach ($failures as $failure) {
+                $failure->row(); // row that went wrong
+                $failure->attribute(); // either heading key (if using heading row concern) or column index
+                $failure->errors(); // Actual error messages from Laravel validator
+                $failure->values(); // The values of the row that has failed.
+                
+                Log::error('Failed to import client event : '.$failure->values());
+            }
+            return back()->withError('Something went wrong. Please try again or contact the administrator.');
+        }
 
         return back()->withSuccess('Client event successfully imported');
     }

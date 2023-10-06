@@ -24,6 +24,9 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\SplitNameTrait;
+use App\Interfaces\ClientRepositoryInterface;
+use App\Models\ClientEventLogMail;
 use App\Models\Major;
 use App\Models\Tag;
 use App\Models\UserClientAdditionalInfo;
@@ -32,118 +35,55 @@ use Maatwebsite\Excel\Concerns\SkipsFailures;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Validators\Failure;
+use Throwable;
 
-class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
+class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation, SkipsOnError, SkipsOnFailure
 
 {
     /**
      * @param Collection $collection
      */
 
-    use Importable;
+    use Importable, SkipsErrors, SkipsFailures;
     use StandardizePhoneNumberTrait;
     use CreateCustomPrimaryKeyTrait;
     use CheckExistingClient;
+    use SplitNameTrait;
+
+    private ClientRepositoryInterface $clientRepository;
+
+    public function __construct(ClientRepositoryInterface $clientRepository)
+    {
+        $this->clientRepository = $clientRepository;
+    }
+
+    public function onError(Throwable $error)
+    {
+        echo 'a';
+    }
 
     public function collection(Collection $rows)
     {
+
         $data = [];
 
         DB::beginTransaction();
         try {
 
-
             foreach ($rows as $row) {
 
-                $existClient = ['isExist' => false];
-
-                $phone = $this->setPhoneNumber($row['phone_number']);
-
-                // Check existing client 
-                $existClient = $this->checkExistingClient($phone, $row['email']);
-
-                // Check existing school
-                $school = School::where('sch_name', $row['school'])->get()->pluck('sch_id')->first();
-
+                # initiate variables
                 $status = $row['status'] == 'Join' ? 0 : 1;
 
-                if (!isset($school)) {
-                    $newSchool = $this->createSchoolIfNotExists($row['school']);
-                }
+                // Check existing school
+                if (!$school = School::where('sch_name', $row['school'])->pluck('sch_id')->first())
+                    $school = $this->createSchoolIfNotExists($row['school']);
 
-                $majorDetails = [];
-                $destinationCountryDetails = [];
-
-                //  Set major
-                if (isset($row['itended_major'])) {
-                    $majors = explode(', ', $row['itended_major']);
-                    foreach ($majors as $major) {
-                        $majorFromDB = Major::where('name', $major)->first();
-                        if (isset($majorFromDB)) {
-                            $majorDetails[] = [
-                                'major_id' => $majorFromDB->id,
-                                'created_at' => Carbon::now(),
-                                'updated_at' => Carbon::now()
-                            ];
-                        } else {
-                            $newMajor = Major::create(['name' => $major]);
-                            $majorDetails[] = [
-                                'major_id' => $newMajor->id,
-                                'created_at' => Carbon::now(),
-                                'updated_at' => Carbon::now()
-                            ];
-                        }
-                    }
-                }
+                // Set major
+                $majorDetails = $this->splitMajorIntoArray($row['itended_major']);
 
                 // Set destination country
-                if (isset($row['destination_country'])) {
-                    $countries = explode(', ', $row['destination_country']);
-                    foreach ($countries as $country) {
-                        switch ($country) {
-
-                            case preg_match('/australia/i', $country) == 1:
-                                $regionName = "Australia";
-                                break;
-
-                            case preg_match(
-                                "/United State|State|US/i",
-                                $country
-                            ) == 1:
-                                $regionName = "US";
-                                break;
-
-                            case preg_match('/United Kingdom|Kingdom|UK/i', $country) == 1:
-                                $regionName = "UK";
-                                break;
-
-                            case preg_match('/canada/i', $country) == 1:
-                                $regionName = "Canada";
-                                break;
-
-                            default:
-                                $regionName = "Other";
-                        }
-
-                        $tagFromDB = Tag::where('name', $regionName)->first();
-                        if (isset($tagFromDB)) {
-                            $destinationCountryDetails[] = [
-                                'tag_id' => $tagFromDB->id,
-                                'country_name' => $regionName == 'Other' ? $country : null,
-                                'created_at' => Carbon::now(),
-                                'updated_at' => Carbon::now()
-                            ];
-                        } else {
-                            // $newCountry = Tag::create(['name' => $regionName]);
-                            $destinationCountryDetails[] = [
-                                'tag_id' => 7,
-                                'country_name' => $country,
-                                'created_at' => Carbon::now(),
-                                'updated_at' => Carbon::now()
-                            ];
-                        }
-                    }
-                }
+                $destinationCountryDetails = $this->splitDestinationCountriesIntoArray($row['destination_country']);
 
                 switch ($row['audience']) {
                     case 'Student':
@@ -154,8 +94,8 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                         break;
                 }
  
-                $createdMainClient = $this->createClient($row, 'main', $row['audience'], $majorDetails, $destinationCountryDetails, $school, $newSchool);
-                $createdSubClient = $row['audience'] == 'Student' || $row['audience'] == 'Parent' ? $this->createClient($row, 'sub', $roleSub, $majorDetails, $destinationCountryDetails, $school, $newSchool) : null;
+                $createdMainClient = $this->createClient($row, 'main', $row['audience'], $majorDetails, $destinationCountryDetails, $school);
+                $createdSubClient = $row['audience'] == 'Student' || $row['audience'] == 'Parent' ? $this->createClient($row, 'sub', $roleSub, $majorDetails, $destinationCountryDetails, $school) : null;
 
                 // Create relation parent and student
                 if(($row['audience'] == 'Parent' || $row['audience'] == 'Student') && isset($createdSubClient)){
@@ -172,56 +112,6 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                     }
                 }
 
-                //  insert new client
-                // if (!$existClient['isExist']) {
-                //     $roleId = Role::whereRaw('LOWER(role_name) = (?)', [strtolower($row['audience'])])->first();
-
-                //     $fullname = explode(' ', $row['name']);
-                //     $limit = count($fullname);
-
-                //     $firstname = $lastname = null;
-                //     if ($limit > 1) {
-                //         $lastname = $fullname[$limit - 1];
-                //         unset($fullname[$limit - 1]);
-                //         $firstname = implode(" ", $fullname);
-                //     } else {
-                //         $firstname = implode(" ", $fullname);
-                //     }
-
-                //     $studentId = null;
-
-                //     if ($row['class_of'] != null || $row['class_of'] != '') {
-                //         $st_grade = 12 - ($row['class_of'] - date('Y'));
-                //     }
-
-                //     $dataClient = [
-                //         'sch_id' => isset($school) ? $school : $newSchool->sch_id,
-                //         'st_id' => isset($studentId) ? $studentId : null,
-                //         'last_name' => $lastname,
-                //         'first_name' => $firstname,
-                //         'mail' => isset($row['email']) && $row['email'] != '' ? $row['email'] : null,
-                //         'phone' => $phone,
-                //         'graduation_year' => $row['class_of'] != null || $row['class_of'] != '' ? $row['class_of'] : null,
-                //         'st_grade' => $row['class_of'] != null || $row['class_of'] != '' ? $st_grade : null,
-                //     ];
-
-                //     if (!$newClient = UserClient::create($dataClient)) {
-                //         throw new Exception('Failed to store new client');
-                //         Log::error('Failed to store new client');
-                //     } else {
-                //         $thisNewClient = UserClient::find($newClient->id);
-
-                //         $thisNewClient->roles()->attach($roleId);
-                //         isset($majorDetails) ? $thisNewClient->interestMajor()->sync($majorDetails) : '';
-                //         isset($destinationCountryDetails) ? $thisNewClient->destinationCountries()->sync($destinationCountryDetails) : null;
-                //     }
-                // } else {
-                //     // Exist client
-                //     $existClientStudent = UserClient::find($existClient['id']);
-                //     isset($majorDetails) ? $existClientStudent->interestMajor()->sync($majorDetails) : '';
-                //     isset($destinationCountryDetails) ? $existClientStudent->destinationCountries()->sync($destinationCountryDetails) : null;
-                // }
-
                 // Insert client event
                 $data = [
                     'event_id' => $row['event_name'],
@@ -234,60 +124,63 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                     'referral_code' => isset($row['referral_code']) ? $row['referral_code'] : null,
                 ];
 
+                # add additional identification
+                if ($row['audience'] == "Parent")
+                    $data['child_id'] = $createdSubClient;
+                elseif ($row['audience'] == "Student")
+                    $data['parent_id'] = $createdMainClient;
+
                 $existClientEvent = ClientEvent::where('event_id', $data['event_id'])
                     ->where('client_id', $data['client_id'])
                     ->where('joined_date', $data['joined_date'])
                     ->first();
 
-
                 if (!isset($existClientEvent)) {
-                    ClientEvent::create($data);
+                    $insertedClientEvent = ClientEvent::create($data);
+
+                    # add to log client event 
+                    # to trigger the cron for send the qr email
+                    ClientEventLogMail::create([
+                        'clientevent_id' => $insertedClientEvent,
+                        'event_id' => $row['event_name'],
+                        'sent_status' => 0,
+                        'category' => 'qrcode-mail'
+                    ]);
                 }
             }
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Import client event failed : ' . $e->getMessage());
+            Log::error('Import client event failed : ' . $e->getMessage().' | Line '.$e->getLine());
+
         }
+
     }
 
     public function prepareForValidation($data)
     {
 
-        DB::beginTransaction();
-        try {
-
-
-            $event_name = Event::where('event_title', $data['event_name'])->get()->pluck('event_id')->first();
-            if ($data['lead'] == 'School' || $data['lead'] == 'Counselor') {
-                $data['lead'] = 'School/Counselor';
-            }
-
-            if ($data['lead'] == 'KOL') {
-                $lead = 'KOL';
-            } else {
-                $lead = Lead::where('main_lead', $data['lead'])->get()->pluck('lead_id')->first();
-            }
-
-            // $event = Event::where('event_title', $data['event'])->get()->pluck('event_id')->first();
-            $getAllEduf = EdufLead::all();
-            $edufair = $getAllEduf->where('organizerName', $data['edufair'])->pluck('id')->first();
-            $partner = Corporate::where('corp_name', $data['partner'])->get()->pluck('corp_id')->first();
-            $kol = Lead::where('main_lead', 'KOL')->where('sub_lead', $data['kol'])->get()->pluck('lead_id')->first();
-
-            DB::commit();
-        } catch (Exception $e) {
-
-            DB::rollBack();
-            Log::error('Import client event failed : ' . $e->getMessage());
+        $event_name = Event::where('event_title', $data['event_name'])->get()->pluck('event_id')->first();
+        if ($data['lead'] == 'School' || $data['lead'] == 'Counselor') {
+            $data['lead'] = 'School/Counselor';
         }
 
+        if ($data['lead'] == 'KOL') {
+            $lead = 'KOL';
+        } else {
+            $lead = Lead::where('main_lead', $data['lead'])->get()->pluck('lead_id')->first();
+        }
+
+        // $event = Event::where('event_title', $data['event'])->get()->pluck('event_id')->first();
+        $getAllEduf = EdufLead::all();
+        $edufair = $getAllEduf->where('organizerName', $data['edufair'])->pluck('id')->first();
+        $partner = Corporate::where('corp_name', $data['partner'])->get()->pluck('corp_id')->first();
+        $kol = Lead::where('main_lead', 'KOL')->where('sub_lead', $data['kol'])->get()->pluck('lead_id')->first();
 
         $data = [
             'event_name' => isset($event_name) ? $event_name : $data['event_name'],
-            'date' => isset($data['date']) ? Date::excelToDateTimeObject($data['date'])
-                ->format('Y-m-d') : null,
+            'date' => isset($data['date']) ? Date::excelToDateTimeObject($data['date'])->format('Y-m-d') : null,
             'audience' => $data['audience'],
             'name' => $data['name'],
             'email' => $data['email'],
@@ -297,6 +190,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
             'child_parent_phone_number' => $data['child_parent_phone_number'],
             // 'existing_new_leads' => $data['existing_new_leads'],
             // 'mentee_non_mentee' => $data['mentee_non_mentee'],
+            'registration_type' => $data['registration_type'],
             'school' => $data['school'],
             'class_of' => $data['class_of'],
             'lead' => isset($lead) ? $lead : $data['lead'],
@@ -365,147 +259,216 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
 
         $newSchool = School::create(['sch_id' => $school_id_with_label, 'sch_name' => $sch_name]);
 
-        return $newSchool;
+        return $newSchool->sch_id;
     }
 
-    private function createClient($row, $type, $role, $majorDetails, $destinationCountryDetails, $school, $newSchool)
+    ## 
+    private function createClient($row, $type, $role, $majorDetails, $destinationCountryDetails, $school)
     {
+        $clientId = '';
 
-        DB::beginTransaction();
-        try {
-            $clientId = '';
+        switch ($type) {
+            case 'main':
+                $phone = $this->setPhoneNumber($row['phone_number']);
+                $existClient = $this->checkExistingClient($phone, $row['email']);
+                $email = $row['email'];
+                $fullname = $row['name'];
+                break;
 
-            switch ($type) {
-                case 'main':
-                    $phone = $this->setPhoneNumber($row['phone_number']);
-                    $existClient = $this->checkExistingClient($phone, $row['email']);
-                    $fullname = explode(' ', $row['name']);
-                    break;
+            case 'sub':
+                $phone = isset($row['child_parent_phone_number']) ? $this->setPhoneNumber($row['phone_number']) : null;
+                $email = isset($row['child_parent_email']) ? $row['child_parent_email'] : null;
+                $existClient = $this->checkExistingClient($phone, $email);
+                $fullname = $row['child_parent_name'];
+                break;
+        }
 
-                case 'sub':
-                    $phone = isset($row['child_parent_phone_number']) ? $this->setPhoneNumber($row['phone_number']) : null;
-                    $email = isset($row['child_parent_email']) ? $row['child_parent_email'] : null;
-                    $existClient = $this->checkExistingClient($phone, $email);
-                    $fullname = explode(' ', $row['child_parent_name']);
-                    break;
-            }
+        $firstname = $this->split($fullname)['first_name'];
+        $lastname = $this->split($fullname)['last_name'];
 
-            $limit = count($fullname);
+        $roleId = Role::whereRaw('LOWER(role_name) = (?)', [strtolower($role)])->first();
 
-            $firstname = $lastname = null;
-            if ($limit > 1) {
-                $lastname = $fullname[$limit - 1];
-                unset($fullname[$limit - 1]);
-                $firstname = implode(" ", $fullname);
-            } else {
-                $firstname = implode(" ", $fullname);
-            }
-
-            $roleId = Role::whereRaw('LOWER(role_name) = (?)', [strtolower($role)])->first();
-
-            switch ($role) {
-                case 'Student':
-                    if (!$existClient['isExist']) {
-                        
-                        $studentId = null;
-            
-                        if ($row['class_of'] != null || $row['class_of'] != '') {
-                            $st_grade = 12 - ($row['class_of'] - date('Y'));
-                        }
-            
-                        $dataClient = [
-                            'sch_id' => isset($school) ? $school : $newSchool->sch_id,
-                            'st_id' => isset($studentId) ? $studentId : null,
-                            'last_name' => $lastname,
-                            'first_name' => $firstname,
-                            'mail' => isset($row['email']) && $row['email'] != '' ? $row['email'] : null,
-                            'phone' => $phone,
-                            'graduation_year' => $row['class_of'] != null || $row['class_of'] != '' ? $row['class_of'] : null,
-                            'st_grade' => $row['class_of'] != null || $row['class_of'] != '' ? $st_grade : null,
-                            'register_as' => $row['audience']
-                        ];
-            
-                        if (!$newClient = UserClient::create($dataClient)) {
-                            throw new Exception('Failed to store new client');
-                            Log::error('Failed to store new client');
-                        } else {
-                            $clientId = $newClient->id;
-                            $thisNewClient = UserClient::find($newClient->id);
-            
-                            $thisNewClient->roles()->attach($roleId);
-                            isset($majorDetails) ? $thisNewClient->interestMajor()->sync($majorDetails) : '';
-                            isset($destinationCountryDetails) ? $thisNewClient->destinationCountries()->sync($destinationCountryDetails) : null;
-                        }
+        switch ($role) {
+            case 'Student':
+                if (!$existClient['isExist']) {
+                    
+                    $studentId = null;
+        
+                    if ($row['class_of'] != null || $row['class_of'] != '') {
+                        $st_grade = 12 - ($row['class_of'] - date('Y'));
+                    }
+        
+                    $dataClient = [
+                        'sch_id' => $school,
+                        'st_id' => isset($studentId) ? $studentId : null,
+                        'last_name' => $lastname,
+                        'first_name' => $firstname,
+                        'mail' => $email,
+                        'phone' => $phone,
+                        'graduation_year' => $row['class_of'] != null || $row['class_of'] != '' ? $row['class_of'] : null,
+                        'st_grade' => $row['class_of'] != null || $row['class_of'] != '' ? $st_grade : null,
+                        'register_as' => $row['audience']
+                    ];
+        
+                    if (!$newClient = UserClient::create($dataClient)) {
+                        throw new Exception('Failed to store new client');
+                        Log::error('Failed to store new client');
                     } else {
-                        // Exist client
-                        $clientId = $existClient['id'];
-                        $existClientStudent = UserClient::find($existClient['id']);
-                        isset($majorDetails) ? $existClientStudent->interestMajor()->sync($majorDetails) : '';
-                        isset($destinationCountryDetails) ? $existClientStudent->destinationCountries()->sync($destinationCountryDetails) : null;
+                        $clientId = $newClient->id;
+                        $thisNewClient = UserClient::find($newClient->id);
+        
+                        $thisNewClient->roles()->attach($roleId);
+                        isset($majorDetails) ? $thisNewClient->interestMajor()->sync($majorDetails) : '';
+                        isset($destinationCountryDetails) ? $thisNewClient->destinationCountries()->sync($destinationCountryDetails) : null;
                     }
-                    
-                    break;
-
-                case 'Parent':
-                    if (!$existClient['isExist']) {
-                    
-                        $dataClient = [
-                            'last_name' => $lastname,
-                            'first_name' => $firstname,
-                            'mail' => $email,
-                            'phone' => $phone,
-                            'register_as' => $row['audience']
-                        ];
-            
-                        if (!$newClient = UserClient::create($dataClient)) {
-                            throw new Exception('Failed to store new client');
-                            Log::error('Failed to store new client');
-                        } else {
-                            $clientId = $newClient->id;
-                            $thisNewClient = UserClient::find($newClient->id);
-            
-                            $thisNewClient->roles()->attach($roleId);
-                        }
-                    }else{
-                        $clientId = $existClient['id'];
-                    }
-                    break;
-
-                case 'Teacher':
-                    if (!$existClient['isExist']) {
-                    
-                        $dataClient = [
-                            'sch_id' => isset($school) ? $school : $newSchool->sch_id,
-                            'last_name' => $lastname,
-                            'first_name' => $firstname,
-                            'mail' => $email,
-                            'phone' => $phone,
-                            'register_as' => $row['audience']
-                        ];
-            
-                        if (!$newClient = UserClient::create($dataClient)) {
-                            throw new Exception('Failed to store new client');
-                            Log::error('Failed to store new client');
-                        } else {
-                            $clientId = $newClient->id;
-                            $thisNewClient = UserClient::find($newClient->id);
-            
-                            $thisNewClient->roles()->attach($roleId);
-                        }
-                    }else{
-                        $clientId = $existClient['id'];
-                    }
-                    break;
+                } else {
+                    // Exist client
+                    $clientId = $existClient['id'];
+                    $existClientStudent = UserClient::find($existClient['id']);
+                    isset($majorDetails) ? $existClientStudent->interestMajor()->sync($majorDetails) : '';
+                    isset($destinationCountryDetails) ? $existClientStudent->destinationCountries()->sync($destinationCountryDetails) : null;
+                }
                 
-            }
-            DB::commit();
-        } catch (Exception $e) {
+                break;
 
-            DB::rollBack();
-            Log::error('Import client event failed : ' . $e->getMessage());
+            case 'Parent':
+
+                if (!$existClient['isExist']) {
+                
+                    $dataClient = [
+                        'last_name' => $lastname,
+                        'first_name' => $firstname,
+                        'mail' => $email,
+                        'phone' => $phone,
+                        'register_as' => $row['audience']
+                    ];
+        
+                    if (!$newClient = UserClient::create($dataClient)) {
+                        throw new Exception('Failed to store new client');
+                        Log::error('Failed to store new client');
+                    } else {
+                        $clientId = $newClient->id;
+                        $thisNewClient = UserClient::find($newClient->id);
+        
+                        $thisNewClient->roles()->attach($roleId);
+                    }
+                }else{
+                    $clientId = $existClient['id'];
+                }
+                break;
+
+            case 'Teacher':
+                if (!$existClient['isExist']) {
+                
+                    $dataClient = [
+                        'sch_id' => $school,
+                        'last_name' => $lastname,
+                        'first_name' => $firstname,
+                        'mail' => $email,
+                        'phone' => $phone,
+                        'register_as' => $row['audience']
+                    ];
+        
+                    if (!$newClient = UserClient::create($dataClient)) {
+                        throw new Exception('Failed to store new client');
+                        Log::error('Failed to store new client');
+                    } else {
+                        $clientId = $newClient->id;
+                        $thisNewClient = UserClient::find($newClient->id);
+        
+                        $thisNewClient->roles()->attach($roleId);
+                    }
+                }else{
+                    $clientId = $existClient['id'];
+                }
+                break;
+            
         }
 
         return $clientId;
        
+    }
+
+    private function splitMajorIntoArray($majors)
+    {
+        if (!isset($majors) || is_null($majors))
+            return [];
+        
+        $major_arr = explode(', ', $majors);
+        foreach ($major_arr as $major) {
+            $majorFromDB = Major::where('name', $major)->first();
+            if (isset($majorFromDB)) {
+                $majorDetails[] = [
+                    'major_id' => $majorFromDB->id,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ];
+            } else {
+                $newMajor = Major::create(['name' => $major]);
+                $majorDetails[] = [
+                    'major_id' => $newMajor->id,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ];
+            }
+        }
+
+        return $majorDetails;
+        
+    }
+
+    private function splitDestinationCountriesIntoArray($countries) 
+    {
+        if (!isset($countries) || is_null($countries)) 
+            return [];
+
+        $countries = explode(', ', $countries);
+        foreach ($countries as $country) {
+            switch ($country) {
+
+                case preg_match('/australia/i', $country) == 1:
+                    $regionName = "Australia";
+                    break;
+
+                case preg_match(
+                    "/United State|State|US/i",
+                    $country
+                ) == 1:
+                    $regionName = "US";
+                    break;
+
+                case preg_match('/United Kingdom|Kingdom|UK/i', $country) == 1:
+                    $regionName = "UK";
+                    break;
+
+                case preg_match('/canada/i', $country) == 1:
+                    $regionName = "Canada";
+                    break;
+
+                default:
+                    $regionName = "Other";
+            }
+
+            $tagFromDB = Tag::where('name', $regionName)->first();
+            if (isset($tagFromDB)) {
+                $destinationCountryDetails[] = [
+                    'tag_id' => $tagFromDB->id,
+                    'country_name' => $regionName == 'Other' ? $country : null,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ];
+            } else {
+                // $newCountry = Tag::create(['name' => $regionName]);
+                $destinationCountryDetails[] = [
+                    'tag_id' => 7,
+                    'country_name' => $country,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ];
+            }
+        }
+
+        return $destinationCountryDetails;
+        
     }
 }
