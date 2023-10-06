@@ -36,6 +36,10 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     'client.phone as client_phone',
                     'client.abr_country as abr_country',
                     DB::raw('(CASE
+                        WHEN tbl_client_event.registration_type = "PR" THEN "Pre-Registration"
+                        WHEN tbl_client_event.registration_type = "OTS" THEN "On The Spot"
+                    END) AS registration_type'),
+                    DB::raw('(CASE
                         WHEN tbl_roles.role_name = "Parent" THEN child.full_name 
                         WHEN tbl_roles.role_name != "Parent" THEN "-"
                     END) AS child_name'),
@@ -233,8 +237,14 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     WHEN tbl_roles.role_name != "Parent" THEN "-"
                 END) AS child_name'),
                 // DB::raw('CONCAT(parent.first_name," ", COALESCE(parent.last_name, "")) as parent_name'),
+                'tbl_events.event_title as event_name',
+                'client.register_as',
                 'client.mail',
                 'client.phone',
+                DB::raw('(CASE
+                        WHEN tbl_roles.role_name = "Parent" THEN child.participated
+                        WHEN tbl_roles.role_name != "Parent" THEN client.participated
+                    END) AS participated'),
                 DB::raw('(CASE
                     WHEN tbl_roles.role_name = "Parent" THEN child.school_name
                     WHEN tbl_roles.role_name != "Parent" THEN client.school_name
@@ -247,6 +257,10 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     WHEN tbl_roles.role_name = "Parent" THEN child.grade_now
                     WHEN tbl_roles.role_name != "Parent" THEN client.grade_now 
                 END) AS grade_now'),
+                DB::raw('(CASE
+                        WHEN tbl_client_event.registration_type = "PR" THEN "Pre-Registration"
+                        WHEN tbl_client_event.registration_type = "OTS" THEN "On The Spot"
+                    END) AS registration_type'),
                 // 'child.grade_now',
                 // 'client.graduation_year_real',
                 'client.lead_source',
@@ -254,6 +268,10 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 'tbl_client_event.joined_date',
                 'tbl_events.event_title',
                 'tbl_events.event_id',
+                'tbl_client_event.notes',
+                'tbl_client_event.status',
+                'tbl_client_event.created_at',
+                'tbl_client_event.number_of_attend as number_of_party',
                 DB::raw('(CASE
                     WHEN tbl_lead.main_lead = "KOL" THEN CONCAT(tbl_lead.sub_lead)
                     WHEN tbl_lead.main_lead = "External Edufair" THEN (CASE WHEN tbl_eduf_lead.title != null THEN CONCAT(tbl_eduf_lead.title) ELSE (CASE WHEN tbl_eduf_lead.sch_id IS NULL THEN ceduf.corp_name ELSE seduf.sch_name END)END)

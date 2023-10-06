@@ -77,12 +77,13 @@
                         <th>Notes</th>
                         <th>Number of Party</th>
                         <th>Attendance</th>
+                        <th>Registration</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="17"></td>
+                        <td colspan="18"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -298,6 +299,10 @@
 
                             }
                         }
+                    },
+                    {
+                        data: 'registration_type',
+                        className: 'text-center',
                     },
                     // {
                     //     data: 'parent_phone',

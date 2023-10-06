@@ -287,23 +287,30 @@
                             <tr>
                                 <th class="bg-info text-white">Event ID</th>
                                 <th class="bg-info text-white">Client Name</th>
+                                <th>Event Name</th>
+                                <th>Audience</th>
                                 {{-- <th>Parent Mail</th>
                                     <th>Parent Phone</th> --}}
                                 <th>Email</th>
                                 <th>Phone Number</th>
                                 <th>Child Name</th>
+                                <th>Have you ever participated in ALL-in Event/program before</th>
                                 <th>School Name</th>
                                 <th>Grade</th>
                                 <th>Graduation Year</th>
                                 <th>Country of Study Abroad</th>
                                 <th>Lead Source</th>
+                                <th>Notes</th>
+                                <th>Number of Party</th>
+                                <th>Attendance</th>
+                                <th>Registration</th>
                                 <th class="bg-info text-white">Joined At</th>
                             </tr>
                         </thead>
 
                         <tfoot class="bg-light text-white">
                             <tr>
-                                <td colspan="8"></td>
+                                <td colspan="18"></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -357,7 +364,8 @@
                 processing: true,
                 serverSide: true,
                 ajax: '',
-                columns: [{
+                columns: [
+                    {
                         data: 'event_id',
                         defaultContent: '-',
                     },
@@ -365,6 +373,17 @@
                         data: 'client_name',
                         name: 'client.full_name',
                         defaultContent: '-',
+                    },
+                    {
+                        data: 'event_name',
+                        name: 'tbl_events.event_title'
+                    },
+                    {
+                        data: 'register_as',
+                        name: 'client.register_as',
+                        render: function(data, type, row, meta) {
+                            return data.charAt(0).toUpperCase() + data.slice(1);
+                        }
                     },
                     // {
                     //     data: 'parent_name',
@@ -384,6 +403,11 @@
                         data: 'child_name',
                         name: 'child_name',
                         defaultContent: '-',
+                    },
+                    {
+                        data: 'participated',
+                        searchable: true
+                        //    defaultContent: '-'
                     },
                     {
                         data: 'school_name',
@@ -409,6 +433,28 @@
                         data: 'conversion_lead',
                         // name: 'client.lead_source',
                         defaultContent: '-',
+                    },
+                    {
+                        className: 'text-center',
+                        data: 'notes',
+                        searchable: true,
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'number_of_party',
+                        className: 'text-center',
+                        searchable: false,
+                    },
+                    {
+                        data: 'status',
+                        className: 'text-center',
+                        render: function (data, type, row, meta) {
+                            return data == 1 ? "Attended" : "Join"
+                        }
+                    },
+                    {
+                        data: 'registration_type',
+                        className: 'text-center',
                     },
                     {
                         data: 'joined_date',
