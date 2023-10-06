@@ -474,7 +474,7 @@ class ClientEventController extends Controller
 
         } catch (Exception $e) {
 
-            return back()->withError('Something went wrong. Please try again or contact the administrator.');
+            return back()->withError('Something went wrong while processing the data. Please try again or contact the administrator.');
 
         }
         
