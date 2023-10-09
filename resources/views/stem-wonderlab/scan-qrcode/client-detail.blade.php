@@ -168,7 +168,7 @@
                                             placeholder="">
                                             <option value=""></option>
                                             @foreach ($tags as $tag)
-                                                <option value="{{ $tag->id }}" @selected(in_array($tag->id, $secondary_client['abr_country']))>{{ $tag->name }}</option>
+                                                <option value="{{ $tag->id }}" @selected(isset($secondary_client['abr_country']) && in_array($tag->id, $secondary_client['abr_country']))>{{ $tag->name }}</option>
                                             @endforeach
                                         </select>
                                         @error('destination_country.*')
