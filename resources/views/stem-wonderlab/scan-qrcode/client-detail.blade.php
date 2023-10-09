@@ -208,9 +208,15 @@
                                                 </div>
                                             @endif
                                         @else
-                                            <div class="badge rounded-pill px-3" style="background:#0C0F38">
-                                                <h2 class="notes p-0 m-0" style="color:#ffff; font-size: 22px;">Regular</h2>
-                                            </div>
+                                            @if(isset($client_event->referral_code))
+                                                <div class="badge rounded-pill px-3" style="background:#FF7701">
+                                                    <h2 class="notes p-0 m-0" style="color:#0C0F38 ">VIP</h2>
+                                                </div>
+                                            @else
+                                                <div class="badge rounded-pill px-3" style="background:#0C0F38">
+                                                    <h2 class="notes p-0 m-0" style="color:#ffff; font-size: 22px;">Regular</h2>
+                                                </div>
+                                            @endif
                                         @endif
                                     </div>
                                     <div class="col-3">

@@ -617,7 +617,7 @@ class ClientEventController extends Controller
                 'event_id' => $event->event_id,
                 'lead_id' => isset($referral_code) ? "LS005" : $request->leadsource, # if using referral code then lead source will be "referral" which is "LS005"
                 'number_of_attend' => $number_of_attend,
-                'notes' => isset($referral_code) ? 'VIP' : $notes,
+                'notes' => $notes,
                 'referral_code' => $referral_code,
                 'status' => $attend_status,
                 'joined_date' => Carbon::now(),
