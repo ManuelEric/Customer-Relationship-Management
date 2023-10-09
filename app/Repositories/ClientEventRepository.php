@@ -25,6 +25,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 // ->leftJoin('tbl_client_relation', 'tbl_client_relation.parent_id', '=', 'client.id')
                 ->leftJoin('client as child', 'child.id', '=', 'tbl_client_event.child_id')
                 // ->leftJoin('client as parent', 'parent.id', '=', 'tbl_client_event.parent_id')
+                ->leftJoin('client_ref_code_view', 'client_ref_code_view.id', '=', DB::raw('SUBSTR(tbl_client_event.referral_code, 4)'))
                 ->select(
                     'tbl_client_event.clientevent_id',
                     // 'tbl_client_event.event_id',
@@ -76,6 +77,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                         WHEN tbl_lead.main_lead = "Referral" THEN CONCAT("Ref: ", (SELECT CONCAT(first_name, " ", last_name) FROM client_ref_code_view WHERE ref_code = tbl_client_event.referral_code))
                         ELSE tbl_lead.main_lead
                     END) AS conversion_lead'),
+                    'client_ref_code_view.full_name as referral_from'
                 )->
                 when(!empty($filter['event_name']), function ($searchQuery) use ($filter) {
                     $searchQuery->where('event_title', $filter['event_name']);
@@ -229,6 +231,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             ->leftJoin('tbl_sch as seduf', 'seduf.sch_id', '=', 'tbl_eduf_lead.sch_id')
             // ->leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'client.id')
             ->leftJoin('client as child', 'child.id', '=', 'tbl_client_event.child_id')
+            ->leftJoin('client_ref_code_view', 'client_ref_code_view.id', '=', DB::raw('SUBSTR(tbl_client_event.referral_code, 4)'))
 
             ->select(
                 'client.full_name as client_name',
@@ -279,6 +282,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     WHEN tbl_lead.main_lead = "Referral" THEN CONCAT("Ref: ", (SELECT CONCAT(first_name, " ", last_name) FROM client_ref_code_view WHERE ref_code = tbl_client_event.referral_code))
                     ELSE tbl_lead.main_lead
                 END) AS conversion_lead'),
+                'client_ref_code_view.full_name as referral_from',
                 DB::raw(isset($eventId) ? "'ByEvent' as filter" : "'ByMonth' as filter"),
             );
 
