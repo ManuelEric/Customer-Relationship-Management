@@ -305,6 +305,7 @@
                                 <th class='bg-secondary rounded border border-white'>Client's Name</th>
                                 <th class='bg-secondary rounded border border-white'>Client's Mail</th>
                                 <th class='bg-secondary rounded border border-white'>Client's Phone</th>
+                                <th class='bg-secondary rounded border border-white'>Graduation Year</th>
                                 <th class='bg-secondary rounded border border-white'>Register Date</th>
                             </tr>
                         </thead>
