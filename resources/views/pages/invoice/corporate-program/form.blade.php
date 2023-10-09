@@ -104,7 +104,7 @@
                                 </div>
                                 @else
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                        data-bs-title="Print Invoice">
+                                        data-bs-title="Print Invoicesdf">
                                         <a href="{{ route('invoice-corp.export', ['invoice' => $invoicePartner->invb2b_num, 'currency' => 'idr']) }}"
                                             target="blank" class="text-info">
                                             <i class="bi bi-printer"></i>

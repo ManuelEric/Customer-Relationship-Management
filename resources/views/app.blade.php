@@ -327,11 +327,11 @@
 
         // for redirect to login page after session expired
 
-        // $(document).ready(function() {
-        //     $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
-        //         window.location.href = "{{ route('logout.expiration') }}"
-        //     };
-        // })
+        $(document).ready(function() {
+            $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
+                window.location.href = "{{ route('logout.expiration') }}"
+            };
+        })
         
     </script>
 
@@ -361,7 +361,7 @@
             var warningMessage = 'You want to request his/her signature for this document?';
 
         //     // change form action 
-        //     $("#formActionRequestSign h6").html(warningMessage);
+            $("#formActionRequestSign h6").html(warningMessage);
 
             var link = subject;
             $('#send-request--app-2908').unbind('click');

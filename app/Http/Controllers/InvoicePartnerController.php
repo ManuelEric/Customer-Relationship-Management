@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Storage;
 use PDF;
 
 
-class InvoicePartnerController extends Controller
+class InvoicePartnerController extends InvoiceB2BBaseControler
 {
     use CreateInvoiceIdTrait;
     protected CorporateRepositoryInterface $corporateRepository;
@@ -412,21 +412,6 @@ class InvoicePartnerController extends Controller
         }
 
         return Redirect::to('invoice/corporate-program/status/list')->withSuccess('Invoice successfully deleted');
-    }
-
-    public function export(Request $request)
-    {
-        $invNum = $request->route('invoice');
-        $currency = $request->route('currency');
-
-        $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
-        $invoice_id = $invoicePartner->invb2b_id;
-
-        $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
-
-        return view('pages.invoice.view-pdf')->with([
-            'invoiceAttachment' => $invoiceAttachment,
-        ]);
     }
 
     public function requestSign(Request $request)

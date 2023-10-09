@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Traits\CurrencyTrait;
 use App\Interfaces\GeneralMailLogRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use Exception;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 
 class SendReminderInvoiceProgramToPartner extends Command
 {
+    use CurrencyTrait;
     private InvoiceB2bRepositoryInterface $invoiceB2bRepository;
     private GeneralMailLogRepositoryInterface $generalMailLogRepository;
 
@@ -79,7 +81,7 @@ class SendReminderInvoiceProgramToPartner extends Command
                     'program_name' => $program_name,
                     'due_date' => date('d/m/Y', strtotime($data->invb2b_duedate)),
                     'partner_name' => $partner_name,
-                    'total_payment' => "Rp. " . number_format($data->invb2b_totpriceidr),
+                    'total_payment' => $this->formatCurrency($data->currency, $data->invb2b_totpriceidr, $data->invb2b_totprice ?? 0),
                     'pic_email' => $pic_email,
                 ];
 
