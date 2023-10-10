@@ -13,6 +13,7 @@ use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\AxisRepositoryInterface;
 use App\Http\Traits\CreateInvoiceIdTrait;
+use App\Http\Traits\DirectorListTrait;
 use App\Models\Invb2b;
 use Barryvdh\DomPDF\PDF as DomPDFPDF;
 use Carbon\Carbon;
@@ -38,8 +39,17 @@ class InvoicePartnerController extends InvoiceB2BBaseControler
     protected InvoiceDetailRepositoryInterface $invoiceDetailRepository;
     protected ReceiptRepositoryInterface $receiptRepository;
     protected AxisRepositoryInterface $axisRepository;
+    public $module;
 
-    public function __construct(CorporateRepositoryInterface $corporateRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, ProgramRepositoryInterface $programRepository, InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository, AxisRepositoryInterface $axisRepository)
+    public function __construct(
+        CorporateRepositoryInterface $corporateRepository, 
+        PartnerProgramRepositoryInterface $partnerProgramRepository, 
+        ProgramRepositoryInterface $programRepository, 
+        InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository, 
+        InvoiceB2bRepositoryInterface $invoiceB2bRepository, 
+        InvoiceDetailRepositoryInterface $invoiceDetailRepository, 
+        ReceiptRepositoryInterface $receiptRepository, 
+        AxisRepositoryInterface $axisRepository)
     {
         $this->corporateRepository = $corporateRepository;
         $this->partnerProgramRepository = $partnerProgramRepository;
@@ -49,6 +59,7 @@ class InvoicePartnerController extends InvoiceB2BBaseControler
         $this->invoiceDetailRepository = $invoiceDetailRepository;
         $this->receiptRepository = $receiptRepository;
         $this->axisRepository = $axisRepository;
+        $this->module = $this->getModule();
     }
 
     public function index(Request $request)
@@ -414,107 +425,6 @@ class InvoicePartnerController extends InvoiceB2BBaseControler
         return Redirect::to('invoice/corporate-program/status/list')->withSuccess('Invoice successfully deleted');
     }
 
-    public function requestSign(Request $request)
-    {
-
-        $invNum = $request->route('invoice');
-        $currency = $request->route('currency');
-        $to = $request->get('to');
-        $name = $request->get('name');
-
-        $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
-        $invoice_id = $invoicePartner->invb2b_id;
-        $invoice_num = $invoicePartner->invb2b_num;
-        $file_name = str_replace('/', '-', $invoice_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_INV_JEI_EF_I_23_idr.pdf
-        $path = 'uploaded_file/invoice/partner_prog/';
-        $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
-
-        $attachmentDetails = [
-            'invb2b_id' => $invoice_id,
-            'currency' => $currency,
-            'recipient' => $to,
-            'attachment' => 'storage/' . $path . $file_name,
-        ];
-
-        $companyDetail = [
-            'name' => env('ALLIN_COMPANY'),
-            'address' => env('ALLIN_ADDRESS'),
-            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-            'city' => env('ALLIN_CITY')
-        ];
-
-        $data['email'] = $to; # our director email
-        $data['recipient'] = $name; # our director name
-        $data['title'] = "Request Sign of Invoice Number : " . $invoice_id;
-        $data['param'] = [
-            'invb2b_num' => $invoice_num,
-            'currency' => $currency,
-            'fullname' => $invoicePartner->partner_prog->corp->corp_name,
-            'program_name' => $invoicePartner->partner_prog->program->program_name,
-            'invoice_date' => date('d F Y', strtotime($invoicePartner->invb2b_date)),
-            'invoice_duedate' => date('d F Y', strtotime($invoicePartner->invb2b_duedate))
-        ];
-
-        try {
-
-            $pdf = PDF::loadView('pages.invoice.corporate-program.export.invoice-pdf', [
-                'invoicePartner' => $invoicePartner,
-                'currency' => $currency,
-                'companyDetail' => $companyDetail,
-                'director' => $name
-            ]);
-
-            # Generate PDF file
-            $content = $pdf->download();
-            Storage::disk('public')->put($path . $file_name, $content);
-
-            # if attachment exist then update attachement else insert attachement
-            if (isset($attachment)) {
-                $this->invoiceAttachmentRepository->updateInvoiceAttachment($attachment->id, $attachmentDetails);
-            } else {
-                $this->invoiceAttachmentRepository->createInvoiceAttachment($attachmentDetails);
-            }
-
-            Mail::send('pages.invoice.corporate-program.mail.view', $data, function ($message) use ($data, $pdf, $invoice_id) {
-                $message->to($data['email'], $data['recipient'])
-                    ->subject($data['title'])
-                    ->attachData($pdf->output(), $invoice_id . '.pdf');
-            });
-        } catch (Exception $e) {
-
-            Log::info('Failed to request sign invoice : ' . $e->getMessage());
-            return $e->getMessage();
-        }
-
-        return true;
-    }
-
-    public function signAttachment(Request $request)
-    {
-        // if (Session::token() != $request->get('token')) {
-        //     return "Your session token is expired";
-        // }
-
-        $invNum = $request->route('invoice');
-        $currency = $request->route('currency');
-        $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
-        $invoice_id = $invoicePartner->invb2b_id;
-        $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
-        $axis = $this->axisRepository->getAxisByType('invoice');
-
-        if (isset($invoiceAttachment->sign_status) && $invoiceAttachment->sign_status == 'signed') {
-            return "Invoice is already signed";
-        }
-
-        return view('pages.invoice.sign-pdf')->with(
-            [
-                'attachment' => $invoiceAttachment->attachment,
-                'axis' => $axis,
-                'currency' => $currency,
-                'invoice' => $invoicePartner,
-            ]
-        );
-    }
 
     public function upload(Request $request)
     {
@@ -580,106 +490,6 @@ class InvoicePartnerController extends InvoiceB2BBaseControler
         }
 
         return response()->json(['status' => 'success', 'message' => 'Invoice signed successfully']);
-    }
-
-    public function sendToClient(Request $request)
-    {
-        $invNum = $request->route('invoice');
-        $currency = $request->route('currency');
-        $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
-        $invoice_id = $invoicePartner->invb2b_id;
-        $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
-
-        $program_name = $invoicePartner->partner_prog->program->program_name;
-
-        $param_program_name = isset($invoicePartner->partner_prog->program->sub_prog) ? $invoicePartner->partner_prog->program->main_prog->prog_name . ' - ' . $invoicePartner->partner_prog->program->sub_prog->sub_prog_name : $invoicePartner->partner_prog->program->main_prog->prog_name;
-
-        if (!isset($invoicePartner->partner_prog->user)) {
-            return response()->json(
-                [
-                    'message' => 'This program not have PIC, please set PIC before send to client'
-                ],
-                500
-            );
-        }
-
-        # get partner pic
-        #$getPartnerPics = $invoicePartner->partner_prog->corp->pic->where('is_pic', '1')->toArray();
-        #$pic = $getPartnerPics[0];
-
-        # uncomment if they want the email send directly to pic partner 
-        #$data['email'] = $pic->pic_mail;
-        #$data['recipient'] = $pic->pic_name;
-
-
-        $data['email'] = $invoicePartner->partner_prog->user->email; # email to pic of the partner program
-        $data['recipient'] = $invoicePartner->partner_prog->user->full_name; # name of the pic of the partner program
-        $data['cc'] = [env('CEO_CC'), env('FINANCE_CC')];
-        $data['title'] = "Invoice of program " . $program_name;
-        $data['param'] = [
-            'invb2b_num' => $invNum,
-            'currency' => $currency,
-            'fullname' => $invoicePartner->partner_prog->corp->corp_name,
-            'program_name' => $param_program_name, # main prog name - sub prog name
-        ];
-
-
-        try {
-
-            Mail::send('pages.invoice.corporate-program.mail.client-view', $data, function ($message) use ($data, $invoiceAttachment) {
-                $message->to($data['email'], $data['recipient'])
-                    ->cc($data['cc'])
-                    ->subject($data['title'])
-                    ->attach(public_path($invoiceAttachment->attachment));
-            });
-
-            $attachmentDetails = [
-                'send_to_client' => 'sent',
-            ];
-
-            $this->invoiceAttachmentRepository->updateInvoiceAttachment($invoiceAttachment->id, $attachmentDetails);
-        } catch (Exception $e) {
-
-            Log::info('Failed to send invoice to client : ' . $e->getMessage());
-
-            return response()->json(
-                [
-                    'message' => 'Something went wrong when sending invoice to client. Please try again'
-                ],
-                500
-            );
-        }
-
-        // return true;
-        return response()->json(
-            [
-                'success' => true,
-                'message' => "Invoice has been send to client",
-            ]
-        );
-    }
-
-    public function previewPdf(Request $request)
-    {
-        $invNum = $request->route('invoice');
-        $currency = $request->route('currency');
-
-        $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
-
-        $companyDetail = [
-            'name' => env('ALLIN_COMPANY'),
-            'address' => env('ALLIN_ADDRESS'),
-            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-            'city' => env('ALLIN_CITY')
-        ];
-
-        $pdf = PDF::loadView('pages.invoice.corporate-program.export.invoice-pdf', [
-            'invoicePartner' => $invoicePartner,
-            'currency' => $currency,
-            'companyDetail' => $companyDetail
-        ]);
-
-        return $pdf->stream();
     }
 
     protected function extract_installment($inv_id, $currency, array $cursrate, array $installments)

@@ -734,7 +734,7 @@ class ClientEventController extends Controller
                 if ($choosen_role == 'parent' && $loop == 1) {
 
                     $additionalInfo = [
-                        'st_grade' => 12 - ($request->graduation_year - date('Y')),
+                        'st_grade' => $this->getGradeByGraduationYear($request->graduation_year),
                         'graduation_year' => $request->graduation_year,
                         'lead' => $request->leadsource,
                         'sch_id' => $schoolId != null ? $schoolId : $request->school,
@@ -746,7 +746,7 @@ class ClientEventController extends Controller
                 } else if ($choosen_role == 'student' && $loop == 0) {
 
                     $additionalInfo = [
-                        'st_grade' => 12 - ($request->graduation_year - date('Y')),
+                        'st_grade' => $this->getGradeByGraduationYear($request->graduation_year),
                         'graduation_year' => $request->graduation_year,
                         'lead' => $request->leadsource,
                         'sch_id' => $schoolId != null ? $schoolId : $request->school,
@@ -837,6 +837,22 @@ class ClientEventController extends Controller
         }
 
         return $response;
+    }
+
+    private function getGradeByGraduationYear($requestedGraduationYear)
+    {
+        $max_grade = 12;
+        $current_year = date('Y');
+        $current_month = date('m');
+
+        # when current month greater than july
+        # assumed the client has "naik kelas"
+        if ($current_month > 7) 
+            $grade = $max_grade - ($requestedGraduationYear - $current_year) + 1;
+        else 
+            $grade = $max_grade - ($requestedGraduationYear -  $current_year);
+
+        return $grade;
     }
 
     private function getRoleName($roleName)

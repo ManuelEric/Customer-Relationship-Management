@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice : {{ $invoicePartner->invb2b_id }} - PDF</title>
+    <title>Invoice : {{ $invoiceB2b->invb2b_id }} - PDF</title>
     {{-- <link rel="icon" href="#" type="image/gif" sizes="16x16"> --}}
     <style>
         /* @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap'); */
@@ -87,12 +87,12 @@
                                 <tr>
                                     <td valign="top">To : </td>
                                     <td><b>
-                                            {{$invoicePartner->partner_prog->corp->corp_name}}
+                                            {{$invoiceB2b->partner_prog->corp->corp_name}}
                                         </b><br>
-                                        @if(isset($invoicePartner->partner_prog->corp->corp_address))
-                                            {{ html_entity_decode(strip_tags($invoicePartner->partner_prog->corp->corp_address)) }}
+                                        @if(isset($invoiceB2b->partner_prog->corp->corp_address))
+                                            {{ html_entity_decode(strip_tags($invoiceB2b->partner_prog->corp->corp_address)) }}
                                         @else
-                                            {{ $invoicePartner->partner_prog->corp->corp_region }}
+                                            {{ $invoiceB2b->partner_prog->corp->corp_region }}
                                         @endif
                                         <br>
                                     </td>
@@ -109,9 +109,9 @@
                                         Due Date<br>
                                     </td>
                                     <td>
-                                        : &nbsp; {{ $invoicePartner->invb2b_id }}<br>
-                                        : &nbsp; {{ date("d F Y", strtotime($invoicePartner->invb2b_date)) }} <br>
-                                        : &nbsp; {{ date("d F Y", strtotime($invoicePartner->invb2b_duedate)) }} <br>
+                                        : &nbsp; {{ $invoiceB2b->invb2b_id }}<br>
+                                        : &nbsp; {{ date("d F Y", strtotime($invoiceB2b->invb2b_date)) }} <br>
+                                        : &nbsp; {{ date("d F Y", strtotime($invoiceB2b->invb2b_duedate)) }} <br>
                                     </td>
                                 </tr>
                             </table>
@@ -135,8 +135,8 @@
             <table width="100%" class="table-detail" style="padding:8px 5px;">
                 <tr align="center">
                     <th width="5%">No</th>
-                    <th width="{{$invoicePartner->is_full_amount == 0 ? '35%' : '40%' }}">Description</th>
-                    @if($invoicePartner->is_full_amount == 0)
+                    <th width="{{$invoiceB2b->is_full_amount == 0 ? '35%' : '40%' }}">Description</th>
+                    @if($invoiceB2b->is_full_amount == 0)
                         <th width="25%">Price</th>
                         <th width="10%">Participants</th>
                     @endif
@@ -150,20 +150,20 @@
                     <td valign="top" style="padding-bottom:10px;">
                         <div style="height:80px;">
                             <p>
-                                <strong> {{ $invoicePartner->partner_prog->program->program_name }} </strong>
+                                <strong> {{ $invoiceB2b->partner_prog->program->program_name }} </strong>
                             </p>
-                            @if($invoicePartner->is_full_amount == 1)
+                            @if($invoiceB2b->is_full_amount == 1)
                                 <p>
-                                    {{ $invoicePartner->invb2b_participants > 0 || $invoicePartner->invb2b_participants != null ? 'Participants: ' . $invoicePartner->invb2b_participants : ''}}
+                                    {{ $invoiceB2b->invb2b_participants > 0 || $invoiceB2b->invb2b_participants != null ? 'Participants: ' . $invoiceB2b->invb2b_participants : ''}}
                                 </p>
                                 <br>
                             @endif
                             <p>
-                                {!! $invoicePartner->invb2b_notes !!}
+                                {!! $invoiceB2b->invb2b_notes !!}
                             </p>
                         </div>
 
-                        @if($invoicePartner->invb2b_discidr != 0 && $invoicePartner->invb2b_discidr != null)
+                        @if($invoiceB2b->invb2b_discidr != 0 && $invoiceB2b->invb2b_discidr != null)
                             <div style="margin-top:5px;">
                                 <p>
                                     <strong> Discount</strong>
@@ -172,13 +172,13 @@
                         @endif
                     </td>
 
-                    @if($invoicePartner->is_full_amount == 0)
+                    @if($invoiceB2b->is_full_amount == 0)
                         {{-- Price --}}
                         <td valign="top" align="center">
                             <div style="height:80px;">
                                 <p>
                                     <strong>
-                                        {{ $currency == 'other' ? $invoicePartner->invoicePrice : $invoicePartner->invoicePriceIdr }}
+                                        {{ $currency == 'other' ? $invoiceB2b->invoicePrice : $invoiceB2b->invoicePriceIdr }}
                                     </strong>
                                 </p>
                             </div>
@@ -188,7 +188,7 @@
                         <td valign="top" align="center">
                             <p>
                                 <strong>
-                                    {{ $invoicePartner->invb2b_participants }}
+                                    {{ $invoiceB2b->invb2b_participants }}
                                 </strong>
                             </p>
                         </td>
@@ -198,21 +198,21 @@
                     <td valign="top" align="center" class="text-center">
                         <div style="height:80px">
                             <p> 
-                                @if($invoicePartner->is_full_amount == 0)
+                                @if($invoiceB2b->is_full_amount == 0)
                                     <strong>
-                                        {{ $currency == 'other' ? $invoicePartner->invoiceSubTotalprice : $invoicePartner->invoiceSubTotalpriceIdr }}
+                                        {{ $currency == 'other' ? $invoiceB2b->invoiceSubTotalprice : $invoiceB2b->invoiceSubTotalpriceIdr }}
                                     </strong>
                                 @else
                                     <strong>
-                                        {{ $currency == 'other' ? $invoicePartner->invoicePrice : $invoicePartner->invoicePriceIdr }}
+                                        {{ $currency == 'other' ? $invoiceB2b->invoicePrice : $invoiceB2b->invoicePriceIdr }}
                                     </strong>
                                 @endif
                             </p>
                         </div>
-                        @if($invoicePartner->invb2b_discidr != 0 && $invoicePartner->invb2b_discidr != null)
+                        @if($invoiceB2b->invb2b_discidr != 0 && $invoiceB2b->invb2b_discidr != null)
                             <div style="margin-top:5px;">
                                 <p>
-                                    <strong> - {{ $currency == 'other' ? $invoicePartner->invoiceDiscount : $invoicePartner->invoiceDiscountIdr }}</strong>
+                                    <strong> - {{ $currency == 'other' ? $invoiceB2b->invoiceDiscount : $invoiceB2b->invoiceDiscountIdr }}</strong>
                                 </p>
                             </div>
                         @endif
@@ -221,9 +221,9 @@
 
                 {{-- Grand Total --}}
                 <tr>
-                    <td colspan="{{$invoicePartner->is_full_amount == 0 ? '4' : '2'}}" align="right"><b>Total</b></td>
+                    <td colspan="{{$invoiceB2b->is_full_amount == 0 ? '4' : '2'}}" align="right"><b>Total</b></td>
                     <td valign="middle" align="center">
-                        <b>{{ $currency == 'other' ? $invoicePartner->invoiceTotalprice : $invoicePartner->invoiceTotalpriceIdr }}</b>
+                        <b>{{ $currency == 'other' ? $invoiceB2b->invoiceTotalprice : $invoiceB2b->invoiceTotalpriceIdr }}</b>
                     </td>
                 </tr>
             </table>
@@ -231,14 +231,14 @@
             <table>
                 <tr>
                     <td>
-                        <b style="letter-spacing:0.7px;"><i>Total Amount : {{  $currency == 'other' ? $invoicePartner->invb2b_words : $invoicePartner->invb2b_wordsidr }}</i></b>
+                        <b style="letter-spacing:0.7px;"><i>Total Amount : {{  $currency == 'other' ? $invoiceB2b->invb2b_words : $invoiceB2b->invb2b_wordsidr }}</i></b>
                         <br><br>
 
                         {{-- IF INSTALLMENT EXIST --}}
-                        @if(count($invoicePartner->inv_detail) > 0 && $invoicePartner->invb2b_pm == 'Installment')
+                        @if(count($invoiceB2b->inv_detail) > 0 && $invoiceB2b->invb2b_pm == 'Installment')
                             Terms of Payment :
                             <div style="margin-left:2px;">
-                                @foreach ($invoicePartner->inv_detail as $installment)
+                                @foreach ($invoiceB2b->inv_detail as $installment)
                                     {{ $installment->invdtl_installment  . '  (' . $installment->invdtl_percentage .'%) ' . date("d F Y", strtotime($installment->invdtl_duedate)) }} {{$currency == 'other' ? $installment->invoicedtlAmount : $installment->invoicedtlAmountIdr}}
                                     <br>  
                                 @endforeach
@@ -247,11 +247,11 @@
 
 
                         {{-- IF TERMS & CONDITION EXIST  --}}
-                        @if(isset($invoicePartner->invb2b_tnc))
+                        @if(isset($invoiceB2b->invb2b_tnc))
                             <br>
                             Terms & Conditions :
                             <div style="margin-left:2px;">
-                                {!! $invoicePartner->invb2b_tnc !!}
+                                {!! $invoiceB2b->invb2b_tnc !!}
                             </div>
                         @endif
                     </td>
