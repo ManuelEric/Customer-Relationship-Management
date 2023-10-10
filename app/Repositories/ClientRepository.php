@@ -718,6 +718,11 @@ class ClientRepository implements ClientRepositoryInterface
         return UserClient::find($clientId);
     }
 
+    public function getClientByMonthCreatedAt(array $month)
+    {
+        return UserClient::whereIn(DB::raw('MONTH(created_at)'), $month)->whereYear('created_at', date('Y-m-d'))->get();
+    }
+
     public function getClientByPhoneNumber($phoneNumber)
     {
         if (substr($phoneNumber, 0, 1) == "+")

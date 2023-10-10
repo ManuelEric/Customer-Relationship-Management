@@ -201,10 +201,22 @@
                                 <hr>
                                 <div class="row justify-content-end align-items-end">
                                     <div class="col">
-                                        @if(isset($client_event->notes) && ($client_event->notes == 'VIP' || $client_event->notes == 'VVIP'))
-                                            <div class="badge rounded-pill px-3" style="background:#FF7701">
-                                                <h2 class="notes p-0 m-0" style="color:#0C0F38 ">{{ $client_event->notes }}</h2>
-                                            </div>
+                                        @if(isset($client_event->notes))
+                                            @if($client_event->notes == 'VIP' || $client_event->notes == 'VVIP')
+                                                <div class="badge rounded-pill px-3" style="background:#FF7701">
+                                                    <h2 class="notes p-0 m-0" style="color:#0C0F38 ">{{ isset($client_event->notes) ? $client_event->notes : 'Regular' }}</h2>
+                                                </div>
+                                            @endif
+                                        @else
+                                            @if(isset($client_event->referral_code))
+                                                <div class="badge rounded-pill px-3" style="background:#FF7701">
+                                                    <h2 class="notes p-0 m-0" style="color:#0C0F38 ">VIP</h2>
+                                                </div>
+                                            @else
+                                                <div class="badge rounded-pill px-3" style="background:#0C0F38">
+                                                    <h2 class="notes p-0 m-0" style="color:#ffff; font-size: 22px;">Regular</h2>
+                                                </div>
+                                            @endif
                                         @endif
                                     </div>
                                     <div class="col-3">

@@ -156,6 +156,7 @@ class SalesDashboardController extends Controller
                                 <td>' . $client->full_name . '</td>
                                 <td>' . $client->mail . '</td>
                                 <td>' . $client->phone . '</td>
+                                <td>' . $client->graduation_year_real . '</td>
                                 <td>' . $client->created_at . '</td>
                             </tr>';
                 }
@@ -176,6 +177,7 @@ class SalesDashboardController extends Controller
                             <td>' . $client->full_name . '</td>
                             <td>' . $client->mail . '</td>
                             <td>' . $client->phone . '</td>
+                            <td>' . $client->graduation_year_real . '</td>
                             <td>' . date('D, d M Y', strtotime($client->created_at))  . '</td>
                         </tr>';
             }

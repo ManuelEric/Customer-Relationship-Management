@@ -72,6 +72,7 @@
                         <th>School Name</th>
                         <th>Graduation Year</th>
                         <th>Conversion Lead</th>
+                        <th>Referral From</th>
                         <th>Country of Study Abroad</th>
                         <th>Joined Date</th>
                         <th>Notes</th>
@@ -83,7 +84,7 @@
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="18"></td>
+                        <td colspan="19"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -255,6 +256,12 @@
                         name: 'conversion_lead',
                         className: 'text-center'
                         // name: 'tbl_lead.main_lead'
+                    },
+                    {
+                        data: 'referral_from',
+                        name: 'client_ref_code_view.full_name',
+                        className: 'text-center',
+                        defaultContent: '-'
                     },
                     {
                         data: 'abr_country',

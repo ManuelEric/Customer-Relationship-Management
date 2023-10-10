@@ -300,6 +300,7 @@
                                 <th>Graduation Year</th>
                                 <th>Country of Study Abroad</th>
                                 <th>Lead Source</th>
+                                <th>Referral From</th>
                                 <th>Notes</th>
                                 <th>Number of Party</th>
                                 <th>Attendance</th>
@@ -310,7 +311,7 @@
 
                         <tfoot class="bg-light text-white">
                             <tr>
-                                <td colspan="18"></td>
+                                <td colspan="19"></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -433,6 +434,12 @@
                         data: 'conversion_lead',
                         // name: 'client.lead_source',
                         defaultContent: '-',
+                    },
+                    {
+                        data: 'referral_from',
+                        name: 'client_ref_code_view.full_name',
+                        defaultContent: '-',
+                        className: 'text-center',
                     },
                     {
                         className: 'text-center',
