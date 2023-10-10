@@ -7,6 +7,7 @@ use App\Http\Requests\StoreClientEventRequest;
 use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Requests\StoreClientEventEmbedRequest;
 use App\Http\Requests\StoreFormEventEmbedRequest;
+use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\MailingEventOfflineTrait;
@@ -49,6 +50,7 @@ use Illuminate\Support\Facades\Session;
 
 class ClientEventController extends Controller
 {
+    use CalculateGradeTrait;
     use SplitNameTrait;
     use CheckExistingClient;
     use CreateCustomPrimaryKeyTrait;
@@ -837,22 +839,6 @@ class ClientEventController extends Controller
         }
 
         return $response;
-    }
-
-    private function getGradeByGraduationYear($requestedGraduationYear)
-    {
-        $max_grade = 12;
-        $current_year = date('Y');
-        $current_month = date('m');
-
-        # when current month greater than july
-        # assumed the client has "naik kelas"
-        if ($current_month > 7) 
-            $grade = $max_grade - ($requestedGraduationYear - $current_year) + 1;
-        else 
-            $grade = $max_grade - ($requestedGraduationYear -  $current_year);
-
-        return $grade;
     }
 
     private function getRoleName($roleName)
