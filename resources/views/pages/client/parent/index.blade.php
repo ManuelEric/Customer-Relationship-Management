@@ -144,7 +144,7 @@
                     {
                         data: 'full_name',
                         render: function(data, type, row, meta) {
-                            return data + ' - ' + row.id
+                            return data;
                         }
                     },
                     {
