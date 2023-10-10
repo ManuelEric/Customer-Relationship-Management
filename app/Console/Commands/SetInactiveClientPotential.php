@@ -41,7 +41,7 @@ class SetInactiveClientPotential extends Command
         $potential = $this->clientRepository->getPotentialClients();
 
         # add condition
-        $ids = $potential->where('graduation_year_real', '<', Carbon::now()->format('Y'))->pluck('id')->where('st_statusact', 1)->toArray();
+        $ids = $potential->where('graduation_year_real', '<', Carbon::now()->format('Y'))->where('st_statusact', 1)->pluck('id')->toArray();
 
         $progressBar = $this->output->createProgressBar(count($ids));
         if (count($ids) == 0 ) {

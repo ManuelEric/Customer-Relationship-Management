@@ -41,7 +41,7 @@ class SetInactiveClientNewLeads extends Command
         $new_leads = $this->clientRepository->getNewLeads();
 
         # add condition
-        $ids = $new_leads->where('graduation_year_real', '<=', Carbon::now()->format('Y'))->pluck('id')->where('st_statusact', 1)->toArray();
+        $ids = $new_leads->where('graduation_year_real', '<=', Carbon::now()->format('Y'))->where('st_statusact', 1)->pluck('id')->toArray();
 
         $progressBar = $this->output->createProgressBar(count($ids));
         if (count($ids) == 0 ) {
