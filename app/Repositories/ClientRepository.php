@@ -229,7 +229,8 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('st_statusact', $advanced_filter['active_status']);
-            });
+            })->
+            where('st_statusact', 1);
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query;
     }
@@ -264,7 +265,8 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('st_statusact', $advanced_filter['active_status']);
-            });
+            })->
+            where('st_statusact', 1);
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
@@ -439,7 +441,8 @@ class ClientRepository implements ClientRepositoryInterface
             $subQuery->where('role_name', 'Parent');
         })->when($month, function ($subQuery) use ($month) {
             $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
-        });
+        })->
+        where('st_statusact', 1);
 
         return $asDatatables === false ? $query->get() : $query->orderBy('first_name', 'asc');
     }

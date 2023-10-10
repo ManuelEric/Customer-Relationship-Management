@@ -7,6 +7,7 @@ use App\Http\Requests\StoreClientEventRequest;
 use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Requests\StoreClientEventEmbedRequest;
 use App\Http\Requests\StoreFormEventEmbedRequest;
+use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\MailingEventOfflineTrait;
@@ -49,6 +50,7 @@ use Illuminate\Support\Facades\Session;
 
 class ClientEventController extends Controller
 {
+    use CalculateGradeTrait;
     use SplitNameTrait;
     use CheckExistingClient;
     use CreateCustomPrimaryKeyTrait;
@@ -734,7 +736,7 @@ class ClientEventController extends Controller
                 if ($choosen_role == 'parent' && $loop == 1) {
 
                     $additionalInfo = [
-                        'st_grade' => 12 - ($request->graduation_year - date('Y')),
+                        'st_grade' => $this->getGradeByGraduationYear($request->graduation_year),
                         'graduation_year' => $request->graduation_year,
                         'lead' => $request->leadsource,
                         'sch_id' => $schoolId != null ? $schoolId : $request->school,
@@ -746,7 +748,7 @@ class ClientEventController extends Controller
                 } else if ($choosen_role == 'student' && $loop == 0) {
 
                     $additionalInfo = [
-                        'st_grade' => 12 - ($request->graduation_year - date('Y')),
+                        'st_grade' => $this->getGradeByGraduationYear($request->graduation_year),
                         'graduation_year' => $request->graduation_year,
                         'lead' => $request->leadsource,
                         'sch_id' => $schoolId != null ? $schoolId : $request->school,

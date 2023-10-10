@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Traits\CurrencyTrait;
 use App\Interfaces\GeneralMailLogRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Mail;
 
 class SendReminderInvoiceProgramToClient extends Command
 {
-
+    use CurrencyTrait;
     private InvoiceProgramRepositoryInterface $invoiceProgramRepository;
     private InvoiceDetailRepositoryInterface $invoiceDetailRepository;
     private GeneralMailLogRepositoryInterface $generalMailLogRepository;
@@ -96,7 +97,7 @@ class SendReminderInvoiceProgramToClient extends Command
                     'due_date' => date('d/m/Y', strtotime($data->inv_duedate)),
                     'child_fullname' => $data->fullname,
                     'inv_paymentmethod' => $data->inv_paymentmethod,
-                    'total_payment' => $data->invoice_totalprice_idr,
+                    'total_payment' => $this->formatCurrency($data->currency, $data->inv_totalprice_idr, $data->inv_totalprice),
                     'pic_email' => $pic_email
                 ];
 
