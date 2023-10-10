@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\Storage;
 use PDF;
 
 
-class InvoicePartnerController extends InvoiceB2BBaseControler
+class InvoicePartnerController extends InvoiceB2BBaseController
 {
     use CreateInvoiceIdTrait;
     protected CorporateRepositoryInterface $corporateRepository;
