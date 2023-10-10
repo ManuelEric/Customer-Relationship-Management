@@ -42,9 +42,13 @@ class EdufLeadRepository implements EdufLeadRepositoryInterface
             leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_eduf_lead.sch_id')->
             leftJoin('users', 'users.id', '=', 'tbl_eduf_lead.intr_pic')->
             select([
-                'tbl_eduf_lead.*', 
+                'tbl_eduf_lead.id', 'tbl_eduf_lead.location', 'tbl_eduf_lead.intr_pic',
+                'tbl_eduf_lead.ext_pic_name', 'tbl_eduf_lead.ext_pic_mail', 'tbl_eduf_lead.ext_pic_phone', 'tbl_eduf_lead.first_discussion_date',
+                'tbl_eduf_lead.last_discussion_date', 'tbl_eduf_lead.event_start', 'tbl_eduf_lead.event_end', 'tbl_eduf_lead.status', 'tbl_eduf_lead.notes',
+                'tbl_eduf_lead.created_at', 'tbl_eduf_lead.updated_at', 'tbl_eduf_lead.sch_id', 'tbl_eduf_lead.corp_id',
                 DB::raw("IF (tbl_eduf_lead.sch_id IS NOT NULL, tbl_sch.sch_name, tbl_corp.corp_name) as organizer_name")
-            ])->orderBy('organizer_name', 'asc')->get();
+            ])->orderBy('organizer_name', 'asc')->
+            get();
     }
 
     public function getEdufairLeadById($edufLId)
