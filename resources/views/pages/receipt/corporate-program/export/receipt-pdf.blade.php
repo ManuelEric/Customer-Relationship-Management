@@ -269,8 +269,8 @@
                     <td width="60%" valign="top">
                     </td>
                     <td width="40%" align="center" valign="top">
-                        {{-- PT. Jawara Edukasih Indonesia --}}
                         Jakarta, {{ isset($receiptPartner->receipt_date) ? date('d F Y', strtotime($receiptPartner->receipt_date)) : date('d F Y', strtotime($receiptPartner->created_at)) }}
+                        {{-- Singapore, {{ isset($receiptPartner->receipt_date) ? date('d F Y', strtotime($receiptPartner->receipt_date)) : date('d F Y', strtotime($receiptPartner->created_at)) }} --}}
                         <br><br><br><br><br><br><br><br><br>
                         @if (isset($director)) 
                             {{ $director }} 
