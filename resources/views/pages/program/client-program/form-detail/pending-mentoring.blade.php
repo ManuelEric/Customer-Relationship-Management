@@ -12,7 +12,7 @@
             <div class="card-body">
                 <div class="row mb-2">
                     <div class="col-md-6">
-                        <small>Initial Consult Date <sup class="text-danger">*</sup></small>
+                        <small>Initial Consult Date</small>
                         <input type="date" name="pend_initconsult_date" {{ $disabled }}
                             class="form-control form-control-sm rounded" value="{{ isset($clientProgram->initconsult_date) ? $clientProgram->initconsult_date : old('pend_initconsult_date') }}">
                         @error('pend_initconsult_date')
