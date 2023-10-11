@@ -46,6 +46,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use App\Models\v1\Student as CRMStudent;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Benchmark;
 
 class DashboardController extends SalesDashboardController
 {
@@ -111,6 +112,14 @@ class DashboardController extends SalesDashboardController
 
     public function index(Request $request)
     {   
+        $measures = Benchmark::measure(fn() => 
+            (new SalesDashboardController($this))->get($request)
+        );
+
+        $measures_in_second = $measures / 1000;
+
+        dd($measures.'ms');
+        exit;
 
         $data = (new SalesDashboardController($this))->get($request);
         $data = array_merge($data, (new PartnerDashboardController($this))->get($request));
