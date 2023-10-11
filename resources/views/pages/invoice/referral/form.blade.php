@@ -890,7 +890,6 @@
                     })
                     .catch(error => {
                         notification('error', 'Something went wrong while send email')
-                        swal.close()
                     })
             }
         @endif

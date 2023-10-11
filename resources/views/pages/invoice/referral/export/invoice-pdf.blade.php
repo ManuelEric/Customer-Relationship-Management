@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice : {{ $invoiceRef->invb2b_id }} - PDF</title>
+    <title>Invoice : {{ $invoiceB2b->invb2b_id }} - PDF</title>
     {{-- <link rel="icon" href="#" type="image/gif" sizes="16x16"> --}}
     <style>
         /* @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap'); */
@@ -81,9 +81,9 @@
                                 <tr>
                                     <td valign="top">To : </td>
                                     <td><b>
-                                            {{ $invoiceRef->referral->partner->corp_name }}
+                                            {{ $invoiceB2b->referral->partner->corp_name }}
                                         </b><br>
-                                        {{ $invoiceRef->referral->partner->corp_region }}
+                                        {{ $invoiceB2b->referral->partner->corp_region }}
                                         <br>
                                     </td>
                                 </tr>
@@ -99,9 +99,9 @@
                                         Due Date<br>
                                     </td>
                                     <td>
-                                        : &nbsp; {{ $invoiceRef->invb2b_id }}<br>
-                                        : &nbsp; {{ date("d F Y", strtotime($invoiceRef->invb2b_date)) }} <br>
-                                        : &nbsp; {{ date("d F Y", strtotime($invoiceRef->invb2b_duedate)) }} <br>
+                                        : &nbsp; {{ $invoiceB2b->invb2b_id }}<br>
+                                        : &nbsp; {{ date("d F Y", strtotime($invoiceB2b->invb2b_date)) }} <br>
+                                        : &nbsp; {{ date("d F Y", strtotime($invoiceB2b->invb2b_duedate)) }} <br>
                                     </td>
                                 </tr>
                             </table>
@@ -130,17 +130,17 @@
                     <td valign="top" align="center">1</td>
                     <td valign="top" style="padding-bottom:10px;">
                         <p>
-                            <strong> {{ $invoiceRef->referral->additional_prog_name }} </strong>
+                            <strong> {{ $invoiceB2b->referral->additional_prog_name }} </strong>
                         </p>
                         <p>
-                            {!! $invoiceRef->invb2b_notes !!}
+                            {!! $invoiceB2b->invb2b_notes !!}
                         </p>
                     </td>
                     <td valign="top" align="center">
 
                         <p>
                             <strong>
-                                {{ $currency == 'other' ? $invoiceRef->invoiceTotalprice : $invoiceRef->invoiceTotalpriceIdr }}</>
+                                {{ $currency == 'other' ? $invoiceB2b->invoiceTotalprice : $invoiceB2b->invoiceTotalpriceIdr }}</>
                             </strong>
                         </p>
                     </td>
@@ -148,7 +148,7 @@
 
                         <p>
                             <strong>
-                                {{ $currency == 'other' ? $invoiceRef->invoiceTotalprice : $invoiceRef->invoiceTotalpriceIdr }}</>
+                                {{ $currency == 'other' ? $invoiceB2b->invoiceTotalprice : $invoiceB2b->invoiceTotalpriceIdr }}</>
                             </strong>
                         </p>
 
@@ -157,7 +157,7 @@
                 <tr>
                     <td colspan="3" align="right"><b>Total</b></td>
                     <td valign="middle" align="center">
-                            {{ $currency == 'other' ? $invoiceRef->invoiceTotalprice : $invoiceRef->invoiceTotalpriceIdr }}</>
+                            {{ $currency == 'other' ? $invoiceB2b->invoiceTotalprice : $invoiceB2b->invoiceTotalpriceIdr }}</>
                     </td>
                 </tr>
             </table>
@@ -165,15 +165,15 @@
             <table>
                 <tr>
                     <td>
-                        <b style="letter-spacing:0.7px;"><i>Total Amount : {{  $currency == 'other' ? $invoiceRef->invb2b_words : $invoiceRef->invb2b_wordsidr }}</i></b>
+                        <b style="letter-spacing:0.7px;"><i>Total Amount : {{  $currency == 'other' ? $invoiceB2b->invb2b_words : $invoiceB2b->invb2b_wordsidr }}</i></b>
                         <br><br>
 
                         {{-- IF TERMS & CONDITION EXIST  --}}
-                       @if(isset($invoiceRef->invb2b_tnc))
+                       @if(isset($invoiceB2b->invb2b_tnc))
                             <br>
                             Terms & Conditions :
                             <div style="margin-left:2px;">
-                                {!! $invoiceRef->invb2b_tnc !!}
+                                {!! $invoiceB2b->invb2b_tnc !!}
                             </div>
                         @endif
                     </td>
