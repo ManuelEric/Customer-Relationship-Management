@@ -56,6 +56,24 @@ class InvoiceB2BBaseController extends Controller
                 ];
                 break;
 
+            case "school-program":
+            case "invoice-sch":
+                $this->module = [
+                    'raw' => 'School Program',
+                    'segment' => 'school-program',
+                    'name' => 'sch_prog',
+                    'subject' => [
+                        'class' => 'school',
+                        'attribute' => 'sch_name',
+                    ],
+                    'program' => [
+                        'class' => 'program',
+                        'attribute' => 'program_name'
+                    ]
+                ];
+
+                break;
+
         }
 
         return $this->module;
