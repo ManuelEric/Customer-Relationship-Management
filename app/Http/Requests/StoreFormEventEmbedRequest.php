@@ -92,8 +92,9 @@ class StoreFormEventEmbedRequest extends FormRequest
 
             'school' => 'required',
             'graduation_year' => 'required',
-            'destination_country' => 'required|exists:tbl_tag,id',
-            'leadsource' => 'nullable|exists:tbl_lead,lead_id'
+            'referral' => 'nullable',
+            'destination_country' => 'nullable|exists:tbl_tag,id',
+            'leadsource' => 'required_without:referral|exists:tbl_lead,lead_id'
         ];
     }
 
@@ -108,7 +109,8 @@ class StoreFormEventEmbedRequest extends FormRequest
             'fullnumber.1' => 'nullable',
 
             'school' => 'required',
-            'leadsource' => 'nullable|exists:tbl_lead,lead_id'
+            'referral' => 'nullable',
+            'leadsource' => 'required_without:referral|exists:tbl_lead,lead_id'
         ];
     }
 }
