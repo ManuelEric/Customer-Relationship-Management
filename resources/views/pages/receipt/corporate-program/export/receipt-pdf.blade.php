@@ -270,7 +270,7 @@
                     </td>
                     <td width="40%" align="center" valign="top">
                         {{-- Jakarta, {{ isset($receiptPartner->receipt_date) ? date('d F Y', strtotime($receiptPartner->receipt_date)) : date('d F Y', strtotime($receiptPartner->created_at)) }} --}}
-                        Jawara Edukasih International Pte Ltd
+                        Singapore, {{ isset($receiptPartner->receipt_date) ? date('d F Y', strtotime($receiptPartner->receipt_date)) : date('d F Y', strtotime($receiptPartner->created_at)) }}
                         <br><br><br><br><br><br><br><br><br>
                         @if (isset($director)) 
                             {{ $director }} 
