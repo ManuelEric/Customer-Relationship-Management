@@ -304,10 +304,10 @@ class StoreClientProgramRequest extends FormRequest
                 }
             ],
             'partner_id' => 'required_if:lead_id,LS015',
-            'first_discuss_date' => 'required|date|before_or_equal:pend_initconsult_date',
+            'first_discuss_date' => 'required|date',
             'meeting_notes' => 'nullable',
             'status' => 'required|in:0,1,2,3',
-            'pend_initconsult_date' => 'required|date|after_or_equal:first_discuss_date',
+            'pend_initconsult_date' => 'nullable|date|after_or_equal:first_discuss_date',
             'pend_assessmentsent_date' => 'nullable|date|after_or_equal:pend_initconsult_date',
             'empl_id' => [
                 'required', 'required',
