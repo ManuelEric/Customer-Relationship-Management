@@ -223,6 +223,9 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     WHEN tbl_inv.inv_paymentmethod = "Installment" THEN dr.invdtl_id
                 END)
             '))->
+            # add new condition
+            # not included refunded invoice
+            where('tbl_inv.inv_status', 1)->
             orderBy('date_difference', 'asc')->
             groupBy('tbl_inv.inv_id')->
             get();
