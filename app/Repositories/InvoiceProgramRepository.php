@@ -151,6 +151,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 'clientprogram.parent_phone',
                 'clientprogram.parent_mail',
                 'program_name',
+                'tbl_inv.currency',
                 'tbl_inv.inv_paymentmethod as master_paymentmethod',
                 'tbl_inv.inv_id',
                 DB::raw('
@@ -185,6 +186,12 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                         WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_totalprice_idr
                         WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_amountidr
                     END) as inv_totalprice_idr
+                '),
+                DB::raw('
+                    (CASE
+                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_totalprice
+                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_amount
+                    END) as inv_totalprice
                 '),
                 // 'tbl_inv.inv_totalprice_idr',
                 'pic_mail',

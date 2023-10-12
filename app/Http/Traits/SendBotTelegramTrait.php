@@ -4,7 +4,7 @@ namespace App\Http\Traits;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Crypt;
 
-trait sendBotTelegramTrait {
+trait SendBotTelegramTrait {
 
     public function sendMessageTele($tokenBot, $teleId, $message)
     {
