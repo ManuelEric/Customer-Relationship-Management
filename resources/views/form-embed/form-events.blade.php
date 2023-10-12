@@ -219,7 +219,7 @@
                                 <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
                                     Full Name <span class="text-red-400">*</span>
                                 </label>
-                                <input type="text" name="fullname[]"
+                                <input type="text" name="fullname[]" value="{{ old('fullname.0') }}"
                                     class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 required">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                                 @error('fullname.0')
@@ -230,7 +230,7 @@
                                 <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
                                     Email <span class="text-red-400">*</span>
                                 </label>
-                                <input type="text" name="email[]"
+                                <input type="text" name="email[]" value="{{old('email.0')}}"
                                     class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 required">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                                 @error('email.0')
@@ -241,20 +241,20 @@
                                 <label class="font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400 block">
                                     Phone Number <span class="text-red-400">*</span>
                                 </label>
-                                <input type="tel" name="phone[]"
+                                <input type="tel" name="phone[]" value="{{old('phone.0')}}"
                                     class="required w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
                                     id="phoneUser1">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                                 @error('fullnumber.0')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
-                                <input type="hidden" name="fullnumber[]" id="phone1">
+                                <input type="hidden" name="fullnumber[]" id="phone1" value="{{ old('fullnumber.0') }}">
                             </div>
                             <div class="col md:mb-4 mb-2 user-other">
                                 <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
                                     Your <span class="role">Child's</span> Name <span class="text-red-400">*</span>
                                 </label>
-                                <input type="text" name="fullname[]" id="other_name"
+                                <input type="text" name="fullname[]" id="other_name" value="{{old('fullname.1')}}"
                                     class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 child_info required">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                                 @error('fullname.1')
@@ -268,7 +268,7 @@
                                         <span class="text-red-400">*</span>
                                     @endif
                                 </label>
-                                <input type="text" name="email[]" id="other_email"
+                                <input type="text" name="email[]" id="other_email" value="{{old('email.1')}}"
                                     class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 child_info">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                                 @error('email.1')
@@ -282,10 +282,10 @@
                                         <span class="text-red-400">*</span>
                                     @endif
                                 </label>
-                                <input type="tel" name="phone[]"
+                                <input type="tel" name="phone[]" value="{{old('phone.1')}}"
                                     class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
                                     id="phoneUser2">
-                                <input type="hidden" name="fullnumber[]" id="phone2" class="child_info">
+                                <input type="hidden" name="fullnumber[]" value="{{ old('fullnumber.1') }}" id="phone2" class="child_info">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                                 @error('fullnumber.1')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -352,7 +352,7 @@
                                 placeholder="">
                                 <option value=""></option>
                                 @for ($i = date('Y'); $i < date('Y') + 6; $i++)
-                                    <option value="{{ $i }}">{{ $i }}</option>
+                                    <option value="{{ $i }}" {{ old('graduation_year') == $i ? 'selected' : null }}>{{ $i }}</option>
                                 @endfor
                             </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
@@ -362,7 +362,7 @@
                         </div>
                         <div class="mb-4" id="country_input">
                             <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
-                                Destination Country <span class="text-red-400">*</span>
+                                Destination Country
                             </label>
                             <select name="destination_country[]" multiple="multiple" id="destination_country"
                                 class="w-full md:text-xl text-md border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
@@ -373,7 +373,7 @@
                                 @endforeach
                             </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
-                            @error('destination_country.*')
+                            @error('destination_country')
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
                         </div>
@@ -528,8 +528,8 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
             country_input.removeClass('hidden')
 
             setAdditionalInputLabel({
-                "school": "Which school are you from?",
-                "graduation": "When do you expect to graduate?",
+                "school": "Which school are you from? <span class='text-red-400'>*</span>",
+                "graduation": "When do you expect to graduate? <span class='text-red-400'>*</span>",
                 "country": "Which country are you thinking of studying in?",
             });
 
@@ -542,8 +542,8 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
             country_input.removeClass('hidden')
 
             setAdditionalInputLabel({
-                "school": "What school does your child go to?",
-                "graduation": "When do you expect your child to graduate?",
+                "school": "What school does your child go to? <span class='text-red-400'>*</span>",
+                "graduation": "When do you expect your child to graduate? <span class='text-red-400'>*</span>",
                 "country": "Which country does your child interest in studying abroad?",
             });
 
@@ -554,7 +554,7 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
             country_input.addClass('hidden')
 
             setAdditionalInputLabel({
-                "school": "Which school are you from?",
+                "school": "Which school are you from? <span class='text-red-400'>*</span>",
                 "graduation": null,
 
             })
