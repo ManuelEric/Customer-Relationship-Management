@@ -12,7 +12,7 @@ trait SendBotTelegramTrait {
         $url = "https://api.telegram.org/".$tokenBot."/sendMessage";
 
         $link = '';
-        
+
         switch ($type) {
             case 'log-error':
                 $link = url('log-viewer/logs/'.date('Y-m-d').'/error');
@@ -22,7 +22,7 @@ trait SendBotTelegramTrait {
         $client->request('GET', $url, [
             'json' =>[
             "chat_id" => $teleId, 
-            "text" => 'CRM_' . date('y/m/d') .' '. substr($message, 0, 100) . ' ' . $link, # Limit message telegram
+            "text" => 'CRM_' . date('y/m/d') .' '. substr($message, 0, 4000) . ' ' . $link, # Limit message telegram
             ]
         ]);
     }
