@@ -11,6 +11,8 @@ trait SendBotTelegramTrait {
         $client  = new Client();
         $url = "https://api.telegram.org/".$tokenBot."/sendMessage";
 
+        $link = '';
+        
         switch ($type) {
             case 'log-error':
                 $link = url('log-viewer/logs/'.date('Y-m-d').'/error');
