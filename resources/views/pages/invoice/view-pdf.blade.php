@@ -26,7 +26,7 @@
             <button class="btn btn-light btn-sm" 
                 @if (isset($attachment) && $attachment->inv_id != NULL)
                     onclick="savePDF('print','{{$attachment->attachment}}')"><i class="fa fa-print"
-                @else
+                @elseif (isset($invoiceAttachment))
                     onclick="savePDF('print','{{$invoiceAttachment->attachment}}')"><i class="fa fa-print"
                 @endif
                     title="Print"></i> Print</button>
