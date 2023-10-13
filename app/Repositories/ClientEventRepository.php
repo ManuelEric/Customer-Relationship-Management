@@ -81,7 +81,8 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 when(!empty($filter['event_name']), function ($searchQuery) use ($filter) {
                     $searchQuery->where('event_title', $filter['event_name']);
                 })->
-                orderBy('tbl_client_event.created_at', 'DESC');
+                orderBy('tbl_client_event.created_at', 'DESC')->
+                groupBy('tbl_client_event.clientevent_id');
 
         return DataTables::eloquent($query)->
             filterColumn(
