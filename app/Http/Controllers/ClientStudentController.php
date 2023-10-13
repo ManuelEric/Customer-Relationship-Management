@@ -9,6 +9,7 @@ use App\Http\Requests\StoreClientStudentRequest;
 use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\FindStatusClientTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
@@ -37,6 +38,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -49,6 +51,7 @@ class ClientStudentController extends ClientController
     use CreateCustomPrimaryKeyTrait;
     use FindStatusClientTrait;
     use StandardizePhoneNumberTrait;
+    use LoggingTrait;
 
     protected ClientRepositoryInterface $clientRepository;
     protected SchoolRepositoryInterface $schoolRepository;
@@ -283,6 +286,11 @@ class ClientStudentController extends ClientController
             if (!$this->createInterestedMajor($data['interestMajors'], $newStudentId))
                 throw new Exception('Failed to store interest major', 7);
 
+            
+            # store Success
+            # create log success
+            $this->logSuccess('store', 'Student', Auth::user()->first_name . ' '. Auth::user()->last_name, $newStudentId);
+
             DB::commit();
         } catch (Exception $e) {
 
@@ -510,6 +518,10 @@ class ClientStudentController extends ClientController
             if (!$this->createInterestedMajor($data['interestMajors'], $studentId))
                 throw new Exception('Failed to store interest major', 7);
 
+            # Update success
+            # create log success
+            $oldStudent = $this->clientRepository->getClientById($studentId);
+            $this->logSuccess('update', 'Student', null, $oldStudent, $data['studentDetails']);
 
             DB::commit();
         } catch (Exception $e) {
