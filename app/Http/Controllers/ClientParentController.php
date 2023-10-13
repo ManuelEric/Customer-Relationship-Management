@@ -28,9 +28,11 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ParentTemplate;
 use App\Http\Controllers\Module\ClientController;
 use App\Http\Requests\StoreImportExcelRequest;
+use App\Http\Traits\LoggingTrait;
 use App\Imports\MasterParentImport;
 use App\Imports\ParentImport;
 use App\Interfaces\ClientEventRepositoryInterface;
+use Illuminate\Support\Facades\Auth;
 
 class ClientParentController extends ClientController
 {
@@ -38,6 +40,7 @@ class ClientParentController extends ClientController
     use CreateCustomPrimaryKeyTrait;
     use FindStatusClientTrait;
     use StandardizePhoneNumberTrait;
+    use LoggingTrait;
 
     protected ClientRepositoryInterface $clientRepository;
     protected ClientEventRepositoryInterface $clientEventRepository;
@@ -165,6 +168,10 @@ class ClientParentController extends ClientController
             # then skip this case
             if (!$this->createInterestedProgram($data['interestPrograms'], $newParentId))
                 throw new Exception('Failed to store interest program', 3);
+
+            # store Success
+            # create log success
+            $this->logSuccess('store', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $newParentId);
 
             DB::commit();
         } catch (Exception $e) {

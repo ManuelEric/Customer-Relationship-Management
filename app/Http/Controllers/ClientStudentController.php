@@ -422,6 +422,7 @@ class ClientStudentController extends ClientController
         $data = $this->initializeVariablesForStoreAndUpdate('student', $request);
 
         $studentId = $request->route('student');
+        $oldStudent = $this->clientRepository->getClientById($studentId);
 
         $leadsTracking = $this->clientLeadTrackingRepository->getCurrentClientLead($studentId);
 
@@ -520,8 +521,7 @@ class ClientStudentController extends ClientController
 
             # Update success
             # create log success
-            $oldStudent = $this->clientRepository->getClientById($studentId);
-            $this->logSuccess('update', 'Student', null, $oldStudent, $data['studentDetails']);
+            $this->logSuccess('update', 'Student',  Auth::user()->first_name . ' '. Auth::user()->last_name, null, $oldStudent, $data['studentDetails']);
 
             DB::commit();
         } catch (Exception $e) {
