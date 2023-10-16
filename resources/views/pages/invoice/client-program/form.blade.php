@@ -798,8 +798,8 @@
             var recipient = $("input[name=recipient]:checked").val();
             switch (recipient) {
                 case 'Parent':
-                    $("#client_id").val('{{ $clientProg->client->parents[0]->id }}')
-                    $("#mail").val('{{ $clientProg->client->parents[0]->mail }}')
+                    $("#client_id").val('{{ $clientProg->client->parents->count() > 0 ? $clientProg->client->parents[0]->id : null}}')
+                    $("#mail").val('{{ $clientProg->client->parents->count() > 0 ? $clientProg->client->parents[0]->mail : null }}')
                     break;
                     
                 case 'Client':
