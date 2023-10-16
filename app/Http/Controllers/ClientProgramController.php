@@ -17,6 +17,7 @@ use App\Interfaces\ReasonRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\ClientProgramLogMailRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Models\Program;
@@ -25,6 +26,7 @@ use App\Models\UserClient;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -34,6 +36,7 @@ use Illuminate\Support\Facades\Redirect;
 class ClientProgramController extends Controller
 {
     use CheckExistingClient;
+    use LoggingTrait;
     private ClientRepositoryInterface $clientRepository;
     private ProgramRepositoryInterface $programRepository;
     private LeadRepositoryInterface $leadRepository;
@@ -399,7 +402,7 @@ class ClientProgramController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->clientProgramRepository->createClientProgram(['client_id' => $studentId] + $clientProgramDetails);
+            $newClientProgram = $this->clientProgramRepository->createClientProgram(['client_id' => $studentId] + $clientProgramDetails);
 
             switch ($clientProgramDetails['status']) {
 
@@ -436,6 +439,10 @@ class ClientProgramController extends Controller
 
                     break;
             }
+
+            # store Success
+            # create log success
+            $this->logSuccess('store', 'Form Input', 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $newClientProgram);
 
             DB::commit();
         } catch (Exception $e) {
@@ -502,6 +509,7 @@ class ClientProgramController extends Controller
         $clientProgramId = $request->route('program');
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
+        $oldClientProgram = $this->clientProgramRepository->getClientProgramById($clientProgramId);
 
         $status = $request->status;
         $progId = $request->prog_id;
@@ -672,7 +680,7 @@ class ClientProgramController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->clientProgramRepository->updateClientProgram($clientProgramId, ['client_id' => $studentId] + $clientProgramDetails);
+            $clientProgramUpdated = $this->clientProgramRepository->updateClientProgram($clientProgramId, ['client_id' => $studentId] + $clientProgramDetails);
 
             switch ($clientProgramDetails['status']) {
 
@@ -729,6 +737,11 @@ class ClientProgramController extends Controller
                     }
                     break;
             }
+
+            # Update success
+            # create log success
+            $this->logSuccess('update', 'Form Input', 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $clientProgramUpdated, $oldClientProgram);
+
             DB::commit();
         } catch (Exception $e) {
 
@@ -936,6 +949,10 @@ class ClientProgramController extends Controller
                 # send thanks mail
                 $this->sendMailThanks($storedClientProgram, $parentId, $childId);
             }
+
+            # store Success
+            # create log success
+            $this->logSuccess('store', 'Form Embed', 'Client Program', 'Guest', $storedClientProgram);
 
             DB::commit();
         

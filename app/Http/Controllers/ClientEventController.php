@@ -681,7 +681,7 @@ class ClientEventController extends Controller
 
             # store Success
             # create log success
-            $this->logSuccess('store', 'Form Embed Event', 'Client Event', 'Guest', $clientEvent);
+            $this->logSuccess('store', 'Form Embed', 'Client Event', 'Guest', $clientEvent);
 
             DB::commit();
         } catch (Exception $e) {
