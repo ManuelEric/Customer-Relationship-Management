@@ -14,6 +14,7 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Models\Corporate;
 use App\Models\EdufLead;
 use App\Models\Event;
@@ -22,6 +23,7 @@ use App\Models\Role;
 use App\Models\School;
 use App\Models\Tag;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
@@ -36,6 +38,7 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
     use StandardizePhoneNumberTrait;
     use CreateCustomPrimaryKeyTrait;
     use CheckExistingClientImport;
+    use LoggingTrait;
 
     public function sheets(): array
     {
@@ -81,6 +84,7 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
 
                     $parent = UserClient::create($parentDetails);
                     $parent->roles()->attach($roleId);
+                    $this->logSuccess('store', 'Import Parent', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $parent);
                     // $row['childrens_name'][0] != null ?  $parent->childrens()->sync($row['childrens_name']) : null;
 
 
@@ -270,6 +274,7 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
 
             $children = UserClient::create($childrenDetails);
             $children->roles()->attach($roleId);
+            $this->logSuccess('store', 'Import Parent', 'Student', Auth::user()->first_name . ' '. Auth::user()->last_name, $children);
 
              // Sync country of study abroad
              if (isset($row['destination_country'])) {

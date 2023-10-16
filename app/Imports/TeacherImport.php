@@ -17,9 +17,11 @@ use App\Models\Role;
 use App\Models\School;
 use Maatwebsite\Excel\Concerns\Importable;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Models\Corporate;
 use App\Models\EdufLead;
 use App\Models\Event;
+use Illuminate\Support\Facades\Auth;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
@@ -32,6 +34,7 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
     use StandardizePhoneNumberTrait;
     use CreateCustomPrimaryKeyTrait;
     use CheckExistingClientImport;
+    use LoggingTrait;
 
     public function collection(Collection $rows)
     {
@@ -75,6 +78,8 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
 
                     $teacher = UserClient::create($teacherDetails);
                     $teacher->roles()->attach($roleId);
+                    $this->logSuccess('store', 'Import Teacher', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $teacher);
+
                 }
             }
             DB::commit();

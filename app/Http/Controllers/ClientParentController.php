@@ -28,9 +28,11 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ParentTemplate;
 use App\Http\Controllers\Module\ClientController;
 use App\Http\Requests\StoreImportExcelRequest;
+use App\Http\Traits\LoggingTrait;
 use App\Imports\MasterParentImport;
 use App\Imports\ParentImport;
 use App\Interfaces\ClientEventRepositoryInterface;
+use Illuminate\Support\Facades\Auth;
 
 class ClientParentController extends ClientController
 {
@@ -38,6 +40,7 @@ class ClientParentController extends ClientController
     use CreateCustomPrimaryKeyTrait;
     use FindStatusClientTrait;
     use StandardizePhoneNumberTrait;
+    use LoggingTrait;
 
     protected ClientRepositoryInterface $clientRepository;
     protected ClientEventRepositoryInterface $clientEventRepository;
@@ -166,6 +169,10 @@ class ClientParentController extends ClientController
             if (!$this->createInterestedProgram($data['interestPrograms'], $newParentId))
                 throw new Exception('Failed to store interest program', 3);
 
+            # store Success
+            # create log success
+            $this->logSuccess('store', 'Form Input', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $parent);
+
             DB::commit();
         } catch (Exception $e) {
 
@@ -265,6 +272,7 @@ class ClientParentController extends ClientController
 
         $childrens = $request->child_id;
         $parentId = $request->route('parent');
+        $oldParent = $this->clientRepository->getClientById($parentId);
 
         DB::beginTransaction();
         try {
@@ -303,6 +311,10 @@ class ClientParentController extends ClientController
             # update parent's information
             if (!$this->clientRepository->updateClient($parentId, $data['parentDetails']))
                 throw new Exception('Failed to update parent', 3);
+
+            # Update success
+            # create log success
+            $this->logSuccess('update', 'Form Input', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $data['parentDetails'], $oldParent);
 
             DB::commit();
         } catch (Exception $e) {

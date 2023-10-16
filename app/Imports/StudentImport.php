@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Models\Corporate;
 use App\Models\EdufLead;
 use App\Models\Event;
@@ -23,6 +24,7 @@ use App\Models\University;
 use App\Models\UserClient;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
@@ -39,6 +41,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
     use StandardizePhoneNumberTrait;
     use CheckExistingClientImport;
     use CreateCustomPrimaryKeyTrait;
+    use LoggingTrait;
 
     public function sheets(): array
     {
@@ -91,7 +94,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
                         'st_grade' => $row['grade'],
                         'lead_id' => $row['lead'] == 'KOL' ? $row['kol'] : $row['lead'],
                         'event_id' => isset($row['event']) && $row['lead'] == 'LS004' ? $row['event'] : null,
-                        'partner_id' => isset($row['partner']) && $row['lead'] == 'LS015' ? $row['partner'] : null,
+                        // 'partner_id' => isset($row['partner']) && $row['lead'] == 'LS015' ? $row['partner'] : null,
                         'eduf_id' => isset($row['edufair'])  && $row['lead'] == 'LS018' ? $row['edufair'] : null,
                         'st_levelinterest' => $row['level_of_interest'],
                         'graduation_year' => isset($row['graduation_year']) ? $row['graduation_year'] : null,
@@ -102,6 +105,8 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
 
                     $student = UserClient::create($studentDetails);
                     $student->roles()->attach($roleId);
+
+                    $this->logSuccess('store', 'Import Student', 'Student', Auth::user()->first_name . ' '. Auth::user()->last_name, $student);
                 } else {
                     $student = UserClient::find($student['id']);
                 }
@@ -257,6 +262,8 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
             $parent = UserClient::create($parentDetails);
             $parent->roles()->attach($roleId);
             $student->parents()->sync($parent->id);
+
+            $this->logSuccess('store', 'Import Student', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $parent);
         } else {
 
             $student->parents()->sync($existParent['id']);
@@ -271,6 +278,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
 
         $newSchool = School::create(['sch_id' => $school_id_with_label, 'sch_name' => $sch_name]);
 
+        
         return $newSchool;
     }
 
