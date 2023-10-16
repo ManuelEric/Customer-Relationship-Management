@@ -14,11 +14,13 @@ use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\AxisRepositoryInterface;
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Http\Traits\DirectorListTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Models\Invb2b;
 use Barryvdh\DomPDF\PDF as DomPDFPDF;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -32,6 +34,7 @@ class InvoiceReferralController extends InvoiceB2BBaseController
 {
     use DirectorListTrait;
     use CreateInvoiceIdTrait;
+    use LoggingTrait;
     protected ReferralRepositoryInterface $referralRepository;
     protected ProgramRepositoryInterface $programRepository;
     protected InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository;
@@ -148,7 +151,7 @@ class InvoiceReferralController extends InvoiceB2BBaseController
         DB::beginTransaction();
         try {
 
-            $this->invoiceB2bRepository->createInvoiceB2b($invoices);
+            $invoiceCreated = $this->invoiceB2bRepository->createInvoiceB2b($invoices);
 
             DB::commit();
         } catch (Exception $e) {
@@ -158,6 +161,11 @@ class InvoiceReferralController extends InvoiceB2BBaseController
 
             return Redirect::to('invoice/referral/' . $ref_id . '/detail/create')->withError('Failed to create a new invoice');
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Invoice Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoiceCreated);
+
 
         return Redirect::to('invoice/referral/status/list')->withSuccess('Invoice successfully created');
     }
@@ -214,6 +222,7 @@ class InvoiceReferralController extends InvoiceB2BBaseController
 
         $ref_id = $request->route('referral');
         $invNum = $request->route('detail');
+        $oldInvoice = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
 
         $invoices = $request->only([
             'select_currency',
@@ -271,6 +280,10 @@ class InvoiceReferralController extends InvoiceB2BBaseController
 
             return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $invNum)->withError('Failed to update invoice');
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Invoice Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoices, $oldInvoice);
 
         return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $invNum)->withSuccess('Invoice successfully updated');
     }
