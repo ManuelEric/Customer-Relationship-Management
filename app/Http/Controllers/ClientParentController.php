@@ -171,7 +171,7 @@ class ClientParentController extends ClientController
 
             # store Success
             # create log success
-            $this->logSuccess('store', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $newParentId);
+            $this->logSuccess('store', 'Form Input', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $parent);
 
             DB::commit();
         } catch (Exception $e) {
@@ -272,6 +272,7 @@ class ClientParentController extends ClientController
 
         $childrens = $request->child_id;
         $parentId = $request->route('parent');
+        $oldParent = $this->clientRepository->getClientById($parentId);
 
         DB::beginTransaction();
         try {
@@ -310,6 +311,10 @@ class ClientParentController extends ClientController
             # update parent's information
             if (!$this->clientRepository->updateClient($parentId, $data['parentDetails']))
                 throw new Exception('Failed to update parent', 3);
+
+            # Update success
+            # create log success
+            $this->logSuccess('update', 'Form Input', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $data['parentDetails'], $oldParent);
 
             DB::commit();
         } catch (Exception $e) {

@@ -6,6 +6,7 @@ use App\Http\Controllers\Module\ClientController;
 use App\Http\Requests\StoreClientTeacherCounselorRequest;
 use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
@@ -20,6 +21,7 @@ use App\Models\School;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -28,6 +30,7 @@ class ClientTeacherCounselorController extends ClientController
 {
     use CreateCustomPrimaryKeyTrait;
     use StandardizePhoneNumberTrait;
+    use LoggingTrait;
     protected SchoolRepositoryInterface $schoolRepository;
     protected CurriculumRepositoryInterface $curriculumRepository;
     protected LeadRepositoryInterface $leadRepository;
@@ -95,8 +98,12 @@ class ClientTeacherCounselorController extends ClientController
 
             # case 2
             # create new user client as teacher / counselor
-            if (!$this->clientRepository->createClient('Teacher/Counselor', $data['teacherDetails']))
+            if (!$newTeacher = $this->clientRepository->createClient('Teacher/Counselor', $data['teacherDetails']))
                 throw new Exception('Failed to store new teacher / counselor', 2);
+
+            # store Success
+            # create log success
+            $this->logSuccess('store', 'Form Input', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $newTeacher);
 
             DB::commit();
 
@@ -234,8 +241,13 @@ class ClientTeacherCounselorController extends ClientController
             # case 2
             # create new user client as teacher / counselor
             $teacher_counselorId = $request->route('teacher_counselor');
+            $oldTeacher = $this->clientRepository->getClientById($teacher_counselorId);
             if (!$this->clientRepository->updateClient($teacher_counselorId, $newTeacherCounselorDetails))
                 throw new Exception('Failed to store new teacher / counselor', 2);
+
+            # Update success
+            # create log success
+            $this->logSuccess('update', 'Form Input', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $newTeacherCounselorDetails, $oldTeacher);
 
             DB::commit();
         } catch (Exception $e) {

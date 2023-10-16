@@ -12,20 +12,27 @@ trait LoggingTrait
         
     }
 
-    public function logSuccess($type, $modul, $user, $id=null, $from=null, $into=null)
+    public function logSuccess($type, $inputFrom, $modul, $user, $new=null, $old=null)
     {
 
         switch ($type) {
             case 'store':
-                $message = 'Successfully Stored New ' . $modul . ' (ID: ' . $id . ') By ' . $user;
+                $message = $inputFrom  . ': Successfully Stored New ' . $modul . ' By ' . $user;
+                $context = $this->checkType($new);
                 break;
 
             case 'update':
-                $message = 'Successfully Updated ' . $modul . ' From: ' . json_encode($from)  . ' into: ' . json_encode($into) . ' By ' . $user;
+                $message = $inputFrom . ': Successfully Updated ' . $modul . ' By ' . $user;
+                $context = ['Form' => $this->checkType($old), 'Into' => $this->checkType($new)];
                 break;
         }
 
-        Log::notice($message);
+        Log::notice($message, $context);
         
+    }
+
+    private function checkType ($data)
+    {
+        return gettype($data) != 'array' ? $data->toArray() : $data;
     }
 }

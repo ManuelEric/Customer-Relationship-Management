@@ -289,7 +289,7 @@ class ClientStudentController extends ClientController
             
             # store Success
             # create log success
-            $this->logSuccess('store', 'Student', Auth::user()->first_name . ' '. Auth::user()->last_name, $newStudentId);
+            $this->logSuccess('store', 'Form Input', 'Student', Auth::user()->first_name . ' '. Auth::user()->last_name, $newStudentDetails);
 
             DB::commit();
         } catch (Exception $e) {
@@ -521,7 +521,7 @@ class ClientStudentController extends ClientController
 
             # Update success
             # create log success
-            $this->logSuccess('update', 'Student',  Auth::user()->first_name . ' '. Auth::user()->last_name, null, $oldStudent, $data['studentDetails']);
+            $this->logSuccess('update', 'Form Input', 'Student', Auth::user()->first_name . ' '. Auth::user()->last_name, $data['studentDetails'], $oldStudent);
 
             DB::commit();
         } catch (Exception $e) {
