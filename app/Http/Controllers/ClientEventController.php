@@ -438,7 +438,7 @@ class ClientEventController extends Controller
         DB::beginTransaction();
         try {
 
-            $clientEventUpdated = $this->clientEventRepository->updateClientEvent($clientevent_id, $clientEvent);
+            $this->clientEventRepository->updateClientEvent($clientevent_id, $clientEvent);
             
             DB::commit();
         } catch (Exception $e) {
@@ -451,7 +451,7 @@ class ClientEventController extends Controller
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Client Event', Auth::user()->first_name . ' '. Auth::user()->last_name, $clientEventUpdated, $oldClientEvent);
+        $this->logSuccess('update', 'Form Input', 'Client Event', Auth::user()->first_name . ' '. Auth::user()->last_name, $clientEvent, $oldClientEvent);
 
         return Redirect::to('program/event')->withSuccess('Client event successfully updated');
     }

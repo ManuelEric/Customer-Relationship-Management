@@ -401,8 +401,8 @@ class PartnerProgramController extends Controller
                 }
             }
 
-            # update school program
-            $partnerProgramUpdated = $this->partnerProgramRepository->updatePartnerProgram($partner_progId, $partnerPrograms);
+            # update partner program
+            $this->partnerProgramRepository->updatePartnerProgram($partner_progId, $partnerPrograms);
 
             DB::commit();
         } catch (Exception $e) {
@@ -414,7 +414,7 @@ class PartnerProgramController extends Controller
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $partnerProgramUpdated, $oldPartnerProgram);
+        $this->logSuccess('update', 'Form Input', 'Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $partnerPrograms, $oldPartnerProgram);
 
         return Redirect::to('program/corporate/' . strtolower($corpId) . '/detail/' . $partner_progId)->withSuccess('Partner program successfully updated');
     }

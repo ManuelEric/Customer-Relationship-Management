@@ -680,7 +680,7 @@ class ClientProgramController extends Controller
         DB::beginTransaction();
         try {
 
-            $clientProgramUpdated = $this->clientProgramRepository->updateClientProgram($clientProgramId, ['client_id' => $studentId] + $clientProgramDetails);
+            $this->clientProgramRepository->updateClientProgram($clientProgramId, ['client_id' => $studentId] + $clientProgramDetails);
 
             switch ($clientProgramDetails['status']) {
 
@@ -748,7 +748,7 @@ class ClientProgramController extends Controller
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $clientProgramUpdated, $oldClientProgram);
+        $this->logSuccess('update', 'Form Input', 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['client_id' => $studentId] + $clientProgramDetails, $oldClientProgram);
 
         return Redirect::to('client/student/' . $studentId . '/program/' . $clientProgramId)->withSuccess('A program has been updated for ' . $student->fullname);
     }
