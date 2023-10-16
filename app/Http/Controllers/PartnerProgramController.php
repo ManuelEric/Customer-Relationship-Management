@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePartnerProgramRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\PartnerProgramAttachRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
@@ -24,6 +25,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -31,6 +33,7 @@ use Illuminate\Support\Facades\Redirect;
 class PartnerProgramController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
+    use LoggingTrait;
 
     protected SchoolRepositoryInterface $schoolRepository;
     protected SchoolProgramRepositoryInterface $schoolProgramRepository;
@@ -163,6 +166,10 @@ class PartnerProgramController extends Controller
             # insert into partner program
             $partner_prog_created = $this->partnerProgramRepository->createPartnerProgram($partnerPrograms);
             $partner_progId = $partner_prog_created->id;
+
+            # store Success
+            # create log success
+            $this->logSuccess('store', 'Form Input', 'Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $partner_prog_created);
 
             DB::commit();
         } catch (Exception $e) {
@@ -348,6 +355,8 @@ class PartnerProgramController extends Controller
 
         $corpId = strtoupper($request->route('corp'));
         $partner_progId = $request->route('detail');
+        $oldPartnerProgram = $this->partnerProgramRepository->getPartnerProgramById($partner_progId);
+
         $partnerPrograms = $request->all();
         if ($request->input('status') == '2') {
             if ($request->input('reason_id') == 'other') {
@@ -393,7 +402,11 @@ class PartnerProgramController extends Controller
             }
 
             # update school program
-            $this->partnerProgramRepository->updatePartnerProgram($partner_progId, $partnerPrograms);
+            $partnerProgramUpdated = $this->partnerProgramRepository->updatePartnerProgram($partner_progId, $partnerPrograms);
+
+            # Update success
+            # create log success
+            $this->logSuccess('update', 'Form Input', 'Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $partnerProgramUpdated, $oldPartnerProgram);
 
             DB::commit();
         } catch (Exception $e) {
