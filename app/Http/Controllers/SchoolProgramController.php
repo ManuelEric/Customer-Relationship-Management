@@ -394,7 +394,7 @@ class SchoolProgramController extends Controller
             }
 
             # update school program
-            $schoolProgramUpdated = $this->schoolProgramRepository->updateSchoolProgram($sch_progId, $schoolPrograms);
+            $this->schoolProgramRepository->updateSchoolProgram($sch_progId, $schoolPrograms);
 
             DB::commit();
         } catch (Exception $e) {
@@ -406,7 +406,7 @@ class SchoolProgramController extends Controller
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'School Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $schoolProgramUpdated, $oldSchoolProgram);
+        $this->logSuccess('update', 'Form Input', 'School Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $schoolPrograms, $oldSchoolProgram);
 
         return Redirect::to('program/school/' . strtolower($schoolId) . '/detail/' . $sch_progId)->withSuccess('School program successfully updated');
     }

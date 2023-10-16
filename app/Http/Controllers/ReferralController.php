@@ -160,7 +160,7 @@ class ReferralController extends Controller
         DB::beginTransaction();
         try {
 
-            $referralProgramUpdated = $this->referralRepository->updateReferral($referralId, $newDetails);
+            $this->referralRepository->updateReferral($referralId, $newDetails);
             DB::commit();
         } catch (Exception $e) {
 
@@ -171,7 +171,7 @@ class ReferralController extends Controller
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $referralProgramUpdated, $oldReferralProgram);
+        $this->logSuccess('update', 'Form Input', 'Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $newDetails, $oldReferralProgram);
 
         return Redirect::to('program/referral/' . $referralId)->withSuccess('Referral successfully updated');
     }

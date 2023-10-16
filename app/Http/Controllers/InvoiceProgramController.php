@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAttachmentRequest;
 use App\Http\Requests\StoreInvoiceProgramRequest;
 use App\Http\Traits\CreateInvoiceIdTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
@@ -16,6 +17,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -27,6 +29,7 @@ use PDF;
 class InvoiceProgramController extends Controller
 {
     use CreateInvoiceIdTrait;
+    use LoggingTrait;
     private InvoiceProgramRepositoryInterface $invoiceProgramRepository;
     private ClientProgramRepositoryInterface $clientProgramRepository;
     private InvoiceDetailRepositoryInterface $invoiceDetailRepository;
@@ -185,7 +188,7 @@ class InvoiceProgramController extends Controller
             # Use Trait Create Invoice Id
             $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id);
 
-            $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 1] + $invoiceDetails);
+            $invoiceProgramCreated = $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 1] + $invoiceDetails);
             // $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 0] + $invoiceDetails);
 
             # add installment details
@@ -225,6 +228,10 @@ class InvoiceProgramController extends Controller
             Log::error('Store invoice program failed : ' . $e->getMessage());
             return Redirect::to('invoice/client-program/create?prog=' . $request->clientprog_id)->withError('Failed to store invoice program');
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Invoice Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoiceProgramCreated);
 
         return Redirect::to('invoice/client-program/' . $clientProgId)->withSuccess('Invoice has been created');
     }
@@ -517,6 +524,10 @@ class InvoiceProgramController extends Controller
             Log::error('Update invoice program failed : ' . $e->getMessage());
             return Redirect::to('invoice/client-program/' . $request->clientprog_id . '/edit')->withError('Failed to update invoice program');
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Invoice Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoiceDetails, $invoice);
 
         return Redirect::to('invoice/client-program/' . $clientProgId)->withSuccess('Invoice has been updated');
     }
