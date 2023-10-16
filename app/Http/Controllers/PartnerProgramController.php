@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePartnerProgramRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\PartnerProgramAttachRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
@@ -24,6 +25,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -31,6 +33,7 @@ use Illuminate\Support\Facades\Redirect;
 class PartnerProgramController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
+    use LoggingTrait;
 
     protected SchoolRepositoryInterface $schoolRepository;
     protected SchoolProgramRepositoryInterface $schoolProgramRepository;
@@ -171,6 +174,10 @@ class PartnerProgramController extends Controller
             Log::error('Store partner program failed : ' . $e->getMessage());
             return Redirect::to('program/corporate/' . strtolower($corpId) . '/detail/create')->withError('Failed to create partner program' . $e->getMessage());
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $partner_prog_created);
 
         return Redirect::to('program/corporate/' . strtolower($corpId) . '/detail/' . $partner_progId)->withSuccess('Partner program successfully created');
     }
@@ -348,6 +355,8 @@ class PartnerProgramController extends Controller
 
         $corpId = strtoupper($request->route('corp'));
         $partner_progId = $request->route('detail');
+        $oldPartnerProgram = $this->partnerProgramRepository->getPartnerProgramById($partner_progId);
+
         $partnerPrograms = $request->all();
         if ($request->input('status') == '2') {
             if ($request->input('reason_id') == 'other') {
@@ -393,7 +402,7 @@ class PartnerProgramController extends Controller
             }
 
             # update school program
-            $this->partnerProgramRepository->updatePartnerProgram($partner_progId, $partnerPrograms);
+            $partnerProgramUpdated = $this->partnerProgramRepository->updatePartnerProgram($partner_progId, $partnerPrograms);
 
             DB::commit();
         } catch (Exception $e) {
@@ -402,6 +411,10 @@ class PartnerProgramController extends Controller
             Log::error('Update partner program failed : ' . $e->getMessage());
             return Redirect::to('program/corporate/' . strtolower($corpId) . '/detail/' . $partner_progId . '/edit')->withError('Failed to update partner program' . $e->getMessage());
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $partnerProgramUpdated, $oldPartnerProgram);
 
         return Redirect::to('program/corporate/' . strtolower($corpId) . '/detail/' . $partner_progId)->withSuccess('Partner program successfully updated');
     }

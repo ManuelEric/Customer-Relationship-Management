@@ -286,11 +286,6 @@ class ClientStudentController extends ClientController
             if (!$this->createInterestedMajor($data['interestMajors'], $newStudentId))
                 throw new Exception('Failed to store interest major', 7);
 
-            
-            # store Success
-            # create log success
-            $this->logSuccess('store', 'Form Input', 'Student', Auth::user()->first_name . ' '. Auth::user()->last_name, $newStudentDetails);
-
             DB::commit();
         } catch (Exception $e) {
 
@@ -329,6 +324,10 @@ class ClientStudentController extends ClientController
             Log::error('Store a new student failed : ' . $e->getMessage());
             return Redirect::to('client/student/create')->withError($e->getMessage());
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Student', Auth::user()->first_name . ' '. Auth::user()->last_name, $newStudentDetails);
 
         return Redirect::to('client/student?st=new-leads')->withSuccess('A new student has been registered.');
     }
@@ -519,10 +518,6 @@ class ClientStudentController extends ClientController
             if (!$this->createInterestedMajor($data['interestMajors'], $studentId))
                 throw new Exception('Failed to store interest major', 7);
 
-            # Update success
-            # create log success
-            $this->logSuccess('update', 'Form Input', 'Student', Auth::user()->first_name . ' '. Auth::user()->last_name, $data['studentDetails'], $oldStudent);
-
             DB::commit();
         } catch (Exception $e) {
 
@@ -561,6 +556,10 @@ class ClientStudentController extends ClientController
             Log::error('Update a student failed : ' . $e->getMessage());
             return Redirect::to('client/student/' . $studentId . '/edit')->withError($e->getMessage());
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Student', Auth::user()->first_name . ' '. Auth::user()->last_name, $data['studentDetails'], $oldStudent);
 
         return Redirect::to('client/student/' . $studentId)->withSuccess('A student\'s profile has been updated.');
     }

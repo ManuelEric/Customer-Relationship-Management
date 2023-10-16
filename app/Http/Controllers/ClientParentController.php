@@ -169,10 +169,6 @@ class ClientParentController extends ClientController
             if (!$this->createInterestedProgram($data['interestPrograms'], $newParentId))
                 throw new Exception('Failed to store interest program', 3);
 
-            # store Success
-            # create log success
-            $this->logSuccess('store', 'Form Input', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $parent);
-
             DB::commit();
         } catch (Exception $e) {
 
@@ -195,6 +191,10 @@ class ClientParentController extends ClientController
             Log::error('Store a new parent failed : ' . $e->getMessage());
             return Redirect::to('client/parent/create' . $query)->withError($e->getMessage());
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $parent);
 
         if ($query != NULL) {
             if ($qChildrenId != NULL && $qClientProgId == NULL)
@@ -312,10 +312,6 @@ class ClientParentController extends ClientController
             if (!$this->clientRepository->updateClient($parentId, $data['parentDetails']))
                 throw new Exception('Failed to update parent', 3);
 
-            # Update success
-            # create log success
-            $this->logSuccess('update', 'Form Input', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $data['parentDetails'], $oldParent);
-
             DB::commit();
         } catch (Exception $e) {
 
@@ -338,6 +334,10 @@ class ClientParentController extends ClientController
             Log::error('Update a parent failed : ' . $e->getMessage());
             return Redirect::to('client/parent/' . $parentId . '/edit')->withError($e->getMessage());
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $data['parentDetails'], $oldParent);
 
         return Redirect::to('client/parent/' . $parentId)->withSuccess('A parent has been updated.');
     }

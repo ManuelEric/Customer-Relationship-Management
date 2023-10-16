@@ -23,7 +23,7 @@ trait LoggingTrait
 
             case 'update':
                 $message = $inputFrom . ': Successfully Updated ' . $modul . ' By ' . $user;
-                $context = ['Form' => $this->checkType($old), 'Into' => $this->checkType($new)];
+                $context = ['From' => $this->checkType($old), 'Into' => $this->checkType($new)];
                 break;
         }
 

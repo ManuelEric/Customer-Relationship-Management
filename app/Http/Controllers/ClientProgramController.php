@@ -17,6 +17,7 @@ use App\Interfaces\ReasonRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\ClientProgramLogMailRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Models\Program;
@@ -25,6 +26,7 @@ use App\Models\UserClient;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -34,6 +36,7 @@ use Illuminate\Support\Facades\Redirect;
 class ClientProgramController extends Controller
 {
     use CheckExistingClient;
+    use LoggingTrait;
     private ClientRepositoryInterface $clientRepository;
     private ProgramRepositoryInterface $programRepository;
     private LeadRepositoryInterface $leadRepository;
@@ -399,7 +402,7 @@ class ClientProgramController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->clientProgramRepository->createClientProgram(['client_id' => $studentId] + $clientProgramDetails);
+            $newClientProgram = $this->clientProgramRepository->createClientProgram(['client_id' => $studentId] + $clientProgramDetails);
 
             switch ($clientProgramDetails['status']) {
 
@@ -445,6 +448,10 @@ class ClientProgramController extends Controller
 
             return Redirect::back()->withError($e->getMessage());
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $newClientProgram);
 
         return Redirect::to('client/student/' . $studentId)->withSuccess('A new program has been submitted for ' . $student->fullname);
     }
@@ -502,6 +509,7 @@ class ClientProgramController extends Controller
         $clientProgramId = $request->route('program');
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
+        $oldClientProgram = $this->clientProgramRepository->getClientProgramById($clientProgramId);
 
         $status = $request->status;
         $progId = $request->prog_id;
@@ -672,7 +680,7 @@ class ClientProgramController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->clientProgramRepository->updateClientProgram($clientProgramId, ['client_id' => $studentId] + $clientProgramDetails);
+            $clientProgramUpdated = $this->clientProgramRepository->updateClientProgram($clientProgramId, ['client_id' => $studentId] + $clientProgramDetails);
 
             switch ($clientProgramDetails['status']) {
 
@@ -729,6 +737,7 @@ class ClientProgramController extends Controller
                     }
                     break;
             }
+
             DB::commit();
         } catch (Exception $e) {
 
@@ -736,6 +745,10 @@ class ClientProgramController extends Controller
             Log::error('Update a student program failed : ' . $e->getMessage());
             return Redirect::back()->withError($e->getMessage());
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $clientProgramUpdated, $oldClientProgram);
 
         return Redirect::to('client/student/' . $studentId . '/program/' . $clientProgramId)->withSuccess('A program has been updated for ' . $student->fullname);
     }
@@ -946,6 +959,10 @@ class ClientProgramController extends Controller
             return Redirect::to('form/program?program_name='.$program->prog_program)->withErrors('Something went wrong. Please try again or contact our administrator.');
         
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Embed', 'Client Program', 'Guest', $storedClientProgram);
 
         return Redirect::to('form/thanks');
     }    
