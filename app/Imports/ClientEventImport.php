@@ -24,12 +24,14 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\SplitNameTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Models\ClientEventLogMail;
 use App\Models\Major;
 use App\Models\Tag;
 use App\Models\UserClientAdditionalInfo;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\SkipsErrors;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
@@ -49,6 +51,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
     use CreateCustomPrimaryKeyTrait;
     use CheckExistingClient;
     use SplitNameTrait;
+    use LoggingTrait;
 
     private ClientRepositoryInterface $clientRepository;
 
@@ -142,8 +145,14 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
                         'sent_status' => 0,
                         'category' => 'qrcode-mail'
                     ]);
+
+                    # store Success
+                    # create log success
+                    $this->logSuccess('store', 'Import Client Event', 'Client Event', Auth::user()->first_name . ' '. Auth::user()->last_name, $insertedClientEvent);
                 }
             }
+            
+
             DB::commit();
         } catch (Exception $e) {
 

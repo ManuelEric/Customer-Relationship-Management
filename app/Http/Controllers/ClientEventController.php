@@ -10,6 +10,7 @@ use App\Http\Requests\StoreFormEventEmbedRequest;
 use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\MailingEventOfflineTrait;
 use App\Http\Traits\SplitNameTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
@@ -42,6 +43,7 @@ use AshAllenDesign\ShortURL\Models\ShortURL;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -56,6 +58,7 @@ class ClientEventController extends Controller
     use CreateCustomPrimaryKeyTrait;
     use StandardizePhoneNumberTrait;
     use MailingEventOfflineTrait;
+    use LoggingTrait;
     protected CurriculumRepositoryInterface $curriculumRepository;
     protected ClientRepositoryInterface $clientRepository;
     protected ClientEventRepositoryInterface $clientEventRepository;
@@ -301,6 +304,9 @@ class ClientEventController extends Controller
             if (!$this->clientEventRepository->createClientEvent($clientEvents))
                 throw new Exception('Failed to store new client event', 3);
 
+            # store Success
+            # create log success
+            $this->logSuccess('store', 'Form Input', 'Client Event', Auth::user()->first_name . ' '. Auth::user()->last_name, $clientEvents);
 
             DB::commit();
         } catch (Exception $e) {
@@ -393,6 +399,7 @@ class ClientEventController extends Controller
     public function update(StoreClientEventRequest $request)
     {
         $clientevent_id = $request->route('event');
+        $oldClientEvent = $this->clientEventRepository->getClientEventById($clientevent_id);
 
         $clientEvent = $request->only([
             'client_id',
@@ -431,7 +438,12 @@ class ClientEventController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->clientEventRepository->updateClientEvent($clientevent_id, $clientEvent);
+            $clientEventUpdated = $this->clientEventRepository->updateClientEvent($clientevent_id, $clientEvent);
+            
+            # Update success
+            # create log success
+            $this->logSuccess('update', 'Form Input', 'Client Event', Auth::user()->first_name . ' '. Auth::user()->last_name, $clientEventUpdated, $oldClientEvent);
+
             DB::commit();
         } catch (Exception $e) {
 
@@ -666,6 +678,10 @@ class ClientEventController extends Controller
                 }
 
             }
+
+            # store Success
+            # create log success
+            $this->logSuccess('store', 'Form Embed Event', 'Client Event', 'Guest', $clientEvent);
 
             DB::commit();
         } catch (Exception $e) {
@@ -1317,6 +1333,10 @@ class ClientEventController extends Controller
         $dataRegister = $this->register($client->mail, $eventId, $notes, $indexChild);
 
         if($dataRegister['success'] && !$dataRegister['already_join']){
+            # store Success
+            # create log success
+            $this->logSuccess('store', 'Register Express', 'Client Event', 'Guest', ['client_id' => $clientId, 'event_id' => $eventId, 'notes' => $notes]);
+
             return Redirect::to('form/thanks');
         }else if($dataRegister['success'] && $dataRegister['already_join']){
             return Redirect::to('form/already-join?role='.$client->register_as.'&name='.$client->full_name);
