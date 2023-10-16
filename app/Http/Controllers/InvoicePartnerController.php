@@ -14,11 +14,13 @@ use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\AxisRepositoryInterface;
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Http\Traits\DirectorListTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Models\Invb2b;
 use Barryvdh\DomPDF\PDF as DomPDFPDF;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -31,6 +33,7 @@ use PDF;
 class InvoicePartnerController extends InvoiceB2BBaseController
 {
     use CreateInvoiceIdTrait;
+    use LoggingTrait;
     protected CorporateRepositoryInterface $corporateRepository;
     protected PartnerProgramRepositoryInterface $partnerProgramRepository;
     protected ProgramRepositoryInterface $programRepository;
@@ -212,7 +215,7 @@ class InvoicePartnerController extends InvoiceB2BBaseController
         DB::beginTransaction();
         try {
 
-            $this->invoiceB2bRepository->createInvoiceB2b($invoices);
+            $invoiceCreated = $this->invoiceB2bRepository->createInvoiceB2b($invoices);
             if ($invoices['invb2b_pm'] == 'Installment') {
                 $this->invoiceDetailRepository->createInvoiceDetail($installment);
             }
@@ -226,6 +229,10 @@ class InvoicePartnerController extends InvoiceB2BBaseController
             exit;
             return Redirect::to('invoice/corporate-program/' . $partnerProgId . '/detail/create')->withError('Failed to create a new invoice');
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Invoice Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoiceCreated);
 
         return Redirect::to('invoice/corporate-program/status/list')->withSuccess('Invoice successfully created');
     }
@@ -279,6 +286,7 @@ class InvoicePartnerController extends InvoiceB2BBaseController
 
         $partnerProgId = $request->route('corp_prog');
         $invNum = $request->route('detail');
+        $oldInvoice = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
 
         $invoices = $request->only([
             'select_currency',
@@ -400,6 +408,10 @@ class InvoicePartnerController extends InvoiceB2BBaseController
             exit;
             return Redirect::to('invoice/corporate-program/' . $partnerProgId . '/detail/' . $invNum)->withError('Failed to update invoice');
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Invoice Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoices, $oldInvoice);
 
         return Redirect::to('invoice/corporate-program/' . $partnerProgId . '/detail/' . $invNum)->withSuccess('Invoice successfully updated');
     }

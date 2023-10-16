@@ -13,10 +13,12 @@ use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\AxisRepositoryInterface;
 use App\Http\Traits\CreateInvoiceIdTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Models\Invb2b;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -30,6 +32,7 @@ use function PHPUnit\Framework\isEmpty;
 class InvoiceSchoolController extends InvoiceB2BBaseController
 {
     use CreateInvoiceIdTrait;
+    use LoggingTrait;
     protected SchoolRepositoryInterface $schoolRepository;
     protected SchoolProgramRepositoryInterface $schoolProgramRepository;
     protected ProgramRepositoryInterface $programRepository;
@@ -203,7 +206,7 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
         DB::beginTransaction();
         try {
 
-            $this->invoiceB2bRepository->createInvoiceB2b($invoices);
+            $invoiceCreated = $this->invoiceB2bRepository->createInvoiceB2b($invoices);
             if ($invoices['invb2b_pm'] == 'Installment') {
                 $this->invoiceDetailRepository->createInvoiceDetail($installment);
             }
@@ -217,6 +220,10 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
             exit;
             return Redirect::to('invoice/school-program/' . $schProgId . '/detail/create')->withError('Failed to create a new invoice');
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Invoice School Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoiceCreated);
 
         return Redirect::to('invoice/school-program/status/list')->withSuccess('Invoice successfully created');
     }
@@ -275,6 +282,7 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
 
         $schProgId = $request->route('sch_prog');
         $invNum = $request->route('detail');
+        $oldInvoice = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
 
         $invoices = $request->only([
             'select_currency',
@@ -392,6 +400,10 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
             exit;
             return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invNum)->withError('Failed to update invoice');
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Invoice Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoices, $oldInvoice);
 
         return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invNum)->withSuccess('Invoice successfully updated');
     }
