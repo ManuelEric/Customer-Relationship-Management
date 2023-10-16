@@ -101,10 +101,6 @@ class ClientTeacherCounselorController extends ClientController
             if (!$newTeacher = $this->clientRepository->createClient('Teacher/Counselor', $data['teacherDetails']))
                 throw new Exception('Failed to store new teacher / counselor', 2);
 
-            # store Success
-            # create log success
-            $this->logSuccess('store', 'Form Input', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $newTeacher);
-
             DB::commit();
 
         } catch (Exception $e) {
@@ -124,6 +120,10 @@ class ClientTeacherCounselorController extends ClientController
             Log::error('Store a new teacher / counselor failed : ' . $e->getMessage());
             return Redirect::to('client/teacher-counselor/create')->withError($e->getMessage());
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $newTeacher);
 
         return Redirect::to('client/teacher-counselor')->withSuccess('A new teacher / counselor has been registered.');
     }
@@ -245,10 +245,6 @@ class ClientTeacherCounselorController extends ClientController
             if (!$this->clientRepository->updateClient($teacher_counselorId, $newTeacherCounselorDetails))
                 throw new Exception('Failed to store new teacher / counselor', 2);
 
-            # Update success
-            # create log success
-            $this->logSuccess('update', 'Form Input', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $newTeacherCounselorDetails, $oldTeacher);
-
             DB::commit();
         } catch (Exception $e) {
 
@@ -267,6 +263,10 @@ class ClientTeacherCounselorController extends ClientController
             Log::error('Update a new teacher / counselor failed : ' . $e->getMessage());
             return Redirect::to('client/teacher-counselor/')->withError($e->getMessage());
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $newTeacherCounselorDetails, $oldTeacher);
 
         return Redirect::to('client/teacher-counselor/' . $teacher_counselorId)->withSuccess('A teacher / counselor\'s profile has been updated.');
     }

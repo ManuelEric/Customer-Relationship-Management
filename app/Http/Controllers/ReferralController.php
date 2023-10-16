@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreReferralRequest;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\PartnerRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
@@ -10,12 +11,14 @@ use App\Interfaces\ReferralRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
 class ReferralController extends Controller
 {
+    use LoggingTrait;
 
     private ReferralRepositoryInterface $referralRepository;
     private CorporateRepositoryInterface $corporateRepository;
@@ -76,6 +79,10 @@ class ReferralController extends Controller
             return Redirect::to('program/referral/' . $referral->id)->withError('Failed to create new referral');
         }
 
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $referral);
+
         return Redirect::to('program/referral/' . $referral->id)->withSuccess('Referral successfully created');
     }
 
@@ -118,6 +125,7 @@ class ReferralController extends Controller
     public function update(StoreReferralRequest $request)
     {
         $referralId = $request->route('referral');
+        $oldReferralProgram = $this->referralRepository->getReferralById($referralId);
 
         $newDetails = $request->only([
             'partner_id',
@@ -152,7 +160,7 @@ class ReferralController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->referralRepository->updateReferral($referralId, $newDetails);
+            $referralProgramUpdated = $this->referralRepository->updateReferral($referralId, $newDetails);
             DB::commit();
         } catch (Exception $e) {
 
@@ -160,6 +168,10 @@ class ReferralController extends Controller
             Log::error('Update referral failed : ' . $e->getMessage());
             return Redirect::to('program/referral/' . $referralId)->withError('Failed to update referral');
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $referralProgramUpdated, $oldReferralProgram);
 
         return Redirect::to('program/referral/' . $referralId)->withSuccess('Referral successfully updated');
     }

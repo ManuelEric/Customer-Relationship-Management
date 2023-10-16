@@ -304,10 +304,6 @@ class ClientEventController extends Controller
             if (!$this->clientEventRepository->createClientEvent($clientEvents))
                 throw new Exception('Failed to store new client event', 3);
 
-            # store Success
-            # create log success
-            $this->logSuccess('store', 'Form Input', 'Client Event', Auth::user()->first_name . ' '. Auth::user()->last_name, $clientEvents);
-
             DB::commit();
         } catch (Exception $e) {
 
@@ -332,6 +328,10 @@ class ClientEventController extends Controller
             // exit;
             return Redirect::to('program/event/create')->withError('Failed to create client event');
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Client Event', Auth::user()->first_name . ' '. Auth::user()->last_name, $clientEvents);
 
         return Redirect::to('program/event')->withSuccess('Client event successfully created');
     }
@@ -440,10 +440,6 @@ class ClientEventController extends Controller
 
             $clientEventUpdated = $this->clientEventRepository->updateClientEvent($clientevent_id, $clientEvent);
             
-            # Update success
-            # create log success
-            $this->logSuccess('update', 'Form Input', 'Client Event', Auth::user()->first_name . ' '. Auth::user()->last_name, $clientEventUpdated, $oldClientEvent);
-
             DB::commit();
         } catch (Exception $e) {
 
@@ -452,6 +448,10 @@ class ClientEventController extends Controller
 
             return Redirect::to('program/event/' . $clientevent_id)->withError('Failed to update client event');
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Client Event', Auth::user()->first_name . ' '. Auth::user()->last_name, $clientEventUpdated, $oldClientEvent);
 
         return Redirect::to('program/event')->withSuccess('Client event successfully updated');
     }
@@ -679,9 +679,6 @@ class ClientEventController extends Controller
 
             }
 
-            # store Success
-            # create log success
-            $this->logSuccess('store', 'Form Embed', 'Client Event', 'Guest', $clientEvent);
 
             DB::commit();
         } catch (Exception $e) {
@@ -691,6 +688,11 @@ class ClientEventController extends Controller
 
             return Redirect::to('form/event?event_name='.$request->get('event_name'))->withErrors('Something went wrong. Please try again or contact our administrator.');
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Embed', 'Client Event', 'Guest', $clientEvent);
+
         
         # if they regist on the spot then should return view success
         if (isset($registration_type) && $registration_type == "ots")

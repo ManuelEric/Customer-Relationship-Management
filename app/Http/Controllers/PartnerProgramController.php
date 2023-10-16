@@ -167,10 +167,6 @@ class PartnerProgramController extends Controller
             $partner_prog_created = $this->partnerProgramRepository->createPartnerProgram($partnerPrograms);
             $partner_progId = $partner_prog_created->id;
 
-            # store Success
-            # create log success
-            $this->logSuccess('store', 'Form Input', 'Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $partner_prog_created);
-
             DB::commit();
         } catch (Exception $e) {
 
@@ -178,6 +174,10 @@ class PartnerProgramController extends Controller
             Log::error('Store partner program failed : ' . $e->getMessage());
             return Redirect::to('program/corporate/' . strtolower($corpId) . '/detail/create')->withError('Failed to create partner program' . $e->getMessage());
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $partner_prog_created);
 
         return Redirect::to('program/corporate/' . strtolower($corpId) . '/detail/' . $partner_progId)->withSuccess('Partner program successfully created');
     }
@@ -404,10 +404,6 @@ class PartnerProgramController extends Controller
             # update school program
             $partnerProgramUpdated = $this->partnerProgramRepository->updatePartnerProgram($partner_progId, $partnerPrograms);
 
-            # Update success
-            # create log success
-            $this->logSuccess('update', 'Form Input', 'Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $partnerProgramUpdated, $oldPartnerProgram);
-
             DB::commit();
         } catch (Exception $e) {
 
@@ -415,6 +411,10 @@ class PartnerProgramController extends Controller
             Log::error('Update partner program failed : ' . $e->getMessage());
             return Redirect::to('program/corporate/' . strtolower($corpId) . '/detail/' . $partner_progId . '/edit')->withError('Failed to update partner program' . $e->getMessage());
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $partnerProgramUpdated, $oldPartnerProgram);
 
         return Redirect::to('program/corporate/' . strtolower($corpId) . '/detail/' . $partner_progId)->withSuccess('Partner program successfully updated');
     }

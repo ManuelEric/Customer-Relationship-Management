@@ -440,10 +440,6 @@ class ClientProgramController extends Controller
                     break;
             }
 
-            # store Success
-            # create log success
-            $this->logSuccess('store', 'Form Input', 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $newClientProgram);
-
             DB::commit();
         } catch (Exception $e) {
 
@@ -452,6 +448,10 @@ class ClientProgramController extends Controller
 
             return Redirect::back()->withError($e->getMessage());
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $newClientProgram);
 
         return Redirect::to('client/student/' . $studentId)->withSuccess('A new program has been submitted for ' . $student->fullname);
     }
@@ -738,10 +738,6 @@ class ClientProgramController extends Controller
                     break;
             }
 
-            # Update success
-            # create log success
-            $this->logSuccess('update', 'Form Input', 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $clientProgramUpdated, $oldClientProgram);
-
             DB::commit();
         } catch (Exception $e) {
 
@@ -749,6 +745,10 @@ class ClientProgramController extends Controller
             Log::error('Update a student program failed : ' . $e->getMessage());
             return Redirect::back()->withError($e->getMessage());
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $clientProgramUpdated, $oldClientProgram);
 
         return Redirect::to('client/student/' . $studentId . '/program/' . $clientProgramId)->withSuccess('A program has been updated for ' . $student->fullname);
     }
@@ -950,10 +950,6 @@ class ClientProgramController extends Controller
                 $this->sendMailThanks($storedClientProgram, $parentId, $childId);
             }
 
-            # store Success
-            # create log success
-            $this->logSuccess('store', 'Form Embed', 'Client Program', 'Guest', $storedClientProgram);
-
             DB::commit();
         
         } catch (Exception $e) {
@@ -963,6 +959,10 @@ class ClientProgramController extends Controller
             return Redirect::to('form/program?program_name='.$program->prog_program)->withErrors('Something went wrong. Please try again or contact our administrator.');
         
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Embed', 'Client Program', 'Guest', $storedClientProgram);
 
         return Redirect::to('form/thanks');
     }    
