@@ -3,15 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePartnerRequest;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\PartnerRepositoryInterface;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
 class PartnerController extends Controller
 {
+    use LoggingTrait;
+    
     private PartnerRepositoryInterface $partnerRepository;
 
     public function __construct(PartnerRepositoryInterface $partnerRepository)
@@ -41,7 +45,7 @@ class PartnerController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->partnerRepository->createPartner($partnerDetails);
+            $partnerCreated = $this->partnerRepository->createPartner($partnerDetails);
             DB::commit();
 
         } catch (Exception $e) {
@@ -51,6 +55,10 @@ class PartnerController extends Controller
             return Redirect::to('instance/referral')->withError('Failed to create a new partner');
 
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Partner', Auth::user()->first_name . ' '. Auth::user()->last_name, $partnerCreated);
 
         return Redirect::to('instance/referral')->withSuccess('Partner successfully created');
     }
@@ -83,6 +91,7 @@ class PartnerController extends Controller
             'status',
         ]);
         $partnerId = $request->route('partner');
+        $oldPartner = $this->partnerRepository->getPartnerById($partnerId);
 
         DB::beginTransaction();
         try {
@@ -97,6 +106,10 @@ class PartnerController extends Controller
             return Redirect::to('instance/referral')->withError('Failed to update partner');
 
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Partner', Auth::user()->first_name . ' '. Auth::user()->last_name, $newDetails, $oldPartner);
 
         return Redirect::to('instance/referral')->withSuccess('Partner successfully updated');
     }
