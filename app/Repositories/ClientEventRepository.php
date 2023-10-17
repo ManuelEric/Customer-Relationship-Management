@@ -35,7 +35,10 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     'client.full_name as client_name',
                     'client.mail as client_mail',
                     'client.phone as client_phone',
-                    'client.abr_country as abr_country',
+                    DB::raw('(CASE
+                        WHEN tbl_roles.role_name = "Parent" THEN child.abr_country 
+                        WHEN tbl_roles.role_name != "Parent" THEN client.abr_country
+                    END) AS abr_country'),
                     DB::raw('(CASE
                         WHEN tbl_client_event.registration_type = "PR" THEN "Pre-Registration"
                         WHEN tbl_client_event.registration_type = "OTS" THEN "On The Spot"
@@ -146,7 +149,18 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                             END) like ?';
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 }
-            )->make(true);
+            )->
+            filterColumn(
+                'abr_country',
+                function ($query, $keyword) {
+                    $sql = '(CASE
+                                WHEN tbl_roles.role_name = "Parent" THEN child.abr_country 
+                                WHEN tbl_roles.role_name != "Parent" THEN client.abr_country
+                            END) like ?';
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                }
+            )
+            ->make(true);
     }
 
     public function getAllClientEventByClientIdDataTables($clientId)
