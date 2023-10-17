@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUniversityRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\CountryRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
@@ -13,6 +14,7 @@ use App\Models\University;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -20,6 +22,7 @@ use Illuminate\Support\Facades\Redirect;
 class UniversityController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
+    use LoggingTrait;
 
     private UniversityRepositoryInterface $universityRepository;
     private UniversityPicRepositoryInterface $universityPicRepository;
@@ -70,7 +73,7 @@ class UniversityController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->universityRepository->createUniversity(['univ_id' => $univ_id_with_label] + $universityDetails);
+            $univCreated = $this->universityRepository->createUniversity(['univ_id' => $univ_id_with_label] + $universityDetails);
             DB::commit();
         } catch (Exception $e) {
 
@@ -78,6 +81,10 @@ class UniversityController extends Controller
             Log::error('Store university failed : ' . $e->getMessage());
             return Redirect::to('instance/university/' . $univ_id_with_label)->withError('Failed to create a new university');
         }
+        
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'University', Auth::user()->first_name . ' '. Auth::user()->last_name, $univCreated);
 
         return Redirect::to('instance/university/' . $univ_id_with_label)->withSuccess('University successfully created');
     }
@@ -159,6 +166,7 @@ class UniversityController extends Controller
 
         # retrieve vendor id from url
         $universityId = $request->route('university');
+        $oldUniv = $this->universityRepository->getUniversityById($universityId);
 
         DB::beginTransaction();
         try {
@@ -171,6 +179,10 @@ class UniversityController extends Controller
             Log::error('Update university failed : ' . $e->getMessage());
             return Redirect::to('instance/university')->withError('Failed to update a university');
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'University', Auth::user()->first_name . ' '. Auth::user()->last_name, $universityDetails, $oldUniv);
 
         return Redirect::to('instance/university')->withSuccess('University successfully updated');
     }

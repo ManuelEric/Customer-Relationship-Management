@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSchoolRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\SchoolDetailRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
@@ -18,6 +19,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -25,6 +27,7 @@ use Illuminate\Support\Facades\Redirect;
 class SchoolController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
+    use LoggingTrait;
 
     protected SchoolRepositoryInterface $schoolRepository;
     protected SchoolDetailRepositoryInterface $schoolDetailRepository;
@@ -86,7 +89,7 @@ class SchoolController extends Controller
             # insert into sch curriculum
             $schoolCurriculumDetails = $request->sch_curriculum;
 
-            $this->schoolCurriculumRepository->createSchoolCurriculum($school_id_with_label, $schoolCurriculumDetails);
+            $schoolCreated = $this->schoolCurriculumRepository->createSchoolCurriculum($school_id_with_label, $schoolCurriculumDetails);
 
             DB::commit();
         } catch (Exception $e) {
@@ -95,6 +98,10 @@ class SchoolController extends Controller
             Log::error('Store school failed : ' . $e->getMessage());
             return Redirect::to('instance/school')->withError('Failed to create school');
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'School', Auth::user()->first_name . ' '. Auth::user()->last_name, $schoolCreated);
 
         return Redirect::to('instance/school/' . $school_id_with_label)->withSuccess('School successfully created');
     }
@@ -198,6 +205,7 @@ class SchoolController extends Controller
         ]);
 
         $schoolId = $request->route('school');
+        $oldSchool = $this->schoolRepository->getSchoolById($schoolId);
 
         DB::beginTransaction();
         try {
@@ -217,6 +225,10 @@ class SchoolController extends Controller
             Log::error('Update school failed : ' . $e->getMessage());
             return Redirect::to('instance/school')->withError('Failed to update school');
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'School', Auth::user()->first_name . ' '. Auth::user()->last_name, $schoolDetails, $oldSchool);
 
         return Redirect::to('instance/school/' . $schoolId)->withSuccess('School successfully updated');
     }
