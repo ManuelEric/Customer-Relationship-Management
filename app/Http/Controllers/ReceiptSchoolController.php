@@ -182,6 +182,7 @@ class ReceiptSchoolController extends Controller
     public function destroy(Request $request)
     {
         $receiptId = $request->route('detail');
+        $receipt = $this->receiptRepository->getReceiptById($receiptId);
 
         DB::beginTransaction();
         try {
@@ -195,6 +196,10 @@ class ReceiptSchoolController extends Controller
 
             return Redirect::to('receipt/school-program/' . $receiptId)->withError('Failed to delete receipt');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Receipt School Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $receipt);
 
         return Redirect::to('receipt/school-program')->withSuccess('Receipt successfully deleted');
     }
@@ -356,6 +361,10 @@ class ReceiptSchoolController extends Controller
             Log::info('Failed to request sign receipt school : ' . $e->getMessage());
             return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
         }
+
+        # Request Sign success
+        # create log success
+        $this->logSuccess('request-sign', null, 'Receipt School Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id]);
 
         return true;
     }
