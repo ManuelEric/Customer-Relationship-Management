@@ -565,7 +565,7 @@ class InvoiceProgramController extends Controller
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invProg);
+        $this->logSuccess('delete', null, 'Invoice Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invProg);
 
         return Redirect::to('invoice/client-program?s=needed')->withSuccess('Invoice has been deleted');
     }
