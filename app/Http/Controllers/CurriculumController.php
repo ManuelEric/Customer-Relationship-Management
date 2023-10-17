@@ -109,6 +109,7 @@ class CurriculumController extends Controller
     public function destroy(Request $request)
     {
         $curriculumId = $request->route('curriculum');
+        $curriculum = $this->curriculumRepository->getCurriculumById($curriculumId);
 
         DB::beginTransaction();
         try {
@@ -121,6 +122,10 @@ class CurriculumController extends Controller
             Log::error('Delete curriculum failed : ' . $e->getMessage());
             return Redirect::to('master/curriculum')->withError('Failed to delete a curriculum');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Curriculum', Auth::user()->first_name . ' '. Auth::user()->last_name, $curriculum);
 
         return Redirect::to('master/curriculum')->withSuccess('Curriculum successfully deleted');
     }

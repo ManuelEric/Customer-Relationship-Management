@@ -3,15 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePositionRequest;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\PositionRepositoryInterface;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
 class PositionController extends Controller
 {
+    use LoggingTrait;
+
     protected PositionRepositoryInterface $positionRepository;
 
     public function __construct(PositionRepositoryInterface $positionRepository)
@@ -37,7 +41,7 @@ class PositionController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->positionRepository->createPosition($positionDetails);
+            $newPosition = $this->positionRepository->createPosition($positionDetails);
             DB::commit();
         } catch (Exception $e) {
 
@@ -45,6 +49,10 @@ class PositionController extends Controller
             Log::error('Store position failed : ' . $e->getMessage());
             return Redirect::to('master/position')->withError('Failed to create a new position');
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Position', Auth::user()->first_name . ' '. Auth::user()->last_name, $newPosition);
 
         return Redirect::to('master/position')->withSuccess('Position successfully created');
     }
@@ -65,6 +73,7 @@ class PositionController extends Controller
         ]);
 
         $id = $request->route('position');
+        $oldPosition = $this->positionRepository->getPositionById($id);
 
         DB::beginTransaction();
         try {
@@ -78,12 +87,17 @@ class PositionController extends Controller
             return Redirect::to('master/position')->withError('Failed to update position');
         }
 
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Position', Auth::user()->first_name . ' '. Auth::user()->last_name, $positionDetails, $oldPosition);
+
         return Redirect::to('master/position')->withSuccess('Position successfully updated');
     }
 
     public function destroy(Request $request)
     {
         $id = $request->route('position');
+        $position = $this->positionRepository->getPositionById($id);
 
         DB::beginTransaction();
         try {
@@ -96,6 +110,10 @@ class PositionController extends Controller
             Log::error('Delete position failed : ' . $e->getMessage());
             return Redirect::to('master/position')->withError('Failed to delete position');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Position', Auth::user()->first_name . ' '. Auth::user()->last_name, $position);
 
         return Redirect::to('master/position')->withSuccess('Position successfully deleted');
     }
