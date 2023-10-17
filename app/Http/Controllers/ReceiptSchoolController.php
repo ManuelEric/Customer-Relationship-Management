@@ -17,12 +17,14 @@ use App\Interfaces\RefundRepositoryInterface;
 use App\Interfaces\AxisRepositoryInterface;
 use App\Http\Traits\CreateReceiptIdTrait;
 use App\Http\Traits\DirectorListTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Models\Invb2b;
 use App\Models\Receipt;
 use App\Repositories\ReceiptRepository;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -37,6 +39,7 @@ class ReceiptSchoolController extends Controller
 {
     use DirectorListTrait;
     use CreateReceiptIdTrait;
+    use LoggingTrait;
     protected SchoolRepositoryInterface $schoolRepository;
     protected SchoolProgramRepositoryInterface $schoolProgramRepository;
     protected ProgramRepositoryInterface $programRepository;
@@ -139,7 +142,7 @@ class ReceiptSchoolController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->receiptRepository->createReceipt($receipts);
+            $receiptCreated = $this->receiptRepository->createReceipt($receipts);
 
             DB::commit();
         } catch (Exception $e) {
@@ -147,10 +150,12 @@ class ReceiptSchoolController extends Controller
             DB::rollBack();
             Log::error('Create receipt failed : ' . $e->getMessage());
 
-            return $e->getMessage();
-            exit;
             return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invb2b_num)->withError('Failed to create a new receipt');
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Receipt School Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $receiptCreated);
 
         return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invb2b_num)->withSuccess('Receipt successfully created');
     }

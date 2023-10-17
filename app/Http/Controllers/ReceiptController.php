@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreReceiptRequest;
 use App\Http\Traits\CreateReceiptIdTrait;
 use App\Http\Traits\DirectorListTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ReceiptAttachmentRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
@@ -13,6 +14,7 @@ use App\Models\Receipt;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
@@ -25,6 +27,7 @@ class ReceiptController extends Controller
 {
     use DirectorListTrait;
     use CreateReceiptIdTrait;
+    use LoggingTrait;
     private ReceiptRepositoryInterface $receiptRepository;
     private ClientProgramRepositoryInterface $clientProgramRepository;
     private ReceiptAttachmentRepositoryInterface $receiptAttachmentRepository;
@@ -113,7 +116,7 @@ class ReceiptController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->receiptRepository->createReceipt($receiptDetails);
+            $receiptCreated = $this->receiptRepository->createReceipt($receiptDetails);
             DB::commit();
         } catch (Exception $e) {
 
@@ -121,6 +124,10 @@ class ReceiptController extends Controller
             Log::error('Store receipt failed : ' . $e->getMessage());
             return Redirect::back()->withError('Failed to create receipt');
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Receipt Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $receiptCreated);
 
         return Redirect::to('invoice/client-program/' . $request->clientprog_id)->withSuccess('A receipt has been made');
     }
