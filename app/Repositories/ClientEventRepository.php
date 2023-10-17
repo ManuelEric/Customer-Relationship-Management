@@ -278,10 +278,13 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                         WHEN tbl_client_event.registration_type = "PR" THEN "Pre-Registration"
                         WHEN tbl_client_event.registration_type = "OTS" THEN "On The Spot"
                     END) AS registration_type'),
+                DB::raw('(CASE
+                    WHEN tbl_roles.role_name = "Parent" THEN child.abr_country
+                    WHEN tbl_roles.role_name != "Parent" THEN client.abr_country
+                END) AS abr_country'),
                 // 'child.grade_now',
                 // 'client.graduation_year_real',
                 'client.lead_source',
-                'client.abr_country',
                 'tbl_client_event.joined_date',
                 'tbl_events.event_title',
                 'tbl_events.event_id',
@@ -354,6 +357,26 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     $sql = '(CASE
                                 WHEN tbl_roles.role_name = "Parent" THEN child.full_name
                                 WHEN tbl_roles.role_name != "Parent" THEN "-" 
+                            END) like ?';
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                }
+            )->
+            filterColumn(
+                'participated',
+                function ($query, $keyword) {
+                    $sql = '(CASE
+                                WHEN tbl_roles.role_name = "Parent" THEN child.participated
+                                WHEN tbl_roles.role_name != "Parent" THEN client.participated
+                            END) like ?';
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                }
+            )->
+            filterColumn(
+                'abr_country',
+                function ($query, $keyword) {
+                    $sql = '(CASE
+                                WHEN tbl_roles.role_name = "Parent" THEN child.abr_country
+                                WHEN tbl_roles.role_name != "Parent" THEN client.abr_country
                             END) like ?';
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 }
