@@ -157,6 +157,7 @@ class AssetController extends Controller
     public function destroy(Request $request)
     {
         $assetId = $request->route('asset');
+        $asset = $this->assetRepository->getAssetById($assetId);
 
         DB::beginTransaction();
         try {
@@ -169,6 +170,10 @@ class AssetController extends Controller
             Log::error('Delete asset failed : ' . $e->getMessage());
             return Redirect::to('master/asset')->withError('Failed to delete asset');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Asset', Auth::user()->first_name . ' '. Auth::user()->last_name, $asset);
 
         return Redirect::to('master/asset')->withSuccess('Asset successfully deleted');
     }
