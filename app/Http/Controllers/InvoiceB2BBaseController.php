@@ -271,7 +271,7 @@ class InvoiceB2BBaseController extends Controller
 
         # Signed success
         # create log success
-        $this->logSuccess('signed', null, 'Invoice B2B', Auth::user()->first_name . ' '. Auth::user()->last_name, ['invoice_id' => $invoice_id]);
+        $this->logSuccess('signed', null, 'Invoice B2B', 'Director', ['invoice_id' => $invoice_id]);
 
         return response()->json(['status' => 'success', 'message' => 'Invoice signed successfully']);
     }
