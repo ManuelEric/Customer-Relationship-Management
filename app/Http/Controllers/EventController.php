@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Interfaces\CorporatePartnerEventRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
@@ -19,6 +20,7 @@ use App\Models\pivot\AgendaSpeaker;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
@@ -26,6 +28,7 @@ use Illuminate\Support\Facades\Redirect;
 
 class EventController extends Controller
 {
+    use LoggingTrait;
     use CreateCustomPrimaryKeyTrait;
     
     private EventRepositoryInterface $eventRepository;
@@ -123,7 +126,7 @@ class EventController extends Controller
 
             $eventDetails['event_banner'] = $fileName;
 
-            $this->eventRepository->createEvent($eventDetails);
+            $newEvent = $this->eventRepository->createEvent($eventDetails);
 
             $this->eventRepository->addEventPic($event_id_with_label, $employee_id);
 
@@ -136,6 +139,10 @@ class EventController extends Controller
             return Redirect::to('master/event/' . $event_id_with_label . '')->withError('Failed to create new event');
 
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Event', Auth::user()->first_name . ' '. Auth::user()->last_name, $newEvent);
 
         return Redirect::to('master/event/'.$event_id_with_label)->withSuccess('Event successfully created');
     }
@@ -168,6 +175,8 @@ class EventController extends Controller
 
         $eventId = $request->route('event');
         $newPic = $request->user_id;
+
+        $oldEvent = $this->eventRepository->getEventById($eventId);
 
         DB::beginTransaction();
         try {
@@ -207,6 +216,10 @@ class EventController extends Controller
             return Redirect::to('master/event/' . $eventId)->withError('Failed to update new event');
 
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Event', Auth::user()->first_name . ' '. Auth::user()->last_name, $newDetails, $oldEvent);
 
         return Redirect::to('master/event/'.$eventId)->withSuccess('Event successfully updated');
     }
@@ -256,6 +269,8 @@ class EventController extends Controller
     {
         $eventId = $request->route('event');
 
+        $event = $this->eventRepository->getEventById($eventId);
+
         DB::beginTransaction();
         try {
 
@@ -267,6 +282,10 @@ class EventController extends Controller
             Log::error('Delete event failed : ' . $e->getMessage());
             return Redirect::to('master/event/'.$eventId)->withError('Failed to delete event');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Event', Auth::user()->first_name . ' '. Auth::user()->last_name, $event);
 
         return Redirect::to('master/event')->withSuccess('Event successfully deleted');
     }

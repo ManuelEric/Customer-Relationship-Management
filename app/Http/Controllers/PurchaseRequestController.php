@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePurchaseReqRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\DepartmentRepositoryInterface;
 use App\Interfaces\PurchaseDetailRepositoryInterface;
 use App\Interfaces\PurchaseRequestRepositoryInterface;
@@ -18,11 +19,13 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 
 class PurchaseRequestController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
+    use LoggingTrait;
 
     private PurchaseRequestRepositoryInterface $purchaseRequestRepository;
     private DepartmentRepositoryInterface $departmentRepository;
@@ -77,7 +80,7 @@ class PurchaseRequestController extends Controller
             }
 
             # insert into purchase request
-            $this->purchaseRequestRepository->createPurchaseRequest($requestDetails);
+            $newPurchaseRequest = $this->purchaseRequestRepository->createPurchaseRequest($requestDetails);
             DB::commit();
         } catch (Exception $e) {
 
@@ -85,6 +88,10 @@ class PurchaseRequestController extends Controller
             Log::error('Store purchase request failed : ' . $e->getMessage());
             return Redirect::to('master/purchase/create')->withError('Failed to create a purchase request');
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Purchase Request', Auth::user()->first_name . ' '. Auth::user()->last_name, $newPurchaseRequest);
 
         return Redirect::to('master/purchase/' . $purchase_id_with_label)->withSuccess('Purchase request successfully created');
     }
@@ -138,6 +145,7 @@ class PurchaseRequestController extends Controller
             'requested_by',
         ]);
         $purchaseId = strtoupper($request->route('purchase'));
+        $oldPurchase = $this->purchaseRequestRepository->getPurchaseRequestById($purchaseId);
 
         DB::beginTransaction();
         try {
@@ -161,6 +169,10 @@ class PurchaseRequestController extends Controller
             Log::error('Update purchase request failed : ' . $e->getMessage());
             return Redirect::to('master/purchase/' . $purchaseId)->withError('Failed to update a purchase request');
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Purchase Request', Auth::user()->first_name . ' '. Auth::user()->last_name, $newDetails, $oldPurchase);
 
         return Redirect::to('master/purchase/' . $purchaseId)->withSuccess('Purchase request successfully updated');
     }
@@ -209,6 +221,10 @@ class PurchaseRequestController extends Controller
             return Redirect::to('master/purchase')->withError('Failed to delete purchase request');
         }
 
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Purchase Request', Auth::user()->first_name . ' '. Auth::user()->last_name, $purchase);
+
         return Redirect::to('master/purchase')->withSuccess('Purchase Request successfully deleted');
     }
 
@@ -230,6 +246,11 @@ class PurchaseRequestController extends Controller
         $file_path = public_path() . '/storage/uploaded_file/finance/' . $filename;
         // echo $file_path;exit;
         if (file_exists($file_path)) {
+
+            # Download success
+            # create log success
+            $this->logSuccess('download', null, 'Purchase Request', Auth::user()->first_name . ' '. Auth::user()->last_name, ['filename' => $filename]);
+
             // Send Download
             return Response::download($file_path, $filename, [
                 'Content-Length: ' . filesize($file_path)

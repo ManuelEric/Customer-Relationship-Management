@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSalesTargetRequest;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SalesTargetRepositoryInterface;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -15,6 +17,7 @@ use Illuminate\Support\Facades\Redirect;
 class SalesTargetController extends Controller
 {
 
+    use LoggingTrait;
     protected SalesTargetRepositoryInterface $salesTargetRepository;
     protected ProgramRepositoryInterface $programRepository;
 
@@ -56,7 +59,7 @@ class SalesTargetController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->salesTargetRepository->createSalesTarget($salesTargets);
+            $newSalesTarget = $this->salesTargetRepository->createSalesTarget($salesTargets);
             DB::commit();
         } catch (Exception $e) {
 
@@ -65,6 +68,10 @@ class SalesTargetController extends Controller
 
             return Redirect::to('master/sales-target')->withError('Failed to create a new sales target');
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Sales Target', Auth::user()->first_name . ' '. Auth::user()->last_name, $newSalesTarget);
 
         return Redirect::to('master/sales-target')->withSuccess('Sales target successfully created');
     }
@@ -81,6 +88,7 @@ class SalesTargetController extends Controller
         $salesTargets['month_year'] .= '-01';
 
         $salesTargetId = $request->route('sales_target');
+        $oldSalesTarget = $this->salesTargetRepository->getSalesTargetById($salesTargetId);
 
         DB::beginTransaction();
         try {
@@ -93,6 +101,10 @@ class SalesTargetController extends Controller
             Log::error('Update sales target failed : ' . $e->getMessage());
             return Redirect::to('master/sales-target')->withError('Failed to update a sales target');
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Sales Target', Auth::user()->first_name . ' '. Auth::user()->last_name, $salesTargets, $oldSalesTarget);
 
         return Redirect::to('master/sales-target')->withSuccess('Sales target successfully updated');
     }
@@ -115,6 +127,7 @@ class SalesTargetController extends Controller
     public function destroy(Request $request)
     {
         $salesTargetId = $request->route('sales_target');
+        $salesTarget = $this->salesTargetRepository->getSalesTargetById($salesTargetId);
 
         DB::beginTransaction();
         try {
@@ -127,6 +140,10 @@ class SalesTargetController extends Controller
             Log::error('Delete sales target failed : ' . $e->getMessage());
             return Redirect::to('master/sales-target')->withError('Failed to delete a sales target');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Sales Target', Auth::user()->first_name . ' '. Auth::user()->last_name, $salesTarget);
 
         return Redirect::to('master/sales-target')->withSuccess('Sales target successfully deleted');
     }
