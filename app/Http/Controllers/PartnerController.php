@@ -117,6 +117,7 @@ class PartnerController extends Controller
     public function destroy(Request $request)
     {
         $partnerId = $request->route('partner');
+        $partner = $this->partnerRepository->getPartnerById($partnerId);
         
         DB::beginTransaction();
         try {
@@ -131,6 +132,10 @@ class PartnerController extends Controller
             return Redirect::to('instance/referral')->withError('Failed to delete partner');
 
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Partner', Auth::user()->first_name . ' '. Auth::user()->last_name, $partner);
 
         return Redirect::to('instance/referral')->withSuccess('Partner successfully deleted');
     }

@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAssetRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\AssetRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Models\Asset;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -17,6 +19,7 @@ use Illuminate\Support\Facades\Redirect;
 class AssetController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
+    use LoggingTrait;
 
     private AssetRepositoryInterface $assetRepository;
     private UserRepositoryInterface $userRepository;
@@ -55,7 +58,7 @@ class AssetController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->assetRepository->createAsset(['asset_id' => $asset_id_with_label] + $assetDetails);
+            $assetCreated = $this->assetRepository->createAsset(['asset_id' => $asset_id_with_label] + $assetDetails);
             DB::commit();
         } catch (Exception $e) {
 
@@ -63,6 +66,10 @@ class AssetController extends Controller
             Log::error('Store asset failed : ' . $e->getMessage());
             return Redirect::to('master/asset/' . $asset_id_with_label)->withError('Failed to create asset');
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Asset', Auth::user()->first_name . ' '. Auth::user()->last_name, $assetCreated);
 
         return Redirect::to('master/asset/' . $asset_id_with_label)->withSuccess('Asset successfully created');
     }
@@ -126,6 +133,7 @@ class AssetController extends Controller
 
         # retrieve asset id from url
         $assetId = $request->route('asset');
+        $oldAsset = $this->assetRepository->getAssetById($assetId);
 
         DB::beginTransaction();
         try {
@@ -139,12 +147,17 @@ class AssetController extends Controller
             return Redirect::to('master/asset/'.$assetId)->withError('Failed to update asset');
         }
 
-        return Redirect::to('master/asset/'.$assetId)->withSuccess('Asset successfully updated');;
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Asset', Auth::user()->first_name . ' '. Auth::user()->last_name, $assetDetails, $oldAsset);
+
+        return Redirect::to('master/asset/'.$assetId)->withSuccess('Asset successfully updated');
     }
 
     public function destroy(Request $request)
     {
         $assetId = $request->route('asset');
+        $asset = $this->assetRepository->getAssetById($assetId);
 
         DB::beginTransaction();
         try {
@@ -157,6 +170,10 @@ class AssetController extends Controller
             Log::error('Delete asset failed : ' . $e->getMessage());
             return Redirect::to('master/asset')->withError('Failed to delete asset');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Asset', Auth::user()->first_name . ' '. Auth::user()->last_name, $asset);
 
         return Redirect::to('master/asset')->withSuccess('Asset successfully deleted');
     }

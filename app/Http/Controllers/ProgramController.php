@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProgramRequest;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\MainProgRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SubProgRepositoryInterface;
@@ -10,12 +11,14 @@ use App\Models\MainProg;
 use App\Models\SubProg;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
 class ProgramController extends Controller
 {
+    use LoggingTrait;
 
     protected ProgramRepositoryInterface $programRepository;
     protected MainProgRepositoryInterface $mainProgRepository;
@@ -57,7 +60,7 @@ class ProgramController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->programRepository->createProgram($programDetails);
+            $newProgram = $this->programRepository->createProgram($programDetails);
             DB::commit();
         } catch (Exception $e) {
 
@@ -65,6 +68,10 @@ class ProgramController extends Controller
             Log::error('Create program failed : ' . $e->getMessage());
             return Redirect::to('master/program')->withError('Failed to create a new program');
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $newProgram);
 
         return Redirect::to('master/program')->withSuccess('Program successfully created');
     }
@@ -92,6 +99,7 @@ class ProgramController extends Controller
             'prog_scope',
             'active',
         ]);
+        $oldProgram = $this->programRepository->getProgramById($request->old_prog_id);
 
         DB::beginTransaction();
         try {
@@ -104,6 +112,10 @@ class ProgramController extends Controller
             Log::error('Create program failed : ' . $e->getMessage());
             return Redirect::to('master/program')->withError('Failed to update a program');
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $programDetails, $oldProgram);
 
         return Redirect::to('master/program')->withSuccess('Program successfully updated');
     }
@@ -125,6 +137,8 @@ class ProgramController extends Controller
     {
         $id = $request->route('program');
 
+        $program = $this->programRepository->getProgramById($id);
+
         DB::beginTransaction();
         try {
 
@@ -136,6 +150,10 @@ class ProgramController extends Controller
             Log::error('Delete program failed : ' . $e->getMessage());
             return Redirect::to('master/program')->withError('Failed to delete a program');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $program);
 
         return Redirect::to('master/program')->withSuccess('Program successfully deleted');
     }

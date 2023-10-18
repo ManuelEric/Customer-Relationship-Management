@@ -182,6 +182,7 @@ class ReceiptSchoolController extends Controller
     public function destroy(Request $request)
     {
         $receiptId = $request->route('detail');
+        $receipt = $this->receiptRepository->getReceiptById($receiptId);
 
         DB::beginTransaction();
         try {
@@ -195,6 +196,10 @@ class ReceiptSchoolController extends Controller
 
             return Redirect::to('receipt/school-program/' . $receiptId)->withError('Failed to delete receipt');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Receipt School Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $receipt);
 
         return Redirect::to('receipt/school-program')->withSuccess('Receipt successfully deleted');
     }
@@ -269,6 +274,10 @@ class ReceiptSchoolController extends Controller
             
         }
 
+        # Download success
+        # create log success
+        $this->logSuccess('download', null, 'Receipt School Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id]);
+
         return $pdf->download($file_name . ".pdf");
     }
 
@@ -303,6 +312,10 @@ class ReceiptSchoolController extends Controller
             Log::error('Upload receipt school failed : ' . $e->getMessage());
             return Redirect::to('receipt/school-program/' . $receipt_identifier)->withError('Failed to upload receipt');
         }
+
+        # Upload success
+        # create log success
+        $this->logSuccess('upload', null, 'Receipt School Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id]);
 
         return Redirect::to('receipt/school-program/' . $receipt_identifier)->withSuccess('Receipt successfully uploaded');
     }
@@ -356,6 +369,10 @@ class ReceiptSchoolController extends Controller
             Log::info('Failed to request sign receipt school : ' . $e->getMessage());
             return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
         }
+
+        # Request Sign success
+        # create log success
+        $this->logSuccess('request-sign', null, 'Receipt School Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id]);
 
         return true;
     }
@@ -452,6 +469,10 @@ class ReceiptSchoolController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Failed to update'], 500);
         }
 
+        # Signed success
+        # create log success
+        $this->logSuccess('signed', null, 'Receipt School Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id]);
+
         return response()->json(['status' => 'success', 'message' => 'Receipt signed successfully']);
     }
 
@@ -502,6 +523,10 @@ class ReceiptSchoolController extends Controller
             Log::info('Failed to send receipt to client : ' . $e->getMessage());
             return false;
         }
+
+        # Send To Client success
+        # create log success
+        $this->logSuccess('send-to-client', null, 'Receipt School Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id]);
 
         return true;
     }

@@ -550,6 +550,7 @@ class InvoiceProgramController extends Controller
     public function destroy(Request $request)
     {
         $clientProgId = $request->route('client_program');
+        $invProg = $this->invoiceProgramRepository->getInvoiceByClientProgId($clientProgId);
         DB::beginTransaction();
         try {
 
@@ -561,6 +562,10 @@ class InvoiceProgramController extends Controller
             Log::error('Delete invoice program failed : ' . $e->getMessage());
             return Redirect::to('invoice/client-program/' . $clientProgId)->withError('Failed to delete invoice program');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Invoice Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invProg);
 
         return Redirect::to('invoice/client-program?s=needed')->withSuccess('Invoice has been deleted');
     }
@@ -662,6 +667,10 @@ class InvoiceProgramController extends Controller
             return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
         }
 
+        # Request Sign success
+        # create log success
+        $this->logSuccess('request-sign', null, 'Invoice Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['invoice_id' => $invoice_id]);
+
         return response()->json(['message' => 'Invoice sent successfully.']);
     }
 
@@ -728,6 +737,10 @@ class InvoiceProgramController extends Controller
             return response()->json(['message' => 'Failed to send invoice to client.'], 500);
         }
 
+        # Send To Client success
+        # create log success
+        $this->logSuccess('send-to-client', null, 'Invoice Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['invoice_id' => $invoice_id, 'recipient' => $type_recipient]);
+
         return response()->json(['message' => 'Successfully sent invoice to client.']);
     }
 
@@ -773,6 +786,10 @@ class InvoiceProgramController extends Controller
             Log::error('Failed to update status after being signed : ' . $e->getMessage());
             return response()->json(['status' => 'success', 'message' => 'Failed to update'], 500);
         }
+
+        # Signed success
+        # create log success
+        $this->logSuccess('signed', null, 'Invoice Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['invoice_id' => $inv_id]);
 
         return response()->json(['status' => 'success', 'message' => 'Invoice signed successfully']);
     }

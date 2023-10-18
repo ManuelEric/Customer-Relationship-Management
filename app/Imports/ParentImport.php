@@ -50,8 +50,7 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
     public function collection(Collection $rows)
     {
 
-        // echo json_encode($rows);
-        // exit;
+        $logDetails = [];
 
         DB::beginTransaction();
         try {
@@ -84,7 +83,6 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
 
                     $parent = UserClient::create($parentDetails);
                     $parent->roles()->attach($roleId);
-                    $this->logSuccess('store', 'Import Parent', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $parent);
                     // $row['childrens_name'][0] != null ?  $parent->childrens()->sync($row['childrens_name']) : null;
 
 
@@ -105,12 +103,19 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
                     }
 
                 }
+
+                $logDetails[] = [
+                    'client_id' => $parent['id']
+                ];
             }
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Import parent failed : ' . $e->getMessage());
         }
+
+        $this->logSuccess('store', 'Import Parent', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $logDetails);
+
     }
 
     public function prepareForValidation($data)
@@ -274,7 +279,6 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
 
             $children = UserClient::create($childrenDetails);
             $children->roles()->attach($roleId);
-            $this->logSuccess('store', 'Import Parent', 'Student', Auth::user()->first_name . ' '. Auth::user()->last_name, $children);
 
              // Sync country of study abroad
              if (isset($row['destination_country'])) {

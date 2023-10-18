@@ -420,6 +420,7 @@ class InvoicePartnerController extends InvoiceB2BBaseController
     {
         $invNum = $request->route('detail');
         $partnerProgId = $request->route('corp_prog');
+        $invoice = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
 
         DB::beginTransaction();
         try {
@@ -433,6 +434,10 @@ class InvoicePartnerController extends InvoiceB2BBaseController
 
             return Redirect::to('invoice/corporate-program/' . $partnerProgId . '/detail/' . $invNum)->withError('Failed to delete invoice');
         }
+        
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Invoice Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoice);
 
         return Redirect::to('invoice/corporate-program/status/list')->withSuccess('Invoice successfully deleted');
     }
