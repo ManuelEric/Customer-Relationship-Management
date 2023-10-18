@@ -789,7 +789,7 @@ class InvoiceProgramController extends Controller
 
         # Signed success
         # create log success
-        $this->logSuccess('signed', null, 'Invoice Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['invoice_id' => $inv_id]);
+        $this->logSuccess('signed', null, 'Invoice Client Program', 'Director', ['invoice_id' => $inv_id]);
 
         return response()->json(['status' => 'success', 'message' => 'Invoice signed successfully']);
     }

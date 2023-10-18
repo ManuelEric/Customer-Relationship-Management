@@ -478,7 +478,7 @@ class ReceiptPartnerController extends Controller
 
         # Signed success
         # create log success
-        $this->logSuccess('signed', null, 'Receipt Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id]);
+        $this->logSuccess('signed', null, 'Receipt Partner Program', 'Director', ['receipt_id' => $receipt_id]);
 
         return response()->json(['status' => 'success', 'message' => 'Receipt signed successfully']);
     }
