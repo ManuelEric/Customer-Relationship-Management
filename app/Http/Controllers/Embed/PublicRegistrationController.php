@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePublicRegistrationRequest;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
@@ -20,6 +21,7 @@ class PublicRegistrationController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
     use CheckExistingClient;
+    use LoggingTrait;
 
     private SchoolRepositoryInterface $schoolRepository;
     private ClientRepositoryInterface $clientRepository;
@@ -96,6 +98,10 @@ class PublicRegistrationController extends Controller
             Log::error('Register from embed form website failed : ' . $e->getMessage() . $e->getLine());
             return 'Error when processing, please try again or contact our team.';
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Embed', 'Registration', 'Guest', $childrenDetail);
 
         return Redirect::to('form/thanks');
     }
