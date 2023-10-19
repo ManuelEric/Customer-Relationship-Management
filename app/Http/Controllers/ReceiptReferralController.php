@@ -171,6 +171,7 @@ class ReceiptReferralController extends Controller
     public function destroy(Request $request)
     {
         $receiptId = $request->route('detail');
+        $receipt = $this->receiptRepository->getReceiptById($receiptId);
 
         DB::beginTransaction();
         try {
@@ -184,6 +185,10 @@ class ReceiptReferralController extends Controller
 
             return Redirect::to('receipt/referral/' . $receiptId)->withError('Failed to delete receipt');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Receipt Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $receipt);
 
         return Redirect::to('receipt/referral')->withSuccess('Receipt successfully deleted');
     }
@@ -251,6 +256,9 @@ class ReceiptReferralController extends Controller
 
         }
 
+        # Download success
+        # create log success
+        $this->logSuccess('download', null, 'Receipt Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id]);
 
         return $pdf->download($receiptRef->receipt_id . ".pdf");
     }
@@ -286,6 +294,10 @@ class ReceiptReferralController extends Controller
             Log::error('Upload receipt referral failed : ' . $e->getMessage());
             return Redirect::to('receipt/referral/' . $receipt_identifier)->withError('Failed to upload receipt');
         }
+
+        # Upload success
+        # create log success
+        $this->logSuccess('upload', null, 'Receipt Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id]);
 
         return Redirect::to('receipt/referral/' . $receipt_identifier)->withSuccess('Receipt successfully uploaded');
     }
@@ -339,6 +351,10 @@ class ReceiptReferralController extends Controller
             Log::info('Failed to request sign receipt referral : ' . $e->getMessage());
             return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
         }
+
+        # Request Sign success
+        # create log success
+        $this->logSuccess('request-sign', null, 'Receipt Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id]);
 
         return true;
     }
@@ -436,6 +452,10 @@ class ReceiptReferralController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Failed to update'], 500);
         }
 
+        # Signed success
+        # create log success
+        $this->logSuccess('signed', null, 'Receipt Referral Program', 'Director', ['receipt_id' => $receipt_id]);
+
         return response()->json(['status' => 'success', 'message' => 'Receipt signed successfully']);
     }
 
@@ -482,6 +502,10 @@ class ReceiptReferralController extends Controller
             Log::info('Failed to send receipt to client : ' . $e->getMessage());
             return false;
         }
+
+        # Send To Client success
+        # create log success
+        $this->logSuccess('send-to-client', null, 'Receipt Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id]);
 
         return true;
     }

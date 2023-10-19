@@ -199,6 +199,7 @@ class ReferralController extends Controller
     public function destroy(Request $request)
     {
         $referralId = $request->route('referral');
+        $referral = $this->referralRepository->getReferralById($referralId);
 
         DB::beginTransaction();
         try {
@@ -211,6 +212,10 @@ class ReferralController extends Controller
             Log::error('Delete referral failed : ' . $e->getMessage());
             return Redirect::to('program/referral')->withError('Failed to delete referral');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $referral);
 
         return Redirect::to('program/referral')->withSuccess('Referral successfully deleted');
     }

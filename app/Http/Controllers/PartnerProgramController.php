@@ -423,6 +423,7 @@ class PartnerProgramController extends Controller
     {
         $corpId = strtoupper($request->route('corp'));
         $corp_progId = $request->route('detail');
+        $partnerProg = $this->partnerProgramRepository->getPartnerProgramById($corp_progId);
 
         DB::beginTransaction();
         try {
@@ -435,6 +436,10 @@ class PartnerProgramController extends Controller
             Log::error('Delete partner program failed : ' . $e->getMessage());
             return Redirect::to('program/corporate/' . strtolower($corpId) . '/detail/' . $corp_progId)->withError('Failed to delete partner program');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $partnerProg);
 
         return Redirect::to('program/corporate/')->withSuccess('Partner program successfully deleted');
     }

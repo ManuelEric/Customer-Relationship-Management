@@ -189,6 +189,7 @@ class ReceiptPartnerController extends Controller
     public function destroy(Request $request)
     {
         $receiptId = $request->route('detail');
+        $receipt = $this->receiptRepository->getReceiptById($receiptId);
 
         DB::beginTransaction();
         try {
@@ -202,6 +203,10 @@ class ReceiptPartnerController extends Controller
 
             return Redirect::to('receipt/corporate-program/' . $receiptId)->withError('Failed to delete receipt');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Receipt Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $receipt);
 
         return Redirect::to('receipt/corporate-program')->withSuccess('Receipt successfully deleted');
     }
@@ -275,6 +280,9 @@ class ReceiptPartnerController extends Controller
 
         }
 
+        # Download success
+        # create log success
+        $this->logSuccess('download', null, 'Receipt Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id]);
 
         return $pdf->download($file_name . ".pdf");
     }
@@ -310,6 +318,10 @@ class ReceiptPartnerController extends Controller
             Log::error('Upload receipt partner failed : ' . $e->getMessage());
             return Redirect::to('receipt/corporate-program/' . $receipt_identifier)->withError('Failed to upload receipt');
         }
+
+        # Upload success
+        # create log success
+        $this->logSuccess('upload', null, 'Receipt Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id]);
 
         return Redirect::to('receipt/corporate-program/' . $receipt_identifier)->withSuccess('Receipt successfully uploaded');
     }
@@ -363,6 +375,10 @@ class ReceiptPartnerController extends Controller
             Log::info('Failed to request sign receipt partner : ' . $e->getMessage());
             return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
         }
+
+        # Request Sign success
+        # create log success
+        $this->logSuccess('request-sign', null, 'Receipt Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id]);
 
         return true;
     }
@@ -459,6 +475,11 @@ class ReceiptPartnerController extends Controller
             Log::error('Failed to update status after being signed : ' . $e->getMessage());
             return response()->json(['status' => 'error', 'message' => 'Failed to update'], 500);
         }
+
+        # Signed success
+        # create log success
+        $this->logSuccess('signed', null, 'Receipt Partner Program', 'Director', ['receipt_id' => $receipt_id]);
+
         return response()->json(['status' => 'success', 'message' => 'Receipt signed successfully']);
     }
 
@@ -512,6 +533,10 @@ class ReceiptPartnerController extends Controller
             Log::info('Failed to send receipt to client : ' . $e->getMessage());
             return response()->json(['message' => 'Something went wrong when sending to client']);
         }
+
+        # Send To Client success
+        # create log success
+        $this->logSuccess('send-to-client', null, 'Receipt Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id]);
 
         return true;
     }

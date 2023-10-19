@@ -190,6 +190,7 @@ class UniversityController extends Controller
     public function destroy(Request $request)
     {
         $universityId = $request->route('university');
+        $school = $this->universityRepository->getUniversityById($universityId);
 
         DB::beginTransaction();
         try {
@@ -202,6 +203,10 @@ class UniversityController extends Controller
             Log::error('Delete university failed : ' . $e->getMessage());
             return Redirect::to('instance/university')->withError('Failed to delete a university');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'School', Auth::user()->first_name . ' '. Auth::user()->last_name, $school);
 
         return Redirect::to('instance/university')->withSuccess('University successfully deleted');
     }

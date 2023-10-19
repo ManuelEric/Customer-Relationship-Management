@@ -300,7 +300,8 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 END) AS conversion_lead'),
                 'client_ref_code_view.full_name as referral_from',
                 DB::raw(isset($eventId) ? "'ByEvent' as filter" : "'ByMonth' as filter"),
-            );
+            )->groupBy('tbl_client_event.clientevent_id');
+            
 
         if (isset($eventId)) {
             $clientEvent->where('tbl_client_event.event_id', $eventId);

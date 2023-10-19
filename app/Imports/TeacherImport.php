@@ -38,6 +38,7 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
 
     public function collection(Collection $rows)
     {
+        $logDetails = [];
 
         DB::beginTransaction();
         try {
@@ -78,15 +79,21 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
 
                     $teacher = UserClient::create($teacherDetails);
                     $teacher->roles()->attach($roleId);
-                    $this->logSuccess('store', 'Import Teacher', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $teacher);
 
                 }
+
+                $logDetails[] = [
+                    'client_id' => $teacher['id']
+                ];
             }
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Import teacher failed : ' . $e->getMessage());
         }
+
+        $this->logSuccess('store', 'Import Teacher', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $teacher);
+
     }
 
     public function prepareForValidation($data)

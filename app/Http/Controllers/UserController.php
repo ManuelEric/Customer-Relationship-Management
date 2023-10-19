@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\DepartmentRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
@@ -18,6 +19,7 @@ use App\Models\UserType;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -29,6 +31,7 @@ class UserController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
     use StandardizePhoneNumberTrait;
+    use LoggingTrait;
 
     private UserRepositoryInterface $userRepository;
     private UniversityRepositoryInterface $universityRepository;
@@ -214,6 +217,10 @@ class UserController extends Controller
             Log::error('Store user ' . $request->route('user_role') . ' failed : ' . $e->getMessage());
             return Redirect::back()->withError('Failed to create a new ' . $request->route('user_role'));
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'User', Auth::user()->first_name . ' '. Auth::user()->last_name, ['user_id' => $user_id_with_label]);
 
         return Redirect::to('user/' . $request->route('user_role'))->withSuccess('New ' . $request->route('user_role') . ' has been created');
     }
@@ -428,6 +435,10 @@ class UserController extends Controller
             return Redirect::back()->withError('Failed to update ' . $request->route('user_role') . ' | Line ' . $e->getLine());
         }
 
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'User', Auth::user()->first_name . ' '. Auth::user()->last_name, $newDetails, $user);
+
         return Redirect::to('user/' . $request->route('user_role') . '/' . $userId . '/edit')->withSuccess(ucfirst($request->route('user_role')) . ' has been updated');
     }
 
@@ -484,6 +495,10 @@ class UserController extends Controller
                 break;
         }
 
+        # Download success
+        # create log success
+        $this->logSuccess('download', null, 'User', Auth::user()->first_name . ' '. Auth::user()->last_name, ['user' => $user, 'file' => $request->route('filetype')]);
+
         return response($file)->header('Content-Type', 'application/pdf');
     }
 
@@ -502,6 +517,10 @@ class UserController extends Controller
             Log::error('Deactive user failed : ' . $e->getMessage());
             return Redirect::back()->withError('Failed to deactive user');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'User', Auth::user()->first_name . ' '. Auth::user()->last_name, ['user_id' => $userId]);
 
         return Redirect::back()->withSuccess('User successfully deactivated');
     }
@@ -522,6 +541,10 @@ class UserController extends Controller
             Log::error('Delete user type failed : ' . $e->getMessage());
             return Redirect::back()->withError('Failed to delete user type');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'User Type', Auth::user()->first_name . ' '. Auth::user()->last_name, ['user_id' => $userId, 'user_type_id' => $userTypeId]);
 
         return Redirect::to('user/' . $request->route('user_role') . '/' . $userId . '/edit')->withSuccess(ucfirst($request->route('user_role')) . ' has been updated');
     }

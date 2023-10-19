@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Traits\DirectorListTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -17,6 +19,7 @@ use PDF;
 class InvoiceB2BBaseController extends Controller
 {
     use DirectorListTrait;
+    use LoggingTrait;
 
     public function getModule()
     {
@@ -171,6 +174,10 @@ class InvoiceB2BBaseController extends Controller
             return $e->getMessage();
         }
 
+        # Request Sign success
+        # create log success
+        $this->logSuccess('request-sign', null, 'Invoice B2B', Auth::user()->first_name . ' '. Auth::user()->last_name, ['invoice_id' => $invoice_id]);
+
         return true;
     }
 
@@ -261,6 +268,10 @@ class InvoiceB2BBaseController extends Controller
             Log::error('Failed to update status after being signed '.$this->module['raw'].' : ' . $e->getMessage());
             return response()->json(['status' => 'error', 'message' => 'Failed to update'], 500);
         }
+
+        # Signed success
+        # create log success
+        $this->logSuccess('signed', null, 'Invoice B2B', 'Director', ['invoice_id' => $invoice_id]);
 
         return response()->json(['status' => 'success', 'message' => 'Invoice signed successfully']);
     }
@@ -360,6 +371,11 @@ class InvoiceB2BBaseController extends Controller
                 500
             );
         }
+
+        # Send To Client success
+        # create log success
+        $this->logSuccess('send-to-client', null, 'Invoice B2B', Auth::user()->first_name . ' '. Auth::user()->last_name, ['invoice_id' => $invoice_id]);
+
 
         // return true;
         return response()->json(

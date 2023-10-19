@@ -3,16 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCurriculumRequest;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\CurriculumRepositoryInterface;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
 class CurriculumController extends Controller
 {
+    use LoggingTrait;
 
     protected CurriculumRepositoryInterface $curriculumRepository;
 
@@ -44,7 +47,7 @@ class CurriculumController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->curriculumRepository->createCurriculum($curriculum);
+            $curriculumCreated = $this->curriculumRepository->createCurriculum($curriculum);
             DB::commit();
 
         } catch (Exception $e) {
@@ -52,10 +55,12 @@ class CurriculumController extends Controller
             DB::rollBack();
             Log::error('Create curriculum failed : ' . $e->getMessage());
 
-            return $e->getMessage();
-            exit;
             return Redirect::to('master/curriculum')->withError('Failed to create a new curriculum');
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Curriculum', Auth::user()->first_name . ' '. Auth::user()->last_name, $curriculumCreated);
 
         return Redirect::to('master/curriculum')->withSuccess('Curriculum successfully created');
     }
@@ -69,6 +74,7 @@ class CurriculumController extends Controller
         $curriculum['updated_at'] = Carbon::now();
 
         $curriculumId = $request->route('curriculum');
+        $oldCurriclum = $this->curriculumRepository->getCurriculumById($curriculumId);
 
         DB::beginTransaction();
         try {
@@ -81,6 +87,10 @@ class CurriculumController extends Controller
             Log::error('Update sales target failed : ' . $e->getMessage());
             return Redirect::to('master/curriculum')->withError('Failed to update a curriculum');
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Curriculum', Auth::user()->first_name . ' '. Auth::user()->last_name, $curriculum, $oldCurriclum);
 
         return Redirect::to('master/curriculum')->withSuccess('Curriculum successfully updated');
     }
@@ -99,6 +109,7 @@ class CurriculumController extends Controller
     public function destroy(Request $request)
     {
         $curriculumId = $request->route('curriculum');
+        $curriculum = $this->curriculumRepository->getCurriculumById($curriculumId);
 
         DB::beginTransaction();
         try {
@@ -111,6 +122,10 @@ class CurriculumController extends Controller
             Log::error('Delete curriculum failed : ' . $e->getMessage());
             return Redirect::to('master/curriculum')->withError('Failed to delete a curriculum');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Curriculum', Auth::user()->first_name . ' '. Auth::user()->last_name, $curriculum);
 
         return Redirect::to('master/curriculum')->withSuccess('Curriculum successfully deleted');
     }

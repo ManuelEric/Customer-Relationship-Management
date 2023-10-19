@@ -415,6 +415,7 @@ class SchoolProgramController extends Controller
     {
         $schoolId = strtoupper($request->route('school'));
         $sch_progId = $request->route('detail');
+        $schoolProg = $this->schoolProgramRepository->getSchoolProgramById($sch_progId);
 
         DB::beginTransaction();
         try {
@@ -427,6 +428,10 @@ class SchoolProgramController extends Controller
             Log::error('Delete school program failed : ' . $e->getMessage());
             return Redirect::to('program/school/' . strtolower($schoolId) . '/detail/' . $sch_progId)->withError('Failed to delete school program');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $schoolProg);
 
         return Redirect::to('program/school/')->withSuccess('School program successfully deleted');
     }

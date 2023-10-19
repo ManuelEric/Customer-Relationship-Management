@@ -412,6 +412,7 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
     {
         $invNum = $request->route('detail');
         $schProgId = $request->route('sch_prog');
+        $invoice = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
 
         DB::beginTransaction();
         try {
@@ -425,6 +426,10 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
 
             return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invNum)->withError('Failed to delete invoice');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Invoice School Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoice);
 
         return Redirect::to('invoice/school-program/status/list')->withSuccess('Invoice successfully deleted');
     }

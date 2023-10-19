@@ -292,6 +292,7 @@ class InvoiceReferralController extends InvoiceB2BBaseController
     {
         $invNum = $request->route('detail');
         $ref_id = $request->route('referral');
+        $invoice = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
 
         DB::beginTransaction();
         try {
@@ -305,6 +306,10 @@ class InvoiceReferralController extends InvoiceB2BBaseController
 
             return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $invNum)->withError('Failed to delete invoice');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Invoice Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoice);
 
         return Redirect::to('invoice/referral/status/list')->withSuccess('Invoice successfully deleted');
     }

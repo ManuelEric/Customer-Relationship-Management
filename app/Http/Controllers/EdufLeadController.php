@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreEdufairRequest;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\EdufLeadRepositoryInterface;
 use App\Interfaces\EdufReviewRepositoryInterface;
@@ -11,12 +12,14 @@ use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
 class EdufLeadController extends Controller
 {
+    use LoggingTrait;
 
     private EdufLeadRepositoryInterface $edufLeadRepository;
     private SchoolRepositoryInterface $schoolRepository;
@@ -108,7 +111,7 @@ class EdufLeadController extends Controller
             $edufairLeadDetails['ext_pic_phone'] = $ext_pic_phone; # add new phone number 
 
 
-            $this->edufLeadRepository->createEdufairLead($edufairLeadDetails);
+            $newEduf = $this->edufLeadRepository->createEdufairLead($edufairLeadDetails);
             DB::commit();
         } catch (Exception $e) {
 
@@ -116,6 +119,10 @@ class EdufLeadController extends Controller
             Log::error('Store edufair failed : ' . $e->getMessage());
             return Redirect::to('master/edufair')->withError('Failed to create new edufair');
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'External Edufair', Auth::user()->first_name . ' '. Auth::user()->last_name, $newEduf);
 
         return Redirect::to('master/edufair')->withSuccess('New Edufair successfully created');
     }
@@ -164,6 +171,9 @@ class EdufLeadController extends Controller
         $edufairLeadDetails['ext_pic_phone'] = $ext_pic_phone; # add new phone number 
 
         $edufLeadId = $request->route('edufair');
+
+        $oldEdufLead = $this->edufLeadRepository->getEdufairLeadById($edufLeadId);
+
         if ($request->organizer == "school")
             $edufairLeadDetails['corp_id'] = NULL;
         else
@@ -182,6 +192,10 @@ class EdufLeadController extends Controller
             Log::error('Update edufair failed : ' . $e->getMessage());
             return Redirect::to('master/edufair/' . $edufLeadId)->withError('Failed to update edufair');
         }
+
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'External Edufair', Auth::user()->first_name . ' '. Auth::user()->last_name, $edufairLeadDetails, $oldEdufLead);
 
         return Redirect::to('master/edufair')->withSuccess('Edufair successfully updated');
     }
@@ -247,6 +261,7 @@ class EdufLeadController extends Controller
     public function destroy(Request $request)
     {
         $id = $request->route('edufair');
+        $edufLead = $this->edufLeadRepository->getEdufairLeadById($id);
 
         DB::beginTransaction();
         try {
@@ -259,6 +274,10 @@ class EdufLeadController extends Controller
             Log::error('Delete edufair lead failed : ' . $e->getMessage());
             return Redirect::to('master/edufair')->withError('Failed to delete edufair');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'External Edufair', Auth::user()->first_name . ' '. Auth::user()->last_name, $edufLead);
 
         return Redirect::to('master/edufair')->withSuccess('Edufair successfully deleted');
     }

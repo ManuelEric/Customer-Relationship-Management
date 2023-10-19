@@ -65,6 +65,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
     {
 
         $data = [];
+        $logDetails = [];
 
         DB::beginTransaction();
         try {
@@ -146,11 +147,16 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
                         'category' => 'qrcode-mail'
                     ]);
 
-                    # store Success
-                    # create log success
-                    $this->logSuccess('store', 'Import Client Event', 'Client Event', Auth::user()->first_name . ' '. Auth::user()->last_name, $insertedClientEvent);
                 }
+
+                $logDetails[] = [
+                    'clientevent_id' => $insertedClientEvent->clientevent_id
+                ];
             }
+
+            # store Success
+            # create log success
+            $this->logSuccess('store', 'Import Client Event', 'Client Event', Auth::user()->first_name . ' '. Auth::user()->last_name, $insertedClientEvent);
             
 
             DB::commit();

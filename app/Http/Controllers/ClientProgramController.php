@@ -757,6 +757,7 @@ class ClientProgramController extends Controller
     {
         $studentId = $request->route('student');
         $clientProgramId = $request->route('program');
+        $clientProgram = $this->clientProgramRepository->getClientProgramById($clientProgramId);
 
         DB::beginTransaction();
         try {
@@ -769,6 +770,10 @@ class ClientProgramController extends Controller
             Log::error('Delete client program failed : ' . $e->getMessage());
             return Redirect::to('client/student/' . $studentId . '/program/' . $clientProgramId)->withError('Failed to delete client program');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $clientProgram);
 
         return Redirect::to('client/student/' . $studentId)->withSuccess('Client program has been deleted');
     }

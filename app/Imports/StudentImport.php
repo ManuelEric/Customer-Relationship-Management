@@ -53,8 +53,11 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
     public function collection(Collection $rows)
     {
 
+        $logDetails = [];
+
         DB::beginTransaction();
         try {
+
 
             foreach ($rows as $row) {
                 $student = null;
@@ -106,7 +109,6 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
                     $student = UserClient::create($studentDetails);
                     $student->roles()->attach($roleId);
 
-                    $this->logSuccess('store', 'Import Student', 'Student', Auth::user()->first_name . ' '. Auth::user()->last_name, $student);
                 } else {
                     $student = UserClient::find($student['id']);
                 }
@@ -135,6 +137,10 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
                 if (isset($row['interest_major'])) {
                     $this->createMajorIfNotExists($row['interest_major'], $student);
                 }
+
+                $logDetails[] = [
+                    'client_id' => $student['id']
+                ];
             }
             DB::commit();
         } catch (Exception $e) {
@@ -142,6 +148,9 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
             DB::rollBack();
             Log::error('Import student failed : ' . $e->getMessage() . $e->getLine());
         }
+
+        $this->logSuccess('store', 'Import Student', 'Student', Auth::user()->first_name . ' '. Auth::user()->last_name, $logDetails);
+
     }
 
     public function prepareForValidation($data)
@@ -263,7 +272,6 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
             $parent->roles()->attach($roleId);
             $student->parents()->sync($parent->id);
 
-            $this->logSuccess('store', 'Import Student', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $parent);
         } else {
 
             $student->parents()->sync($existParent['id']);

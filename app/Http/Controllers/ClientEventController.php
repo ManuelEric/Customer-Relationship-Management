@@ -459,6 +459,7 @@ class ClientEventController extends Controller
     public function destroy(Request $request)
     {
         $clientevent_id = $request->route('event');
+        $clientEvent = $this->clientEventRepository->getClientEventById($clientevent_id);
 
         DB::beginTransaction();
         try {
@@ -472,6 +473,10 @@ class ClientEventController extends Controller
 
             return Redirect::to('program/event/' . $clientevent_id)->withError('Failed to delete client event');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $clientEvent);
 
         return Redirect::to('program/event')->withSuccess('Client event successfully deleted');
     }

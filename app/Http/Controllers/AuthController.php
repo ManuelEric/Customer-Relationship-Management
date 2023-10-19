@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Traits\LoggingTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Interfaces\MenuRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
 class AuthController extends Controller
 {
+    use LoggingTrait;
     private MenuRepositoryInterface $menuRepository;
 
     public function __construct(MenuRepositoryInterface $menuRepository)
@@ -25,10 +28,12 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
+        
         # check credentials
         if (Auth::attempt($credentials)) {
-            $user = Auth::user();
             
+            $user = Auth::user();
+                        
             if (!$user_type = $user->user_type->first()) {
                 Auth::logout();
                 $request->session()->invalidate();
@@ -44,8 +49,14 @@ class AuthController extends Controller
                 ]);
             }
 
+            # login Success
+            # create log success
+            $this->logSuccess('auth', null, 'Login', $request->email);
+            
             $request->session()->regenerate();
+            
             return redirect()->intended('/dashboard');
+            
         }
 
         return back()->withErrors([
@@ -55,7 +66,12 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        # logout Success
+        # create log success
+        $this->logSuccess('auth', null, 'Logout', Auth::user()->email);
+
         Auth::logout();
+        
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect('/');

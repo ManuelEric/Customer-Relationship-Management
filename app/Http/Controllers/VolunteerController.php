@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreVolunteerRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\VolunteerRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
@@ -20,12 +21,13 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Http\Traits\StandardizePhoneNumberTrait;
-
+use Illuminate\Support\Facades\Auth;
 
 class VolunteerController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
     use StandardizePhoneNumberTrait;
+    use LoggingTrait;
 
     private VolunteerRepositoryInterface $volunteerRepository;
     private UniversityRepositoryInterface $universityRepository;
@@ -111,7 +113,7 @@ class VolunteerController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->volunteerRepository->createVolunteer(['volunt_id' => $volunteer_id_with_label] + $volunteerDetails);
+            $newVolunt = $this->volunteerRepository->createVolunteer(['volunt_id' => $volunteer_id_with_label] + $volunteerDetails);
             DB::commit();
         } catch (Exception $e) {
 
@@ -119,6 +121,10 @@ class VolunteerController extends Controller
             Log::error('Store volunteer failed : ' . $e->getMessage());
             return Redirect::to('user/volunteer')->withError('Failed to create a new volunteer');
         }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Volunteer', Auth::user()->first_name . ' '. Auth::user()->last_name, $newVolunt);
 
         return Redirect::to('user/volunteer')->withSuccess('Volunteer successfully created');
     }
@@ -148,6 +154,7 @@ class VolunteerController extends Controller
         $majors = $this->majorRepository->getAllMajors();
         $positions = $this->positionRepository->getAllPositions();
 
+        
         # put the link to update volunteer form below
         # example
         return view('pages.user.volunteer.form')->with(
@@ -229,6 +236,10 @@ class VolunteerController extends Controller
             return Redirect::to('user/volunteer')->withError('Failed to update a volunteer');
         }
 
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Volunteer', Auth::user()->first_name . ' '. Auth::user()->last_name, $volunteerDetails, $volunteer);
+
         return Redirect::to('user/volunteer')->withSuccess('Volunteer successfully updated');
     }
 
@@ -274,6 +285,11 @@ class VolunteerController extends Controller
         } else {
             return response($file)->header('Content-Type', 'image/' . $extension);
         }
+
+        # Download success
+        # create log success
+        $this->logSuccess('download', null, 'Volunteer', Auth::user()->first_name . ' '. Auth::user()->last_name, ['volunteer_id' => $volunteerId, 'file_type' => $request->route('filetype')]);
+
     }
 
     public function destroy(Request $request)
@@ -297,6 +313,10 @@ class VolunteerController extends Controller
             Log::error('Delete volunteer failed : ' . $e->getMessage());
             return Redirect::to('user/volunteer')->withError('Failed to delete a volunteer');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Volunteer', Auth::user()->first_name . ' '. Auth::user()->last_name, ['volunteer_id' => $volunteerId]);
 
         return Redirect::to('user/volunteer')->withSuccess('Volunteer successfully deleted');
     }
@@ -323,6 +343,10 @@ class VolunteerController extends Controller
             return response()->json(['message' => 'Failed to ' . $status . ' ' . $volunteer->firstname . ' ' . $volunteer->lastname], 422);
         }
 
+        # Update success
+        # create log success
+        $this->logSuccess('update', 'Form Input', 'Status Volunteer', Auth::user()->first_name . ' '. Auth::user()->last_name, ['status' => $newStatus], ['volunteer_id' => $volunteerId]);
+
         return response()->json(['message' => ucwords($volunteer->firstname . ' ' . $volunteer->lastname) . ' has been ' . $status], 200);
     }
 
@@ -333,6 +357,10 @@ class VolunteerController extends Controller
         // $file_location = 'attachment/volunteer_attach/' . $volunt_id . '/';
         $attach = $file_name . '.' . $extension;
         $file->storeAs('public/uploaded_file/volunteer/' . $volunt_id, $file_name . '.' . $extension);
+
+        # Upload success
+        # create log success
+        $this->logSuccess('upload', null, 'Attachment Volunteer', Auth::user()->first_name . ' '. Auth::user()->last_name, ['filename' => $file_name]);
 
         return $attach;
     }
