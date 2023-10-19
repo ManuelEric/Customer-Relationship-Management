@@ -14,7 +14,7 @@ trait LoggingTrait
 
     public function logSuccess($type, $inputFrom=null, $modul, $user, $data=null, $oldData=null)
     {
-        $context = null;
+        $context = [];
 
         switch ($type) {
             case 'store':
@@ -59,6 +59,10 @@ trait LoggingTrait
             case 'download':
                 $message = 'Successfully Downloaded ' . $modul . ' By ' . $user;
                 $context = $this->checkType($data);
+                break;
+
+            case 'auth':
+                $message =  $modul . ' was Successful for ' . $user;
                 break;
         }
 
