@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePartnerAgreementRequest;
 use App\Http\Requests\StorePartnerRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\CorporatePicRepositoryInterface;
@@ -15,6 +16,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -25,6 +27,7 @@ use Svg\Tag\Rect;
 class PartnerAgreementController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
+    use LoggingTrait;
 
     protected UserRepositoryInterface $userRepository;
     protected CorporateRepositoryInterface $corporateRepository;
@@ -74,7 +77,7 @@ class PartnerAgreementController extends Controller
         try {
             
             # insert into partner aggrement
-            $this->partnerAgreementRepository->createPartnerAgreement($partnerAgreements);
+            $newPartnerAgreement = $this->partnerAgreementRepository->createPartnerAgreement($partnerAgreements);
             
             DB::commit();
         } catch (Exception $e) {
@@ -86,6 +89,10 @@ class PartnerAgreementController extends Controller
             return Redirect::to('instance/corporate/'.strtolower($corpId))->withError('Failed to create partner agreement');
         }
         
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Partner Agreement', Auth::user()->first_name . ' '. Auth::user()->last_name, $newPartnerAgreement);
+
         // NOTE: Notif success ga muncul
         return Redirect::to('instance/corporate/'.strtolower($corpId))->withSuccess('Partner agreement successfully created');
     }
@@ -119,6 +126,10 @@ class PartnerAgreementController extends Controller
             // exit;
             return Redirect::to('instance/corporate/' . strtolower($corpId))->withError('Failed to delete partner agreement');
         }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Partner Agreement', Auth::user()->first_name . ' '. Auth::user()->last_name, $partnerAgreeAttach);
 
         return Redirect::to('instance/corporate/'. strtolower($corpId))->withSuccess('Partner Agreement successfully deleted');
     }
