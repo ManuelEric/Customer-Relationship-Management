@@ -1079,9 +1079,9 @@ class ClientEventController extends Controller
         $eventName = $clientEvent->event->event_title;
 
         $secondaryClientInfo = $responseAdditionalInfo = array();
-        switch ($client->register_as) { # this is a choosen role
+        switch ($client->roles->first()->role_name) { # this is a choosen role
 
-            case "parent":
+            case "Parent":
                 $secondaryClientInfo = $clientEvent->children;
                 $responseAdditionalInfo = [
                     'sch_id' => isset($secondaryClientInfo->school) ? $secondaryClientInfo->school->sch_id : null,
@@ -1091,7 +1091,7 @@ class ClientEventController extends Controller
                 ];
                 break;
 
-            case "student":
+            case "Student":
                 $secondaryClientInfo = $clientEvent->parent;
                 $responseAdditionalInfo = [
                     'sch_id' => isset($secondaryClientInfo->school) ? $secondaryClientInfo->school->sch_id : null,
