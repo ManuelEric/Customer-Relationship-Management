@@ -1100,6 +1100,14 @@ class ClientEventController extends Controller
                     'abr_country' => isset($client->abr_country) ? $client->destinationCountries()->pluck('tbl_tag.id')->toArray() : null
                 ];
                 break;
+                
+            case "Teacher/Counselor":
+                $secondaryClientInfo = $clientEvent->client;
+                $responseAdditionalInfo = [
+                    'sch_id' => isset($secondaryClientInfo->school) ? $secondaryClientInfo->school->sch_id : null,
+                    'school' => isset($client->school->sch_name) ? $client->school->sch_name : null,
+                ];
+                break;                
 
         }
 
