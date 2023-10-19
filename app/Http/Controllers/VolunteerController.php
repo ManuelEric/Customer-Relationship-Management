@@ -345,7 +345,7 @@ class VolunteerController extends Controller
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Status Volunteer', Auth::user()->first_name . ' '. Auth::user()->last_name, $newStatus, ['volunteer_id' => $volunteerId]);
+        $this->logSuccess('update', 'Form Input', 'Status Volunteer', Auth::user()->first_name . ' '. Auth::user()->last_name, ['status' => $newStatus], ['volunteer_id' => $volunteerId]);
 
         return response()->json(['message' => ucwords($volunteer->firstname . ' ' . $volunteer->lastname) . ' has been ' . $status], 200);
     }

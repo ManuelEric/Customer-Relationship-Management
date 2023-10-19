@@ -597,6 +597,11 @@ class ClientStudentController extends ClientController
             );
         }
 
+        # Upload success
+        # create log success
+        $this->logSuccess('upload', null, 'Status Client', Auth::user()->first_name . ' '. Auth::user()->last_name, ['status' => $newStatus], ['client_id', $studentId]);
+
+
         return response()->json(
             [
                 'success' => true,
@@ -701,6 +706,10 @@ class ClientStudentController extends ClientController
                 ]
             );            
         }
+
+        # Upload success
+        # create log success
+        $this->logSuccess('upload', null, 'Status Lead Client', Auth::user()->first_name . ' '. Auth::user()->last_name, $leadStatusDetails, ['lead_status', $leadStatus]);
 
         return response()->json(
             [
