@@ -53,13 +53,14 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
     public function collection(Collection $rows)
     {
 
-        $logDetails = [];
+        $logDetails = []; 
 
         DB::beginTransaction();
         try {
 
 
             foreach ($rows as $row) {
+                $interestPrograms = '';
                 $student = null;
                 $phoneNumber = isset($row['phone_number']) ? $this->setPhoneNumber($row['phone_number']) : null;
                 isset($row['parents_phone']) ? $parentPhone = $this->setPhoneNumber($row['parents_phone']) : $parentPhone = null;
@@ -109,8 +110,25 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
                     $student = UserClient::create($studentDetails);
                     $student->roles()->attach($roleId);
 
+                    $interestProgramsMerge = $row['interested_program'];
+
                 } else {
                     $student = UserClient::find($student['id']);
+
+                    if(isset($student->interestPrograms)){
+                        foreach ($student->interestPrograms as $program) {
+                            $interestPrograms .= $student->interestPrograms->last() === $program ? $program->program_name : $program->program_name . ', ';
+                        }
+
+                        $interestProgramsMerge = $interestPrograms;
+
+                        if(isset($row['interested_program'])){
+                            $interestProgramsMerge = $interestPrograms . ', ' . $row['interested_program'];
+                        }
+
+                        Log::debug($interestProgramsMerge);
+
+                    }
                 }
 
                 // Connecting student with parent
@@ -119,9 +137,9 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
                 }
 
                 // Sync interest program
-                if (isset($row['interested_program'])) {
-                    $this->attachInterestedProgram($row['interested_program'], $student);
-                }
+                $this->attachInterestedProgram($interestProgramsMerge, $student);
+                // if (isset($row['interested_program'])) {
+                // }
 
                 // Sync country of study abroad
                 if (isset($row['country_of_study_abroad'])) {
@@ -217,7 +235,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
     {
         return [
             '*.full_name' => ['required'],
-            '*.email' => ['required', 'email', 'unique:tbl_client,mail'],
+            '*.email' => ['required', 'email'],
             '*.phone_number' => ['nullable', 'min:5', 'max:15'],
             '*.date_of_birth' => ['nullable', 'date'],
             '*.parents_name' => ['nullable'],
@@ -315,7 +333,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
             }
         }
 
-        isset($programDetails) ? $student->interestPrograms()->sync($programDetails) : null;
+        isset($programDetails) ? $student->interestPrograms()->sync(array_map("unserialize", array_unique(array_map("serialize", $programDetails)))) : null;
     }
 
     private function createAbroadCountryIfNotExists($arrayCountryName, $student)
@@ -367,7 +385,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
             }
         }
 
-        isset($destinationCountryDetails) ? $student->destinationCountries()->sync($destinationCountryDetails) : null;
+        isset($destinationCountryDetails) ? $student->destinationCountries()->syncWithoutDetaching($destinationCountryDetails) : null;
     }
 
     // private function createUniversityIfNotExists($univ_name, $student)
@@ -423,7 +441,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
             }
         }
 
-        isset($majorDetails) ? $student->interestMajor()->sync($majorDetails) : null;
+        isset($majorDetails) ? $student->interestMajor()->syncWithoutDetaching($majorDetails) : null;
     }
 
     private function explodeName($name)
