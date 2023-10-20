@@ -59,15 +59,6 @@
         $secondary_client_role = $client->register_as == "parent" ? "Child's" : "Parent's";
     @endphp
     <section>
-        @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
         <div class="container-fluid my-3" style="height: 90vh">
             <div class="row justify-content-center align-items-center h-100">
                 <div class="col-md-8">
