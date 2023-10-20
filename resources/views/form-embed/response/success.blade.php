@@ -46,7 +46,7 @@
             $(window).on('load', function() {
                 setTimeout(() => {
                     parent.submitUpdate();
-                }, 3000);
+                }, 7000);
             });
         });
     </script>
