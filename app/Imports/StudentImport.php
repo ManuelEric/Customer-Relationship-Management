@@ -60,7 +60,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
 
 
             foreach ($rows as $row) {
-                $interestPrograms = '';
+                // $interestPrograms = '';
                 $student = null;
                 $phoneNumber = isset($row['phone_number']) ? $this->setPhoneNumber($row['phone_number']) : null;
                 isset($row['parents_phone']) ? $parentPhone = $this->setPhoneNumber($row['parents_phone']) : $parentPhone = null;
@@ -110,25 +110,25 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
                     $student = UserClient::create($studentDetails);
                     $student->roles()->attach($roleId);
 
-                    $interestProgramsMerge = $row['interested_program'];
+                    // $interestProgramsMerge = $row['interested_program'];
 
                 } else {
                     $student = UserClient::find($student['id']);
 
-                    if(isset($student->interestPrograms)){
-                        foreach ($student->interestPrograms as $program) {
-                            $interestPrograms .= $student->interestPrograms->last() === $program ? $program->program_name : $program->program_name . ', ';
-                        }
+                    // if(isset($student->interestPrograms)){
+                    //     foreach ($student->interestPrograms as $program) {
+                    //         $interestPrograms .= $student->interestPrograms->last() === $program ? $program->program_name : $program->program_name . ', ';
+                    //     }
 
-                        $interestProgramsMerge = $interestPrograms;
+                    //     $interestProgramsMerge = $interestPrograms;
 
-                        if(isset($row['interested_program'])){
-                            $interestProgramsMerge = $interestPrograms . ', ' . $row['interested_program'];
-                        }
+                    //     if(isset($row['interested_program'])){
+                    //         $interestProgramsMerge = $interestPrograms . ', ' . $row['interested_program'];
+                    //     }
 
-                        Log::debug($interestProgramsMerge);
+                    //     Log::debug($interestProgramsMerge);
 
-                    }
+                    // }
                 }
 
                 // Connecting student with parent
@@ -137,9 +137,9 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
                 }
 
                 // Sync interest program
-                $this->attachInterestedProgram($interestProgramsMerge, $student);
-                // if (isset($row['interested_program'])) {
-                // }
+                if (isset($row['interested_program'])) {
+                    $this->attachInterestedProgram($row['interested_program'], $student);
+                }
 
                 // Sync country of study abroad
                 if (isset($row['country_of_study_abroad'])) {
@@ -333,7 +333,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
             }
         }
 
-        isset($programDetails) ? $student->interestPrograms()->sync(array_map("unserialize", array_unique(array_map("serialize", $programDetails)))) : null;
+        isset($programDetails) ? $student->interestPrograms()->syncWithoutDetaching($programDetails) : null;
     }
 
     private function createAbroadCountryIfNotExists($arrayCountryName, $student)
