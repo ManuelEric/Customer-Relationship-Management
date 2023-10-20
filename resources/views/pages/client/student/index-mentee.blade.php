@@ -12,7 +12,7 @@
                 </h5>
             </div>
             <div class="col-md-6 d-flex justify-content-end">
-                <a href="{{url('alumni-acceptance')}}" class="btn btn-sm bg-light me-2">
+                <a href="{{url('client/alumni-acceptance')}}" class="btn btn-sm bg-light me-2">
                     Alumni Acceptance
                 </a>
                 <div class="dropdown">
