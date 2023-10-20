@@ -1117,6 +1117,7 @@ class ClientEventController extends Controller
         $tags = $this->tagRepository->getAllTags();
 
         $response = [
+            'leadsource' => $clientEvent->lead_id,
             'client' => $client,
             'client_event' => $clientEvent,
             'secondary_client' => [
