@@ -1094,7 +1094,7 @@ class ClientEventController extends Controller
             case "Student":
                 $secondaryClientInfo = $clientEvent->parent;
                 $responseAdditionalInfo = [
-                    'sch_id' => isset($secondaryClientInfo->school) ? $secondaryClientInfo->school->sch_id : null,
+                    'sch_id' => isset($client->school) ? $client->school->sch_id : null,
                     'school' => isset($client->school->sch_name) ? $client->school->sch_name : null,
                     'graduation_year' => isset($client->graduation_year) ? $client->graduation_year : null,
                     'abr_country' => isset($client->abr_country) ? $client->destinationCountries()->pluck('tbl_tag.id')->toArray() : null
@@ -1104,7 +1104,7 @@ class ClientEventController extends Controller
             case "Teacher/Counselor":
                 $secondaryClientInfo = $clientEvent->client;
                 $responseAdditionalInfo = [
-                    'sch_id' => isset($secondaryClientInfo->school) ? $secondaryClientInfo->school->sch_id : null,
+                    'sch_id' => isset($client->school) ? $client->school->sch_id : null,
                     'school' => isset($client->school->sch_name) ? $client->school->sch_name : null,
                 ];
                 break;                
