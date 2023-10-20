@@ -110,6 +110,7 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                                 <input type="hidden" id="phone1" name="fullnumber[]" value="{{ $client->phone }}">
+                                <input type="hidden" name="leadsource" value="{{ $leadsource }}">
                             </div>
                             @switch ($client->register_as)
                                 @case("parent")
