@@ -68,3 +68,11 @@ Route::prefix('teacher-counselor')->name('teacher-counselor.')->group(function (
 
 Route::resource('parent', ClientParentController::class);
 Route::post('parent/import', [ClientParentController::class, 'import'])->name('parent.import');
+
+Route::get('alumni-acceptance', function() {
+    return view('pages.client.student.alumni-acceptance.index');
+});
+
+Route::get('alumni-acceptance/create', function() {
+    return view('pages.client.student.alumni-acceptance.form');
+});
