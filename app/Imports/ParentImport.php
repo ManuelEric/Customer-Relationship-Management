@@ -287,27 +287,29 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
             $school = $this->createSchoolIfNotExists($row['school']);
         }
 
-        $mapChildren = $children->map(
-            function ($item, int $key) {
-                return [
-                    'id' => $item->id,
-                    'full_name' => $item->fullName,
-                ];
-            }
-        );
-
-        $existChildren = $mapChildren->where('full_name', $row['children_name'])->first();
+        
         $isExistChildren = false;
         $countExistChildren = 0;
 
         if(isset($parent->childrens)){
-            foreach ($parent->childrens as $children) {
-                $isExistChildren = $children->id == $existChildren['id'] ? true : false;
-                $isExistChildren == true ? $countExistChildren++ : null;
-            }
+            $mapChildren = $parent->childrens->map(
+                function ($item, int $key) {
+                    return [
+                        'id' => $item->id,
+                        'full_name' => $item->fullName,
+                    ];
+                }
+            );
+    
+            $existChildren = $mapChildren->where('full_name', $row['children_name'])->first();
+            // foreach ($parent->childrens as $children) {
+            //     $isExistChildren = $children->id == $existChildren['id'] ? true : false;
+            //     $isExistChildren == true ? $countExistChildren++ : null;
+            // }
+            Log::debug(json_decode($mapChildren));
         }
 
-        if ($countExistChildren == 0) {
+        if (!isset($existChildren)) {
             $name = $this->explodeName($row['children_name']);
 
             $school = School::where('sch_name', $row['school'])->first();
