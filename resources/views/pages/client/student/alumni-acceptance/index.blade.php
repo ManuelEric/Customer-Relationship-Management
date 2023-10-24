@@ -10,7 +10,7 @@
                 Alumni Acceptance
             </h5>
 
-            <a href="{{ url('client/alumni-acceptance/create') }}" class="btn btn-sm btn-info"><i class="bi bi-plus-square me-1"></i>
+            <a href="{{ route('acceptance.create') }}" class="btn btn-sm btn-info"><i class="bi bi-plus-square me-1"></i>
                 Add</a>
         </div>
     </div>
@@ -24,7 +24,7 @@
                         <th rowspan="2" class="bg-info text-white">No</th>
                         <th rowspan="2" class="bg-info text-white">Mentee Name</th>
                         <th rowspan="2">Graduation Year</th>
-                        <th colspan="4">Status</th>
+                        <th colspan="4" class="text-center">Status</th>
                         <th rowspan="2" class="bg-info text-white"># Action</th>
                     </tr>
                     <tr class="text-center">
@@ -36,13 +36,79 @@
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="6"></td>
+                        <td colspan="8"></td>
                     </tr>
                 </tfoot>
             </table>
         </div>
     </div>
 
-    {{-- Need Changing --}}
-    <script></script>
 @endsection
+@push('scripts')
+{{-- Need Changing --}}
+<script>
+    var widthView = $(window).width();
+    $(document).ready(function() {
+        var table = $('#clientTable').DataTable({
+            dom: 'Bfrtip',
+            lengthMenu: [
+                [10, 25, 50, 100, -1],
+                ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
+            ],
+            buttons: [
+                'pageLength', {
+                    extend: 'excel',
+                    text: 'Export to Excel',
+                }
+            ],
+            scrollX: true,
+            fixedColumns: {
+                left: (widthView < 768) ? 1 : 2,
+                right: 1
+            },
+            processing: true,
+            serverSide: true,
+            ajax: '',
+            columns: [
+                {
+                    data: 'id',
+                    className: 'text-center',
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                {
+                    data: 'full_name',
+                },
+                {
+                    data: 'graduation_year',
+                },
+                {
+                    data: 'waitlisted_groups',
+                },
+                {
+                    data: 'accepted_groups',
+                },
+                {
+                    data: 'denied_groups',
+                },
+                {
+                    data: 'chosen_groups',
+                },
+                {
+                    data: '',
+                    className: 'text-center',
+                    defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editAcceptance"><i class="bi bi-eye"></i></button>'
+                }
+            ]
+        });
+
+        $('#clientTable tbody').on('click', '.editAcceptance ', function() {
+            var data = table.row($(this).parents('tr')).data();
+            window.location.href = "{{ url('client/acceptance/') }}/" + data.client_id + '/edit';
+        });
+
+    });
+</script>
+@endpush

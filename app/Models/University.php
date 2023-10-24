@@ -61,6 +61,12 @@ class University extends Model
         return $string = trim(preg_replace('/\s\s+/', ' ', $string));
     }
 
+    public function scopeWithAndWhereHas($query, $relation, $constraint)
+    {
+        return $query->whereHas($relation, $constraint)
+            ->with([$relation => $constraint]);
+    }
+
     # relation
     public function user()
     {
@@ -95,5 +101,15 @@ class University extends Model
     public function asCollaboratorInSchoolProgram()
     {
         return $this->belongsToMany(SchoolProg::class, 'tbl_sch_prog_univ', 'univ_id', 'schprog_id');
+    }
+
+    public function trackedUniversityAcceptanceFromUserClient()
+    {
+        return $this->belongsToMany(UserClient::class, 'tbl_client_acceptance', 'univ_id', 'client_id')->withPivot('client_id')->withTimestamps();
+    }
+
+    public function trackedUniversityAcceptanceFromClient()
+    {
+        return $this->belongsToMany(Client::class, 'tbl_client_acceptance', 'univ_id', 'client_id');
     }
 }

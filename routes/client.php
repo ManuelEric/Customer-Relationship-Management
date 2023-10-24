@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AcceptanceController;
 use App\Http\Controllers\AlumniController;
 use App\Http\Controllers\ClientMenteeController;
 use App\Http\Controllers\ClientParentController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\ClientProgramController;
 use App\Http\Controllers\ClientStudentController;
 use App\Http\Controllers\ClientTeacherCounselorController;
 use App\Http\Controllers\FollowupController;
+use App\Models\Axis;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -69,10 +71,4 @@ Route::prefix('teacher-counselor')->name('teacher-counselor.')->group(function (
 Route::resource('parent', ClientParentController::class);
 Route::post('parent/import', [ClientParentController::class, 'import'])->name('parent.import');
 
-Route::get('alumni-acceptance', function() {
-    return view('pages.client.student.alumni-acceptance.index');
-});
-
-Route::get('alumni-acceptance/create', function() {
-    return view('pages.client.student.alumni-acceptance.form');
-});
+Route::resource('acceptance', AcceptanceController::class)->parameters(['acceptance' => 'client']);

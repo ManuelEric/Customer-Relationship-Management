@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\pivot\ClientAcceptance;
 use App\Models\pivot\ClientLeadTracking;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -235,5 +236,10 @@ class UserClient extends Authenticatable
     public function leadStatus()
     {
         return $this->belongsToMany(InitialProgram::class, 'tbl_client_lead_tracking', 'client_id', 'initialprogram_id')->using(ClientLeadTracking::class)->withTimestamps();
+    }
+
+    public function universityAcceptance()
+    {
+        return $this->belongsToMany(University::class, 'tbl_client_acceptance', 'client_id', 'univ_id')->using(ClientAcceptance::class)->withPivot('id', 'status', 'major_id')->withTimestamps();
     }
 }

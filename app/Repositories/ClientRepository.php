@@ -16,6 +16,8 @@ use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Models\ClientAcceptance;
+use App\Models\University;
 use App\Models\User;
 use Illuminate\Support\Str; 
 
@@ -720,7 +722,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getClientById($clientId)
     {
-        return UserClient::find($clientId);
+        return Client::find($clientId);
     }
 
     public function getClientByMonthCreatedAt(array $month)
@@ -1101,5 +1103,15 @@ class ClientRepository implements ClientRepositoryInterface
         }
 
         return $client;
+    }
+
+    public function storeUniversityAcceptance($client, array $acceptanceDetails)
+    {
+        return $client->universityAcceptance()->attach($acceptanceDetails);
+    }
+
+    public function getClientHasUniversityAcceptance()
+    {
+        return Datatables::eloquent(ClientAcceptance::query())->make(true);
     }
 }
