@@ -55,4 +55,17 @@ class ExtClientController extends Controller
             ]
         );
     }
+
+    public function getClientById(int $id)
+    {
+        $client = $this->clientRepository->getClientById($id);
+
+        return response()->json(
+            [
+                'success' => true,
+                'message' => 'Client data found.',
+                'data' => $client
+            ]
+        );
+    }
 }

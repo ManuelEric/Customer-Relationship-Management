@@ -107,4 +107,9 @@ class Client extends Model
     {
         return $this->hasMany(ClientLeadTracking::class, 'client_id', 'id');
     }
+
+    public function universityAcceptance()
+    {
+        return $this->belongsToMany(University::class, 'tbl_client_acceptance', 'client_id', 'univ_id')->withPivot('tbl_client_acceptance.status')->withTimestamps();
+    }
 }
