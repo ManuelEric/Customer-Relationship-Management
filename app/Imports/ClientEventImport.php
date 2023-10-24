@@ -26,6 +26,7 @@ use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\SplitNameTrait;
+use App\Http\Traits\SyncClientTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Models\ClientEventLogMail;
 use App\Models\Major;
@@ -52,6 +53,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
     use CheckExistingClient;
     use SplitNameTrait;
     use LoggingTrait;
+    use SyncClientTrait;
 
     private ClientRepositoryInterface $clientRepository;
 
@@ -94,8 +96,8 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
                         break;
                 }
  
-                $createdMainClient = $this->createClient($row, 'main', $row['audience'], $majorDetails, $destinationCountryDetails, $school);
-                $createdSubClient = $row['audience'] == 'Student' || $row['audience'] == 'Parent' ? $this->createClient($row, 'sub', $roleSub, $majorDetails, $destinationCountryDetails, $school) : null;
+                $createdMainClient = $this->createClient($row, 'main', $row['audience'], $row['itended_major'], $row['destination_country'], $school);
+                $createdSubClient = $row['audience'] == 'Student' || $row['audience'] == 'Parent' ? $this->createClient($row, 'sub', $roleSub, $row['itended_major'], $row['destination_country'], $school) : null;
 
                 // Create relation parent and student
                 if(($row['audience'] == 'Parent' || $row['audience'] == 'Student') && isset($createdSubClient)){
@@ -331,15 +333,15 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
                         $thisNewClient = UserClient::find($newClient->id);
         
                         $thisNewClient->roles()->attach($roleId);
-                        isset($majorDetails) ? $thisNewClient->interestMajor()->sync($majorDetails) : '';
-                        isset($destinationCountryDetails) ? $thisNewClient->destinationCountries()->sync($destinationCountryDetails) : null;
+                        isset($majorDetails) ? $this->syncInterestMajor($majorDetails, $thisNewClient) : '';
+                        isset($destinationCountryDetails) ? $this->syncDestinationCountry($destinationCountryDetails, $thisNewClient) : null;
                     }
                 } else {
                     // Exist client
                     $clientId = $existClient['id'];
                     $existClientStudent = UserClient::find($existClient['id']);
-                    isset($majorDetails) ? $existClientStudent->interestMajor()->sync($majorDetails) : '';
-                    isset($destinationCountryDetails) ? $existClientStudent->destinationCountries()->sync($destinationCountryDetails) : null;
+                    isset($majorDetails) ? $this->syncInterestMajor($majorDetails, $existClientStudent) : '';
+                    isset($destinationCountryDetails) ? $this->syncDestinationCountry($destinationCountryDetails, $existClientStudent) : null;
                 }
                 
                 break;
