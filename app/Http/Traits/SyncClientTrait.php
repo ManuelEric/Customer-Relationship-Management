@@ -196,10 +196,12 @@ trait SyncClientTrait
 
                 $secondClientDetails = $this->checkClientRelation('parent', $mainClient, $secondClient);
                 
-                isset($secondClientDetails) ? $mainClient->childrens()->attach($secondClientDetails) : null;
-                
+                // Log::debug(gettype($secondClientDetails));
+                // isset($secondClientDetails) ? $mainClient->childrens()->attach($secondClientDetails) : null;
                 break;
         }
+
+        return $secondClientDetails;
 
 
     }
@@ -209,7 +211,7 @@ trait SyncClientTrait
         # type (parent) = Sync from parent to student
         # type (student) = Sync from student to parent
 
-        $secondClientDetails = null;
+        $secondClientDetails = [];
 
         switch ($type) {
             case 'parent':
@@ -242,6 +244,7 @@ trait SyncClientTrait
                             ];
                         }
                     );
+                    
             
                     $existChildren = $mapChildren->where('full_name', $secondClient['children_name'])->first();
                  
@@ -251,6 +254,9 @@ trait SyncClientTrait
 
                         $children = UserClient::create($childrenDetails);
                         $children->roles()->attach($roleId);
+                        $mainClient->childrens()->attach($children);
+                    }else{
+                        $children = UserClient::find($existChildren['id']);
                     }
 
                 # Parent no have children
@@ -259,17 +265,13 @@ trait SyncClientTrait
 
                     $children = UserClient::create($childrenDetails);
                     $children->roles()->attach($roleId);
+                    $mainClient->childrens()->attach($children);
 
                 }
 
-                // Sync country of study abroad
-                // if (isset($secondClient['destination_country'])) {
-                //     $this->syncDestinationCountry($secondClient['destination_country'], $children);
-                // }
-
                 
                 if(isset($children)){
-                    $secondClientDetails = $children->id;
+                    $secondClientDetails = $children;
                 }
 
                 break;
