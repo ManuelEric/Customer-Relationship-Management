@@ -58,8 +58,8 @@ class SubMenuSeeder extends Seeder
 
             case "Client":
                 return [
-                    'submenus' => ['Students', 'Alumnis', 'Parents', 'Teacher/Counselor', 'Alumni Acceptance'],
-                    'sublink' => ['client/student?st=potential', 'client/alumni?st=mentee', 'client/parent', 'client/teacher-counselor', 'client/alumni-acceptance'],
+                    'submenus' => ['Students', 'Alumnis', 'Parents', 'Teacher/Counselor', 'Alumni Acceptance', 'Hot Leads'],
+                    'sublink' => ['client/student?st=potential', 'client/alumni?st=mentee', 'client/parent', 'client/teacher-counselor', 'client/acceptance', 'client/hot-leads?program=Admissions+Mentoring'],
                 ];
                 break;
 
