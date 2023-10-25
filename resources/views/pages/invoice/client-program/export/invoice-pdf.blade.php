@@ -50,6 +50,10 @@
         th {
             border: 1px solid #dedede;
         }
+
+        li {
+            margin-left: 10px !important
+        }
     </style>
 </head>
 
@@ -139,7 +143,7 @@
                                 <p>
                                     <strong> {{ $clientProg->program->program_name }} </strong>
                                 </p>
-                                <p>
+                                <p class="notes">
                                     {!! $clientProg->invoice->inv_notes !!}
                                 </p>
                             </div>
@@ -208,7 +212,7 @@
                                 <p>
                                     <strong> {{ $clientProg->invoice_program_name }} </strong>
                                 </p>
-                                <p>
+                                <p class="notes">
                                     {{-- USD 5,400 (IDR 80,460,000) for Yeriel Abinawa Handoyo. <br>
                                     USD 2,750 (IDR 40,975,000) for Nemuell Jatinarendra Handoyo. --}}
                                     {!! $clientProg->invoice->inv_notes !!}
@@ -284,7 +288,7 @@
                         @if(isset($clientProg->invoice->inv_tnc))
                             <br>
                             Terms & Conditions :
-                            <div style="margin-left:2px;">
+                            <div style="margin-left:2px;" class="tnc">
                                 {!! $clientProg->invoice->inv_tnc !!}
                             </div>
                         @endif

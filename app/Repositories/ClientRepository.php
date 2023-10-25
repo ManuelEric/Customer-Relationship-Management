@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Models\ClientAcceptance;
+use App\Models\ClientLeadTracking;
 use App\Models\University;
 use App\Models\User;
 use Illuminate\Support\Str; 
@@ -449,6 +450,23 @@ class ClientRepository implements ClientRepositoryInterface
         where('st_statusact', 1);
 
         return $asDatatables === false ? $query->get() : $query->orderBy('first_name', 'asc');
+    }
+
+    public function getClientHotLeads($initialProgram)
+    {
+        $model = UserClient::withAndWhereHas('leadStatus', function ($subQuery) use ($initialProgram) {
+            $subQuery->where('total_result', '>=', '0.65')->
+                    where('status', 1)->
+                    where('tbl_initial_program_lead.name', $initialProgram)->
+                    orderByDesc('total_result');
+        })->
+        where('st_statusact', 1);
+
+        return DataTables::eloquent($model)->
+            addColumn('full_name', function ($data) {
+                return $data->full_name;
+            })->
+            make(true);
     }
     /* ~ END*/
 

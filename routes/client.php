@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AcceptanceController;
 use App\Http\Controllers\AlumniController;
+use App\Http\Controllers\ClientHotLeadsController;
 use App\Http\Controllers\ClientMenteeController;
 use App\Http\Controllers\ClientParentController;
 use App\Http\Controllers\ClientProgramController;
@@ -72,3 +73,5 @@ Route::resource('parent', ClientParentController::class);
 Route::post('parent/import', [ClientParentController::class, 'import'])->name('parent.import');
 
 Route::resource('acceptance', AcceptanceController::class)->parameters(['acceptance' => 'client']);
+
+Route::get('hot-leads', [ClientHotLeadsController::class, 'index']);
