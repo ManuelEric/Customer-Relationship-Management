@@ -5,6 +5,7 @@ namespace App\Http\Traits;
 use App\Models\Major;
 use App\Models\Program;
 use App\Models\Role;
+use App\Models\School;
 use App\Models\Tag;
 use App\Models\UserClient;
 use Carbon\Carbon;
@@ -14,7 +15,8 @@ use Illuminate\Support\Facades\Log;
 
 trait SyncClientTrait
 {
-    use  SplitNameTrait;
+    use SplitNameTrait;
+    use CheckExistingClientImport;
 
     public function syncInterestProgram($interestPrograms, $client)
     {
@@ -181,42 +183,20 @@ trait SyncClientTrait
         return $majorDetails;
     }
 
-    public function syncClientRelation($secondClient, $mainClient, $type)
+    public function syncClientRelation($mainClient, $secondClient, $type)
     {
         # type (parent) = Sync from parent to student
         # type (student) = Sync from student to parent
         
-        $secondClientName = $secondClientPhone = $secondClient = []; # default
-        $currentSecondClient = $secondClientDetails = $secondClientMerge = new Collection();
-
-        Log::debug('test', [$secondClient]);
+        $secondClientDetails = []; # default
+        $currentSecondClient = $secondClientMerge = new Collection();
 
         switch ($type) {
-            case 'student':
+            case 'parent':
 
-                $secondClientDetails = $this->checkClientRelation('student', $secondClient);
-
-                Log::debug('Second Client Detail: ', $secondClientDetails);
-
-                if(isset($mainClient->parents)){
-                    foreach ($mainClient->parents as $parent) {
-                        $secondClientName[] = $parent->full_name;
-                        $secondClientPhone[] = $parent->phone;
-                    }
-        
-                    $currentSecondClient = $this->checkClientRelation('student', $secondClientName);
-                    
-                    Log::debug('Current second client: ', $secondClientDetails);
-
-                    $secondClientMerge = $secondClientDetails->merge($currentSecondClient)->unique();
-                   
-                    Log::debug('Second client merge: ', $secondClientMerge);
-
-                }else{
-                    $secondClientMerge = $secondClientDetails;
-                } 
-
-                isset($secondClientMerge) ? $mainClient->parents()->sync($secondClientMerge->toArray()) : null;
+                $secondClientDetails = $this->checkClientRelation('parent', $mainClient, $secondClient);
+                
+                isset($secondClientDetails) ? $mainClient->childrens()->attach($secondClientDetails) : null;
                 
                 break;
         }
@@ -224,59 +204,135 @@ trait SyncClientTrait
 
     }
 
-    private function checkClientRelation($type, $secondClient)
+    private function checkClientRelation($type, $mainClient, $secondClient)
     {
         # type (parent) = Sync from parent to student
         # type (student) = Sync from student to parent
 
-        $secondClientDetails = new Collection();
+        $secondClientDetails = null;
 
         switch ($type) {
-            case 'student':
-                $parent = UserClient::all();
-                $mapParent = $parent->map(
-                    function ($item, int $key) {
-                        return [
-                            'id' => $item->id,
-                            'full_name' => $item->fullName,
-                        ];
-                    }
-                );
+            case 'parent':
 
-                $existParent = $mapParent->where('full_name', $secondClient)->first();
+                $name = $this->explodeName($secondClient['children_name']);
+                $school = School::where('sch_name', $secondClient['school'])->first();
 
-                if (!isset($existParent)) {
-                    $name = $this->explodeName($secondClient);
-
-                    $parentDetails = [
-                        'first_name' => $name['first_name'],
-                        'last_name' => isset($name['last_name']) ? $name['last_name'] : null,
-                    ];
-
-                    $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['parent'])->first();
-
-                    $parent = UserClient::create($parentDetails);
-                    $parent->roles()->attach($roleId);
-
-                    $secondClientDetails->push([
-                        'id' => $parent->id,
-                    ]);
-
-
-                } else {
-                    $secondClientDetails->push([
-                        'id' => $existParent->id,
-                    ]);
-                  
+                if (!isset($school)) {
+                    $school = $this->createSchoolIfNotExists($secondClient['school']);
                 }
+
+                $childrenDetails = [
+                    'first_name' => $name['firstname'],
+                    'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
+                    'sch_id' => $school->sch_id,
+                    'graduation_year' => isset($secondClient['graduation_year']) ? $secondClient['graduation_year'] : null,
+                    'lead_id' => $secondClient['lead'],
+                    'event_id' => isset($secondClient['event']) && $secondClient['lead'] == 'LS004' ? $secondClient['event'] : null,
+                    'eduf_id' => isset($secondClient['edufair'])  && $secondClient['lead'] == 'LS018' ? $secondClient['edufair'] : null,
+                ];
+            
+                # Check existing children
+                # If parent have children
+                if(isset($mainClient->childrens)){
+                    $mapChildren = $mainClient->childrens->map(
+                        function ($item, int $key) {
+                            return [
+                                'id' => $item->id,
+                                'full_name' => $item->fullName,
+                            ];
+                        }
+                    );
+            
+                    $existChildren = $mapChildren->where('full_name', $secondClient['children_name'])->first();
+                 
+                    # if children existing from this parent
+                    if(!isset($existChildren)){
+                        $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['student'])->first();
+
+                        $children = UserClient::create($childrenDetails);
+                        $children->roles()->attach($roleId);
+                    }
+
+                # Parent no have children
+                }else{
+                    $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['student'])->first();
+
+                    $children = UserClient::create($childrenDetails);
+                    $children->roles()->attach($roleId);
+
+                }
+
+                // Sync country of study abroad
+                // if (isset($secondClient['destination_country'])) {
+                //     $this->syncDestinationCountry($secondClient['destination_country'], $children);
+                // }
+
+                
+                if(isset($children)){
+                    $secondClientDetails = $children->id;
+                }
+
                 break;
 
+
+
+
+                // $parent = UserClient::all();
+                // $mapParent = $parent->map(
+                //     function ($item, int $key) {
+                //         return [
+                //             'id' => $item->id,
+                //             'full_name' => $item->fullName,
+                //         ];
+                //     }
+                // );
+
+                // $existParent = $mapParent->where('full_name', $secondClient)->first();
+
+                // if (!isset($existParent)) {
+                //     $name = $this->explodeName($secondClient);
+
+                //     $parentDetails = [
+                //         'first_name' => $name['first_name'],
+                //         'last_name' => isset($name['last_name']) ? $name['last_name'] : null,
+                //     ];
+
+                //     $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['parent'])->first();
+
+                //     $parent = UserClient::create($parentDetails);
+                //     $parent->roles()->attach($roleId);
+
+                //     $secondClientDetails->push([
+                //         'id' => $parent->id,
+                //     ]);
+
+
+                // } else {
+                //     $secondClientDetails->push([
+                //         'id' => $existParent->id,
+                //     ]);
+                  
+                // }
+
             
             
-            return $secondClientDetails;
 
         }
+
+        return $secondClientDetails;
+
         
+    }
+
+    private function createSchoolIfNotExists($sch_name)
+    {
+        $last_id = School::max('sch_id');
+        $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
+        $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
+
+        $newSchool = School::create(['sch_id' => $school_id_with_label, 'sch_name' => $sch_name]);
+
+        return $newSchool;
     }
 
     private function explodeName($name)

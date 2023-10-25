@@ -85,44 +85,25 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
 
                     $parent = UserClient::create($parentDetails);
                     $parent->roles()->attach($roleId);
-                    // $row['childrens_name'][0] != null ?  $parent->childrens()->sync($row['childrens_name']) : null;
-
-
-                    // $child_id = null;
-                    // if (isset($row['children_name'])) {
-                    // $child_id = $this->createChildrenIfNotExist($row);
-                   
-                    //     $parent->childrens()->syncWithoutDetaching($child_id);
-    
-                    //     // Sync interest program
-                    //     if (isset($row['interested_program'])) {
-
-                    //         $this->syncInterestProgram($row['interested_program'], $parent);
-    
-                    //         $children = UserClient::find($child_id);
-                    //             $children != null ?  $this->syncInterestProgram($row['interested_program'], $children) : null;
-                            
-                    //     }
-                    // }
 
                 }else{
                     $parent = UserClient::find($parent['id']);
                 }
                     $child_id = null;
                     if (isset($row['children_name'])) {
-                        $child_id = $this->createChildrenIfNotExist($row, $parent);
+                        $this->syncClientRelation($parent, $row, 'parent');
                        
-                            $parent->childrens()->syncWithoutDetaching($child_id);
+                            // $parent->childrens()->syncWithoutDetaching($child_id);
         
-                            // Sync interest program
-                            if (isset($row['interested_program'])) {
+                            // // Sync interest program
+                            // if (isset($row['interested_program'])) {
     
-                                $this->syncInterestProgram($row['interested_program'], $parent);
+                            //     $this->syncInterestProgram($row['interested_program'], $parent);
         
-                                $children = UserClient::find($child_id);
-                                    $children != null ?  $this->syncInterestProgram($row['interested_program'], $children) : null;
+                            //     $children = UserClient::find($child_id);
+                            //         $children != null ?  $this->syncInterestProgram($row['interested_program'], $children) : null;
                                 
-                            }
+                            // }
                         }
                 
 
@@ -133,7 +114,7 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Import parent failed : ' . $e->getMessage());
+            Log::error('Import parent failed : ' . $e->getMessage() . ' ' . $e->getLine());
         }
 
         $this->logSuccess('store', 'Import Parent', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $logDetails);
@@ -287,9 +268,6 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
             $school = $this->createSchoolIfNotExists($row['school']);
         }
 
-        
-        $isExistChildren = false;
-        $countExistChildren = 0;
 
         if(isset($parent->childrens)){
             $mapChildren = $parent->childrens->map(
@@ -302,11 +280,7 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
             );
     
             $existChildren = $mapChildren->where('full_name', $row['children_name'])->first();
-            // foreach ($parent->childrens as $children) {
-            //     $isExistChildren = $children->id == $existChildren['id'] ? true : false;
-            //     $isExistChildren == true ? $countExistChildren++ : null;
-            // }
-            Log::debug(json_decode($mapChildren));
+         
         }
 
         if (!isset($existChildren)) {
@@ -338,6 +312,7 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
                 $this->syncDestinationCountry($row['destination_country'], $children);
             }
             
+
             return $children->id; 
 
         } else {
