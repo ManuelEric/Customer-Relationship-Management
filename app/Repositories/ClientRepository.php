@@ -455,12 +455,22 @@ class ClientRepository implements ClientRepositoryInterface
     public function getClientHotLeads($initialProgram)
     {
         $model = UserClient::withAndWhereHas('leadStatus', function ($subQuery) use ($initialProgram) {
-            $subQuery->where('total_result', '>=', '0.65')->
+            $subQuery->
+                    where('type', 'program')->
+                    where('total_result', '>=', '0.65')->
                     where('status', 1)->
-                    where('tbl_initial_program_lead.name', $initialProgram)->
-                    orderByDesc('total_result');
+                    where('tbl_initial_program_lead.name', $initialProgram);
         })->
-        where('st_statusact', 1);
+        where('st_statusact', 1)->
+        orderByDesc(
+            DB::table('tbl_client_lead_tracking AS clt')->
+                leftJoin('tbl_initial_program_lead AS ipl', 'ipl.id', '=', 'clt.initialprogram_id')->
+                select('clt.total_result')->
+                whereColumn('clt.client_id', 'tbl_client.id')->
+                where('clt.type', 'lead')->
+                where('ipl.name', $initialProgram)->
+                where('clt.status', 1)
+        );
 
         return DataTables::eloquent($model)->
             addColumn('full_name', function ($data) {
