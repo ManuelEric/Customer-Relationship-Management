@@ -235,7 +235,7 @@ class UserClient extends Authenticatable
 
     public function leadStatus()
     {
-        return $this->belongsToMany(InitialProgram::class, 'tbl_client_lead_tracking', 'client_id', 'initialprogram_id')->using(ClientLeadTracking::class)->withTimestamps();
+        return $this->belongsToMany(InitialProgram::class, 'tbl_client_lead_tracking', 'client_id', 'initialprogram_id')->using(ClientLeadTracking::class)->withPivot('type', 'total_result', 'status')->withTimestamps();
     }
 
     public function universityAcceptance()
