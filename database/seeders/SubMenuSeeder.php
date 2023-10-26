@@ -24,18 +24,25 @@ class SubMenuSeeder extends Seeder
 
             foreach ($sub_menu['submenus'] as $key => $value)
             {
-                $seeds[] = [
-                    'mainmenu_id' => $main_menu->id,
-                    'submenu_name' => $value,
-                    'submenu_link' => $sub_menu['sublink'][$key],
-                    'order_no' => $no++,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now()
-                ];
+                $no++;
+                if (!DB::table('tbl_menus')->where('submenu_name', $value)->first()) {
+
+                    $seeds[] = [
+                        'mainmenu_id' => $main_menu->id,
+                        'submenu_name' => $value,
+                        'submenu_link' => $sub_menu['sublink'][$key],
+                        'order_no' => $no,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ];
+                }
+
             }
 
         }
-        DB::table('tbl_menus')->insert($seeds);
+
+        if (count($seeds) > 0)
+            DB::table('tbl_menus')->insert($seeds);
     }
 
     private function getSubMenu(string $type)
@@ -51,8 +58,8 @@ class SubMenuSeeder extends Seeder
 
             case "Client":
                 return [
-                    'submenus' => ['Students', 'Alumni', 'Parents', 'Teacher/Counselor'],
-                    'sublink' => ['client/student?st=potential', 'client/alumni?cat=mentee', 'client/parent', 'client/teacher-counselor'],
+                    'submenus' => ['Students', 'Alumnis', 'Parents', 'Teacher/Counselor', 'Alumni Acceptance', 'Hot Leads'],
+                    'sublink' => ['client/student?st=potential', 'client/alumni?st=mentee', 'client/parent', 'client/teacher-counselor', 'client/acceptance', 'client/hot-leads?program=Admissions+Mentoring'],
                 ];
                 break;
 

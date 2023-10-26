@@ -24,6 +24,7 @@ interface ClientRepositoryInterface
     public function getAlumniMenteesSiblings();
     public function getAlumniNonMentees($groupBy = false, $asDatatables = false, $month = null); # month nullable
     public function getParents($asDatatables = false, $month = null);
+    public function getClientHotLeads($initialProgram);
     /* ~ END */
 
     /* API External use */
@@ -63,6 +64,8 @@ interface ClientRepositoryInterface
     public function checkAllProgramStatus($clientId);
     public function checkExistingByPhoneNumber($phone);
     public function checkExistingByEmail($email);
+    public function storeUniversityAcceptance($client, array $acceptanceDetails);
+    public function getClientHasUniversityAcceptance();
 
     # dashboard
     public function getCountTotalClientByStatus($status, $month = null);
@@ -75,4 +78,5 @@ interface ClientRepositoryInterface
     # CRM
     public function getStudentFromV1();
     public function getParentFromV1();
+    
 }

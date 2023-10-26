@@ -41,6 +41,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('get/client/{id}', [ExtClientController::class, 'getClientById']);
+
 # dashboard sales
 Route::get('get/client/{month}/type/{type}', [SalesDashboardController::class, 'getClientByMonthAndType']);
 Route::get('get/client-status/{month}', [SalesDashboardController::class, 'getClientStatus']);

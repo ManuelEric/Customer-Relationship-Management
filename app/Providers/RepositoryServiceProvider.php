@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Interfaces\AcadTutorRepositoryInterface;
+use App\Interfaces\AcceptanceRepositoryInterface;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Interfaces\AlarmRepositoryInterface;
 use App\Interfaces\AssetRepositoryInterface;
@@ -79,6 +80,7 @@ use App\Interfaces\VendorTypeRepositoryInterface;
 use App\Interfaces\VolunteerRepositoryInterface;
 use App\Models\ClientLeadTracking;
 use App\Repositories\AcadTutorRepository;
+use App\Repositories\AcceptanceRepository;
 use App\Repositories\AgendaSpeakerRepository;
 use App\Repositories\AlarmRepository;
 use App\Repositories\AssetRepository;
@@ -231,6 +233,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(ClientEventLogMailRepositoryInterface::class, ClientEventLogMailRepository::class);
         $this->app->bind(ClientProgramLogMailRepositoryInterface::class, ClientProgramLogMailRepository::class);
         $this->app->bind(GeneralMailLogRepositoryInterface::class, GeneralMailLogRepository::class);
+        $this->app->bind(AcceptanceRepositoryInterface::class, AcceptanceRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);
