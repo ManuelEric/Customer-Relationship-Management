@@ -183,56 +183,19 @@ trait SyncClientTrait
         return $majorDetails;
     }
 
-    public function syncClientRelation($mainClient, $secondClient, $type)
-    {
-        # type (parent) = Sync from parent to student
-        # type (student) = Sync from student to parent
-        
-        $secondClientDetails = []; # default
-        $currentSecondClient = $secondClientMerge = new Collection();
-
-        switch ($type) {
-            case 'parent':
-
-                $secondClientDetails = $this->checkClientRelation('parent', $mainClient, $secondClient);
-                
-                // Log::debug(gettype($secondClientDetails));
-                // isset($secondClientDetails) ? $mainClient->childrens()->attach($secondClientDetails) : null;
-                break;
-        }
-
-        return $secondClientDetails;
-
-
-    }
-
-    private function checkClientRelation($type, $mainClient, $secondClient)
+    public function checkExistClientRelation($type, $mainClient, $secondClient)
     {
         # type (parent) = Sync from parent to student
         # type (student) = Sync from student to parent
 
-        $secondClientDetails = [];
+        $secondClientDetails = [
+            'isExist' => true,
+            'client' => null
+        ];
+        // $isExist = true;
 
         switch ($type) {
-            case 'parent':
-
-                $name = $this->explodeName($secondClient['children_name']);
-                $school = School::where('sch_name', $secondClient['school'])->first();
-
-                if (!isset($school)) {
-                    $school = $this->createSchoolIfNotExists($secondClient['school']);
-                }
-
-                $childrenDetails = [
-                    'first_name' => $name['firstname'],
-                    'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
-                    'sch_id' => $school->sch_id,
-                    'graduation_year' => isset($secondClient['graduation_year']) ? $secondClient['graduation_year'] : null,
-                    'lead_id' => $secondClient['lead'],
-                    'event_id' => isset($secondClient['event']) && $secondClient['lead'] == 'LS004' ? $secondClient['event'] : null,
-                    'eduf_id' => isset($secondClient['edufair'])  && $secondClient['lead'] == 'LS018' ? $secondClient['edufair'] : null,
-                ];
-            
+            case 'parent':            
                 # Check existing children
                 # If parent have children
                 if(isset($mainClient->childrens)){
@@ -240,84 +203,61 @@ trait SyncClientTrait
                         function ($item, int $key) {
                             return [
                                 'id' => $item->id,
-                                'full_name' => $item->fullName,
+                                'full_name' => strtolower($item->fullName),
+                            ];
+                        }
+                    );
+            
+                    $existChildren = $mapChildren->where('full_name', strtolower($secondClient))->first();
+                 
+                    # if children existing from this parent
+                    if(!isset($existChildren)){
+                        $secondClientDetails['isExist'] = false;
+                    }else{
+                        $children = UserClient::find($existChildren['id']);
+                        $secondClientDetails['isExist'] = true;
+                        $secondClientDetails['client'] = $children;
+                    }
+
+                # Parent no have children
+                }else{
+                    $secondClientDetails['isExist'] = false;
+                }
+                break;
+
+
+            case 'student':
+
+                # Check existing children
+                # If parent have children
+                if(isset($mainClient->parents)){
+                    $mapParent = $mainClient->parents->map(
+                        function ($item, int $key) {
+                            return [
+                                'id' => $item->id,
+                                'full_name' => strtolower($item->fullName),
                             ];
                         }
                     );
                     
             
-                    $existChildren = $mapChildren->where('full_name', $secondClient['children_name'])->first();
+                    $existParent = $mapParent->where('full_name', strtolower($secondClient))->first();
                  
-                    # if children existing from this parent
-                    if(!isset($existChildren)){
-                        $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['student'])->first();
-
-                        $children = UserClient::create($childrenDetails);
-                        $children->roles()->attach($roleId);
-                        $mainClient->childrens()->attach($children);
+                    # if parent not existing from this child
+                    if(!isset($existParent)){
+                        $secondClientDetails['isExist'] = false;
                     }else{
-                        $children = UserClient::find($existChildren['id']);
+                        $children = UserClient::find($existParent['id']);
+                        $secondClientDetails['isExist'] = true;
+                        $secondClientDetails['client'] = $children;
                     }
 
                 # Parent no have children
                 }else{
-                    $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['student'])->first();
-
-                    $children = UserClient::create($childrenDetails);
-                    $children->roles()->attach($roleId);
-                    $mainClient->childrens()->attach($children);
-
-                }
-
-                
-                if(isset($children)){
-                    $secondClientDetails = $children;
+                    $secondClientDetails['isExist'] = false;
                 }
 
                 break;
-
-
-
-
-                // $parent = UserClient::all();
-                // $mapParent = $parent->map(
-                //     function ($item, int $key) {
-                //         return [
-                //             'id' => $item->id,
-                //             'full_name' => $item->fullName,
-                //         ];
-                //     }
-                // );
-
-                // $existParent = $mapParent->where('full_name', $secondClient)->first();
-
-                // if (!isset($existParent)) {
-                //     $name = $this->explodeName($secondClient);
-
-                //     $parentDetails = [
-                //         'first_name' => $name['first_name'],
-                //         'last_name' => isset($name['last_name']) ? $name['last_name'] : null,
-                //     ];
-
-                //     $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['parent'])->first();
-
-                //     $parent = UserClient::create($parentDetails);
-                //     $parent->roles()->attach($roleId);
-
-                //     $secondClientDetails->push([
-                //         'id' => $parent->id,
-                //     ]);
-
-
-                // } else {
-                //     $secondClientDetails->push([
-                //         'id' => $existParent->id,
-                //     ]);
-                  
-                // }
-
-            
-            
 
         }
 

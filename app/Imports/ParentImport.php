@@ -88,10 +88,38 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
                 } else {
                     $parent = UserClient::find($parent['id']);
                 }
+
                 $children = null;
+                $checkExistChildren = null;
                 if (isset($row['children_name'])) {
-                    $children = $this->syncClientRelation($parent, $row, 'parent');
-                    Log::debug(json_encode($children));
+                    $checkExistChildren = $this->checkExistClientRelation('parent', $parent, $row['children_name']);
+                    
+                    if($checkExistChildren['isExist'] && $checkExistChildren['client'] != null){
+                        $children = $checkExistChildren['client'];
+                    }else if(!$checkExistChildren['isExist']){
+                        $name = $this->explodeName($row['children_name']);
+                        $school = School::where('sch_name', $row['school'])->first();
+
+                        if (!isset($school)) {
+                            $school = $this->createSchoolIfNotExists($row['school']);
+                        }
+
+                        $childrenDetails = [
+                            'first_name' => $name['firstname'],
+                            'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
+                            'sch_id' => $school->sch_id,
+                            'graduation_year' => isset($row['graduation_year']) ? $row['graduation_year'] : null,
+                            'lead_id' => $row['lead'],
+                            'event_id' => isset($row['event']) && $row['lead'] == 'LS004' ? $row['event'] : null,
+                            'eduf_id' => isset($row['edufair'])  && $row['lead'] == 'LS018' ? $row['edufair'] : null,
+                        ];
+
+                        $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['student'])->first();
+
+                        $children = UserClient::create($childrenDetails);
+                        $children->roles()->attach($roleId);
+                        $parent->childrens()->attach($children);
+                    }
 
                     if (isset($row['interested_program'])) {
                         $this->syncInterestProgram($row['interested_program'], $parent);
@@ -133,13 +161,6 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
             } else {
                 $lead = Lead::where('main_lead', $data['lead'])->get()->pluck('lead_id')->first();
             }
-
-            // $childrens = explode(', ', $data['childrens_name']);
-
-            // $childs = array();
-            // foreach ($childrens as $key => $children) {
-            //     $childs[$key] = UserClient::where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), $children)->get()->pluck('id')->first();
-            // }
 
             $event = Event::where('event_title', $data['event'])->get()->pluck('event_id')->first();
             $getAllEduf = EdufLead::all();
@@ -224,113 +245,4 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
         return $data;
     }
 
-    private function createChildrenIfNotExist($row, $parent)
-    {
-        // $name = $this->explodeName($row['children_name']);
-
-        // $school = School::where('sch_name', $row['school'])->first();
-
-        //     if (!isset($school)) {
-        //         $school = $this->createSchoolIfNotExists($row['school']);
-        //     }
-
-        // $childrenDetails = [
-        //     'first_name' => $name['firstname'],
-        //     'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
-        //     'sch_id' => $school->sch_id,
-        //     'graduation_year' => isset($row['graduation_year']) ? $row['graduation_year'] : null,
-        //     'lead_id' => $row['lead'],
-        //     'event_id' => isset($row['event']) && $row['lead'] == 'LS004' ? $row['event'] : null,
-        //     'eduf_id' => isset($row['edufair'])  && $row['lead'] == 'LS018' ? $row['edufair'] : null,
-        // ];
-
-        // $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['student'])->first();
-
-        // $children = UserClient::create($childrenDetails);
-        // $children->roles()->attach($roleId);
-
-        //  // Sync country of study abroad
-        //  if (isset($row['destination_country'])) {
-        //     $this->syncDestinationCountry($row['destination_country'], $children);
-        // }
-
-        // return $children->id;
-
-
-        $children = UserClient::all();
-
-        $school = School::where('sch_name', $row['school'])->first();
-
-        if (!isset($school)) {
-            $school = $this->createSchoolIfNotExists($row['school']);
-        }
-
-
-        if (isset($parent->childrens)) {
-            $mapChildren = $parent->childrens->map(
-                function ($item, int $key) {
-                    return [
-                        'id' => $item->id,
-                        'full_name' => $item->fullName,
-                    ];
-                }
-            );
-
-            $existChildren = $mapChildren->where('full_name', $row['children_name'])->first();
-        }
-
-        if (!isset($existChildren)) {
-            $name = $this->explodeName($row['children_name']);
-
-            $school = School::where('sch_name', $row['school'])->first();
-
-            if (!isset($school)) {
-                $school = $this->createSchoolIfNotExists($row['school']);
-            }
-
-            $childrenDetails = [
-                'first_name' => $name['firstname'],
-                'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
-                'sch_id' => $school->sch_id,
-                'graduation_year' => isset($row['graduation_year']) ? $row['graduation_year'] : null,
-                'lead_id' => $row['lead'],
-                'event_id' => isset($row['event']) && $row['lead'] == 'LS004' ? $row['event'] : null,
-                'eduf_id' => isset($row['edufair'])  && $row['lead'] == 'LS018' ? $row['edufair'] : null,
-            ];
-
-            $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['student'])->first();
-
-            $children = UserClient::create($childrenDetails);
-            $children->roles()->attach($roleId);
-
-            // Sync country of study abroad
-            if (isset($row['destination_country'])) {
-                $this->syncDestinationCountry($row['destination_country'], $children);
-            }
-
-
-            return $children->id;
-        } else {
-            $children = UserClient::find($existChildren['id']);
-
-            // Sync country of study abroad
-            if (isset($row['destination_country'])) {
-                $this->syncDestinationCountry($row['destination_country'], $children);
-            }
-
-
-            return $children->id;
-        }
-    }
-
-    // private function createSchoolIfNotExists($sch_name)
-    // {
-    //     $last_id = School::max('sch_id');
-    //     $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
-    //     $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
-
-    //     $newSchool = School::create(['sch_id' => $school_id_with_label, 'sch_name' => $sch_name]);
-
-    //     return $newSchool;
-    // }
 }

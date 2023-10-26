@@ -118,8 +118,30 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
                 }
 
                 // Connecting student with parent
+                $checkExistParent = null;
+                $parent = null;
                 if (isset($row['parents_name'])) {
-                    $this->createParentsIfNotExists($row['parents_name'], $parentPhone, $student);
+                    // $this->createParentsIfNotExists($row['parents_name'], $parentPhone, $student);
+                    $checkExistParent = $this->checkExistClientRelation('student', $student, $row['parents_name']);
+                    Log::debug($checkExistParent);
+                    if($checkExistParent['isExist'] && $checkExistParent['client'] != null){
+                        $parent = $checkExistParent['client'];
+                    }else if(!$checkExistParent['isExist']){
+                        $name = $this->explodeName($row['parents_name']);
+
+                        $parentDetails = [
+                            'first_name' => $name['firstname'],
+                            'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
+                            'phone' => isset($parentPhone) ? $parentPhone : null,
+                        ];
+
+                        $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['parent'])->first();
+
+                        $parent = UserClient::create($parentDetails);
+                        $parent->roles()->attach($roleId);
+                        $student->parents()->attach($parent);
+                    }
+
                 }
 
                 // Sync interest program
@@ -275,18 +297,6 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
 
             $student->parents()->sync($existParent['id']);
         }
-    }
-
-    private function createSchoolIfNotExists($sch_name)
-    {
-        $last_id = School::max('sch_id');
-        $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
-        $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
-
-        $newSchool = School::create(['sch_id' => $school_id_with_label, 'sch_name' => $sch_name]);
-
-        
-        return $newSchool;
     }
 
     private function explodeName($name)
