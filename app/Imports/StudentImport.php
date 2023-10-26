@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
+use App\Http\Traits\SyncClientTrait;
 use App\Models\Corporate;
 use App\Models\EdufLead;
 use App\Models\Event;
@@ -42,6 +43,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
     use CheckExistingClientImport;
     use CreateCustomPrimaryKeyTrait;
     use LoggingTrait;
+    use SyncClientTrait;
 
     public function sheets(): array
     {
@@ -110,50 +112,51 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
                     $student = UserClient::create($studentDetails);
                     $student->roles()->attach($roleId);
 
-                    // $interestProgramsMerge = $row['interested_program'];
-
                 } else {
                     $student = UserClient::find($student['id']);
 
-                    // if(isset($student->interestPrograms)){
-                    //     foreach ($student->interestPrograms as $program) {
-                    //         $interestPrograms .= $student->interestPrograms->last() === $program ? $program->program_name : $program->program_name . ', ';
-                    //     }
-
-                    //     $interestProgramsMerge = $interestPrograms;
-
-                    //     if(isset($row['interested_program'])){
-                    //         $interestProgramsMerge = $interestPrograms . ', ' . $row['interested_program'];
-                    //     }
-
-                    //     Log::debug($interestProgramsMerge);
-
-                    // }
                 }
 
                 // Connecting student with parent
+                $checkExistParent = null;
+                $parent = null;
                 if (isset($row['parents_name'])) {
-                    $this->createParentsIfNotExists($row['parents_name'], $parentPhone, $student);
+                    // $this->createParentsIfNotExists($row['parents_name'], $parentPhone, $student);
+                    $checkExistParent = $this->checkExistClientRelation('student', $student, $row['parents_name']);
+                    Log::debug($checkExistParent);
+                    if($checkExistParent['isExist'] && $checkExistParent['client'] != null){
+                        $parent = $checkExistParent['client'];
+                    }else if(!$checkExistParent['isExist']){
+                        $name = $this->explodeName($row['parents_name']);
+
+                        $parentDetails = [
+                            'first_name' => $name['firstname'],
+                            'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
+                            'phone' => isset($parentPhone) ? $parentPhone : null,
+                        ];
+
+                        $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['parent'])->first();
+
+                        $parent = UserClient::create($parentDetails);
+                        $parent->roles()->attach($roleId);
+                        $student->parents()->attach($parent);
+                    }
+
                 }
 
                 // Sync interest program
                 if (isset($row['interested_program'])) {
-                    $this->attachInterestedProgram($row['interested_program'], $student);
+                    $this->syncInterestProgram($row['interested_program'], $student);
                 }
 
                 // Sync country of study abroad
                 if (isset($row['country_of_study_abroad'])) {
-                    $this->createAbroadCountryIfNotExists($row['country_of_study_abroad'], $student);
+                    $this->syncDestinationCountry($row['country_of_study_abroad'], $student);
                 }
-
-                // Sync university destination
-                // if (isset($row['university_destination'])) {
-                //     $this->createUniversityIfNotExists($row['university_destination'], $student);
-                // }
 
                 // Sync interest major
                 if (isset($row['interest_major'])) {
-                    $this->createMajorIfNotExists($row['interest_major'], $student);
+                    $this->syncInterestMajor($row['interest_major'], $student);
                 }
 
                 $logDetails[] = [
@@ -294,154 +297,6 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
 
             $student->parents()->sync($existParent['id']);
         }
-    }
-
-    private function createSchoolIfNotExists($sch_name)
-    {
-        $last_id = School::max('sch_id');
-        $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
-        $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
-
-        $newSchool = School::create(['sch_id' => $school_id_with_label, 'sch_name' => $sch_name]);
-
-        
-        return $newSchool;
-    }
-
-    private function attachInterestedProgram($arrayProgramName, $student)
-    {
-        $programDetails = []; # default
-        $programs = explode(', ', $arrayProgramName);
-        foreach ($programs as $program) {
-
-            $programFromDB = Program::all();
-
-            $mapProgram = $programFromDB->map(
-                function ($item, int $key) {
-                    return [
-                        'prog_id' => $item->prog_id,
-                        'program_name' => $item->programName,
-                    ];
-                }
-            );
-
-            $existProgram = $mapProgram->where('program_name', $program)->first();
-            if ($existProgram) {
-                $programDetails[] = [
-                    'prog_id' => $existProgram['prog_id'],
-                ];
-            }
-        }
-
-        isset($programDetails) ? $student->interestPrograms()->syncWithoutDetaching($programDetails) : null;
-    }
-
-    private function createAbroadCountryIfNotExists($arrayCountryName, $student)
-    {
-        $destinationCountryDetails = []; # default
-        $arrayCountry = array_unique(array_map('trim', explode(", ", $arrayCountryName)));
-        foreach ($arrayCountry as $key => $value) {
-
-            $countryName = trim($value);
-
-            switch ($countryName) {
-
-                case preg_match('/australia/i', $countryName) == 1:
-                    $regionName = "Australia";
-                    break;
-
-                case preg_match("/United State|State|US/i", $countryName) == 1:
-                    $regionName = "US";
-                    break;
-
-                case preg_match('/United Kingdom|Kingdom|UK/i', $countryName) == 1:
-                    $regionName = "UK";
-                    break;
-
-                case preg_match('/canada/i', $countryName) == 1:
-                    $regionName = "Canada";
-                    break;
-
-                default:
-                    $regionName = "Other";
-            }
-
-            $tagFromDB = Tag::where('name', $regionName)->first();
-            if (isset($tagFromDB)) {
-                $destinationCountryDetails[] = [
-                    'tag_id' => $tagFromDB->id,
-                    'country_name' => $regionName == 'Other' ? $countryName : null,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now()
-                ];
-            } else {
-                // $newCountry = Tag::create(['name' => $regionName]);
-                $destinationCountryDetails[] = [
-                    'tag_id' => 7,
-                    'country_name' => $countryName,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now()
-                ];
-            }
-        }
-
-        isset($destinationCountryDetails) ? $student->destinationCountries()->syncWithoutDetaching($destinationCountryDetails) : null;
-    }
-
-    // private function createUniversityIfNotExists($univ_name, $student)
-    // {
-    //     $univDetails = []; # default
-    //     $universities = explode(', ', $univ_name);
-
-    //     foreach ($universities as $university) {
-    //         $univFromDB = University::where('univ_name', $university)->first();
-    //         if (isset($univFromDB)) {
-    //             $univDetails[] = [
-    //                 'univ_id' => $univFromDB->univ_id,
-    //                 'created_at' => Carbon::now(),
-    //                 'updated_at' => Carbon::now()
-    //             ];
-    //         } else {
-    //             $last_id = University::max('univ_id');
-    //             $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
-    //             $univ_id_with_label = 'UNIV-' . $this->add_digit((int)$univ_id_without_label + 1, 3);
-
-    //             $newUniv = Major::create(['univ_id' => $univ_id_with_label, 'univ_name' => $university]);
-    //             $univDetails[] = [
-    //                 'univ_id' => $newUniv->newUniv,
-    //                 'created_at' => Carbon::now(),
-    //                 'updated_at' => Carbon::now()
-    //             ];
-    //         }
-    //     }
-
-    //     isset($univDetails) ? $student->interestUniversities()->sync($univDetails) : null;
-    // }
-
-    private function createMajorIfNotExists($arrayMajorName, $student)
-    {
-        $majorDetails = []; # default
-        $majors = explode(', ', $arrayMajorName);
-
-        foreach ($majors as $major) {
-            $majorFromDB = Major::where('name', $major)->first();
-            if (isset($majorFromDB)) {
-                $majorDetails[] = [
-                    'major_id' => $majorFromDB->id,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now()
-                ];
-            } else {
-                $newMajor = Major::create(['name' => $major]);
-                $majorDetails[] = [
-                    'major_id' => $newMajor->id,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now()
-                ];
-            }
-        }
-
-        isset($majorDetails) ? $student->interestMajor()->syncWithoutDetaching($majorDetails) : null;
     }
 
     private function explodeName($name)

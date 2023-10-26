@@ -153,7 +153,7 @@ class ClientEventTemplate implements WithHeadings, WithEvents, WithStrictNullCom
                 $validation->setFormula1(sprintf('"%s"', implode(',', $audience_options)));
 
                 // set dropdown list for first data row
-                $validation = $event->sheet->getCell("K2")->getDataValidation();
+                $validation = $event->sheet->getCell("J2")->getDataValidation();
                 $validation->setType(DataValidation::TYPE_LIST);
                 $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
                 $validation->setAllowBlank(false);
@@ -274,6 +274,7 @@ class ClientEventTemplate implements WithHeadings, WithEvents, WithStrictNullCom
                 // $event->sheet->getDelegate()->getComment('G1')->getText()->createTextRun('Required');
                 // $event->sheet->getDelegate()->getComment('H1')->getText()->createTextRun('Required');
                 // $event->sheet->getDelegate()->getComment('I1')->getText()->createTextRun('Required');
+                $event->sheet->getDelegate()->getComment('J1')->getText()->createTextRun('Required');
                 $event->sheet->getDelegate()->getComment('K1')->getText()->createTextRun('Required');
                 $event->sheet->getDelegate()->getComment('L1')->getText()->createTextRun('Required');
                 $event->sheet->getDelegate()->getComment('M1')->getText()->createTextRun('Required');
@@ -311,6 +312,7 @@ class ClientEventTemplate implements WithHeadings, WithEvents, WithStrictNullCom
         // $sheet->getStyle('G1')->getFont()->getColor()->setARGB('FF0000');
         // $sheet->getStyle('H1')->getFont()->getColor()->setARGB('FF0000');
         // $sheet->getStyle('I1')->getFont()->getColor()->setARGB('FF0000');
+        $sheet->getStyle('J1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('K1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('L1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('M1')->getFont()->getColor()->setARGB('FF0000');
