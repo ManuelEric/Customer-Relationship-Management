@@ -347,8 +347,12 @@ class ClientParentController extends ClientController
 
         $file = $request->file('file');
 
-        $import = new ParentImport();
-        $import->import($file);
+        try{
+            $import = new ParentImport();
+            $import->import($file);
+        } catch (Exception $e) {
+            return back()->withError('Something went wrong while processing the data. Please try again or contact the administrator.');
+        }
 
         return back()->withSuccess('Parent successfully imported');
     }

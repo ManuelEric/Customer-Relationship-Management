@@ -15,6 +15,7 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
+use App\Http\Traits\SyncClientTrait;
 use App\Models\Corporate;
 use App\Models\EdufLead;
 use App\Models\Event;
@@ -39,6 +40,7 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
     use CreateCustomPrimaryKeyTrait;
     use CheckExistingClientImport;
     use LoggingTrait;
+    use SyncClientTrait;
 
     public function sheets(): array
     {
@@ -60,7 +62,7 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
                 $phoneNumber = $this->setPhoneNumber($row['phone_number']);
 
                 $parentName = $this->explodeName($row['full_name']);
-                
+
                 $parent = $this->checkExistingClientImport($phoneNumber, $row['email']);
 
                 if (!$parent['isExist']) {
@@ -83,26 +85,53 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
 
                     $parent = UserClient::create($parentDetails);
                     $parent->roles()->attach($roleId);
-                    // $row['childrens_name'][0] != null ?  $parent->childrens()->sync($row['childrens_name']) : null;
+                } else {
+                    $parent = UserClient::find($parent['id']);
+                }
 
+                $children = null;
+                $checkExistChildren = null;
+                if (isset($row['children_name'])) {
+                    $checkExistChildren = $this->checkExistClientRelation('parent', $parent, $row['children_name']);
+                    
+                    if($checkExistChildren['isExist'] && $checkExistChildren['client'] != null){
+                        $children = $checkExistChildren['client'];
+                    }else if(!$checkExistChildren['isExist']){
+                        $name = $this->explodeName($row['children_name']);
+                        $school = School::where('sch_name', $row['school'])->first();
 
-                $child_id = null;
-                    if (isset($row['children_name'])) {
-                    $child_id = $this->createChildren($row);
-                   
-                        $parent->childrens()->sync($child_id);
-    
-                        // Sync interest program
-                        if (isset($row['interested_program'])) {
-                            $this->attachInterestedProgram($row['interested_program'], $parent);
-    
-                            $children = UserClient::find($child_id);
-                                $children != null ?  $this->attachInterestedProgram($row['interested_program'], $children) : null;
-                            
+                        if (!isset($school)) {
+                            $school = $this->createSchoolIfNotExists($row['school']);
                         }
+
+                        $childrenDetails = [
+                            'first_name' => $name['firstname'],
+                            'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
+                            'sch_id' => $school->sch_id,
+                            'graduation_year' => isset($row['graduation_year']) ? $row['graduation_year'] : null,
+                            'lead_id' => $row['lead'],
+                            'event_id' => isset($row['event']) && $row['lead'] == 'LS004' ? $row['event'] : null,
+                            'eduf_id' => isset($row['edufair'])  && $row['lead'] == 'LS018' ? $row['edufair'] : null,
+                        ];
+
+                        $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['student'])->first();
+
+                        $children = UserClient::create($childrenDetails);
+                        $children->roles()->attach($roleId);
+                        $parent->childrens()->attach($children);
                     }
 
+                    if (isset($row['interested_program'])) {
+                        $this->syncInterestProgram($row['interested_program'], $parent);
+                        $children != null ?  $this->syncInterestProgram($row['interested_program'], $children) : null;
+                    }
+
+                    // Sync country of study abroad
+                    if (isset($secondClient['destination_country'])) {
+                        $children != null ?  $this->syncDestinationCountry($secondClient['destination_country'], $children) : null;
+                    }
                 }
+
 
                 $logDetails[] = [
                     'client_id' => $parent['id']
@@ -111,11 +140,10 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Import parent failed : ' . $e->getMessage());
+            Log::error('Import parent failed : ' . $e->getMessage() . ' ' . $e->getLine());
         }
 
-        $this->logSuccess('store', 'Import Parent', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $logDetails);
-
+        $this->logSuccess('store', 'Import Parent', 'Parent', Auth::user()->first_name . ' ' . Auth::user()->last_name, $logDetails);
     }
 
     public function prepareForValidation($data)
@@ -133,13 +161,6 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
             } else {
                 $lead = Lead::where('main_lead', $data['lead'])->get()->pluck('lead_id')->first();
             }
-
-            // $childrens = explode(', ', $data['childrens_name']);
-
-            // $childs = array();
-            // foreach ($childrens as $key => $children) {
-            //     $childs[$key] = UserClient::where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), $children)->get()->pluck('id')->first();
-            // }
 
             $event = Event::where('event_title', $data['event'])->get()->pluck('event_id')->first();
             $getAllEduf = EdufLead::all();
@@ -184,7 +205,7 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
     {
         return [
             '*.full_name' => ['required'],
-            '*.email' => ['required', 'email', 'unique:tbl_client,mail'],
+            '*.email' => ['required', 'email'],
             '*.phone_number' => ['required', 'min:5', 'max:15'],
             '*.date_of_birth' => ['nullable', 'date'],
             '*.instagram' => ['nullable', 'unique:tbl_client,insta'],
@@ -205,37 +226,6 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
         ];
     }
 
-
-
-    private function attachInterestedProgram($arrayProgramName, $client)
-    {
-        $programDetails = []; # default
-        $programs = explode(', ', $arrayProgramName);
-        foreach ($programs as $program) {
-
-            $programFromDB = Program::all();
-
-            $mapProgram = $programFromDB->map(
-                function ($item, int $key) {
-                    return [
-                        'prog_id' => $item->prog_id,
-                        'program_name' => $item->programName,
-                    ];
-                }
-            );
-
-            $existProgram = $mapProgram->where('program_name', $program)->first();
-            if ($existProgram) {
-                $programDetails[] = [
-                    'prog_id' => $existProgram['prog_id'],
-                ];
-            }
-        }
-
-        isset($programDetails) ? $client->interestPrograms()->sync($programDetails) : null;
-    }
-
-
     private function explodeName($name)
     {
 
@@ -254,103 +244,5 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
 
         return $data;
     }
-
-    private function createChildren($row)
-    {
-            $name = $this->explodeName($row['children_name']);
-
-            $school = School::where('sch_name', $row['school'])->first();
-
-                if (!isset($school)) {
-                    $school = $this->createSchoolIfNotExists($row['school']);
-                }
-
-            $childrenDetails = [
-                'first_name' => $name['firstname'],
-                'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
-                'sch_id' => $school->sch_id,
-                'graduation_year' => isset($row['graduation_year']) ? $row['graduation_year'] : null,
-                'lead_id' => $row['lead'],
-                'event_id' => isset($row['event']) && $row['lead'] == 'LS004' ? $row['event'] : null,
-                'eduf_id' => isset($row['edufair'])  && $row['lead'] == 'LS018' ? $row['edufair'] : null,
-            ];
-
-            $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['student'])->first();
-
-            $children = UserClient::create($childrenDetails);
-            $children->roles()->attach($roleId);
-
-             // Sync country of study abroad
-             if (isset($row['destination_country'])) {
-                $this->createAbroadCountryIfNotExists($row['destination_country'], $children);
-            }
-
-            return $children->id;
-    }
-
-    private function createSchoolIfNotExists($sch_name)
-    {
-        $last_id = School::max('sch_id');
-        $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
-        $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
-
-        $newSchool = School::create(['sch_id' => $school_id_with_label, 'sch_name' => $sch_name]);
-
-        return $newSchool;
-    }
-
-    private function createAbroadCountryIfNotExists($arrayCountryName, $student)
-    {
-        $destinationCountryDetails = []; # default
-        $arrayCountry = array_unique(array_map('trim', explode(", ", $arrayCountryName)));
-        foreach ($arrayCountry as $key => $value) {
-
-            $countryName = trim($value);
-
-            switch ($countryName) {
-
-                case preg_match('/australia/i', $countryName) == 1:
-                    $regionName = "Australia";
-                    break;
-
-                case preg_match("/United State|State|US/i", $countryName) == 1:
-                    $regionName = "US";
-                    break;
-
-                case preg_match('/United Kingdom|Kingdom|UK/i', $countryName) == 1:
-                    $regionName = "UK";
-                    break;
-
-                case preg_match('/canada/i', $countryName) == 1:
-                    $regionName = "Canada";
-                    break;
-
-                default:
-                    $regionName = "Other";
-            }
-
-            $tagFromDB = Tag::where('name', $regionName)->first();
-            if (isset($tagFromDB)) {
-                $destinationCountryDetails[] = [
-                    'tag_id' => $tagFromDB->id,
-                    'country_name' => $regionName == 'Other' ? $countryName : null,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now()
-                ];
-            } else {
-                // $newCountry = Tag::create(['name' => $regionName]);
-                $destinationCountryDetails[] = [
-                    'tag_id' => 7,
-                    'country_name' => $countryName,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now()
-                ];
-            }
-        }
-
-        isset($destinationCountryDetails) ? $student->destinationCountries()->sync($destinationCountryDetails) : null;
-    }
-
-    
 
 }
