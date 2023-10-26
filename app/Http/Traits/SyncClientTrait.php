@@ -210,7 +210,7 @@ trait SyncClientTrait
             
                     $existChildren = $mapChildren->where('full_name', strtolower($secondClient))->first();
                  
-                    # if children existing from this parent
+                    # if children not existing from this parent
                     if(!isset($existChildren)){
                         $secondClientDetails['isExist'] = false;
                     }else{
@@ -228,8 +228,8 @@ trait SyncClientTrait
 
             case 'student':
 
-                # Check existing children
-                # If parent have children
+                # Check existing parent
+                # If child have parent
                 if(isset($mainClient->parents)){
                     $mapParent = $mainClient->parents->map(
                         function ($item, int $key) {
@@ -252,7 +252,7 @@ trait SyncClientTrait
                         $secondClientDetails['client'] = $children;
                     }
 
-                # Parent no have children
+                # Child no have parent
                 }else{
                     $secondClientDetails['isExist'] = false;
                 }
