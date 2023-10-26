@@ -23,6 +23,9 @@
         <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('sales','client-event')">
             <div class="nav-link sales client-event">Client Event</div>
         </li>
+        <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('sales','outstanding-payment')">
+            <div class="nav-link sales outstanding-payment">Outstanding Payment</div>
+        </li>
     </ul>
     <select name="" id="cp_employee" class="select w-25">
         <option value="all">All</option>
@@ -47,4 +50,7 @@
 </section>
 <section id="client-event" class="dashboard-sales d-none">
     @include('pages.dashboard.sales.detail.client-event')
+</section>
+<section id="outstanding-payment" class="dashboard-sales d-none">
+    @include('pages.dashboard.sales.detail.outstanding-payment')
 </section>
