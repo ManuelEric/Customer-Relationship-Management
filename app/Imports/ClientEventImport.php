@@ -82,6 +82,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
                 if (!$school = School::where('sch_name', $row['school'])->pluck('sch_id')->first())
                     $school = $this->createSchoolIfNotExists($row['school']);
 
+                $roleSub = null;
                 switch ($row['audience']) {
                     case 'Student':
                         $roleSub = 'Parent';
@@ -129,9 +130,9 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
 
                 # add additional identification
                 if ($row['audience'] == "Parent")
-                    $data['child_id'] = $createdSubClient;
+                    $data['child_id'] = isset($createdSubClient) ? $createdSubClient : null;
                 elseif ($row['audience'] == "Student")
-                    $data['parent_id'] = $createdMainClient;
+                    $data['parent_id'] = isset($createdSubClient) ? $createdSubClient : null;
 
                 $existClientEvent = ClientEvent::where('event_id', $data['event_id'])
                     ->where('client_id', $data['client_id'])
