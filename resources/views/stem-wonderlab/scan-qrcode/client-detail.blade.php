@@ -108,22 +108,22 @@
                                 @case("student")
                                     <div class="col-4 mb-3">
                                         <label>Your {{ $secondary_client_role  }} Name <span class="text-danger">*</span></label>
-                                        <input type="text" name="fullname[]" class="form-control" value="{{ $secondary_client['personal_info']->full_name }}">
+                                        <input type="text" name="fullname[]" class="form-control" value="{{ $secondary_client['personal_info']->full_name ?? null }}">
                                         @error('fullname.1')
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
                                     <div class="col-4 mb-3">
                                         <label>Your {{ $secondary_client_role  }} Email <span class="text-danger">*</span></label>
-                                        <input type="text" name="email[]" class="form-control" value="{{ $secondary_client['personal_info']->mail }}">
+                                        <input type="text" name="email[]" class="form-control" value="{{ $secondary_client['personal_info']->mail ?? null }}">
                                         @error('email.1')
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
                                     <div class="col-4 mb-3">
                                         <label>{{ $secondary_client_role  }} Number <span class="text-danger">*</span></label>
-                                        <input type="text" id="phoneUser2" class="form-control" value="{{ $secondary_client['personal_info']->phone }}">
-                                        <input type="hidden" name="fullnumber[]" id="phone2" value="{{ $secondary_client['personal_info']->phone }}">
+                                        <input type="text" id="phoneUser2" class="form-control" value="{{ $secondary_client['personal_info']->phone ?? null }}">
+                                        <input type="hidden" name="fullnumber[]" id="phone2" value="{{ $secondary_client['personal_info']->phone ?? null}}">
                                         @error('fullnumber.1')
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
@@ -138,7 +138,7 @@
                                             @foreach ($schools as $school)
                                                 <option value="{{ $school->sch_id }}"
                                                     {{ old('school') == $school->sch_id ? 'selected' : null }}
-                                                    @selected($school->sch_id == $secondary_client['sch_id'])>
+                                                    @selected($school->sch_id == $secondary_client['sch_id'] ?? null)>
                                                     {{ $school->sch_name }}</option>
                                             @endforeach
                                         </select>
@@ -154,7 +154,7 @@
                                             placeholder="">
                                             <option value=""></option>
                                             @for ($i = date('Y'); $i < date('Y') + 6; $i++)
-                                                <option value="{{ $i }}" @selected($i == $secondary_client['graduation_year'])>{{ $i }}</option>
+                                                <option value="{{ $i }}" @selected($i == $secondary_client['graduation_year'] ?? null)>{{ $i }}</option>
                                             @endfor
                                         </select>
                                         @error('graduation_year')

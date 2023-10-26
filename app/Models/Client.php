@@ -12,6 +12,43 @@ class Client extends Model
 
     protected $table = 'client';
 
+    protected $fillable = [
+        'id',
+        'st_id',
+        'first_name',
+        'last_name',
+        'mail',
+        'phone',
+        'phone_desc',
+        'dob',
+        'insta',
+        'state',
+        'city',
+        'postal_code',
+        'address',
+        'sch_id',
+        'st_grade',
+        'lead_id',
+        'eduf_id',
+        'partner_id',
+        'event_id',
+        'st_levelinterest',
+        'graduation_year',
+        'gap_year',
+        'st_abryear',
+        // 'st_abrcountry',
+        'st_statusact',
+        'st_note',
+        'st_statuscli',
+        // 'st_prospect_status',
+        'st_password',
+        'preferred_program',
+        'is_funding',
+        'register_as',
+        'created_at',
+        'updated_at',
+    ];
+
     public function scopeWithAndWhereHas($query, $relation, $constraint)
     {
         return $query->whereHas($relation, $constraint)
