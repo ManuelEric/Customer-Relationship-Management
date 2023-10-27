@@ -205,7 +205,7 @@ class UserClient extends Authenticatable
 
     public function interestPrograms()
     {
-        return $this->belongsToMany(Program::class, 'tbl_interest_prog', 'client_id', 'prog_id')->withTimestamps();
+        return $this->belongsToMany(Program::class, 'tbl_interest_prog', 'client_id', 'prog_id')->withPivot('id')->withTimestamps();
     }
 
     public function interestMajor()

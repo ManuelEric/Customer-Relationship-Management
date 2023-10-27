@@ -25,6 +25,8 @@ interface ClientRepositoryInterface
     public function getAlumniNonMentees($groupBy = false, $asDatatables = false, $month = null); # month nullable
     public function getParents($asDatatables = false, $month = null);
     public function getClientHotLeads($initialProgram);
+    public function addInterestProgram($studentId, $interestProgram);
+    public function removeInterestProgram($studentId, $interstProgram, $progId);
     /* ~ END */
 
     /* API External use */

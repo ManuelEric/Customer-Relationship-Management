@@ -49,6 +49,8 @@ Route::prefix('student')->name('student.')->group(function () {
     Route::post('import', [ClientStudentController::class, 'import'])->name('import');
     Route::get('{student}/status/{status}', [ClientStudentController::class, 'updateStatus'])->name('update.status');
     Route::post('{student}/lead_status', [ClientStudentController::class, 'updateLeadStatus'])->name('update.lead.status');
+    Route::post('{student}/interest_program', [ClientStudentController::class, 'addInterestProgram'])->name('add.interest.program');
+    Route::delete('{student}/interest_program/{interest_program}/{prog}', [ClientStudentController::class, 'removeInterestProgram'])->name('remove.interest.program');
 
     Route::resource('{student}/program', ClientProgramController::class);
     Route::prefix('{student}/program')->name('program.')->group(function () {

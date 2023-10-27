@@ -19,9 +19,9 @@
                 </a>
                 <div class="">
                     <i class="bi bi-clock-history"></i>
-                    {{ date('d/m/Y H:i:s', strtotime($program->created_at)) }}
+                    {{ date('d/m/Y H:i:s', strtotime($program->pivot->created_at)) }}
                     <button class="btn btn-sm btn-light text-danger ms-2 p-1"
-                        onclick="confirmDelete('interest-program-delete', {{ $program->id }})">
+                        onclick="confirmDelete('client/student/{{$student->id}}/interest_program/{{$program->pivot->id}}', '{{ $program->prog_id }}')">
                         <i class="bi bi-trash2"></i>
                     </button>
                 </div>
@@ -43,10 +43,20 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="">
+                <form action="{{ route('student.add.interest.program', ['student' => $student->id]) }}" method="post">
+                    @csrf
                     <label for="">Program Name</label>
-                    <select name="interest_program" id="" class="select w-100"></select>
-
+                    <select name="interest_program" id="" class="modal-select w-100">
+                        <option data-placeholder="true"></option>
+                        @foreach ($programs as $program)
+                            <option value="{{ $program->prog_id }}"
+                                {{ old('interest_program') == $program->prog_id ? 'selected' : null }}>
+                                {{ $program->program_name }}</option>
+                        @endforeach
+                    </select>
+                    @error('interest_program')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
                     <div class="mt-3 text-center">
                         <button class="btn btn-sm btn-primary">
                             <i class="bi bi-save"></i>
@@ -58,3 +68,11 @@
         </div>
     </div>
 </div>
+
+@if ($errors->has('interest_program'))
+    <script>
+        $(document).ready(function() {
+            $('#addInterestProgram').modal('show');
+        })
+    </script>
+@endif

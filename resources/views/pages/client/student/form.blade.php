@@ -525,7 +525,7 @@
                             @enderror
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    {{-- <div class="col-md-12">
                         <div class="mb-2">
                             <label>Interested Program</label>
                             <select class="select w-100" id="interestedProgram" name="prog_id[]" multiple>
@@ -542,7 +542,7 @@
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
                         </div>
-                    </div>
+                    </div> --}}
 
 
                 </div>
@@ -823,22 +823,22 @@
                     $("#major").val(st_abrmajor).trigger('change')
                 @endif
 
-                @if (isset($student->interestPrograms))
-                    var prog_id = new Array();
-                    @foreach ($student->interestPrograms as $program)
-                        prog_id.push("{{ $program->prog_id }}")
-                    @endforeach
+                // @if (isset($student->interestPrograms))
+                //     var prog_id = new Array();
+                //     @foreach ($student->interestPrograms as $program)
+                //         prog_id.push("{{ $program->prog_id }}")
+                //     @endforeach
 
-                    $("#interestedProgram").val(prog_id).trigger('change')
-                @elseif (old('prog_id') !== null && count(old('prog_id')) > 0)
-                    var prog_id = new Array();
-                    @foreach (old('prog_id') as $key => $val)
-                        prog_id.push("{{ $val }}")
-                    @endforeach
+                //     $("#interestedProgram").val(prog_id).trigger('change')
+                // @elseif (old('prog_id') !== null && count(old('prog_id')) > 0)
+                //     var prog_id = new Array();
+                //     @foreach (old('prog_id') as $key => $val)
+                //         prog_id.push("{{ $val }}")
+                //     @endforeach
 
-                    $("#interestedProgram").val(prog_id).trigger('change')
-                    anotherDocument()
-                @endif
+                //     $("#interestedProgram").val(prog_id).trigger('change')
+                //     anotherDocument()
+                // @endif
 
                 @if (isset($student->lead_id))
                     @if ($student->lead->main_lead == 'KOL')

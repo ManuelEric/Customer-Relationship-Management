@@ -133,7 +133,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9 col-8">
-                            {{ $student->leadSource }}
+                            {{ $student->lead_source }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
@@ -268,5 +268,15 @@
                     notification("error", error.response.data.message)
                 })
         })
+    </script>
+
+    <script>
+         $(document).ready(function() {
+            $('.modal-select').select2({
+                dropdownParent: $('#addInterestProgram .modal-content'),
+                placeholder: "Select value",
+                allowClear: true
+            });
+        });
     </script>
 @endsection
