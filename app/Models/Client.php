@@ -117,7 +117,7 @@ class Client extends Model
 
     public function interestPrograms()
     {
-        return $this->belongsToMany(Program::class, 'tbl_interest_prog', 'client_id', 'prog_id');
+        return $this->belongsToMany(Program::class, 'tbl_interest_prog', 'client_id', 'prog_id')->withPivot('id')->withTimestamps();
     }
 
     public function interestMajor()

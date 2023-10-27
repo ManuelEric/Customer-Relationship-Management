@@ -166,8 +166,8 @@ class ClientParentController extends ClientController
             # create interested program
             # if they didn't insert interested program 
             # then skip this case
-            if (!$this->createInterestedProgram($data['interestPrograms'], $newParentId))
-                throw new Exception('Failed to store interest program', 3);
+            // if (!$this->createInterestedProgram($data['interestPrograms'], $newParentId))
+            //     throw new Exception('Failed to store interest program', 3);
 
             DB::commit();
         } catch (Exception $e) {
@@ -293,8 +293,8 @@ class ClientParentController extends ClientController
             # create interested program
             # if they didn't insert interested program 
             # then skip this case
-            if (!$this->createInterestedProgram($data['interestPrograms'], $parentId))
-                throw new Exception('Failed to store interest program', 3);
+            // if (!$this->createInterestedProgram($data['interestPrograms'], $parentId))
+            //     throw new Exception('Failed to store interest program', 3);
 
             # removing the unnecessary information from the parentDetails
             unset($data['parentDetails']['pr_firstname']);

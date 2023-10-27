@@ -217,7 +217,7 @@ class ClientController extends Controller
         ]);
 
         # initiate variable interest program details
-        $interestPrograms = $request->prog_id ??= [];
+        // $interestPrograms = $request->prog_id ??= [];
 
         # initiate variable abroad country details
         $abroadCountries = $request->st_abrcountry ??= [];
@@ -233,7 +233,7 @@ class ClientController extends Controller
             'parentDetails',
             'teacherDetails',
             'schoolDetails',
-            'interestPrograms',
+            // 'interestPrograms',
             'abroadCountries',
             'abroadUniversities',
             'interestMajors',
@@ -269,23 +269,23 @@ class ClientController extends Controller
         return $choosen_parent ?? $studentDetails['pr_id_old'];
     }
 
-    public function createInterestedProgram(array $interestPrograms, int $clientId) # clientId can be studentId & parentId
-    {
-        $interestProgramDetails = array();
-        if (isset($interestPrograms) && count($interestPrograms) > 0) {
+    // public function createInterestedProgram(array $interestPrograms, int $clientId) # clientId can be studentId & parentId
+    // {
+    //     $interestProgramDetails = array();
+    //     if (isset($interestPrograms) && count($interestPrograms) > 0) {
 
-            for ($i = 0; $i < count($interestPrograms); $i++) {
-                $interestProgramDetails[] = [
-                    'prog_id' => $interestPrograms[$i]
-                ];
-            }
+    //         for ($i = 0; $i < count($interestPrograms); $i++) {
+    //             $interestProgramDetails[] = [
+    //                 'prog_id' => $interestPrograms[$i]
+    //             ];
+    //         }
 
-            $interestedProgram = $this->clientRepository->createInterestProgram($clientId, $interestProgramDetails);
-            return $interestedProgram;
-        }
+    //         $interestedProgram = $this->clientRepository->createInterestProgram($clientId, $interestProgramDetails);
+    //         return $interestedProgram;
+    //     }
 
-        return true;
-    }
+    //     return true;
+    // }
 
     public function createDestinationCountries(array $abroadCountries, int $newStudentId)
     {

@@ -65,7 +65,7 @@ class StoreClientParentRequest extends FormRequest
                 }
             ],
             'st_levelinterest' => 'required|in:High,Medium,Low',
-            'prog_id.*' => 'sometimes|required|exists:tbl_prog,prog_id',
+            // 'prog_id.*' => 'sometimes|required|exists:tbl_prog,prog_id',
             'st_abryear' => [
                 'sometimes',
                 function ($attribute, $value, $fail) {

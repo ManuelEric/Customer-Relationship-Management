@@ -68,7 +68,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9 col-8">
-                            {{ date('d M Y', strtotime($teacher_counselor->dob)) }}
+                            {{ isset($teacher_counselor->dob) ? date('d M Y', strtotime($teacher_counselor->dob)) : null }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
@@ -79,7 +79,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9 col-8">
-                            {{ $teacher_counselor->leadSource }}
+                            {{ $teacher_counselor->lead_source }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
