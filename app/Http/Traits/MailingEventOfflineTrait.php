@@ -55,7 +55,7 @@ trait MailingEventOfflineTrait
                 'client_id' => $client_id,
                 'child_id' => $client->childrens->count() > 0 ? $client->childrens[$indexChild]->id : null,
                 'event_id' => $event_id,
-                'lead_id' => 'LS012',
+                'lead_id' => 'LS040',
                 'status' => 0,
                 'notes' => $notes,
                 'joined_date' => Carbon::now(),
