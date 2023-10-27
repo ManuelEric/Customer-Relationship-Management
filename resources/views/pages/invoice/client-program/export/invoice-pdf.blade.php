@@ -18,9 +18,9 @@
         }
 
         @page {
-            margin-top: 250px !important;
+            margin-top: 220px !important;
             /* create space for header */
-            margin-bottom: 100px !important;
+            margin-bottom: 25px !important;
             /* create space for footer */
         }
 
@@ -33,13 +33,13 @@
 
         header {
             height: auto;
-            margin-top: -250px;
+            margin-top: -220px;
             /* top: 0; */
         }
 
         footer {
             /* height: auto; */
-            margin-bottom: -100px !important;
+            margin-bottom: -25px !important;
             bottom: 0;
         }
 
@@ -87,9 +87,9 @@
 
 <body style="padding: 0; margin:0;">
     <header>
-        <img src="{{ public_path('img/pdf/header.webp') }}" width="100%">
+        <img src="{{ public_path('img/pdf/header.webp') }}" width="100%" height="160px">
         <h4
-            style="line-height:1.6; letter-spacing:3px; font-weight:bold; text-align:center; color:#247df2; font-size:18px; margin-bottom:10px; ">
+            style="line-height:1.6; letter-spacing:3px; font-weight:bold; text-align:center; color:#247df2; font-size:16px; margin-bottom:10px; ">
             INVOICE
         </h4>
         <img src="{{ public_path('img/pdf/confidential.webp') }}" width="85%"
@@ -104,7 +104,7 @@
     {{-- <div style="width: 100%; padding:0; margin:0;"> --}}
     <main>
         <div class="" style="padding:0 30px;">
-            <br><br>
+            
             <div style="height:150px;">
                 <table border="0" width="100%">
                     <tr>
@@ -153,7 +153,6 @@
                 </table>
             </div>
 
-            <br>
             <table>
                 <tr>
                     <td>
@@ -313,25 +312,22 @@
                 </tr>
             </table>
 
-            <table>
-                <tr>
-                    <td>
-                        {{-- IF INSTALLMENT EXIST --}}
-                        @if ($clientProg->invoice()->has('invoiceDetail') && $clientProg->invoice->inv_paymentmethod == 'Installment')
-                            Terms of Payment :
-                            <div style="margin-left:2px;">
-                                @foreach ($clientProg->invoice->invoiceDetail as $detail)
-                                    {{ $detail->invdtl_installment . ' ' . $detail->invdtl_percentage . '% on ' . date('d F Y', strtotime($detail->invdtl_duedate)) . ' : ' . $detail->invoicedtl_amountidr }}
-                                    <br>
-                                    {{-- - Installment 1 40% on 05 December 2022 : $3,260 <br>
-                                    - Installment 2 20% on 05 February 2023 : $1,630 <br>
-                                    - Installment 3 20% on 05 April 2023 : $1,630 --}}
-                                @endforeach
-                            </div>
-                        @endif
-                    </td>
-                </tr>
-            </table>
+            {{-- IF INSTALLMENT EXIST --}}
+            @if ($clientProg->invoice()->has('invoiceDetail') && $clientProg->invoice->inv_paymentmethod == 'Installment')
+                <table style="width: 100%; margin-top:-10px">
+                        <tr align="center">
+                            <th width="50%" style="border:0px !important;"></th>
+                            <th width="50%" style="border:0px !important;"></th>
+                        </tr>
+                            @foreach ($clientProg->invoice->invoiceDetail as $detail)
+                                {!! $loop->index == 0 ? '<tr><td valign="top">Terms of Payment : <br>' : null !!}
+                                {{ $detail->invdtl_installment . ' ' . $detail->invdtl_percentage . '% on ' . date('d F Y', strtotime($detail->invdtl_duedate)) . ' : ' . $detail->invoicedtl_amountidr }}
+                                <br>
+                                {!! $loop->index+1 == round($clientProg->invoice->invoiceDetail->count()/2) ? '</td><td valign="top"><br>' : null !!}
+                                {!! $loop->last? '</td></tr>' : null !!}
+                            @endforeach
+                </table>
+            @endif
 
             <table>
                 <tr>
