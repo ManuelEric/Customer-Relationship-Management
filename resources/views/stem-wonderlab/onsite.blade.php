@@ -26,6 +26,8 @@
                     <img src="{{ asset('img/makerspace/asset-4.webp') }}" alt=""
                         class="position-absolute w-25 animate__animated animate__pulse animate__infinite"
                         style="bottom:-7vh; right:-10vh; --animate-duration:10s">
+                    <img src="{{ asset('img/makerspace/Segitiga.png') }}" alt="" class="position-absolute"
+                        width="100px" style="top:40vh; right:-5vh;">
 
                     <div class="d-flex align-items-center h-100">
                         <div class="row justify-content-center">
@@ -33,7 +35,8 @@
                                 <img src="{{ asset('img/makerspace/stem-logo-white.webp') }}" alt="" class="w-100">
                                 <h5 class="text-center text-white mt-4" style="font-size: 1.2em;">SCIENCE, TECHNOLOGY,
                                     ENGINEERING, MATHEMATICS AND ART</h5>
-                                <button class="btn btn-lg btn-regist btn-block w-100 rounded-pill py-1 shadow-lg mt-3" style="font-size: 1.2em;">
+                                <button class="btn btn-lg btn-regist btn-block w-100 rounded-pill py-1 shadow-lg mt-3"
+                                    style="font-size: 1.2em;">
                                     Indonesia's FIRST Student Makerspace Expo
                                 </button>
 

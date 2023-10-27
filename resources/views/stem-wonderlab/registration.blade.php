@@ -1,7 +1,7 @@
 @extends('app')
 @section('title', 'STEM+ WONDERLAB REGISTRATION')
 @section('css')
-    <link rel="stylesheet" href="{{asset('css/registration.css')}}">
+    <link rel="stylesheet" href="{{ asset('css/registration.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
 @endsection
@@ -22,6 +22,8 @@
                     <img src="{{ asset('img/makerspace/asset-4.webp') }}" alt=""
                         class="position-absolute w-25 animate__animated animate__pulse animate__infinite"
                         style="bottom:-7vh; right:-20vh; --animate-duration:10s">
+                    <img src="{{ asset('img/makerspace/Segitiga.png') }}" alt="" class="position-absolute"
+                        width="100px" style="top:40vh; right:-5vh;">
 
                     <div class="d-flex align-items-center h-100">
                         <div class="row justify-content-center">
@@ -35,24 +37,30 @@
 
                                 <div class="row mt-3">
                                     <div class="col-md-6">
-                                        <div class="btn text-white border-orange btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
+                                        <div
+                                            class="btn text-white border-orange btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
                                             Passion Project Expo
                                         </div>
-                                        <div class="btn text-white border-blue btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
+                                        <div
+                                            class="btn text-white border-blue btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
                                             STEM+ Learning Lab Workshop
                                         </div>
-                                        <div class="btn text-white border-green btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
+                                        <div
+                                            class="btn text-white border-green btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
                                             Hands-On STEM+ TechXperience Demo
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="btn text-white border-pink btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
+                                        <div
+                                            class="btn text-white border-pink btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
                                             Collaborative Real-World Challenge
                                         </div>
-                                        <div class="btn text-white border-yellow btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
+                                        <div
+                                            class="btn text-white border-yellow btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
                                             Parenting Talks & Discussions
                                         </div>
-                                        <div class="btn text-white border-orange btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
+                                        <div
+                                            class="btn text-white border-orange btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
                                             University Expo
                                         </div>
                                     </div>

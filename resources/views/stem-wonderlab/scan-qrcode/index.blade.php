@@ -71,6 +71,8 @@
                     <img src="{{ asset('img/makerspace/asset-4.webp') }}" alt=""
                         class="position-absolute w-25 animate__animated animate__pulse animate__infinite"
                         style="bottom:-7vh; right:-20vh; --animate-duration:10s">
+                    <img src="{{ asset('img/makerspace/Segitiga.png') }}" alt="" class="position-absolute"
+                        width="100px" style="top:40vh; right:-5vh;">
 
                     <div class="d-flex align-items-center h-100">
                         <div class="row justify-content-center">
