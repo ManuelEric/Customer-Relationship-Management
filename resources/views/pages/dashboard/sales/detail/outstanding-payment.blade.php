@@ -1,10 +1,10 @@
 <div class="card mb-3">
     <div class="card-body">
-        <table class="table table-bordered table-striped table-hover" id="outstandingTable">
-            <thead class="text-center" id="thead-finance">
+        <table class="table table-bordered table-hover nowrap align-middle w-100" id="outstandingTable">
+            <thead class="bg-secondary text-white">
                 <tr>
-                    <th>No</th>
-                    <th>Client Name</th>
+                    <th class="bg-info text-white">#</th>
+                    <th class="bg-info text-white">Client Name</th>
                     <th>Reminder</th>
                     <th>Invoice ID</th>
                     <th>Type</th>
@@ -14,8 +14,7 @@
                     <th>Amount</th>
                 </tr>
             </thead>
-            <tbody></tbody>
-            <tfoot>
+            <tfoot class="bg-light text-white">
                 <tr>
                     <td colspan="9"></td>
                 </tr>
@@ -26,8 +25,9 @@
 
 @push('scripts')
 <script>
-    $(document).ready(function() {
-        var table = $('#assetTable').DataTable({
+    $(document).ready( function() {
+
+        var table = $('#outstandingTable').DataTable({
             dom: 'Bfrtip',
             lengthMenu: [
                 [10, 25, 50, 100, -1],
@@ -39,16 +39,16 @@
                     text: 'Export to Excel',
                 }
             ],
-            scrollX: true,
             fixedColumns: {
+                scrollX: true,
                 left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
-                right: 1
             },
             processing: true,
             serverSide: true,
-            ajax: '',
+            ajax: '{{ url("/") }}/api/get/outstanding-payment',
             columns: [{
                     data: 'id',
+                    searchable: false,
                     className: 'text-center',
                     render: function(data, type, row, meta) {
                         return meta.row + meta.settings._iDisplayStart + 1;
@@ -56,15 +56,20 @@
                 },
                 {
                     data: 'full_name',
+                    searchable: false,
                 },
                 {
-                    data: '',
+                    data: 'typeprog',
+                    searchable: false,
+                    className: 'text-center',
                     render: function(data, type, row, meta) {
-                        if (row.typeprog == "client_prog") {
+                        if (data == "client_prog") {
                             return '<button data-bs-toggle="modal" data-bs-target="#reminderModal" class="mx-1 btn btn-sm btn-outline-success reminder">' +
                                         '<i class="bi bi-whatsapp"></i>' +
                                     '</button>';
                         }
+    
+                        return null;
                     }
                 },
                 {
@@ -76,19 +81,23 @@
                 },
                 {
                     data: 'program_name',
+                    searchable: false,
                 },
                 {
                     data: 'installment_name',
+                    searchable: false,
                     className: 'text-center',
                 },
                 {
                     data: 'invoice_duedate',
+                    searchable: false,
                     render: function (data, type, row, meta) {
-                        return moment().format('MM dd, YYYY');
+                        return moment().format('MMMM D, YYYY');
                     }
                 },
                 {
                     data: 'total',
+                    searchable: false,
                     render: function (data, type, row, meta) {
                         return new Intl.NumberFormat("id-ID", {style: "currency", currency: "IDR"}).format(data);
                     }
@@ -97,24 +106,21 @@
             pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
         });
 
-        realtimeData(table)
-
         $("#outstandingTable tbody").on('click', '.reminder', function() {
             var data = table.row($(this).parents('tr')).data();
-            
-            console.log(data);
-            return;
-
-            $('#client_id').val()
-            $('#fullname').val()
-            $('#program_name').val()
-            $('#invoice_duedate').val()
-            $('#total_payment').val()
-            $('#clientprog_id').val()
-            $('#payment_method').val()
-            $('#parent_id').val()
-            $('#client_id').val()
+    
+            $("#phone").val(data.parent_phone);
+            $('#client_id').val(data.client_id);
+            $('#fullname').val(data.full_name);
+            $('#program_name').val(data.program_name);
+            $('#invoice_duedate').val(data.invoice_duedate);
+            $('#total_payment').val(data.total);
+            $('#clientprog_id').val(data.client_prog_id);
+            $('#payment_method').val(data.installment_name);
+            $('#parent_id').val(data.parent_id);
         });
     });
+
+
 </script>
 @endpush

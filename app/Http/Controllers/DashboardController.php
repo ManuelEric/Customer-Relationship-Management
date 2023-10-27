@@ -115,9 +115,7 @@ class DashboardController extends SalesDashboardController
     }
 
     public function index(Request $request)
-    {   
-        // if ($request->ajax())
-            return $this->invoicesRepository->getOustandingPaymentDataTables(date('Y-m'));
+    {  
 
         $data = (new SalesDashboardController($this))->get($request);
         $data = array_merge($data, (new PartnerDashboardController($this))->get($request));
@@ -126,5 +124,10 @@ class DashboardController extends SalesDashboardController
         $data = array_merge($data, (new DigitalDashboardController($this))->get($request));
 
         return view('pages.dashboard.index')->with($data);
+    }
+
+    public function ajaxDataTablesOutstandingPayment()
+    {
+        return $this->invoicesRepository->getOustandingPaymentDataTables(date('Y-m'));
     }
 }
