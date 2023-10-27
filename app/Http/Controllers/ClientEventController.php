@@ -1087,7 +1087,7 @@ class ClientEventController extends Controller
                     'sch_id' => isset($secondaryClientInfo->school) ? $secondaryClientInfo->school->sch_id : null,
                     'school' => isset($secondaryClientInfo->school->sch_name) ? $secondaryClientInfo->school->sch_name : null,
                     'graduation_year' => isset($secondaryClientInfo->graduation_year) ? $secondaryClientInfo->graduation_year : null,
-                    'abr_country' => isset($secondaryClientInfo->abr_country) ? $secondaryClientInfo->destinationCountries()->pluck('tbl_tag.id')->toArray() : null
+                    'abr_country' => isset($secondaryClientInfo->destinationCountries) ? $secondaryClientInfo->destinationCountries()->pluck('tbl_tag.id')->toArray() : null
                 ];
                 break;
 
@@ -1097,7 +1097,7 @@ class ClientEventController extends Controller
                     'sch_id' => isset($client->school) ? $client->school->sch_id : null,
                     'school' => isset($client->school->sch_name) ? $client->school->sch_name : null,
                     'graduation_year' => isset($client->graduation_year) ? $client->graduation_year : null,
-                    'abr_country' => isset($client->abr_country) ? $client->destinationCountries()->pluck('tbl_tag.id')->toArray() : null
+                    'abr_country' => isset($client->destinationCountries) ? $client->destinationCountries()->pluck('tbl_tag.id')->toArray() : null
                 ];
                 break;
                 
@@ -1111,8 +1111,8 @@ class ClientEventController extends Controller
 
         }
 
-        if (!isset($secondaryClientInfo))
-            return view('stem-wonderlab.scan-qrcode.error')->with(['message' => 'Something went wrong. <br>Please contact our staff to help you scan the QR.']);
+        // if (!isset($secondaryClientInfo))
+        //     return view('stem-wonderlab.scan-qrcode.error')->with(['message' => 'Something went wrong. <br>Please contact our staff to help you scan the QR.']);
 
         $tags = $this->tagRepository->getAllTags();
 
@@ -1225,7 +1225,11 @@ class ClientEventController extends Controller
                 ];
 
                 $child = $this->clientRepository->getClientById($client->id);
-                $parent = $this->clientRepository->getClientById($clientEvent->parent->id);
+                if(isset($clientEvent->parent)){
+                    $parent = $this->clientRepository->getClientById($clientEvent->parent->id);
+                }else{
+                    $parent = null;
+                }
 
                 break;
 
@@ -1261,7 +1265,13 @@ class ClientEventController extends Controller
             if ($isParent || $isStudent) {
 
                 # update master client information
-                $parent->update($newParentInformation);
+                if($parent == null){
+                    $parent = $this->clientRepository->createClient('Parent', $newParentInformation);
+                    $this->clientRepository->createManyClientRelation($parent->id, [$child->id]);
+                    $this->clientEventRepository->updateClientEvent($clientEventId, ['parent_id' => $parent->id]);
+                }else{
+                    $parent->update($newParentInformation);
+                }
                 $child->update($newChildInformation);
 
                 # update childs school information
