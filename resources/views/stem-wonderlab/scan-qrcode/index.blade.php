@@ -1,6 +1,7 @@
 @extends('app')
 @section('title', 'STEM+ WONDERLAB SCANNER')
 @section('css')
+    <link rel="stylesheet" href="{{ asset('css/registration.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
 @endsection
@@ -13,16 +14,6 @@
                 -webkit-appearance: none;
                 margin: 0;
             }
-        }
-
-        @font-face {
-            font-family: 'nulshock';
-            src: url('/img/makerspace/font/nulshock-bd.otf');
-            font-display: swap;
-        }
-
-        h2 {
-            font-family: 'nulshock' !important;
         }
 
         #html5-qrcode-button-camera-stop {
@@ -54,25 +45,6 @@
             width: 25%;
         }
 
-        .bg-eduall {
-            background: #0C0F38 !important;
-        }
-
-        .btn-eduall {
-            background: #0C0F38 !important;
-            color: #FFFFFF
-        }
-
-        .btn-eduall:hover {
-            background: #0e124a !important;
-            color: #FFFFFF
-        }
-
-        .btn-eduall:active {
-            background: #ff6708 !important;
-            color: #FFFFFF !important;
-        }
-
         .iti {
             width: 100% !important;
         }
@@ -81,28 +53,67 @@
 @section('body')
     <section>
         <div class="container-fluid">
-            <a href="{{url('registration')}}" class="btn btn-sm btn-secondary position-absolute" style="z-index: 999; top:10px; right:30px;">
+            <a href="{{ url('registration') }}" class="btn btn-sm btn-secondary position-absolute"
+                style="z-index: 999; top:10px; right:30px;">
                 <i class="bi bi-house me-1"></i> Home
             </a>
             <div class="row align-items-stretch">
                 <div class="col-8 px-5 position-relative overflow-hidden bg-eduall" style="height: 100vh;">
                     <img src="{{ asset('img/makerspace/asset-1.webp') }}" alt=""
                         class="position-absolute w-25 animate__animated animate__pulse animate__infinite"
-                        style="top:-2vh; left:-10vh; --animate-duration:10s">
+                        style="top:-2vh; left:-20vh; --animate-duration:10s">
                     <img src="{{ asset('img/makerspace/asset-2.webp') }}" alt=""
                         class="position-absolute w-25 animate__animated animate__pulse animate__infinite"
-                        style="bottom:-7vh; left:-10vh; --animate-duration:10s">
+                        style="bottom:-7vh; left:-20vh; --animate-duration:10s">
                     <img src="{{ asset('img/makerspace/asset-3.webp') }}" alt=""
                         class="position-absolute w-25 animate__animated animate__pulse animate__infinite"
-                        style="top:-7vh; right:-10vh; --animate-duration:10s">
+                        style="top:-7vh; right:-20vh; --animate-duration:10s">
                     <img src="{{ asset('img/makerspace/asset-4.webp') }}" alt=""
                         class="position-absolute w-25 animate__animated animate__pulse animate__infinite"
-                        style="bottom:-7vh; right:-10vh; --animate-duration:10s">
+                        style="bottom:-7vh; right:-20vh; --animate-duration:10s">
+                    <img src="{{ asset('img/makerspace/Segitiga.png') }}" alt="" class="position-absolute"
+                        width="100px" style="top:40vh; right:-5vh;">
 
                     <div class="d-flex align-items-center h-100">
                         <div class="row justify-content-center">
-                            <div class="col-md-8">
+                            <div class="col-md-10">
                                 <img src="{{ asset('img/makerspace/stem-logo-white.webp') }}" alt="" class="w-100">
+                                <h5 class="text-center text-white mt-4" style="font-size: 1.8em;">SCIENCE, TECHNOLOGY,
+                                    ENGINEERING, MATHEMATICS AND ART</h5>
+                                <button class="btn btn-lg btn-regist btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
+                                    Indonesia's FIRST Student Makerspace Expo
+                                </button>
+
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <div
+                                            class="btn text-white border-orange btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
+                                            Passion Project Expo
+                                        </div>
+                                        <div
+                                            class="btn text-white border-blue btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
+                                            STEM+ Learning Lab Workshop
+                                        </div>
+                                        <div
+                                            class="btn text-white border-green btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
+                                            Hands-On STEM+ TechXperience Demo
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div
+                                            class="btn text-white border-pink btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
+                                            Collaborative Real-World Challenge
+                                        </div>
+                                        <div
+                                            class="btn text-white border-yellow btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
+                                            Parenting Talks & Discussions
+                                        </div>
+                                        <div
+                                            class="btn text-white border-orange btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
+                                            University Expo
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

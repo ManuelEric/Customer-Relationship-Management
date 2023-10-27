@@ -40,10 +40,10 @@ class StoreRefundRequest extends FormRequest
         return [
             'total_payment' => 'required|integer|in:' . $total_payment,
             'total_paid' => 'required|integer|in:' . $total_paid,
-            'percentage_refund' => 'required|numeric|min:1',
-            'refund_amount' => 'required|numeric|min:1',
-            'tax_percentage' => 'required|numeric|min:1',
-            'tax_amount' => 'required|numeric|min:1',
+            'percentage_refund' => 'required|numeric|min:0',
+            'refund_amount' => 'required|numeric|min:0',
+            'tax_percentage' => 'required|numeric|min:0',
+            'tax_amount' => 'required|numeric|min:0',
             'total_refunded' => 'required|lte:total_paid|numeric|min:1',
         ];
     }
