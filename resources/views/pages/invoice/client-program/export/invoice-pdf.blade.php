@@ -8,13 +8,41 @@
     {{-- <link rel="icon" href="#" type="image/gif" sizes="16x16"> --}}
     <style>
         /* @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap'); */
-        @import url('{{ public_path("library/dashboard/css/googleapisfont.css") }}');
+        @import url('{{ public_path('library/dashboard/css/googleapisfont.css') }}');
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-size: 11px;
+            font-size: 10px;
         }
+
+        @page {
+            margin-top: 220px !important;
+            /* create space for header */
+            margin-bottom: 25px !important;
+            /* create space for footer */
+        }
+
+        header,
+        footer {
+            position: fixed;
+            left: 0px;
+            right: 0px;
+        }
+
+        header {
+            height: auto;
+            margin-top: -220px;
+            /* top: 0; */
+        }
+
+        footer {
+            /* height: auto; */
+            margin-bottom: -25px !important;
+            bottom: 0;
+        }
+
         body {
             font-family: 'Poppins', sans-serif;
         }
@@ -57,17 +85,26 @@
     </style>
 </head>
 
-<body style="padding: 0; margin:0; height: 100vh">
-    <div style="width: 100%; height:1059px; padding:0; margin:0;">
-
-        <img src="{{ public_path('img/pdf/header.webp') }}" width="100%">
+<body style="padding: 0; margin:0;">
+    <header>
+        <img src="{{ public_path('img/pdf/header.webp') }}" width="100%" height="160px">
+        <h4
+            style="line-height:1.6; letter-spacing:3px; font-weight:bold; text-align:center; color:#247df2; font-size:16px; margin-bottom:10px; ">
+            INVOICE
+        </h4>
         <img src="{{ public_path('img/pdf/confidential.webp') }}" width="85%"
-            style="position:absolute; left:8%; top:25%; z-index:-999; opacity:0.04;">
-        <div class="" style="height: 840px; padding:0 30px; margin-top:-60px;">
-            <h4 style="line-height:1.6; letter-spacing:3px; font-weight:bold; text-align:center; color:#247df2; font-size:18px; margin-bottom:10px; ">
-                INVOICE
-            </h4>
-            <br><br>
+        style="position:absolute; left:8%; top:25%; z-index:-999; opacity:0.04;">
+
+    </header>
+
+    <footer>
+        <img src="{{ public_path('img/pdf/footer.webp') }}" width="100%">
+    </footer>
+    
+    {{-- <div style="width: 100%; padding:0; margin:0;"> --}}
+    <main>
+        <div class="" style="padding:0 30px;">
+            
             <div style="height:150px;">
                 <table border="0" width="100%">
                     <tr>
@@ -87,10 +124,10 @@
                                     <td><b>
                                             {{ $clientProg->client->full_name }}
                                         </b><br>
-                                            {{ html_entity_decode(strip_tags($clientProg->client->address)) }}
-                                            @if ($clientProg->client->city != NULL)
-                                                {{ $clientProg->client->city }}
-                                            @endif
+                                        {{ html_entity_decode(strip_tags($clientProg->client->address)) }}
+                                        @if ($clientProg->client->city != null)
+                                            {{ $clientProg->client->city }}
+                                        @endif
                                     </td>
                                 </tr>
                             </table>
@@ -116,7 +153,6 @@
                 </table>
             </div>
 
-            <br>
             <table>
                 <tr>
                     <td>
@@ -125,7 +161,7 @@
                 </tr>
             </table>
 
-            @if ($clientProg->invoice->inv_category == "session")
+            @if ($clientProg->invoice->inv_category == 'session')
                 {{-- SESSION  --}}
                 <table width="100%" class="table-detail" style="padding:8px 5px;">
                     <tr align="center">
@@ -143,6 +179,7 @@
                                 <p>
                                     <strong> {{ $clientProg->program->program_name }} </strong>
                                 </p>
+                                <br>
                                 <p class="notes">
                                     {!! $clientProg->invoice->inv_notes !!}
                                 </p>
@@ -176,7 +213,7 @@
                                         @php
                                             $session = $clientProg->invoice->session;
                                             $duration = $clientProg->invoice->duration;
-                                            $total_session = ($duration * $session) / 60 # hours;
+                                            $total_session = ($duration * $session) / 60; # hours;
                                         @endphp
                                         Rp. {{ number_format($clientProg->invoice->inv_price_idr * $total_session) }}
                                     </strong>
@@ -192,7 +229,8 @@
                     <tr>
                         <td colspan="5" align="right"><b>Total</b></td>
                         <td valign="middle" align="center">
-                            <b>Rp. {{ number_format(($clientProg->invoice->inv_price_idr * $total_session) - $clientProg->invoice->inv_discount_idr) }}</b>
+                            <b>Rp.
+                                {{ number_format($clientProg->invoice->inv_price_idr * $total_session - $clientProg->invoice->inv_discount_idr) }}</b>
                         </td>
                     </tr>
                 </table>
@@ -213,8 +251,9 @@
                                     <strong> {{ $clientProg->invoice_program_name }} </strong>
                                 </p>
                                 <p class="notes">
+                                    <br>
                                     {{-- USD 5,400 (IDR 80,460,000) for Yeriel Abinawa Handoyo. <br>
-                                    USD 2,750 (IDR 40,975,000) for Nemuell Jatinarendra Handoyo. --}}
+                                        USD 2,750 (IDR 40,975,000) for Nemuell Jatinarendra Handoyo. --}}
                                     {!! $clientProg->invoice->inv_notes !!}
                                 </p>
                             </div>
@@ -239,20 +278,20 @@
                         </td>
                     </tr>
                     @if ($clientProg->invoice->inv_earlybird_idr > 0)
-                    <tr>
-                        <td colspan="3" align="right"><b>Early Bird</b></td>
-                        <td valign="middle" align="center">
-                            <b>{{ $clientProg->invoice->invoice_earlybird_idr }}</b>
-                        </td>
-                    </tr>
+                        <tr>
+                            <td colspan="3" align="right"><b>Early Bird</b></td>
+                            <td valign="middle" align="center">
+                                <b>{{ $clientProg->invoice->invoice_earlybird_idr }}</b>
+                            </td>
+                        </tr>
                     @endif
                     @if ($clientProg->invoice->inv_discount_idr > 0)
-                    <tr>
-                        <td colspan="3" align="right"><b>Discount</b></td>
-                        <td valign="middle" align="center">
-                            <b>{{ $clientProg->invoice->invoice_discount_idr }}</b>
-                        </td>
-                    </tr>
+                        <tr>
+                            <td colspan="3" align="right"><b>Discount</b></td>
+                            <td valign="middle" align="center">
+                                <b>{{ $clientProg->invoice->invoice_discount_idr }}</b>
+                            </td>
+                        </tr>
                     @endif
                     <tr>
                         <td colspan="3" align="right"><b>Total</b></td>
@@ -266,26 +305,35 @@
             <table>
                 <tr>
                     <td>
-                        <b style="letter-spacing:0.7px;"><i>Total Amount : {{ $clientProg->invoice->inv_words_idr }}</i></b>
+                        <b style="letter-spacing:0.7px;"><i>Total Amount :
+                                {{ $clientProg->invoice->inv_words_idr }}</i></b>
                         <br><br>
+                    </td>
+                </tr>
+            </table>
 
-                        {{-- IF INSTALLMENT EXIST --}}
-                        @if ($clientProg->invoice()->has('invoiceDetail') && $clientProg->invoice->inv_paymentmethod == 'Installment')
-                            Terms of Payment :
-                            <div style="margin-left:2px;">
-                                @foreach ($clientProg->invoice->invoiceDetail as $detail)
-                                    {{ $detail->invdtl_installment.' '.$detail->invdtl_percentage.'% on '.date('d F Y', strtotime($detail->invdtl_duedate)).' : '.$detail->invoicedtl_amountidr }}
-                                    <br>
-                                {{-- - Installment 1 40% on 05 December 2022 : $3,260 <br>
-                                - Installment 2 20% on 05 February 2023 : $1,630 <br>
-                                - Installment 3 20% on 05 April 2023 : $1,630 --}}
-                                @endforeach
-                            </div>
-                        @endif
+            {{-- IF INSTALLMENT EXIST --}}
+            @if ($clientProg->invoice()->has('invoiceDetail') && $clientProg->invoice->inv_paymentmethod == 'Installment')
+                <table style="width: 100%; margin-top:-10px">
+                        <tr align="center">
+                            <th width="50%" style="border:0px !important;"></th>
+                            <th width="50%" style="border:0px !important;"></th>
+                        </tr>
+                            @foreach ($clientProg->invoice->invoiceDetail as $detail)
+                                {!! $loop->index == 0 ? '<tr><td valign="top">Terms of Payment : <br>' : null !!}
+                                {{ $detail->invdtl_installment . ' ' . $detail->invdtl_percentage . '% on ' . date('d F Y', strtotime($detail->invdtl_duedate)) . ' : ' . $detail->invoicedtl_amountidr }}
+                                <br>
+                                {!! $loop->index+1 == round($clientProg->invoice->invoiceDetail->count()/2) ? '</td><td valign="top"><br>' : null !!}
+                                {!! $loop->last? '</td></tr>' : null !!}
+                            @endforeach
+                </table>
+            @endif
 
-
+            <table>
+                <tr>
+                    <td>
                         {{-- IF TERMS & CONDITION EXIST  --}}
-                        @if(isset($clientProg->invoice->inv_tnc))
+                        @if (isset($clientProg->invoice->inv_tnc))
                             <br>
                             Terms & Conditions :
                             <div style="margin-left:2px;" class="tnc">
@@ -297,6 +345,7 @@
             </table>
 
             {{-- BANK TRANSFER  --}}
+            <br>
             <br>
             <table border=0 width="100%">
                 <tr>
@@ -322,8 +371,8 @@
                     <td width="40%" align="center" valign="top">
                         {{ $companyDetail['name'] }}
                         <br><br><br><br><br>
-                        @if (isset($director)) 
-                            {{ $director }} 
+                        @if (isset($director))
+                            {{ $director }}
                         @else
                             * Director name *
                         @endif
@@ -333,8 +382,8 @@
                 </tr>
             </table>
         </div>
-    </div>
-    <img src="{{ public_path('img/pdf/footer.webp') }}" style="position:relative;" width="100%">
+    </main>
+    {{-- </div> --}}
 </body>
 
 </html>
