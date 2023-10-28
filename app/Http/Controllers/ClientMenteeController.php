@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\InitialProgramRepositoryInterface;
+use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\ReasonRepositoryInterface;
 use Illuminate\Http\Request;
 
@@ -14,15 +15,17 @@ class ClientMenteeController extends Controller
     private ClientRepositoryInterface $clientRepository;
     private InitialProgramRepositoryInterface $initialProgramRepository;
     private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
+    private ProgramRepositoryInterface $programRepository;
     private ReasonRepositoryInterface $reasonRepository;
 
 
-    public function __construct(ClientRepositoryInterface $clientRepository, InitialProgramRepositoryInterface $initialProgramRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ReasonRepositoryInterface $reasonRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, InitialProgramRepositoryInterface $initialProgramRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ReasonRepositoryInterface $reasonRepository, ProgramRepositoryInterface $programRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->initialProgramRepository = $initialProgramRepository;
         $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
         $this->reasonRepository = $reasonRepository;
+        $this->programRepository = $programRepository;
 
     }
     
@@ -58,6 +61,10 @@ class ClientMenteeController extends Controller
         $student = $this->clientRepository->getClientById($menteeId);
         $viewStudent = $this->clientRepository->getViewClientById($menteeId);
 
+        $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C', true);
+        $programsB2C = $this->programRepository->getAllProgramByType('B2C', true);
+        $programs = $programsB2BB2C->merge($programsB2C)->sortBy('program_name');
+
         $initialPrograms = $this->initialProgramRepository->getAllInitProg();
         $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($menteeId);
 
@@ -70,6 +77,7 @@ class ClientMenteeController extends Controller
                 'viewStudent' => $viewStudent,
                 'initialPrograms' => $initialPrograms,
                 'historyLeads' => $historyLeads,
+                'programs' => $programs
             ]
         );
     }
