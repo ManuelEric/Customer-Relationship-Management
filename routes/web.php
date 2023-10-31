@@ -8,6 +8,7 @@ use App\Http\Controllers\Embed\PublicRegistrationController;
 use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\ClientProgramController;
 use App\Http\Controllers\ClientStudentController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VolunteerController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +23,8 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+# AUTH START --------------------------------
 
 Route::get('/', function () {
     return view('auth.login');
@@ -44,13 +47,11 @@ Route::group(['middleware' => ['auth', 'auth.department']], function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('index');
 });
 
-// User 
-Route::resource('user/volunteer', VolunteerController::class);
+# AUTH END ------------------------------------
 
-// Form 
-// Route::get('form/event', function() {
-//     return view('form-embed.form-event');
-// });
+
+# FORM EVENT EMBED START ------------------------
+
 Route::get('form/event', [ClientEventController::class, 'createFormEmbed'])->name('form.event.create');
 Route::post('form/events', [ClientEventController::class, 'storeFormEmbed'])->name('form.event.store');
 
@@ -88,3 +89,15 @@ Route::get('client-detail/{identifier}/{screening_type}', [ClientEventController
 Route::get('mailing', function() {
     return view('mailing.stem-wonderlab');
 });
+
+# FORM EVENT EMBED END --------------------------------
+
+
+// User 
+Route::resource('user/volunteer', VolunteerController::class);
+
+# PROFILE START ---------------------------------------
+
+Route::resource('profile', ProfileController::class);
+
+# PROFILE END -----------------------------------------
