@@ -135,6 +135,10 @@
                                     {{ Auth::user()->last_name }}</p>
                                 <p class="fw-light text-muted mb-0">{{ Auth::user()->email }}</p>
                             </div>
+                            <a class="dropdown-item text-center" href="{{ route('profile.index') }}">
+                                <i class="bi bi-file-lock2 text-primary me-2"></i>
+                                Change Password
+                            </a>
                             <a class="dropdown-item text-center" href="{{ route('logout') }}">
                                 <i class="bi bi-box-arrow-down-left text-primary me-2"></i>
                                 Sign Out
