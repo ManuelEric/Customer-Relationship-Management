@@ -90,7 +90,7 @@ class ClientEventTemplate implements WithHeadings, WithEvents, WithStrictNullCom
 
                 $mentee_exist_options = ['Mentee', 'Non-mentee'];
 
-                $audience_options = ['Student', 'Parent', 'Teacher'];
+                $audience_options = ['Student', 'Parent', 'Teacher/Counselor'];
                 
                 $status_options = ['Join', 'Attend'];
 
