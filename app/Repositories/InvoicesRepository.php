@@ -15,45 +15,23 @@ class InvoicesRepository implements InvoicesRepositoryInterface
 {
     public function getOustandingPaymentDataTables($monthYear)
     {
+        # get raw query with the bind parameters into string
         $model_invB2b = $this->getOutstandingPaymentFromB2b($monthYear);
-        $model_invProgram = $this->getOutstandingPaymentFromClientProgram($monthYear);
-
         $query_invB2b = str_replace(['?'], ['\'%s\''], $model_invB2b->toSql());
         $query_invB2b = vsprintf($query_invB2b, $model_invB2b->getBindings());
-
+        
+        # get raw query with the bind parameters into string
+        $model_invProgram = $this->getOutstandingPaymentFromClientProgram($monthYear);
         $query_invB2c = str_replace(['?'], ['\'%s\''], $model_invProgram->toSql());
         $query_invB2c = vsprintf($query_invB2c, $model_invProgram->getBindings());
         
+        # merge 2 table between invoice b2b and invoice client program using raw query
         $model = DB::table(DB::raw("({$query_invB2b} UNION {$query_invB2c}) A"));
 
-        // $model = $this->getOutstandingPayments($monthYear);
-
-        return Datatables::of($model)
-                
-                // ->filterColumn('invoice_id', function ($query, $keyword) {
-                //     $sql = "tbl_invb2b.invb2b_id like ? or tbl_inv.inv_id like ?";
-                //     $query->whereRaw($sql, ["%{$keyword}%", "%{$keyword}%"]);
-                // })
-                ->make(true);
+        return Datatables::of($model)->make(true);
     }
 
-    private function getOutstandingPayments($monthYear)
-    {
-        $start_date = $end_date = null;
 
-        $query = OutstandingPaymentView::query();
-
-        if (isset($monthYear)) {
-            $year = date('Y', strtotime($monthYear));
-            $month = date('m', strtotime($monthYear));
-
-            $query->whereYear('invoice_duedate', '=', $year)->whereMonth('invoice_duedate', '=', $month);
-        } else {
-            $query->whereBetween('invoice_duedate', [$start_date, $end_date]);
-        }
-
-        return $query;
-    }
 
     private function getOutstandingPaymentFromClientProgram($monthYear)
     {
