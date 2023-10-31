@@ -11,6 +11,7 @@ use App\Http\Controllers\ClientStudentController;
 use App\Http\Controllers\ClientTeacherCounselorController;
 use App\Http\Controllers\CorporateController;
 use App\Http\Controllers\CurrencyRateController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ExcelTemplateController;
 use App\Http\Controllers\UniversityController;
@@ -72,6 +73,7 @@ Route::post('/upload', [InvoiceProgramController::class, 'upload']);
 Route::get('mentee/birthday/{month}', [SalesDashboardController::class, 'getMenteesBirthdayByMonth']);
 
 Route::get('export/client', [SalesDashboardController::class, 'exportClient']);
+Route::get('get/outstanding-payment', [DashboardController::class, 'ajaxDataTablesOutstandingPayment']);
 
 # dashboard partnership
 Route::get('partner/detail/{month}/{type}', [PartnerDashboardController::class, 'getPartnerDetailByMonth']);

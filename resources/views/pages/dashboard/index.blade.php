@@ -117,12 +117,6 @@
             $('.nav-link.' + type).removeClass('active')
             $('.nav-link.' + type + '.' + tab).addClass('active')
             return
-    
-            const urlParams = new URLSearchParams(window.location.search);
-            urlParams.set('type', type)
-            urlParams.set('tab', tab)
-            window.location.search = urlParams
-            return
         }
     
         const formatRupiah = (money) => {

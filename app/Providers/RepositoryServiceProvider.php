@@ -35,6 +35,7 @@ use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\InitialProgramRepositoryInterface;
+use App\Interfaces\InvoicesRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\LeadTargetRepositoryInterface;
 use App\Interfaces\MainProgRepositoryInterface;
@@ -112,6 +113,7 @@ use App\Repositories\InvoiceProgramRepository;
 use App\Repositories\InvoiceDetailRepository;
 use App\Repositories\InvoiceB2bRepository;
 use App\Repositories\InitialProgramRepository;
+use App\Repositories\InvoicesRepository;
 use App\Repositories\LeadRepository;
 use App\Repositories\LeadTargetRepository;
 use App\Repositories\MainProgRepository;
@@ -234,6 +236,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(ClientProgramLogMailRepositoryInterface::class, ClientProgramLogMailRepository::class);
         $this->app->bind(GeneralMailLogRepositoryInterface::class, GeneralMailLogRepository::class);
         $this->app->bind(AcceptanceRepositoryInterface::class, AcceptanceRepository::class);
+        $this->app->bind(InvoicesRepositoryInterface::class, InvoicesRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);

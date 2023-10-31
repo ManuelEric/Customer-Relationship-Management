@@ -25,6 +25,9 @@ class SalesDashboardController extends Controller
         $this->clientLeadTrackingRepository = $repositories->clientLeadTrackingRepository;
         $this->targetTrackingRepository = $repositories->targetTrackingRepository;
         $this->targetSignalRepository = $repositories->targetSignalRepository;
+        $this->invoiceB2bRepository = $repositories->invoiceB2bRepository;
+        $this->invoiceProgramRepository = $repositories->invoiceProgramRepository;
+        $this->invoicesRepository = $repositories->invoicesRepository;
     }
 
     public function get($request)
