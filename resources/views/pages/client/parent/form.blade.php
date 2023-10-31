@@ -265,7 +265,7 @@
                             @enderror
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    {{-- <div class="col-md-12">
                         <div class="mb-2">
                             <label>Interested Program</label>
                             <select class="select w-100" id="interestedProgram" name="prog_id[]" multiple>
@@ -283,7 +283,7 @@
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
 
                 <div class="card my-3">
@@ -792,23 +792,23 @@
                     $("#major").val(st_abrmajor).trigger('change')
                 @endif
 
-                @if (isset($parent->interestPrograms))
-                    var prog_id = new Array();
-                    @foreach ($parent->interestPrograms as $program)
-                        prog_id.push("{{ $program->prog_id }}")
-                    @endforeach
+                // @if (isset($parent->interestPrograms))
+                //     var prog_id = new Array();
+                //     @foreach ($parent->interestPrograms as $program)
+                //         prog_id.push("{{ $program->prog_id }}")
+                //     @endforeach
                     
-                    $("#interestedProgram").val(prog_id).trigger('change')
+                //     $("#interestedProgram").val(prog_id).trigger('change')
 
-                @elseif (old('prog_id') !== NULL && count(old('prog_id')) > 0)
-                    var prog_id = new Array();
-                    @foreach (old('prog_id') as $key => $val)
-                        prog_id.push("{{ $val }}")
-                    @endforeach
+                // @elseif (old('prog_id') !== NULL && count(old('prog_id')) > 0)
+                //     var prog_id = new Array();
+                //     @foreach (old('prog_id') as $key => $val)
+                //         prog_id.push("{{ $val }}")
+                //     @endforeach
 
-                    $("#interestedProgram").val(prog_id).trigger('change')
-                    anotherDocument()
-                @endif
+                //     $("#interestedProgram").val(prog_id).trigger('change')
+                //     anotherDocument()
+                // @endif
 
                 @if (isset($parent->lead_id))
                     @if ($parent->lead_id == "LS017")

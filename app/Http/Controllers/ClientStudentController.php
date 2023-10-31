@@ -202,6 +202,10 @@ class ClientStudentController extends ClientController
         // $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
         $viewStudent = $this->clientRepository->getViewClientById($studentId);
 
+        $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C', true);
+        $programsB2C = $this->programRepository->getAllProgramByType('B2C', true);
+        $programs = $programsB2BB2C->merge($programsB2C)->sortBy('program_name');
+
         $initialPrograms = $this->initialProgramRepository->getAllInitProg();
         $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
 
@@ -213,7 +217,8 @@ class ClientStudentController extends ClientController
                 'student' => $student,
                 'initialPrograms' => $initialPrograms,
                 'historyLeads' => $historyLeads,
-                'viewStudent' => $viewStudent
+                'viewStudent' => $viewStudent,
+                'programs' => $programs
             ]
         );
     }
@@ -262,8 +267,8 @@ class ClientStudentController extends ClientController
             # create interested program
             # if they didn't insert interested program 
             # then skip this case
-            if (!$this->createInterestedProgram($data['interestPrograms'], $newStudentId))
-                throw new Exception('Failed to store interest program', 5);
+            // if (!$this->createInterestedProgram($data['interestPrograms'], $newStudentId))
+            //     throw new Exception('Failed to store interest program', 5);
 
             # case 6.1
             # create destination countries
@@ -308,9 +313,9 @@ class ClientStudentController extends ClientController
                     Log::error('Store relation between student and parent failed : ' . $e->getMessage());
                     break;
 
-                case 5:
-                    Log::error('Store interest programs failed : ' . $e->getMessage());
-                    break;
+                // case 5:
+                //     Log::error('Store interest programs failed : ' . $e->getMessage());
+                //     break;
 
                 case 6:
                     Log::error('Store interest universities failed : ' . $e->getMessage());
@@ -493,8 +498,8 @@ class ClientStudentController extends ClientController
             # create interested program
             # if they didn't insert interested program 
             # then skip this case
-            if (!$this->createInterestedProgram($data['interestPrograms'], $studentId))
-                throw new Exception('Failed to store interest program', 5);
+            // if (!$this->createInterestedProgram($data['interestPrograms'], $studentId))
+            //     throw new Exception('Failed to store interest program', 5);
 
             # case 6.1
             # create destination countries
@@ -540,9 +545,9 @@ class ClientStudentController extends ClientController
                     Log::error('Update relation between student and parent failed : ' . $e->getMessage());
                     break;
 
-                case 5:
-                    Log::error('Update interest programs failed : ' . $e->getMessage());
-                    break;
+                // case 5:
+                //     Log::error('Update interest programs failed : ' . $e->getMessage());
+                //     break;
 
                 case 6:
                     Log::error('Update interest universities failed : ' . $e->getMessage());
@@ -740,5 +745,59 @@ class ClientStudentController extends ClientController
     {
         $clients = $this->clientRepository->getAlumniMenteesSiblings();
         return $clients;
+    }
+    
+    public function addInterestProgram(Request $request)
+    {
+        $studentId = $request->route('student');
+        
+        $request->validate([
+            'interest_program' => 'required|exists:tbl_prog,prog_id',
+        ]);
+        
+        DB::beginTransaction();
+        try {
+            
+            $createdInterestProgram = $this->clientRepository->addInterestProgram($studentId, $request->interest_program);
+
+        DB::commit();
+        } catch (Exception $e) {
+            
+            DB::rollBack();
+            Log::error('Add interest program client failed : ' . $e->getMessage() . ' ' . $e->getLine());
+            return Redirect::to('client/student/' . $studentId)->withError('Interest program failed to be added.');
+
+        }
+
+        # Add interest program success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Interest Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $createdInterestProgram);
+        return Redirect::to('client/student/' . $studentId)->withSuccess('Interest program successfully added.');
+
+    }
+
+    public function removeInterestProgram(Request $request)
+    {
+        $studentId = $request->route('student');
+        $interestProgramId = $request->route('interest_program');
+        $progId = $request->route('prog');
+
+        DB::beginTransaction();
+        try {
+
+            $this->clientRepository->removeInterestProgram($studentId, $interestProgramId, $progId);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Remove Interest Program failed : ' . $e->getMessage() . ' '. $e->getLine());
+            return Redirect::to('client/student/' . $studentId)->withError('Interest program failed to be removed.');
+        }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Interest Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['client_id' => $studentId]);
+
+        return Redirect::to('client/student/' . $studentId)->withSuccess('interest program successfully removed.');
     }
 }

@@ -1142,4 +1142,18 @@ class ClientRepository implements ClientRepositoryInterface
     {
         return Datatables::eloquent(ClientAcceptance::query())->make(true);
     }
+
+    public function addInterestProgram($studentId, $interestProgram)
+    {
+        $student = UserClient::find($studentId);
+        $student->interestPrograms()->attach($interestProgram);
+        return $student;
+    }
+
+    public function removeInterestProgram($studentId, $interestProgram, $progId)
+    {
+        $student = UserClient::find($studentId);
+        $student->interestPrograms()->wherePivot('id', $interestProgram)->detach($progId);
+        return $student;
+    }
 }

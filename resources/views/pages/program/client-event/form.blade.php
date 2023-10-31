@@ -485,59 +485,64 @@
                 $role = $clientEvent->client->roles->first()->role_name;
                 if($clientEvent->child_id != null && $role == 'Parent'){
                     $client = $clientEvent->children;
+                }else if($clientEvent->child_id == null && $role == 'Parent'){
+                    $client = null;
                 }else if($role == 'Student' || $role == 'Teacher/Counselor'){
                     $client = $clientEvent->client;
                 }
             @endphp
-            <div class="card rounded mb-3">
-                <div class="card-header">
-                    <div class="">
-                        <h6 class="m-0 p-0">
-                            <i class="bi bi-person me-2"></i>
-                            {{ $role == 'Parent' || $role == 'Student' ? 'Student' : 'Teacher' }} Detail
-                        </h6>
+                @if(isset($client))
+                    
+                    <div class="card rounded mb-3">
+                        <div class="card-header">
+                            <div class="">
+                                <h6 class="m-0 p-0">
+                                    <i class="bi bi-person me-2"></i>
+                                    {{ $role == 'Parent' || $role == 'Student' ? 'Student' : 'Teacher' }} Detail
+                                </h6>
+                            </div>
+                        </div>
+                        <div class="card-body px-3">
+                            <table class="table table-striped" border="0">
+                                <tr>
+                                    <td width="30%">Name</td>
+                                    <td width="1%">:</td>
+                                    <td>{{ $client->full_name ?? '-' }}</td>
+                                </tr>
+                                <tr>
+                                    <td width="30%">Email</td>
+                                    <td width="1%">:</td>
+                                    <td>{{ $client->mail ?? '-' }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Phone Number</td>
+                                    <td width="1%">:</td>
+                                    <td>{{ $client->phone ?? '-' }}</td>
+                                </tr>
+                                <tr>
+                                    <td width="30%">School Name</td>
+                                    <td width="1%">:</td>
+                                    <td>{{ $client->school->sch_name ?? '-' }}</td>
+                                </tr>
+                                <tr>
+                                    <td width="30%">Graduation Year</td>
+                                    <td width="1%">:</td>
+                                    <td>{{ $client->graduation_year_real ?? '-'}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Register As</td>
+                                    <td width="1%">:</td>
+                                    <td>{{ $client->register_as }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Have you ever participated ALL-in Event/Program?</td>
+                                    <td width="1%">:</td>
+                                    <td>{{ $client->participated ?? '-' }} </td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
-                </div>
-                <div class="card-body px-3">
-                    <table class="table table-striped" border="0">
-                        <tr>
-                            <td width="30%">Name</td>
-                            <td width="1%">:</td>
-                            <td>{{ $client->full_name ?? '-' }}</td>
-                        </tr>
-                        <tr>
-                            <td width="30%">Email</td>
-                            <td width="1%">:</td>
-                            <td>{{ $client->mail ?? '-' }}</td>
-                        </tr>
-                        <tr>
-                            <td>Phone Number</td>
-                            <td width="1%">:</td>
-                            <td>{{ $client->phone ?? '-' }}</td>
-                        </tr>
-                        <tr>
-                            <td width="30%">School Name</td>
-                            <td width="1%">:</td>
-                            <td>{{ $client->school->sch_name ?? '-' }}</td>
-                        </tr>
-                        <tr>
-                            <td width="30%">Graduation Year</td>
-                            <td width="1%">:</td>
-                            <td>{{ $client->graduation_year_real ?? '-'}}</td>
-                        </tr>
-                        <tr>
-                            <td>Register As</td>
-                            <td width="1%">:</td>
-                            <td>{{ $client->register_as }}</td>
-                        </tr>
-                        <tr>
-                            <td>Have you ever participated ALL-in Event/Program?</td>
-                            <td width="1%">:</td>
-                            <td>{{ $client->participated ?? '-' }} </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
+                @endif
             @endif
 
             {{-- Parent Detail  --}}
