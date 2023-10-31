@@ -231,7 +231,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
         return [
             '*.event_name' => ['required', 'exists:tbl_events,event_id'],
             '*.date' => ['required', 'date'],
-            '*.audience' => ['required', 'in:Student,Parent,Teacher,Teacher/Counselor'],
+            '*.audience' => ['required', 'in:Student,Parent,Teacher/Counselor'],
             '*.name' => ['required'],
             '*.email' => ['required', 'email'],
             '*.phone_number' => ['required'],
@@ -394,7 +394,10 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
                 break;
 
             case 'Teacher/Counselor':
+<<<<<<< HEAD
             case 'Teacher':
+=======
+>>>>>>> origin/development-v2.1.2
                 if (!$existClient['isExist']) {
                 
                     $dataClient = [
