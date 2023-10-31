@@ -65,7 +65,6 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
 
     public function collection(Collection $rows)
     {
-
         $data = [];
         $logDetails = [];
 
@@ -74,13 +73,14 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
 
             foreach ($rows as $row) {
 
-
                 # initiate variables
                 $status = $row['status'] == 'Join' ? 0 : 1;
 
                 // Check existing school
-                if (!$school = School::where('sch_name', $row['school'])->pluck('sch_id')->first())
+                if (!$school = School::where('sch_name', $row['school'])->first())
                     $school = $this->createSchoolIfNotExists($row['school']);
+
+                Log::debug($school->sch_id);
 
                 $roleSub = null;
                 switch ($row['audience']) {
@@ -177,7 +177,6 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
 
     public function prepareForValidation($data)
     {
-
         $event_name = Event::where('event_title', $data['event_name'])->get()->pluck('event_id')->first();
         if ($data['lead'] == 'School' || $data['lead'] == 'Counselor') {
             $data['lead'] = 'School/Counselor';
@@ -200,8 +199,8 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
             'date' => isset($data['date']) ? Date::excelToDateTimeObject($data['date'])->format('Y-m-d') : null,
             'audience' => $data['audience'],
             'name' => $data['name'],
-            'email' => $data['email'],
-            'phone_number' => $data['phone_number'],
+            'email' => trim($data['email']),
+            'phone_number' => $this->setPhoneNumber($data['phone_number']),
             'child_parent_name' => $data['child_parent_name'],
             'child_parent_email' => $data['child_parent_email'],
             'child_parent_phone_number' => $data['child_parent_phone_number'],
@@ -232,7 +231,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
         return [
             '*.event_name' => ['required', 'exists:tbl_events,event_id'],
             '*.date' => ['required', 'date'],
-            '*.audience' => ['required', 'in:Student,Parent,Teacher'],
+            '*.audience' => ['required', 'in:Student,Parent,Teacher,Teacher/Counselor'],
             '*.name' => ['required'],
             '*.email' => ['required', 'email'],
             '*.phone_number' => ['required'],
@@ -306,6 +305,8 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
         $lastname = $this->split($fullname)['last_name'];
 
         $roleId = Role::whereRaw('LOWER(role_name) = (?)', [strtolower($role)])->first();
+        if (!$roleId)
+            throw new Exception("Role not found");
         
         switch ($role) {
             case 'Student':
@@ -318,7 +319,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
                     }
         
                     $dataClient = [
-                        'sch_id' => $school,
+                        'sch_id' => $school->sch_id,
                         'st_id' => isset($studentId) ? $studentId : null,
                         'last_name' => $lastname,
                         'first_name' => $firstname,
@@ -392,11 +393,12 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
                 }
                 break;
 
+            case 'Teacher/Counselor':
             case 'Teacher':
-                if (!$existClient['isExist'] && !$checkExistClientRelation['isExist']) {
+                if (!$existClient['isExist']) {
                 
                     $dataClient = [
-                        'sch_id' => $school,
+                        'sch_id' => $school->sch_id,
                         'dob' => null,
                         'last_name' => $lastname,
                         'first_name' => $firstname,
@@ -424,6 +426,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
             
         }
 
+        Log::debug($clientId);
         return $clientId;
        
     }
