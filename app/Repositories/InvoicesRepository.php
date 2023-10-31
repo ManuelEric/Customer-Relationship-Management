@@ -6,6 +6,7 @@ use App\Interfaces\InvoicesRepositoryInterface;
 use App\Models\Invb2b;
 use App\Models\InvoiceProgram;
 use App\Models\Lead;
+use App\Models\OutstandingPaymentView;
 use App\Models\v1\Lead as V1Lead;
 use DataTables;
 use Illuminate\Support\Facades\DB;
@@ -16,9 +17,42 @@ class InvoicesRepository implements InvoicesRepositoryInterface
     {
         $model_invB2b = $this->getOutstandingPaymentFromB2b($monthYear);
         $model_invProgram = $this->getOutstandingPaymentFromClientProgram($monthYear);
-        $model = $model_invB2b->union($model_invProgram);
 
-        return Datatables::eloquent($model)->make(true);
+        $query_invB2b = str_replace(['?'], ['\'%s\''], $model_invB2b->toSql());
+        $query_invB2b = vsprintf($query_invB2b, $model_invB2b->getBindings());
+
+        $query_invB2c = str_replace(['?'], ['\'%s\''], $model_invProgram->toSql());
+        $query_invB2c = vsprintf($query_invB2c, $model_invProgram->getBindings());
+        
+        $model = DB::table(DB::raw("({$query_invB2b} UNION {$query_invB2c}) A"));
+
+        // $model = $this->getOutstandingPayments($monthYear);
+
+        return Datatables::of($model)
+                
+                // ->filterColumn('invoice_id', function ($query, $keyword) {
+                //     $sql = "tbl_invb2b.invb2b_id like ? or tbl_inv.inv_id like ?";
+                //     $query->whereRaw($sql, ["%{$keyword}%", "%{$keyword}%"]);
+                // })
+                ->make(true);
+    }
+
+    private function getOutstandingPayments($monthYear)
+    {
+        $start_date = $end_date = null;
+
+        $query = OutstandingPaymentView::query();
+
+        if (isset($monthYear)) {
+            $year = date('Y', strtotime($monthYear));
+            $month = date('m', strtotime($monthYear));
+
+            $query->whereYear('invoice_duedate', '=', $year)->whereMonth('invoice_duedate', '=', $month);
+        } else {
+            $query->whereBetween('invoice_duedate', [$start_date, $end_date]);
+        }
+
+        return $query;
     }
 
     private function getOutstandingPaymentFromClientProgram($monthYear)
@@ -60,7 +94,7 @@ class InvoicesRepository implements InvoicesRepositoryInterface
             ->leftJoin('tbl_client as child', 'child.id', '=', 'tbl_client_prog.client_id')
             ->leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')
             ->leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')
-            ->select([
+            ->select(
                 'tbl_inv.id',
                 'tbl_inv.inv_id as invoice_id',
                 DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 1), '/', -1) as 'inv_id_num'"),
@@ -93,7 +127,7 @@ class InvoicesRepository implements InvoicesRepositoryInterface
                 DB::raw('CONCAT(parent.first_name, " ", COALESCE(parent.last_name, "")) as parent_name'),
                 'parent.id as parent_id',
                 DB::raw("'client_prog' as typeprog")
-            ])->whereNull('tbl_receipt.id');
+            )->whereNull('tbl_receipt.id');
 
             if (isset($monthYear)) {
                 $query->whereYear($whereBy, '=', $year)
@@ -104,7 +138,7 @@ class InvoicesRepository implements InvoicesRepositoryInterface
 
         $query->whereRelation('clientprog', 'status', 1);
 
-        return $query->orderBy('inv_id_year', 'asc')->orderBy('inv_id_month', 'asc')->orderBy('inv_id_num', 'asc');
+        return $query;
     }
 
     private function getOutstandingPaymentFromB2b($monthYear)
@@ -229,10 +263,10 @@ class InvoicesRepository implements InvoicesRepositoryInterface
                                 WHEN tbl_invb2b.ref_id > 0 THEN "Out"
                             ELSE 1
                             END)')
-                )
-                ->orderBy('inv_id_year', 'asc')
-                ->orderBy('inv_id_month', 'asc')
-                ->orderBy('inv_id_num', 'asc');
+                );
+                // ->orderBy('inv_id_year', 'asc')
+                // ->orderBy('inv_id_month', 'asc')
+                // ->orderBy('inv_id_num', 'asc');
 
         return $query;
     }

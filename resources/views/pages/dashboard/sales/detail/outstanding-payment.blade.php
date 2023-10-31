@@ -46,7 +46,8 @@
             processing: true,
             serverSide: true,
             ajax: '{{ url("/") }}/api/get/outstanding-payment',
-            columns: [{
+            columns: [
+                {
                     data: 'id',
                     searchable: false,
                     className: 'text-center',
@@ -56,7 +57,6 @@
                 },
                 {
                     data: 'full_name',
-                    searchable: false,
                 },
                 {
                     data: 'typeprog',
@@ -81,16 +81,13 @@
                 },
                 {
                     data: 'program_name',
-                    searchable: false,
                 },
                 {
                     data: 'installment_name',
-                    searchable: false,
                     className: 'text-center',
                 },
                 {
                     data: 'invoice_duedate',
-                    searchable: false,
                     render: function (data, type, row, meta) {
                         return moment().format('MMMM D, YYYY');
                     }
