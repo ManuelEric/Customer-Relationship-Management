@@ -1,6 +1,15 @@
 @extends('layout.main')
 
 @section('title', 'Client Program ')
+@push('styles')
+    <style>
+        @media only screen and (max-width: 600px) {
+            .filter-clientprog {
+                width: 300px !important;
+            }
+        }
+    </style>
+@endpush
 @section('content')
 
     <div class="card bg-secondary mb-1 p-2">
@@ -15,7 +24,7 @@
                     data-bs-auto-close="false" id="filter">
                     <i class="bi bi-funnel me-2"></i> Filter
                 </button>
-                <form action="" class="dropdown-menu dropdown-menu-end pt-0 shadow" style="width: 400px;"
+                <form action="" class="dropdown-menu dropdown-menu-end pt-0 shadow filter-clientprog" style="width: 400px;"
                     id="advanced-filter">
                     <div class="dropdown-header bg-info text-dark py-2 d-flex justify-content-between">
                         Advanced Filter
@@ -292,8 +301,8 @@
                         data: 'prog_end_date',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            if(data) {
-                                return moment(data).format("MMM Do YY"); 
+                            if (data) {
+                                return moment(data).format("MMM Do YY");
                             } else {
                                 return "-";
                             }
@@ -359,8 +368,8 @@
                         data: 'initconsult_date',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            if(data) {
-                                return moment(data).format("MMM Do YY"); 
+                            if (data) {
+                                return moment(data).format("MMM Do YY");
                             } else {
                                 return "-";
                             }
@@ -370,8 +379,8 @@
                         data: 'assessmentsent_date',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            if(data) {
-                                return moment(data).format("MMM Do YY"); 
+                            if (data) {
+                                return moment(data).format("MMM Do YY");
                             } else {
                                 return "-";
                             }
@@ -381,8 +390,8 @@
                         data: 'success_date',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            if(data) {
-                                return moment(data).format("MMM Do YY"); 
+                            if (data) {
+                                return moment(data).format("MMM Do YY");
                             } else {
                                 return "-";
                             }

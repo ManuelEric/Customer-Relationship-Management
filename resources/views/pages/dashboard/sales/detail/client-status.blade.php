@@ -1,5 +1,3 @@
-
-
 <div class="card mb-3">
     <div class="card-body">
         <div class="row justify-content-md-between align-items-center g-1 mb-md-2 mb-3">
@@ -18,26 +16,34 @@
                 </div>
             </div>
             <div class="col-md-4 text-md-end text-center">
-                        <a href="{{ url('api/export/client') }}"
-                   class="btn btn-sm btn-outline-info btn-export" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;"><i class="bi bi-download"></i></a>
-
-                <button type="button" id="btn-follow-up" class="btn btn-sm btn-info position-relative ms-2 pe-3"
-                    style="font-size: 11px" data-bs-toggle="modal" data-bs-target="#follow_up">
-                    Follow Up Reminder
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                        style="font-size: 11px">
-                        {{ isset($followUpReminder) ? count($followUpReminder) : 0 }}
-                    </span>
-                </button>
-
-                <button type="button" id="btn-mentees-birthday" class="btn btn-sm btn-info position-relative ms-3 pe-3"
-                    style="font-size: 11px" data-bs-toggle="modal" data-bs-target="#birthday">
-                    Mentee's Birthday
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                        style="font-size: 11px">
-                        {{ isset($menteesBirthday) ? $menteesBirthday->count() : 0 }}
-                    </span>
-                </button>
+                <div class="row g-2">
+                    <div class="col-md-2 col-12 mb-3 text-end">
+                        <a href="{{ url('api/export/client') }}" class="btn btn-sm btn-outline-info btn-export"
+                            style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;"><i
+                                class="bi bi-download"></i>
+                            </a>
+                    </div>
+                    <div class="col-md-5 col-6">
+                        <button type="button" id="btn-follow-up" class="btn btn-sm btn-info position-relative pe-3 w-100"
+                            style="font-size: 11px" data-bs-toggle="modal" data-bs-target="#follow_up">
+                            Follow Up Reminder
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                style="font-size: 11px">
+                                {{ isset($followUpReminder) ? count($followUpReminder) : 0 }}
+                            </span>
+                        </button>
+                    </div>
+                    <div class="col-md-5 col-6 ps-3">
+                        <button type="button" id="btn-mentees-birthday" class="btn btn-sm btn-info position-relative pe-3 w-100"
+                            style="font-size: 11px" data-bs-toggle="modal" data-bs-target="#birthday">
+                            Mentee's Birthday
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                style="font-size: 11px">
+                                {{ isset($menteesBirthday) ? $menteesBirthday->count() : 0 }}
+                            </span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -140,7 +146,8 @@
                                 @if ($totalClientInformation['existingNonMentees']['new'] != 0)
                                     <sup>
                                         <span class="badge bg-primary text-white p-1 px-2">
-                                            <small>{{ $totalClientInformation['existingNonMentees']['new'] }} New</small>
+                                            <small>{{ $totalClientInformation['existingNonMentees']['new'] }}
+                                                New</small>
                                         </span>
                                     </sup>
                                 @endif
@@ -481,345 +488,345 @@
 </div>
 
 @push('scripts')
-<script src="{{ asset('js/date.js') }}" type="text/javascript"></script>
-<script>
-    $(".card-client").each(function() {
-        $(this).click(function() {
+    <script src="{{ asset('js/date.js') }}" type="text/javascript"></script>
+    <script>
+        $(".card-client").each(function() {
+            $(this).click(function() {
+                showLoading()
+
+                let f_date = $(this).data('f-date')
+                let f_type = $(this).data('f-client-type')
+
+                let url = window.location.origin + '/api/get/client/' + f_date + '/type/' + f_type;
+
+                axios.get(url)
+                    .then(function(response) {
+
+
+                        var obj = response.data;
+                        console.log(obj)
+                        $('#list-detail-client .modal-title').html(obj.title)
+                        $('#listClientTable tbody').html(obj.html_ctx)
+                        swal.close()
+
+                        $('#list-detail-client').modal('show')
+
+                    }).catch(function(error) {
+                        notification('error',
+                            'There was an error while processing your request. Please try again or contact your administrator.'
+                        );
+                    })
+            })
+        })
+
+        function checkPeriod() {
+            let period = $('#period').val()
+            if (period == 'monthly') {
+                $('#monthly').removeClass('d-none')
+                checkMonthly()
+
+                // new
+                let month = $('#client_status_month').val()
+                $(".card-client").data('f-date', month);
+            } else {
+
+                $(".card-client").data('f-date', 'all');
+                $('#monthly').addClass('d-none')
+                checkClientStatus()
+            }
+        }
+
+        function checkMonthly() {
+            let month = $('#client_status_month').val()
+            checkClientStatus(month)
+        }
+
+        function checkClientStatus(month = false) {
+            // Axios here... 
             showLoading()
 
-            let f_date = $(this).data('f-date')
-            let f_type = $(this).data('f-client-type')
+            var today = new Date()
 
-            let url = window.location.origin + '/api/get/client/' + f_date + '/type/' + f_type;
+            if (!month)
+                month = 'all'
+            // month = moment(today).format('YYYY-MM')
+
+            var url = window.location.origin + '/api/get/client-status/' + month
+            $(".card-client").data('f-date', month);
+
+            axios.get(url)
+                .then(function(response) {
+                    console.log(response)
+                    var obj = response.data.data
+
+                    $(".client-status").each(function(index, value) {
+                        var title = obj[index]['old']
+                        if (obj[index]['new'] != 0) {
+                            title += '<sup>' +
+                                '<span class="badge bg-primary text-white p-1 px-2">' +
+                                '<small>' + obj[index]['new'] + ' New</small>' +
+                                '</span>' +
+                                '</sup>'
+                        }
+                        $(this).html(title)
+
+                    })
+
+                    $(".client-status-detail").each(function(index) {
+                        if (response.data.type == "all") {
+
+                            var textStyling = 'text-success'
+                            var icon = "bi-arrow-up-short"
+                            var html = '<span class="me-2 ' + textStyling + '">' +
+                                '<i class="bi ' + icon + '"></i>' +
+                                obj[index]['percentage'] + '%' +
+                                '</span><span>Since before</span>'
+
+                        } else {
+
+                            if (obj[index]['new'] > obj[index]['old'] && obj[index]['new'] != 0 && obj[index][
+                                    'old'
+                                ] != 0) {
+
+                                var textStyling = 'text-success'
+                                var icon = "bi-arrow-up-short"
+
+                            } else if (obj[index]['old'] == 0 && obj[index]['new'] != 0) {
+
+                                var textStyling = 'text-success'
+                                var icon = "bi-arrow-up-short"
+
+                            } else if (obj[index]['old'] == 0 && obj[index]['new'] == 0) {
+
+                                var textStyling = ''
+                                var icon = ""
+
+                            } else {
+
+                                var textStyling = 'text-danger'
+                                var icon = "bi-arrow-down-short"
+
+                            }
+
+                            var html = '<span class="me-2 ' + textStyling + '">' +
+                                '<i class="bi ' + icon + '"></i>' +
+                                obj[index]['percentage'] + '%' +
+                                '</span><span>Since last month</span>'
+
+
+                        }
+
+                        $(this).html(html)
+                    })
+                    swal.close()
+
+                }).catch(function(error) {
+                    swal.close()
+                    notification('error', 'Ooops! Something went wrong. Please try again.')
+                })
+
+            getFollowUpReminder(month)
+            getMenteesBirthday(month)
+        }
+
+        function getFollowUpReminder(month) {
+
+            var today = new Date()
+
+            if (!month)
+                month = moment(today).format('YYYY-MM')
+
+            var url = window.location.origin + '/api/get/follow-up-reminder/' + month
 
             axios.get(url)
                 .then(function(response) {
 
-                    
-                    var obj = response.data;
-                    console.log(obj)
-                    $('#list-detail-client .modal-title').html(obj.title)
-                    $('#listClientTable tbody').html(obj.html_ctx)
-                    swal.close()
+                    var obj = response.data.data
+                    if (obj.length == 0) {
 
-                    $('#list-detail-client').modal('show')
-
-                }).catch(function(error) {
-                    notification('error',
-                        'There was an error while processing your request. Please try again or contact your administrator.'
-                        );
-                })
-        })
-    })
-
-    function checkPeriod() {
-        let period = $('#period').val()
-        if (period == 'monthly') {
-            $('#monthly').removeClass('d-none')
-            checkMonthly()
-
-            // new
-            let month = $('#client_status_month').val()
-            $(".card-client").data('f-date', month);
-        } else {
-
-            $(".card-client").data('f-date', 'all');
-            $('#monthly').addClass('d-none')
-            checkClientStatus()
-        }
-    }
-
-    function checkMonthly() {
-        let month = $('#client_status_month').val()
-        checkClientStatus(month)
-    }
-
-    function checkClientStatus(month = false) {
-        // Axios here... 
-        showLoading()
-
-        var today = new Date()
-
-        if (!month)
-            month = 'all'
-        // month = moment(today).format('YYYY-MM')
-
-        var url = window.location.origin + '/api/get/client-status/' + month
-        $(".card-client").data('f-date', month);
-
-        axios.get(url)
-            .then(function(response) {
-                console.log(response)
-                var obj = response.data.data
-
-                $(".client-status").each(function(index, value) {
-                    var title = obj[index]['old']
-                    if (obj[index]['new'] != 0) {
-                        title += '<sup>' +
-                            '<span class="badge bg-primary text-white p-1 px-2">' +
-                            '<small>' + obj[index]['new'] + ' New</small>' +
-                            '</span>' +
-                            '</sup>'
-                    }
-                    $(this).html(title)
-
-                })
-
-                $(".client-status-detail").each(function(index) {
-                    if (response.data.type == "all") {
-
-                        var textStyling = 'text-success'
-                        var icon = "bi-arrow-up-short"
-                        var html = '<span class="me-2 ' + textStyling + '">' +
-                            '<i class="bi ' + icon + '"></i>' +
-                            obj[index]['percentage'] + '%' +
-                            '</span><span>Since before</span>'
+                        $("#btn-follow-up").addClass('d-none');
 
                     } else {
 
-                        if (obj[index]['new'] > obj[index]['old'] && obj[index]['new'] != 0 && obj[index][
-                                'old'
-                            ] != 0) {
+                        var total_followupReminder = Object.keys(obj.followUpReminder).length
 
-                            var textStyling = 'text-success'
-                            var icon = "bi-arrow-up-short"
-
-                        } else if (obj[index]['old'] == 0 && obj[index]['new'] != 0) {
-
-                            var textStyling = 'text-success'
-                            var icon = "bi-arrow-up-short"
-
-                        } else if (obj[index]['old'] == 0 && obj[index]['new'] == 0) {
-
-                            var textStyling = ''
-                            var icon = ""
-
-                        } else {
-
-                            var textStyling = 'text-danger'
-                            var icon = "bi-arrow-down-short"
-
-                        }
-
-                        var html = '<span class="me-2 ' + textStyling + '">' +
-                            '<i class="bi ' + icon + '"></i>' +
-                            obj[index]['percentage'] + '%' +
-                            '</span><span>Since last month</span>'
-
+                        $("#btn-follow-up").removeClass('d-none')
+                        $("#btn-follow-up span").html(total_followupReminder)
 
                     }
+                    $("#modal-body").html(obj.html_txt)
 
-                    $(this).html(html)
+                }).catch(function(error) {
+
+                    notification('error', 'Ooops! Something went wrong. Please try again.')
                 })
-                swal.close()
-
-            }).catch(function(error) {
-                swal.close()
-                notification('error', 'Ooops! Something went wrong. Please try again.')
-            })
-
-        getFollowUpReminder(month)
-        getMenteesBirthday(month)
-    }
-
-    function getFollowUpReminder(month) {
-
-        var today = new Date()
-
-        if (!month)
-            month = moment(today).format('YYYY-MM')
-
-        var url = window.location.origin + '/api/get/follow-up-reminder/' + month
-
-        axios.get(url)
-            .then(function(response) {
-
-                var obj = response.data.data
-                if (obj.length == 0) {
-
-                    $("#btn-follow-up").addClass('d-none');
-
-                } else {
-
-                    var total_followupReminder = Object.keys(obj.followUpReminder).length
-
-                    $("#btn-follow-up").removeClass('d-none')
-                    $("#btn-follow-up span").html(total_followupReminder)
-
-                }
-                $("#modal-body").html(obj.html_txt)
-
-            }).catch(function(error) {
-
-                notification('error', 'Ooops! Something went wrong. Please try again.')
-            })
-    }
-
-    function getMenteesBirthday(month) {
-        var today = new Date()
-
-        if (!month || month == 'all')
-            month = moment(today).format('YYYY-MM')
-
-        var url = window.location.origin + '/api/get/mentee-birthday/' + month
-
-        axios.get(url)
-            .then(function(response) {
-
-                var obj = response.data.data
-                var total_menteesbirthday = Object.keys(obj).length
-
-                $("#btn-mentees-birthday").removeClass('d-none')
-                $("#btn-mentees-birthday span").html(total_menteesbirthday)
-
-                var html = ""
-                var no = 1;
-                obj.forEach(function(item, index, arr) {
-                    var dob_str = moment(item['dob']).format('ddd, DD MMM yyyy')
-                    var address = item['address'] === null ? '' : item['address']
-
-                    html += "<tr class='text-center'>" +
-                        "<td>" + no++ + "</td>" +
-                        "<td>" + item['full_name'] + "</td>" +
-                        "<td>" + dob_str + "</td>" +
-                        "<td>" + address + "</td>" +
-                        "</tr>"
-                })
-
-                $("#menteesBirthdayTable tbody").html('');
-                $("#menteesBirthdayTable tbody").append(html);
-
-            }).catch(function(error) {
-
-                notification('error', 'Ooops! Something went wrong. Please try again.')
-
-            })
-
-    }
-
-    function marked(i) {
-        $('.marked_id').val(i)
-        var mark = $("#mark_" + i)
-
-        if (mark.is(':checked')) {
-            $('#follow_up_notes').modal('show')
-
-            var student = mark.data('student')
-            var program = mark.data('program')
-            var followup = mark.data('followup')
-            var link = 'client/student/' + student + '/program/' + program + '/followup/' + followup;
-
-            $("#followUpForm").attr('action', link)
-
-        } else {
-            $('#cancel_follow_up_notes').modal('show')
-
-            var student = mark.data('student')
-            var program = mark.data('program')
-            var followup = mark.data('followup')
-            var link = 'client/student/' + student + '/program/' + program + '/followup/' + followup;
-
-            $("#cancelFollowUpForm").attr('action', link)
         }
-    }
 
-    function cancelMarked() {
-        let i = $('.marked_id').val()
-        $('#mark_' + i).prop('checked', false)
-        $('#follow_up_notes').modal('hide')
-    }
+        function getMenteesBirthday(month) {
+            var today = new Date()
 
-    function backMarked() {
-        let i = $('.marked_id').val()
-        $('#mark_' + i).prop('checked', true)
-        $('#cancel_follow_up_notes').modal('hide')
-    }
+            if (!month || month == 'all')
+                month = moment(today).format('YYYY-MM')
 
-    // function that change followup status to 1 
-    $("#btn-submit-followup").click(function(e) {
-        e.preventDefault()
-        e.stopPropagation()
+            var url = window.location.origin + '/api/get/mentee-birthday/' + month
 
-        var link = $('#followUpForm').attr('action')
-        var data = $('#followUpForm').serialize()
+            axios.get(url)
+                .then(function(response) {
 
-        var obj = [{
-            "mark": true
-        }]
+                    var obj = response.data.data
+                    var total_menteesbirthday = Object.keys(obj).length
 
-        axios.post(link, data + '&' + $.param(obj[0]))
-            .then((response) => {
-                Swal.close()
-                notification('success', 'Follow-up has been marked as done')
+                    $("#btn-mentees-birthday").removeClass('d-none')
+                    $("#btn-mentees-birthday span").html(total_menteesbirthday)
 
-                $('#follow_up_notes').modal('hide')
+                    var html = ""
+                    var no = 1;
+                    obj.forEach(function(item, index, arr) {
+                        var dob_str = moment(item['dob']).format('ddd, DD MMM yyyy')
+                        var address = item['address'] === null ? '' : item['address']
 
-            }, (error) => {
-                Swal.close()
-                notification('error', 'Failed to mark follow-up')
-            });
-    })
+                        html += "<tr class='text-center'>" +
+                            "<td>" + no++ + "</td>" +
+                            "<td>" + item['full_name'] + "</td>" +
+                            "<td>" + dob_str + "</td>" +
+                            "<td>" + address + "</td>" +
+                            "</tr>"
+                    })
 
-    // function that change followup status to 0
-    $("#btn-cancel-followup").click(function(e) {
-        e.preventDefault()
-        e.stopPropagation()
+                    $("#menteesBirthdayTable tbody").html('');
+                    $("#menteesBirthdayTable tbody").append(html);
 
-        var link = $('#cancelFollowUpForm').attr('action')
-        var data = $('#cancelFollowUpForm').serialize()
+                }).catch(function(error) {
 
-        var obj = [{
-            "mark": false
-        }]
+                    notification('error', 'Ooops! Something went wrong. Please try again.')
 
-        axios.post(link, data + '&' + $.param(obj[0]))
-            .then((response) => {
-                Swal.close()
-                notification('success', 'Follow-up has been marked as waiting')
-
-                $('#cancel_follow_up_notes').modal('hide')
-
-            }, (error) => {
-                Swal.close()
-                notification('error', 'Failed to mark follow-up')
-            });
-    })
-
-    $("#menteesBirthdayMonth").on('change', function() {
-
-        var date = $(this).val()
-
-        axios.get('{{ url('api/mentee/birthday/') }}/' + date)
-            .then((response) => {
-
-                var data = response.data.data
-                var html = ""
-                var no = 1;
-                data.forEach(function(item, index, arr) {
-                    var dob_str = moment(item['dob']).format('ddd, DD MMM yyyy')
-
-                    html += "<tr class='text-center'>" +
-                        "<td>" + no++ + "</td>" +
-                        "<td>" + item['full_name'] + "</td>" +
-                        "<td>" + dob_str + "</td>" +
-                        "<td>" + item['address'] + "</td>" +
-                        "</tr>"
                 })
 
-                $("#menteesBirthdayTable tbody").html('');
-                $("#menteesBirthdayTable tbody").append(html);
+        }
 
-            }, (error) => {
-                notification('error', 'Ooops! Something went wrong. Please try again.')
-            })
+        function marked(i) {
+            $('.marked_id').val(i)
+            var mark = $("#mark_" + i)
 
-    })
+            if (mark.is(':checked')) {
+                $('#follow_up_notes').modal('show')
 
-    $(document).on('click', '.popup-modal-detail-client', function () {
-        var clientId = $(this).data('detail');
-        var url = window.location.origin + '/client/student/' + clientId;
-        window.open(url, '_blank');
+                var student = mark.data('student')
+                var program = mark.data('program')
+                var followup = mark.data('followup')
+                var link = 'client/student/' + student + '/program/' + program + '/followup/' + followup;
 
-    });
-</script>
+                $("#followUpForm").attr('action', link)
+
+            } else {
+                $('#cancel_follow_up_notes').modal('show')
+
+                var student = mark.data('student')
+                var program = mark.data('program')
+                var followup = mark.data('followup')
+                var link = 'client/student/' + student + '/program/' + program + '/followup/' + followup;
+
+                $("#cancelFollowUpForm").attr('action', link)
+            }
+        }
+
+        function cancelMarked() {
+            let i = $('.marked_id').val()
+            $('#mark_' + i).prop('checked', false)
+            $('#follow_up_notes').modal('hide')
+        }
+
+        function backMarked() {
+            let i = $('.marked_id').val()
+            $('#mark_' + i).prop('checked', true)
+            $('#cancel_follow_up_notes').modal('hide')
+        }
+
+        // function that change followup status to 1 
+        $("#btn-submit-followup").click(function(e) {
+            e.preventDefault()
+            e.stopPropagation()
+
+            var link = $('#followUpForm').attr('action')
+            var data = $('#followUpForm').serialize()
+
+            var obj = [{
+                "mark": true
+            }]
+
+            axios.post(link, data + '&' + $.param(obj[0]))
+                .then((response) => {
+                    Swal.close()
+                    notification('success', 'Follow-up has been marked as done')
+
+                    $('#follow_up_notes').modal('hide')
+
+                }, (error) => {
+                    Swal.close()
+                    notification('error', 'Failed to mark follow-up')
+                });
+        })
+
+        // function that change followup status to 0
+        $("#btn-cancel-followup").click(function(e) {
+            e.preventDefault()
+            e.stopPropagation()
+
+            var link = $('#cancelFollowUpForm').attr('action')
+            var data = $('#cancelFollowUpForm').serialize()
+
+            var obj = [{
+                "mark": false
+            }]
+
+            axios.post(link, data + '&' + $.param(obj[0]))
+                .then((response) => {
+                    Swal.close()
+                    notification('success', 'Follow-up has been marked as waiting')
+
+                    $('#cancel_follow_up_notes').modal('hide')
+
+                }, (error) => {
+                    Swal.close()
+                    notification('error', 'Failed to mark follow-up')
+                });
+        })
+
+        $("#menteesBirthdayMonth").on('change', function() {
+
+            var date = $(this).val()
+
+            axios.get('{{ url('api/mentee/birthday/') }}/' + date)
+                .then((response) => {
+
+                    var data = response.data.data
+                    var html = ""
+                    var no = 1;
+                    data.forEach(function(item, index, arr) {
+                        var dob_str = moment(item['dob']).format('ddd, DD MMM yyyy')
+
+                        html += "<tr class='text-center'>" +
+                            "<td>" + no++ + "</td>" +
+                            "<td>" + item['full_name'] + "</td>" +
+                            "<td>" + dob_str + "</td>" +
+                            "<td>" + item['address'] + "</td>" +
+                            "</tr>"
+                    })
+
+                    $("#menteesBirthdayTable tbody").html('');
+                    $("#menteesBirthdayTable tbody").append(html);
+
+                }, (error) => {
+                    notification('error', 'Ooops! Something went wrong. Please try again.')
+                })
+
+        })
+
+        $(document).on('click', '.popup-modal-detail-client', function() {
+            var clientId = $(this).data('detail');
+            var url = window.location.origin + '/client/student/' + clientId;
+            window.open(url, '_blank');
+
+        });
+    </script>
 @endpush
