@@ -55,6 +55,7 @@
             get_program_comparison()
 
         })
+
         function get_program_comparison() {
             let prog = $("select[name='q-program']").val();
             var first_year = $("select[name='q-first-year']").val();
@@ -66,22 +67,19 @@
     
             var use_filter_by_month = $("#use-filter-by-month").prop('checked');
     
-            var link = window.location.origin + '/api/get/program-comparison'
+            var url = window.location.origin + '/api/get/program-comparison'
     
-            var url = new URL(link);
-            url.searchParams.append('prog', prog)
-    
-            // if (use_filter_by_month === true) {
-            url.searchParams.append('first_monthyear', first_monthyear)
-            url.searchParams.append('second_monthyear', second_monthyear)
-            // } else {
-            url.searchParams.append('first_year', first_year)
-            url.searchParams.append('second_year', second_year)
-            // }
-            url.searchParams.append('u', user)
-            url.searchParams.append('query_month', use_filter_by_month);
-    
-            axios.get(url)
+            axios.get(url, {
+                    params: {
+                        prog: prog,
+                        first_monthyear: first_monthyear,
+                        second_monthyear: second_monthyear,
+                        first_year: first_year,
+                        second_year: second_year,
+                        uuid: user,
+                        query_month: use_filter_by_month
+                    }
+                })
                 .then(function(response) {
     
                     let html = null
