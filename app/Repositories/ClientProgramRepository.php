@@ -1130,11 +1130,14 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 ])
         ];
 
-        return DB::table('tbl_client_prog as cp')->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'cp.prog_id')->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')->select([
-            'cp.prog_id',
-            'tbl_main_prog.prog_name',
-            'tbl_prog.prog_program'
-        ] + $extended_select)
+        return DB::table('tbl_client_prog as cp')->
+            leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'cp.prog_id')->
+            leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')->
+            select([
+                'cp.prog_id',
+                'tbl_main_prog.prog_name',
+                'tbl_prog.prog_program'
+            ] + $extended_select)
             ->when($userId, function ($query) use ($userId) {
                 $query->where('cp.empl_id', $userId);
             })

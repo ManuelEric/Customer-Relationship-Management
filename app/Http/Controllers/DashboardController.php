@@ -49,6 +49,7 @@ use Illuminate\Support\Facades\Session;
 use App\Models\v1\Student as CRMStudent;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Benchmark;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends SalesDashboardController
 {
@@ -116,12 +117,20 @@ class DashboardController extends SalesDashboardController
 
     public function index(Request $request)
     {  
+        $data = Cache::get('dashboard_data');
 
-        $data = (new SalesDashboardController($this))->get($request);
-        $data = array_merge($data, (new PartnerDashboardController($this))->get($request));
-        $data = array_merge($data, (new FinanceDashboardController($this))->get($request));
-        $data = array_merge($data, (new AlarmController($this))->get($request));
-        $data = array_merge($data, (new DigitalDashboardController($this))->get($request));
+        # Retrieving data from cache
+        # if the cache doesn't exist on the database, then put new cache
+        if (!Cache::has('dashboard_data')) {
+
+            $data = (new SalesDashboardController($this))->get($request);
+            $data = array_merge($data, (new PartnerDashboardController($this))->get($request));
+            $data = array_merge($data, (new FinanceDashboardController($this))->get($request));
+            $data = array_merge($data, (new AlarmController($this))->get($request));
+            $data = array_merge($data, (new DigitalDashboardController($this))->get($request));
+            
+            $data = Cache::put('dashboard_data', $data, 3600);
+        } 
 
         return view('pages.dashboard.index')->with($data);
     }
