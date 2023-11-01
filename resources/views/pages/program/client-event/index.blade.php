@@ -188,19 +188,23 @@
                         data: 'client_name',
                         name: 'client.full_name',
                         render: function(data, type, row, meta) {
+                            
                             var existing = moment(row.created_at).format('MMMM Do YYYY, h:mm') ==
                                 moment(row.client_created_at).format('MMMM Do YYYY, h:mm');
+
                             var newClientEvent = moment().format("MMM Do YY") == moment(row
                                 .created_at).format('MMM Do YY');
 
-                            // if (newClientEvent == true) {
-                            return data + (existing == true ?
+                            var clientRole = (row.register_as).toLowerCase();
+                            var intoURLParam = clientRole.replace("/", "-");
+                            var intoURLParam = intoURLParam.replace('counsellor', 'counselor');
+
+                            let URL = "{{ url('/') }}/client/" + intoURLParam + "/" + row.client_id;
+
+                            return "<a class='text-dark text-decoration-none' href='"+ URL +"'>" + data + "</a>" + (existing == true ?
                                 ' <span class="badge text-bg-primary" style="font-size:8px;">New</span>' :
                                 ' <span class="badge text-bg-success" style="font-size:8px";>Existing</span>'
                             );
-                            // } else {
-                            //     return data;
-                            // }
                         }
                     },
                     {

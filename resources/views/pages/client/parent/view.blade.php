@@ -14,7 +14,7 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="">
-                            <h3 class="m-0 mb-2 p-0">{{ $parent->fullname }}</h3>
+                            <h3 class="m-0 mb-2 p-0">{{ $parent->full_name }}</h3>
                             <small class="text-muted">
                                 <i class="bi bi-calendar-day me-1"></i> Join Date: {{ date('d M Y', strtotime($parent->created_at)) }} |
                                 <i class="bi bi-calendar-date mx-1"></i> Last Update: {{ date('d M Y', strtotime($parent->updated_at)) }}
