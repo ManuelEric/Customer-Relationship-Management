@@ -38,7 +38,7 @@
     {{-- <script src="{{ asset('assets/dist/pspdfkit.js')}}"></script> --}}
 
     {{-- Sheet Js --}}
-    <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.19.2/package/dist/xlsx.full.min.js"></script>)
+    <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.19.2/package/dist/xlsx.full.min.js"></script>
 @endpush
 
 @section('body')

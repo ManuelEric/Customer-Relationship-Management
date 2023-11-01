@@ -7,7 +7,7 @@
     <title>
         @yield('title')
     </title>
-    <link rel="shortcut icon" href="{{asset('img/favicon.png')}}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('img/favicon.png') }}" type="image/x-icon">
 
     {{-- CSS  --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -50,7 +50,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.0.3/index.global.min.js"
         integrity="sha256-3ytVDiLNNR0KlhglNHqXDFL94uOszVxoQeU7AZEALYo=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+        integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="{{ asset('js/generate-number.js') }}"></script>
     <script src="{{ asset('js/currency.js') }}"></script>
     @stack('styles')
@@ -164,7 +166,9 @@
             background: #555;
         }
 
-        .popup-modal-detail-client { cursor: pointer;}
+        .popup-modal-detail-client {
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -199,7 +203,8 @@
     </div>
 
     {{-- Deactive User Item  --}}
-    <div class="modal modal-sm fade" tabindex="-1" id="deactiveUser" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal modal-sm fade" tabindex="-1" id="deactiveUser" data-bs-backdrop="static"
+        data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <form action="" method="post" id="formActionDeactive">
@@ -225,7 +230,8 @@
     </div>
 
     {{-- Request Sign  --}}
-    <div class="modal modal-sm fade" tabindex="-1" id="requestSign--modal" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal modal-sm fade" tabindex="-1" id="requestSign--modal" data-bs-backdrop="static"
+        data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <form action="" method="post" id="formActionRequestSign">
@@ -251,7 +257,8 @@
     </div>
 
     {{-- Send Invoice / Receipt to Client  --}}
-    <div class="modal modal-sm fade" tabindex="-1" id="sendToClient--modal" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal modal-sm fade" tabindex="-1" id="sendToClient--modal" data-bs-backdrop="static"
+        data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <form action="" method="post" id="formActionSendToClient">
@@ -277,33 +284,36 @@
     </div>
 
     {{-- Update Lead Status  --}}
-    <div class="modal modal-sm fade" tabindex="-1" id="updateLeadStatus" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal modal-sm fade" tabindex="-1" id="updateLeadStatus" data-bs-backdrop="static"
+        data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 {{-- <form action="" method="post" id="formAction"> --}}
-                    {{-- @csrf --}}
-                    {{-- @method('delete') --}}
-                    <div class="modal-body text-center">
-                        <h2>
-                            <i class="bi bi-info-circle text-info"></i>
-                        </h2>
-                        <h4>Are you sure?</h4>
-                        <h6>You want to update this data?</h6>
-                        <hr>
-                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
-                            <i class="bi bi-x-square me-1"></i>
-                            Cancel</button>
-                        <button type="button" id="btn-update-lead" class="btn btn-primary btn-sm">
-                            <i class="bi bi-box-arrow-in-down me-1"></i>
-                            Yes, Update</button>
-                    </div>
+                {{-- @csrf --}}
+                {{-- @method('delete') --}}
+                <div class="modal-body text-center">
+                    <h2>
+                        <i class="bi bi-info-circle text-info"></i>
+                    </h2>
+                    <h4>Are you sure?</h4>
+                    <h6>You want to update this data?</h6>
+                    <hr>
+                    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
+                        <i class="bi bi-x-square me-1"></i>
+                        Cancel</button>
+                    <button type="button" id="btn-update-lead" class="btn btn-primary btn-sm">
+                        <i class="bi bi-box-arrow-in-down me-1"></i>
+                        Yes, Update</button>
+                </div>
                 {{-- </form> --}}
             </div>
         </div>
     </div>
+
     <script>
         window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
     </script>
+
     {{-- Tooltip  --}}
     <script>
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -332,7 +342,6 @@
         //         window.location.href = "{{ route('logout.expiration') }}"
         //     };
         // })
-        
     </script>
 
     {{-- Confirm Delete & Deactivate Modal  --}}
@@ -360,7 +369,7 @@
 
             var warningMessage = 'You want to request his/her signature for this document?';
 
-        //     // change form action 
+            //     // change form action 
             $("#formActionRequestSign h6").html(warningMessage);
 
             var link = subject;
@@ -374,7 +383,7 @@
             var myModal = new bootstrap.Modal(document.getElementById('sendToClient--modal'))
             myModal.show()
 
-            var warningMessage = 'You want to send this '+ category +' to client?';
+            var warningMessage = 'You want to send this ' + category + ' to client?';
 
             // change form action 
             $("#formActionSendToClient h6").html(warningMessage);
@@ -393,31 +402,30 @@
             // show modal 
             var myModal = new bootstrap.Modal(document.getElementById('updateLeadStatus'))
             myModal.show()
-            
+
             $('#btn-update-lead').on('click', function() {
                 showLoading()
                 var link = "{{ url('client/student') }}/" + clientId + "/lead_status/" + $(this).val();
                 axios.post(link, {
-                    clientId : clientId,
-                    initProg : initProg,
-                    leadStatus : leadStatus,
-                })
-                .then(function(response) {
-                    myModal.hide()
-                    swal.close();
-                    
-                    notification('success', response.data.message)
-                    
-                })
-                .catch(function(error) {
-                    myModal.hide()
-                    swal.close();
-                    notification('error', error)
-                })
+                        clientId: clientId,
+                        initProg: initProg,
+                        leadStatus: leadStatus,
+                    })
+                    .then(function(response) {
+                        myModal.hide()
+                        swal.close();
+
+                        notification('success', response.data.message)
+
+                    })
+                    .catch(function(error) {
+                        myModal.hide()
+                        swal.close();
+                        notification('error', error)
+                    })
             });
 
         }
-
     </script>
 
     {{-- Notification by Session  --}}
@@ -496,19 +504,6 @@
                 allowClear: true
             });
         }
-    </script>
-
-    <script>
-        // Swal.fire({
-        //     width: 100,
-        //     backdrop: "#FFF",
-        //     allowOutsideClick: false,
-        // })
-        // Swal.showLoading()
-        // $(window).on('load', function() {
-        //     $('#overlay').addClass('d-none')
-        //     Swal.close()
-        // });
     </script>
 
     @stack('scripts')
