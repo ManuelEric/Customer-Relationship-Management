@@ -19,29 +19,39 @@
 
     <div class="card bg-secondary mb-1 p-2">
         <div class="row align-items-center justify-content-between">
-            <div class="col-md-5">
+            <div class="col-md-5 mb-3">
                 <h5 class="text-white m-0">
                     <i class="bi bi-tag me-1"></i>
                     Client Event
                 </h5>
             </div>
-            <div class="col-md-7 d-flex align-items-center gap-2">
-                <select class="select w-100" name="event_name" id="event-name">
-                    <option data-placeholder="true"></option>
-                    @foreach ($events as $event)
-                        <option value="{{ $event->event_title }}">{{ $event->event_title }}</option>
-                    @endforeach
-                </select>
+            <div class="col-md-7">
+                <div class="row align-items-center g-2">
+                    <div class="col-md-5">
+                        <select class="select w-100" name="event_name" id="event-name">
+                            <option data-placeholder="true"></option>
+                            @foreach ($events as $event)
+                                <option value="{{ $event->event_title }}">{{ $event->event_title }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <a href="{{ url('api/download/excel-template/client-event') }}"
+                            class="btn btn-sm btn-light text-info btn-download text-nowrap w-100"><i class="bi bi-download me-1"></i>
+                            <span>
+                                Template</span></a>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <a href="#" class="btn btn-sm btn-light text-info btn-import text-nowrap w-100" data-bs-toggle="modal"
+                            data-bs-target="#importData"><i class="bi bi-cloud-upload me-1"></i> <span>Import</span></a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url('program/event/create') }}" class="btn btn-sm btn-info text-nowrap w-100"><i
+                                class="bi bi-plus-square me-1"></i>
+                            Add Client Event </a>
+                    </div>
+                </div>
 
-                <a href="{{ url('api/download/excel-template/client-event') }}"
-                    class="btn btn-sm btn-light text-info btn-download text-nowrap"><i class="bi bi-download me-1"></i>
-                    <span>Download
-                        Templates</span></a>
-                <a href="#" class="btn btn-sm btn-light text-info btn-import text-nowrap" data-bs-toggle="modal"
-                    data-bs-target="#importData"><i class="bi bi-cloud-upload me-1"></i> <span>Import</span></a>
-                <a href="{{ url('program/event/create') }}" class="btn btn-sm btn-info text-nowrap"><i
-                        class="bi bi-plus-square me-1"></i>
-                    Add Client Event </a>
             </div>
         </div>
     </div>

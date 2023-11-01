@@ -125,6 +125,7 @@
         }
 
         function checkUser(user_id) {
+            showLoading();
             let department = $('#department').val()
             $('#user_id').val(user_id)
 
@@ -132,7 +133,7 @@
             var link = "{{ url('/') }}/api/department/access/" + department + "/" + user_id
             axios.get(link)
                 .then(function (response) {
-
+                    $(".user-menu").removeClass('active rounded')
                     $("#" + user_id).addClass('active rounded')
                     resetCheckboxes()
                     var obj = response.data
@@ -148,10 +149,10 @@
 
                     var dept_export = response.data.dept_export
                     disabledDepartmentExport(dept_export)
-
+                    swal.close();
                 }).catch(function (error) {
                     notification('error', error.message);
-
+                    swal.close();
                 })
         }
 
