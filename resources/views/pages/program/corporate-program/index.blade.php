@@ -1,7 +1,15 @@
 @extends('layout.main')
 
 @section('title', 'Partner Program ')
-
+@push('styles')
+    <style>
+        @media only screen and (max-width: 600px) {
+            .filter-partnerprog {
+                width: 300px !important;
+            }
+        }
+    </style>
+@endpush
 @section('content')
 
     <div class="card bg-secondary mb-1 p-2">
@@ -16,7 +24,7 @@
                     data-bs-auto-close="false" id="filter">
                     <i class="bi bi-funnel me-2"></i> Filter
                 </button>
-                <form action="{{ route('program.corporate.index') }}" class="dropdown-menu dropdown-menu-end pt-0 shadow"
+                <form action="{{ route('program.corporate.index') }}" class="dropdown-menu dropdown-menu-end pt-0 shadow filter-partnerprog"
                     style="width: 400px" method="GET">
                     <div class="dropdown-header bg-info text-dark py-2 d-flex justify-content-between">
                         Advanced Filter

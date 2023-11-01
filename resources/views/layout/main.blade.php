@@ -69,22 +69,23 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
-                    
+
                     @if ($isAdmin || $isSales || $isDigital)
                         <li class="nav-item dropdown d-none d-lg-block user-dropdown me-lg-3 me-0">
-                            <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">
                                 <i class="bi bi-bell"></i>
                                 @if (isset($countAlarm))
                                     @php
-                                        if($isSales){
+                                        if ($isSales) {
                                             $count = $countAlarm['sales'];
-                                        }elseif($isAdmin){
+                                        } elseif ($isAdmin) {
                                             $count = $countAlarm['general'];
-                                        }elseif($isDigital) {
+                                        } elseif ($isDigital) {
                                             $count = $countAlarm['digital'];
                                         }
                                     @endphp
-                                    @if($count > 0)
+                                    @if ($count > 0)
                                         <span
                                             class="position-absolute ms-1 top-1 start-100 translate-middle badge rounded-pill bg-danger"
                                             style="font-size: 11px">
@@ -97,18 +98,19 @@
                             </a>
 
                             @if (isset($notification))
-                                <ul class="dropdown-menu dropdown-menu-right navbar-dropdown py-2 px-4" style="width: 400px;">
+                                <ul class="dropdown-menu dropdown-menu-right navbar-dropdown py-2 px-4"
+                                    style="width: 400px;">
                                     @php
-                                        if($isSales){
+                                        if ($isSales) {
                                             $notification = $notification['sales'];
-                                        }elseif($isDigital){
+                                        } elseif ($isDigital) {
                                             $notification = $notification['digital'];
-                                        }elseif($isAdmin){
+                                        } elseif ($isAdmin) {
                                             $notification = $notification['general'];
                                         }
                                     @endphp
                                     @foreach ($notification as $notif)
-                                        @if(isset($notif))
+                                        @if (isset($notif))
                                             <li class="d-flex align-items-center border-bottom py-2">
                                                 <i class="bi bi-exclamation-circle me-2"></i>
                                                 <span class="lh-sm">
@@ -121,7 +123,7 @@
                                 </ul>
                             @endif
                         </li>
-                        
+
                     @endif
                     <li class="nav-item dropdown d-none d-lg-block user-dropdown">
                         <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown"
@@ -147,26 +149,47 @@
                     </li>
                 </ul>
                 <div class="dropdown d-block d-lg-none me-3">
-                    <a class="" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-bell" style="font-size: 2em;"></i>
-                        <span class="position-absolute ms-1 top-1 start-100 translate-middle badge rounded-pill bg-danger"
-                            style="font-size: 11px">
-                            <small>
-                                5
-                            </small>
-                        </span>
-                    </a>
+                    @if ($isAdmin || $isSales || $isDigital)
+                        <a class="" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-bell" style="font-size: 2em;"></i>
+                            @if (isset($countAlarm))
+                                @php
+                                    if ($isSales) {
+                                        $count = $countAlarm['sales'];
+                                    } elseif ($isAdmin) {
+                                        $count = $countAlarm['general'];
+                                    } elseif ($isDigital) {
+                                        $count = $countAlarm['digital'];
+                                    }
+                                @endphp
+                                @if ($count > 0)
+                                    <span
+                                        class="position-absolute ms-1 top-1 start-100 translate-middle badge rounded-pill bg-danger"
+                                        style="font-size: 11px">
+                                        <small>
+                                            {{ $count }}
+                                        </small>
+                                    </span>
+                                @endif
+                            @endif
+                        </a>
 
-                    <ul class="dropdown-menu py-2 px-4" style="width: 300px; left:-250px;">
-                        @for ($i = 0; $i < 3; $i++)
-                            <li class="d-flex align-items-center border-bottom py-2">
-                                <i class="bi bi-exclamation-circle me-2"></i>
-                                <span class="lh-sm">
-                                    The number of hot leads is less than the target
-                                </span>
-                            </li>
-                        @endfor
-                    </ul>
+
+                        @if (isset($notification))
+                            <ul class="dropdown-menu py-2 px-4" style="width: 300px; left:-250px;">
+                                @foreach ($notification as $notif)
+                                    @if (isset($notif))
+                                        <li class="d-flex align-items-center border-bottom py-2">
+                                            <i class="bi bi-exclamation-circle me-2"></i>
+                                            <span class="lh-sm">
+                                                {!! $notif !!}
+                                            </span>
+                                        </li>
+                                    @endif
+                                @endforeach
+                            </ul>
+                        @endif
+                    @endif
                 </div>
                 <div class="dropdown d-block d-lg-none user-dropdown me-0">
                     <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
@@ -179,6 +202,10 @@
                                 {{ Auth::user()->last_name }}</p>
                             <p class="fw-light text-muted mb-0">{{ Auth::user()->email }}</p>
                         </div>
+                        <a class="dropdown-item text-center" href="{{ route('profile.index') }}">
+                            <i class="bi bi-file-lock2 text-primary me-2"></i>
+                            Change Password
+                        </a>
                         <a class="dropdown-item text-center" href="{{ route('logout') }}">
                             <i class="bi bi-box-arrow-down-left text-primary me-2"></i>
                             Sign Out
@@ -270,10 +297,10 @@
                 </ul>
             </nav>
             <!-- partial -->
-            <div class="main-panel position-md-absolute end-0">
+            <div class="main-panel position-md-absolute end-0 px-0">
                 <div class="content-wrapper">
                     <div class="row">
-                        <div class="col-sm-12">
+                        <div class="col-sm-12 px-0">
                             <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
                                 <ol class="breadcrumb bg-light border-0 rounded px-2 mb-1 justify-content-end">
                                     @yield('breadcrumb')

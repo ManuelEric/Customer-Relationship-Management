@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-3 mb-3">
             <div class="card mb-3">
                 <div class="card-header">
                     <h6 class="p-0 m-0">Period</h6>
@@ -50,10 +50,12 @@
         </div>
 
         <div class="col-md-9">
-            <button class="btn btn-sm btn-outline-info" onclick="ExportToExcel()"
-                style="margin-bottom: 15px">
-                <i class="bi bi-file-earmark-excel me-1"></i> Print
-            </button>
+            <div class="text-end">
+                <button class="btn btn-sm btn-outline-info" onclick="ExportToExcel()"
+                    style="margin-bottom: 15px">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Print
+                </button>
+            </div>
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="p-0 m-0">Invoice List</h6>

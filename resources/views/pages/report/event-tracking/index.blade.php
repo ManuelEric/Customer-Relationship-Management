@@ -42,193 +42,17 @@
                 </div>
             </div>
 
-            {{-- Client  --}}
-            <div class="card mb-3">
-                <div class="card-header  d-flex justify-content-between align-items-center">
-                    <h6 class="p-0 m-0">Existing Client</h6>
-                    {{-- <span class="badge bg-primary">{{ count($clientEvents) }}</span> --}}
-                </div>
-                <div class="card-body p-2">
-                    <ul class="list-group">
-                        <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
-                            <div class="">Mentee</div>
-                            <div class="dropdown">
-                                <span class="badge badge-info dropdown-toggle"
-                                    data-bs-toggle="dropdown">{{ $existingMentee->count() }}</span>
-                                <div class="dropdown-menu overflow-auto text-center px-2"
-                                    style="max-width: 450px; max-height:200px;">
-                                    {{ $existingMentee->count() > 0 ? '' : 'There is no data.' }}
-                                    <table class="table table-striped table-hover">
-                                        @foreach ($existingMentee as $existMentee)
-                                            <tr>
-                                                <td>{{ $loop->index + 1 }}</td>
-                                                <td>{{ $existMentee->client->full_name }}</td>
-                                                <td>{{ $existMentee->client->school->sch_name ?? '-' }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </table>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
-                            <div class="">Non Mentee</div>
-                            <div class="dropdown">
-                                <span class="badge badge-info dropdown-toggle"
-                                    data-bs-toggle="dropdown">{{ $existingNonMentee->count() }}</span>
-                                <div class="dropdown-menu overflow-auto text-center px-2"
-                                    style="max-width: 450px; max-height:200px;">
-                                    {{ $existingNonMentee->count() > 0 ? '' : 'There is no data.' }}
-                                    <table class="table table-striped table-hover">
-                                        @foreach ($existingNonMentee as $item)
-                                            <tr>
-                                                <td>{{ $loop->index + 1 }}</td>
-                                                <td>{{ $item->client->full_name }}</td>
-                                                <td>{{ $item->client->school->sch_name ?? '-' }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </table>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
-                            <div class="">Non Client</div>
-                            <div class="dropdown">
-                                <span class="badge badge-info dropdown-toggle"
-                                    data-bs-toggle="dropdown">{{ $existingNonClient->count() }}</span>
-                                <div class="dropdown-menu overflow-auto text-center px-2"
-                                    style="max-width: 450px; max-height:200px;">
-                                    {{ $existingNonMentee->count() > 0 ? '' : 'There is no data.' }}
-                                    <table class="table table-striped table-hover">
-                                        @foreach ($existingNonClient as $item)
-                                            <tr>
-                                                <td>{{ $loop->index + 1 }}</td>
-                                                <td>{{ $item->client->full_name }}</td>
-                                                <td>{{ $item->client->school->sch_name ?? '-' }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </table>
-                                </div>
-                            </div>
-                        </li>
+            {{-- Existing Client  --}}
+            @include('pages.report.event-tracking.component.existing-client')
 
-                    </ul>
-                </div>
-            </div>
-
-            <div class="card mb-3">
-                <div class="card-header  d-flex justify-content-between align-items-center">
-                    <h6 class="p-0 m-0">New Client</h6>
-                    {{-- <span class="badge bg-primary">{{ count($clientEvents) }}</span> --}}
-                </div>
-                <div class="card-body p-2">
-                    <ul class="list-group">
-                        <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
-                            <div class="">Student</div>
-                            <span class="badge badge-info"></span>
-                            <div class="dropdown">
-                                <span class="badge badge-info dropdown-toggle" data-bs-toggle="dropdown">
-                                    {{ $newClient->where('register_as', 'student')->count() }}
-                                </span>
-                                <div class="dropdown-menu overflow-auto text-center px-2"
-                                    style="max-width: 450px; max-height:200px;">
-                                    {{ $newClient->where('register_as', 'student')->count() > 0 ? '' : 'There is no data.' }}
-                                    <table class="table table-striped table-hover">
-                                        @foreach ($newClient->where('register_as', 'student') as $item)
-                                            <tr>
-                                                <td>{{ $loop->index + 1 }}</td>
-                                                <td>{{ $item->client->full_name }}</td>
-                                                <td>{{ $item->client->school->sch_name ?? '-' }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </table>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
-                            <div class="">Parent</div>
-                            <div class="dropdown">
-                                <span class="badge badge-info dropdown-toggle" data-bs-toggle="dropdown">
-                                    {{ $newClient->where('register_as', 'parent')->count() }}
-                                </span>
-                                <div class="dropdown-menu overflow-auto text-center px-2"
-                                    style="max-width: 450px; max-height:200px;">
-                                    {{ $newClient->where('register_as', 'parent')->count() > 0 ? '' : 'There is no data.' }}
-                                    <table class="table table-striped table-hover">
-                                        @foreach ($newClient->where('register_as', 'parent') as $item)
-                                            <tr>
-                                                <td>{{ $loop->index + 1 }}</td>
-                                                <td>{{ $item->client->full_name }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </table>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
-                            <div class="">Teacher / Counselor</div>
-                            <div class="dropdown">
-                                <span class="badge badge-info dropdown-toggle" data-bs-toggle="dropdown">
-                                    {{ $newClient->where('register_as', 'teacher/counselor')->count() }}
-                                </span>
-                                <div class="dropdown-menu overflow-auto text-center px-2"
-                                    style="max-width: 450px; max-height:200px;">
-                                    {{ $newClient->where('register_as', 'teacher/counselor')->count() > 0 ? '' : 'There is no data.' }}
-                                    <table class="table table-striped table-hover">
-                                        @foreach ($newClient->where('register_as', 'teacher/counselor') as $item)
-                                            <tr>
-                                                <td>{{ $loop->index + 1 }}</td>
-                                                <td>{{ $item->client->full_name }}</td>
-                                                <td>{{ $item->client->school->sch_name ?? '-' }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </table>
-                                </div>
-                            </div>
-                        </li>
-
-                    </ul>
-                </div>
-            </div>
+            {{-- New Client  --}}
+            @include('pages.report.event-tracking.component.new-client')
 
             {{-- Conversion Lead  --}}
-            <div class="card mb-3">
-                <div class="card-header  d-flex justify-content-between align-items-center">
-                    <h6 class="p-0 m-0">Lead Source</h6>
-                </div>
-                <div class="card-body p-2">
-                    <ul class="list-group">
-                        @forelse ($conversionLeads as $conversionLead)
-                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
-                                <div class="">{{ $conversionLead->conversion_lead }}</div>
-                                <span class="badge badge-warning">{{ $conversionLead->count_conversionLead }}</span>
-                            </li>
-                        @empty
-                            <li class="text-center">Not lead source yet</li>
-                        @endforelse
-                    </ul>
-                </div>
-            </div>
+            @include('pages.report.event-tracking.component.conversion-lead')
 
             {{-- Feeder Schools --}}
-            <div class="card mb-3">
-                <div class="card-header  d-flex justify-content-between align-items-center">
-                    <h6 class="p-0 m-0">Feeder Schools</h6>
-                </div>
-                <div class="card-body p-2 overflow-auto" style="max-height: 150px ">
-                    <ul class="list-group">
-                        @if ($feeder !== null)
-                            @foreach ($feeder as $key => $val)
-                                <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
-                                    <div class="">{{ $key }}</div>
-                                    <span class="badge badge-warning">{{ $val }}</span>
-                                </li>
-                            @endforeach
-                        @else
-                            <li class="text-center">There's no feeder schools</li>
-                        @endif
-                    </ul>
-                </div>
-            </div>
+            @include('pages.report.event-tracking.component.feeder-school')
         </div>
         <div class="col-md-9">
             <div class="card mb-3">
@@ -342,7 +166,7 @@
             // $('#cancel').click(function() {
             //     $(this).parents('.dropdown').find('button.dropdown-toggle').dropdown('toggle')
             // });
-
+            var widthView = $(window).width();
             var i = 1;
 
             var table = $('#eventTrackTable').DataTable({
@@ -359,14 +183,13 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
+                    left: (widthView < 768) ? 1 : 2,
                     right: 1
                 },
                 processing: true,
                 serverSide: true,
                 ajax: '',
-                columns: [
-                    {
+                columns: [{
                         data: 'event_id',
                         defaultContent: '-',
                     },
@@ -455,7 +278,7 @@
                     {
                         data: 'status',
                         className: 'text-center',
-                        render: function (data, type, row, meta) {
+                        render: function(data, type, row, meta) {
                             return data == 1 ? "Attended" : "Join"
                         }
                     },
