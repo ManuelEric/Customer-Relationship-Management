@@ -121,7 +121,7 @@ class DashboardController extends SalesDashboardController
 
         # Retrieving data from cache
         # if the cache doesn't exist on the database, then put new cache
-        if (!Cache::has('dashboard_data')) {
+        if (!$data) {
 
             $data = (new SalesDashboardController($this))->get($request);
             $data = array_merge($data, (new PartnerDashboardController($this))->get($request));
