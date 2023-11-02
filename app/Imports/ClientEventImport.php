@@ -394,10 +394,6 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
                 break;
 
             case 'Teacher/Counselor':
-<<<<<<< HEAD
-            case 'Teacher':
-=======
->>>>>>> origin/development-v2.1.2
                 if (!$existClient['isExist']) {
                 
                     $dataClient = [
