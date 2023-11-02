@@ -17,6 +17,8 @@ class InvoicesRepository implements InvoicesRepositoryInterface
     {
         # get raw query with the bind parameters into string
         $model_invB2b = $this->getOutstandingPaymentFromB2b($monthYear);
+
+        # binding manually
         $query_invB2b = str_replace(['?'], ['\'%s\''], $model_invB2b->toSql());
         $query_invB2b = vsprintf($query_invB2b, $model_invB2b->getBindings());
         

@@ -1065,8 +1065,6 @@ class SalesDashboardController extends Controller
             }
         }
 
-
-
         $filter['eventId'] = count($events) > 0 ? $events[0]->event_id : null;
 
         if (!$conversion_lead_of_event = $this->clientEventRepository->getConversionLead($filter)) {

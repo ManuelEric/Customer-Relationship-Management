@@ -253,8 +253,6 @@ class ReceiptController extends Controller
         DB::beginTransaction();
         try {
 
-
-
             # generate invoice as a PDF file
             if ($attachment->storeAs($path, $file_name)) {
                 # update request status on receipt attachment
