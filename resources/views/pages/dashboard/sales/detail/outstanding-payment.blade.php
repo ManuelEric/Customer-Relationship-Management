@@ -39,7 +39,7 @@
                         text: 'Export to Excel',
                     }
                 ],
-                scrollX: false,
+                scrollX: (widthView < 768) ? true : false,
                 fixedColumns: {
                     left: (widthView < 768) ? 1 : 2,
                 },

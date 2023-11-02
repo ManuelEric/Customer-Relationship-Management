@@ -10,21 +10,21 @@
 @includeWhen(!$isAdmin, 'pages.dashboard.sales.detail.leads')
 
 <div class="d-flex flex-md-row flex-column-reverse justify-content-between align-items-center">
-    <ul class="nav nav-tabs flex-md-nowrap flex-wrap  mt-md-0 mt-1">
+    <ul class="nav nav-tabs flex-nowrap w-100 overflow-auto mt-md-0 mt-1">
         <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('sales','client-program')">
-            <div class="nav-link sales client-program active">Client Program</div>
+            <div class="nav-link text-nowrap sales client-program active">Client Program</div>
         </li>
         <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('sales','sales-target')">
-            <div class="nav-link sales sales-target">Sales Target</div>
+            <div class="nav-link text-nowrap sales sales-target">Sales Target</div>
         </li>
         <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('sales','program-comparison')">
-            <div class="nav-link sales program-comparison">Program Comparison</div>
+            <div class="nav-link text-nowrap sales program-comparison">Program Comparison</div>
         </li>
         <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('sales','client-event')">
-            <div class="nav-link sales client-event">Client Event</div>
+            <div class="nav-link text-nowrap sales client-event">Client Event</div>
         </li>
         <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('sales','outstanding-payment')">
-            <div class="nav-link sales outstanding-payment">Outstanding Payment</div>
+            <div class="nav-link text-nowrap sales outstanding-payment">Outstanding Payment</div>
         </li>
     </ul>
     <select name="" id="cp_employee" class="select w-25">

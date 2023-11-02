@@ -9,7 +9,7 @@
                 <i class="bi bi-tag me-1"></i>
                 Vendors
             </h5>
-            <a href="{{ url('master/vendor/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
+            <a href="{{ url('master/vendor/create') }}" class="btn btn-sm btn-info"><i class="bi bi-plus-square me-1"></i> Add
                 Vendor</a>
         </div>
     </div>

@@ -169,6 +169,12 @@
         .popup-modal-detail-client {
             cursor: pointer;
         }
+
+        @media only screen and (max-width: 600px) {
+            .advance-filter {
+                width: 300px !important;
+            }
+        }
     </style>
 </head>
 
