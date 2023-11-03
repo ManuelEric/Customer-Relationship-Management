@@ -54,6 +54,7 @@ Route::group(['middleware' => ['auth', 'auth.department']], function () {
 
 Route::get('form/event', [ClientEventController::class, 'createFormEmbed'])->name('form.event.create');
 Route::post('form/events', [ClientEventController::class, 'storeFormEmbed'])->name('form.event.store');
+Route::get('test/qr', [ClientEventController::class, 'testQr']);
 
 // Route::get('form/event/{event_slug}/client/attend/{clientevent}', [ClientEventController::class, 'handlerScanQrCodeForAttend'])->name('link-event-attend');
 Route::put('form/event/attend/{clientevent}', [ClientEventController::class, 'handlerScanQrCodeForAttend'])->name('link-event-attend')->withoutMiddleware(['auth', 'auth.department']);
