@@ -58,7 +58,7 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs flex-nowrap w-100 overflow-auto mb-3">
+            <ul class="nav nav-tabs flex-nowrap w-100 overflow-auto mb-3" style="overflow-y: hidden !important;">
                 <li class="nav-item">
                     <a class="nav-link text-nowrap {{ Request::get('st') == 'mentee' ? 'active' : null }}"
                         href="{{ url('client/alumni?st=mentee') }}">Mentee</a>

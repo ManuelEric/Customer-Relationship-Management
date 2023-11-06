@@ -21,7 +21,7 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs flex-nowrap w-100 overflow-auto mb-3">
+            <ul class="nav nav-tabs flex-nowrap w-100 overflow-auto mb-3" style="overflow-y: hidden !important;">
                 <li class="nav-item">
                     <a class="nav-link text-nowrap {{ $status =='needed' ? 'active' : '' }}" aria-current="page" href="{{ url('invoice/referral/status/needed') }}">Invoice
                         Needed</a>
