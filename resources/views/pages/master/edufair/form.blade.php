@@ -10,11 +10,11 @@
         </a>
     </div>
 
-    <div class="row">
-        <div class="col-md-4 mb-2">
+    <div class="row g-3">
+        <div class="col-md-3">
             <div class="card mb-3">
                 <div class="card-body text-center">
-                    <img src="{{ asset('img/school.jpg') }}" alt="" class="w-75">
+                    <img src="{{ asset('img/icon/edufair.png') }}" alt="" class="w-25">
                     @if (isset($edufair))
                         <div class="card mt-2">
                             <div class="card-body">
@@ -109,7 +109,7 @@
                 @include('pages.master.edufair.detail.speaker')
             @endif
         </div>
-        <div class="col-md-8">
+        <div class="col-md-9">
             <div class="card mb-3">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <div class="">

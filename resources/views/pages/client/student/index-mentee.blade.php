@@ -11,13 +11,13 @@
                     Alumni
                 </h5>
             </div>
-            <div class="col-md-6 d-flex justify-content-end">
+            <div class="col-md-6 d-flex justify-content-end align-items-center">
                 <div class="dropdown">
                     <button href="#" class="btn btn-sm btn-light text-dark dropdown-toggle" data-bs-toggle="dropdown"
                         data-bs-auto-close="false" id="filter">
                         <i class="bi bi-funnel me-2"></i> Filter
                     </button>
-                    <form action="" class="dropdown-menu dropdown-menu-end pt-0 shadow" style="width: 400px;"
+                    <form action="" class="dropdown-menu dropdown-menu-end pt-0 shadow advance-filter" style="width: 400px;"
                         id="advanced-filter">
                         <div class="dropdown-header bg-info text-dark py-2 d-flex justify-content-between">
                             Advanced Filter
@@ -58,13 +58,13 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs flex-nowrap mb-3">
+            <ul class="nav nav-tabs flex-nowrap w-100 overflow-auto mb-3">
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::get('st') == 'mentee' ? 'active' : null }}"
+                    <a class="nav-link text-nowrap {{ Request::get('st') == 'mentee' ? 'active' : null }}"
                         href="{{ url('client/alumni?st=mentee') }}">Mentee</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::get('st') == 'non-mentee' ? 'active' : null }}"
+                    <a class="nav-link text-nowrap {{ Request::get('st') == 'non-mentee' ? 'active' : null }}"
                         href="{{ url('client/alumni?st=non-mentee') }}">Non Mentee</a>
                 </li>
             </ul>

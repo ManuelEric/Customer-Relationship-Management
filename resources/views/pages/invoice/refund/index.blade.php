@@ -21,14 +21,14 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs flex-nowrap mb-3">
+            <ul class="nav nav-tabs flex-nowrap w-100 overflow-auto mb-3">
                 <li class="nav-item">
-                    <a @class(['nav-link', 'active' => Request::route('status') == 'needed']) aria-current="page"
+                    <a @class(['nav-link text-nowrap', 'active' => Request::route('status') == 'needed']) aria-current="page"
                         href="{{ url('invoice/refund/status/needed') }}">Refund
                         Needed</a>
                 </li>
                 <li class="nav-item">
-                    <a @class(['nav-link', 'active' => Request::route('status') == 'list']) href="{{ url('invoice/refund/status/list') }}">Refund List</a>
+                    <a @class(['nav-link text-nowrap', 'active' => Request::route('status') == 'list']) href="{{ url('invoice/refund/status/list') }}">Refund List</a>
                 </li>
             </ul>
             @if ($status == 'needed')

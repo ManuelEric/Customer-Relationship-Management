@@ -15,16 +15,16 @@
                             ->first();
                         $oldLeads = $historyLead->where('status', 0)->where('initprog', $initprog);
                     @endphp
-                    <div class="col-5">
+                    <div class="col-md-5 col-12">
                         {{ $initprog }}
                     </div>
                     @if (isset($currentLead))
-                        <div class="col-3 text-center d-flex align-items-center">
+                        <div class="col-md-3 col-4 text-center d-flex align-items-center">
                             <i
                                 class="{{ $currentLead['total_result_program'] >= 0.5 ? 'bi bi-check text-success' : 'bi bi-x text-danger' }}  fs-3"></i>
                             <small class="text-muted">({{ $currentLead['total_result_program'] }}/1)</small>
                         </div>
-                        <div class="col-3 text-center d-flex align-items-center">
+                        <div class="col-md-3 col-4 text-center d-flex align-items-center">
                             @if ($currentLead['lead_status'] == 'Hot')
                                 <i class="bi bi-fire text-danger fs-5 me-2"></i> {{ $currentLead['lead_status'] }}
                                 <small class="text-muted">({{ $currentLead['total_result_lead'] }}/1)</small>
@@ -37,11 +37,11 @@
                             @endif
                         </div>
                     @else
-                        <div class="col-3 text-center d-flex align-items-center">
+                        <div class="col-md-3 col-4  text-center d-flex align-items-center">
                             -
                         </div>
                     @endif
-                    <div class="col-1 text-end">
+                    <div class="col-md-1 col-4 text-end">
                         <div class="dropdown">
                             <i class="bi bi-info-circle cursor-pointer" title="History" data-bs-toggle="dropdown"></i>
                             <div class="dropdown-menu">
@@ -49,28 +49,31 @@
                                     History of Lead Status Tracking
                                 </div>
                                 <div class="px-3 overflow-auto" style="max-height: 150px">
-                                    <table class="table table-hover table-striped" style="font-size: 10px">
-                                        <tr>
-                                            <th>No</th>
-                                            <th>Main Program</th>
-                                            <th>Status</th>
-                                            <th>Last Date</th>
-                                            <th>Reason</th>
-                                        </tr>
-                                        @forelse ($oldLeads->sortByDesc('updated_at') as $oldLead)
+                                    <div class="table-responsive">
+                                        <table class="table table-hover table-striped" style="font-size: 10px">
                                             <tr>
-                                                <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $initprog }}</td>
-                                                <td>{{ $oldLead['lead_status'] }}</td>
-                                                <td>{{ $oldLead['updated_at'] }}</td>
-                                                <td>{{ $oldLead['reason'] != null ? $oldLead['reason'] : '-' }}</td>
+                                                <th>No</th>
+                                                <th>Main Program</th>
+                                                <th>Status</th>
+                                                <th>Last Date</th>
+                                                <th>Reason</th>
                                             </tr>
-                                        @empty
-                                            <tr class="text-center">
-                                                <td colspan="5">No data</td>
-                                            </tr>
-                                        @endforelse
-                                    </table>
+                                            @forelse ($oldLeads->sortByDesc('updated_at') as $oldLead)
+                                                <tr>
+                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ $initprog }}</td>
+                                                    <td>{{ $oldLead['lead_status'] }}</td>
+                                                    <td>{{ $oldLead['updated_at'] }}</td>
+                                                    <td>{{ $oldLead['reason'] != null ? $oldLead['reason'] : '-' }}
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr class="text-center">
+                                                    <td colspan="5">No data</td>
+                                                </tr>
+                                            @endforelse
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
