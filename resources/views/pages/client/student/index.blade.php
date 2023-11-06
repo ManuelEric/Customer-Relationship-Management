@@ -25,13 +25,13 @@
 
     <div class="card bg-secondary mb-1 p-2">
         <div class="row align-items-center justify-content-between g-3">
-            <div class="col-md-7">
+            <div class="col-md-6">
                 <h5 class="text-white m-0">
                     <i class="bi bi-tag me-1"></i>
                     Students
                 </h5>
             </div>
-            <div class="col-md-5">
+            <div class="col-md-6">
                 <div class="row g-2">
                     <div class="col-md-3 col-6">
                         <a href="{{ url('api/download/excel-template/student') }}"
@@ -149,7 +149,7 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs flex-nowrap overflow-auto w-100 mb-3">
+            <ul class="nav nav-tabs flex-nowrap overflow-auto w-100 mb-3" style="overflow-y: hidden !important;">
                 <li class="nav-item">
                     <a class="nav-link text-nowrap {{ Request::get('st') == 'new-leads' ? 'active' : '' }}"
                         aria-current="page" href="{{ url('client/student?st=new-leads') }}">New Leads</a>

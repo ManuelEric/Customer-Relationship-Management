@@ -1,10 +1,6 @@
 @extends('layout.main')
 
 @section('title', 'Receipt of Client Program')
-@section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Invoice</a></li>
-    <li class="breadcrumb-item active" aria-current="page">View Detail</li>
-@endsection
 
 @section('content')
     <div class="card bg-secondary mb-1 p-2">

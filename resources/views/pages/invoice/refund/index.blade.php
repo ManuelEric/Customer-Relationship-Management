@@ -21,7 +21,7 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs flex-nowrap w-100 overflow-auto mb-3">
+            <ul class="nav nav-tabs flex-nowrap w-100 overflow-auto mb-3" style="overflow-y: hidden !important;">
                 <li class="nav-item">
                     <a @class(['nav-link text-nowrap', 'active' => Request::route('status') == 'needed']) aria-current="page"
                         href="{{ url('invoice/refund/status/needed') }}">Refund

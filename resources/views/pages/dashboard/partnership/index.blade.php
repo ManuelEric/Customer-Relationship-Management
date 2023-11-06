@@ -8,7 +8,7 @@
 @include('pages.dashboard.partnership.detail.partner-status')
 
 <div class="d-flex justify-content-between align-items-center">
-    <ul class="nav nav-tabs flex-nowrap w-100 overflow-auto">
+    <ul class="nav nav-tabs flex-nowrap w-100 overflow-auto" style="overflow-y: hidden !important;">
         <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('partnership','agenda')">
             <div class="nav-link text-nowrap partnership agenda active">Speaker Agenda</div>
         </li>
