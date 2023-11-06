@@ -24,7 +24,7 @@
 @section('content')
 
     <div class="card bg-secondary mb-1 p-2">
-        <div class="row align-items-center justify-content-between">
+        <div class="row align-items-center justify-content-between g-3">
             <div class="col-md-6">
                 <h5 class="text-white m-0">
                     <i class="bi bi-tag me-1"></i>
@@ -32,99 +32,106 @@
                 </h5>
             </div>
             <div class="col-md-6">
-                <div class="d-flex justify-content-end gap-2">
-                    <a href="{{ url('api/download/excel-template/student') }}"
-                        class="btn btn-sm btn-light text-info btn-download"><i class="bi bi-download"></i> <span
-                            class="ms-1">Download Template</span></a>
-                    <a href="javascript:void(0)" class="btn btn-sm btn-light text-info btn-import" data-bs-toggle="modal"
-                        data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span
-                            class="ms-1">Import</span></a>
-
-                    <div class="dropdown">
-                        <button href="#" class="btn btn-sm btn-light text-dark dropdown-toggle"
-                            data-bs-toggle="dropdown" data-bs-auto-close="false" id="filter">
-                            <i class="bi bi-funnel me-2"></i> Filter
-                        </button>
-                        <form action="" class="dropdown-menu dropdown-menu-end pt-0 shadow" style="width: 400px;"
-                            id="advanced-filter">
-                            <div class="dropdown-header bg-info text-dark py-2 d-flex justify-content-between">
-                                Advanced Filter
-                                <i class="bi bi-search"></i>
-                            </div>
-                            <div class="row p-3">
-                                <div class="col-md-12 mb-2">
-                                    <label for="">School Name</label>
-                                    <select name="school_name[]" class="select form-select form-select-sm w-100" multiple
-                                        id="school-name">
-                                        @foreach ($advanced_filter['schools'] as $school)
-                                            <option value="{{ $school->sch_name }}">{{ $school->sch_name }}</option>
-                                        @endforeach
-                                    </select>
+                <div class="row g-2">
+                    <div class="col-md-3 col-6">
+                        <a href="{{ url('api/download/excel-template/student') }}"
+                            class="btn btn-sm btn-light text-info btn-download w-100"><i class="bi bi-download"></i> <span
+                                class="ms-1">Template</span></a>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <a href="javascript:void(0)" class="btn btn-sm btn-light text-info btn-import w-100"
+                            data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span
+                                class="ms-1">Import</span></a>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="dropdown">
+                            <button href="#" class="btn btn-sm btn-light text-dark dropdown-toggle w-100"
+                                data-bs-toggle="dropdown" data-bs-auto-close="false" id="filter">
+                                <i class="bi bi-funnel me-2"></i> Filter
+                            </button>
+                            <form action="" class="dropdown-menu dropdown-menu-end pt-0 advance-filter shadow"
+                                style="width: 400px;" id="advanced-filter">
+                                <div class="dropdown-header bg-info text-dark py-2 d-flex justify-content-between">
+                                    Advanced Filter
+                                    <i class="bi bi-search"></i>
                                 </div>
+                                <div class="row p-3">
+                                    <div class="col-md-12 mb-2">
+                                        <label for="">School Name</label>
+                                        <select name="school_name[]" class="select form-select form-select-sm w-100"
+                                            multiple id="school-name">
+                                            @foreach ($advanced_filter['schools'] as $school)
+                                                <option value="{{ $school->sch_name }}">{{ $school->sch_name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
 
-                                <div class="col-md-12 mb-2">
-                                    <label for="">Graduation Year</label>
-                                    <select name="graduation_year[]" class="select form-select form-select-sm w-100"
-                                        multiple id="graduation-year">
-                                        @for ($i = $advanced_filter['max_graduation_year']; $i >= 2016; $i--)
-                                            <option value="{{ $i }}">{{ $i }}</option>
-                                        @endfor
-                                    </select>
-                                </div>
+                                    <div class="col-md-12 mb-2">
+                                        <label for="">Graduation Year</label>
+                                        <select name="graduation_year[]" class="select form-select form-select-sm w-100"
+                                            multiple id="graduation-year">
+                                            @for ($i = $advanced_filter['max_graduation_year']; $i >= 2016; $i--)
+                                                <option value="{{ $i }}">{{ $i }}</option>
+                                            @endfor
+                                        </select>
+                                    </div>
 
-                                <div class="col-md-12 mb-2">
-                                    <label for="">Lead Source</label>
-                                    <select name="lead_source[]" class="select form-select form-select-sm w-100" multiple
-                                        id="lead-sources">
-                                        @foreach ($advanced_filter['leads'] as $lead)
-                                            <option value="{{ $lead['main_lead'] }}">{{ $lead['main_lead'] }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                    <div class="col-md-12 mb-2">
+                                        <label for="">Lead Source</label>
+                                        <select name="lead_source[]" class="select form-select form-select-sm w-100"
+                                            multiple id="lead-sources">
+                                            @foreach ($advanced_filter['leads'] as $lead)
+                                                <option value="{{ $lead['main_lead'] }}">{{ $lead['main_lead'] }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
 
-                                <div class="col-md-12 mb-2">
-                                    <label for="">Program Suggestion</label>
-                                    <select name="program_name[]" class="select form-select form-select-sm w-100" multiple
-                                        id="program-name">
-                                        @foreach ($advanced_filter['initial_programs'] as $init_program)
-                                            <option value="{{ $init_program->name }}">{{ $init_program->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                    <div class="col-md-12 mb-2">
+                                        <label for="">Program Suggestion</label>
+                                        <select name="program_name[]" class="select form-select form-select-sm w-100"
+                                            multiple id="program-name">
+                                            @foreach ($advanced_filter['initial_programs'] as $init_program)
+                                                <option value="{{ $init_program->name }}">{{ $init_program->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
 
-                                <div class="col-md-12 mb-2">
-                                    <label for="">Lead Status</label>
-                                    <select name="lead_status[]" class="select form-select form-select-sm w-100" multiple
-                                        id="lead-source">
-                                        <option value="Hot">Hot</option>
-                                        <option value="Warm">Warm</option>
-                                        <option value="Cold">Cold</option>
-                                    </select>
-                                </div>
+                                    <div class="col-md-12 mb-2">
+                                        <label for="">Lead Status</label>
+                                        <select name="lead_status[]" class="select form-select form-select-sm w-100"
+                                            multiple id="lead-source">
+                                            <option value="Hot">Hot</option>
+                                            <option value="Warm">Warm</option>
+                                            <option value="Cold">Cold</option>
+                                        </select>
+                                    </div>
 
-                                <div class="col-md-12 mb-2">
-                                    <label for="">Active Status</label>
-                                    <select name="active_status[]" class="select form-select form-select-sm w-100" multiple
-                                        id="active-status">
-                                        <option value="1">Active</option>
-                                        <option value="0">Non-active</option>
-                                    </select>
-                                </div>
+                                    <div class="col-md-12 mb-2">
+                                        <label for="">Active Status</label>
+                                        <select name="active_status[]" class="select form-select form-select-sm w-100"
+                                            multiple id="active-status">
+                                            <option value="1">Active</option>
+                                            <option value="0">Non-active</option>
+                                        </select>
+                                    </div>
 
-                                <div class="col-md-12 mt-3 d-none">
-                                    <div class="d-flex justify-content-between">
-                                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                            id="cancel">Cancel</button>
-                                        <button type="button" id="submit"
-                                            class="btn btn-sm btn-outline-success">Submit</button>
+                                    <div class="col-md-12 mt-3 d-none">
+                                        <div class="d-flex justify-content-between">
+                                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                                id="cancel">Cancel</button>
+                                            <button type="button" id="submit"
+                                                class="btn btn-sm btn-outline-success">Submit</button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
-
-                    <a href="{{ url('client/student/create') }}" class="btn btn-sm btn-info"><i
-                            class="bi bi-plus-square me-1"></i> Add Student</a>
+                    <div class="col-md-3">
+                        <a href="{{ url('client/student/create') }}" class="btn btn-sm btn-info w-100"><i
+                                class="bi bi-plus-square me-1"></i> Add Student</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -142,25 +149,25 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs flex-nowrap mb-3">
+            <ul class="nav nav-tabs flex-nowrap overflow-auto w-100 mb-3" style="overflow-y: hidden !important;">
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::get('st') == 'new-leads' ? 'active' : '' }}" aria-current="page"
-                        href="{{ url('client/student?st=new-leads') }}">New Leads</a>
+                    <a class="nav-link text-nowrap {{ Request::get('st') == 'new-leads' ? 'active' : '' }}"
+                        aria-current="page" href="{{ url('client/student?st=new-leads') }}">New Leads</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::get('st') == 'potential' ? 'active' : '' }}"
+                    <a class="nav-link text-nowrap {{ Request::get('st') == 'potential' ? 'active' : '' }}"
                         href="{{ url('client/student?st=potential') }}">Potential</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::get('st') == 'mentee' ? 'active' : '' }}"
+                    <a class="nav-link text-nowrap {{ Request::get('st') == 'mentee' ? 'active' : '' }}"
                         href="{{ url('client/student?st=mentee') }}">Mentee</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::get('st') == 'non-mentee' ? 'active' : '' }}"
+                    <a class="nav-link text-nowrap {{ Request::get('st') == 'non-mentee' ? 'active' : '' }}"
                         href="{{ url('client/student?st=non-mentee') }}">Non-Mentee</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::get('st') == null ? 'active' : '' }}"
+                    <a class="nav-link text-nowrap {{ Request::get('st') == null ? 'active' : '' }}"
                         href="{{ url('client/student') }}">All</a>
                 </li>
             </ul>
@@ -272,7 +279,8 @@
                                     onchange="otherOption($(this).val())">
                                     <option data-placeholder="true"></option>
                                     @foreach ($reasons as $reason)
-                                        <option value="{{ $reason->reason_id }}" {{(old('reason_id') == $reason->reason_id) ? 'selected' : ''}} >
+                                        <option value="{{ $reason->reason_id }}"
+                                            {{ old('reason_id') == $reason->reason_id ? 'selected' : '' }}>
                                             {{ $reason->reason_name }}
                                         </option>
                                     @endforeach
@@ -286,8 +294,8 @@
                             </div>
 
                             <div class="d-flex align-items-center d-none" id="inputReason">
-                                <input type="text" name="other_reason"
-                                    class="form-control form-control-sm rounded" id="other_reason">
+                                <input type="text" name="other_reason" class="form-control form-control-sm rounded"
+                                    id="other_reason">
                                 <div class="float-end cursor-pointer" onclick="resetOption()">
                                     <b>
                                         <i class="bi bi-x text-danger"></i>
@@ -347,7 +355,7 @@
 
         var widthView = $(window).width();
         $(document).ready(function() {
-            
+
             var table = $('#clientTable').DataTable({
                 order: [
                     // [20, 'desc'],
@@ -369,7 +377,7 @@
                 serverSide: true,
                 ajax: {
                     url: '',
-                    data: function (params) {
+                    data: function(params) {
                         params.school_name = $("#school-name").val()
                         params.graduation_year = $("#graduation-year").val()
                         params.lead_source = $("#lead-sources").val()
@@ -391,7 +399,7 @@
                             return data
                         }
                     },
-                    
+
                     {
                         data: 'program_suggest',
                         className: 'text-center',
@@ -511,7 +519,7 @@
                     },
                     {
                         data: 'dream_major',
-                        className: 'text-center',  
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
@@ -600,7 +608,8 @@
                 $('#clientId').val(data.id);
                 $('#initProg').val(data.program_suggest);
                 $('#leadStatus').val(lead_status);
-                $('#hotLeadForm').attr('action', '{{ url("client/student") }}/' + data.id + '/lead_status/');
+                $('#hotLeadForm').attr('action', '{{ url('client/student') }}/' + data.id +
+                    '/lead_status/');
                 $('#hotLeadModal').modal('show');
 
                 confirmUpdateLeadStatus("{{ url('client/student') }}/" + data.id + "/lead_status/" + $(
@@ -613,57 +622,56 @@
             // });
 
             /* for advanced filter */
-            $("#school-name").on('change', function (e) {
+            $("#school-name").on('change', function(e) {
                 var value = $(e.currentTarget).find("option:selected").val();
                 table.draw();
             })
 
-            $("#graduation-year").on('change', function (e) {
+            $("#graduation-year").on('change', function(e) {
                 var value = $(e.currentTarget).find("option:selected").val();
                 table.draw();
             })
 
-            $("#lead-sources").on('change', function (e) {
-                var value = $(e.currentTarget).find("option:selected").val();
-                table.draw();
-            })
-            
-            $("#program-name").on('change', function (e) {
+            $("#lead-sources").on('change', function(e) {
                 var value = $(e.currentTarget).find("option:selected").val();
                 table.draw();
             })
 
-            $("#lead-source").on('change', function (e) {
+            $("#program-name").on('change', function(e) {
                 var value = $(e.currentTarget).find("option:selected").val();
                 table.draw();
             })
 
-            $("#active-status").on('change', function (e) {
+            $("#lead-source").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#active-status").on('change', function(e) {
                 var value = $(e.currentTarget).find("option:selected").val();
                 table.draw();
             })
         });
 
-        function updateHotLead()
-        {
-            var link = '{{ url("client/student") }}/' + $('#clientId').val() + '/lead_status';
+        function updateHotLead() {
+            var link = '{{ url('client/student') }}/' + $('#clientId').val() + '/lead_status';
             $('#hotLeadModal').modal('hide');
             Swal.showLoading()
-                axios.post(link, {
-                    groupId : $('#groupId').val(),
-                    clientId : $('#clientId').val(),
-                    initProg : $('#initProg').val(),
-                    leadStatus : $('#leadStatus').val(),
-                    reason_id : $('#selectReason').val(),
-                    other_reason : $('#other_reason').val(),
+            axios.post(link, {
+                    groupId: $('#groupId').val(),
+                    clientId: $('#clientId').val(),
+                    initProg: $('#initProg').val(),
+                    leadStatus: $('#leadStatus').val(),
+                    reason_id: $('#selectReason').val(),
+                    other_reason: $('#other_reason').val(),
                 })
                 .then(function(response) {
                     swal.close();
-                                
+
                     let obj = response.data;
-                    
+
                     $('#clientTable').DataTable().ajax.reload(null, false);
-                   
+
                     switch (obj.code) {
                         case 200:
                             notification('success', obj.message)
@@ -671,20 +679,21 @@
                             break;
                         case 400:
                             $('#hotLeadModal').modal('show');
-                            if(obj.message['reason_id'] != undefined)
-                            {
-                                $('#error-message').html('<small class="text-danger fw-light">'+ obj.message['reason_id'] +'</small>')
-                            }else if(obj.message['leadStatus'] != undefined){
-                                $('#error-message').html('<small class="text-danger fw-light">'+ obj.message['leadStatus'] +'</small>')
+                            if (obj.message['reason_id'] != undefined) {
+                                $('#error-message').html('<small class="text-danger fw-light">' + obj.message[
+                                    'reason_id'] + '</small>')
+                            } else if (obj.message['leadStatus'] != undefined) {
+                                $('#error-message').html('<small class="text-danger fw-light">' + obj.message[
+                                    'leadStatus'] + '</small>')
                             }
                             break;
-                        
+
                         case 500:
                             notification('error', 'Something went wrong while update lead status')
                             break;
                     }
                 })
-                    .catch(function(error) {
+                .catch(function(error) {
                     swal.close();
                     notification('error', error)
                 })

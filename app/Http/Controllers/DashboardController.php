@@ -117,20 +117,11 @@ class DashboardController extends SalesDashboardController
 
     public function index(Request $request)
     {  
-        $data = Cache::get('dashboard_data');
-
-        # Retrieving data from cache
-        # if the cache doesn't exist on the database, then put new cache
-        if (!$data) {
-
-            $data = (new SalesDashboardController($this))->get($request);
-            $data = array_merge($data, (new PartnerDashboardController($this))->get($request));
-            $data = array_merge($data, (new FinanceDashboardController($this))->get($request));
-            $data = array_merge($data, (new AlarmController($this))->get($request));
-            $data = array_merge($data, (new DigitalDashboardController($this))->get($request));
-            
-            $data = Cache::put('dashboard_data', $data, 3600);
-        } 
+        $data = (new SalesDashboardController($this))->get($request);
+        $data = array_merge($data, (new PartnerDashboardController($this))->get($request));
+        $data = array_merge($data, (new FinanceDashboardController($this))->get($request));
+        $data = array_merge($data, (new AlarmController($this))->get($request));
+        $data = array_merge($data, (new DigitalDashboardController($this))->get($request));
 
         return view('pages.dashboard.index')->with($data);
     }

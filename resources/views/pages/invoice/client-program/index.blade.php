@@ -36,18 +36,18 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs flex-nowrap mb-3">
+            <ul class="nav nav-tabs flex-nowrap w-100 overflow-auto mb-3" style="overflow-y: hidden !important;">
                 <li class="nav-item">
-                    <a class="nav-link {{ isset($status) && $status == 'needed' ? 'active' : null }}" aria-current="page"
+                    <a class="nav-link text-nowrap {{ isset($status) && $status == 'needed' ? 'active' : null }}" aria-current="page"
                         href="{{ url('invoice/client-program?s=needed') }}">Invoice
                         Needed</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ isset($status) && $status == 'list' ? 'active' : null }}"
+                    <a class="nav-link text-nowrap {{ isset($status) && $status == 'list' ? 'active' : null }}"
                         href="{{ url('invoice/client-program?s=list') }}">Invoice List</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ isset($status) && $status == 'reminder' ? 'active' : null }}"
+                    <a class="nav-link text-nowrap {{ isset($status) && $status == 'reminder' ? 'active' : null }}"
                         href="{{ url('invoice/client-program?s=reminder') }}">Due Date Reminder</a>
                 </li>
             </ul>

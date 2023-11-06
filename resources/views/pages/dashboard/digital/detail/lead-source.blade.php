@@ -7,7 +7,7 @@
                 </h5>
             </div>
             <div class="col-md-8 justify-content-end">
-                <div class="row justify-content-end">
+                <div class="row justify-content-end g-1">
                     <div class="col-md-6">
                         <select name="program-name" onchange="checkLeadDigital()" id="prog_id_digital" class="select w-100">
                             <option value=""></option>

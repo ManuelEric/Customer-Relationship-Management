@@ -5,10 +5,10 @@
 @section('title', 'Teacher ')
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Teacher/Counselor</a></li>
-    <li class="breadcrumb-item active text-white" aria-current="page">View Detail</li>
+    <li class="breadcrumb-item active" aria-current="page">View Detail</li>
 @endsection
 @section('content')
-    <div class="row align-items-center">
+    <div class="row g-2">
         <div class="col-md-8 order-md-1 order-2">
             <div class="card rounded mb-2">
                 <div class="card-body">
@@ -97,8 +97,8 @@
             </div>
         </div>
         <div class="col-md-4 order-md-2 order-1 text-center">
-            <div class="mb-2">
-                <img src="{{ asset('img/teacher.jpg') }}" alt="" class="w-50 rounded-circle">
+            <div class="card card-body d-flex justify-content-center align-items-center">
+                <img src="{{ asset('img/teacher.jpg') }}" alt="" class="w-25">
             </div>
         </div>
         <div class="col-md-12 order-3">

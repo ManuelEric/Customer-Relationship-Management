@@ -7,13 +7,12 @@
     <li class="breadcrumb-item active" aria-current="page">View Detail</li>
 @endsection
 @section('content')
-    <div class="row">
-        <div class="col-md-4 text-center">
+    <div class="row g-3">
+        <div class="col-md-3 text-center">
             <div class="card">
                 <div class="card-body">
-                    <img src="{{ asset('img/asset.png') }}" alt="" class="w-75">
+                    <img loading="lazy" src="{{ asset('img/icon/asset.png') }}" alt="" class="w-25">
                     @if (isset($asset))
-
                         <div class="text-center">
                             <div class="badge badge-primary mb-2">
                                 Unused Amount:
@@ -33,7 +32,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-8">
+        <div class="col-md-9">
             <div class="card">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <div class="">
