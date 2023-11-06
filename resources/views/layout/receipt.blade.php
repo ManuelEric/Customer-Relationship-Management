@@ -96,7 +96,7 @@
     </header>
 
     <footer>
-        <img src="{{ public_path('img/pdf/footer.webp') }}" width="100%">
+        {{-- <img src="{{ public_path('img/pdf/footer.webp') }}" width="100%"> --}}
     </footer>
     
     <main>
