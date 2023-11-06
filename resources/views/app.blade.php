@@ -337,11 +337,11 @@
 
         // for redirect to login page after session expired
 
-        // $(document).ready(function() {
-        //     $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
-        //         window.location.href = "{{ route('logout.expiration') }}"
-        //     };
-        // })
+        $(document).ready(function() {
+            $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
+                window.location.href = "{{ route('logout.expiration') }}"
+            };
+        })
     </script>
 
     {{-- Confirm Delete & Deactivate Modal  --}}

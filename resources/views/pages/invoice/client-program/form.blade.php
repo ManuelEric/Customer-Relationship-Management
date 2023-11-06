@@ -728,12 +728,12 @@
                     <div class="form-group">
                         <div class="d-flex justify-content-around">
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input input-recipient" id="parent" type="radio" name="recipient" value="Parent" onchange="checkRecipient()" checked>
-                                <label class="form-check-label" for="parent">Parent</label>
+                                <input class="form-check-input input-recipient" id="stc-parent" type="radio" name="recipient" value="Parent" onchange="checkRecipient()" checked>
+                                <label class="form-check-label" for="stc-parent">Parent</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input input-recipient" id="client" type="radio" name="recipient" value="Client" onchange="checkRecipient()">
-                                <label class="form-check-label" for="client">Client</label>
+                                <input class="form-check-input input-recipient" id="stc-client" type="radio" name="recipient" value="Client" onchange="checkRecipient()">
+                                <label class="form-check-label" for="stc-client">Client</label>
                             </div>
                         </div>
 

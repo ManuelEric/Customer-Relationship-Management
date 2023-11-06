@@ -11,7 +11,8 @@ use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
-use App\Jobs\ProcessEmailRequestSignJob;
+use App\Jobs\Invoice\ProcessEmailRequestSignJob;
+use App\Jobs\Invoice\ProcessEmailToClientJob;
 use App\Models\InvoiceProgram;
 use DateTime;
 use Exception;
@@ -665,7 +666,7 @@ class InvoiceProgramController extends Controller
             ];
 
             # dispatching the job to the queue
-            ProcessEmailRequestSignJob::dispatch($data, $attachmentDetails, $invoice_id)->onQueue('email-request-sign');
+            ProcessEmailRequestSignJob::dispatch($data, $attachmentDetails, $invoice_id)->onQueue('inv-email-request-sign');
             
         } catch (Exception $e) {
 
@@ -727,16 +728,8 @@ class InvoiceProgramController extends Controller
 
         try {
 
-            Mail::send('pages.invoice.client-program.mail.client-view', $data, function ($message) use ($data, $attachment) {
-                $message->to($data['email'], $data['recipient'])
-                    ->cc($data['cc'])
-                    ->subject($data['title'])
-                    ->attach(storage_path('app/public/uploaded_file/invoice/client/' . $attachment->attachment));
-            });
+            ProcessEmailToClientJob::dispatch($data, $attachment, $this->invoiceAttachmentRepository)->onQueue('inv-send-to-client');
 
-            # update status send to client
-            $newDetails['send_to_client'] = 'sent';
-            !$this->invoiceAttachmentRepository->updateInvoiceAttachment($attachment->id, $newDetails);
         } catch (Exception $e) {
 
             Log::info('Failed to send invoice to client : ' . $e->getMessage());
