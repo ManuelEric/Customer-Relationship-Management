@@ -360,4 +360,82 @@ trait MailingEventOfflineTrait
 
 
     }
+
+    public function sendMailReminderH1($clientEvent)
+    {
+        
+        try {
+
+            $noteEncrypt = '';
+            // switch ($clientEvent->notes) {
+            //     case 'VIP':
+            //     case 'WxSFs0LGh': # Mean VIP
+            //         $notes = 'VIP';
+            //         $noteEncrypt = 'WxSFs0LGh';
+            //         break;
+    
+            //     case 'VVIP':
+            //     case 'BtSF0x1hK': # Mean VVIP
+            //         $notes = 'VVIP';
+            //         $noteEncrypt = 'BtSF0x1hK';
+            //         break;
+            // }
+
+            $data['qr'] =  route('link-event-attend', [
+                // 'event_slug' => $event_slug,
+                'clientevent' => $clientEvent->clientevent_id
+            ]);
+
+            $data = [
+                'email' => $clientEvent->client->mail,
+                // 'notes' => $notes,
+                'recipient' => $clientEvent->client->full_name,
+                'title' =>  'Enjoy special privileges as our guest at STEM+ Wonderlab!',
+                'event' => [
+                    'eventName' => $clientEvent->event->event_title,
+                    'eventDate' => date('M d, Y', strtotime($clientEvent->event->event_startdate)),
+                    'eventDate_start' => date('l, d M Y', strtotime($clientEvent->event->event_startdate)),
+                    'eventDate_end' => date('M d, Y', strtotime($clientEvent->event->event_enddate)),
+                    'eventTime_start' => date('g A', strtotime($clientEvent->event->event_startdate)),
+                    'eventTime_end' => date('H:i', strtotime($clientEvent->event->event_enddate)),
+                    'eventLocation' => $clientEvent->event->event_location,
+                ]
+    
+            ];
+            
+
+            Mail::send('mail-template.reminder-attend', $data, function ($message) use ($data) {
+                $message->to($data['email'], $data['recipient'])
+                    ->subject($data['title']);
+            });
+            $sent_mail = 1;
+
+        } catch (Exception $e) {
+
+            $sent_mail = 0;
+            Log::info('Failed to send reminder registration mail : ' . $e->getMessage(). $e->getLine());
+
+        }
+
+        // if($for == 'first-send'){
+        //     $keyLog = [
+        //         'client_id' => $client['id'],
+        //         'event_id' => $event_id,
+        //         'sent_status' => $sent_mail,
+        //         'index_child' => $indexChild,
+        //         'notes' => $notes,
+        //         'category' => 'reminder-'.$type
+        //     ];
+            
+        //     $valueLog = [
+        //         'sent_status' => $sent_mail,
+        //     ];
+    
+        //     ClientEventLogMail::updateOrCreate($keyLog, $valueLog);
+        // }
+
+
+    }
+
+
 }
