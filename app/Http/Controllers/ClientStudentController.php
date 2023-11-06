@@ -34,6 +34,7 @@ use App\Models\ClientLeadTracking;
 use App\Models\Lead;
 use App\Models\School;
 use App\Models\UserClient;
+use App\Services\ClientStudentService;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -157,40 +158,11 @@ class ClientStudentController extends ClientController
             
             return $this->clientRepository->getDataTables($model);
         }
+    
+        $entries = new ClientStudentService;
+        return $entries->getClientStudent();
 
-        $reasons = $this->reasonRepository->getReasonByType('Hot Lead');
-
-        # for advance filter purpose
-        $schools = $this->schoolRepository->getAllSchools();
-        $parents = $this->clientRepository->getAllClientByRole('Parent');
-        $max_graduation_year = $this->clientRepository->getMaxGraduationYearFromClient();
-        $main_leads = $this->leadRepository->getAllMainLead();
-        $main_leads = $main_leads->map(function ($item) {
-            return [
-                'main_lead' => $item->main_lead
-            ];
-        });
-        $sub_leads = $this->leadRepository->getAllKOLlead();
-        $sub_leads = $sub_leads->map(function ($item) {
-            return [
-                'main_lead' => $item->sub_lead
-            ];
-        });
-        $leads = $main_leads->merge($sub_leads);
-        $initial_programs = $this->initialProgramRepository->getAllInitProg();        
-
-        return view('pages.client.student.index')->with(
-            [
-                'reasons' => $reasons,
-                'advanced_filter' => [
-                    'schools' => $schools,
-                    'parents' => $parents,
-                    'leads' => $leads,
-                    'max_graduation_year' => $max_graduation_year,
-                    'initial_programs' => $initial_programs
-                ]
-            ]
-        );
+        return view('pages.client.student.index')->with($entries);
     }
 
     public function show(Request $request)

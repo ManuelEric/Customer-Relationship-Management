@@ -27,6 +27,8 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind('menu-repository-services', MenuRepository::class);
         $this->app->bind('alarm-repository-services', AlarmRepository::class);
+
+        $this->app->bind(ReasonRepositoryInterface::class, ReasonRepository::class);
     }
 
     /**

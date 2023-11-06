@@ -23,6 +23,7 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
     $(document).ready(function() {
         var table_event = $('#eventTable').DataTable({
@@ -75,3 +76,4 @@
         });
     });
 </script>
+@endpush
