@@ -8,18 +8,31 @@ use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\ReasonRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 
-class ClientStudentService
+class ClientStudentService 
 {
-    protected $reasonRepository;
+    protected ReasonRepositoryInterface $reasonRepository;
+    protected SchoolRepositoryInterface $schoolRepository;
+    protected ClientRepositoryInterface $clientRepository;
+    protected LeadRepositoryInterface $leadRepository;
+    protected InitialProgramRepositoryInterface $initialProgramRepository;
 
-    public function __construct(ReasonRepositoryInterface $reasonRepository)
+    public function __construct(
+        ReasonRepositoryInterface $reasonRepository,
+        SchoolRepositoryInterface $schoolRepository,
+        ClientRepositoryInterface $clientRepository,
+        LeadRepositoryInterface $leadRepository,
+        InitialProgramRepositoryInterface $initialProgramRepository
+        )
     {
         $this->reasonRepository = $reasonRepository;
+        $this->schoolRepository = $schoolRepository;
+        $this->clientRepository = $clientRepository;
+        $this->leadRepository = $leadRepository;
+        $this->initialProgramRepository = $initialProgramRepository;
     }
 
     public function getClientStudent()
     {
-        return $this->reasonRepository->getReasonByType('Hot Lead');
         $reasons = $this->reasonRepository->getReasonByType('Hot Lead');
 
         # for advance filter purpose

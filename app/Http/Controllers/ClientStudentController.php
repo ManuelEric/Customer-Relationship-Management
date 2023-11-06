@@ -159,8 +159,7 @@ class ClientStudentController extends ClientController
             return $this->clientRepository->getDataTables($model);
         }
     
-        $entries = new ClientStudentService;
-        return $entries->getClientStudent();
+        $entries = app('App\Services\ClientStudentService')->getClientStudent();
 
         return view('pages.client.student.index')->with($entries);
     }
