@@ -149,23 +149,39 @@
                         extend: 'excel',
                         text: 'Export to Excel',
                         exportOptions: {
+                            columns: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],
                             format: {
                                 body: function(data, row, column, node) {
+
                                     var result = '';
-                                    if (column === 1) {
-                                        if (data.indexOf('New') != -1) {
-                                            console.log('true')
-                                            result = data.replace(
-                                                '<span class="badge text-bg-primary" style="font-size:8px;">New</span>',
-                                                '')
-                                        } else {
-                                            result = data.replace(
-                                                '<span class="badge text-bg-success" style="font-size:8px";>Existing</span>',
-                                                '')
-                                        }
-                                    } else {
-                                        result = data;
+
+                                    switch (column) {
+
+                                        case 1:
+                                            if (data.indexOf('New') != -1) {
+                                                removed_span = data.replace(
+                                                    '<span class="badge text-bg-primary" style="font-size:8px;">New</span>',
+                                                    '')
+                                            } else {
+                                                removed_span = data.replace(
+                                                    '<span class="badge text-bg-success" style="font-size:8px";>Existing</span>',
+                                                    '')
+                                            }
+                                            result = column >= 7 && column <= 9 ? removed_span.replace( /[$,.]/g, '' ) : removed_span.replace(/(&nbsp;|<([^>]+)>)/ig, "");
+                                            break;
+
+                                        case 15:
+                                            return $(data).is("input") ? $(data).val() : data; 
+                                            break;
+
+                                        case 16:
+                                            return $(data).is("input") && $(data).attr('checked') ? "✓" : "-"; 
+                                            break;
+
+                                        default:
+                                            return data;
                                     }
+
                                     return result;
                                 }
                             }
@@ -353,6 +369,8 @@
                     }
                 }
             });
+
+            realtimeData(table)
 
             @php
                 $privilage = $menus['Program']->where('submenu_name', 'Client Event')->first();

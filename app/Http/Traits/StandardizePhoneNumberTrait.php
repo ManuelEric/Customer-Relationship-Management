@@ -5,6 +5,9 @@ trait StandardizePhoneNumberTrait {
 
     public function setPhoneNumber($phoneNumber)
     {
+        if (!$phoneNumber)
+            return null;
+        
         # remove , from phone number
         $phoneNumber = str_replace(',', '', $phoneNumber);
 
