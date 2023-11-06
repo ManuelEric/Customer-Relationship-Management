@@ -169,6 +169,12 @@
         .popup-modal-detail-client {
             cursor: pointer;
         }
+
+        @media only screen and (max-width: 600px) {
+            .advance-filter {
+                width: 300px !important;
+            }
+        }
     </style>
 </head>
 
@@ -337,11 +343,11 @@
 
         // for redirect to login page after session expired
 
-        // $(document).ready(function() {
-        //     $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
-        //         window.location.href = "{{ route('logout.expiration') }}"
-        //     };
-        // })
+        $(document).ready(function() {
+            $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
+                window.location.href = "{{ route('logout.expiration') }}"
+            };
+        })
     </script>
 
     {{-- Confirm Delete & Deactivate Modal  --}}
