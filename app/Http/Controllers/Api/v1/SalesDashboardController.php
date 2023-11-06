@@ -1065,8 +1065,6 @@ class SalesDashboardController extends Controller
             }
         }
 
-
-
         $filter['eventId'] = count($events) > 0 ? $events[0]->event_id : null;
 
         if (!$conversion_lead_of_event = $this->clientEventRepository->getConversionLead($filter)) {
@@ -1106,34 +1104,34 @@ class SalesDashboardController extends Controller
     # 
     public function compare_program(Request $request)
     {
-        $query_programs_array = isset($request->prog) ? explode(',', $request->prog) : null;
-
-        $query_month_year_1 = $request->first_monthyear;
-        $query_month_year_2 = $request->second_monthyear;
-        $query_year_1 = $request->first_year;
-        $query_year_2 = $request->second_year;
-
-        $user = $request->u;
+        # retrieve the data from view
+        $queries = $request->only([
+            'prog',
+            'query_month',
+            'first_year',
+            'second_year',
+            'first_monthyear',
+            'second_monthyear',
+            'uuid', # user uuid
+        ]);
 
         $cp_filter = [
-            'query_use_month' => $request->query_month,
-            'qprogs' => $query_programs_array,
-            'queryParams_year1' => $query_year_1 ?? null,
-            'queryParams_year2' => $query_year_2 ?? null,
-            'queryParams_monthyear1' => $query_month_year_1 ?? null,
-            'queryParams_monthyear2' => $query_month_year_2 ?? null,
-            'quuid' => $user == 'all' ? null : $user,
+            'query_use_month' => $queries['query_month'],
+            'qprogs' => $queries['prog'] ?? null,
+            'queryParams_year1' => $queries['first_year'],
+            'queryParams_year2' => $queries['second_year'],
+            'queryParams_monthyear1' => $queries['first_monthyear'],
+            'queryParams_monthyear2' => $queries['second_monthyear'],
+            'quuid' => $queries['uuid'] == 'all' ? null : $queries['uuid'],
         ];
-
-        // return $cp_filter;
 
         try {
 
             $comparisons = $this->clientProgramRepository->getComparisonBetweenYears($cp_filter);
+            
         } catch (Exception $e) {
 
-            Log::error($e->getMessage());
-
+            Log::error('Failed to get comparasion program on sales dashboard. Error : '.$e->getMessage().' on line '.$e->getLine());
             return response()->json(['success' => false, 'data' => null]);
         }
 

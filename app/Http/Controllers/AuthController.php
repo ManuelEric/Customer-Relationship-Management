@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Interfaces\MenuRepositoryInterface;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -71,6 +72,7 @@ class AuthController extends Controller
         $this->logSuccess('auth', null, 'Logout', Auth::user()->email);
 
         Auth::logout();
+        Cache::flush();
         
         $request->session()->invalidate();
         $request->session()->regenerateToken();
