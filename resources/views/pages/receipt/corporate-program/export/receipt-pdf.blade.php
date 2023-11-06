@@ -9,19 +9,19 @@
                 <table width="100%" style="padding:0px; margin-left:-10px;">
                     <tr>
                         <td width="15%" valign="top">From : </td>
-                        {{-- <td width="85%"><b>{{ $companyDetail['name'] }}</b><br>
+                        <td width="85%"><b>{{ $companyDetail['name'] }}</b><br>
                             {{ $companyDetail['address'] }}<br>
                             {{ $companyDetail['address_dtl'] }} <br>
                             {{ $companyDetail['city'] }}
                             <br><br>
-                        </td> --}}
-                        <td width="85%"><b>Jawara Edukasih International Pte Ltd</b><br>
+                        </td>
+                        {{-- <td width="85%"><b>Jawara Edukasih International Pte Ltd</b><br>
                             10 Anson Road<br>
                             #27-18<br>
                             International Plaza <br>
                             Singapore (079903)
                             <br><br>
-                        </td>
+                        </td> --}}
                     </tr>
                 </table>
             </td>
@@ -211,9 +211,9 @@
             <td width="60%" valign="top">
             </td>
             <td width="40%" align="center" valign="top">
-                {{-- Jakarta,
-                {{ isset($receiptPartner->receipt_date) ? date('d F Y', strtotime($receiptPartner->receipt_date)) : date('d F Y', strtotime($receiptPartner->created_at)) }} --}}
-                Singapore, {{ isset($receiptPartner->receipt_date) ? date('d F Y', strtotime($receiptPartner->receipt_date)) : date('d F Y', strtotime($receiptPartner->created_at)) }}
+                Jakarta,
+                {{ isset($receiptPartner->receipt_date) ? date('d F Y', strtotime($receiptPartner->receipt_date)) : date('d F Y', strtotime($receiptPartner->created_at)) }}
+                {{-- Singapore, {{ isset($receiptPartner->receipt_date) ? date('d F Y', strtotime($receiptPartner->receipt_date)) : date('d F Y', strtotime($receiptPartner->created_at)) }} --}}
                 <br><br><br><br><br><br><br><br><br>
                 @if (isset($director))
                     {{ $director }}
