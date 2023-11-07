@@ -165,13 +165,13 @@
                                                     <small class="text-danger fw-light">{{ $message }}</small>
                                                 @enderror
                                             </div>
-                                            <div class="col-md-6 mb-2">
+                                            {{-- <div class="col-md-6 mb-2">
                                                 <label>Notes</label>
                                                 <input type="text" name="notes" value="{{ old('notes') }}">
                                                 @error('notes')
                                                     <small class="text-danger fw-light">{{ $message }}</small>
                                                 @enderror
-                                            </div>
+                                            </div> --}}
                                         </div>
                                         <div class="status-mentee d-none">
                                             <div class="row">
