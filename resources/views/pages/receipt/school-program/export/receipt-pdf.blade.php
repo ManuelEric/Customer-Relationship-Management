@@ -191,7 +191,7 @@
     </table>
 
     <p style="text-align: right; padding-right:5px">
-        Updated On: {{ date('d/m/Y H:i:s', strtotime($receiptSch->created_at)) }}
+        Updated On: {{ date('d/m/Y H:i:s', strtotime($receiptSch->updated_at)) }}
     </p>
 
     <table>
