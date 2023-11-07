@@ -21,16 +21,16 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs flex-nowrap mb-3">
+            <ul class="nav nav-tabs flex-nowrap w-100 overflow-auto mb-3" style="overflow-y: hidden !important;">
                 <li class="nav-item">
-                    <a class="nav-link {{ $status =='needed' ? 'active' : '' }}" aria-current="page" href="{{ url('invoice/corporate-program/status/needed') }}">Invoice
+                    <a class="nav-link text-nowrap {{ $status =='needed' ? 'active' : '' }}" aria-current="page" href="{{ url('invoice/corporate-program/status/needed') }}">Invoice
                         Needed</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ $status =='list' ? 'active' : '' }}" href="{{ url('invoice/corporate-program/status/list') }}">Invoice List</a>
+                    <a class="nav-link text-nowrap {{ $status =='list' ? 'active' : '' }}" href="{{ url('invoice/corporate-program/status/list') }}">Invoice List</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ $status =='reminder' ? 'active' : '' }}" href="{{ url('invoice/corporate-program/status/reminder') }}">Due Date Reminder</a>
+                    <a class="nav-link text-nowrap {{ $status =='reminder' ? 'active' : '' }}" href="{{ url('invoice/corporate-program/status/reminder') }}">Due Date Reminder</a>
                 </li>
             </ul>
             @if ($status == 'needed')

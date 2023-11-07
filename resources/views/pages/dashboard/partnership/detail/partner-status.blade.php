@@ -13,7 +13,7 @@
             </div>
         </div>
 
-        <div class="row align-items-stretch">
+        <div class="row align-items-stretch g-3">
             <div class="col-md-3">
                 <div class="card rounded border h-100 card-partner cursor-pointer" data-partner-type="Partner">
                     <div class="card-body d-flex justify-content-between align-items-center">

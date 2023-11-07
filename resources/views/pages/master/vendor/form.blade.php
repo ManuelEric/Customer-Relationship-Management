@@ -8,15 +8,15 @@
 @endsection
 
 @section('content')
-    <div class="row">
-        <div class="col-md-4 text-center">
+    <div class="row g-3">
+        <div class="col-md-3 text-center">
             <div class="card rounded">
                 <div class="card-body">
-                    <img src="{{ asset('img/vendor.png') }}" alt="" class="w-75">
+                    <img loading="lazy" src="{{ asset('img/icon/vendor.png') }}" alt="" class="w-25">
                 </div>
             </div>
         </div>
-        <div class="col-md-8">
+        <div class="col-md-9">
             <div class="card rounded">
                 <div class="card-body">
                     <form action="{{ url(isset($vendor) ? 'master/vendor/' . $vendor->vendor_id : 'master/vendor') }}"

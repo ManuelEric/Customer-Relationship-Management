@@ -17,24 +17,30 @@
 
 @section('content')
     <div class="card bg-secondary mb-1 p-2">
-        <div class="row align-items-center">
-            <div class="col-md-6">
+        <div class="row align-items-center g-3">
+            <div class="col-md-8">
                 <h5 class="text-white m-0">
                     <i class="bi bi-tag me-1"></i>
                     Parents
                 </h5>
             </div>
-            <div class="col-md-6">
-                <div class="d-flex align-items-center justify-content-end gap-2">
+            <div class="col-md-4">
+                <div class="row g-1">
+                    <div class="col-md-4 col-8">
                         <a href="{{ url('api/download/excel-template/parent') }}"
-                            class="btn btn-sm btn-light text-info btn-download"><i class="bi bi-download"></i> <span
-                                class="ms-1">Download Template</span></a>
-                        <a href="javascript:void(0)" class="btn btn-sm btn-light text-info btn-import" data-bs-toggle="modal"
-                            data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span
+                            class="btn btn-sm btn-light text-info btn-download w-100"><i class="bi bi-download"></i> <span
+                                class="ms-1">Template</span></a>
+                    </div>
+                    <div class="col-md-4 col-4">
+                        <a href="javascript:void(0)" class="btn btn-sm btn-light text-info btn-import w-100"
+                            data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span
                                 class="ms-1">Import</span></a>
-                        <a href="{{ url('client/parent/create') }}" class="btn btn-sm btn-info"><i
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ url('client/parent/create') }}" class="btn btn-sm btn-info w-100"><i
                                 class="bi bi-plus-square me-1"></i> Add
                             Parent</a>
+                    </div>
                 </div>
             </div>
         </div>

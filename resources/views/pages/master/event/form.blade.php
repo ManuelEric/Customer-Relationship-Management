@@ -34,11 +34,11 @@
     </div>
     @endif
 
-    <div class="row">
-        <div class="col-md-4 text-center">
+    <div class="row g-3">
+        <div class="col-md-3 text-center">
             <div class="card rounded mb-3">
                 <div class="card-body">
-                    <img src="{{ asset('img/program.webp') }}" alt="" class="w-75">
+                    <img loading="lazy" src="{{ asset('img/icon/event.png') }}" alt="" class="w-25">
                     @if (isset($event) && !isset($edit))
                         <div class="mt-3 d-flex justify-content-center">
                             <a href="{{ route('event.edit', ['event' => $event->event_id]) }}"
@@ -60,7 +60,7 @@
                 @include('pages.master.event.detail.school')
             @endif
         </div>
-        <div class="col-md-8">
+        <div class="col-md-9">
             <div class="card rounded mb-3">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <div class="">
