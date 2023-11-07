@@ -48,11 +48,10 @@ class SendMailReminderAttend extends Command
      */
     public function handle()
     {
-        $clientEvents = $this->clientEventRepository->getClientEventByEventId('EVT-0008')->limit(1)->get();
-        // echo json_encode($clientEvents);
-        // exit;
+        $clientEvents = $this->clientEventRepository->getClientEventByEventId('EVT-0008');
+
         $full_name = '';
-        $eventName = '';
+        $eventName = 'STEM+ Wonderlab';
         $progressBar = $this->output->createProgressBar($clientEvents->count());
         $progressBar->start();
 
@@ -63,7 +62,8 @@ class SendMailReminderAttend extends Command
             try {
 
                 $this->sendMailReminderAttend($detail, 'first-send');
-                    
+
+                $full_name = $detail->client->full_name;
 
                 $progressBar->advance();
                 
@@ -72,7 +72,7 @@ class SendMailReminderAttend extends Command
             } catch (Exception $e) {
 
                 DB::rollBack();
-                Log::error('Failed to send mail QrCode for : '.$full_name.' on the event : '.$eventName.' | Error '.$e->getMessage().' Line '.$e->getLine());
+                Log::error('Failed to send mail reminder attend for : '.$full_name.' on the event : '.$eventName.' | Error '.$e->getMessage().' Line '.$e->getLine());
                 
             }
         }

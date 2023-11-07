@@ -521,7 +521,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
 
     public function getClientEventByEventId($eventId)
     {
-        return ClientEvent::where('event_id', $eventId);
+        return ClientEvent::where('event_id', $eventId)->get();
     }
 
     public function deleteClientEvent($clientEventId)

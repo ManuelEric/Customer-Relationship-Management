@@ -405,7 +405,7 @@ trait MailingEventOfflineTrait
         } catch (Exception $e) {
 
             $sent_mail = 0;
-            Log::info('Failed to send reminder registration mail : ' . $e->getMessage(). $e->getLine());
+            Log::info('Failed to send reminder attend mail : ' . $e->getMessage(). $e->getLine());
 
         }
 
