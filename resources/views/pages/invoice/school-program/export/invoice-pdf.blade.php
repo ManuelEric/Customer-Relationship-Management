@@ -157,6 +157,11 @@
         </tr>
     </table>
 
+    <p style="text-align: right; padding-right: 5px;">
+        Updated On: {{ date('d/m/Y H:i:s', strtotime($invoiceB2b->created_at)) }}
+    </p>
+
+
     <table>
         <tr>
             <td>
