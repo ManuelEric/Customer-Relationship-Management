@@ -204,16 +204,31 @@ class ClientRepository implements ClientRepositoryInterface
             //     return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name . ' ' . $data->childrens()->first()->last_name : null;
             // })->
             rawColumns(['address'])->
-            // filterColumn('parent_name', function ($query, $keyword) {
-            //     $query->whereRaw("RTRIM(CONCAT(parent_firstname, ' ', COALESCE(parent_lastname, ''))) like ?", "%{$keyword}%");
-            // })->
+            filterColumn('parent_name', function ($query, $keyword) {
+                $query->whereRaw("RTRIM(CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, ''))) like ?", "%{$keyword}%");
+            })->
+            filterColumn('parent_mail', function ($query, $keyword) {
+                $query->whereRaw("parent.mail like ?", "%{$keyword}%");
+            })->
+            filterColumn('parent_phone', function ($query, $keyword) {
+                $query->whereRaw("parent.phone like ?", "%{$keyword}%");
+            })->
             make(true);
     }
 
     public function getNewLeads($asDatatables = false, $month = null, $advanced_filter = [])
     {
         # new client that havent offering our program
-        $query = Client::doesntHave('clientProgram')->when($month, function ($subQuery) use ($month) {
+        $query = Client::
+            select([
+                'client.*',
+                'parent.mail as parent_mail',
+                'parent.phone as parent_phone'
+            ])->
+            selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
+            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
+            doesntHave('clientProgram')->when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
             })->
             whereHas('roles', function ($subQuery) {
@@ -237,7 +252,7 @@ class ClientRepository implements ClientRepositoryInterface
             when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('st_statusact', $advanced_filter['active_status']);
             })->
-            where('st_statusact', 1);
+            where('client.st_statusact', 1);
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query;
     }
@@ -246,6 +261,14 @@ class ClientRepository implements ClientRepositoryInterface
     {
         # new client that have been offered our program but hasnt deal yet
         $query = Client::
+            select([
+                'client.*',
+                'parent.mail as parent_mail',
+                'parent.phone as parent_phone'
+            ])->
+            selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
+            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
             whereHas('clientProgram', function ($subQuery) {
                 $subQuery->whereIn('status', [0, 2, 3]); # because refund and cancel still marked as potential client
             })->whereDoesntHave('clientProgram', function ($subQuery) {
@@ -282,7 +305,16 @@ class ClientRepository implements ClientRepositoryInterface
     public function getExistingMentees($asDatatables = false, $month = null, $advanced_filter = [])
     {
         # join program admission mentoring & prog running status hasnt done
-        $query = Client::whereHas('clientProgram', function ($subQuery) {
+        $query = Client::
+            select([
+                'client.*',
+                'parent.mail as parent_mail',
+                'parent.phone as parent_phone'
+            ])->
+            selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
+            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
+            whereHas('clientProgram', function ($subQuery) {
                 $subQuery->whereHas('program', function ($subQuery_2) {
                     $subQuery_2->whereHas('main_prog', function ($subQuery_3) {
                         $subQuery_3->where('prog_name', 'Admissions Mentoring');
@@ -313,7 +345,7 @@ class ClientRepository implements ClientRepositoryInterface
             when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('st_statusact', $advanced_filter['active_status']);
             })->
-            where('st_statusact', 1);
+            where('client.st_statusact', 1);
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
@@ -321,7 +353,16 @@ class ClientRepository implements ClientRepositoryInterface
     public function getExistingNonMentees($asDatatables = false, $month = null, $advanced_filter = [])
     {
         # has join our program but its not admissions mentoring
-        $query = Client::whereDoesntHave('clientProgram', function ($subQuery) {
+        $query = Client::
+            select([
+                'client.*',
+                'parent.mail as parent_mail',
+                'parent.phone as parent_phone'
+            ])->
+            selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
+            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
+            whereDoesntHave('clientProgram', function ($subQuery) {
                 $subQuery->whereHas('program', function ($subQuery_2) {
                     $subQuery_2->whereHas('main_prog', function ($subQuery_3) {
                         $subQuery_3->where('prog_name', 'Admissions Mentoring');
@@ -359,7 +400,7 @@ class ClientRepository implements ClientRepositoryInterface
             when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('st_statusact', $advanced_filter['active_status']);
             })->
-            where('st_statusact', 1);
+            where('client.st_statusact', 1);
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
@@ -376,7 +417,15 @@ class ClientRepository implements ClientRepositoryInterface
         $clientStudent = array_merge($clientStudent, $existing);
         $clientStudent = array_merge($clientStudent, $existingNon);
 
-        $query = Client::whereIn('client.id', $clientStudent);
+        $query = Client::select([
+                'client.*',
+                'parent.mail as parent_mail',
+                'parent.phone as parent_phone'
+            ])->
+            selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
+            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
+            whereIn('client.id', $clientStudent);
 
         return $query->orderBy('first_name', 'asc');
     }
