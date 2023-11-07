@@ -229,7 +229,8 @@
 
         $(document).ready(function() {
             $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
-                window.location.href = "{{ route('logout.expiration') }}"
+                // window.location.href = "{{ route('logout.expiration') }}"
+                notification('error', 'Oops, Something Wrong! Please contact Administrator.')
             };
         })
     </script>
