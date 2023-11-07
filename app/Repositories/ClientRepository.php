@@ -505,7 +505,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->whereDoesntHave('clientProgram', function ($subQuery) {
                 $subQuery->where('status', 1)->whereIn('prog_running_status', [0, 1]);
             })->when($month, function ($subQuery) use ($month) {
-                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+                $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
             });
