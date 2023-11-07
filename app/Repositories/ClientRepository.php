@@ -380,7 +380,7 @@ class ClientRepository implements ClientRepositoryInterface
                 });
             })->
             when($month, function ($subQuery) use ($month) {
-                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+                $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->
             whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
@@ -452,7 +452,7 @@ class ClientRepository implements ClientRepositoryInterface
                     $subQuery_2->where('prog_name', 'Admissions Mentoring');
                 })->where('status', 1)->where('prog_running_status', '!=', 2);
             })->when($month, function ($subQuery) use ($month) {
-                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+                $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
             });
