@@ -8,7 +8,7 @@
 @include('pages.dashboard.finance.detail.status')
 
 <div class="d-flex justify-content-between align-items-center">
-    <ul class="nav nav-tabs">
+    <ul class="nav nav-tabs flex-md-nowrap flex-wrap">
         <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('finance','outstanding-payment')">
             <div class="nav-link finance outstanding-payment active">Outstanding Payment</div>
         </li>

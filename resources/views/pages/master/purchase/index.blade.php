@@ -9,8 +9,7 @@
                 <i class="bi bi-tag me-1"></i>
                 Purchase Request
             </h5>
-            <a href="{{ url('master/purchase/create') }}" class="btn btn-sm btn-info"><i class="bi bi-plus-square me-1"></i> Add
-                Purchase Request</a>
+            <a href="{{ url('master/purchase/create') }}" class="btn btn-sm btn-info"><i class="bi bi-plus-square me-1"></i> Add</a>
         </div>
     </div>
 

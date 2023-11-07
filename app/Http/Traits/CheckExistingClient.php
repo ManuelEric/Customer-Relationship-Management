@@ -10,7 +10,7 @@ trait CheckExistingClient {
         $existClient = [];
 
         // Check existing client by phone number and email
-        $clientExistPhone = $this->clientRepository->checkExistingByPhoneNumber($phone);
+        $clientExistPhone = $phone ? $this->clientRepository->checkExistingByPhoneNumber($phone) : false;
         $clientExistEmail = $this->clientRepository->checkExistingByEmail($email);
 
         if ($clientExistPhone && $clientExistEmail) {

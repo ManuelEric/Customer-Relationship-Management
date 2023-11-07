@@ -531,10 +531,16 @@ class ReceiptReferralController extends Controller
         $currency = $request->route('currency');
 
         $receiptRef = $this->receiptRepository->getReceiptById($receipt_identifier);
-        $director = $receiptRef->invoiceB2b->invoiceAttachment()->first();
         
-        # directors name
-        $name = $this->getDirectorByEmail($director->recipient);
+        $director = $name = null;
+        if(isset($receiptRef->invoiceB2b->invoiceAttachment))
+        {
+            $director = $receiptRef->invoiceB2b->invoiceAttachment()->first();
+            if($director->recipient != null){
+                # directors name
+                $name = $this->getDirectorByEmail($director->recipient);
+            }
+        }
 
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),

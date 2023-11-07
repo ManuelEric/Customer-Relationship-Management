@@ -10,6 +10,7 @@ use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ReceiptAttachmentRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Jobs\Receipt\ProcessUploadReceiptJob;
 use App\Models\Receipt;
 use Exception;
 use Illuminate\Http\Request;
@@ -81,7 +82,7 @@ class ReceiptController extends Controller
         $receiptDetails['receipt_cat'] = 'student';
 
         $receiptDetails['created_at'] = $receiptDetails['receipt_date'];
-        $receiptDetails['updated_at'] = Carbon::now();
+        // $receiptDetails['updated_at'] = Carbon::now();
 
         $client_prog = $this->clientProgramRepository->getClientProgramById($request->clientprog_id);
         $invoice = $client_prog->invoice()->first();
@@ -245,28 +246,28 @@ class ReceiptController extends Controller
             'attachment' => 'required|file|mimes:pdf'
         ]);
 
-        $attachment = $request->file('attachment');
-        $file_name = $attachment->getClientOriginalName();
-        $file_name = str_replace('/', '-', $receipt->receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
-        $path = 'public/uploaded_file/receipt/client/';
-
+        $uploadedFile = $request->file('attachment');
+        
         DB::beginTransaction();
         try {
 
-
+            $file_name = $uploadedFile->getClientOriginalName();
+            $file_name = str_replace('/', '-', $receipt->receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
+            $path = 'public/uploaded_file/receipt/client/';
 
             # generate invoice as a PDF file
-            if ($attachment->storeAs($path, $file_name)) {
+            if ($uploadedFile->storeAs($path, $file_name)) {
                 # update request status on receipt attachment
                 $attachment = $receipt->receiptAttachment()->where('currency', $currency)->first();
                 $attachment->attachment = $file_name;
                 $attachment->save();
             }
             DB::commit();
+
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::info('Failed to request sign receipt : ' . $e->getMessage());
+            Log::info('Failed to upload sign receipt : ' . $e->getMessage());
             return Redirect::back()->withError('Failed to upload receipt. Please try again.');
         }
 

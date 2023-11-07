@@ -219,7 +219,7 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
             '*.kol' => ['required_if:lead,KOL', 'nullable', 'exists:tbl_lead,lead_id'],
             '*.level_of_interest' => ['nullable', 'in:High,Medium,Low'],
             '*.interested_program' => ['nullable'],
-            '*.children_name' => ['nullable'],
+            '*.children_name' => ['nullable', 'different:*.full_name'],
             '*.school' => ['nullable'],
             '*.graduation_year' => ['nullable'],
             '*.destination_country' => ['nullable'],

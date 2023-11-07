@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="//cdn.datatables.net/fixedcolumns/4.1.0/css/fixedColumns.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{asset('css/custom.css')}}">
     @yield('css')
 
 
@@ -57,118 +58,7 @@
     <script src="{{ asset('js/currency.js') }}"></script>
     @stack('styles')
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
-
-        body {
-            font-family: 'Poppins', sans-serif !important;
-            font-size: .75rem;
-            color: #494949;
-        }
-
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            line-height: 29px !important;
-        }
-
-        div.dataTables_processing {
-            z-index: 9999 !important;
-        }
-
-        #overlay {
-            position: fixed;
-            background: #FFF;
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1060;
-        }
-
-        .accordion-button {
-            box-shadow: none !important;
-            outline: none !important;
-        }
-
-        .cursor-pointer {
-            cursor: pointer;
-        }
-
-        .table td,
-        .table td p {
-            font-size: 0.75rem !important;
-        }
-
-        .table td p {
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-
-        .form-control:disabled,
-        .select2-container--default.select2-container--disabled .select2-selection--single {
-            background-color: #f1f1f1 !important;
-            color: rgb(92, 92, 92) !important;
-        }
-
-        .select2-container--default.select2-container--disabled .select2-selection__rendered {
-            color: rgb(92, 92, 92) !important;
-        }
-
-
-        .select2-container {
-            display: block !important;
-        }
-
-        .select2-container--default .select2-selection--single,
-        .select2-container--default .select2-selection--multiple {
-            border-radius: 8px !important;
-            font-size: .875rem;
-            border: 1px solid #ced4da;
-        }
-
-
-        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-            color: #fff;
-        }
-
-        .select2-container--default .select2-selection--single .select2-selection__clear {
-            color: red;
-        }
-
-        button.dt-button,
-        div.dt-button,
-        a.dt-button,
-        input.dt-button {
-            border-radius: 8px !important;
-            padding: 5px 10px !important;
-            font-size: .7rem !important;
-        }
-
-        /* width */
-        ::-webkit-scrollbar {
-            height: 7px;
-            width: 7px;
-        }
-
-        /* Track */
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-
-        /* Handle */
-        ::-webkit-scrollbar-thumb {
-            border-radius: 8px;
-            background: #888;
-        }
-
-        /* Handle on hover */
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-
-        .popup-modal-detail-client {
-            cursor: pointer;
-        }
+        
     </style>
 </head>
 
@@ -337,11 +227,12 @@
 
         // for redirect to login page after session expired
 
-        // $(document).ready(function() {
-        //     $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
-        //         window.location.href = "{{ route('logout.expiration') }}"
-        //     };
-        // })
+        $(document).ready(function() {
+            $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
+                // window.location.href = "{{ route('logout.expiration') }}"
+                notification('error', 'Oops, Something Wrong! Please contact Administrator.')
+            };
+        })
     </script>
 
     {{-- Confirm Delete & Deactivate Modal  --}}

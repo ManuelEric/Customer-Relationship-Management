@@ -40,7 +40,7 @@ use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Validators\Failure;
 use Throwable;
 
-class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation, SkipsOnError, SkipsOnFailure
+class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
 
 {
     /**
@@ -200,7 +200,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
             'audience' => $data['audience'],
             'name' => $data['name'],
             'email' => trim($data['email']),
-            'phone_number' => $this->setPhoneNumber($data['phone_number']),
+            'phone_number' => isset($data['phone_number']) ? $this->setPhoneNumber($data['phone_number']) : null,
             'child_parent_name' => $data['child_parent_name'],
             'child_parent_email' => $data['child_parent_email'],
             'child_parent_phone_number' => $data['child_parent_phone_number'],
@@ -234,10 +234,10 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
             '*.audience' => ['required', 'in:Student,Parent,Teacher/Counselor'],
             '*.name' => ['required'],
             '*.email' => ['required', 'email'],
-            '*.phone_number' => ['required'],
-            '*.child_parent_name' => ['nullable'],
-            '*.child_parent_email' => ['nullable'],
-            '*.child_parent_phone_number' => ['nullable'],
+            '*.phone_number' => ['nullable'],
+            '*.child_parent_name' => ['nullable', 'different:*.name'],
+            '*.child_parent_email' => ['nullable', 'different:*.email'],
+            '*.child_parent_phone_number' => ['nullable', 'different:*.phone_number'],
             '*.registration_type' => ['nullable', 'in:PR,OTS'],
             // '*.existing_new_leads' => ['required', 'in:Existing,New'],
             // '*.mentee_non_mentee' => ['required', 'in:Mentee,Non-mentee'],
@@ -394,10 +394,6 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
                 break;
 
             case 'Teacher/Counselor':
-<<<<<<< HEAD
-            case 'Teacher':
-=======
->>>>>>> origin/development-v2.1.2
                 if (!$existClient['isExist']) {
                 
                     $dataClient = [

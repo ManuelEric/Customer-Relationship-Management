@@ -46,10 +46,10 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs flex-nowrap mb-3">
+            <ul class="nav nav-tabs flex-nowrap w-100 overflow-auto mb-3" style="overflow-y: hidden !important;">
                 @foreach ($initialPrograms as $initialProgram)
                     <li class="nav-item">
-                        <a class="nav-link {{ urldecode(Request::get('program')) == $initialProgram->name ? 'active' : '' }}" aria-current="page"
+                        <a class="nav-link text-nowrap {{ urldecode(Request::get('program')) == $initialProgram->name ? 'active' : '' }}" aria-current="page"
                             href="{{ url('client/hot-leads?program='.urlencode($initialProgram->name)) }}">{{ $initialProgram->name }}</a>
                     </li>
                 @endforeach

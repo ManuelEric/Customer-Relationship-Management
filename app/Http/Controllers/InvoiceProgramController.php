@@ -11,6 +11,8 @@ use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Jobs\Invoice\ProcessEmailRequestSignJob;
+use App\Jobs\Invoice\ProcessEmailToClientJob;
 use App\Models\InvoiceProgram;
 use DateTime;
 use Exception;
@@ -636,8 +638,6 @@ class InvoiceProgramController extends Controller
 
             # generate invoice as a PDF file
             $file_name = str_replace('/', '-', $invoice_id) . '-' . $type;
-            $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail, 'director' => $name]);
-            Storage::put('public/uploaded_file/invoice/client/' . $file_name . '.pdf', $pdf->output());
 
             # insert to invoice attachment
             $attachmentDetails = [
@@ -655,12 +655,19 @@ class InvoiceProgramController extends Controller
                 $this->invoiceAttachmentRepository->createInvoiceAttachment($attachmentDetails);
             }
 
-            # send email to related person that has authority to give a signature
-            Mail::send('pages.invoice.client-program.mail.view', $data, function ($message) use ($data, $pdf, $invoice_id) {
-                $message->to($data['email'], $data['recipient'])
-                    ->subject($data['title'])
-                    ->attachData($pdf->output(), $invoice_id . '.pdf');
-            });
+            # these data used for generate PDF file that will be sent into email
+            $attachmentDetails = [
+                'view' => $view,
+                'invoice_id' => $invoice_id,
+                'client_prog' => $clientProg,
+                'company_detail' => $companyDetail, 
+                'director' => $name,
+                'file_name' => $file_name
+            ];
+
+            # dispatching the job to the queue
+            ProcessEmailRequestSignJob::dispatch($data, $attachmentDetails, $invoice_id)->onQueue('inv-email-request-sign');
+            
         } catch (Exception $e) {
 
             Log::info('Failed to request sign invoice : ' . $e->getMessage() . ' | Line ' . $e->getLine());
@@ -721,16 +728,8 @@ class InvoiceProgramController extends Controller
 
         try {
 
-            Mail::send('pages.invoice.client-program.mail.client-view', $data, function ($message) use ($data, $attachment) {
-                $message->to($data['email'], $data['recipient'])
-                    ->cc($data['cc'])
-                    ->subject($data['title'])
-                    ->attach(storage_path('app/public/uploaded_file/invoice/client/' . $attachment->attachment));
-            });
+            ProcessEmailToClientJob::dispatch($data, $attachment, $this->invoiceAttachmentRepository)->onQueue('inv-send-to-client');
 
-            # update status send to client
-            $newDetails['send_to_client'] = 'sent';
-            !$this->invoiceAttachmentRepository->updateInvoiceAttachment($attachment->id, $newDetails);
         } catch (Exception $e) {
 
             Log::info('Failed to send invoice to client : ' . $e->getMessage());
