@@ -100,7 +100,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9 col-8">
-                            {{ $student->graduation_year }}
+                            {{ $student->graduation_year_real }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
