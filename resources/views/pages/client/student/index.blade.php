@@ -446,7 +446,6 @@
                     name: 'parent_name',
                     defaultContent: '-',
                     orderable: true,
-                    searchable: true,
                 },
                 {
                     data: 'parent_mail',

@@ -185,27 +185,27 @@ class ClientRepository implements ClientRepositoryInterface
             addColumn('parent_name', function ($data) {
                 return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
             })->
-            addColumn('parent_mail', function ($data) {
-                return $data->parents()->count() > 0 ? $data->parents()->first()->mail : null;
-            })->
-            addColumn('parent_phone', function ($data) {
-                return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null;
-            })->
-            addColumn('children_name', function ($data) {
-                return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name . ' ' . $data->childrens()->first()->last_name : null;
-            })->
-            addColumn('parent_name', function ($data) {
-                return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
-            })->
-            addColumn('parent_phone', function ($data) {
-                return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null;
-            })->
-            addColumn('children_name', function ($data) {
-                return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name . ' ' . $data->childrens()->first()->last_name : null;
-            })->
+            // addColumn('parent_mail', function ($data) {
+            //     return $data->parents()->count() > 0 ? $data->parents()->first()->mail : null;
+            // })->
+            // addColumn('parent_phone', function ($data) {
+            //     return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null;
+            // })->
+            // addColumn('children_name', function ($data) {
+            //     return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name . ' ' . $data->childrens()->first()->last_name : null;
+            // })->
+            // addColumn('parent_name', function ($data) {
+            //     return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
+            // })->
+            // addColumn('parent_phone', function ($data) {
+            //     return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null;
+            // })->
+            // addColumn('children_name', function ($data) {
+            //     return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name . ' ' . $data->childrens()->first()->last_name : null;
+            // })->
             rawColumns(['address'])->
             filterColumn('parent_name', function ($query, $keyword) {
-                $query->whereRaw('parent_name like ?', ["%{$keyword}%"]);
+                $query->whereRaw("RTRIM(CONCAT(parent_firstname, ' ', COALESCE(parent_lastname, ''))) like ?", "%{$keyword}%");
             })->
             make(true);
     }
@@ -248,7 +248,8 @@ class ClientRepository implements ClientRepositoryInterface
         $query = Client::
             select([
                 'client.*',
-                DB::raw('CONCAT(parent.first_name, " ", COALESCE(parent.last_name, "")) as parent_name')
+                'parent.first_name as parent_firstname',
+                'parent.last_name as parent_lastname'
             ])->
             leftJoin('tbl_client_relation as relation', 'relation.child_id', 'client.id')->
             leftJoin('tbl_client as parent', 'parent.id', 'relation.parent_id')->
