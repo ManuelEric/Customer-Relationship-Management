@@ -232,7 +232,7 @@ class ClientRepository implements ClientRepositoryInterface
             leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
             leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
             doesntHave('clientProgram')->when($month, function ($subQuery) use ($month) {
-                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+                $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->
             whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
@@ -278,7 +278,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->where('status', 1);
             })-> # tidak punya client program dengan status 1 : success
             when($month, function ($subQuery) use ($month) {
-                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+                $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
             })->
@@ -325,7 +325,7 @@ class ClientRepository implements ClientRepositoryInterface
                 })->where('status', 1)->where('prog_running_status', '!=', 2); # 1 success, 2 done
             })->
             when($month, function ($subQuery) use ($month) {
-                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+                $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->
             whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
@@ -529,7 +529,7 @@ class ClientRepository implements ClientRepositoryInterface
             whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'Parent');
             })->when($month, function ($subQuery) use ($month) {
-                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+                $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->
             where('client.st_statusact', 1);
 
