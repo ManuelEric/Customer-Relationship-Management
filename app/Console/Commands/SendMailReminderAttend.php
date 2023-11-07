@@ -48,7 +48,7 @@ class SendMailReminderAttend extends Command
      */
     public function handle()
     {
-        $clientEvents = $this->clientEventRepository->getClientEventByEventId('EVT-0008')->limit(5)->get();
+        $clientEvents = $this->clientEventRepository->getClientEventByEventId('EVT-0008')->limit(1)->get();
         // echo json_encode($clientEvents);
         // exit;
         $full_name = '';
