@@ -197,6 +197,10 @@
         </tr>
     </table>
 
+    <p style="text-align: right; padding-right:5px">
+        Updated On: {{ date('d/m/Y H:i:s', strtotime($receiptPartner->updated_at)) }}
+    </p>
+
     <table>
         <tr>
             <td>
