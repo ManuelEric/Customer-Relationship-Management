@@ -257,7 +257,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             where('client.st_statusact', 1);
 
-        return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query;
+        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;
     }
 
     public function getPotentialClients($asDatatables = false, $month = null, $advanced_filter = [])
@@ -302,7 +302,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             where('client.st_statusact', 1);
 
-        return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getExistingMentees($asDatatables = false, $month = null, $advanced_filter = [])
@@ -350,7 +350,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             where('client.st_statusact', 1);
 
-        return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getExistingNonMentees($asDatatables = false, $month = null, $advanced_filter = [])
@@ -405,7 +405,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             where('client.st_statusact', 1);
 
-        return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getAllClientStudent($advanced_filter = [])
@@ -458,7 +458,7 @@ class ClientRepository implements ClientRepositoryInterface
             });
 
         return $asDatatables === false ?
-            ($groupBy === true ? $query->select('*')->addSelect(DB::raw('YEAR(created_at) AS year'))->orderBy('created_at', 'desc')->get()->groupBy('year') : $query->get())
+            ($groupBy === true ? $query->select('*')->addSelect(DB::raw('YEAR(client.created_at) AS year'))->orderBy('client.created_at', 'desc')->get()->groupBy('year') : $query->get())
             : $query->orderBy('first_name', 'asc');
     }
 
@@ -511,7 +511,7 @@ class ClientRepository implements ClientRepositoryInterface
             });
 
         return $asDatatables === false ?
-            ($groupBy === true ? $query->select('*')->addSelect(DB::raw('YEAR(created_at) AS year'))->orderBy('created_at', 'desc')->get()->groupBy('year') : $query->get())
+            ($groupBy === true ? $query->select('*')->addSelect(DB::raw('YEAR(client.created_at) AS year'))->orderBy('client.created_at', 'desc')->get()->groupBy('year') : $query->get())
             : $query->orderBy('first_name', 'asc');
     }
 
