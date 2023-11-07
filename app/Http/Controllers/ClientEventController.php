@@ -1442,19 +1442,4 @@ class ClientEventController extends Controller
         ]);
     }
     
-    public function testQr(Request $request)
-    {
-        
-        $params = http_build_query(array(
-            "access_key" => env('APIFLASH_KEY'),
-            "url" => "https://crm-allinedu.com/program/event/qr/174/STEM-Wonderlab-Registration-Form",
-            // "width" => 100,
-            // "height" => 100,
-            "crop" => "1292,322,215,215"
-        ));
-
-        $image_data = file_get_contents("https://api.apiflash.com/v1/urltoimage?" . $params);
-        Storage::disk('public')->put('uploaded_file/qrcode/test2.png', $image_data);
-
-    }
 }

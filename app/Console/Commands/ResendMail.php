@@ -57,6 +57,7 @@ class ResendMail extends Command
 
         foreach ($unsend_mail as $detail) {
 
+            echo json_encode($detail->event);
             try {
 
                 $logId = $detail->id;
@@ -134,6 +135,12 @@ class ResendMail extends Command
                     case 'reminder-referral':
                         if($detail->event->event_enddate > Carbon::now()){
                             $this->sendMailReminder($detail->client->mail, $detail->event->event_id, 'automate', 'referral', $detail->index_child, $detail->notes);
+                        }
+                        break;
+
+                    case 'reminder-attend':
+                        if($detail->clientEvent->event->event_enddate > Carbon::now()){
+                            $this->sendMailReminderAttend($detail->clientEvent, 'automate');
                         }
                         break;
                 }

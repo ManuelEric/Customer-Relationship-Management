@@ -1,6 +1,7 @@
 @extends('layout.email-stem')
 @section('banner')
-    <img src="{{asset('img/makerspace/header_reminder_registration.jpg')}}" alt="STEM+ Wonderlab" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
+    <img src="{{ asset('img/makerspace/header_reminder_registration.jpg') }}" alt="STEM+ Wonderlab" width="2500"
+        style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;">
 @endsection
 
 {{-- @section('header', 'Thanks for Joining') --}}
@@ -13,60 +14,81 @@
                 <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                     <tr>
                         <td>
-                            <p>Dear Mr./Mrs. {{$recipient}}, we've noticed you haven't registered for <b>STEM+ Wonderlab</b> yet. It's not
-                                too late to register for Indonesia's FIRST Student Makerspace Expo!</p>
-                            <p>
-                            
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://google.com" alt="">
-                               
-                            <p style="text-align: center;">
-                                <b>STEM+ Wonderlab</b>
-                                <br>📍{{ strip_tags($event['eventLocation']) }}
-                                <br>📅{{ $event['eventDate_start'] }} | {{ $event['eventTime_start'] }} WIB
-                                <br>
-                                Show this QR at the registration table at the event
-                            </p>
+                            @switch($role)
+                                @case('Parent')
+                                    <p>Dear Mr./Mrs. {{ $recipient }},</p>
+                                    <p>
+                                        Terima kasih sudah mendaftar ke event <b>STEM+ Wonderlab.</b>
+                                    </p>
+                                    <p>
+                                        Sampai jumpa <b>BESOK!</b>
+                                    </p>
 
-                            <p>
-                                Here's what you'll enjoy as a registered guest participant:
-                            </p>
-                            <ul>
-                                <li>
-                                    <b>Priority access</b> via the dedicated lane and fast-track entry for your child to explore event booths.
-                                </li>
-                                <li>
-                                    Delight in <b>exclusive merchandise</b> courtesy of ALL-in, adding to your special experience.
-                                </li>
-                                <li>
-                                    Gain <b>exclusive access</b> to a range of special promotions and premium products offered
-                                    by our respected sponsors and partners
-                                </li>
-                            </ul>
+                                    <p>
+                                        <b>STEM+ Wonderlab
+                                            <br>Indonesia's FIRST Student Makerspace Expo</b>
+                                        <br>📍{{ strip_tags($event['eventLocation']) }}
+                                        <br>📅{{ $event['eventDate_start'] }}
+                                        <br> {{ $event['eventTime_start'] }} WIB
+                                        <br> Maps: <a
+                                            href="https://maps.app.goo.gl/Z2TZTU9SviH1TvkW8">https://maps.app.goo.gl/Z2TZTU9SviH1TvkW8</a>
+                                        <br>Add to Calendar
+                                    </p>
 
-                            <p>
-                                Don't miss out on these benefits that are reserved for our guests only! Take a moment now
-                                to complete your registration and secure your place!
-                            </p>
+                                    <p style="text-align:center; ">
+                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ $qr }}"
+                                            alt="">
+                                        <br>
+                                        <b>
+                                            <br>HARAP DIPERHATIKAN
+                                            <br>Simpan QR code yang telah tertera & verifikasi di meja registrasi STEM+ Wonderlab
+                                        </b>
+                                        <br>
+                                        <br>
+                                        SEE YOU THERE!
+                                    </p>
+                                @break
 
-                            {{-- <p style="text-align: center;margin: 2.5em auto;">
-                                <a class="button" href="{{ $param['link'] }}"
-                                    style="background: #3b6cde; 
-                                    text-decoration: none; 
-                                    padding: .5em 1.5em;
-                                    color: #ffffff; 
-                                    border-radius: 2px;
-                                    mso-padding-alt:0;
-                                    text-underline-color:#156ab3">
-                                    <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%;mso-text-raise:20pt">&nbsp;</i><![endif]-->
-                                    <span style="mso-text-raise:10pt;font-weight:bold;">Claim your pass</span>
-                                    <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%">&nbsp;</i><![endif]-->
-                                </a>
-                            </p> --}}
-                            
-                            <p>
-                                Warm regards, <br>
-                                ALL-in Eduspace
-                            </p>
+                                @case('Student')
+                                @case('Mentee')
+                                @case('Teacher/Counselor')
+                                    @if ($role == 'Teacher/Counselor')
+                                        <p>Dear Mr./Mrs. {{ $recipient }},</p>
+                                    @else
+                                        <p>Dear {{ $recipient }},</p>
+                                    @endif
+                                    <p>
+                                        Thank you for registering to <b>STEM+ Wonderlab</b> event.
+                                    </p>
+                                    <p>
+                                        See you <b>TOMORROW!</b>
+                                    </p>
+
+                                    <p>
+                                        <b>STEM+ Wonderlab
+                                            <br>Indonesia's FIRST Student Makerspace Expo</b>
+                                        <br>📍{{ strip_tags($event['eventLocation']) }}
+                                        <br>📅{{ $event['eventDate_start'] }}
+                                        <br> {{ $event['eventTime_start'] }} WIB
+                                        <br> Maps: <a
+                                            href="https://maps.app.goo.gl/Z2TZTU9SviH1TvkW8">https://maps.app.goo.gl/Z2TZTU9SviH1TvkW8</a>
+                                        <br>Add to Calendar
+                                    </p>
+
+                                    <p style="text-align:center; ">
+                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ $qr }}"
+                                            alt="">
+                                        <br>
+                                        <b>
+                                            <br>PLEASE NOTE:
+                                            <br>Save this QR code & verify it at the STEM+ Wonderlab registration desk
+                                        </b>
+                                        <br>
+                                        <br>
+                                        SEE YOU THERE!
+                                    </p>
+                                @break
+                            @endswitch
                         </td>
                     </tr>
                 </table>
@@ -77,6 +99,6 @@
     </table>
 @endsection
 @section('footer')
-    <img src="{{asset('img/makerspace/email_footer.jpg')}}" alt="STEM+ Wonderlab" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
+    <img src="{{ asset('img/makerspace/email_footer.jpg') }}" alt="STEM+ Wonderlab" width="2500"
+        style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;">
 @endsection
-
