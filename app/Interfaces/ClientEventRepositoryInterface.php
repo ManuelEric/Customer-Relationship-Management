@@ -13,6 +13,7 @@ interface ClientEventRepositoryInterface
     public function getConversionLead($filter);
     public function getClientEventByClientId($clientId);
     public function getClientEventById($clientEventId);
+    public function getClientEventByEventId($eventId);
     public function deleteClientEvent($clientEventId);
     public function createClientEvent(array $clientEvents);
     public function updateClientEvent($clientEventId, array $clientEvents);
