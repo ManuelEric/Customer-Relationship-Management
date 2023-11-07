@@ -405,6 +405,7 @@
                 },
                 {
                     data: 'status_lead',
+                    searchable: false,
                     className: 'text-center',
                     defaultContent: '-',
                     render: function(data, type, row, meta) {
@@ -449,27 +450,32 @@
                 },
                 {
                     data: 'parent_mail',
+                    searchable: false,
                     name: 'parent_mail',
                     defaultContent: '-'
                 },
                 {
                     data: 'parent_phone',
+                    searchable: false,
                     name: 'parent_phone',
                     className: 'text-center',
                     defaultContent: '-'
                 },
                 {
                     data: 'school_name',
+                    searchable: false,
                     name: 'school_name',
                     defaultContent: '-'
                 },
                 {
                     data: 'graduation_year',
+                    searchable: false,
                     className: 'text-center',
                     defaultContent: '-'
                 },
                 {
                     data: 'grade_now',
+                    searchable: false,
                     defaultContent: '-',
                     className: 'text-center',
                     render: function(data, type, row, meta) {
@@ -478,50 +484,60 @@
                 },
                 {
                     data: 'insta',
+                    searchable: false,
                     className: 'text-center',
                     defaultContent: '-'
                 },
                 {
                     data: 'address',
+                    searchable: false,
                     defaultContent: '-'
                 },
                 {
                     data: 'lead_source',
+                    searchable: false,
                     className: 'text-center',
                     defaultContent: '-'
                 },
                 {
                     data: 'st_levelinterest',
+                    searchable: false,
                     className: 'text-center',
                     defaultContent: '-'
                 },
                 {
                     data: 'interest_prog',
+                    searchable: false,
                     className: 'text-center',
                     defaultContent: '-'
                 },
                 {
                     data: 'st_abryear',
+                    searchable: false,
                     className: 'text-center',
                     defaultContent: '-'
                 },
                 {
                     data: 'abr_country',
+                    searchable: false,
                     className: 'text-center',
                     defaultContent: '-'
                 },
                 {
                     data: 'dream_uni',
+                    searchable: false,
                     className: 'text-center',
                     defaultContent: '-'
                 },
                 {
                     data: 'dream_major',
+                    searchable: false,
                     className: 'text-center',
                     defaultContent: '-'
                 },
                 {
                     data: 'created_at',
+                    searchable: false,
                     className: 'text-center',
                     render: function(data, type, row) {
                         return moment(data).format('MMMM Do YYYY')
@@ -529,6 +545,7 @@
                 },
                 {
                     data: 'updated_at',
+                    searchable: false,
                     className: 'text-center',
                     render: function(data, type, row) {
                         return moment(data).format('MMMM Do YYYY')
@@ -536,6 +553,7 @@
                 },
                 {
                     data: 'st_statusact',
+                    searchable: false,
                     className: 'text-center',
                     render: function(data, type, row, meta) {
                         return data == 1 ? "Active" : "Non-active";

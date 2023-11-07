@@ -180,6 +180,7 @@ class ClientRepository implements ClientRepositoryInterface
     /* NEW */
     public function getDataTables($model)
     {
+        
         return DataTables::eloquent($model)->
             addColumn('parent_name', function ($data) {
                 return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
@@ -203,6 +204,9 @@ class ClientRepository implements ClientRepositoryInterface
                 return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name . ' ' . $data->childrens()->first()->last_name : null;
             })->
             rawColumns(['address'])->
+            filterColumn('parent_name', function ($query, $keyword) {
+                $query->whereRaw('parent_name like ?', ["%{$keyword}%"]);
+            })->
             make(true);
     }
 
@@ -241,7 +245,14 @@ class ClientRepository implements ClientRepositoryInterface
     public function getPotentialClients($asDatatables = false, $month = null, $advanced_filter = [])
     {
         # new client that have been offered our program but hasnt deal yet
-        $query = Client::whereHas('clientProgram', function ($subQuery) {
+        $query = Client::
+            select([
+                'client.*',
+                DB::raw('CONCAT(parent.first_name, " ", COALESCE(parent.last_name, "")) as parent_name')
+            ])->
+            leftJoin('tbl_client_relation as relation', 'relation.child_id', 'client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', 'relation.parent_id')->
+            whereHas('clientProgram', function ($subQuery) {
                 $subQuery->whereIn('status', [0, 2, 3]); # because refund and cancel still marked as potential client
             })->whereDoesntHave('clientProgram', function ($subQuery) {
                 $subQuery->where('status', 1);
@@ -269,7 +280,7 @@ class ClientRepository implements ClientRepositoryInterface
             when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('st_statusact', $advanced_filter['active_status']);
             })->
-            where('st_statusact', 1);
+            where('client.st_statusact', 1);
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
