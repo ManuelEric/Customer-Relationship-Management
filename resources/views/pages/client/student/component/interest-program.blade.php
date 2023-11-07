@@ -70,9 +70,11 @@
 </div>
 
 @if ($errors->has('interest_program'))
+@push('scripts')
     <script>
         $(document).ready(function() {
             $('#addInterestProgram').modal('show');
         })
     </script>
+@endpush
 @endif

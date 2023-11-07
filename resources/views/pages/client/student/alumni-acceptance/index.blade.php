@@ -45,7 +45,6 @@
 
 @endsection
 @push('scripts')
-{{-- Need Changing --}}
 <script>
     var widthView = $(window).width();
     $(document).ready(function() {

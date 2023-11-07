@@ -237,72 +237,69 @@
             </div>
         </div>
     </div>
-
-    <script>
-        // Select2 Modal 
-        $(document).ready(function() {
-            $('.modal-select').select2({
-                dropdownParent: $('#programForm .modal-content'),
-                placeholder: "Select value",
-                allowClear: true
-            });
-        });
-    </script>
-
-    {{-- Need Changing --}}
-    <script>
-        var widthView = $(window).width();
-        $(document).ready(function() {
-            var table_event = $('#eventTable').DataTable({
-                dom: 'Bfrtip',
-                lengthMenu: [
-                    [10, 25, 50, 100, -1],
-                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-                ],
-                buttons: [
-                    'pageLength', {
-                        extend: 'excel',
-                        text: 'Export to Excel',
-                    }
-                ],
-                scrollX: true,
-                fixedColumns: {
-                    left: (widthView < 768) ? 1 : 2,
-                    right: 0
-                },
-                processing: true,
-                serverSide: true,
-                ajax: '',
-                columns: [{
-                        data: 'clientevent_id',
-                        className: 'text-center',
-                        render: function(data, type, row, meta) {
-                            return meta.row + meta.settings._iDisplayStart + 1;
-                        }
-                    },
-                    {
-                        data: 'event_name',
-                        name: 'tbl_events.event_title'
-                    },
-                    {
-                        data: 'event_startdate',
-                        name: 'tbl_events.event_startdate',
-                        render: function(data, type, row) {
-                            return moment(data).format('DD MMMM YYYY HH:mm:ss')
-                        }
-                    },
-                    {
-                        data: 'joined_date',
-                        render: function(data, type, row) {
-                            return moment(data).format('DD MMMM YYYY')
-                        }
-                    },
-                ]
-            });
-        });
-    </script>
-
-
-
-
 @endsection
+
+@push('scripts')
+<script>
+    // Select2 Modal 
+    $(document).ready(function() {
+        $('.modal-select').select2({
+            dropdownParent: $('#programForm .modal-content'),
+            placeholder: "Select value",
+            allowClear: true
+        });
+    });
+</script>
+
+<script>
+    var widthView = $(window).width();
+    $(document).ready(function() {
+        var table_event = $('#eventTable').DataTable({
+            dom: 'Bfrtip',
+            lengthMenu: [
+                [10, 25, 50, 100, -1],
+                ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
+            ],
+            buttons: [
+                'pageLength', {
+                    extend: 'excel',
+                    text: 'Export to Excel',
+                }
+            ],
+            scrollX: true,
+            fixedColumns: {
+                left: (widthView < 768) ? 1 : 2,
+                right: 0
+            },
+            processing: true,
+            serverSide: true,
+            ajax: '',
+            columns: [{
+                    data: 'clientevent_id',
+                    className: 'text-center',
+                    render: function(data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                {
+                    data: 'event_name',
+                    name: 'tbl_events.event_title'
+                },
+                {
+                    data: 'event_startdate',
+                    name: 'tbl_events.event_startdate',
+                    render: function(data, type, row) {
+                        return moment(data).format('DD MMMM YYYY HH:mm:ss')
+                    }
+                },
+                {
+                    data: 'joined_date',
+                    render: function(data, type, row) {
+                        return moment(data).format('DD MMMM YYYY')
+                    }
+                },
+            ]
+        });
+    });
+</script>
+@endpush

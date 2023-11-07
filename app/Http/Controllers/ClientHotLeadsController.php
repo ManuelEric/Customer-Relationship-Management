@@ -28,7 +28,8 @@ class ClientHotLeadsController extends Controller
             # get the initial program from parameter get
             $selectedInitialProgram = $request->get('program');
     
-            return $this->clientRepository->getClientHotLeads($selectedInitialProgram);
+            $model = $this->clientRepository->getClientHotLeads($selectedInitialProgram);
+            return $this->clientRepository->getDataTables($model);
         }
 
 
