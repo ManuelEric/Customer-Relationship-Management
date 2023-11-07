@@ -2,8 +2,8 @@
 
 body {
     font-family: 'Poppins', sans-serif !important;
-    font-size: .75rem;
-    color: #494949;
+    font-size: .75rem !important;
+    color: #494949 !important;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__rendered {
