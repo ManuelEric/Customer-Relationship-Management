@@ -213,6 +213,9 @@ class ClientRepository implements ClientRepositoryInterface
             filterColumn('parent_phone', function ($query, $keyword) {
                 $query->whereRaw("parent.phone like ?", "%{$keyword}%");
             })->
+            filterColumn('children_name', function ($query, $keyword) {
+                $query->whereRaw("RTRIM(CONCAT(children.first_name, ' ', COALESCE(children.last_name, ''))) like ?", "%{$keyword}%");
+            })->
             make(true);
     }
 
@@ -433,17 +436,26 @@ class ClientRepository implements ClientRepositoryInterface
     public function getAlumniMentees($groupBy = false, $asDatatables = false, $month = null)
     {
         # has finish our admission program
-        $query = Client::whereHas('clientProgram.program.main_prog', function ($subQuery) {
-            $subQuery->where('prog_name', 'Admissions Mentoring')->where('status', 1)->where('prog_running_status', 2);
-        })->whereDoesntHave('clientProgram', function ($subQuery) {
-            $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
-                $subQuery_2->where('prog_name', 'Admissions Mentoring');
-            })->where('status', 1)->where('prog_running_status', '!=', 2);
-        })->when($month, function ($subQuery) use ($month) {
-            $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
-        })->whereHas('roles', function ($subQuery) {
-            $subQuery->where('role_name', 'student');
-        });
+        $query = Client::
+            select([
+                'client.*',
+                'parent.mail as parent_mail',
+                'parent.phone as parent_phone'
+            ])->
+            selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
+            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
+            whereHas('clientProgram.program.main_prog', function ($subQuery) {
+                $subQuery->where('prog_name', 'Admissions Mentoring')->where('status', 1)->where('prog_running_status', 2);
+            })->whereDoesntHave('clientProgram', function ($subQuery) {
+                $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
+                    $subQuery_2->where('prog_name', 'Admissions Mentoring');
+                })->where('status', 1)->where('prog_running_status', '!=', 2);
+            })->when($month, function ($subQuery) use ($month) {
+                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+            })->whereHas('roles', function ($subQuery) {
+                $subQuery->where('role_name', 'student');
+            });
 
         return $asDatatables === false ?
             ($groupBy === true ? $query->select('*')->addSelect(DB::raw('YEAR(created_at) AS year'))->orderBy('created_at', 'desc')->get()->groupBy('year') : $query->get())
@@ -475,19 +487,28 @@ class ClientRepository implements ClientRepositoryInterface
     public function getAlumniNonMentees($groupBy = false, $asDatatables = false, $month = null)
     {
         # has finish our program and hasnt joined admission program
-        $query = Client::whereDoesntHave('clientProgram', function ($subQuery) {
-            $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
-                $subQuery_2->where('prog_name', 'Admissions Mentoring');
-            })->where('status', 1);
-        })->whereHas('clientProgram', function ($subQuery) {
-            $subQuery->where('status', 1)->where('prog_running_status', 2);
-        })->whereDoesntHave('clientProgram', function ($subQuery) {
-            $subQuery->where('status', 1)->whereIn('prog_running_status', [0, 1]);
-        })->when($month, function ($subQuery) use ($month) {
-            $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
-        })->whereHas('roles', function ($subQuery) {
-            $subQuery->where('role_name', 'student');
-        });
+        $query = Client::
+            select([
+                'client.*',
+                'parent.mail as parent_mail',
+                'parent.phone as parent_phone'
+            ])->
+            selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
+            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
+            whereDoesntHave('clientProgram', function ($subQuery) {
+                $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
+                    $subQuery_2->where('prog_name', 'Admissions Mentoring');
+                })->where('status', 1);
+            })->whereHas('clientProgram', function ($subQuery) {
+                $subQuery->where('status', 1)->where('prog_running_status', 2);
+            })->whereDoesntHave('clientProgram', function ($subQuery) {
+                $subQuery->where('status', 1)->whereIn('prog_running_status', [0, 1]);
+            })->when($month, function ($subQuery) use ($month) {
+                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+            })->whereHas('roles', function ($subQuery) {
+                $subQuery->where('role_name', 'student');
+            });
 
         return $asDatatables === false ?
             ($groupBy === true ? $query->select('*')->addSelect(DB::raw('YEAR(created_at) AS year'))->orderBy('created_at', 'desc')->get()->groupBy('year') : $query->get())
@@ -496,12 +517,21 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getParents($asDatatables = false, $month = null)
     {
-        $query = Client::whereHas('roles', function ($subQuery) {
-            $subQuery->where('role_name', 'Parent');
-        })->when($month, function ($subQuery) use ($month) {
-            $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
-        })->
-        where('st_statusact', 1);
+        $query = Client::
+            select([
+                'client.*',
+                'children.mail as children_mail',
+                'children.phone as children_phone'
+            ])->
+            selectRaw('RTRIM(CONCAT(children.first_name, " ", COALESCE(children.last_name, ""))) as children_name')->
+            leftJoin('tbl_client_relation as relation', 'relation.parent_id', '=', 'client.id')->
+            leftJoin('tbl_client as children', 'children.id', '=', 'relation.child_id')->
+            whereHas('roles', function ($subQuery) {
+                $subQuery->where('role_name', 'Parent');
+            })->when($month, function ($subQuery) use ($month) {
+                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+            })->
+            where('client.st_statusact', 1);
 
         return $asDatatables === false ? $query->get() : $query->orderBy('first_name', 'asc');
     }
