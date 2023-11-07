@@ -65,7 +65,6 @@ class ResendMail extends Command
                 
                 switch ($category) {
                     case 'qrcode-mail':
-
                         $clientEventId = $detail->clientevent_id;
                         $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
                         $eventName = $clientEvent->event->event_title;
