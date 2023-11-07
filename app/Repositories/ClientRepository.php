@@ -181,10 +181,10 @@ class ClientRepository implements ClientRepositoryInterface
     public function getDataTables($model)
     {
         
-        return DataTables::eloquent($model)->
-            addColumn('parent_name', function ($data) {
-                return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
-            })->
+        return DataTables::of($model)->
+            // addColumn('parent_name', function ($data) {
+            //     return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
+            // })->
             // addColumn('parent_mail', function ($data) {
             //     return $data->parents()->count() > 0 ? $data->parents()->first()->mail : null;
             // })->
@@ -204,9 +204,9 @@ class ClientRepository implements ClientRepositoryInterface
             //     return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name . ' ' . $data->childrens()->first()->last_name : null;
             // })->
             rawColumns(['address'])->
-            filterColumn('parent_name', function ($query, $keyword) {
-                $query->whereRaw("RTRIM(CONCAT(parent_firstname, ' ', COALESCE(parent_lastname, ''))) like ?", "%{$keyword}%");
-            })->
+            // filterColumn('parent_name', function ($query, $keyword) {
+            //     $query->whereRaw("RTRIM(CONCAT(parent_firstname, ' ', COALESCE(parent_lastname, ''))) like ?", "%{$keyword}%");
+            // })->
             make(true);
     }
 
@@ -246,13 +246,6 @@ class ClientRepository implements ClientRepositoryInterface
     {
         # new client that have been offered our program but hasnt deal yet
         $query = Client::
-            select([
-                'client.*',
-                'parent.first_name as parent_firstname',
-                'parent.last_name as parent_lastname'
-            ])->
-            leftJoin('tbl_client_relation as relation', 'relation.child_id', 'client.id')->
-            leftJoin('tbl_client as parent', 'parent.id', 'relation.parent_id')->
             whereHas('clientProgram', function ($subQuery) {
                 $subQuery->whereIn('status', [0, 2, 3]); # because refund and cancel still marked as potential client
             })->whereDoesntHave('clientProgram', function ($subQuery) {

@@ -442,8 +442,7 @@
                     defaultContent: '-'
                 },
                 {
-                    data: 'parent_name',
-                    name: 'parent_name',
+                    data: 'parents.0.first_name',
                     defaultContent: '-',
                     orderable: true,
                 },
