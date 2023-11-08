@@ -18,6 +18,7 @@
         .text-danger {
             color: red;
         }
+
         .iti {
             width: 100% !important;
         }
@@ -106,7 +107,8 @@
             @if ($errors->any())
                 <div class="fixed bottom-5 right-5 w-[350px] z-[999]" id="notif">
                     <ul class="grid grid-cols-1 gap-2">
-                        <li class="p-2 border-2 border-red-800 rounded-lg text-red-800 bg-white">Registration failed. Please fill your data</li>
+                        <li class="p-2 border-2 border-red-800 rounded-lg text-red-800 bg-white">Registration failed.
+                            Please fill your data</li>
                     </ul>
                 </div>
             @endif
@@ -216,22 +218,26 @@
                         <hr class="my-5">
                         <div class="grid md:grid-cols-3 grid-cols-1 gap-4">
                             <div class="col md:mb-4 mb-2 main-user">
-                                <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
+                                <label
+                                    class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
                                     Full Name <span class="text-red-400">*</span>
                                 </label>
                                 <input type="text" name="fullname[]" value="{{ old('fullname.0') }}"
-                                    class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 required">
+                                    class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 required"
+                                    id="name_input">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                                 @error('fullname.0')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
                             <div class="col md:mb-4 mb-2 main-user">
-                                <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
+                                <label
+                                    class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
                                     Email <span class="text-red-400">*</span>
                                 </label>
-                                <input type="text" name="email[]" value="{{old('email.0')}}"
-                                    class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 required">
+                                <input type="email" name="email[]" value="{{ old('email.0') }}"
+                                    class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 required"
+                                    id="email_input">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                                 @error('email.0')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -241,20 +247,23 @@
                                 <label class="font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400 block">
                                     Phone Number <span class="text-red-400">*</span>
                                 </label>
-                                <input type="tel" name="phone[]" value="{{old('phone.0')}}"
-                                    class="required w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
+                                <input type="tel" name="phone[]" value="{{ old('phone.0') }}"
+                                    class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0 required"
                                     id="phoneUser1">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                                 @error('fullnumber.0')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
-                                <input type="hidden" name="fullnumber[]" id="phone1" value="{{ old('fullnumber.0') }}">
+                                <input type="hidden" name="fullnumber[]" id="phone1"
+                                    value="{{ old('fullnumber.0') }}">
                             </div>
                             <div class="col md:mb-4 mb-2 user-other">
-                                <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
+                                <label
+                                    class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
                                     Your <span class="role">Child's</span> Name <span class="text-red-400">*</span>
                                 </label>
-                                <input type="text" name="fullname[]" id="other_name" value="{{old('fullname.1')}}"
+                                <input type="text" name="fullname[]" id="other_name"
+                                    value="{{ old('fullname.1') }}"
                                     class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 child_info required">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                                 @error('fullname.1')
@@ -262,13 +271,14 @@
                                 @enderror
                             </div>
                             <div class="col md:mb-4 mb-2 user-other">
-                                <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
+                                <label
+                                    class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
                                     Your <span class="role">Child's</span> Email
                                     @if (request()->get('status') || request()->get('status') == 'ots')
                                         <span class="text-red-400">*</span>
                                     @endif
                                 </label>
-                                <input type="text" name="email[]" id="other_email" value="{{old('email.1')}}"
+                                <input type="email" name="email[]" id="other_email" value="{{ old('email.1') }}"
                                     class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 child_info">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                                 @error('email.1')
@@ -282,10 +292,11 @@
                                         <span class="text-red-400">*</span>
                                     @endif
                                 </label>
-                                <input type="tel" name="phone[]" value="{{old('phone.1')}}"
+                                <input type="tel" name="phone[]" value="{{ old('phone.1') }}"
                                     class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
                                     id="phoneUser2">
-                                <input type="hidden" name="fullnumber[]" value="{{ old('fullnumber.1') }}" id="phone2" class="child_info">
+                                <input type="hidden" name="fullnumber[]" value="{{ old('fullnumber.1') }}"
+                                    id="phone2" class="child_info">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                                 @error('fullnumber.1')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -325,12 +336,13 @@
                         <hr class="my-5">
 
                         <div class="mb-4" id="school_input">
-                            <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
+                            <label
+                                class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
                                 School <span class="text-red-400">*</span>
                             </label>
                             <select name="school" id="schoolList"
                                 class="w-full md:text-xl text-md border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
-                                placeholder="Type your school name if your school is not on the list" onChange="addSchool();">
+                                placeholder="Type your school name if your school is not on the list">
                                 <option data-placeholder="true"></option>
                                 @foreach ($schools as $school)
                                     <option value="{{ $school->sch_id }}"
@@ -344,7 +356,8 @@
                             @enderror
                         </div>
                         <div class="mb-4" id="graduation_input">
-                            <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
+                            <label
+                                class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
                                 When do you expect to graduate? <span class="text-red-400">*</span>
                             </label>
                             <select name="graduation_year" id="graduation_year"
@@ -352,7 +365,9 @@
                                 placeholder="">
                                 <option value=""></option>
                                 @for ($i = date('Y'); $i < date('Y') + 6; $i++)
-                                    <option value="{{ $i }}" {{ old('graduation_year') == $i ? 'selected' : null }}>{{ $i }}</option>
+                                    <option value="{{ $i }}"
+                                        {{ old('graduation_year') == $i ? 'selected' : null }}>{{ $i }}
+                                    </option>
                                 @endfor
                             </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
@@ -361,7 +376,8 @@
                             @enderror
                         </div>
                         <div class="mb-4" id="country_input">
-                            <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
+                            <label
+                                class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
                                 Destination Country
                             </label>
                             <select name="destination_country[]" multiple="multiple" id="destination_country"
@@ -393,7 +409,8 @@
 
                         @if (!request()->get('ref') && request()->get('ref') === null)
                             <div class="mb-4">
-                                <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400 block">
+                                <label
+                                    class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400 block">
                                     I know this event from <span class="text-red-400">*</span>
                                 </label>
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
@@ -583,12 +600,22 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
         } else {
             const check_input = [];
             for (var i = 0; i < input.length; ++i) {
-                if (input.eq(i).attr('type') === "text" || input.eq(i).attr('type') === "number") {
-                    if (input.eq(i).val() === "") {
-                        alert.eq(i).removeClass('hidden').addClass('block')
+                if (input.eq(i).attr('type') === "text" || input.eq(i).attr('type') === "email" || input.eq(i).attr(
+                        'type') === "tel") {
+                    const id = input.eq(i).attr('id')
+                    if (input.eq(i).val() === "" || input.eq(i).val() === null) {
+                        if (input.eq(i).attr('type') === "tel") {
+                            $('#' + id).parents().siblings('small.alert').removeClass('hidden').addClass('block')
+                        } else {
+                            $('#' + id).siblings('small.alert').removeClass('hidden').addClass('block')
+                        }
                         check_input.push(false);
                     } else {
-                        alert.eq(i).removeClass('block').addClass('hidden')
+                        if (input.eq(i).attr('type') === "tel") {
+                            $('#' + id).parents().siblings('small.alert').removeClass('block').addClass('hidden')
+                        } else {
+                            $('#' + id).siblings('small.alert').removeClass('block').addClass('hidden')
+                        }
                     }
                 }
             }
