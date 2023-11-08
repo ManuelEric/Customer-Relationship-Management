@@ -12,6 +12,7 @@ interface ClientEventRepositoryInterface
     public function getReportClientEventsGroupByRoles($eventId);
     public function getConversionLead($filter);
     public function getClientEventByClientId($clientId);
+    public function getClientEventByClientIdAndEventId($clientId, $eventId);
     public function getClientEventById($clientEventId);
     public function getClientEventByEventId($eventId);
     public function deleteClientEvent($clientEventId);

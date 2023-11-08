@@ -665,7 +665,7 @@ class ClientEventController extends Controller
             $newly_registrant_user = $this->clientRepository->getClientById($newly_registrant);
 
             # check if client has already join the event
-            if ($this->clientEventRepository->getClientEventByClientId($createdClient['clientId']))
+            if ($this->clientEventRepository->getClientEventByClientIdAndEventId($createdClient['clientId'], 'EVT-0008'))
                 return Redirect::to('form/already-join?role='.$choosen_role.'&name='.$newly_registrant_user->full_name);
 
             # store a new client event
