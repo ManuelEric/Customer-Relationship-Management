@@ -49,8 +49,7 @@ class SendMailReminderAttend extends Command
      */
     public function handle()
     {
-        // $clientEvents = $this->clientEventRepository->getClientEventByEventId('EVT-0008');
-        $clientEvents = ClientEvent::whereIn('clientevent_id', [3837])->get();
+        $clientEvents = $this->clientEventRepository->getClientEventByEventId('EVT-0008');
 
         $full_name = '';
         $eventName = 'STEM+ Wonderlab';
