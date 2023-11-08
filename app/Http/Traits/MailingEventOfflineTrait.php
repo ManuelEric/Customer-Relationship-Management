@@ -360,4 +360,71 @@ trait MailingEventOfflineTrait
 
 
     }
+
+    public function sendMailReminderAttend($clientEvent, $for)
+    {
+        
+        try {
+
+            $role = $clientEvent->client->roles->first()->role_name;
+
+            $data['qr'] =  route('link-event-attend', [
+                // 'event_slug' => $event_slug,
+                'clientevent' => $clientEvent->clientevent_id
+            ]);
+
+            $date = Carbon::parse($clientEvent->event->event_startdate)->locale('id');
+            
+            if($role == 'Parent')
+                $date->settings(['formatFunction' => 'translatedFormat']);
+
+            $data = [
+                'email' => $clientEvent->client->mail,
+                'role' => $role,
+                'qr' => route('link-event-attend', [
+                    'clientevent' => $clientEvent->clientevent_id]),
+                // 'notes' => $notes,
+                'recipient' => $clientEvent->client->full_name,
+                'title' =>  'STEM+ Wonderlab QR Code Entrance',
+                'event' => [
+                    'eventName' => $clientEvent->event->event_title,
+                    'eventDate_start' => $date->format('l, d M Y'),
+                    'eventTime_start' => $date->format('g A'),
+                    'eventLocation' => $clientEvent->event->event_location,
+                ]
+    
+            ];
+            
+
+            Mail::send('mail-template.reminder-attend', $data, function ($message) use ($data) {
+                $message->to($data['email'], $data['recipient'])
+                    ->subject($data['title']);
+            });
+            $sent_mail = 1;
+
+        } catch (Exception $e) {
+
+            $sent_mail = 0;
+            Log::info('Failed to send reminder attend mail : ' . $e->getMessage(). $e->getLine());
+
+        }
+
+        if($for == 'first-send'){
+            $keyLog = [
+                'clientevent_id' => $clientEvent->clientevent_id,
+                'sent_status' => $sent_mail,
+                'category' => 'reminder-attend'
+            ];
+            
+            $valueLog = [
+                'sent_status' => $sent_mail,
+            ];
+    
+            ClientEventLogMail::updateOrCreate($keyLog, $valueLog);
+        }
+
+
+    }
+
+
 }

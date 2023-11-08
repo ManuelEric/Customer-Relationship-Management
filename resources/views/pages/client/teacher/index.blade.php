@@ -2,7 +2,7 @@
 
 @section('title', 'Teacher ')
 
-@section('style')
+@push('styles')
     <style>
         .btn-download span,
         .btn-import span {
@@ -14,7 +14,7 @@
             display: inline-block;
         }
     </style>
-@endsection
+@endpush
 
 @section('content')
     <div class="card bg-secondary mb-1 p-2">
@@ -115,96 +115,98 @@
         </div>
     </div>
 
-    {{-- Need Changing --}}
-    <script>
-        var widthView = $(window).width();
-        $(document).ready(function() {
-            var table = $('#clientTable').DataTable({
-                dom: 'Bfrtip',
-                lengthMenu: [
-                    [10, 25, 50, 100, -1],
-                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-                ],
-                buttons: [
-                    'pageLength', {
-                        extend: 'excel',
-                        text: 'Export to Excel',
-                    }
-                ],
-                scrollX: true,
-                fixedColumns: {
-                    left: (widthView < 768) ? 1 : 2,
-                    right: 1
-                },
-                processing: true,
-                serverSide: true,
-                ajax: '',
-                columns: [{
-                        data: 'id',
-                        className: 'text-center',
-                        render: function(data, type, row, meta) {
-                            return meta.row + meta.settings._iDisplayStart + 1;
-                        }
-                    },
-                    {
-                        data: 'full_name',
-                        render: function(data, type, row, meta) {
-                            return data
-                        }
-                    },
-                    {
-                        data: 'mail',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'phone',
-                        className: 'text-center',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'school_name',
-                        name: 'school_name',
-                        className: 'text-center',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'st_statusact',
-                        className: 'text-center',
-                        render: function(data, type, row, meta) {
-                            return data == 1 ?
-                                "<div class='badge badge-outline-success'>Active</div>" :
-                                "<div class='badge badge-outline-danger'>NonActive</div>";
-                        }
-                    },
-                    {
-                        data: '',
-                        className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient"><i class="bi bi-eye"></i></button>'
-                    }
-                ],
-            });
-
-            @php
-                $privilage = $menus['Client']->where('submenu_name', 'Teacher/Counselor')->first();
-            @endphp
-
-            @if ($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false");
-
-                $('body').bind('cut copy paste', function(event) {
-                    event.preventDefault();
-                });
-            @endif
-
-            @if ($privilage['export'] == 0)
-                table.button(1).disable();
-            @endif
-
-            $('#clientTable tbody').on('click', '.editClient ', function() {
-                var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('client/teacher-counselor') }}/" + data.id;
-            });
-
-        });
-    </script>
 @endsection
+
+@push('scripts')
+<script>
+    var widthView = $(window).width();
+    $(document).ready(function() {
+        var table = $('#clientTable').DataTable({
+            dom: 'Bfrtip',
+            lengthMenu: [
+                [10, 25, 50, 100, -1],
+                ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
+            ],
+            buttons: [
+                'pageLength', {
+                    extend: 'excel',
+                    text: 'Export to Excel',
+                }
+            ],
+            scrollX: true,
+            fixedColumns: {
+                left: (widthView < 768) ? 1 : 2,
+                right: 1
+            },
+            processing: true,
+            serverSide: true,
+            ajax: '',
+            columns: [{
+                    data: 'id',
+                    className: 'text-center',
+                    render: function(data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                {
+                    data: 'full_name',
+                    render: function(data, type, row, meta) {
+                        return data
+                    }
+                },
+                {
+                    data: 'mail',
+                    defaultContent: '-'
+                },
+                {
+                    data: 'phone',
+                    className: 'text-center',
+                    defaultContent: '-'
+                },
+                {
+                    data: 'school_name',
+                    name: 'school_name',
+                    className: 'text-center',
+                    defaultContent: '-'
+                },
+                {
+                    data: 'st_statusact',
+                    className: 'text-center',
+                    render: function(data, type, row, meta) {
+                        return data == 1 ?
+                            "<div class='badge badge-outline-success'>Active</div>" :
+                            "<div class='badge badge-outline-danger'>NonActive</div>";
+                    }
+                },
+                {
+                    data: '',
+                    className: 'text-center',
+                    defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient"><i class="bi bi-eye"></i></button>'
+                }
+            ],
+        });
+
+        @php
+            $privilage = $menus['Client']->where('submenu_name', 'Teacher/Counselor')->first();
+        @endphp
+
+        @if ($privilage['copy'] == 0)
+            document.oncontextmenu = new Function("return false");
+
+            $('body').bind('cut copy paste', function(event) {
+                event.preventDefault();
+            });
+        @endif
+
+        @if ($privilage['export'] == 0)
+            table.button(1).disable();
+        @endif
+
+        $('#clientTable tbody').on('click', '.editClient ', function() {
+            var data = table.row($(this).parents('tr')).data();
+            window.location.href = "{{ url('client/teacher-counselor') }}/" + data.id;
+        });
+
+    });
+</script>
+@endpush

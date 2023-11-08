@@ -361,87 +361,89 @@
         </div>
     </div>
 
-    <script>
-        function addSchool() {
-            var s = $('#schoolName').val();
-
-            if (s == 'add-new') {
-                $(".school").removeClass("d-none");
-            } else {
-                $(".school").addClass("d-none");
-            }
-        }
-
-        function leads() {
-            let l = $("#leadSource").val();
-            if (l == "program") {
-                $(".program").removeClass("d-none");
-                $(".edufair").addClass("d-none");
-                $(".kol").addClass("d-none");
-            } else
-            if (l == "edufair") {
-                $(".program").addClass("d-none");
-                $(".edufair").removeClass("d-none");
-                $(".kol").addClass("d-none");
-            } else
-            if (l == "kol") {
-                $(".program").addClass("d-none");
-                $(".edufair").addClass("d-none");
-                $(".kol").removeClass("d-none");
-            }
-        }
-
-        $("#leadSource").on('change', function() {
-            var lead = $(this).select2().find(":selected").data('lead')
-            if (lead.includes('All-In Event')) {
-
-                $(".program").removeClass("d-none")
-                $(".edufair").addClass("d-none")
-                $(".kol").addClass("d-none")
-
-            } else if (lead.includes('External Edufair')) {
-
-                $(".program").addClass("d-none")
-                $(".edufair").removeClass("d-none")
-                $(".kol").addClass("d-none")
-
-            } else  if (lead.includes('KOL')) {
-
-                $(".program").addClass("d-none")
-                $(".edufair").addClass("d-none")
-                $(".kol").removeClass("d-none")
-
-            } else {
-
-                $(".program").addClass("d-none")
-                $(".edufair").addClass("d-none")
-                $(".kol").addClass("d-none")
-
-            }
-        })
-
-        @if (old('sch_id') !== NULL && old('sch_id') == "add-new")
-            $("#schoolName").select2().val("{{ old('sch_id') }}").trigger('change')
-
-            @if (!empty(old('sch_curriculum')) && count(old('sch_curriculum')) > 0)
-                var sch_curriculum = new Array();
-                @foreach (old('sch_curriculum') as $key => $val)
-                    sch_curriculum.push("{{ $val }}")
-                @endforeach
-
-                $("#schCurriculum").val(sch_curriculum).trigger('change')
-            @endif
-        @endif
-
-        @if (isset($teacher_counselor->lead_id))
-            @if ($teacher_counselor->lead_id == "LS017")
-                $("#leadSource").select2().val("kol").trigger('change')
-            @else
-                $("#leadSource").select2().val("{{ $teacher_counselor->lead_id }}").trigger('change')
-            @endif
-        @elseif (old('lead_id') !== NULL)
-            $("#leadSource").select2().val("{{ old('lead_id') }}").trigger('change')
-        @endif
-    </script>
-
 @endsection
+
+@push('scripts')
+<script>
+    function addSchool() {
+        var s = $('#schoolName').val();
+
+        if (s == 'add-new') {
+            $(".school").removeClass("d-none");
+        } else {
+            $(".school").addClass("d-none");
+        }
+    }
+
+    function leads() {
+        let l = $("#leadSource").val();
+        if (l == "program") {
+            $(".program").removeClass("d-none");
+            $(".edufair").addClass("d-none");
+            $(".kol").addClass("d-none");
+        } else
+        if (l == "edufair") {
+            $(".program").addClass("d-none");
+            $(".edufair").removeClass("d-none");
+            $(".kol").addClass("d-none");
+        } else
+        if (l == "kol") {
+            $(".program").addClass("d-none");
+            $(".edufair").addClass("d-none");
+            $(".kol").removeClass("d-none");
+        }
+    }
+
+    $("#leadSource").on('change', function() {
+        var lead = $(this).select2().find(":selected").data('lead')
+        if (lead.includes('All-In Event')) {
+
+            $(".program").removeClass("d-none")
+            $(".edufair").addClass("d-none")
+            $(".kol").addClass("d-none")
+
+        } else if (lead.includes('External Edufair')) {
+
+            $(".program").addClass("d-none")
+            $(".edufair").removeClass("d-none")
+            $(".kol").addClass("d-none")
+
+        } else  if (lead.includes('KOL')) {
+
+            $(".program").addClass("d-none")
+            $(".edufair").addClass("d-none")
+            $(".kol").removeClass("d-none")
+
+        } else {
+
+            $(".program").addClass("d-none")
+            $(".edufair").addClass("d-none")
+            $(".kol").addClass("d-none")
+
+        }
+    })
+
+    @if (old('sch_id') !== NULL && old('sch_id') == "add-new")
+        $("#schoolName").select2().val("{{ old('sch_id') }}").trigger('change')
+
+        @if (!empty(old('sch_curriculum')) && count(old('sch_curriculum')) > 0)
+            var sch_curriculum = new Array();
+            @foreach (old('sch_curriculum') as $key => $val)
+                sch_curriculum.push("{{ $val }}")
+            @endforeach
+
+            $("#schCurriculum").val(sch_curriculum).trigger('change')
+        @endif
+    @endif
+
+    @if (isset($teacher_counselor->lead_id))
+        @if ($teacher_counselor->lead_id == "LS017")
+            $("#leadSource").select2().val("kol").trigger('change')
+        @else
+            $("#leadSource").select2().val("{{ $teacher_counselor->lead_id }}").trigger('change')
+        @endif
+    @elseif (old('lead_id') !== NULL)
+        $("#leadSource").select2().val("{{ old('lead_id') }}").trigger('change')
+    @endif
+</script>
+@endpush

@@ -82,7 +82,7 @@ class ReceiptController extends Controller
         $receiptDetails['receipt_cat'] = 'student';
 
         $receiptDetails['created_at'] = $receiptDetails['receipt_date'];
-        $receiptDetails['updated_at'] = Carbon::now();
+        // $receiptDetails['updated_at'] = Carbon::now();
 
         $client_prog = $this->clientProgramRepository->getClientProgramById($request->clientprog_id);
         $invoice = $client_prog->invoice()->first();

@@ -559,14 +559,19 @@ class ReceiptSchoolController extends Controller
         $invb2b_id = isset($receipt->invdtl_id) ? $receipt->invoiceInstallment->invb2b_id : $receipt->invb2b_id;
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
 
+        $director = $name = null;
+
         # when invoice is installment
         if (isset($receipt->invdtl_id))
-            $director = $receipt->invoiceInstallment->invoiceAttachment()->first();
+            if(isset($receipt->invoiceInstallment->invoiceAttachment))
+                $director = $receipt->invoiceInstallment->invoiceAttachment()->first();
         else
-            $director = $receipt->invoiceB2b->invoiceAttachment()->first();
+            if(isset($receipt->invoiceB2b->invoiceAttachment))
+                $director = $receipt->invoiceB2b->invoiceAttachment()->first();
         
         # directors name
-        $name = $this->getDirectorByEmail($director->recipient);
+        if(isset($director))
+            $name = $this->getDirectorByEmail($director->recipient);
 
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),

@@ -40,7 +40,7 @@ use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Validators\Failure;
 use Throwable;
 
-class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation, SkipsOnError, SkipsOnFailure
+class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
 
 {
     /**
@@ -235,9 +235,9 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
             '*.name' => ['required'],
             '*.email' => ['required', 'email'],
             '*.phone_number' => ['nullable'],
-            '*.child_parent_name' => ['nullable'],
-            '*.child_parent_email' => ['nullable'],
-            '*.child_parent_phone_number' => ['nullable'],
+            '*.child_parent_name' => ['nullable', 'different:*.name'],
+            '*.child_parent_email' => ['nullable', 'different:*.email'],
+            '*.child_parent_phone_number' => ['nullable', 'different:*.phone_number'],
             '*.registration_type' => ['nullable', 'in:PR,OTS'],
             // '*.existing_new_leads' => ['required', 'in:Existing,New'],
             // '*.mentee_non_mentee' => ['required', 'in:Mentee,Non-mentee'],

@@ -31,6 +31,7 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
     var url = "{{ url('client/student') . '/' . $student->id . '/program' }}"
     $(document).ready(function() {
@@ -125,3 +126,4 @@
         });
     });
 </script>
+@endpush

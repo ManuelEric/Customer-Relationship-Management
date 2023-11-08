@@ -645,214 +645,216 @@
         </div>
     </div>
 
-    <script>
-        function addParent() {
-            var p = $('#prName').val();
+@endsection
 
-            if (p == 'add-new') {
-                $(".parent").removeClass("d-none");
-            } else {
-                $(".parent").addClass("d-none");
-            }
+@push('scripts')
+<script>
+    function addParent() {
+        var p = $('#prName').val();
+
+        if (p == 'add-new') {
+            $(".parent").removeClass("d-none");
+        } else {
+            $(".parent").addClass("d-none");
+        }
+    }
+
+    function addSchool() {
+        var s = $('#schoolName').val();
+
+        if (s == 'add-new') {
+            $(".school").removeClass("d-none");
+        } else {
+            $(".school").addClass("d-none");
+        }
+    }
+
+    $("#leadSource").on('change', function() {
+        var lead = $(this).select2().find(":selected").data('lead')
+        if (lead.includes('All-In Event')) {
+
+            $(".program").removeClass("d-none")
+            $(".edufair").addClass("d-none")
+            $(".kol").addClass("d-none")
+
+        } else if (lead.includes('External Edufair')) {
+
+            $(".program").addClass("d-none")
+            $(".edufair").removeClass("d-none")
+            $(".kol").addClass("d-none")
+
+        } else if (lead.includes('KOL')) {
+
+            $(".program").addClass("d-none")
+            $(".edufair").addClass("d-none")
+            $(".kol").removeClass("d-none")
+
+        } else {
+
+            $(".program").addClass("d-none")
+            $(".edufair").addClass("d-none")
+            $(".kol").addClass("d-none")
+
+
+        }
+    })
+
+    $("#grade").on('change', async function() {
+        var grade = $(this).val()
+        var year = '{{isset($student) ? date("Y", strtotime($student->created_at)) : date("Y") }}'
+        var graduation_year = (12 - parseInt(grade)) + parseInt(year) + 1
+        $('#auto_grad_year').val(graduation_year);
+    })
+
+
+    const anotherDocument = () => {
+        @if (isset($student->interestUniversities))
+            var st_abruniv = new Array();
+            @foreach ($student->interestUniversities as $university)
+                st_abruniv.push("{{ $university->univ_id }}")
+            @endforeach
+
+            $("#univDestination").select2().val(st_abruniv).trigger('change')
+        @elseif (old('st_abruniv'))
+
+            var st_abruniv = new Array();
+            @foreach (old('st_abruniv') as $key => $val)
+                st_abruniv.push("{{ $val }}")
+            @endforeach
+
+            $("#univDestination").select2().val(st_abruniv).trigger('change')
+        @endif
+    }
+
+    $("#countryStudy").on('change', async function() {
+        var countries = $(this).val()
+        if (countries.length == 0) {
+            $("#univDestination").html('')
+            return
         }
 
-        function addSchool() {
-            var s = $('#schoolName').val();
+        var get = ""
 
-            if (s == 'add-new') {
-                $(".school").removeClass("d-none");
-            } else {
-                $(".school").addClass("d-none");
-            }
-        }
-
-        $("#leadSource").on('change', function() {
-            var lead = $(this).select2().find(":selected").data('lead')
-            if (lead.includes('All-In Event')) {
-
-                $(".program").removeClass("d-none")
-                $(".edufair").addClass("d-none")
-                $(".kol").addClass("d-none")
-
-            } else if (lead.includes('External Edufair')) {
-
-                $(".program").addClass("d-none")
-                $(".edufair").removeClass("d-none")
-                $(".kol").addClass("d-none")
-
-            } else if (lead.includes('KOL')) {
-
-                $(".program").addClass("d-none")
-                $(".edufair").addClass("d-none")
-                $(".kol").removeClass("d-none")
-
-            } else {
-
-                $(".program").addClass("d-none")
-                $(".edufair").addClass("d-none")
-                $(".kol").addClass("d-none")
-
-
-            }
+        countries.forEach(function(currentValue, index, arr) {
+            if (index == 0)
+                get += "?country[]=" + currentValue
+            else
+                get += "&country[]=" + currentValue
         })
 
-        $("#grade").on('change', async function() {
-            var grade = $(this).val()
-            var year = '{{isset($student) ? date("Y", strtotime($student->created_at)) : date("Y") }}'
-            var graduation_year = (12 - parseInt(grade)) + parseInt(year) + 1
-            $('#auto_grad_year').val(graduation_year);
-        })
+        // reset univ Destination html
+        $("#univDestination").html('');
 
+        var html = ""
+        var link = "{{ route('student.create') }}" + get
+        showLoading()
+        await axios.get(link)
+            .then(function(response) {
 
-        const anotherDocument = () => {
-            @if (isset($student->interestUniversities))
-                var st_abruniv = new Array();
-                @foreach ($student->interestUniversities as $university)
-                    st_abruniv.push("{{ $university->univ_id }}")
+                // handle success
+                let data = response.data
+                data.forEach(function(currentValue, index, arr) {
+                    html += "<option value='" + arr[index].univ_id + "'>" + arr[index]
+                        .univ_name + " - " + arr[index].univ_country + "</option>"
+                })
+
+                $("#univDestination").append(html)
+                initSelect2("#univDestination")
+                Swal.close()
+            })
+            .catch(function(error) {
+                // handle error
+                Swal.close()
+                notification(error.response.data.success, error.response.data.message)
+            })
+
+        anotherDocument()
+
+    })
+
+    $(document).ready(function() {
+
+        const documentReady = () => {
+
+            @if (old('pr_id') !== null && old('pr_id') == 'add-new')
+                $("#prName").select2().val("{{ old('pr_id') }}").trigger('change')
+            @elseif (old('pr_id') !== null)
+                $("#prName").select2().val("{{ old('pr_id') }}").trigger('change')
+            @endif
+
+            @if (old('sch_id') !== null && old('sch_id') == 'add-new')
+                $("#schoolName").select2().val("{{ old('sch_id') }}").trigger('change')
+
+                @if (!empty(old('sch_curriculum')) && count(old('sch_curriculum')) > 0)
+                    var sch_curriculum = new Array();
+                    @foreach (old('sch_curriculum') as $key => $val)
+                        sch_curriculum.push("{{ $val }}")
+                    @endforeach
+
+                    $("#schCurriculum").val(sch_curriculum).trigger('change')
+                @endif
+            @endif
+
+            @if (isset($student->st_abryear))
+                $("#year").select2().val("{{ $student->st_abryear }}").trigger('change')
+            @elseif (old('st_abryear') !== null)
+                $("#year").select2().val("{{ old('st_abryear') }}").trigger('change')
+            @endif
+
+            @if (isset($student->destinationCountries))
+                var st_abrcountry = new Array();
+                @foreach ($student->destinationCountries as $country)
+                    st_abrcountry.push("{{ $country->id }}")
                 @endforeach
 
-                $("#univDestination").select2().val(st_abruniv).trigger('change')
-            @elseif (old('st_abruniv'))
-
-                var st_abruniv = new Array();
-                @foreach (old('st_abruniv') as $key => $val)
-                    st_abruniv.push("{{ $val }}")
+                $("#countryStudy").val(st_abrcountry).trigger('change')
+            @elseif (!empty(old('st_abrcountry')) && count(old('st_abrcountry')) > 0)
+                var st_abrcountry = new Array();
+                @foreach (old('st_abrcountry') as $key => $val)
+                    st_abrcountry.push("{{ $val }}")
                 @endforeach
 
-                $("#univDestination").select2().val(st_abruniv).trigger('change')
+                $("#countryStudy").val(st_abrcountry).trigger('change')
+            @endif
+
+            @if (old('st_abrmajor'))
+                var st_abrmajor = new Array();
+                @foreach (old('st_abrmajor') as $key => $val)
+                    st_abrmajor.push("{{ $val }}")
+                @endforeach
+
+                $("#major").val(st_abrmajor).trigger('change')
+            @endif
+
+            // @if (isset($student->interestPrograms))
+            //     var prog_id = new Array();
+            //     @foreach ($student->interestPrograms as $program)
+            //         prog_id.push("{{ $program->prog_id }}")
+            //     @endforeach
+
+            //     $("#interestedProgram").val(prog_id).trigger('change')
+            // @elseif (old('prog_id') !== null && count(old('prog_id')) > 0)
+            //     var prog_id = new Array();
+            //     @foreach (old('prog_id') as $key => $val)
+            //         prog_id.push("{{ $val }}")
+            //     @endforeach
+
+            //     $("#interestedProgram").val(prog_id).trigger('change')
+            //     anotherDocument()
+            // @endif
+
+            @if (isset($student->lead_id))
+                @if ($student->lead->main_lead == 'KOL')
+                    $("#leadSource").select2().val("kol").trigger('change')
+                @else
+                    $("#leadSource").select2().val("{{ $student->lead_id }}").trigger('change')
+                @endif
+            @elseif (old('lead_id') !== null)
+                $("#leadSource").select2().val("{{ old('lead_id') }}").trigger('change')
             @endif
         }
 
-        $("#countryStudy").on('change', async function() {
-            var countries = $(this).val()
-            if (countries.length == 0) {
-                $("#univDestination").html('')
-                return
-            }
-
-            var get = ""
-
-            countries.forEach(function(currentValue, index, arr) {
-                if (index == 0)
-                    get += "?country[]=" + currentValue
-                else
-                    get += "&country[]=" + currentValue
-            })
-
-            // reset univ Destination html
-            $("#univDestination").html('');
-
-            var html = ""
-            var link = "{{ route('student.create') }}" + get
-            showLoading()
-            await axios.get(link)
-                .then(function(response) {
-
-                    // handle success
-                    let data = response.data
-                    data.forEach(function(currentValue, index, arr) {
-                        html += "<option value='" + arr[index].univ_id + "'>" + arr[index]
-                            .univ_name + " - " + arr[index].univ_country + "</option>"
-                    })
-
-                    $("#univDestination").append(html)
-                    initSelect2("#univDestination")
-                    Swal.close()
-                })
-                .catch(function(error) {
-                    // handle error
-                    Swal.close()
-                    notification(error.response.data.success, error.response.data.message)
-                })
-
-            anotherDocument()
-
-        })
-
-        $(document).ready(function() {
-
-            const documentReady = () => {
-
-                @if (old('pr_id') !== null && old('pr_id') == 'add-new')
-                    $("#prName").select2().val("{{ old('pr_id') }}").trigger('change')
-                @elseif (old('pr_id') !== null)
-                    $("#prName").select2().val("{{ old('pr_id') }}").trigger('change')
-                @endif
-
-                @if (old('sch_id') !== null && old('sch_id') == 'add-new')
-                    $("#schoolName").select2().val("{{ old('sch_id') }}").trigger('change')
-
-                    @if (!empty(old('sch_curriculum')) && count(old('sch_curriculum')) > 0)
-                        var sch_curriculum = new Array();
-                        @foreach (old('sch_curriculum') as $key => $val)
-                            sch_curriculum.push("{{ $val }}")
-                        @endforeach
-
-                        $("#schCurriculum").val(sch_curriculum).trigger('change')
-                    @endif
-                @endif
-
-                @if (isset($student->st_abryear))
-                    $("#year").select2().val("{{ $student->st_abryear }}").trigger('change')
-                @elseif (old('st_abryear') !== null)
-                    $("#year").select2().val("{{ old('st_abryear') }}").trigger('change')
-                @endif
-
-                @if (isset($student->destinationCountries))
-                    var st_abrcountry = new Array();
-                    @foreach ($student->destinationCountries as $country)
-                        st_abrcountry.push("{{ $country->id }}")
-                    @endforeach
-
-                    $("#countryStudy").val(st_abrcountry).trigger('change')
-                @elseif (!empty(old('st_abrcountry')) && count(old('st_abrcountry')) > 0)
-                    var st_abrcountry = new Array();
-                    @foreach (old('st_abrcountry') as $key => $val)
-                        st_abrcountry.push("{{ $val }}")
-                    @endforeach
-
-                    $("#countryStudy").val(st_abrcountry).trigger('change')
-                @endif
-
-                @if (old('st_abrmajor'))
-                    var st_abrmajor = new Array();
-                    @foreach (old('st_abrmajor') as $key => $val)
-                        st_abrmajor.push("{{ $val }}")
-                    @endforeach
-
-                    $("#major").val(st_abrmajor).trigger('change')
-                @endif
-
-                // @if (isset($student->interestPrograms))
-                //     var prog_id = new Array();
-                //     @foreach ($student->interestPrograms as $program)
-                //         prog_id.push("{{ $program->prog_id }}")
-                //     @endforeach
-
-                //     $("#interestedProgram").val(prog_id).trigger('change')
-                // @elseif (old('prog_id') !== null && count(old('prog_id')) > 0)
-                //     var prog_id = new Array();
-                //     @foreach (old('prog_id') as $key => $val)
-                //         prog_id.push("{{ $val }}")
-                //     @endforeach
-
-                //     $("#interestedProgram").val(prog_id).trigger('change')
-                //     anotherDocument()
-                // @endif
-
-                @if (isset($student->lead_id))
-                    @if ($student->lead->main_lead == 'KOL')
-                        $("#leadSource").select2().val("kol").trigger('change')
-                    @else
-                        $("#leadSource").select2().val("{{ $student->lead_id }}").trigger('change')
-                    @endif
-                @elseif (old('lead_id') !== null)
-                    $("#leadSource").select2().val("{{ old('lead_id') }}").trigger('change')
-                @endif
-            }
-
-            documentReady()
-        })
-    </script>
-
-@endsection
+        documentReady()
+    })
+</script>
+@endpush

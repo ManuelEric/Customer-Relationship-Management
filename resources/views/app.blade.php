@@ -233,6 +233,11 @@
                 notification('error', 'Oops, Something Wrong! Please contact Administrator.')
             };
         })
+        // $(document).ready(function() {
+        //     $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
+        //         window.location.href = "{{ route('logout.expiration') }}"
+        //     };
+        // })
     </script>
 
     {{-- Confirm Delete & Deactivate Modal  --}}

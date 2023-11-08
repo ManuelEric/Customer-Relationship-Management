@@ -16,12 +16,12 @@
                             <br><br>
                         </td>
                         {{-- <td width="85%"><b>Jawara Edukasih International Pte Ltd</b><br>
-                                    10 Anson Road<br>
-                                    #27-18<br>
-                                    International Plaza <br>
-                                    Singapore (079903)
-                                    <br><br>
-                                </td> --}}
+                            10 Anson Road<br>
+                            #27-18<br>
+                            International Plaza <br>
+                            Singapore (079903)
+                            <br><br>
+                        </td> --}}
                     </tr>
                 </table>
             </td>
@@ -196,6 +196,10 @@
             </td>
         </tr>
     </table>
+
+    <p style="text-align: right; padding-right:5px">
+        Updated On: {{ date('d/m/Y H:i:s', strtotime($receiptPartner->updated_at)) }}
+    </p>
 
     <table>
         <tr>
