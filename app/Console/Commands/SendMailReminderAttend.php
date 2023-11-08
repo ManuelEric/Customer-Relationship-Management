@@ -6,6 +6,7 @@ use App\Http\Controllers\ClientEventController;
 use App\Http\Traits\MailingEventOfflineTrait;
 use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
+use App\Models\ClientEvent;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
@@ -48,7 +49,8 @@ class SendMailReminderAttend extends Command
      */
     public function handle()
     {
-        $clientEvents = $this->clientEventRepository->getClientEventByEventId('EVT-0008');
+        // $clientEvents = $this->clientEventRepository->getClientEventByEventId('EVT-0008');
+        $clientEvents = ClientEvent::whereIn('clientevent_id', [3679, 3839])->get();
 
         $full_name = '';
         $eventName = 'STEM+ Wonderlab';
