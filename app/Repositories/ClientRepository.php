@@ -232,7 +232,7 @@ class ClientRepository implements ClientRepositoryInterface
             leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
             leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
             doesntHave('clientProgram')->when($month, function ($subQuery) use ($month) {
-                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+                $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->
             whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
@@ -257,7 +257,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             where('client.st_statusact', 1);
 
-        return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query;
+        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;
     }
 
     public function getPotentialClients($asDatatables = false, $month = null, $advanced_filter = [])
@@ -278,7 +278,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->where('status', 1);
             })-> # tidak punya client program dengan status 1 : success
             when($month, function ($subQuery) use ($month) {
-                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+                $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
             })->
@@ -302,7 +302,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             where('client.st_statusact', 1);
 
-        return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getExistingMentees($asDatatables = false, $month = null, $advanced_filter = [])
@@ -325,7 +325,7 @@ class ClientRepository implements ClientRepositoryInterface
                 })->where('status', 1)->where('prog_running_status', '!=', 2); # 1 success, 2 done
             })->
             when($month, function ($subQuery) use ($month) {
-                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+                $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->
             whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
@@ -350,7 +350,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             where('client.st_statusact', 1);
 
-        return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getExistingNonMentees($asDatatables = false, $month = null, $advanced_filter = [])
@@ -380,7 +380,7 @@ class ClientRepository implements ClientRepositoryInterface
                 });
             })->
             when($month, function ($subQuery) use ($month) {
-                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+                $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->
             whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
@@ -405,7 +405,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             where('client.st_statusact', 1);
 
-        return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getAllClientStudent($advanced_filter = [])
@@ -452,13 +452,13 @@ class ClientRepository implements ClientRepositoryInterface
                     $subQuery_2->where('prog_name', 'Admissions Mentoring');
                 })->where('status', 1)->where('prog_running_status', '!=', 2);
             })->when($month, function ($subQuery) use ($month) {
-                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+                $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
             });
 
         return $asDatatables === false ?
-            ($groupBy === true ? $query->select('*')->addSelect(DB::raw('YEAR(created_at) AS year'))->orderBy('created_at', 'desc')->get()->groupBy('year') : $query->get())
+            ($groupBy === true ? $query->select('*')->addSelect(DB::raw('YEAR(client.created_at) AS year'))->orderBy('client.created_at', 'desc')->get()->groupBy('year') : $query->get())
             : $query->orderBy('first_name', 'asc');
     }
 
@@ -505,13 +505,13 @@ class ClientRepository implements ClientRepositoryInterface
             })->whereDoesntHave('clientProgram', function ($subQuery) {
                 $subQuery->where('status', 1)->whereIn('prog_running_status', [0, 1]);
             })->when($month, function ($subQuery) use ($month) {
-                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+                $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
             });
 
         return $asDatatables === false ?
-            ($groupBy === true ? $query->select('*')->addSelect(DB::raw('YEAR(created_at) AS year'))->orderBy('created_at', 'desc')->get()->groupBy('year') : $query->get())
+            ($groupBy === true ? $query->select('*')->addSelect(DB::raw('YEAR(client.created_at) AS year'))->orderBy('client.created_at', 'desc')->get()->groupBy('year') : $query->get())
             : $query->orderBy('first_name', 'asc');
     }
 
@@ -529,7 +529,7 @@ class ClientRepository implements ClientRepositoryInterface
             whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'Parent');
             })->when($month, function ($subQuery) use ($month) {
-                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+                $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->
             where('client.st_statusact', 1);
 

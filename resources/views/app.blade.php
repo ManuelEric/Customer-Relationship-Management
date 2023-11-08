@@ -220,27 +220,25 @@
     <script>
         function realtimeData(data) {
             setInterval(() => {
+                
                 data.ajax.reload(null, false)
             }, 7000);
         }
 
 
         // for redirect to login page after session expired
-
-<<<<<<< HEAD
         $(document).ready(function() {
             $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
-                // window.location.href = "{{ route('logout.expiration') }}"
-                notification('error', 'Oops, Something Wrong! Please contact Administrator.')
+
+                if (settings && settings.jqXHR && settings.jqXHR.status == 401) {
+                    notification('error', 'Your session has expired');
+                    window.location.href = "{{ route('logout.expiration') }}";
+                    return;
+                }
+
+                notification('error', 'Oops, Something went wrong when trying to get the data')
             };
         })
-=======
-        // $(document).ready(function() {
-        //     $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
-        //         window.location.href = "{{ route('logout.expiration') }}"
-        //     };
-        // })
->>>>>>> origin/development-v2.1.3
     </script>
 
     {{-- Confirm Delete & Deactivate Modal  --}}
