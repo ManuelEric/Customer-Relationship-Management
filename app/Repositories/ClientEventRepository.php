@@ -85,6 +85,15 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 when(!empty($filter['event_name']), function ($searchQuery) use ($filter) {
                     $searchQuery->where('event_title', $filter['event_name']);
                 })->
+                when(!empty($filter['start_date']) && !empty($filter['end_date']), function ($searchQuery) use ($filter) {
+                    $searchQuery->whereBetween('joined_date', [$filter['start_date'], $filter['end_date']]);
+                })->
+                when(!empty($filter['start_date']) && empty($filter['end_date']), function ($searchQuery) use ($filter) {
+                    $searchQuery->where('joined_date', '>=', $filter['start_date']);
+                })->
+                when(empty($filter['start_date']) && !empty($filter['end_date']), function ($searchQuery) use ($filter) {
+                    $searchQuery->where('joined_date', '<=', $filter['end_date']);
+                })->
                 orderBy('tbl_client_event.created_at', 'DESC')->
                 groupBy('tbl_client_event.clientevent_id');
 
