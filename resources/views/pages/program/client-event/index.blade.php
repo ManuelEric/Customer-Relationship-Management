@@ -19,36 +19,70 @@
 
     <div class="card bg-secondary mb-1 p-2">
         <div class="row align-items-center justify-content-between">
-            <div class="col-md-5 mb-3">
+            <div class="col-md-7 mb-3">
                 <h5 class="text-white m-0">
                     <i class="bi bi-tag me-1"></i>
                     Client Event
                 </h5>
             </div>
-            <div class="col-md-7">
+            <div class="col-md-5">
                 <div class="row align-items-center g-2">
-                    <div class="col-md-5">
-                        <select class="select w-100" name="event_name" id="event-name">
-                            <option data-placeholder="true"></option>
-                            @foreach ($events as $event)
-                                <option value="{{ $event->event_title }}">{{ $event->event_title }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-2 col-6">
+                    <div class="col-md-3 col-6">
                         <a href="{{ url('api/download/excel-template/client-event') }}"
-                            class="btn btn-sm btn-light text-info btn-download text-nowrap w-100"><i class="bi bi-download me-1"></i>
+                            class="btn btn-sm btn-light text-info btn-download text-nowrap w-100"><i
+                                class="bi bi-download me-1"></i>
                             <span>
                                 Template</span></a>
                     </div>
-                    <div class="col-md-2 col-6">
-                        <a href="#" class="btn btn-sm btn-light text-info btn-import text-nowrap w-100" data-bs-toggle="modal"
-                            data-bs-target="#importData"><i class="bi bi-cloud-upload me-1"></i> <span>Import</span></a>
+                    <div class="col-md-3 col-6">
+                        <a href="#" class="btn btn-sm btn-light text-info btn-import text-nowrap w-100"
+                            data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload me-1"></i>
+                            <span>Import</span></a>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="dropdown">
+                            <button href="#" class="btn btn-sm btn-light text-dark dropdown-toggle w-100"
+                                data-bs-toggle="dropdown" data-bs-auto-close="false" id="filter">
+                                <i class="bi bi-funnel me-2"></i> Filter
+                            </button>
+                            <form action="" class="dropdown-menu dropdown-menu-end pt-0 shadow filter-clientprog"
+                                style="width: 400px;" id="advanced-filter">
+                                <div class="dropdown-header bg-info text-dark py-2 d-flex justify-content-between">
+                                    Advanced Filter
+                                    <i class="bi bi-search"></i>
+                                </div>
+                                <div class="row p-3">
+                                    <div class="col-md-12 mb-2">
+                                        <label>Event Name</label>
+                                        <select class="select w-100" name="event_name" id="event-name">
+                                            <option data-placeholder="true"></option>
+                                            @foreach ($events as $event)
+                                                <option value="{{ $event->event_title }}">{{ $event->event_title }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12 mb-2">
+                                        <div class="row g-2">
+                                            <div class="col-md-6 mb-2">
+                                                <label>Start Date</label>
+                                                <input type="date" name="start_date" id="start_date"
+                                                    class="form-control form-control-sm rounded">
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <label>End Date</label>
+                                                <input type="date" name="end_date" id="end_date"
+                                                    class="form-control form-control-sm rounded">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                     <div class="col-md-3">
                         <a href="{{ url('program/event/create') }}" class="btn btn-sm btn-info text-nowrap w-100"><i
                                 class="bi bi-plus-square me-1"></i>
-                            Add Client Event </a>
+                            Add</a>
                     </div>
                 </div>
 
@@ -149,7 +183,7 @@
                         extend: 'excel',
                         text: 'Export to Excel',
                         exportOptions: {
-                            columns: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
                             format: {
                                 body: function(data, row, column, node) {
 
@@ -167,15 +201,18 @@
                                                     '<span class="badge text-bg-success" style="font-size:8px";>Existing</span>',
                                                     '')
                                             }
-                                            result = column >= 7 && column <= 9 ? removed_span.replace( /[$,.]/g, '' ) : removed_span.replace(/(&nbsp;|<([^>]+)>)/ig, "");
+                                            result = column >= 7 && column <= 9 ? removed_span
+                                                .replace(/[$,.]/g, '') : removed_span.replace(
+                                                    /(&nbsp;|<([^>]+)>)/ig, "");
                                             break;
 
                                         case 15:
-                                            return $(data).is("input") ? $(data).val() : data; 
+                                            return $(data).is("input") ? $(data).val() : data;
                                             break;
 
                                         case 16:
-                                            return $(data).is("input") && $(data).attr('checked') ? "✓" : "-"; 
+                                            return $(data).is("input") && $(data).attr('checked') ?
+                                                "✓" : "-";
                                             break;
 
                                         default:
@@ -200,6 +237,8 @@
                     url: '',
                     data: function(params) {
                         params.event_name = $("#event-name").val()
+                        params.start_date = $('#start_date').val()
+                        params.end_date = $('#end_date').val()
                     }
                 },
                 pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
@@ -214,7 +253,7 @@
                         data: 'client_name',
                         name: 'client.full_name',
                         render: function(data, type, row, meta) {
-                            
+
                             var existing = moment(row.created_at).format('MMMM Do YYYY, h:mm') ==
                                 moment(row.client_created_at).format('MMMM Do YYYY, h:mm');
 
@@ -225,12 +264,14 @@
                             var intoURLParam = clientRole.replace("/", "-");
                             var intoURLParam = intoURLParam.replace('counsellor', 'counselor');
 
-                            let URL = "{{ url('/') }}/client/" + intoURLParam + "/" + row.client_id;
+                            let URL = "{{ url('/') }}/client/" + intoURLParam + "/" + row
+                                .client_id;
 
-                            return "<a class='text-dark text-decoration-none' href='"+ URL +"'>" + data + "</a>" + (existing == true ?
-                                ' <span class="badge text-bg-primary" style="font-size:8px;">New</span>' :
-                                ' <span class="badge text-bg-success" style="font-size:8px";>Existing</span>'
-                            );
+                            return "<a class='text-dark text-decoration-none' href='" + URL + "'>" +
+                                data + "</a>" + (existing == true ?
+                                    ' <span class="badge text-bg-primary" style="font-size:8px;">New</span>' :
+                                    ' <span class="badge text-bg-success" style="font-size:8px";>Existing</span>'
+                                );
                         }
                     },
                     {
@@ -318,7 +359,8 @@
                         className: 'text-center',
                         searchable: false,
                         render: function(data, type, row, meta) {
-                            return '<input type="number" class="form-control form-control-sm num-party w-50 m-auto" value="'+ data +'" />'
+                            return '<input type="number" class="form-control form-control-sm num-party w-50 m-auto" value="' +
+                                data + '" />'
                         }
                     },
                     {
@@ -437,6 +479,19 @@
                 var value = $(e.currentTarget).find("option:selected").val();
                 table.draw();
             })
+
+            $("#start_date").on('change', function(e) {
+                var val = $(e.currentTarget).val()
+                var value = moment(val).format('YYYY_MM_DD')
+                table.draw();
+            })
+
+            $("#end_date").on('change', function(e) {
+                var val = $(e.currentTarget).val()
+                var value = moment(val).format('YYYY_MM_DD')
+                table.draw();
+            })
+
         });
     </script>
 
