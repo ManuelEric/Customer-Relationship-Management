@@ -20,9 +20,12 @@
                                     <p>
                                         Terima kasih sudah mendaftar ke event <b>STEM+ Wonderlab.</b>
                                     </p>
-                                    <p>
-                                        Sampai jumpa <b>BESOK!</b>
-                                    </p>
+
+                                    @if(date('Y-m-d') == '2023-11-10')
+                                        <p>
+                                            Sampai jumpa <b>BESOK!</b>
+                                        </p>
+                                    @endif
 
                                     <p>
                                         <b>STEM+ Wonderlab
@@ -72,7 +75,7 @@
                                         Thank you for registering to <b>STEM+ Wonderlab</b> event.
                                     </p>
                                     <p>
-                                        See you <b>TOMORROW!</b>
+                                        See you <b>{{ date('Y-m-d') == '2023-11-10' ? 'TOMORROW!' : 'SOON!'}}</b>
                                     </p>
 
                                     <p>
