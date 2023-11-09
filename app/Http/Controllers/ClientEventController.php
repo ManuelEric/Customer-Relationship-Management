@@ -111,8 +111,16 @@ class ClientEventController extends Controller
     {
         if ($request->ajax())
         {
+            
             $event_name = $request->get('event_name');
-            $filter['event_name'] = $event_name;
+            $start_date = $request->get('start_date');
+            $end_date = $request->get('end_date');
+
+            $filter = [
+                'event_name' => $event_name,
+                'start_date' => $start_date,
+                'end_date' => $end_date
+            ];
 
             return $this->clientEventRepository->getAllClientEventDataTables($filter);
         }
