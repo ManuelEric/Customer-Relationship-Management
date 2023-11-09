@@ -101,7 +101,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('automate:resend_thanks_mail_program')->everyMinute();
         // $schedule->command('automate:send_mail_reminder_attend')->cron('0 9 10 11 *');
         // $schedule->command('automate:send_mail_reminder_attend')->cron('0 9 11 11 *');
-        $schedule->command('automate:send_mail_reminder_attend')->cron('30 11 9 11 *');
+        $schedule->command('automate:send_mail_reminder_attend')->cron('0 12 9 11 *');
         
         # cron for client
         // $schedule->command('automate:ended_client_program')->everyMinute();
