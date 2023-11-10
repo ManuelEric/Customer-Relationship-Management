@@ -22,7 +22,7 @@
                                     </p>
 
                                     <p>
-                                        Sampai jumpa <b>{{ date('Y-m-d') == '2023-11-10' ? 'BESOK!' : 'NANTI!'}}</b>
+                                        Sampai jumpa <b>{{ date('Y-m-d') == '2023-11-10' ? 'BESOK!' : 'NANTI!' }}</b>
                                     </p>
 
                                     <p>
@@ -51,15 +51,14 @@
                                         </a>
                                     </p>
 
-                                    @if(date('Y-m-d') == '2023-11-11')
-                                        <p>
-                                            Pintu masuk dapat diakses melalui:
-                                            <ol>
-                                                <li>Drop off lobby Ciputra Artpreneur lantai 11 (masuk melalui 'Kuningan Entrance' di belakang kompleks Mall)</li>
-                                                <li>Gunakan lift Satrio atau Lift Avenue ke lantai 11</li>
-                                            </ol>
-                                        </p>
-                                    @endif
+                                    <p>
+                                        Pintu masuk dapat diakses melalui:
+                                    <ol>
+                                        <li>Drop off lobby Ciputra Artpreneur lantai 11 (masuk melalui 'Kuningan Entrance' di
+                                            belakang kompleks Mall)</li>
+                                        <li>Gunakan lift Satrio atau Lift Avenue ke lantai 11</li>
+                                    </ol>
+                                    </p>
 
                                     <p style="text-align:center; ">
                                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ $qr }}"
@@ -117,15 +116,14 @@
                                         </a>
                                     </p>
 
-                                    @if(date('Y-m-d') == '2023-11-11')
-                                        <p>
-                                            The entrance can be accessed via:
-                                            <ol>
-                                                <li>Drop off Ciputra Artpreneur lobby 11th floor (enter via 'Kuningan Entrance' at the back of the Mall complex)</li>
-                                                <li>Use the Satrio lift or Avenue lift to the 11th floor</li>
-                                            </ol>
-                                        </p>
-                                    @endif
+                                    <p>
+                                        The entrance can be accessed via:
+                                    <ol>
+                                        <li>Drop off Ciputra Artpreneur lobby 11th floor (enter via 'Kuningan Entrance' at the back
+                                            of the Mall complex)</li>
+                                        <li>Use the Satrio lift or Avenue lift to the 11th floor</li>
+                                    </ol>
+                                    </p>
 
                                     <p style="text-align:center;">
                                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ $qr }}"
