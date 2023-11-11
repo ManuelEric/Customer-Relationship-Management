@@ -6,6 +6,7 @@ use App\Http\Controllers\ClientEventController;
 use App\Http\Traits\MailingEventOfflineTrait;
 use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
+use App\Models\ClientEvent;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
