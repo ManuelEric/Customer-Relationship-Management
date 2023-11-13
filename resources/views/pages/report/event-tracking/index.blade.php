@@ -4,7 +4,7 @@
 
 @section('content')
     @if (isset($choosen_event))
-        <div class="row">
+        <div class="row" id="event-selected">
             <div class="col">
                 <div class="alert alert-success">
                     Event Tracking of <u>{{ $choosen_event->event_title }}</u>
@@ -20,14 +20,14 @@
                     <h6 class="p-0 m-0">Client Event</h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('report.client.event') }}" method="GET">
+                    <form method="GET" id="select-event">
                         {{-- @csrf --}}
                         <div class="mb-3">
                             <label>Event Name</label>
-                            <select name="event_id" id="" class="select w-100">
+                            <select name="event_name" id="event-name" class="select w-100">
                                 <option data-placeholder="true"></option>
                                 @foreach ($events as $event)
-                                    <option value="{{ $event->event_id }}">{{ $event->event_title }}</option>
+                                    <option value="{{ $event->event_title }}">{{ $event->event_title }}</option>
                                 @endforeach
 
                             </select>
@@ -190,7 +190,12 @@
             },
             processing: true,
             serverSide: true,
-            ajax: '',
+            ajax: {
+                url: '',
+                data: function(params) {
+                    params.event_name = $("#event-name").val()
+                }
+            },
             columns: [{
                     data: 'event_id',
                     defaultContent: '-',
@@ -216,12 +221,12 @@
                 //     defaultContent: '-',
                 // },
                 {
-                    data: 'mail',
+                    data: 'client_mail',
                     name: 'client.mail',
                     defaultContent: '-',
                 },
                 {
-                    data: 'phone',
+                    data: 'client_phone',
                     name: 'client.phone',
                     defaultContent: '-',
                 },
@@ -276,6 +281,10 @@
                     data: 'number_of_party',
                     className: 'text-center',
                     searchable: false,
+                    render: function(data, type, row, meta) {
+                        return '<input type="number" class="form-control form-control-sm num-party w-50 m-auto" value="' +
+                            data + '" />'
+                    }
                 },
                 {
                     data: 'status',
@@ -295,8 +304,22 @@
             ]
         });
 
-        // realtimeData(table)
+        realtimeData(table)
+
+        $("#select-event").on("submit", function(){
+            var value = $(e.currentTarget).find("option:selected").val();
+            table.draw();
+        })
 
     });
+    // function ExportToExcel() {
+
+    //     var workbook = XLSX.utils.book_new();
+    //     var ws = XLSX.utils.table_to_sheet(document.getElementById("tbl_event"));
+    //     XLSX.utils.book_append_sheet(workbook, ws, "Client Events");
+
+    //     XLSX.writeFile(workbook, "report-event-tracking.xlsx");
+
+    // }
 </script>
 @endpush
