@@ -21,11 +21,9 @@
                                         Terima kasih sudah mendaftar ke event <b>STEM+ Wonderlab.</b>
                                     </p>
 
-                                    @if(date('Y-m-d') == '2023-11-10')
-                                        <p>
-                                            Sampai jumpa <b>BESOK!</b>
-                                        </p>
-                                    @endif
+                                    <p>
+                                        Sampai jumpa <b>{{ date('Y-m-d') == '2023-11-10' ? 'BESOK!' : 'NANTI!' }}</b>
+                                    </p>
 
                                     <p>
                                         <b>STEM+ Wonderlab
@@ -38,15 +36,28 @@
                                     </p>
 
                                     <p style="text-align: center">
-                                        Add to Calendar 
+                                        Add to Calendar
                                         <br>
-                                            <a href="https://calendar.google.com/calendar/u/0/r/eventedit?dates=20231111T050000Z/20231111T110000Z&text=STEM%2B+Wonderlab&details=Indonesia%E2%80%99s+FIRST+Student+Makerspace+Expo&location=Ciputra+Artpreneur,+Jakarta&pli=1" style="text-decoration: none;">
-                                                <img src="{{ asset('img/icon/google.png') }}" width="25" height="25" alt="">
-                                            </a>
-                                            &nbsp; &nbsp;
-                                            <a href="https://groot.mailerlite.com/events/download?dates=20231111T050000Z/20231111T110000Z&text=STEM%2B%20Wonderlab&details=Indonesia%E2%80%99s%20FIRST%20Student%20Makerspace%20Expo&location=Ciputra%20Artpreneur%2C%20Jakarta" style="text-decoration: none;">
-                                                <img src="{{ asset('img/icon/outlook.png') }}" width="25" height="25" alt="">
-                                            </a>
+                                        <a href="https://calendar.google.com/calendar/u/0/r/eventedit?dates=20231111T050000Z/20231111T110000Z&text=STEM%2B+Wonderlab&details=Indonesia%E2%80%99s+FIRST+Student+Makerspace+Expo&location=Ciputra+Artpreneur,+Jakarta&pli=1"
+                                            style="text-decoration: none;">
+                                            <img src="{{ asset('img/icon/google.png') }}" width="25" height="25"
+                                                alt="">
+                                        </a>
+                                        &nbsp; &nbsp;
+                                        <a href="https://groot.mailerlite.com/events/download?dates=20231111T050000Z/20231111T110000Z&text=STEM%2B%20Wonderlab&details=Indonesia%E2%80%99s%20FIRST%20Student%20Makerspace%20Expo&location=Ciputra%20Artpreneur%2C%20Jakarta"
+                                            style="text-decoration: none;">
+                                            <img src="{{ asset('img/icon/outlook.png') }}" width="25" height="25"
+                                                alt="">
+                                        </a>
+                                    </p>
+
+                                    <p>
+                                        Pintu masuk dapat diakses melalui:
+                                    <ol>
+                                        <li>Drop off lobby Ciputra Artpreneur lantai 11 (masuk melalui 'Kuningan Entrance' di
+                                            belakang kompleks Mall)</li>
+                                        <li>Gunakan lift Satrio atau Lift Avenue ke lantai 11</li>
+                                    </ol>
                                     </p>
 
                                     <p style="text-align:center; ">
@@ -65,6 +76,7 @@
 
                                 @case('Student')
                                 @case('Mentee')
+
                                 @case('Teacher/Counselor')
                                     @if ($role == 'Teacher/Counselor')
                                         <p>Dear Mr./Mrs. {{ $recipient }},</p>
@@ -75,7 +87,7 @@
                                         Thank you for registering to <b>STEM+ Wonderlab</b> event.
                                     </p>
                                     <p>
-                                        See you <b>{{ date('Y-m-d') == '2023-11-10' ? 'TOMORROW!' : 'SOON!'}}</b>
+                                        See you <b>{{ date('Y-m-d') == '2023-11-10' ? 'TOMORROW!' : 'SOON!' }}</b>
                                     </p>
 
                                     <p>
@@ -89,18 +101,31 @@
                                     </p>
 
                                     <p style="text-align: center">
-                                        Add to Calendar 
+                                        Add to Calendar
                                         <br>
-                                            <a href="https://calendar.google.com/calendar/u/0/r/eventedit?dates=20231111T050000Z/20231111T110000Z&text=STEM%2B+Wonderlab&details=Indonesia%E2%80%99s+FIRST+Student+Makerspace+Expo&location=Ciputra+Artpreneur,+Jakarta&pli=1" style="text-decoration: none;">
-                                                <img src="{{ asset('img/icon/google.png') }}" width="25" height="25" alt="">
-                                            </a>
-                                            &nbsp; &nbsp;
-                                            <a href="https://groot.mailerlite.com/events/download?dates=20231111T050000Z/20231111T110000Z&text=STEM%2B%20Wonderlab&details=Indonesia%E2%80%99s%20FIRST%20Student%20Makerspace%20Expo&location=Ciputra%20Artpreneur%2C%20Jakarta" style="text-decoration: none;">
-                                                <img src="{{ asset('img/icon/outlook.png') }}" width="25" height="25" alt="">
-                                            </a>
+                                        <a href="https://calendar.google.com/calendar/u/0/r/eventedit?dates=20231111T050000Z/20231111T110000Z&text=STEM%2B+Wonderlab&details=Indonesia%E2%80%99s+FIRST+Student+Makerspace+Expo&location=Ciputra+Artpreneur,+Jakarta&pli=1"
+                                            style="text-decoration: none;">
+                                            <img src="{{ asset('img/icon/google.png') }}" width="25" height="25"
+                                                alt="">
+                                        </a>
+                                        &nbsp; &nbsp;
+                                        <a href="https://groot.mailerlite.com/events/download?dates=20231111T050000Z/20231111T110000Z&text=STEM%2B%20Wonderlab&details=Indonesia%E2%80%99s%20FIRST%20Student%20Makerspace%20Expo&location=Ciputra%20Artpreneur%2C%20Jakarta"
+                                            style="text-decoration: none;">
+                                            <img src="{{ asset('img/icon/outlook.png') }}" width="25" height="25"
+                                                alt="">
+                                        </a>
                                     </p>
 
-                                    <p style="text-align:center; ">
+                                    <p>
+                                        The entrance can be accessed via:
+                                    <ol>
+                                        <li>Drop off Ciputra Artpreneur lobby 11th floor (enter via 'Kuningan Entrance' at the back
+                                            of the Mall complex)</li>
+                                        <li>Use the Satrio lift or Avenue lift to the 11th floor</li>
+                                    </ol>
+                                    </p>
+
+                                    <p style="text-align:center;">
                                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ $qr }}"
                                             alt="">
                                         <br>

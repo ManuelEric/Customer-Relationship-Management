@@ -78,7 +78,7 @@
                     <div class="d-flex align-items-center h-100">
                         <div class="w-100">
                             <iframe
-                                src="https://crm-allinedu.com/form/event?event_name=STEM%20Wonderlab%20Registration%20Form&attend_status=attend&status=ots"
+                                src="{{ url('form/event?event_name=STEM%20Wonderlab%20Registration%20Form&attend_status=attend&status=ots') }}"
                                 frameborder="0" class="w-100 form-embed" width="100%" style="height: 90vh;"
                                 id="frameEmbed"></iframe>
                         </div>
