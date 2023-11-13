@@ -14,6 +14,7 @@ interface ClientEventRepositoryInterface
     public function getClientEventByClientId($clientId);
     public function getClientEventByClientIdAndEventId($clientId, $eventId);
     public function getClientEventById($clientEventId);
+    public function getJoinedClientByEventId($eventId);
     public function getClientEventByEventId($eventId);
     public function deleteClientEvent($clientEventId);
     public function createClientEvent(array $clientEvents);

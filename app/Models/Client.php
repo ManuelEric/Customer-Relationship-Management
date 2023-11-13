@@ -49,6 +49,14 @@ class Client extends Model
         'updated_at',
     ];
 
+    # attributes
+    protected function fullName(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => isset($this->last_name) ? $this->first_name . ' ' . $this->last_name : $this->first_name,
+        );
+    }
+
     public function scopeWithAndWhereHas($query, $relation, $constraint)
     {
         return $query->whereHas($relation, $constraint)

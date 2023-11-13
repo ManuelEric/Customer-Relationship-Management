@@ -538,6 +538,25 @@ class ClientEventRepository implements ClientEventRepositoryInterface
         return ClientEvent::where('event_id', $eventId)->get();
     }
 
+    public function getJoinedClientByEventId($eventId)
+    {
+        return ClientEvent::where('event_id', $eventId)->where('status', 1)->
+            where(function ($query) {
+
+
+                $query->whereDoesntHave('logMail', function($subQuery) {
+                    $subQuery->where('category', 'thanks-mail');
+                })->
+                
+                orWhereHas('logMail', function ($subQuery) {
+                    $subQuery->where('sent_status', 0)->where('category', 'thanks-mail');
+                });
+
+                
+            })->
+            get();
+    }
+
     public function deleteClientEvent($clientEventId)
     {
         return ClientEvent::destroy($clientEventId);
