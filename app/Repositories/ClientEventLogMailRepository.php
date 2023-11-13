@@ -21,6 +21,11 @@ class ClientEventLogMailRepository implements ClientEventLogMailRepositoryInterf
             orderBy('created_at', 'asc')->get();
     }
 
+    public function getClientEventLogMailByClientEventIdAndCategory($clientEventId, $category)
+    {
+        return ClientEventLogMail::where('clientevent_id', $clientEventId)->where('category', $category)->first();
+    }
+
     public function createClientEventLogMail($logMailDetails)
     {
         return ClientEventLogMail::create($logMailDetails);
