@@ -14,6 +14,11 @@ interface ClientEventRepositoryInterface
     public function getClientEventById($clientEventId);
     public function getJoinedClientByEventId($eventId);
     public function getClientEventByEventId($eventId);
+    # new
+    public function getExistingMenteeFromClientEvent($eventId = null);
+    public function getExistingNonMenteeFromClientEvent($eventId = null);
+    public function getUndefinedClientFromClientEvent($eventId = null);
+
     public function deleteClientEvent($clientEventId);
     public function createClientEvent(array $clientEvents);
     public function updateClientEvent($clientEventId, array $clientEvents);

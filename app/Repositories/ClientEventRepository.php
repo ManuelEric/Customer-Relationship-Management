@@ -228,7 +228,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
 
     public function getReportClientEventsGroupByRoles($eventId = null)
     {
-        $clientEvent = ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', DB::raw('(CASE WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id ELSE tbl_client_event.child_id END)'))
+        return ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', DB::raw('(CASE WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id ELSE tbl_client_event.child_id END)'))
             ->leftJoin('tbl_client_roles', 'tbl_client_roles.client_id', '=', 'tbl_client.id')
             ->leftJoin('tbl_roles', 'tbl_roles.id', '=', 'tbl_client_roles.role_id')
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.client_id', '=', 'tbl_client.id')
@@ -245,17 +245,11 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 'program.main_prog_id',
                 'tbl_roles.role_name',
                 'tbl_client_prog.status',
-            );
-
-        if (isset($eventId)) {
-            return $clientEvent
-                ->where('tbl_client_event.event_id', $eventId)
-                ->get();
-        } else {
-            return $clientEvent
-                ->get();
-        }
-      
+            )->
+            when(isset($eventId), function ($subQuery) use ($eventId) {
+                $subQuery->where('tbl_client_event.event_id', $eventId);
+            })->
+            get();   
     }
 
     public function getConversionLead($filter = null)
@@ -349,16 +343,110 @@ class ClientEventRepository implements ClientEventRepositoryInterface
 
 
                 $query->whereDoesntHave('logMail', function($subQuery) {
-                    $subQuery->where('category', 'thanks-mail');
+                    $subQuery->where('category', 'thanks-mail-after');
                 })->
                 
                 orWhereHas('logMail', function ($subQuery) {
-                    $subQuery->where('sent_status', 0)->where('category', 'thanks-mail');
+                    $subQuery->where('sent_status', 0)->where('category', 'thanks-mail-after');
                 });
 
                 
             })->
             get();
+    }
+
+    # new 
+    public function getExistingMenteeFromClientEvent($eventId = null)
+    {
+        return ClientEvent::
+            leftJoin('tbl_client', 'tbl_client.id', '=', DB::raw('(CASE WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id ELSE tbl_client_event.child_id END)'))
+            ->leftJoin('tbl_client_roles', 'tbl_client_roles.client_id', '=', 'tbl_client.id')
+            ->leftJoin('tbl_roles', 'tbl_roles.id', '=', 'tbl_client_roles.role_id')
+            ->leftJoin('tbl_client_prog', 'tbl_client_prog.client_id', '=', 'tbl_client.id')
+            ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
+            ->select(
+                'tbl_client.register_as',
+                'tbl_client_event.clientevent_id',
+                DB::raw('(CASE 
+                    WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id 
+                    ELSE tbl_client_event.child_id 
+                END) as client_id'),
+                'tbl_client_event.created_at',
+                'tbl_client_event.joined_date',
+                'program.main_prog_id',
+                'tbl_roles.role_name',
+                'tbl_client_prog.status',
+            )->
+            when(isset($eventId), function ($subQuery) use ($eventId) {
+                $subQuery->where('tbl_client_event.event_id', $eventId);
+            })->
+            where('role_name', 'Mentee')->groupBy('client_id')->get();
+    }
+    
+    public function getExistingNonMenteeFromClientEvent($eventId = null)
+    {
+        $id_existingMentee = $this->getExistingMenteeFromClientEvent($eventId)->pluck('client_id')->toArray();
+
+        return ClientEvent::
+            leftJoin('tbl_client', 'tbl_client.id', '=', DB::raw('(CASE WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id ELSE tbl_client_event.child_id END)'))
+            ->leftJoin('tbl_client_roles', 'tbl_client_roles.client_id', '=', 'tbl_client.id')
+            ->leftJoin('tbl_roles', 'tbl_roles.id', '=', 'tbl_client_roles.role_id')
+            ->leftJoin('tbl_client_prog', 'tbl_client_prog.client_id', '=', 'tbl_client.id')
+            ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
+            ->select(
+                'tbl_client.register_as',
+                'tbl_client_event.clientevent_id',
+                DB::raw('(CASE 
+                    WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id 
+                    ELSE tbl_client_event.child_id 
+                END) as client_id'),
+                'tbl_client_event.created_at',
+                'tbl_client_event.joined_date',
+                'program.main_prog_id',
+                'tbl_roles.role_name',
+                'tbl_client_prog.status',
+            )->
+            when(isset($eventId), function ($subQuery) use ($eventId) {
+                $subQuery->where('tbl_client_event.event_id', $eventId);
+            })->
+            where('role_name', '!=', 'Mentee')->
+            where('tbl_client_prog.status', 1)->
+            where('main_prog_id', '!=', 1)->
+            whereNotIn(DB::raw('(CASE 
+            WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id 
+            ELSE tbl_client_event.child_id 
+        END)'), $id_existingMentee)->groupBy('client_id')->get();
+    }
+
+    public function getUndefinedClientFromClientEvent($eventId = null)
+    {
+        $id_existingMentee = $this->getExistingMenteeFromClientEvent($eventId)->pluck('client_id')->toArray();
+        $id_existingNonMentee = $this->getExistingNonMenteeFromClientEvent($eventId)->pluck('client_id')->toArray();
+        $ids = array_merge($id_existingMentee, $id_existingNonMentee);
+
+        return ClientEvent::
+            leftJoin('tbl_client', 'tbl_client.id', '=', DB::raw('(CASE WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id ELSE tbl_client_event.child_id END)'))
+            ->leftJoin('tbl_client_roles', 'tbl_client_roles.client_id', '=', 'tbl_client.id')
+            ->leftJoin('tbl_roles', 'tbl_roles.id', '=', 'tbl_client_roles.role_id')
+            ->leftJoin('tbl_client_prog', 'tbl_client_prog.client_id', '=', 'tbl_client.id')
+            ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
+            ->select(
+                'tbl_client.register_as',
+                'tbl_client_event.clientevent_id',
+                DB::raw('(CASE 
+                    WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id 
+                    ELSE tbl_client_event.child_id 
+                END) as client_id'),
+                'tbl_client_event.created_at',
+                'tbl_client_event.joined_date',
+                'program.main_prog_id',
+                'tbl_roles.role_name',
+                'tbl_client_prog.status',
+            )->
+            when(isset($eventId), function ($subQuery) use ($eventId) {
+                $subQuery->where('tbl_client_event.event_id', $eventId);
+            })->
+            whereNotIn('client_id', $ids)->groupBy('client_id')->get();
     }
 
     public function deleteClientEvent($clientEventId)
