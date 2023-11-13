@@ -24,7 +24,9 @@
                             </p>
 
                             <p style="text-align: center">
-                                <img src="{{ asset('img/makerspace/GIP.jpg') }}" width="350" alt="">
+                                <a href="https://immersion-program.all-inedu.com/">
+                                    <img src="{{ asset('img/makerspace/GIP.jpg') }}" width="350" alt="">
+                                </a>
                             </p>
 
                             <p style="text-align: center">
@@ -32,13 +34,18 @@
                             </p>
 
                             <p style="text-align: center">
+                                Dapatkan diskon Anda melalui tim Client Management ALL-in  sekarang!<br>
+                                p.s. Penawaran ini akan berakhir pada Jumat, 30 November 2023.
+                            </p>
+
+                            <p style="text-align: center">
                                 Dapatkan sekarang di <br>
                                 <a href="https://api.whatsapp.com/send?phone=+6281808081363&text={{ $wa_text_anggie }}" style="text-decoration: none;">
-                                    <button style="border: 1px solid rgb(222, 222, 12); padding: 10px 16px 10px 16px; background-color:#F0833E; border-radius: 7px; color: #FFFFFF; cursor: pointer;">Anggie</button>
+                                    <button style="border: 1px solid rgb(222, 222, 12); padding: 15px 50px 15px 50px; background-color:#F0833E; border-radius: 7px; color: #FFFFFF; cursor: pointer;">Anggie</button>
                                 </a> 
                                 atau 
                                 <a href="https://api.whatsapp.com/send?phone=+6287860811413&text={{ $wa_text_derry }}" style="text-decoration: none;">
-                                    <button style="border: 1px solid rgb(222, 222, 12); padding: 10px 16px 10px 16px; background-color: #F0833E; border-radius: 7px; color: #FFFFFF; cursor: pointer;">Derry</button>
+                                    <button style="border: 1px solid rgb(222, 222, 12); padding: 15px 50px 15px 50px; background-color: #F0833E; border-radius: 7px; color: #FFFFFF; cursor: pointer;">Derry</button>
                                 </a>
                             </p>
 
