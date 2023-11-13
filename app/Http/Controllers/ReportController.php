@@ -113,7 +113,7 @@ class ReportController extends Controller
 
         return view('pages.report.event-tracking.index')->with(
             [
-                // 'clientEvents' => $clientEvents,
+                'clientEvents' => $clientEvents,
                 'existingMentee' => $existingMentee,
                 'existingNonMentee' => $existingNonMentee,
                 'existingNonClient' => $existingNonClient,

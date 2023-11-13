@@ -144,166 +144,159 @@
         </div>
     </div>
 
-
-    <script>
-        @php
-            $privilage = $menus['Report']->where('submenu_name', 'Event Tracking')->first();
-        @endphp
-        $(document).ready(function() {
-            @if ($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false");
-
-                $('body').bind('cut copy paste', function(event) {
-                    event.preventDefault();
-                });
-            @endif
-
-            $('[data-toggle="tooltip"]').tooltip();
-
-        });
-
-        $(document).ready(function() {
-            // $('#cancel').click(function() {
-            //     $(this).parents('.dropdown').find('button.dropdown-toggle').dropdown('toggle')
-            // });
-            var widthView = $(window).width();
-            var i = 1;
-
-            var table = $('#eventTrackTable').DataTable({
-                dom: 'Bfrtip',
-                lengthMenu: [
-                    [10, 25, 50, 100, -1],
-                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-                ],
-                buttons: [
-                    'pageLength', {
-                        extend: 'excel',
-                        text: 'Export to Excel',
-                    }
-                ],
-                scrollX: true,
-                fixedColumns: {
-                    left: (widthView < 768) ? 1 : 2,
-                    right: 1
-                },
-                processing: true,
-                serverSide: true,
-                ajax: '',
-                columns: [{
-                        data: 'event_id',
-                        defaultContent: '-',
-                    },
-                    {
-                        data: 'client_name',
-                        name: 'client.full_name',
-                        defaultContent: '-',
-                    },
-                    {
-                        data: 'event_name',
-                        name: 'tbl_events.event_title'
-                    },
-                    {
-                        data: 'register_as',
-                        name: 'client.register_as',
-                        render: function(data, type, row, meta) {
-                            return data.charAt(0).toUpperCase() + data.slice(1);
-                        }
-                    },
-                    // {
-                    //     data: 'parent_name',
-                    //     defaultContent: '-',
-                    // },
-                    {
-                        data: 'mail',
-                        name: 'client.mail',
-                        defaultContent: '-',
-                    },
-                    {
-                        data: 'phone',
-                        name: 'client.phone',
-                        defaultContent: '-',
-                    },
-                    {
-                        data: 'child_name',
-                        name: 'child_name',
-                        defaultContent: '-',
-                    },
-                    {
-                        data: 'participated',
-                        searchable: true
-                        //    defaultContent: '-'
-                    },
-                    {
-                        data: 'school_name',
-                        name: 'school_name',
-                        defaultContent: '-',
-                    },
-                    {
-                        data: 'grade_now',
-                        name: 'grade_now',
-                        defaultContent: '-',
-                    },
-                    {
-                        data: 'graduation_year',
-                        name: 'graduation_year',
-                        defaultContent: '-',
-                    },
-                    {
-                        data: 'abr_country',
-                        name: 'client.abr_country',
-                        defaultContent: '-',
-                    },
-                    {
-                        data: 'conversion_lead',
-                        // name: 'client.lead_source',
-                        defaultContent: '-',
-                    },
-                    {
-                        data: 'referral_from',
-                        name: 'client_ref_code_view.full_name',
-                        defaultContent: '-',
-                        className: 'text-center',
-                    },
-                    {
-                        className: 'text-center',
-                        data: 'notes',
-                        searchable: true,
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'number_of_party',
-                        className: 'text-center',
-                        searchable: false,
-                    },
-                    {
-                        data: 'status',
-                        className: 'text-center',
-                        render: function(data, type, row, meta) {
-                            return data == 1 ? "Attended" : "Join"
-                        }
-                    },
-                    {
-                        data: 'registration_type',
-                        className: 'text-center',
-                    },
-                    {
-                        data: 'joined_date',
-                        defaultContent: '-',
-                    },
-                ]
-            });
-
-            // realtimeData(table)
-
-        });
-        // function ExportToExcel() {
-
-        //     var workbook = XLSX.utils.book_new();
-        //     var ws = XLSX.utils.table_to_sheet(document.getElementById("tbl_event"));
-        //     XLSX.utils.book_append_sheet(workbook, ws, "Client Events");
-
-        //     XLSX.writeFile(workbook, "report-event-tracking.xlsx");
-
-        // }
-    </script>
 @endsection
+
+@push('scripts')
+<script>
+    @php
+        $privilage = $menus['Report']->where('submenu_name', 'Event Tracking')->first();
+    @endphp
+    $(document).ready(function() {
+        @if ($privilage['copy'] == 0)
+            document.oncontextmenu = new Function("return false");
+
+            $('body').bind('cut copy paste', function(event) {
+                event.preventDefault();
+            });
+        @endif
+
+        $('[data-toggle="tooltip"]').tooltip();
+
+    });
+
+    $(document).ready(function() {
+        // $('#cancel').click(function() {
+        //     $(this).parents('.dropdown').find('button.dropdown-toggle').dropdown('toggle')
+        // });
+        var widthView = $(window).width();
+        var i = 1;
+
+        var table = $('#eventTrackTable').DataTable({
+            dom: 'Bfrtip',
+            lengthMenu: [
+                [10, 25, 50, 100, -1],
+                ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
+            ],
+            buttons: [
+                'pageLength', {
+                    extend: 'excel',
+                    text: 'Export to Excel',
+                }
+            ],
+            scrollX: true,
+            fixedColumns: {
+                left: (widthView < 768) ? 1 : 2,
+                right: 1
+            },
+            processing: true,
+            serverSide: true,
+            ajax: '',
+            columns: [{
+                    data: 'event_id',
+                    defaultContent: '-',
+                },
+                {
+                    data: 'client_name',
+                    name: 'client.full_name',
+                    defaultContent: '-',
+                },
+                {
+                    data: 'event_name',
+                    name: 'tbl_events.event_title'
+                },
+                {
+                    data: 'register_as',
+                    name: 'client.register_as',
+                    render: function(data, type, row, meta) {
+                        return data.charAt(0).toUpperCase() + data.slice(1);
+                    }
+                },
+                // {
+                //     data: 'parent_name',
+                //     defaultContent: '-',
+                // },
+                {
+                    data: 'mail',
+                    name: 'client.mail',
+                    defaultContent: '-',
+                },
+                {
+                    data: 'phone',
+                    name: 'client.phone',
+                    defaultContent: '-',
+                },
+                {
+                    data: 'child_name',
+                    name: 'child_name',
+                    defaultContent: '-',
+                },
+                {
+                    data: 'participated',
+                    searchable: true
+                    //    defaultContent: '-'
+                },
+                {
+                    data: 'school_name',
+                    name: 'school_name',
+                    defaultContent: '-',
+                },
+                {
+                    data: 'grade_now',
+                    name: 'grade_now',
+                    defaultContent: '-',
+                },
+                {
+                    data: 'graduation_year',
+                    name: 'graduation_year',
+                    defaultContent: '-',
+                },
+                {
+                    data: 'abr_country',
+                    name: 'client.abr_country',
+                    defaultContent: '-',
+                },
+                {
+                    data: 'conversion_lead',
+                    // name: 'client.lead_source',
+                    defaultContent: '-',
+                },
+                {
+                    data: 'referral_from',
+                    name: 'client_ref_code_view.full_name',
+                    defaultContent: '-',
+                    className: 'text-center',
+                },
+                {
+                    className: 'text-center',
+                    data: 'notes',
+                    searchable: true,
+                    defaultContent: '-'
+                },
+                {
+                    data: 'number_of_party',
+                    className: 'text-center',
+                    searchable: false,
+                },
+                {
+                    data: 'status',
+                    className: 'text-center',
+                    render: function(data, type, row, meta) {
+                        return data == 1 ? "Attended" : "Join"
+                    }
+                },
+                {
+                    data: 'registration_type',
+                    className: 'text-center',
+                },
+                {
+                    data: 'joined_date',
+                    defaultContent: '-',
+                },
+            ]
+        });
+
+        // realtimeData(table)
+
+    });
+</script>
+@endpush
