@@ -338,21 +338,38 @@ class ClientEventRepository implements ClientEventRepositoryInterface
 
     public function getJoinedClientByEventId($eventId)
     {
+
+        // return ClientEvent::where('event_id', $eventId)->where('status', 1)->
+        //     where(function ($query) {
+
+
+        //         $query->whereDoesntHave('logMail', function($subQuery) {
+        //             $subQuery->where('category', 'thanks-mail-after');
+        //         })->
+                
+        //         orWhereHas('logMail', function ($subQuery) {
+        //             $subQuery->where('sent_status', 0)->where('category', 'thanks-mail-after');
+        //         });
+
+                
+        //     })->
+        //     get();
+
+        # Feedback Mail
         return ClientEvent::where('event_id', $eventId)->where('status', 1)->
             where(function ($query) {
 
 
                 $query->whereDoesntHave('logMail', function($subQuery) {
-                    $subQuery->where('category', 'thanks-mail-after');
+                    $subQuery->where('category', 'feedback-mail');
                 })->
                 
                 orWhereHas('logMail', function ($subQuery) {
-                    $subQuery->where('sent_status', 0)->where('category', 'thanks-mail-after');
+                    $subQuery->where('sent_status', 0)->where('category', 'feedback-mail');
                 });
 
                 
-            })->
-            get();
+            })->get();
     }
 
     # new 
