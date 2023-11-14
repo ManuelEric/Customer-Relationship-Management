@@ -446,7 +446,10 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             when(isset($eventId), function ($subQuery) use ($eventId) {
                 $subQuery->where('tbl_client_event.event_id', $eventId);
             })->
-            whereNotIn('client_id', $ids)->groupBy('client_id')->get();
+            whereNotIn(DB::raw('(CASE 
+                WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id 
+                ELSE tbl_client_event.child_id 
+            END)'), $ids)->groupBy('client_id')->get();
     }
 
     public function deleteClientEvent($clientEventId)
