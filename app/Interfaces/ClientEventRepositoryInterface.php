@@ -7,14 +7,18 @@ interface ClientEventRepositoryInterface
     public function getAllClientEventDataTables(array $filter);
     public function getAllClientEventByClientIdDataTables($clientId);
     public function getAllClientEventByClientId($clientId);
-    public function getReportClientEvents($eventId);
-    public function getReportClientEventsDataTables($eventId);
     public function getReportClientEventsGroupByRoles($eventId);
     public function getConversionLead($filter);
     public function getClientEventByClientId($clientId);
     public function getClientEventByClientIdAndEventId($clientId, $eventId);
     public function getClientEventById($clientEventId);
+    public function getJoinedClientByEventId($eventId);
     public function getClientEventByEventId($eventId);
+    # new
+    public function getExistingMenteeFromClientEvent($eventId = null);
+    public function getExistingNonMenteeFromClientEvent($eventId = null);
+    public function getUndefinedClientFromClientEvent($eventId = null);
+
     public function deleteClientEvent($clientEventId);
     public function createClientEvent(array $clientEvents);
     public function updateClientEvent($clientEventId, array $clientEvents);

@@ -71,37 +71,51 @@ class ReportController extends Controller
     public function event(Request $request)
     {
 
-        $eventId = null;
-        if ($request->get('event_id') != null) {
-            $eventId = $request->get('event_id');
+        $event_name = $choosen_event = $eventId = null;
+        if ($request->get('event_name') != null) {
+            $event_name = $request->get('event_name');
         }
 
+        $choosen_event = $this->eventRepository->getEventByName($event_name);
+        $eventId = isset($choosen_event) ? $choosen_event->event_id : null;
+
+        $filter = [
+            'event_name' => $event_name,
+            'start_date' => null,
+            'end_date' => null
+        ];
+
         if ($request->ajax()) {
-            return $this->clientEventRepository->getReportClientEventsDataTables($eventId);
+
+
+            return $this->clientEventRepository->getAllClientEventDataTables($filter);
         }
 
         $events = $this->eventRepository->getAllEvents();
 
-        $choosen_event = $this->eventRepository->getEventById($eventId);
-        $clientEvents = $this->clientEventRepository->getReportClientEvents($eventId);
-        $allClientEvents = $this->clientEventRepository->getAllClientEvents();
+        // $clientEvents = $this->clientEventRepository->getAllClientEventDataTables($asDatatable, $filter);
         $clients = $this->clientEventRepository->getReportClientEventsGroupByRoles($eventId);
         $conversionLeads = $this->clientEventRepository->getConversionLead(['eventId' => $eventId]);
+
 
         # new get feeder data
         $feeder = $this->schoolRepository->getFeederSchools($eventId);
 
-        $existingMentee = $clients->where('role_name', 'Mentee')->unique('client_id');
 
-        $id_mentee = $this->getIdClient($existingMentee);
+        # query existing mentee from client event
+        $existingMentee = $this->clientEventRepository->getExistingMenteeFromClientEvent($eventId);
+        $id_mentee = $existingMentee->pluck('client_id')->toArray();
 
-        $existingNonMentee = $clients->where('role_name', '!=', 'Mentee')->where('status', 1)->where('main_prog_id', '!=', 1)->whereNotIn('client_id', $id_mentee)->unique('client_id');
 
-        $id_nonMentee = $this->getIdClient($existingNonMentee);
+        # query existing non mentee from client event
+        $existingNonMentee = $this->clientEventRepository->getExistingNonMenteeFromClientEvent($eventId);
+        $id_nonMentee = $existingNonMentee->pluck('client_id')->toArray();
+
 
         $undefinedClients = $clients->whereNotIn('client_id', $id_nonMentee)->whereNotIn('client_id', $id_mentee)->unique('client_id');
+        // return count($undefinedClients);
 
-        $checkClient = $this->checkExistingOrNewClientEvent($undefinedClients, $allClientEvents);
+        $checkClient = $this->checkExistingOrNewClientEvent($undefinedClients);
 
         $id_nonClient = $this->getIdClient($checkClient->where('type', 'ExistNonClient'));
 
@@ -110,6 +124,7 @@ class ReportController extends Controller
         $id_newClient = $this->getIdClient($checkClient->where('type', 'New'));
 
         $newClient = $clients->whereIn('client_id', $id_newClient)->unique('client_id');
+
 
         return view('pages.report.event-tracking.index')->with(
             [
@@ -233,8 +248,6 @@ class ReportController extends Controller
             $totalPaid = $totalReceipt;
         }
 
-        // return $invoiceB2bReport;
-        // exit;
 
         return view('pages.report.unpaid-payment.index')->with(
             [
@@ -260,34 +273,24 @@ class ReportController extends Controller
         return $id_client;
     }
 
-    protected function checkExistingOrNewClientEvent($data, $allClientEvents)
+    protected function checkExistingOrNewClientEvent($undefinedClients)
     {
-
-        $i = 0;
 
         $dataClient =  new Collection();
 
-        foreach ($data as $data) {
+        foreach ($undefinedClients as $undefinedClient) {
 
-            $child = $allClientEvents->where('child_id', '!=', null)->where('child_id', $data->client_id);
-            $student = $allClientEvents->where('child_id', null)->where('client_id', $data->client_id);
-            $check = $child->merge($student);
-            if (count($check) > 1) {
+            if ($undefinedClient->main_prog_id != null && $undefinedClient->main_prog_id != 1) {
                 $dataClient->push((object)[
                     'type' => 'ExistNonClient',
-                    'client_id' => $check->first()->child_id != null ? $check->first()->child_id : $check->first()->client_id,
+                    'client_id' => $undefinedClient->client_id,
                 ]);
-                // $extNonClient = $clients->where('client_id', $check->first()->client_id)->unique('client_id');
             } else {
-                // $NewClient = $clients->where('client_id', $check->first()->client_id)->unique('client_id');
-                // $dataClient['type'][$i] = 'New';
-                // $dataClient['id_client'][$i] = $check->first()->client_id;
                 $dataClient->push((object)[
                     'type' => 'New',
-                    'client_id' => $check->first()->child_id != null ? $check->first()->child_id : $check->first()->client_id,
+                    'client_id' => $undefinedClient->client_id,
                 ]);
             }
-            $i++;
         }
         return $dataClient;
     }

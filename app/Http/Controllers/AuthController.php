@@ -6,6 +6,8 @@ use App\Http\Traits\LoggingTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Interfaces\MenuRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
+use App\Interfaces\UserTypeRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
@@ -16,10 +18,12 @@ class AuthController extends Controller
 {
     use LoggingTrait;
     private MenuRepositoryInterface $menuRepository;
+    private UserTypeRepositoryInterface $userTypeRepository;
 
-    public function __construct(MenuRepositoryInterface $menuRepository)
+    public function __construct(MenuRepositoryInterface $menuRepository, UserTypeRepositoryInterface $userTypeRepository)
     {
         $this->menuRepository = $menuRepository;
+        $this->userTypeRepository = $userTypeRepository;
     }
 
     public function login(Request $request)
@@ -34,18 +38,19 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             
             $user = Auth::user();
+            $user_type = $this->userTypeRepository->getActiveUserTypeByUserId($user->id);
                         
-            if (!$user_type = $user->user_type->first()) {
+            if (!$user_type) {
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
-                return back()->withErrors([
+                return back()->withError([
                     'password' => 'You don\'t have permission to login. If this problem persists, please contact our administrator.'
                 ]);
             }
 
             if ($user_type->type_name != 'Full-Time' && ($user_type->pivot->end_date <= Carbon::now()->toDateString())) {
-                return back()->withErrors([
+                return back()->withError([
                     'password' => 'Your access is expired',
                 ]);
             }

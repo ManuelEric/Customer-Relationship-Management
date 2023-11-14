@@ -97,7 +97,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('update:target_tracking')->everyMinute(); # run every minute because target tracking should be real-time update
 
         # cron for form event
-        $schedule->command('automate:resend_qrcode_mail')->everyMinute();
+        // $schedule->command('automate:resend_qrcode_mail')->everyMinute();
         $schedule->command('automate:resend_thanks_mail_program')->everyMinute();
         $schedule->command('automate:send_mail_reminder_attend')->cron('0 17 10 11 *');
         $schedule->command('automate:send_mail_reminder_attend')->cron('0 9 11 11 *');
@@ -108,6 +108,8 @@ class Kernel extends ConsoleKernel
         // $schedule->command('set:inactive_client_potential')->everyMinute();
         // $schedule->command('ended:client_program_existing_mentee')->everyMinute();
         // $schedule->command('ended:client_program_existing_non_mentee')->everyMinute();
+
+        // $schedule->command('send:thanks_mail_event')->everyFifteenMinutes();
     }
 
     /**

@@ -31,15 +31,7 @@
                                         <i class="bi bi-box-arrow-in-right me-1"></i>
                                         LOG IN
                                     </h3>
-                                    {{-- @if ($errors->any())
-                                        <div class="alert alert-danger">
-                                            <ul>
-                                                @foreach ($errors->all() as $error)
-                                                    <li>{{ $error }}</li>
-                                                @endforeach
-                                            </ul>
-                                        </div>
-                                    @endif --}}
+                                    
                                     <div class="my-3">
                                         <label for="">Email</label>
                                         <input type="text" class="form-control @error('email') is-invalid @enderror"
