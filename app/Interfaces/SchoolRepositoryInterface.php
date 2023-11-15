@@ -12,6 +12,7 @@ interface SchoolRepositoryInterface
     public function deleteSchool($schoolId);
     public function createSchool(array $schoolDetails);
     public function createSchoolIfNotExists(array $schoolDetails, array $schoolCurriculum);
+    public function findSchoolByTerms($searchTerms);
     public function attachCurriculum($schoolId, array $curriculums);
     public function createSchools(array $schoolDetails);
     public function updateSchool($schoolId, array $schoolDetails);

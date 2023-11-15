@@ -125,6 +125,12 @@ class SchoolRepository implements SchoolRepositoryInterface
         return $school;
     }
 
+    public function findSchoolByTerms($searchTerms)
+    {
+        # using fuzzy matching
+        return School::whereRaw('levenshtein_distance(name, ?)', [$searchTerms])->get();
+    }
+
     public function attachCurriculum($schoolId, array $curriculums)
     {
         $school = School::whereSchoolId($schoolId);

@@ -140,9 +140,12 @@
                             <div class="col-md-6">
                                 <div class="mb-2">
                                     <label>School Name <sup class="text-danger">*</sup> </label>
-                                    <input type="text" name="sch_name" class="form-control form-control-sm rounded"
+                                    <select name="sch_name" class="w-100" @disabled(!empty($school) && !isset($edit))>
+                                        
+                                    </select>
+                                    {{-- <input type="text" name="sch_name" class="form-control form-control-sm rounded"
                                         value="{{ isset($school->sch_name) ? $school->sch_name : old('sch_name') }}"
-                                        {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
+                                        {{ empty($school) || isset($edit) ? '' : 'disabled' }}> --}}
                                     @error('sch_name')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -506,84 +509,106 @@
         </div>
     @endif
 
-    <script>
-        // Select2 Modal 
-        $(document).ready(function() {
-            $('.modal-program').select2({
-                dropdownParent: $('#programForm .modal-content'),
-                placeholder: "Select value",
-                allowClear: true
-            });
+@endsection
 
-            $('.modal-select').select2({
-                dropdownParent: $('#picForm .modal-content'),
-                placeholder: "Select value",
-                allowClear: true
-            });
+@push('scripts')
+<script>
+    $("select[name=sch_name]").select2({
+        ajax: {
+            delay: 250, // wait 250 milliseconds before triggering the request
+            url: '{{ url('/') }}/api/school',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
 
-            @if ($error_pic === true)
-                $("#picForm").modal('show')
-            @elseif ($error_visit === true)
-                $("#school_visit").modal('show')
-            @endif
-
-            $("input[type=radio][name=pic_status]").change(function() {
-                var val = $(this).val();
-                $("#is_pic").val(val);
-            })
-
-        });
-    </script>
-
-    <script>
-        @if (isset($school))
-            function resetForm() {
-                $('#cp_fullname').val(null)
-                $('#cp_mail').val(null)
-                $('#cp_grade').val(null).trigger('change')
-                $('#cp_phone').val(null)
-                $('#cp_status').val(null).trigger('change')
-                $('.put').html('');
-                $('#picAction').attr('action',
-                    '{{ isset($school) ? url('instance/school/' . $school->sch_id . '/detail') : url('instance/school/') }}'
-                )
+                // Query parameters will be ?search=[term]
+                return query;
+            }, 
+            processResults: function (data) {
+                return {
+                    results: data
+                }
             }
+        }
+    })
+
+    // Select2 Modal 
+    $(document).ready(function() {
+        $('.modal-program').select2({
+            dropdownParent: $('#programForm .modal-content'),
+            placeholder: "Select value",
+            allowClear: true
+        });
+
+        $('.modal-select').select2({
+            dropdownParent: $('#picForm .modal-content'),
+            placeholder: "Select value",
+            allowClear: true
+        });
+
+        @if ($error_pic === true)
+            $("#picForm").modal('show')
+        @elseif ($error_visit === true)
+            $("#school_visit").modal('show')
         @endif
 
+        $("input[type=radio][name=pic_status]").change(function() {
+            var val = $(this).val();
+            $("#is_pic").val(val);
+        })
 
-        function getPIC(link) {
-            axios.get(link)
-                .then(function(response) {
-                    // handle success
-                    let id = response.data.school_id
-                    let cp = response.data.schoolDetail
+    });
+</script>
 
-                    $('#cp_fullname').val(cp.schdetail_fullname)
-                    $('#cp_mail').val(cp.schdetail_email)
-                    $('#cp_grade').val(cp.schdetail_grade).trigger('change')
-                    $('#cp_phone').val(cp.schdetail_phone)
-                    $('#cp_status').val(cp.schdetail_position).trigger('change')
-                    $('#is_pic').val(cp.is_pic)
-                    $('input[type=radio][name=pic_status][value=' + cp.is_pic + ']').prop('checked', true);
-
-                    let url = "{{ url('instance/school/') }}/" + id + "/detail/" + cp.schdetail_id
-                    $('#picAction').attr('action', url)
-
-                    let html =
-                        '@method('put')' +
-                        '<input type="hidden" readonly name="schdetail_id" value="' + cp.schdetail_id + '">'
-                    $('.put').html(html);
-
-
-                    // console.log(url)
-                })
-                .catch(function(error) {
-                    // handle error
-                    console.log(error);
-                })
+<script>
+    @if (isset($school))
+        function resetForm() {
+            $('#cp_fullname').val(null)
+            $('#cp_mail').val(null)
+            $('#cp_grade').val(null).trigger('change')
+            $('#cp_phone').val(null)
+            $('#cp_status').val(null).trigger('change')
+            $('.put').html('');
+            $('#picAction').attr('action',
+                '{{ isset($school) ? url('instance/school/' . $school->sch_id . '/detail') : url('instance/school/') }}'
+            )
         }
+    @endif
 
-        // Make a request for a user with a given ID
-    </script>
 
-@endsection
+    function getPIC(link) {
+        axios.get(link)
+            .then(function(response) {
+                // handle success
+                let id = response.data.school_id
+                let cp = response.data.schoolDetail
+
+                $('#cp_fullname').val(cp.schdetail_fullname)
+                $('#cp_mail').val(cp.schdetail_email)
+                $('#cp_grade').val(cp.schdetail_grade).trigger('change')
+                $('#cp_phone').val(cp.schdetail_phone)
+                $('#cp_status').val(cp.schdetail_position).trigger('change')
+                $('#is_pic').val(cp.is_pic)
+                $('input[type=radio][name=pic_status][value=' + cp.is_pic + ']').prop('checked', true);
+
+                let url = "{{ url('instance/school/') }}/" + id + "/detail/" + cp.schdetail_id
+                $('#picAction').attr('action', url)
+
+                let html =
+                    '@method('put')' +
+                    '<input type="hidden" readonly name="schdetail_id" value="' + cp.schdetail_id + '">'
+                $('.put').html(html);
+
+
+                // console.log(url)
+            })
+            .catch(function(error) {
+                // handle error
+                console.log(error);
+            })
+    }
+
+    // Make a request for a user with a given ID
+</script>
+@endpush

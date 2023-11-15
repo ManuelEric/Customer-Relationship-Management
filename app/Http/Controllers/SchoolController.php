@@ -109,6 +109,7 @@ class SchoolController extends Controller
     public function create()
     {
         $curriculums = $this->curriculumRepository->getAllCurriculums();
+
         return view('pages.instance.school.form')->with(
             [
                 'curriculums' => $curriculums

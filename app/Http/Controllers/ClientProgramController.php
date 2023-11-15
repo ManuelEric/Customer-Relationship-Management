@@ -18,6 +18,7 @@ use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
+use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\ClientProgramLogMailRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Models\Program;
@@ -50,13 +51,14 @@ class ClientProgramController extends Controller
     private SchoolRepositoryInterface $schoolRepository;
     private TagRepositoryInterface $tagRepository;
     private ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository;
+    private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
     private $admission_prog_list;
     private $tutoring_prog_list;
     private $satact_prog_list;
 
     use CreateCustomPrimaryKeyTrait;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository, TagRepositoryInterface $tagRepository, ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository, TagRepositoryInterface $tagRepository, ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->programRepository = $programRepository;
@@ -71,6 +73,7 @@ class ClientProgramController extends Controller
         $this->schoolRepository = $schoolRepository;
         $this->tagRepository = $tagRepository;
         $this->clientProgramLogMailRepository = $clientProgramLogMailRepository;
+        $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
 
         $this->admission_prog_list = Program::whereHas('main_prog', function ($query) {
             $query->where('prog_name', 'Admissions Mentoring');
@@ -440,6 +443,16 @@ class ClientProgramController extends Controller
                     break;
             }
 
+            $leadsTracking = $this->clientLeadTrackingRepository->getCurrentClientLead($studentId);
+
+            //! perlu nunggu 1 menit dlu sampai ada client lead tracking status yg 1
+            # update status client lead tracking
+            if($leadsTracking->count() > 0){
+                foreach($leadsTracking as $leadTracking){
+                    $this->clientLeadTrackingRepository->updateClientLeadTrackingById($leadTracking->id, ['status' => 0]);
+                }
+            }
+
             DB::commit();
         } catch (Exception $e) {
 
@@ -736,6 +749,16 @@ class ClientProgramController extends Controller
                         $this->clientRepository->removeRole($studentId, 'Mentee');
                     }
                     break;
+            }
+
+            $leadsTracking = $this->clientLeadTrackingRepository->getCurrentClientLead($studentId);
+
+            //! perlu nunggu 1 menit dlu sampai ada client lead tracking status yg 1
+            # update status client lead tracking
+            if($leadsTracking->count() > 0){
+                foreach($leadsTracking as $leadTracking){
+                    $this->clientLeadTrackingRepository->updateClientLeadTrackingById($leadTracking->id, ['status' => 0]);
+                }
             }
 
             DB::commit();
