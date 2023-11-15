@@ -164,6 +164,19 @@ class ClientStudentController extends ClientController
         return view('pages.client.student.index')->with($entries);
     }
 
+    public function indexRaw(Request $request)
+    {
+        if ($request->ajax()) {
+
+            
+            return $this->clientRepository->getAllRawClientDataTables();
+        }
+    
+
+        return view('pages.client.student.index-raw');
+
+    }
+
     public function show(Request $request)
     {
         $studentId = $request->route('student');

@@ -27,6 +27,7 @@ interface ClientRepositoryInterface
     public function getClientHotLeads($initialProgram);
     public function addInterestProgram($studentId, $interestProgram);
     public function removeInterestProgram($studentId, $interstProgram, $progId);
+    public function getAllRawClientDataTables();
     /* ~ END */
 
     /* API External use */

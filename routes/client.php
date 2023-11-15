@@ -44,6 +44,8 @@ use Illuminate\Support\Facades\Route;
 //     return view('pages.client.student.index-mentee', ['status' => $status]);
 // });
 
+Route::get('raw', [ClientStudentController::class, 'indexRaw']);
+
 Route::resource('student', ClientStudentController::class);
 Route::prefix('student')->name('student.')->group(function () {
     Route::post('import', [ClientStudentController::class, 'import'])->name('import');
