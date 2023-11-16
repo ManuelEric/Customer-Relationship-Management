@@ -2,6 +2,7 @@
 
 namespace App\Http\Traits;
 
+use App\Jobs\Event\Stem\ProcessEmailFeedback;
 use App\Models\ClientEvent;
 use App\Models\ClientEventLogMail;
 use App\Models\Event;
@@ -424,6 +425,9 @@ trait MailingEventOfflineTrait
                 'wa_text_anggie' => 'Hello Anggie, I’m ' . $fullname . ', I have attended STEM+ Wonderlab and would like to claim 100 USD discount for the Innovators-in-Residence program in Singapore. Can you give me further information about this program?',
                 'wa_text_derry' => 'Hello Derry, I’m ' . $fullname . ', I have attended STEM+ Wonderlab and would like to claim 100 USD discount for the Innovators-in-Residence program in Singapore. Can you give me further information about this program?'
             ];
+
+            ProcessEmailFeedback::dispatch($client, $clientevent_id, $this->clientEventLogMailRepository)->onQueue('feedback-email_'.$eventId);
+
 
             Mail::send('mail-template.quest-completer', $data, function ($message) use ($data) {
                 $message->to($data['email'], $data['recipient'])
