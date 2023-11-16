@@ -16,7 +16,7 @@
                         <td>
                             <p>Dear {{ $recipient }},</p>
                             <p style="text-align: center;">
-                                <img src="{{ asset('img/makerspace/certificate/certificate_quest_level_'.$level.'-min'.jpg') }}"
+                                <img src="{{ asset('img/makerspace/certificate/certificate_quest_level_'.$level.'-min.jpg') }}"
                                    height="250" alt="">
                                 <br>
                                 <br>
