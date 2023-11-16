@@ -140,12 +140,12 @@
                             <div class="col-md-6">
                                 <div class="mb-2">
                                     <label>School Name <sup class="text-danger">*</sup> </label>
-                                    <select name="sch_name" class="w-100" @disabled(!empty($school) && !isset($edit))>
+                                    <select name="sch_id" class="w-100" @disabled(!empty($school) && !isset($edit))>
                                         
                                     </select>
-                                    {{-- <input type="text" name="sch_name" class="form-control form-control-sm rounded"
+                                    <input type="text" name="sch_name" class="form-control form-control-sm rounded d-none"
                                         value="{{ isset($school->sch_name) ? $school->sch_name : old('sch_name') }}"
-                                        {{ empty($school) || isset($edit) ? '' : 'disabled' }}> --}}
+                                        {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
                                     @error('sch_name')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -513,10 +513,13 @@
 
 @push('scripts')
 <script>
-    $("select[name=sch_name]").select2({
+
+    $("select[name=sch_id]").select2({
+        placeholder: "Write school name",
         ajax: {
             delay: 250, // wait 250 milliseconds before triggering the request
             url: '{{ url('/') }}/api/school',
+            dataType: 'json',
             data: function (params) {
                 var query = {
                     search: params.term
@@ -527,9 +530,22 @@
             }, 
             processResults: function (data) {
                 return {
-                    results: data
+                    results: $.map(data, function (obj) {
+                        return { id: obj.sch_id, text: obj.sch_name}
+                    })
                 }
             }
+
+        },
+    })
+
+    $("select[name=sch_id]").on('change', function() {
+        var val = $(this).val();
+        if (val == 'SCH-NEW') {
+
+            $(this).next(".select2-container").addClass('d-none');
+            $("input[name=sch_name]").removeClass('d-none');
+
         }
     })
 
