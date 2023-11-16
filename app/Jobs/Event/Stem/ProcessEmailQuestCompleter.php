@@ -24,19 +24,15 @@ class ProcessEmailQuestCompleter implements ShouldQueue
     public $priority = 'high';
 
     protected $mailDetails;
-    protected $clientEventId;
-    protected ClientEventLogMailRepositoryInterface $clientEventLogMailRepository;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(array $mailDetails, $clientEventId, ClientEventLogMailRepositoryInterface $clientEventLogMailRepository)
+    public function __construct(array $mailDetails)
     {
         $this->mailDetails = $mailDetails;
-        $this->clientEventId = $clientEventId;
-        $this->clientEventLogMailRepository = $clientEventLogMailRepository;
     }
 
     /**
@@ -46,60 +42,26 @@ class ProcessEmailQuestCompleter implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->mailDetails['role'] == 'student' || $this->mailDetails['role'] == 'mentee' || $this->mailDetails['role'] == 'teacher/counselor') {
-
-            $subject = 'Thanks for joining STEM+ Wonderlab, Indonesia’s FIRST Student';
-
-
-        } elseif ($this->mailDetails['role'] == 'parent') {
-
-            $subject = 'Terima kasih sudah hadir di STEM+ Wonderlab, Indonesia’s FIRST ';            
-
-        }
 
 
         try {
 
-            # send email
-            Mail::send('mail-template.feedback-email', $this->mailDetails, function ($message) use ($subject) {
+            Mail::send('mail-template.quest-completer', $this->mailDetails, function ($message) {
                 $message->to($this->mailDetails['email'], $this->mailDetails['recipient'])
-                    ->subject($subject);
+                    ->subject('Here’s a gift for you, Level ' . $this->mailDetails['level'] . ' Maker’s Quest Completer!')
+                    ->attach(public_path('img/makerspace/certificate/certificate_quest_level_'.$this->mailDetails['level'].'.jpg'));
             });
             $sent_status = 1;
 
         } catch (Exception $e) {
             
             $sent_status = 0;
+            Log::debug('Failed to send quest completer mail : ' . $e->getMessage());
 
         }
 
-        try {
+        Log::debug('Send quest completer mail fullname: ' . $this->mailDetails['recipient'] . ' status: ' . $sent_status, ['fullname' => $this->mailDetails['recipient'], 'email' => $this->mailDetails['email'], 'level' => $this->mailDetails['level'], 'sent_status' => $sent_status]);
 
-            $logDetails = [
-                'clientevent_id' => $this->clientEventId,
-                'sent_status' => $sent_status,
-                'category' => 'feedback-mail'
-            ];
-
-
-            # check if log is exists
-            # when exists then just update the sent_status
-            if ($foundLog = $this->clientEventLogMailRepository->getClientEventLogMailByClientEventIdAndCategory($this->clientEventId, 'thanks-mail-after')) {
-                Log::info($this->clientEventId.' dan '.json_encode($foundLog));
-
-                $this->clientEventLogMailRepository->updateClientEventLogMail($foundLog->id, ['sent_status' => 1]);
-
-            } else {
-
-                $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
-            }
-
-
-        } catch (Exception $e) {
-
-            Log::error('Failed to create event log email thanks' . $e->getMessage());
-
-        }
 
         
     }
