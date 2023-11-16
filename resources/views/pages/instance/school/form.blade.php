@@ -33,6 +33,9 @@
                     <h5>
                         {{ isset($school) ? $school->sch_name : 'Add New School' }}
                     </h5>
+                    <a class="text-primary text-decoration-none cursor-pointer" target="_blank" href="{{ url('client/student?sch='.$school->sch_name) }}">
+                        <p>{{ $school->client->count() }} Students Connected</p> 
+                    </a>
                     @if (isset($school))
                         <div class="mt-3 d-flex justify-content-center">
                             @if (isset($edit))

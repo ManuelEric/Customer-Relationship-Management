@@ -58,7 +58,7 @@
                                         <select name="school_name[]" class="select form-select form-select-sm w-100"
                                             multiple id="school-name">
                                             @foreach ($advanced_filter['schools'] as $school)
-                                                <option value="{{ $school->sch_name }}">{{ $school->sch_name }}</option>
+                                                <option value="{{ $school->sch_name }}" {{ Request::get('sch') == $school->sch_name && Request::get('sch') != '' && Request::get('sch') != null ? 'selected' : null }}>{{ $school->sch_name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
