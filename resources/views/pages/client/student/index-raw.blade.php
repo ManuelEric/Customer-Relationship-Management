@@ -144,7 +144,7 @@
         </div>
     @endif
 
-   <div class="card rounded">
+    <div class="card rounded">
         <div class="card-body">
 
 
@@ -156,6 +156,7 @@
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="clientTable">
                 <thead class="bg-secondary text-white">
                     <tr class="text-center" role="row">
+                        <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">No</th>
                         <th class="bg-info text-white">Name</th>
                         <th>Suggestion</th>
@@ -170,148 +171,172 @@
                         <th class="bg-info text-white"># Action</th>
                     </tr>
                 </thead>
-                <tfoot class="bg-light text-white">
+                {{-- <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="11"></td>
+                        <td colspan="12"></td>
                     </tr>
-                </tfoot>
+                </tfoot> --}}
             </table>
         </div>
-    </div> 
+    </div>
 
 
 @endsection
 @push('scripts')
+    <script>
+        // $('#cancel').click(function() {
+        //     $(this).parents('.dropdown').find('button.dropdown-toggle').dropdown('toggle')
+        // });
 
-<script>
-    // $('#cancel').click(function() {
-    //     $(this).parents('.dropdown').find('button.dropdown-toggle').dropdown('toggle')
-    // });
 
+        var widthView = $(window).width();
+        $(document).ready(function() {
 
-    var widthView = $(window).width();
-    $(document).ready(function() {
+            function format(d) {
 
-        var table = $('#clientTable').DataTable({
-            order: [
-                // [20, 'desc'],
-                [1, 'asc']
-            ],
-            dom: 'Bfrtip',
-            buttons: [
-                'pageLength', {
-                    extend: 'excel',
-                    text: 'Export to Excel',
-                }
-            ],
-            scrollX: true,
-            fixedColumns: {
-                left: (widthView < 768) ? 1 : 2,
-                right: 1
-            },
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: '',
-            },
-            columns: [{
-                    data: 'id',
-                    className: 'text-center',
-                    render: function(data, type, row, meta) {
-                        return meta.row + meta.settings._iDisplayStart + 1;
+                var listSuggest = '<table class="table table-striped table-hover">'
+                listSuggest += '<tr>';
+                listSuggest += '<th>Name</th>';
+                listSuggest += '<th>Email</th>';
+                listSuggest += '<th>Phone</th>';
+                d.suggestion.forEach(function(item, index) {
+                    listSuggest += '<tr><td>' + item.first_name + ' ' + item.last_name + '</td>'
+                    listSuggest += '<td>' + item.mail + '</td>'
+                    listSuggest += '<td>' + item.phone + '</td></tr>'
+                });
+
+                listSuggest += '</table>';
+                return listSuggest;
+            }
+
+            var table = $('#clientTable').DataTable({
+                order: [
+                    // [20, 'desc'],
+                    [1, 'asc']
+                ],
+                dom: 'Bfrtip',
+                buttons: [
+                    'pageLength', {
+                        extend: 'excel',
+                        text: 'Export to Excel',
                     }
+                ],
+                scrollX: true,
+                fixedColumns: {
+                    left: (widthView < 768) ? 1 : 2,
+                    right: 1
                 },
-                {
-                    data: 'first_name',
-                    render: function(data, type, row, meta) {
-                        return data
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '',
+                },
+                columns: [{
+                        className: 'dt-control',
+                        orderable: false,
+                        data: null,
+                        defaultContent: ''
+                    },
+                    {
+                        data: 'id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'first_name',
+                        render: function(data, type, row, meta) {
+                            return data
+                        }
+                    },
+                    {
+                        data: 'suggestion',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return '<span class="badge badge-info">' +
+                                data.length + '</span>';
+                        }
+                        // defaultContent: '-'
+                    },
+                    {
+                        data: 'mail',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'phone',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'register_as',
+                        defaultContent: '-',
+                    },
+                    {
+                        data: 'relation',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'school_uuid',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'interest_countries',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'lead_id',
+                        defaultContent: '-',
+                        className: 'text-center',
+                    },
+                    {
+                        data: 'graduation_year',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: '',
+                        className: 'text-center',
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient"><i class="bi bi-eye"></i></button>'
                     }
-                },
-                {
-                    data: 'suggestion',
-                    render: function(data, type, row, meta) {
-                       
-                        var listSuggest = '<div class="dropup-center dropup">';
-                        listSuggest += '<span class="badge badge-info dropdown-toggle" data-bs-toggle="dropdown">'+ data.length +'</span>';
-                        listSuggest += '<div class="dropdown-menu overflow-auto text-center px-2" style="max-width: 450px; max-height:200px;">';
-                        listSuggest += '<table class="table table-striped table-hover">'
-
-                        data.forEach(function (item, index) {
-                            listSuggest += '<tr><td>' + item.first_name + '</td></tr>'
-                            console.log(item, index);
-                        });
-
-                        listSuggest += '</table></div></div>';
-                       return listSuggest;
-                    }
-                    // defaultContent: '-'
-                },
-                {
-                    data: 'mail',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'phone',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'register_as',
-                    defaultContent: '-',
-                },
-                {
-                    data: 'relation',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'school_uuid',
-                    className: 'text-center',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'interest_countries',
-                    className: 'text-center',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'lead_id',
-                    defaultContent: '-',
-                    className: 'text-center',
-                },
-                {
-                    data: 'graduation_year',
-                    className: 'text-center',
-                    defaultContent: '-'
-                },
-                {
-                    data: '',
-                    className: 'text-center',
-                    defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient"><i class="bi bi-eye"></i></button>'
-                }
-            ],
-        });
-
-        @php
-            $privilage = $menus['Client']->where('submenu_name', 'Students')->first();
-        @endphp
-
-
-        @if ($privilage['copy'] == 0)
-            document.oncontextmenu = new Function("return false");
-
-            $('body').bind('cut copy paste', function(event) {
-                event.preventDefault();
+                ],
             });
-        @endif
 
-        @if ($privilage['export'] == 0)
-            table.button(1).disable();
-        @endif
+            // Add event listener for opening and closing details
+            table.on('click', 'td.dt-control', function(e) {
+                let tr = e.target.closest('tr');
+                let row = table.row(tr);
 
-    
+                if (row.child.isShown()) {
+                    // This row is already open - close it
+                    row.child.hide();
+                } else {
+                    // Open this row
+                    row.child(format(row.data())).show();
+                }
+            });
 
-     
-    });
+            @php
+                $privilage = $menus['Client']->where('submenu_name', 'Students')->first();
+            @endphp
 
-  
-</script>
+
+            @if ($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false");
+
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
+
+            @if ($privilage['export'] == 0)
+                table.button(1).disable();
+            @endif
+
+
+
+
+        });
+    </script>
 @endpush
