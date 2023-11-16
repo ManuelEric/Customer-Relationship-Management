@@ -22,7 +22,6 @@
                 <thead class="bg-secondary text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
-                        <th class="bg-info text-white">Sch id</th>
                         <th class="bg-info text-white">School Name</th>
                         <th>Type</th>
                         <th>Curriculum</th>
@@ -71,9 +70,6 @@
                         render: function(data, type, row, meta) {
                             return meta.row + meta.settings._iDisplayStart + 1;
                         }
-                    },
-                    {
-                        data: 'sch_id',
                     },
                     {
                         data: 'sch_name',
