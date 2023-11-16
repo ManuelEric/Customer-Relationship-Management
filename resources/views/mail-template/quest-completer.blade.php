@@ -16,7 +16,7 @@
                         <td>
                             <p>Dear {{ $recipient }},</p>
                             <p style="text-align: center;">
-                                <img src="{{ asset('img/makerspace/certificate/certificate_quest_level_'.$level.'.jpg') }}"
+                                <img src="{{ asset('img/makerspace/certificate/certificate_quest_level_'.$level.'-min.jpg') }}"
                                    height="250" alt="">
                                 <br>
                                 <br>
@@ -24,6 +24,7 @@
                                 <br>
                                 Let’s find out about the program and claim your prize by contacting 
                                 <br> 
+                                <br>
                                 <a href="https://api.whatsapp.com/send?phone=+6281808081363&text={{ $wa_text_anggie }}" style="text-decoration: none;">
                                     <button style="border: 1px solid rgb(222, 222, 12); padding: 10px 20px 10px 20px; background-color:#F0833E; border-radius: 7px; color: #FFFFFF; cursor: pointer;">Anggie</button>
                                 </a> 
