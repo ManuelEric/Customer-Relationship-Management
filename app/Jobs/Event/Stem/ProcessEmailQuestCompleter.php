@@ -49,7 +49,7 @@ class ProcessEmailQuestCompleter implements ShouldQueue
             Mail::send('mail-template.quest-completer', $this->mailDetails, function ($message) {
                 $message->to($this->mailDetails['email'], $this->mailDetails['recipient'])
                     ->subject('Here’s a gift for you, Level ' . $this->mailDetails['level'] . ' Maker’s Quest Completer!')
-                    ->attach(public_path('img/makerspace/certificate/certificate_quest_level_'.$this->mailDetails['level'].'.jpg'));
+                    ->attach(public_path('img/makerspace/certificate/certificate_quest_level_'.$this->mailDetails['level'].'-min'.'.jpg'));
             });
             $sent_status = 1;
 
