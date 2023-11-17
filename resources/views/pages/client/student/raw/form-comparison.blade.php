@@ -19,7 +19,7 @@
                         <div class="col-md-12 pe-5">
                             <div class="mb-3">
                                 <div class="text-danger mb-1 f">
-                                    * Select the full name to use or update new full name.
+                                    * Select the option to use or update new full name.
                                 </div>
                                 <div class="mb-2">
                                     <div class="form-check ms-4 my-0">
