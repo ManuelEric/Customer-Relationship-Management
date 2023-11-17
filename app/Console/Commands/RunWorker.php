@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 
 class RunWorker extends Command
 {
@@ -33,6 +34,8 @@ class RunWorker extends Command
             '--queue' => 'inv-send-to-client,inv-email-request-sign',
             '--stop-when-empty' => true
         ]);
+        
+        Log::debug(json_encode(Artisan::output()));
 
         return Command::SUCCESS;
     }

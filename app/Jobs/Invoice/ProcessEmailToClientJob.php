@@ -55,6 +55,6 @@ class ProcessEmailToClientJob implements ShouldQueue
         # update status send to client
         $newDetails['send_to_client'] = 'sent';
         
-        $this->invoiceAttachmentRepository->updateInvoiceAttachment($this->attachment->id, $newDetails);
+        // $this->invoiceAttachmentRepository->updateInvoiceAttachment($this->attachment->id, $newDetails);
     }
 }
