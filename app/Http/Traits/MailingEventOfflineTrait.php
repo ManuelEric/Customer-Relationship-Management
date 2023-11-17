@@ -2,6 +2,8 @@
 
 namespace App\Http\Traits;
 
+use App\Jobs\Event\Stem\ProcessEmailFeedback;
+use App\Jobs\Event\Stem\ProcessEmailQuestCompleter;
 use App\Models\ClientEvent;
 use App\Models\ClientEventLogMail;
 use App\Models\Event;
@@ -425,18 +427,15 @@ trait MailingEventOfflineTrait
                 'wa_text_derry' => 'Hello Derry, I’m ' . $fullname . ', I have attended STEM+ Wonderlab and would like to claim 100 USD discount for the Innovators-in-Residence program in Singapore. Can you give me further information about this program?'
             ];
 
-            Mail::send('mail-template.quest-completer', $data, function ($message) use ($data) {
-                $message->to($data['email'], $data['recipient'])
-                    ->subject('Here’s a gift for you, Level ' . $data['level'] . ' Maker’s Quest Completer!')
-                    ->attach(public_path('img/makerspace/certificate/certificate_quest_level_'.$data['level'].'.jpg'));
-            });
-            $sent_mail = 1;
+            ProcessEmailQuestCompleter::dispatch($data)->onQueue('quest-completer_EVT-0008');
+
+            // $sent_mail = 1;
         } catch (Exception $e) {
 
-            $sent_mail = 0;
+            // $sent_mail = 0;
             Log::info('Failed to send quest completer mail : ' . $e->getMessage());
         }
 
-        Log::debug('Send quest completer mail fullname: ' . $fullname . ' status: ' . $sent_mail, ['fullname' => $fullname, 'email' => $email, 'level' => $level, 'sent_status' => $sent_mail]);
+        // Log::debug('Send quest completer mail fullname: ' . $fullname . ' status: ' . $sent_mail, ['fullname' => $fullname, 'email' => $email, 'level' => $level, 'sent_status' => $sent_mail]);
     }
 }

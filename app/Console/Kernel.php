@@ -111,6 +111,9 @@ class Kernel extends ConsoleKernel
 
         // $schedule->command('send:thanks_mail_event')->everyFifteenMinutes();
         
+
+        # queue worker
+        $schedule->command('run:worker')->everyTwoMinutes();
     }
 
     /**
