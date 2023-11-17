@@ -143,18 +143,18 @@
                                     <div class="row g-1">
                                         <div class="col-10">
                                             <select class="select w-100 school" name="school" id="schoolNew"
-                                                onchange="checkInputText(this, 'school')">
+                                                onchange="checkInputText(this, 'school', 'select')">
                                                 <option value=""></option>
-                                                <option value="Add">School Name</option>
                                             </select>
                                         </div>
                                         <div class="col-1">
-                                            <button class="btn btn-sm btn-outline-dark w-100">
+                                            <button class="btn btn-sm btn-outline-dark w-100" onclick="syncSchool()">
                                                 <i class="bi bi-arrow-clockwise"></i>
                                             </button>
                                         </div>
                                         <div class="col-1">
-                                            <button class="btn btn-sm btn-outline-dark w-100">
+                                            <button class="btn btn-sm btn-outline-dark w-100" type="button"
+                                                onclick="addNewData('school')">
                                                 <i class="bi bi-plus-lg"></i>
                                             </button>
                                         </div>
@@ -186,18 +186,20 @@
                                     <div class="row g-1">
                                         <div class="col-10">
                                             <select class="select w-100 parent" name="parent" id="parentNew"
-                                                onchange="checkInputText(this, 'parent')">
+                                                onchange="checkInputText(this, 'parent', 'select')">
                                                 <option value=""></option>
                                                 <option value="Add">Add Parent</option>
                                             </select>
                                         </div>
                                         <div class="col-1">
-                                            <button class="btn btn-sm btn-outline-dark w-100">
+                                            <button class="btn btn-sm btn-outline-dark w-100" type="button"
+                                                onclick="syncParent()">
                                                 <i class="bi bi-arrow-clockwise"></i>
                                             </button>
                                         </div>
                                         <div class="col-1">
-                                            <button class="btn btn-sm btn-outline-dark w-100">
+                                            <button class="btn btn-sm btn-outline-dark w-100" type="button"
+                                                onclick="addNewData('parent')">
                                                 <i class="bi bi-plus-lg"></i>
                                             </button>
                                         </div>
@@ -212,64 +214,74 @@
         </div>
         <div class="col-md-5">
             <div class="card rounded position-sticky" style="top:15%;">
-                <div class="card-header">
-                    <h5>Summarize</h5>
-                </div>
-                <div class="card-body">
-                    Preview first before convert this data
-                    <hr class="my-1">
-                    <table class="table table-borderless">
-                        <tr>
-                            <td width="30%">Full Name</td>
-                            <td width="1%">:</td>
-                            <td>
-                                <div id="namePreview"></div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Email</td>
-                            <td>:</td>
-                            <td>
-                                <div id="emailPreview"></div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Phone Number</td>
-                            <td>:</td>
-                            <td>
-                                <div id="phonePreview"></div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Graduation Year</td>
-                            <td>:</td>
-                            <td>
-                                <div id="graduationPreview"></div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>School Name</td>
-                            <td>:</td>
-                            <td>
-                                <div id="schoolPreview"></div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Parent Name</td>
-                            <td>:</td>
-                            <td>
-                                <div id="parentPreview"></div>
-                            </td>
-                        </tr>
-                    </table>
-                    <hr>
-                    <div class="text-center">
-                        <button class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-check-circle me-2"></i>
-                            Convert
-                        </button>
+                <form action="">
+                    @csrf
+                    <div class="card-header">
+                        <h5>Summarize</h5>
                     </div>
-                </div>
+                    <div class="card-body">
+                        Preview first before convert this data
+                        <hr class="my-1">
+                        <input type="hidden" name="id" id="existing_id">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td width="30%">Full Name</td>
+                                <td width="1%">:</td>
+                                <td>
+                                    <div id="namePreview"></div>
+                                    <input type="hidden" name="nameFinal" id="nameInputPreview">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Email</td>
+                                <td>:</td>
+                                <td>
+                                    <div id="emailPreview"></div>
+                                    <input type="hidden" name="emailFinal" id="emailInputPreview">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Phone Number</td>
+                                <td>:</td>
+                                <td>
+                                    <div id="phonePreview"></div>
+                                    <input type="hidden" name="phoneFinal" id="phoneInputPreview">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Graduation Year</td>
+                                <td>:</td>
+                                <td>
+                                    <div id="graduationPreview"></div>
+                                    <input type="hidden" name="graduationFinal" id="graduationInputPreview">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>School Name</td>
+                                <td>:</td>
+                                <td>
+                                    <div id="schoolPreview"></div>
+                                    <input type="hidden" name="schoolFinal" id="schoolInputPreview">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Parent Name</td>
+                                <td>:</td>
+                                <td>
+                                    <div id="parentPreview"></div>
+                                    <input type="hidden" name="parentFinal" id="parentInputPreview">
+                                </td>
+                            </tr>
+                        </table>
+                        <hr>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Convert
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -279,18 +291,84 @@
         function checkInputRadio(item, init, type) {
             if (type == 'text') {
                 $('#' + init + 'New').val('')
+                $('#' + init + 'InputPreview').val($(item).val())
                 $('#' + init + 'Preview').html($(item).val())
             } else if (type == 'select') {
                 $('#' + init + 'New').val('').trigger('change')
                 $('#' + init + 'Preview').html($(item).val())
+                $('#' + init + 'InputPreview').val($(item).val())
             }
         }
 
-        function checkInputText(item, init) {
+        function checkInputText(item, init, type = null) {
             if ($(item).val() != "") {
                 $('.' + init).prop('checked', false)
                 $('#' + init + 'Preview').html($(item).val())
+
+                if (type == 'select') {
+                    $('#' + init + 'InputPreview').val($(item).find(":selected").data('id'))
+                } else {
+                    $('#' + init + 'InputPreview').val($(item).val())
+                }
+            }
+
+
+
+        }
+
+        function addNewData(type) {
+            if (type == "school") {
+                window.open("{{ url('instance/school/create') }}", "_blank");
+            } else {
+                window.open("{{ url('client/parent/create') }}", "_blank");
             }
         }
+
+        function syncSchool() {
+            showLoading();
+            axios.get("{{ url('api/instance/school') }}")
+                .then(function(response) {
+                    const data = response.data.data
+                    $('#schoolNew').html('')
+                    $('#schoolNew').append('<option value=""></option>')
+                    data.forEach(element => {
+                        $('#schoolNew').append(
+                            '<option data-id="' + element.sch_id + '" value="' + element.sch_name + '">' +
+                            element.sch_name + '</option>'
+                        )
+                    });
+                    swal.close()
+                })
+                .catch(function(error) {
+                    swal.close()
+                    console.log(error);
+                })
+        }
+
+        function syncParent() {
+            showLoading()
+            axios.get("{{ url('api/client/parent') }}")
+                .then(function(response) {
+                    const data = response.data.data
+                    $('#parentNew').html('')
+                    $('#parentNew').append('<option value=""></option>')
+                    data.forEach(element => {
+                        const last_name = element.last_name == null ? '' : ' ' + element.last_name
+                        const fullname = element.first_name + last_name
+                        $('#parentNew').append(
+                            '<option data-id="' + element.id + '" value="' + fullname + '">' + fullname +
+                            '</option>'
+                        )
+                    });
+                    swal.close()
+                })
+                .catch(function(error) {
+                    swal.close()
+                    console.log(error);
+                })
+        }
+
+        syncSchool()
+        syncParent()
     </script>
 @endpush
