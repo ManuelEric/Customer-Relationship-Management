@@ -190,18 +190,6 @@
 @endsection
 @push('scripts')
     <script>
-        function checkInputRadio(item, init, type) {
-            if (type == 'text') {
-                $('#' + init + 'New').val('')
-                $('#' + init + 'InputPreview').val($(item).val())
-                $('#' + init + 'Preview').html($(item).val())
-            } else if (type == 'select') {
-                $('#' + init + 'New').val('').trigger('change')
-                $('#' + init + 'Preview').html($(item).val())
-                $('#' + init + 'InputPreview').val($(item).val())
-            }
-        }
-
         function checkInputText(item, init, type = null) {
             if ($(item).val() != "") {
                 $('.' + init).prop('checked', false)
@@ -213,9 +201,6 @@
                     $('#' + init + 'InputPreview').val($(item).val())
                 }
             }
-
-
-
         }
 
         function addNewData(type) {
