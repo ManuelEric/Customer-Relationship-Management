@@ -4,6 +4,7 @@ use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolDetailController;
 use App\Http\Controllers\CorporateController;
 use App\Http\Controllers\CorporatePicController;
+use App\Http\Controllers\SchoolAliasController;
 // use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\PartnerAgreementController;
 use App\Http\Controllers\UniversityController;
@@ -24,6 +25,8 @@ Route::prefix('school')->name('school.')->group(function() {
     Route::post('{school}/visit', [SchoolVisitController::class, 'store'])->name('visit.store');
     Route::put('{school}/visit/{visit}', [SchoolVisitController::class, 'update'])->name('visit.update');
     Route::delete('{school}/visit/{visit}', [SchoolVisitController::class, 'destroy'])->name('visit.destroy');
+
+    Route::resource('{school}/alias', SchoolAliasController::class);
 });
 
 Route::resource('corporate', CorporateController::class);

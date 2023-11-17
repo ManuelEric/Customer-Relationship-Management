@@ -6,6 +6,7 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Models\School;
+use App\Models\SchoolAliases;
 use App\Models\V1\School as V1School;
 use Carbon\Carbon;
 use App\Models\SchoolDetail;
@@ -93,6 +94,18 @@ class SchoolRepository implements SchoolRepositoryInterface
     {
         return School::whereSchoolName($schoolName);
         // return School::where('sch_name', $schoolName)->first();
+    }
+
+    public function getSchoolByAlias($alias)
+    {
+        return School::where('sch_name', 'like', '%'.$alias.'%')->orWhereHas('aliases', function ($subQuery) use ($alias) {
+            $subQuery->where('alias', 'like', '%'.$alias.'%');
+        })->get();
+    }
+
+    public function getAliasBySchool($schoolId)
+    {
+        return SchoolAliases::where('sch_id', $schoolId)->get();
     }
 
     public function deleteSchool($schoolId)
@@ -269,9 +282,21 @@ class SchoolRepository implements SchoolRepositoryInterface
     {
         return School::whereNull('sch_type')->get();
     }
-    # CRM
+
+    # CRM v1
     public function getAllSchoolFromV1()
     {
         return V1School::all();
+    }
+
+    # alias
+    public function createNewAlias($aliasDetail)
+    {
+        return SchoolAliases::create($aliasDetail);
+    }
+
+    public function deleteAlias($aliasid)
+    {
+        return SchoolAliases::find($aliasid)->delete();
     }
 }

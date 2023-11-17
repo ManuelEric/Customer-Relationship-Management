@@ -22,12 +22,12 @@ class SchoolController extends Controller
         if (empty($terms))
             return response()->json([]);
 
-        $schools = $this->schoolRepository->getAllSchools();
-        $schools_name = $schools->pluck('sch_name')->toArray();
+        // $schools = $this->schoolRepository->getAllSchools();
+        // $schools_name = $schools->pluck('sch_name')->toArray();
 
-        # matching words
-        $matched = $this->levenshtein_distance($terms, $schools_name);
-        return response()->json($matched);
+        // # matching words
+        // $matched = $this->levenshtein_distance($terms, $schools_name);
+        // return response()->json($matched);
 
         $schools_found = $this->schoolRepository->findSchoolByTerms($terms);
         if ($schools_found->count() == 0)
@@ -50,7 +50,7 @@ class SchoolController extends Controller
         return response()->json($formatted);
     }
 
-    public function levenshtein_distance($input, $arrays)
+    private function levenshtein_distance($input, $arrays)
     {
         // no shortest distance found, yet
         $shortest = -1;

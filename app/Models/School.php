@@ -66,6 +66,11 @@ class School extends Model
         return $this->hasMany(SchoolDetail::class, 'sch_id', 'sch_id');
     }
 
+    public function aliases()
+    {
+        return $this->hasMany(SchoolAliases::class, 'sch_id', 'sch_id');
+    }
+
     public function edufair()
     {
         return $this->hasMany(EdufLead::class, 'sch_id', 'sch_id');

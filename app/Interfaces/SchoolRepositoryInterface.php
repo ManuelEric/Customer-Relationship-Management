@@ -9,6 +9,9 @@ interface SchoolRepositoryInterface
     public function getSchoolByMonthly($monthYear, $type);
     public function getSchoolById($schoolId);
     public function getSchoolByName($schoolName);
+    public function getSchoolByAlias($alias);
+    public function getAliasBySchool($schoolId);
+
     public function deleteSchool($schoolId);
     public function createSchool(array $schoolDetails);
     public function createSchoolIfNotExists(array $schoolDetails, array $schoolCurriculum);
@@ -22,5 +25,10 @@ interface SchoolRepositoryInterface
     public function getFeederSchools($eventId);
     public function getUncompeteSchools();
 
+    # CRM v1
     public function getAllSchoolFromV1();
+
+    # alias
+    public function createNewAlias(array $aliasDetail);
+    public function deleteAlias($aliasid);
 }
