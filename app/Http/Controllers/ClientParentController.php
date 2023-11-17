@@ -356,4 +356,14 @@ class ClientParentController extends ClientController
 
         return back()->withSuccess('Parent successfully imported');
     }
+
+    public function getDataParents() {
+        $parents = $this->clientRepository->getAllClientByRole('Parent');
+        return response()->json(
+            [
+                'success' => true,
+                'data' => $parents
+            ]
+        );
+    }
 }
