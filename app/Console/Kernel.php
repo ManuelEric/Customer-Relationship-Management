@@ -113,7 +113,8 @@ class Kernel extends ConsoleKernel
         
 
         # queue worker
-        $schedule->command('queue:work --queue=inv-send-to-client --stop-when-empty')->everyMinute()->withoutOverlapping();
+        $schedule->command('run:worker')->everyMinute()->withoutOverlapping();
+        // $schedule->command('queue:work --queue=inv-send-to-client --stop-when-empty')->everyMinute()->withoutOverlapping();
     }
 
     /**
