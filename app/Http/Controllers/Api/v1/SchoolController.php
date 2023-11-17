@@ -50,7 +50,7 @@ class SchoolController extends Controller
         return response()->json($formatted);
     }
 
-    private function levenshtein_distance($input, $arrays)
+    public function levenshtein_distance($input, $arrays)
     {
         // no shortest distance found, yet
         $shortest = -1;
