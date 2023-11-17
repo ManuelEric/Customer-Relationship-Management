@@ -35,6 +35,7 @@
                                             <option value="VIP">VIP</option>
                                             <option value="reminder_registration">Reminder Registration</option>
                                             <option value="reminder_referral">Reminder Referral</option>
+                                            <option value="quest_completer">Quest Completer</option>
                                         </select>
                                     </div>
                                     <div class="col-2">

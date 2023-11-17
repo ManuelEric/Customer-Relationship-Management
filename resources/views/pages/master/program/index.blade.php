@@ -29,12 +29,16 @@
                         <th>Payment Category</th>
                         <th>Need Tutor/Mentor</th>
                         <th>Scope</th>
+                        <th>Pending</th>
+                        <th>Success</th>
+                        <th>Failed</th>
+                        <th>Refund</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="9"></td>
+                        <td colspan="13"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -178,6 +182,22 @@
                             
                             return data;
                         }
+                    },
+                    {
+                        data: 'connected_program_pending',
+                        className: 'text-center',
+                    },
+                    {
+                        data: 'connected_program_success',
+                        className: 'text-center',
+                    },
+                    {
+                        data: 'connected_program_failed',
+                        className: 'text-center',
+                    },
+                    {
+                        data: 'connected_program_refund',
+                        className: 'text-center',
                     },
                     {
                         data: '',
