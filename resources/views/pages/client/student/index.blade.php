@@ -148,6 +148,10 @@
         <div class="card-body">
             <ul class="nav nav-tabs flex-nowrap overflow-auto w-100 mb-3" style="overflow-y: hidden !important;">
                 <li class="nav-item">
+                    <a class="nav-link text-nowrap"
+                        aria-current="page" href="{{ url('client/student/raw') }}">Raw Data</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link text-nowrap {{ Request::get('st') == 'new-leads' ? 'active' : '' }}"
                         aria-current="page" href="{{ url('client/student?st=new-leads') }}">New Leads</a>
                 </li>

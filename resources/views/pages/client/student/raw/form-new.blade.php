@@ -1,0 +1,198 @@
+@extends('layout.main')
+
+@section('title', 'Student')
+
+@push('styles')
+@endpush
+
+@section('content')
+    <div class="row">
+        <div class="col-md-7">
+            <div class="card rounded">
+                <div class="card-header">
+                    <h5 class="m-0">
+                        Comparison with Existing Data
+                    </h5>
+                </div>
+                <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <div class="text-danger mb-1">
+                                    Full Name
+                                </div>
+                                <div class="mb-2">
+                                    <input type="text" name="name" id="nameNew"
+                                        class="form-control form-control-sm" placeholder="Type new full name"
+                                        oninput="checkInputText(this, 'name')">
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="text-danger mb-1">
+                                    Email
+                                </div>
+                                <div class="mb-2">
+                                    <input type="email" name="email" id="emailNew"
+                                        class="form-control form-control-sm" placeholder="Type new email"
+                                        oninput="checkInputText(this, 'email')">
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="text-danger mb-1">
+                                    Phone Number
+                                </div>
+                                <div class="mb-2">
+                                    <input type="tel" name="phone" id="phoneNew"
+                                        class="form-control form-control-sm" placeholder="Type new phone number"
+                                        oninput="checkInputText(this, 'phone')">
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="text-danger mb-1">
+                                    Graduation Year
+                                </div>
+                                <div class="mb-2">
+                                    <input type="text" name="graduation" id="graduationNew"
+                                        class="form-control form-control-sm" placeholder="Type new graduation year"
+                                        oninput="checkInputText(this, 'graduation')">
+                                </div>
+                            </div>
+                            <div class="col-md-12 mb-2">
+                                <div class="text-danger mb-1">
+                                    School Name
+                                </div>
+                                <div class="mb-2">
+                                    <div class="row g-1">
+                                        <div class="col-10">
+                                            <select class="select w-100 school" name="school" id="schoolNew"
+                                                onchange="checkInputText(this, 'school')">
+                                                <option value=""></option>
+                                                <option value="Add">School Name</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-1">
+                                            <button class="btn btn-sm btn-outline-dark w-100">
+                                                <i class="bi bi-arrow-clockwise"></i>
+                                            </button>
+                                        </div>
+                                        <div class="col-1">
+                                            <button class="btn btn-sm btn-outline-dark w-100">
+                                                <i class="bi bi-plus-lg"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12 mb-2">
+                                <div class="text-danger mb-1">
+                                    Parents Name
+                                </div>
+                                <div class="mb-2">
+                                    <div class="row g-1">
+                                        <div class="col-10">
+                                            <select class="select w-100 parent" name="parent" id="parentNew"
+                                                onchange="checkInputText(this, 'parent')">
+                                                <option value=""></option>
+                                                <option value="Add">Add Parent</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-1">
+                                            <button class="btn btn-sm btn-outline-dark w-100">
+                                                <i class="bi bi-arrow-clockwise"></i>
+                                            </button>
+                                        </div>
+                                        <div class="col-1">
+                                            <button class="btn btn-sm btn-outline-dark w-100">
+                                                <i class="bi bi-plus-lg"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="card rounded position-sticky" style="top:15%;">
+                <div class="card-header">
+                    <h5>Summarize</h5>
+                </div>
+                <div class="card-body">
+                    Preview first before convert this data
+                    <hr class="my-1">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td width="30%">Full Name</td>
+                            <td width="1%">:</td>
+                            <td>
+                                <div id="namePreview"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Email</td>
+                            <td>:</td>
+                            <td>
+                                <div id="emailPreview"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Phone Number</td>
+                            <td>:</td>
+                            <td>
+                                <div id="phonePreview"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Graduation Year</td>
+                            <td>:</td>
+                            <td>
+                                <div id="graduationPreview"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>School Name</td>
+                            <td>:</td>
+                            <td>
+                                <div id="schoolPreview"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Parent Name</td>
+                            <td>:</td>
+                            <td>
+                                <div id="parentPreview"></div>
+                            </td>
+                        </tr>
+                    </table>
+                    <hr>
+                    <div class="text-center">
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-check-circle me-2"></i>
+                            Convert
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+@push('scripts')
+    <script>
+        function checkInputRadio(item, init, type) {
+            if (type == 'text') {
+                $('#' + init + 'New').val('')
+                $('#' + init + 'Preview').html($(item).val())
+            } else if (type == 'select') {
+                $('#' + init + 'New').val('').trigger('change')
+                $('#' + init + 'Preview').html($(item).val())
+            }
+        }
+
+        function checkInputText(item, init) {
+            if ($(item).val() != "") {
+                $('.' + init).prop('checked', false)
+                $('#' + init + 'Preview').html($(item).val())
+            }
+        }
+    </script>
+@endpush
