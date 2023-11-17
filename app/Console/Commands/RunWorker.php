@@ -35,7 +35,7 @@ class RunWorker extends Command
             '--stop-when-empty' => true
         ]);
         
-        Log::debug(json_encode(Artisan::output()));
+        Log::debug(json_encode(Artisan::output())); 
 
         return Command::SUCCESS;
     }

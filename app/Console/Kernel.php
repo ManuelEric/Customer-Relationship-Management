@@ -67,53 +67,53 @@ class Kernel extends ConsoleKernel
 
         // $schedule->command('set:graduation_year')->everyMinute();
 
-        // $schedule->command('send:reminder_invoiceprogram')->everyFiveMinutes();
-        // $schedule->command('send:reminder_invoiceschool_program')->everyFiveMinutes();
-        // $schedule->command('send:reminder_invoicepartner_program')->everyFiveMinutes();
-        // $schedule->command('send:reminder_invoicereferral_program')->everyFiveMinutes();
+        $schedule->command('send:reminder_invoiceprogram')->everyFiveMinutes();
+        $schedule->command('send:reminder_invoiceschool_program')->everyFiveMinutes();
+        $schedule->command('send:reminder_invoicepartner_program')->everyFiveMinutes();
+        $schedule->command('send:reminder_invoicereferral_program')->everyFiveMinutes();
 
-        // $schedule->command('send:reminder_followup')->daily(); # daily needed!
+        $schedule->command('send:reminder_followup')->daily(); # daily needed!
         
-        // // $schedule->command('send:reminder_expiration_contracts_probation')->daily(); # daily needed!
-        // // $schedule->command('send:reminder_expiration_contracts_tutor')->daily(); # daily needed!
-        // // $schedule->command('send:reminder_expiration_contracts_editor')->daily(); # daily needed!
-        // // $schedule->command('send:reminder_expiration_contracts_external_mentor')->daily(); # daily needed!
-        // // $schedule->command('send:reminder_expiration_contracts_internship')->daily(); # daily needed!
+        // $schedule->command('send:reminder_expiration_contracts_probation')->daily(); # daily needed!
+        // $schedule->command('send:reminder_expiration_contracts_tutor')->daily(); # daily needed!
+        // $schedule->command('send:reminder_expiration_contracts_editor')->daily(); # daily needed!
+        // $schedule->command('send:reminder_expiration_contracts_external_mentor')->daily(); # daily needed!
+        // $schedule->command('send:reminder_expiration_contracts_internship')->daily(); # daily needed!
 
-        // // $schedule->command('send:reminder_tutor_h1')->daily();
-        // // $schedule->command('send:reminder_tutor_t3')->daily();
+        // $schedule->command('send:reminder_tutor_h1')->daily();
+        // $schedule->command('send:reminder_tutor_t3')->daily();
         
-        // # cron for resend mail qrcode
-        // # registration event
-        // // $schedule->command('automate:resend_qrcode_mail')->everyMinute();
+        # cron for resend mail qrcode
+        # registration event
+        // $schedule->command('automate:resend_qrcode_mail')->everyMinute();
 
-        // # cron for hot leads
-        // $schedule->command('automate:determine_hot_leads')->everyMinute();
+        # cron for hot leads
+        $schedule->command('automate:determine_hot_leads')->everyMinute();
 
-        // # cron for target tracking
-        // $schedule->command('insert:target_tracking_monthly')->when(function() {
-        //     return Carbon::now()->firstOfMonth()->isToday();
-        // }); # should be run on cron every new month
-        // $schedule->command('update:target_tracking')->everyMinute(); # run every minute because target tracking should be real-time update
+        # cron for target tracking
+        $schedule->command('insert:target_tracking_monthly')->when(function() {
+            return Carbon::now()->firstOfMonth()->isToday();
+        }); # should be run on cron every new month
+        $schedule->command('update:target_tracking')->everyMinute(); # run every minute because target tracking should be real-time update
 
-        // # cron for form event
-        // // $schedule->command('automate:resend_qrcode_mail')->everyMinute();
-        // $schedule->command('automate:resend_thanks_mail_program')->everyMinute();
-        // // $schedule->command('automate:send_mail_reminder_attend')->cron('0 17 10 11 *');
-        // // $schedule->command('automate:send_mail_reminder_attend')->cron('0 9 11 11 *');
+        # cron for form event
+        // $schedule->command('automate:resend_qrcode_mail')->everyMinute();
+        $schedule->command('automate:resend_thanks_mail_program')->everyMinute();
+        // $schedule->command('automate:send_mail_reminder_attend')->cron('0 17 10 11 *');
+        // $schedule->command('automate:send_mail_reminder_attend')->cron('0 9 11 11 *');
         
-        // # cron for client
-        // // $schedule->command('automate:ended_client_program')->everyMinute();
-        // // $schedule->command('set:inactive_client_new_leads')->everyMinute();
-        // // $schedule->command('set:inactive_client_potential')->everyMinute();
-        // // $schedule->command('ended:client_program_existing_mentee')->everyMinute();
-        // // $schedule->command('ended:client_program_existing_non_mentee')->everyMinute();
+        # cron for client
+        // $schedule->command('automate:ended_client_program')->everyMinute();
+        // $schedule->command('set:inactive_client_new_leads')->everyMinute();
+        // $schedule->command('set:inactive_client_potential')->everyMinute();
+        // $schedule->command('ended:client_program_existing_mentee')->everyMinute();
+        // $schedule->command('ended:client_program_existing_non_mentee')->everyMinute();
 
-        // // $schedule->command('send:thanks_mail_event')->everyFifteenMinutes();
+        // $schedule->command('send:thanks_mail_event')->everyFifteenMinutes();
         
 
         # queue worker
-        $schedule->command('run:worker')->everyMinute()->withoutOverlapping();
+        $schedule->command('run:worker')->everyTwoMinutes()->withoutOverlapping();
         // $schedule->command('queue:work --queue=inv-send-to-client --stop-when-empty')->everyMinute()->withoutOverlapping();
     }
 
