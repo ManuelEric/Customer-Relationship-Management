@@ -153,7 +153,7 @@
                                 <div class="mb-2">
                                     <label>School Name <sup class="text-danger">*</sup> </label>
                                     @if (!isset($school))
-                                    <select name="sch_id" class="w-100" @disabled(!empty($school) && !isset($edit))>
+                                    <select name="choosen_school" class="w-100" @disabled(!empty($school) && !isset($edit))>
                                         
                                     </select>
                                     @endif
@@ -639,7 +639,7 @@
         })
     })
 
-    $("select[name=sch_id]").select2({
+    $("select[name=choosen_school]").select2({
         placeholder: "Write school name",
         ajax: {
             delay: 250, // wait 250 milliseconds before triggering the request

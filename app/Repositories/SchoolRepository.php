@@ -141,7 +141,9 @@ class SchoolRepository implements SchoolRepositoryInterface
     public function findSchoolByTerms($searchTerms)
     {
         # using fuzzy matching
-        return School::whereRaw('sch_name like ?', ["%{$searchTerms}%"])->get();
+        return School::whereRaw('sch_name like ?', ["%{$searchTerms}%"])->orWhereHas('aliases', function ($subQuery) use ($searchTerms) {
+            $subQuery->whereRaw('alias like ?', ["%{$searchTerms}%"]);
+        })->get();
     }
 
     public function attachCurriculum($schoolId, array $curriculums)
