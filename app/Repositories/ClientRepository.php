@@ -18,8 +18,10 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Models\ClientAcceptance;
 use App\Models\ClientLeadTracking;
+use App\Models\RawClient;
 use App\Models\University;
 use App\Models\User;
+use App\Models\ViewRawClient;
 use Illuminate\Support\Str; 
 
 class ClientRepository implements ClientRepositoryInterface
@@ -1244,5 +1246,15 @@ class ClientRepository implements ClientRepositoryInterface
         $student = UserClient::find($studentId);
         $student->interestPrograms()->wherePivot('id', $interestProgram)->detach($progId);
         return $student;
+    }
+
+    public function getAllRawClientDataTables()
+    {
+        return Datatables::eloquent(ViewRawClient::query())
+        ->addColumn('suggestion', function ($data) {
+            $a = UserClient::where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->fullname .'%')->get();
+            return $a->toArray();
+        })
+        ->make(true);
     }
 }

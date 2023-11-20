@@ -101,7 +101,7 @@ class SchoolController extends Controller
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'School', Auth::user()->first_name . ' '. Auth::user()->last_name, $schoolCreated);
+        $this->logSuccess('store', 'Form Input', 'School', Auth::user()->first_name . ' ' . Auth::user()->last_name, $schoolCreated);
 
         return Redirect::to('instance/school/' . $school_id_with_label)->withSuccess('School successfully created');
     }
@@ -233,7 +233,7 @@ class SchoolController extends Controller
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'School', Auth::user()->first_name . ' '. Auth::user()->last_name, $schoolDetails, $oldSchool);
+        $this->logSuccess('update', 'Form Input', 'School', Auth::user()->first_name . ' ' . Auth::user()->last_name, $schoolDetails, $oldSchool);
 
         return Redirect::to('instance/school/' . $schoolId)->withSuccess('School successfully updated');
     }
@@ -257,8 +257,19 @@ class SchoolController extends Controller
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'School', Auth::user()->first_name . ' '. Auth::user()->last_name, $school);
+        $this->logSuccess('delete', null, 'School', Auth::user()->first_name . ' ' . Auth::user()->last_name, $school);
 
         return Redirect::to('instance/school')->withSuccess('School successfully deleted');
+    }
+
+    function getSchoolData()
+    {
+        $schools = $this->schoolRepository->getAllSchools();
+        return response()->json(
+            [
+                'success' => true,
+                'data' => $schools
+            ]
+        );
     }
 }

@@ -44,6 +44,14 @@ use Illuminate\Support\Facades\Route;
 //     return view('pages.client.student.index-mentee', ['status' => $status]);
 // });
 
+Route::get('student/raw',  [ClientStudentController::class, 'indexRaw']);
+Route::get('student/raw/{id}', function() {
+    return view('pages.client.student.raw.form-new');
+});
+Route::get('student/raw/{id}/comparison/{id2}', function() {
+    return view('pages.client.student.raw.form-comparison');
+});
+
 Route::resource('student', ClientStudentController::class);
 Route::prefix('student')->name('student.')->group(function () {
     Route::post('import', [ClientStudentController::class, 'import'])->name('import');

@@ -54,7 +54,7 @@ class SchoolRepository implements SchoolRepositoryInterface
 
     public function getAllSchools()
     {
-        return School::orderBy('sch_id', 'asc')->groupBy('sch_name')->get();
+        return School::where('status', 1)->orderBy('sch_id', 'asc')->groupBy('sch_name')->get();
     }
 
     public function getSchoolByMonthly($monthYear, $type)
