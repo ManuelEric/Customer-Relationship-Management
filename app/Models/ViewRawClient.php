@@ -8,11 +8,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class RawClient extends Authenticatable
+class ViewRawClient extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $table = 'tbl_raw_client';
+    protected $table = 'raw_client';
 
     /**
      * The attributes that should be visible in arrays.
@@ -35,13 +35,5 @@ class RawClient extends Authenticatable
         'created_at',
         'updated_at',
     ];
-
-    # attributes
-    protected function fullName(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => isset($this->last_name) ? $this->first_name . ' ' . $this->last_name : $this->first_name,
-        );
-    }
 
 }

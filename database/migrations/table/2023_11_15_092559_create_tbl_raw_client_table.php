@@ -16,13 +16,12 @@ return new class extends Migration
         Schema::create('tbl_raw_client', function (Blueprint $table) {
             $table->id();
             $table->string('uuid')->unique();
-            $table->string('first_name');
-            $table->string('last_name')->nullable();
+            $table->string('fullname');
             $table->string('mail')->nullable();
             $table->string('phone')->nullable();
             $table->enum('register_as', ['student', 'parent', 'teacher_counsellor'])->nullable();
-            $table->enum('relation', ['student', 'parent', 'teacher/counselor']);
-            $table->string('relation_key', 5)->unique()->nullable();
+            $table->enum('role', ['student', 'parent', 'teacher/counselor']);
+            $table->string('relation_key', 5)->nullable();
             $table->string('school_uuid')->unique()->nullable();
             $table->text('interest_countries')->nullable();
 

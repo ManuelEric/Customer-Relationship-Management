@@ -173,7 +173,7 @@ class ClientStudentController extends ClientController
         }
     
 
-        return view('pages.client.student.index-raw');
+        return view('pages.client.student.raw.index');
 
     }
 

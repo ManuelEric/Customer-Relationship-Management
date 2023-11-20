@@ -20,14 +20,13 @@ class RawClientFactory extends Factory
     {
         return [
             'uuid' => $this->faker->uuid(),
-            'first_name' => $this->faker->firstName(),
-            'last_name' => $this->faker->lastName(),
+            'fullname' => $this->faker->name(),
             'mail' => $this->faker->email(),
             'phone' => $this->faker->phoneNumber(),
             'register_as' => $this->faker->randomElement(['student', 'parent', 'teacher_counsellor']),
-            'relation' => $this->faker->randomElement(['student', 'parent', 'teacher_counselor']),
+            'role' => $this->faker->randomElement(['student', 'parent', 'teacher_counselor']),
             'relation_key' => null,
-            'school_uuid' => $this->faker->uuid(),
+            'school_uuid' => $this->faker->randomElement(['rs', 'vs']) . '-' . $this->faker->uuid(),
             'interest_countries' => $this->faker->randomElement(['US', 'UK', 'Canada', 'Asia']),
             'lead_id' => $this->faker->randomElement(['LS001', 'LS004', 'LS005', 'LS008']),
             'graduation_year' => null,

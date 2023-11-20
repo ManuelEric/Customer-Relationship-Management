@@ -44,10 +44,7 @@ use Illuminate\Support\Facades\Route;
 //     return view('pages.client.student.index-mentee', ['status' => $status]);
 // });
 
-Route::get('raw', [ClientStudentController::class, 'indexRaw']);
-Route::get('student/raw', function() {
-    return view('pages.client.student.raw.index');
-});
+Route::get('student/raw',  [ClientStudentController::class, 'indexRaw']);
 Route::get('student/raw/{id}', function() {
     return view('pages.client.student.raw.form-new');
 });

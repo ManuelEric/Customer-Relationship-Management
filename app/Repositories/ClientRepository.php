@@ -21,6 +21,7 @@ use App\Models\ClientLeadTracking;
 use App\Models\RawClient;
 use App\Models\University;
 use App\Models\User;
+use App\Models\ViewRawClient;
 use Illuminate\Support\Str; 
 
 class ClientRepository implements ClientRepositoryInterface
@@ -1249,9 +1250,9 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getAllRawClientDataTables()
     {
-        return Datatables::eloquent(RawClient::query())
+        return Datatables::eloquent(ViewRawClient::query())
         ->addColumn('suggestion', function ($data) {
-            $a = UserClient::where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->first_name . ' ' . $data->last_name .'%')->get();
+            $a = UserClient::where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->fullname .'%')->get();
             return $a->toArray();
         })
         ->make(true);

@@ -176,8 +176,7 @@
                         href="{{ url('client/student?st=non-mentee') }}">Non-Mentee</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-nowrap"
-                        href="{{ url('client/student') }}">All</a>
+                    <a class="nav-link text-nowrap" href="{{ url('client/student') }}">All</a>
                 </li>
             </ul>
 
@@ -191,8 +190,10 @@
                 <table class="table table-bordered table-hover nowrap align-middle w-100" id="rawTable">
                     <thead class="bg-secondary text-white">
                         <tr class="text-center" role="row">
+                            <th class="bg-info text-white">#</th></th>
                             <th class="bg-info text-white">No</th>
                             <th class="bg-info text-white">Name</th>
+                            <th class="bg-info text-white">Suggestion</th>
                             <th>Mail</th>
                             <th>Phone</th>
                             <th>Parents Name</th>
@@ -200,23 +201,23 @@
                             <th>Parents Phone</th>
                             <th>School</th>
                             <th>Graduation Year</th>
-                            <th>Grade</th>
+                            {{-- <th>Grade</th>
                             <th>Instagram</th>
-                            <th>Location</th>
+                            <th>Location</th> --}}
                             <th>Lead</th>
-                            <th>Level of Interest</th>
+                            {{-- <th>Level of Interest</th>
                             <th>Interested Program</th>
-                            <th>Year of Study Abroad</th>
+                            <th>Year of Study Abroad</th> --}}
                             <th>Country of Study Abroad</th>
-                            <th>University Destination</th>
-                            <th>Interest Major</th>
+                            {{-- <th>University Destination</th>
+                            <th>Interest Major</th> --}}
                             <th>Joined Date</th>
                             <th>Last Update</th>
-                            <th>Status</th>
+                            {{-- <th>Status</th> --}}
                             <th class="bg-info text-white"># Action</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    {{-- <tbody>
                         @for ($i = 1; $i <= 20; $i++)
                             <tr class="text-center" role="row">
                                 <td class="dt-control"></td>
@@ -254,10 +255,10 @@
                                 </td>
                             </tr>
                         @endfor
-                    </tbody>
+                    </tbody> --}}
                     <tfoot class="bg-light text-white">
                         <tr>
-                            <td colspan="21"></td>
+                            <td colspan="16"></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -303,60 +304,168 @@
 @endsection
 @push('scripts')
     <script>
-        // Formatting function for row details - modify as you need
-        function format(d) {
-            var similar = '<table class="table w-auto table-borderless">' +
-                '<tr>' +
-                '<th colspan=5>Comparison with Similar Names:</th>' +
-                '</tr>'
+        var widthView = $(window).width();
+        $(document).ready(function() {
 
-            for (let i = 0; i < 2; i++) {
-                similar += '<tr>' +
-                    '<td><input type="radio" name="similar" class="form-check-input" onclick="comparison(' + i +
-                    ',5)" /></td>' +
-                    '<td>Full Name</td>' +
-                    '<td>Email</td>' +
-                    '<td>Phone Number</td>' +
-                    '<td>School Name</td>' +
-                    '<td>Graduation Year</td>' +
+            // Formatting function for row details - modify as you need
+            function format(d) {
+                var similar = '<table class="table w-auto table-borderless">' +
+                    '<tr>' +
+                    '<th colspan=5>Comparison with Similar Names:</th>' +
                     '</tr>'
+
+                for (let i = 0; i < 2; i++) {
+                    similar += '<tr>' +
+                        '<td><input type="radio" name="similar" class="form-check-input" onclick="comparison(' + i +
+                        ',5)" /></td>' +
+                        '<td>Full Name</td>' +
+                        '<td>Email</td>' +
+                        '<td>Phone Number</td>' +
+                        '<td>School Name</td>' +
+                        '<td>Graduation Year</td>' +
+                        '</tr>'
+                }
+                similar +=
+                    '<tr>' +
+                    '<th colspan=5>Convert without Comparison</th>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td><input type="radio" name="similar" class="form-check-input" onclick="newLeads(1)" /></td>' +
+                    '<td colspan=5>New Lead</td>' +
+                    '</tr>' +
+                    '</table>'
+                // `d` is the original data object for the row
+                return (similar);
             }
-            similar +=
-                '<tr>' +
-                '<th colspan=5>Convert without Comparison</th>' +
-                '</tr>' +
-                '<tr>' +
-                '<td><input type="radio" name="similar" class="form-check-input" onclick="newLeads(1)" /></td>' +
-                '<td colspan=5>New Lead</td>' +
-                '</tr>' +
-                '</table>'
-            // `d` is the original data object for the row
-            return (similar);
-        }
+
+            var table = $('#rawTable').DataTable({
+                order: [
+                    // [20, 'desc'],
+                    [1, 'asc']
+                ],
+                dom: 'Bfrtip',
+                buttons: [
+                    'pageLength', {
+                        extend: 'excel',
+                        text: 'Export to Excel',
+                    }
+                ],
+                scrollX: true,
+                fixedColumns: {
+                    left: (widthView < 768) ? 1 : 2,
+                    right: 1
+                },
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '',
+                },
+                columns: [{
+                        className: 'dt-control',
+                        orderable: false,
+                        data: null,
+                        defaultContent: ''
+                    },
+                    {
+                        data: 'id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'fullname',
+                        render: function(data, type, row, meta) {
+                            return data
+                        }
+                    },
+                    {
+                        data: 'suggestion',
+                        render: function(data, type, row, meta) {
+                            return '<div class="badge badge-warning py-1 px-2 ms-2">'+data.length+' Similar Names</div>'
+                        }
+                    },
+                    {
+                        data: 'mail',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'phone',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'parent_name',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'parent_mail',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'parent_phone',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'school',
+                        defaultContent: '-',
+                    },
+                    {
+                        data: 'graduation_year',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'lead_source',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'interest_countries',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'created_at',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'updated_at',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: '',
+                        className: 'text-center',
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient"><i class="bi bi-eye"></i></button>'
+                    }
+                ],
+            });
 
 
-        let table = new DataTable('#rawTable');
+            // Add a click event listener to each row in the parent DataTable
+            table.on('click', 'td.dt-control', function(e) {
+                let tr = e.target.closest('tr');
+                let row = table.row(tr);
 
-        // Add a click event listener to each row in the parent DataTable
-        table.on('click', 'td.dt-control', function(e) {
-            let tr = e.target.closest('tr');
-            let row = table.row(tr);
+                if (row.child.isShown()) {
+                    // This row is already open - close it
+                    row.child.hide();
+                } else {
+                    // Open this row
+                    row.child(format(row.data())).show();
+                }
+            });
 
-            if (row.child.isShown()) {
-                // This row is already open - close it
-                row.child.hide();
-            } else {
-                // Open this row
-                row.child(format(row.data())).show();
+            function comparison(id, id2) {
+                window.open("{{ url('client/student/raw/') }}" + '/' + id + '/comparison/' + id2, "_blank");
             }
+
+            function newLeads(id) {
+                window.open("{{ url('client/student/raw/') }}" + '/' + id, "_blank");
+            }
+
+
         });
-
-        function comparison(id, id2) {
-            window.open("{{ url('client/student/raw/') }}" + '/' + id + '/comparison/' + id2, "_blank");
-        }
-
-        function newLeads(id) {
-            window.open("{{ url('client/student/raw/') }}" + '/' + id, "_blank");
-        }
     </script>
 @endpush
