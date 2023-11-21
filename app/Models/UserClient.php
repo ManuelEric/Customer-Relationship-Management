@@ -40,6 +40,7 @@ class UserClient extends Authenticatable
         'city',
         'postal_code',
         'address',
+        // 'sch_id',
         'sch_uuid',
         'st_grade',
         'lead_id',

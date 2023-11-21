@@ -1277,9 +1277,14 @@ class ClientRepository implements ClientRepositoryInterface
         ->make(true);
     }
 
-    public function getRawClientById($rawClientId)
+    public function getViewRawClientById($rawClientId)
     {
         return ViewRawClient::where('id', $rawClientId)->first();
+    }
+
+    public function getRawClientById($rawClientId)
+    {
+        return RawClient::where('id', $rawClientId)->first();
     }
 
     public function deleteRawClient($rawClientId)

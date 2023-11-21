@@ -279,9 +279,9 @@
                                 <td>
                                     <div id="parentPreview"></div>
                                     <input type="hidden" name="parentType" id="parentTypeInput">
-                                    <input type="hidden" name="parentName" value="{{$rawClient->parent_name}}">
-                                    <input type="hidden" name="parentMail" value="{{$rawClient->parent_mail}}">
-                                    <input type="hidden" name="parentPhone" value="{{$rawClient->parent_phone}}">
+                                    <input type="hidden" name="parentName" value="{{$client->parents()->count() > 0 ? $client->parents()->first()->full_name : null}}">
+                                    <input type="hidden" name="parentMail" value="{{$client->parents()->count() > 0 ? $client->parents()->first()->mail : null}}">
+                                    <input type="hidden" name="parentPhone" value="{{$client->parents()->count() > 0 ? $client->parents()->first()->phone : null}}">
                                     <input type="hidden" name="parentFinal" id="parentInputPreview">
                                 </td>
                             </tr>
@@ -327,10 +327,10 @@
 
                 if (type == 'select') {
                     $('#' + init + 'InputPreview').val($(item).find(":selected").data('id'))
+                    $('#parentTypeInput').val('exist')
                 } else {
                     $('#' + init + 'InputPreview').val($(item).val())
                 }
-                $('#parentTypeInput').val('exist')
             }
 
 

@@ -27,6 +27,9 @@ return new class extends Migration
             rcp.mail as parent_mail,
             rcp.phone as parent_phone,
             rc.graduation_year,
+            rc.role,
+            rc.relation_key,
+            rc.school_uuid as sch_uuid,
             (CASE 
                 WHEN l.main_lead = "KOL" THEN CONCAT("KOL - ", l.sub_lead)
                 ELSE l.main_lead

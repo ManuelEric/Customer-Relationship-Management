@@ -112,7 +112,7 @@ class ClientStudentController extends ClientController
 
     public function index(Request $request)
     {
-        
+
         if ($request->ajax()) {
 
             $statusClient = $request->get('st');
@@ -158,10 +158,10 @@ class ClientStudentController extends ClientController
                 default:
                     $model = $this->clientRepository->getAllClientStudent($advanced_filter);
             }
-            
+
             return $this->clientRepository->getDataTables($model);
         }
-    
+
         $entries = app('App\Services\ClientStudentService')->getClientStudent();
 
         return view('pages.client.student.index')->with($entries);
@@ -169,12 +169,11 @@ class ClientStudentController extends ClientController
 
     public function indexRaw(Request $request)
     {
-        if ($request->ajax()) {   
+        if ($request->ajax()) {
             return $this->clientRepository->getAllRawClientDataTables();
         }
-    
-        return view('pages.client.student.raw.index');
 
+        return view('pages.client.student.raw.index');
     }
 
     public function show(Request $request)
@@ -212,7 +211,7 @@ class ClientStudentController extends ClientController
         $parentId = NULL;
         $data = $this->initializeVariablesForStoreAndUpdate('student', $request);
         $data['studentDetails']['register_as'] == null ? $data['studentDetails']['register_as'] = 'student' : $data['studentDetails']['register_as'];
-        
+
         DB::beginTransaction();
         try {
 
@@ -297,9 +296,9 @@ class ClientStudentController extends ClientController
                     Log::error('Store relation between student and parent failed : ' . $e->getMessage());
                     break;
 
-                // case 5:
-                //     Log::error('Store interest programs failed : ' . $e->getMessage());
-                //     break;
+                    // case 5:
+                    //     Log::error('Store interest programs failed : ' . $e->getMessage());
+                    //     break;
 
                 case 6:
                     Log::error('Store interest universities failed : ' . $e->getMessage());
@@ -316,7 +315,7 @@ class ClientStudentController extends ClientController
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Student', Auth::user()->first_name . ' '. Auth::user()->last_name, $newStudentDetails);
+        $this->logSuccess('store', 'Form Input', 'Student', Auth::user()->first_name . ' ' . Auth::user()->last_name, $newStudentDetails);
 
         return Redirect::to('client/student?st=new-leads')->withSuccess('A new student has been registered.');
     }
@@ -419,8 +418,8 @@ class ClientStudentController extends ClientController
 
             //! perlu nunggu 1 menit dlu sampai ada client lead tracking status yg 1
             # update status client lead tracking
-            if($leadsTracking->count() > 0){
-                foreach($leadsTracking as $leadTracking){
+            if ($leadsTracking->count() > 0) {
+                foreach ($leadsTracking as $leadTracking) {
                     $this->clientLeadTrackingRepository->updateClientLeadTrackingById($leadTracking->id, ['status' => 0]);
                 }
             }
@@ -439,13 +438,13 @@ class ClientStudentController extends ClientController
                 if (!$parentId = $this->createParentsIfAddNew($data['parentDetails'], $data['studentDetails']))
                     throw new Exception('Failed to store new parent', 2);
             }
-            
+
 
             # removing the kol_lead_id & pr_id from studentDetails array
             # if the data still exists it will error because there are no field with kol_lead_id & pr_id
             unset($data['studentDetails']['kol_lead_id']);
             $newParentId = $data['studentDetails']['pr_id'];
-            $oldParentId = $data['studentDetails']['pr_id_old']; 
+            $oldParentId = $data['studentDetails']['pr_id_old'];
             unset($data['studentDetails']['pr_id']);
             unset($data['studentDetails']['pr_id_old']);
 
@@ -467,7 +466,6 @@ class ClientStudentController extends ClientController
                     if (!$this->clientRepository->createClientRelation($parentId, $studentId))
                         throw new Exception('Failed to store relation between student and parent', 4);
                 }
-
             } else {
 
                 # when pr_id is null it means they remove the parent from the child
@@ -529,9 +527,9 @@ class ClientStudentController extends ClientController
                     Log::error('Update relation between student and parent failed : ' . $e->getMessage());
                     break;
 
-                // case 5:
-                //     Log::error('Update interest programs failed : ' . $e->getMessage());
-                //     break;
+                    // case 5:
+                    //     Log::error('Update interest programs failed : ' . $e->getMessage());
+                    //     break;
 
                 case 6:
                     Log::error('Update interest universities failed : ' . $e->getMessage());
@@ -548,7 +546,7 @@ class ClientStudentController extends ClientController
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Student', Auth::user()->first_name . ' '. Auth::user()->last_name, $data['studentDetails'], $oldStudent);
+        $this->logSuccess('update', 'Form Input', 'Student', Auth::user()->first_name . ' ' . Auth::user()->last_name, $data['studentDetails'], $oldStudent);
 
         return Redirect::to('client/student/' . $studentId)->withSuccess('A student\'s profile has been updated.');
     }
@@ -588,7 +586,7 @@ class ClientStudentController extends ClientController
 
         # Upload success
         # create log success
-        $this->logSuccess('upload', null, 'Status Client', Auth::user()->first_name . ' '. Auth::user()->last_name, ['status' => $newStatus], ['client_id', $studentId]);
+        $this->logSuccess('upload', null, 'Status Client', Auth::user()->first_name . ' ' . Auth::user()->last_name, ['status' => $newStatus], ['client_id', $studentId]);
 
 
         return response()->json(
@@ -621,16 +619,16 @@ class ClientStudentController extends ClientController
                     'code' => 400,
                     'message' => $validator->messages()
                 ]
-            );         
+            );
         }
 
-        if($reason == 'other'){
+        if ($reason == 'other') {
             $otherReason = $this->reasonRepository->createReason(['reason_name' => $request->other_reason, 'type' => 'Hot Lead']);
             $reason = $otherReason->reason_id;
         }
 
         $initProg = $this->initialProgramRepository->getInitProgByName($initprogName);
-       
+
         $programTracking = $this->clientLeadTrackingRepository->getLatestClientLeadTrackingByType('Program', $groupId);
         $leadTracking = $this->clientLeadTrackingRepository->getLatestClientLeadTrackingByType('Lead', $groupId);
 
@@ -654,7 +652,7 @@ class ClientStudentController extends ClientController
         $last_id = ClientLeadTracking::max('group_id');
         $group_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 5) : '00000';
         $group_id_with_label = 'CLT-' . $this->add_digit($group_id_without_label + 1, 5);
-            
+
 
         $programDetails = [
             'group_id' => $group_id_with_label,
@@ -673,13 +671,13 @@ class ClientStudentController extends ClientController
             'total_result' => $leadScore,
             'status' => 1
         ];
-        
+
         DB::beginTransaction();
         try {
 
             $this->clientLeadTrackingRepository->updateClientLeadTrackingById($programTracking->id, ['status' => 0, 'reason_id' => $reason]);
             $this->clientLeadTrackingRepository->updateClientLeadTrackingById($leadTracking->id, ['status' => 0, 'reason_id' => $reason]);
-            
+
             $this->clientLeadTrackingRepository->createClientLeadTracking($programDetails);
             $this->clientLeadTrackingRepository->createClientLeadTracking($leadStatusDetails);
             DB::commit();
@@ -693,12 +691,12 @@ class ClientStudentController extends ClientController
                     'code' => 500,
                     'message' => $e->getMessage()
                 ]
-            );            
+            );
         }
 
         # Upload success
         # create log success
-        $this->logSuccess('upload', null, 'Status Lead Client', Auth::user()->first_name . ' '. Auth::user()->last_name, $leadStatusDetails, ['lead_status', $leadStatus]);
+        $this->logSuccess('upload', null, 'Status Lead Client', Auth::user()->first_name . ' ' . Auth::user()->last_name, $leadStatusDetails, ['lead_status', $leadStatus]);
 
         return response()->json(
             [
@@ -707,7 +705,6 @@ class ClientStudentController extends ClientController
                 'message' => 'Lead status has been updated',
             ]
         );
-        
     }
 
     public function import(StoreImportExcelRequest $request)
@@ -715,7 +712,7 @@ class ClientStudentController extends ClientController
 
         $file = $request->file('file');
 
-        try{
+        try {
             $import = new StudentImport();
             $import->import($file);
         } catch (Exception $e) {
@@ -730,34 +727,32 @@ class ClientStudentController extends ClientController
         $clients = $this->clientRepository->getAlumniMenteesSiblings();
         return $clients;
     }
-    
+
     public function addInterestProgram(Request $request)
     {
         $studentId = $request->route('student');
-        
+
         $request->validate([
             'interest_program' => 'required|exists:tbl_prog,prog_id',
         ]);
-        
+
         DB::beginTransaction();
         try {
-            
+
             $createdInterestProgram = $this->clientRepository->addInterestProgram($studentId, $request->interest_program);
 
-        DB::commit();
+            DB::commit();
         } catch (Exception $e) {
-            
+
             DB::rollBack();
             Log::error('Add interest program client failed : ' . $e->getMessage() . ' ' . $e->getLine());
             return Redirect::to('client/student/' . $studentId)->withError('Interest program failed to be added.');
-
         }
 
         # Add interest program success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Interest Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $createdInterestProgram);
+        $this->logSuccess('store', 'Form Input', 'Interest Program', Auth::user()->first_name . ' ' . Auth::user()->last_name, $createdInterestProgram);
         return Redirect::to('client/student/' . $studentId)->withSuccess('Interest program successfully added.');
-
     }
 
     public function removeInterestProgram(Request $request)
@@ -774,13 +769,13 @@ class ClientStudentController extends ClientController
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Remove Interest Program failed : ' . $e->getMessage() . ' '. $e->getLine());
+            Log::error('Remove Interest Program failed : ' . $e->getMessage() . ' ' . $e->getLine());
             return Redirect::to('client/student/' . $studentId)->withError('Interest program failed to be removed.');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Interest Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['client_id' => $studentId]);
+        $this->logSuccess('delete', null, 'Interest Program', Auth::user()->first_name . ' ' . Auth::user()->last_name, ['client_id' => $studentId]);
 
         return Redirect::to('client/student/' . $studentId)->withSuccess('interest program successfully removed.');
     }
@@ -794,14 +789,14 @@ class ClientStudentController extends ClientController
         DB::beginTransaction();
         try {
 
-            $rawClient = $this->clientRepository->getRawClientById($rawClientId);
-            $clientId != null ? $client = $this->clientRepository->getClientById($clientId) : null;    
-            
+            $rawClient = $this->clientRepository->getViewRawClientById($rawClientId);
+            $clientId != null ? $client = $this->clientRepository->getClientById($clientId) : null;
+
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
 
-            Log::error('Fetch data raw client failed : ' . $e->getMessage() . ' '. $e->getLine());
+            Log::error('Fetch data raw client failed : ' . $e->getMessage() . ' ' . $e->getLine());
             return Redirect::to('client/student/raw')->withError('Something went wrong. Please try again or contact the administrator.');
         }
 
@@ -819,15 +814,14 @@ class ClientStudentController extends ClientController
                 ]);
                 break;
         }
-
     }
 
     public function convertData(StoreClientRawRequest $request)
     {
-        
+
         $type = $request->route('type');
-        $clientId = $request->route('client_id');  
-        $rawclientId = $request->route('rawclient_id');  
+        $clientId = $request->route('client_id');
+        $rawclientId = $request->route('rawclient_id');
 
         $name = $this->explodeName($request->nameFinal);
 
@@ -839,11 +833,10 @@ class ClientStudentController extends ClientController
             'mail' => $request->emailFinal,
             'phone' => $request->phoneFinal,
             'graduation_year' => $request->graduationFinal,
-            // 'school_uuid' => $request->schoolFinal,
+            // 'sch_uuid' => $request->schoolFinal,
         ];
 
-        if($parentType == 'new' && $request->parentFinal != null)
-        {
+        if ($parentType == 'new' && $request->parentFinal != null) {
             $parentName = $this->explodeName($request->parentName);
             $parentDetails = [
                 'first_name' => $parentName['firstname'],
@@ -851,7 +844,7 @@ class ClientStudentController extends ClientController
                 'mail' => $request->parentMail,
                 'phone' => $request->parentPhone,
             ];
-        }else{
+        } else {
             $parentId = $request->parentFinal;
         }
 
@@ -859,46 +852,72 @@ class ClientStudentController extends ClientController
         try {
             switch ($type) {
                 case 'merge':
-                      
 
                     $student = $this->clientRepository->getClientById($clientId);
                     $this->clientRepository->updateClient($clientId, $clientDetails);
 
-                    if($parentType == 'new' && $request->parentFinal != null)
-                    {
+                    $rawStudent = $this->clientRepository->getRawClientById($rawclientId);
+
+                    if ($parentType == 'new' && $request->parentFinal != null) {
                         $parentDetails['lead_id'] = $student->lead_id;
                         $parentDetails['register_as'] = $student->register_as;
 
+                        # Add relation new parent
                         $parent = $this->clientRepository->createClient('parent', $parentDetails);
                         $this->clientRepository->attachClientRelation($parent->id, $clientId);
+
+                        # Delete parent from raw client
+                        $this->clientRepository->deleteRawClient($request->parentFinal);
+                    }else if($parentType == 'exist'){
+                        $this->clientRepository->updateClient($parentId, $parentDetails);
+                        $this->clientRepository->createClientRelation($parentId, $clientId);
                     }
-                    
+
                     break;
-                
+
                 case 'new':
+                    $rawStudent = $this->clientRepository->getRawClientById($rawclientId);
+                    $lead_id = $rawStudent->lead_id;
+                    $register_as = $rawStudent->register_as;
+
+                    $clientDetails['lead_id'] = $lead_id;
+                    $clientDetails['register_as'] = $register_as;
+
                     $student = $this->clientRepository->createClient('student', $clientDetails);
-                    if($parentType == 'new' && $request->parentFinal != null)
-                    {
+                    
+                    if ($parentType == 'new' && $request->parentFinal != null) {
+                        $parentDetails['lead_id'] = $lead_id;
+                        $parentDetails['register_as'] = $register_as;
+
+                        # Add relation new parent
                         $parent = $this->clientRepository->createClient('parent', $parentDetails);
                         $this->clientRepository->attachClientRelation($parent->id, $student->id);
-                    }else{
-                        $this->clientRepository->attachClientRelation($parentId, $student->id);
+
+                        # Delete parent from raw client
+                        $this->clientRepository->deleteRawClient($request->parentFinal);
+                    }else if($parentType == 'exist'){
+                        $this->clientRepository->updateClient($parentId, $parentDetails);
+                        $this->clientRepository->createClientRelation($parentId, $clientId);
                     }
-                    
-                    break;  
+
+                    break;
             }
 
+            # sync destination country
+            if ($rawStudent->interest_countries != null)
+                $this->syncDestinationCountry($rawStudent->interest_countries, $student);
+
+            # delete student from raw client
             $this->clientRepository->deleteRawClient($rawclientId);
-            
+
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
 
-            Log::error('Convert client failed : ' . $e->getMessage() . ' '. $e->getLine());
+            Log::error('Convert client failed : ' . $e->getMessage() . ' ' . $e->getLine());
             return Redirect::to('client/student/raw')->withError('Something went wrong. Please try again or contact the administrator.');
         }
 
         return Redirect::to('client/student/raw')->withSuccess('Convert client successfully.');
-       
     }
 }
