@@ -156,14 +156,14 @@ class ClientProgramController extends Controller
     public function show(Request $request)
     {
         if ($request->route('student') !== null)
-            $studentId = $request->route('student');
+            $studentUUID = $request->route('student');
         elseif ($request->route('client') !== null)
-            $studentId = $request->route('client');
+            $studentUUID = $request->route('client');
         // $studentId = isset($request->route('student')) ? $request->route('student') : isset($request->route('client')) ? $request->route('client') : null;
         $clientProgramId = $request->route('program');
 
-        $student = $this->clientRepository->getClientById($studentId);
-        $viewStudent = $this->clientRepository->getViewClientById($studentId);
+        $student = $this->clientRepository->getClientByUUID($studentUUID);
+        $viewStudent = $this->clientRepository->getViewClientByUUID($studentUUID);
         $clientProgram = $this->clientProgramRepository->getClientProgramById($clientProgramId);
 
         # programs
@@ -173,7 +173,7 @@ class ClientProgramController extends Controller
 
         # main leads
         $leads = $this->leadRepository->getAllMainLead();
-        $clientEvents = $this->clientEventRepository->getAllClientEventByClientId($studentId);
+        $clientEvents = $this->clientEventRepository->getAllClientEventByClientId($studentUUID);
         $external_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
         $partners = $this->corporateRepository->getAllCorporate();

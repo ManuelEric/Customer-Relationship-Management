@@ -24,6 +24,7 @@ class School extends Model
      */
     protected $fillable = [
         'sch_id',
+        'uuid',
         'sch_name',
         'sch_type',
         'sch_mail',
@@ -83,7 +84,7 @@ class School extends Model
 
     public function client()
     {
-        return $this->hasMany(UserClient::class, 'sch_id', 'sch_id');
+        return $this->hasMany(UserClient::class, 'sch_uuid', 'uuid');
     }
 
     public function schoolProgram()

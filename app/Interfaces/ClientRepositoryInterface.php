@@ -44,9 +44,11 @@ interface ClientRepositoryInterface
     public function getAllClientByRoleAndStatus($roleName, $statusClient);
     public function getAllChildrenWithNoParents($parentId);
     public function getClientById($clientId);
+    public function getClientByUUID($clientUUID);
     public function getClientByMonthCreatedAt(array $createdAt);
     public function getClientByPhoneNumber($phoneNumber);
     public function getViewClientById($clientId);
+    public function getViewClientByUUID($clientUUID);
     public function checkIfClientIsMentee($clientId);
     public function deleteClient($clientId);
     public function createClient($role, array $clientDetails);

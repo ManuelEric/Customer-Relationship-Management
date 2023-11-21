@@ -844,6 +844,11 @@ class ClientRepository implements ClientRepositoryInterface
         return Client::find($clientId);
     }
 
+    public function getClientByUUID($clientUUID)
+    {
+        return Client::where('uuid', $clientUUID)->first();
+    }
+
     public function getClientByMonthCreatedAt(array $month)
     {
         return UserClient::whereIn(DB::raw('MONTH(created_at)'), $month)->whereYear('created_at', date('Y-m-d'))->get();
@@ -860,6 +865,11 @@ class ClientRepository implements ClientRepositoryInterface
     public function getViewClientById($clientId)
     {
         return Client::find($clientId);
+    }
+
+    public function getViewClientByUUID($clientUUID)
+    {
+        return Client::where('uuid', $clientUUID)->first();
     }
 
     public function checkIfClientIsMentee($clientId)

@@ -3,6 +3,14 @@
 @section('title', 'Schools ')
 
 @section('content')
+
+    <div class="alert alert-warning">
+        
+        <p><i class="bi bi-exclamation-triangle"></i>
+            Please review the school data and make any necessary updates. There appear to be a few duplicate entries.<br><br>
+            Such as : <b>{{ $duplicates_schools_string }}</b>
+        </p>
+    </div>
     
     <div class="card bg-secondary mb-1 p-2">
         <div class="d-flex align-items-center justify-content-between">

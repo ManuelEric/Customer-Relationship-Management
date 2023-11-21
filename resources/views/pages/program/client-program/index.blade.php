@@ -415,7 +415,7 @@
 
             $('#programTable tbody').on('click', '.showClientProgram ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('client/student') }}/" + data.client_id + "/program/" + data
+                window.location.href = "{{ url('client/student') }}/" + data.client_uuid + "/program/" + data
                     .clientprog_id;
             });
 

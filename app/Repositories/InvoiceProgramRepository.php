@@ -477,7 +477,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
             // ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
             // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
-            ->leftJoin('tbl_client as child', 'child.id', '=', 'tbl_client_prog.client_id')
+            ->leftJoin('tbl_client as child', 'child.uuid', '=', 'tbl_client_prog.client_uuid')
             ->leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')
             ->leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id');
 

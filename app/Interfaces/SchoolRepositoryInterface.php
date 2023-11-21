@@ -11,6 +11,7 @@ interface SchoolRepositoryInterface
     public function getSchoolByName($schoolName);
     public function getSchoolByAlias($alias);
     public function getAliasBySchool($schoolId);
+    public function getDuplicateSchools();
 
     public function deleteSchool($schoolId);
     public function createSchool(array $schoolDetails);
