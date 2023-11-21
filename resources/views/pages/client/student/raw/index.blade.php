@@ -202,66 +202,12 @@
                             <th>Parents Phone</th>
                             <th>School</th>
                             <th>Graduation Year</th>
-                            {{-- <th>Grade</th>
-                            <th>Instagram</th>
-                            <th>Location</th> --}}
                             <th>Lead</th>
-                            {{-- <th>Level of Interest</th>
-                            <th>Interested Program</th>
-                            <th>Year of Study Abroad</th> --}}
                             <th>Country of Study Abroad</th>
-                            {{-- <th>University Destination</th>
-                            <th>Interest Major</th> --}}
                             <th>Joined Date</th>
-                            <th>Last Update</th>
-                            {{-- <th>Status</th> --}}
-                            <th class="bg-info text-white"># Action</th>
+                            <th class="bg-info text-white">Last Update</th>
                         </tr>
                     </thead>
-                    {{-- <tbody>
-                        @for ($i = 1; $i <= 20; $i++)
-                            <tr class="text-center" role="row">
-                                <td class="dt-control"></td>
-                                <td>Name
-                                    <div class="badge badge-warning py-1 px-2 ms-2">4 Similar Names</div>
-                                </td>
-                                <td>Mail</td>
-                                <td>Phone</td>
-                                <td>Parents Name</td>
-                                <td>Parents Mail</td>
-                                <td>Parents Phone</td>
-                                <td>School
-                                    <div class="badge badge-danger py-1 px-2 ms-2">Not Verified</div>
-                                </td>
-                                <td>Graduation Year
-                                </td>
-                                <td>Grade</td>
-                                <td>Instagram</td>
-                                <td>Location</td>
-                                <td>Lead</td>
-                                <td>Level of Interest</td>
-                                <td>Interested Program</td>
-                                <td>Year of Study Abroad</td>
-                                <td>Country of Study Abroad</td>
-                                <td>University Destination</td>
-                                <td>Interest Major</td>
-                                <td>Joined Date</td>
-                                <td>Last Update</td>
-                                <td>Status</td>
-                                <td>
-                                    <a class="btn btn-sm btn-outline-primary py-1 px-2" style="font-size: 10px"
-                                        href="{{ url('client/student/raw-data/' . $i) }}">
-                                        Convert
-                                    </a>
-                                </td>
-                            </tr>
-                        @endfor
-                    </tbody> --}}
-                    {{-- <tfoot class="bg-light text-white">
-                        <tr>
-                            <td colspan="16"></td>
-                        </tr>
-                    </tfoot> --}}
                 </table>
             </div>
         </div>
@@ -310,33 +256,42 @@
 
             // Formatting function for row details - modify as you need
             function format(d) {
-                var similar = '<table class="table w-auto table-borderless">' 
+                var similar = '<table class="table w-auto table-hover">'
 
                 if (d.suggestion.length > 0) {
-                    similar += 
-                    '<th colspan=5>Comparison with Similar Names:</th>' +
-                    '</tr>';
+                    similar +=
+                        '<th colspan=6>Comparison with Similar Names:</th>' +
+                        '</tr>' +
+                        '<tr>' +
+                        '<th>#</th><th>Name</th><th>Email</th><th>Phone Number</th><th>School Name</th><th>Graduation Year</th>' +
+                        '</tr>';
                     d.suggestion.forEach(function(item, index) {
-                        similar += '<tr>' +
-                            '<td><input type="radio" name="similar" class="form-check-input" onclick="comparison(' +
+                        similar += '<tr onclick="comparison(' +
+                            d.id + ',' + item.id + ')" class="cursor-pointer">' +
+                            '<td><input type="radio" name="similar' + d.id +
+                            '" class="form-check-input item-' + item.id + '" onclick="comparison(' +
                             d.id + ',' + item.id + ')" /></td>' +
                             '<td>' + item.first_name + ' ' + item.last_name + '</td>' +
                             '<td>' + (item.mail !== null ? item.mail : '-') + '</td>' +
                             '<td>' + (item.phone !== null ? item.phone : '-') + '</td>' +
-                            '<td>' + (typeof item.school !== 'undefined' && item.school !== null ? item.school.sch_name : '-') + '</td>' +
-                            '<td>' + (item.graduation_year_real !== null ? item.graduation_year_real : '-') + '</td>' +
+                            '<td>' + (typeof item.school !== 'undefined' && item.school !== null ? item
+                                .school.sch_name : '-') + '</td>' +
+                            '<td>' + (item.graduation_year_real !== null ? item.graduation_year_real :
+                            '-') + '</td>' +
                             '</tr>'
                     });
                 }
 
                 similar +=
                     '<tr>' +
-                    '<th colspan=5>Convert without Comparison</th>' +
+                    '<th colspan=6>Convert without Comparison</th>' +
                     '</tr>' +
-                    '<tr>' +
-                    '<td><input type="radio" name="similar" class="form-check-input" onclick="newLeads('+
-                d.id+')" /></td>' +
-                    '<td colspan=5>New Lead</td>' +
+                    '<tr class="cursor-pointer" onclick="newLeads(' +
+                    d.id + ')">' +
+                    '<td><input type="radio" name="similar' + d.id +
+                    '" class="form-check-input item-'+d.id+'" onclick="newLeads(' +
+                    d.id + ')" /></td>' +
+                    '<td colspan=5>New Student</td>' +
                     '</tr>' +
                     '</table>'
                 // `d` is the original data object for the row
@@ -386,9 +341,11 @@
                     },
                     {
                         data: 'suggestion',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
-                            return '<div class="badge badge-warning py-1 px-2 ms-2">' + data
-                                .length + ' Similar Names</div>'
+                            return data.length > 0 ?
+                                '<div class="badge badge-warning py-1 px-2 ms-2">' + data
+                                .length + ' Similar Names</div>' : '-'
                         }
                     },
                     {
@@ -440,11 +397,6 @@
                         className: 'text-center',
                         defaultContent: '-'
                     },
-                    {
-                        data: '',
-                        className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient"><i class="bi bi-eye"></i></button>'
-                    }
                 ],
             });
 
@@ -466,10 +418,12 @@
         });
 
         function comparison(id, id2) {
+           $('input.item-'+id2).prop('checked', true);
             window.open("{{ url('client/student/raw/') }}" + '/' + id + '/comparison/' + id2, "_blank");
         }
 
         function newLeads(id) {
+            $('input.item-'+id).prop('checked', true);
             window.open("{{ url('client/student/raw/') }}" + '/' + id + '/new', "_blank");
         }
     </script>
