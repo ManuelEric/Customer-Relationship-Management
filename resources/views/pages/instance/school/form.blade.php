@@ -34,9 +34,16 @@
                         {{ isset($school) ? $school->sch_name : 'Add New School' }}
                     </h5>
                     @if(isset($school))
-                        <a class="text-primary text-decoration-none cursor-pointer" target="_blank" href="{{ url('client/student?sch='.$school->sch_name) }}">
-                            <p>{{ $school->client->count() }} Students Connected</p> 
-                        </a>
+                    
+                        <p>
+                            <a class="text-primary text-decoration-none cursor-pointer" target="_blank" href="{{ url('client/student?sch='.$school->sch_name) }}">
+                                {{ $school->client->count() }} Students Connected
+                            </a> 
+                            | 
+                            <a class="text-decoration-none" href="#" data-bs-toggle="modal" data-bs-target="#aliasModal">
+                                {{ $aliases->count() }} Aliases
+                            </a>
+                        </p>
                     @endif
                     @if (isset($school))
                         <div class="mt-3 d-flex justify-content-center">
@@ -145,7 +152,17 @@
                             <div class="col-md-6">
                                 <div class="mb-2">
                                     <label>School Name <sup class="text-danger">*</sup> </label>
-                                    <input type="text" name="sch_name" class="form-control form-control-sm rounded"
+                                    @if (!isset($school))
+                                    <select name="choosen_school" class="w-100" @disabled(!empty($school) && !isset($edit))>
+                                        
+                                    </select>
+                                    @endif
+                                    <input type="text" name="sch_name" @class([
+                                        'form-control',
+                                        'form-control-sm',
+                                        'rounded',
+                                        'd-none' => !isset($school)
+                                    ])
                                         value="{{ isset($school->sch_name) ? $school->sch_name : old('sch_name') }}"
                                         {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
                                     @error('sch_name')
@@ -376,9 +393,86 @@
             @endif
         </div>
     </div>
-
-
+    
     @if (isset($school))
+        <div class="modal modal-md fade" id="aliasModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="m-0 p-0">
+                            <i class="bi bi-chat-dots me-2"></i>
+                            Aliases of "{{ $school->sch_name }}"
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-success" role="alert">
+                            <i class="bi bi-info-circle"></i> Just a reminder that the alias is necessary for accurate searches. Please make sure to add more alias to help client find their school name
+                        </div>
+
+                        <table class="table table-striped w-100 mb-4">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Alias</th>
+                                    <th class="text-center w-10">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($aliases as $alias)
+                                    @php
+                                        $max = $loop->iteration;
+                                    @endphp
+                                    <tr>
+                                        <td>{{ $loop->iteration }}. </td>
+                                        <td>{{ $alias->alias }}</td>
+                                        <td class="text-center">
+                                            <a href="{{ route('school.alias.destroy', ['school' => $alias->sch_id, 'alias' => $alias->id ]) }}" class="text-danger delete-alias">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+
+                                    @if ($aliases->count() == $loop->iteration)
+                                    <tr>
+                                        <td>{{ $max + 1 }}</td>
+                                        <td>
+                                            <form action="{{ route('school.alias.store', ['school' => $school->sch_id]) }}" method="POST" id="new-alias-form">
+                                                @csrf
+                                                <input type="text" placeholder="Add new alias" class="form-control-sm border-1 w-100" name="alias" value="">
+                                                @error('alias')
+                                                    <small class="text-danger">{{ $message }}</small>
+                                                @enderror
+                                            </form>
+                                        </td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-primary" type="submit" form="new-alias-form">
+                                                <i class="bi bi-arrow-return-left"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    @endif
+                                @endforeach
+                            </tbody>
+                        </table>
+
+                        <div class="col-md-12 mt-2">
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-3"
+                                    data-bs-dismiss="modal">
+                                    <i class="bi bi-x me-1"></i>
+                                    Cancel
+                                </button>
+                                <button type="submit" class="btn btn-sm btn-primary rounded-3">
+                                    <i class="bi bi-save2"></i>
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="modal modal-md fade" id="picForm" data-bs-backdrop="static" data-bs-keyboard="false"
             tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
@@ -511,84 +605,151 @@
         </div>
     @endif
 
-    <script>
-        // Select2 Modal 
-        $(document).ready(function() {
-            $('.modal-program').select2({
-                dropdownParent: $('#programForm .modal-content'),
-                placeholder: "Select value",
-                allowClear: true
-            });
+@endsection
 
-            $('.modal-select').select2({
-                dropdownParent: $('#picForm .modal-content'),
-                placeholder: "Select value",
-                allowClear: true
-            });
-
-            @if ($error_pic === true)
-                $("#picForm").modal('show')
-            @elseif ($error_visit === true)
-                $("#school_visit").modal('show')
-            @endif
-
-            $("input[type=radio][name=pic_status]").change(function() {
-                var val = $(this).val();
-                $("#is_pic").val(val);
-            })
-
-        });
-    </script>
-
-    <script>
-        @if (isset($school))
-            function resetForm() {
-                $('#cp_fullname').val(null)
-                $('#cp_mail').val(null)
-                $('#cp_grade').val(null).trigger('change')
-                $('#cp_phone').val(null)
-                $('#cp_status').val(null).trigger('change')
-                $('.put').html('');
-                $('#picAction').attr('action',
-                    '{{ isset($school) ? url('instance/school/' . $school->sch_id . '/detail') : url('instance/school/') }}'
-                )
-            }
+@push('scripts')
+<script>
+    
+    $(document).ready(function() {
+        @if (session()->has('success'))
+            $("#aliasModal").modal('show');
         @endif
 
-
-        function getPIC(link) {
-            axios.get(link)
-                .then(function(response) {
-                    // handle success
-                    let id = response.data.school_id
-                    let cp = response.data.schoolDetail
-
-                    $('#cp_fullname').val(cp.schdetail_fullname)
-                    $('#cp_mail').val(cp.schdetail_email)
-                    $('#cp_grade').val(cp.schdetail_grade).trigger('change')
-                    $('#cp_phone').val(cp.schdetail_phone)
-                    $('#cp_status').val(cp.schdetail_position).trigger('change')
-                    $('#is_pic').val(cp.is_pic)
-                    $('input[type=radio][name=pic_status][value=' + cp.is_pic + ']').prop('checked', true);
-
-                    let url = "{{ url('instance/school/') }}/" + id + "/detail/" + cp.schdetail_id
-                    $('#picAction').attr('action', url)
-
-                    let html =
-                        '@method('put')' +
-                        '<input type="hidden" readonly name="schdetail_id" value="' + cp.schdetail_id + '">'
-                    $('.put').html(html);
-
-
-                    // console.log(url)
+        $('.delete-alias').on('click', function(e) {
+            e.preventDefault();
+    
+            showLoading();
+    
+            var link = $(this).attr('href');
+    
+            axios.post(link, {
+                    _method: 'DELETE',
+                    _token: '{{ csrf_token() }}'
+                }).then(function (response) {
+    
+                    swal.close();
+                    notification('success', response.data.message);
+                    location.reload();
+    
+                }).catch(function (error) {
+    
+                    notification('error', error.message);
+    
                 })
-                .catch(function(error) {
-                    // handle error
-                    console.log(error);
-                })
+        })
+    })
+
+    $("select[name=choosen_school]").select2({
+        placeholder: "Write school name",
+        ajax: {
+            delay: 250, // wait 250 milliseconds before triggering the request
+            url: '{{ url('/') }}/api/school',
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+
+                // Query parameters will be ?search=[term]
+                return query;
+            }, 
+            processResults: function (data) {
+                return {
+                    results: $.map(data, function (obj) {
+                        return { id: obj.sch_id, text: obj.sch_name}
+                    })
+                }
+            }
+
+        },
+    })
+
+    $("select[name=sch_id]").on('change', function() {
+        var val = $(this).val();
+        if (val == 'SCH-NEW') {
+
+            $(this).next(".select2-container").addClass('d-none');
+            $("input[name=sch_name]").removeClass('d-none');
+
         }
+    })
 
-        // Make a request for a user with a given ID
-    </script>
+    // Select2 Modal 
+    $(document).ready(function() {
+        $('.modal-program').select2({
+            dropdownParent: $('#programForm .modal-content'),
+            placeholder: "Select value",
+            allowClear: true
+        });
 
-@endsection
+        $('.modal-select').select2({
+            dropdownParent: $('#picForm .modal-content'),
+            placeholder: "Select value",
+            allowClear: true
+        });
+
+        @if ($error_pic === true)
+            $("#picForm").modal('show')
+        @elseif ($error_visit === true)
+            $("#school_visit").modal('show')
+        @endif
+
+        $("input[type=radio][name=pic_status]").change(function() {
+            var val = $(this).val();
+            $("#is_pic").val(val);
+        })
+
+    });
+</script>
+
+<script>
+    @if (isset($school))
+        function resetForm() {
+            $('#cp_fullname').val(null)
+            $('#cp_mail').val(null)
+            $('#cp_grade').val(null).trigger('change')
+            $('#cp_phone').val(null)
+            $('#cp_status').val(null).trigger('change')
+            $('.put').html('');
+            $('#picAction').attr('action',
+                '{{ isset($school) ? url('instance/school/' . $school->sch_id . '/detail') : url('instance/school/') }}'
+            )
+        }
+    @endif
+
+
+    function getPIC(link) {
+        axios.get(link)
+            .then(function(response) {
+                // handle success
+                let id = response.data.school_id
+                let cp = response.data.schoolDetail
+
+                $('#cp_fullname').val(cp.schdetail_fullname)
+                $('#cp_mail').val(cp.schdetail_email)
+                $('#cp_grade').val(cp.schdetail_grade).trigger('change')
+                $('#cp_phone').val(cp.schdetail_phone)
+                $('#cp_status').val(cp.schdetail_position).trigger('change')
+                $('#is_pic').val(cp.is_pic)
+                $('input[type=radio][name=pic_status][value=' + cp.is_pic + ']').prop('checked', true);
+
+                let url = "{{ url('instance/school/') }}/" + id + "/detail/" + cp.schdetail_id
+                $('#picAction').attr('action', url)
+
+                let html =
+                    '@method('put')' +
+                    '<input type="hidden" readonly name="schdetail_id" value="' + cp.schdetail_id + '">'
+                $('.put').html(html);
+
+
+                // console.log(url)
+            })
+            .catch(function(error) {
+                // handle error
+                console.log(error);
+            })
+    }
+
+    // Make a request for a user with a given ID
+</script>
+@endpush

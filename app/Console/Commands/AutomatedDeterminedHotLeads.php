@@ -434,6 +434,9 @@ class AutomatedDeterminedHotLeads extends Command
 
             switch ($initProgramName) {
                 case "Admissions Mentoring":
+                    if ($client->type == "existing_mentee")
+                        $bypass = true;
+                    
                     $specificConcerns->where('main_prog_id', 1)->first() != null ? $total_result = 1 : null;
                     break;
 
