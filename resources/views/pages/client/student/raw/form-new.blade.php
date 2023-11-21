@@ -21,7 +21,7 @@
                                 Full Name
                             </div>
                             <div class="mb-2">
-                                <input type="text" name="name" id="nameNew"
+                                <input type="text" name="name" id="nameNew" value="{{$rawClient->fullname}}"
                                     class="form-control form-control-sm" placeholder="Type new full name"
                                     oninput="checkInputText(this, 'name')">
                             </div>
@@ -31,7 +31,7 @@
                                 Email
                             </div>
                             <div class="mb-2">
-                                <input type="email" name="email" id="emailNew"
+                                <input type="email" name="email" id="emailNew" value="{{$rawClient->mail}}"
                                     class="form-control form-control-sm" placeholder="Type new email"
                                     oninput="checkInputText(this, 'email')">
                             </div>
@@ -41,7 +41,7 @@
                                 Phone Number
                             </div>
                             <div class="mb-2">
-                                <input type="tel" name="phone" id="phoneNew"
+                                <input type="tel" name="phone" id="phoneNew" value="{{$rawClient->phone}}"
                                     class="form-control form-control-sm" placeholder="Type new phone number"
                                     oninput="checkInputText(this, 'phone')">
                             </div>
@@ -51,7 +51,7 @@
                                 Graduation Year
                             </div>
                             <div class="mb-2">
-                                <input type="text" name="graduation" id="graduationNew"
+                                <input type="text" name="graduation" id="graduationNew" value="{{$rawClient->graduation_year}}"
                                     class="form-control form-control-sm" placeholder="Type new graduation year"
                                     oninput="checkInputText(this, 'graduation')">
                             </div>
@@ -130,8 +130,8 @@
                                 <td width="30%">Full Name</td>
                                 <td width="1%">:</td>
                                 <td>
-                                    <div id="namePreview"></div>
-                                    <input type="hidden" name="nameFinal" id="nameInputPreview">
+                                    <div id="namePreview">{{$rawClient->fullname}}</div>
+                                    <input type="hidden" name="nameFinal" id="nameInputPreview" value="{{$rawClient->fullname}}">
                                 </td>
                             </tr>
                             <tr>
