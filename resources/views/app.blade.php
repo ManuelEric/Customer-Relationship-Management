@@ -317,7 +317,7 @@
                     })
                     .catch(function(error) {
                         myModal.hide()
-                        swal.close();
+                        // swal.close();
                         notification('error', error)
                     })
             });

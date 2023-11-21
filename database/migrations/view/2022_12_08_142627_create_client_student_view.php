@@ -119,7 +119,7 @@ return new class extends Migration
         
         FROM tbl_client c
             LEFT JOIN tbl_sch s
-                ON s.sch_id = c.sch_id
+                ON s.uuid = c.sch_uuid
             LEFT JOIN tbl_lead l
                 ON l.lead_id = c.lead_id
             LEFT JOIN tbl_eduf_lead el

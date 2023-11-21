@@ -108,7 +108,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
             // ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
             // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
-            ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
+            ->leftJoin('tbl_client', 'tbl_client.uuid', '=', 'tbl_client_prog.client_uuid')
             ->where('receipt_status', 1)
             ->whereNotNull('tbl_receipt.inv_id')
             ->select([

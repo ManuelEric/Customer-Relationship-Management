@@ -55,10 +55,31 @@ class SchoolController extends Controller
     public function index(Request $request)
     {
 
-        if ($request->ajax()) {
+        if ($request->ajax())
             return $this->schoolRepository->getAllSchoolDataTables();
+        
+        
+        $duplicates_schools = $this->schoolRepository->getDuplicateSchools();
+        $duplicates_schools_string = $this->convertDuplicatesSchoolAsString($duplicates_schools);
+
+        return view('pages.instance.school.index')->with(
+            [
+                'duplicates_schools_string' => $duplicates_schools_string,
+                'duplicates_schools' => $duplicates_schools->pluck('sch_name')->toArray()
+            ]
+        );
+    }
+
+    private function convertDuplicatesSchoolAsString($schools)
+    {
+        $response = '';
+        foreach ($schools as $school) {
+
+            $response .= ', '.$school->sch_name;
+
         }
-        return view('pages.instance.school.index');
+
+        return $response;
     }
 
     public function store(StoreSchoolRequest $request)

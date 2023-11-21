@@ -152,6 +152,14 @@ class SchoolRepository implements SchoolRepositoryInterface
         return $school->curriculum()->attach($curriculums);
     }
 
+    public function getDuplicateSchools()
+    {
+        return School::select([
+                DB::raw('COUNT(*) as count'),
+                'tbl_sch.sch_name',
+            ])->groupBy('sch_name')->havingRaw('count > 1')->get();
+    }
+
     public function createSchools(array $schoolDetails)
     {
         return School::insert($schoolDetails);

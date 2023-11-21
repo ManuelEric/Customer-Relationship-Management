@@ -256,11 +256,11 @@
                             </tr>
                         @endfor
                     </tbody> --}}
-                    <tfoot class="bg-light text-white">
+                    {{-- <tfoot class="bg-light text-white">
                         <tr>
                             <td colspan="16"></td>
                         </tr>
-                    </tfoot>
+                    </tfoot> --}}
                 </table>
             </div>
         </div>

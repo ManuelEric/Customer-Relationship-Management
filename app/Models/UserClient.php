@@ -28,6 +28,7 @@ class UserClient extends Authenticatable
     protected $fillable = [
         'id',
         'st_id',
+        'uuid',
         'first_name',
         'last_name',
         'mail',
@@ -39,7 +40,7 @@ class UserClient extends Authenticatable
         'city',
         'postal_code',
         'address',
-        'sch_id',
+        'sch_uuid',
         'st_grade',
         'lead_id',
         'eduf_id',
@@ -175,7 +176,7 @@ class UserClient extends Authenticatable
 
     public function school()
     {
-        return $this->belongsTo(School::class, 'sch_id', 'sch_id');
+        return $this->belongsTo(School::class, 'sch_uuid', 'uuid');
     }
 
     public function lead()
@@ -215,7 +216,7 @@ class UserClient extends Authenticatable
 
     public function clientProgram()
     {
-        return $this->hasMany(ClientProgram::class, 'client_id', 'id');
+        return $this->hasMany(ClientProgram::class, 'client_uuid', 'uuid');
     }
 
     public function clientEvent()
@@ -225,7 +226,7 @@ class UserClient extends Authenticatable
 
     public function viewClientProgram()
     {
-        return $this->hasMany(ViewClientProgram::class, 'client_id', 'id');
+        return $this->hasMany(ViewClientProgram::class, 'client_uuid', 'uuid');
     }
 
     public function clientMentor()
