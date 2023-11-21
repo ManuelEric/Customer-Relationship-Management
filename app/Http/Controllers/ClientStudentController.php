@@ -825,10 +825,9 @@ class ClientStudentController extends ClientController
     public function convertData(StoreClientRawRequest $request)
     {
         
-     
-
         $type = $request->route('type');
-        $studentId = $request->id;    
+        $clientId = $request->route('client_id');  
+        $rawclientId = $request->route('rawclient_id');  
 
         $name = $this->explodeName($request->nameFinal);
 
@@ -840,10 +839,10 @@ class ClientStudentController extends ClientController
             'mail' => $request->emailFinal,
             'phone' => $request->phoneFinal,
             'graduation_year' => $request->graduationFinal,
-            'sch_id' => $request->schoolFinal,
+            // 'school_uuid' => $request->schoolFinal,
         ];
 
-        if($parentType == 'new')
+        if($parentType == 'new' && $request->parentFinal != null)
         {
             $parentName = $this->explodeName($request->parentName);
             $parentDetails = [
@@ -856,23 +855,50 @@ class ClientStudentController extends ClientController
             $parentId = $request->parentFinal;
         }
 
-        switch ($type) {
-            case 'merge':
-                $this->clientRepository->updateClient($studentId, $clientDetails);
-                if($parentType == 'new')
-                {
-                    $parent = $this->clientRepository->createClient('parent', $parentDetails);
-                    $this->clientRepository->attachClientRelation($parent->id, $studentId);
-                }else{
-                    $this->clientRepository->attachClientRelation($parentId, $studentId);
-                }
+        DB::beginTransaction();
+        try {
+            switch ($type) {
+                case 'merge':
+                      
+
+                    $student = $this->clientRepository->getClientById($clientId);
+                    $this->clientRepository->updateClient($clientId, $clientDetails);
+
+                    if($parentType == 'new' && $request->parentFinal != null)
+                    {
+                        $parentDetails['lead_id'] = $student->lead_id;
+                        $parentDetails['register_as'] = $student->register_as;
+
+                        $parent = $this->clientRepository->createClient('parent', $parentDetails);
+                        $this->clientRepository->attachClientRelation($parent->id, $clientId);
+                    }
+                    
+                    break;
                 
-                break;
+                case 'new':
+                    $student = $this->clientRepository->createClient('student', $clientDetails);
+                    if($parentType == 'new' && $request->parentFinal != null)
+                    {
+                        $parent = $this->clientRepository->createClient('parent', $parentDetails);
+                        $this->clientRepository->attachClientRelation($parent->id, $student->id);
+                    }else{
+                        $this->clientRepository->attachClientRelation($parentId, $student->id);
+                    }
+                    
+                    break;  
+            }
+
+            $this->clientRepository->deleteRawClient($rawclientId);
             
-            case 'new':
-                $this->clientRepository->createClient('student', $clientDetails);
-                break;
-           
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            Log::error('Convert client failed : ' . $e->getMessage() . ' '. $e->getLine());
+            return Redirect::to('client/student/raw')->withError('Something went wrong. Please try again or contact the administrator.');
         }
+
+        return Redirect::to('client/student/raw')->withSuccess('Convert client successfully.');
+       
     }
 }

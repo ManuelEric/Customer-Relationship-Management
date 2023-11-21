@@ -223,7 +223,7 @@
         </div>
         <div class="col-md-5">
             <div class="card rounded position-sticky" style="top:15%;">
-                <form action="{{ route('client.convert', ['id' => $client->id, 'type' => 'merge']) }}" method="post">
+                <form action="{{ route('client.convert', ['client_id' => $client->id, 'type' => 'merge', 'rawclient_id' => $rawClient->id]) }}" method="post">
                     @csrf
                     <div class="card-header">
                         <h5>Summarize</h5>
@@ -231,7 +231,7 @@
                     <div class="card-body">
                         Preview first before convert this data
                         <hr class="my-1">
-                        <input type="hidden" name="id" id="existing_id">
+                        <input type="hidden" name="id" id="existing_id" value="{{$client->id}}">
                         <table class="table table-borderless">
                             <tr>
                                 <td width="30%">Full Name</td>
@@ -279,9 +279,9 @@
                                 <td>
                                     <div id="parentPreview"></div>
                                     <input type="hidden" name="parentType" id="parentTypeInput">
-                                    <input type="hidden" name="parentName">
-                                    <input type="hidden" name="parentMail">
-                                    <input type="hidden" name="parentPhone">
+                                    <input type="hidden" name="parentName" value="{{$rawClient->parent_name}}">
+                                    <input type="hidden" name="parentMail" value="{{$rawClient->parent_mail}}">
+                                    <input type="hidden" name="parentPhone" value="{{$rawClient->parent_phone}}">
                                     <input type="hidden" name="parentFinal" id="parentInputPreview">
                                 </td>
                             </tr>

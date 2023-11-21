@@ -15,6 +15,16 @@
                     </h5>
                 </div>
                 <div class="card-body">
+
+                    @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                     <div class="row">
                         <div class="col-md-6 mb-2">
                             <div class="text-danger mb-1">
@@ -116,7 +126,7 @@
         </div>
         <div class="col-md-5">
             <div class="card rounded position-sticky" style="top:15%;">
-                <form action="">
+                <form action="{{ route('client.convert', ['rawclient_id' => $rawClient->id, 'type' => 'new']) }}" method="post">
                     @csrf
                     <div class="card-header">
                         <h5>Summarize</h5>
@@ -138,39 +148,40 @@
                                 <td>Email</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="emailPreview"></div>
-                                    <input type="hidden" name="emailFinal" id="emailInputPreview">
+                                    <div id="emailPreview">{{$rawClient->mail}}</div>
+                                    <input type="hidden" name="emailFinal" id="emailInputPreview" value="{{$rawClient->mail}}">
                                 </td>
                             </tr>
                             <tr>
                                 <td>Phone Number</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="phonePreview"></div>
-                                    <input type="hidden" name="phoneFinal" id="phoneInputPreview">
+                                    <div id="phonePreview">{{$rawClient->phone}}</div>
+                                    <input type="hidden" name="phoneFinal" id="phoneInputPreview" value="{{$rawClient->phone}}">
                                 </td>
                             </tr>
                             <tr>
                                 <td>Graduation Year</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="graduationPreview"></div>
-                                    <input type="hidden" name="graduationFinal" id="graduationInputPreview">
+                                    <div id="graduationPreview">{{$rawClient->graduation_year}}</div>
+                                    <input type="hidden" name="graduationFinal" id="graduationInputPreview" value="{{$rawClient->graduation_year}}">
                                 </td>
                             </tr>
                             <tr>
                                 <td>School Name</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="schoolPreview"></div>
-                                    <input type="hidden" name="schoolFinal" id="schoolInputPreview">
+                                    <div id="schoolPreview">{{$rawClient->school}}</div>
+                                    <input type="hidden" name="schoolFinal" id="schoolInputPreview" value="{{$rawClient->school}}">
                                 </td>
                             </tr>
                             <tr>
                                 <td>Parent Name</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="parentPreview"></div>
+                                    <div id="parentPreview">{{$rawClient->parent_name}}</div>
+                                    <input type="hidden" name="parentType" value="new">
                                     <input type="hidden" name="parentFinal" id="parentInputPreview">
                                 </td>
                             </tr>

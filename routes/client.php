@@ -46,7 +46,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('student/raw',  [ClientStudentController::class, 'indexRaw']);
 Route::get('student/raw/{rawclient_id}/{type}/{client_id?}', [ClientStudentController::class, 'cleaningData']);
-Route::post('student/raw/{id}/{type}', [ClientStudentController::class, 'convertData'])->name('client.convert');
+Route::post('student/raw/{rawclient_id}/{type}/{client_id?}', [ClientStudentController::class, 'convertData'])->name('client.convert');
 
 Route::resource('student', ClientStudentController::class);
 Route::prefix('student')->name('student.')->group(function () {
