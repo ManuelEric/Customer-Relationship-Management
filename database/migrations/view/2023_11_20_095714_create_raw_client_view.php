@@ -23,6 +23,7 @@ return new class extends Migration
             rc.fullname,
             rc.mail,
             rc.phone,
+            rcp.uuid as parent_uuid,
             rcp.fullname as parent_name,
             rcp.mail as parent_mail,
             rcp.phone as parent_phone,
@@ -51,8 +52,6 @@ return new class extends Migration
                 ON l.lead_id = rc.lead_id
             LEFT JOIN tbl_raw_school rs
                 ON rs.uuid = rc.school_uuid
-
-        where rc.role = "student"
         ');
     }
 

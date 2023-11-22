@@ -170,7 +170,7 @@ class ClientStudentController extends ClientController
     public function indexRaw(Request $request)
     {
         if ($request->ajax()) {
-            return $this->clientRepository->getAllRawClientDataTables();
+            return $this->clientRepository->getAllRawClientDataTables('student');
         }
 
         return view('pages.client.student.raw.index');
@@ -842,7 +842,7 @@ class ClientStudentController extends ClientController
                 'first_name' => $parentName['firstname'],
                 'last_name' => isset($parentName['lastname']) ? $parentName['lastname'] : null,
                 'mail' => $request->parentMail,
-                'phone' => isset($request->parentPhone) ? $this->setPhoneNumber($request->phoneFinal) : null,
+                'phone' => isset($request->parentPhone) ? $this->setPhoneNumber($request->parentPhone) : null,
             ];
             $parentId = $request->parentFinal;
         }
@@ -874,10 +874,12 @@ class ClientStudentController extends ClientController
         
                             # Delete parent from raw client
                             $this->clientRepository->deleteRawClient($request->parentFinal);
-                        }
+                            }
 
                     }else if($parentType == 'exist'){
                         $this->clientRepository->updateClient($parentId, $parentDetails);
+                        $this->clientRepository->createClientRelation($parentId, $clientId);
+                    }elseif($parentType == 'exist_select'){
                         $this->clientRepository->createClientRelation($parentId, $clientId);
                     }
 
@@ -905,6 +907,8 @@ class ClientStudentController extends ClientController
                         $this->clientRepository->deleteRawClient($request->parentFinal);
                     }else if($parentType == 'exist'){
                         $this->clientRepository->updateClient($parentId, $parentDetails);
+                        $this->clientRepository->createClientRelation($parentId, $clientId);
+                    }elseif($parentType == 'exist_select'){
                         $this->clientRepository->createClientRelation($parentId, $clientId);
                     }
 

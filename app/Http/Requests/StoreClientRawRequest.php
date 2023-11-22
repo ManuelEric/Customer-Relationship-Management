@@ -37,7 +37,7 @@ class StoreClientRawRequest extends FormRequest
             'graduationFinal' => 'nullable',
             'gap_year' => 'nullable',
             'schoolFinal' => 'required',
-            'parentType' => 'required|in:exist,new',
+            'parentType' => 'required|in:exist,new,exist_select',
             'parentName' => 'nullable',
             'parentMail' => 'nullable',
             'parentPhone' => 'nullable',
