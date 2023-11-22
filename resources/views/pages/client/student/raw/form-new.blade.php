@@ -204,7 +204,8 @@
                                 <td>:</td>
                                 <td>
                                     <div id="emailPreview">{{ $rawClient->mail }}</div>
-                                    <input type="hidden" name="emailFinal" id="emailInputPreview" value="{{ $rawClient->mail }}">
+                                    <input type="hidden" name="emailFinal" id="emailInputPreview"
+                                        value="{{ $rawClient->mail }}">
                                 </td>
                             </tr>
                             <tr>
@@ -212,7 +213,8 @@
                                 <td>:</td>
                                 <td>
                                     <div id="phonePreview">{{ $rawClient->phone }}</div>
-                                    <input type="hidden" name="phoneFinal" id="phoneInputPreview" value="{{ $rawClient->phone }}">
+                                    <input type="hidden" name="phoneFinal" id="phoneInputPreview"
+                                        value="{{ $rawClient->phone }}">
                                 </td>
                             </tr>
                             <tr>
@@ -220,7 +222,8 @@
                                 <td>:</td>
                                 <td>
                                     <div id="graduationPreview">{{ $rawClient->graduation_year }}</div>
-                                    <input type="hidden" name="graduationFinal" id="graduationInputPreview" value="{{ $rawClient->graduation_year }}">
+                                    <input type="hidden" name="graduationFinal" id="graduationInputPreview"
+                                        value="{{ $rawClient->graduation_year }}">
                                 </td>
                             </tr>
                             <tr>
@@ -256,6 +259,10 @@
 @endsection
 @push('scripts')
     <script>
+        $('#schoolNew').on('select2:unselect', function(e) {
+            alert('close')
+        });
+
         function checkInputText(item, init, type = null) {
             if ($(item).val() != "") {
                 $('.' + init).prop('checked', false)
