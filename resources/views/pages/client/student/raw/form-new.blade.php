@@ -72,20 +72,15 @@
                             </div>
                             <div class="mb-2">
                                 <div class="row g-2">
-                                    @if($rawClient->school != null)    
-                                        <div class="col-5 d-flex gap-2">
-                                            <div class="w-100">
-                                                <input type="text" name="" id="" value="{{ $rawClient->school }}"
-                                                    oninput="checkInputText(this, 'school')"
-                                                    class="form-control form-control-sm">
-                                                <small class="text-danger">
-                                                    <i class="bi bi-info-circle-fill"></i>
-                                                    Not Verified School
-                                                </small>
-                                            </div>
-                                            <div class="mt-2">
-                                                OR
-                                            </div>
+                                    <div class="col-5 d-flex gap-2">
+                                        <div class="w-100">
+                                            <input type="text" name="" id="schoolNew"
+                                                class="form-control form-control-sm" value="{{ $rawClient->school }}"
+                                                oninput="checkInputText(this, 'school')">
+                                            <small class="text-danger">
+                                                <i class="bi bi-info-circle-fill"></i>
+                                                Not Verified School
+                                            </small>
                                         </div>
                                         <div class="col-5">
                                             <select class="select w-100 school" name="school" id="schoolNew"
@@ -97,18 +92,17 @@
                                                 Verified School
                                             </small>
                                         </div>
-                                    @else                                    
-                                        <div class="col-10">
-                                            <select class="select w-100 school" name="school" id="schoolNew"
-                                                onchange="checkInputText(this, 'school', 'select')">
-                                                <option value=""></option>
-                                            </select>
-                                            <small class="text-success">
-                                                <i class="bi bi-check-circle-fill"></i>
-                                                Verified School
-                                            </small>
-                                        </div>         
-                                    @endif
+                                    </div>
+                                    <div class="col-5">
+                                        <select class="select w-100 school" name="school" id="schoolExist"
+                                            onchange="checkInputText(this, 'school', 'select')">
+                                            <option value=""></option>
+                                        </select>
+                                        <small class="text-success">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            Verified School
+                                        </small>
+                                    </div>
                                     <div class="col-1">
                                         <button class="btn btn-sm btn-outline-dark w-100" onclick="syncSchool()">
                                             <i class="bi bi-arrow-clockwise"></i>
@@ -126,31 +120,25 @@
                         <div class="col-md-12 mb-2">
                             <div class="card">
                                 <div class="card-body">
-                                    @if($rawClient->relation_key != null)
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <label for="">Parent's Name</label>
-                                                <input type="text" name="" id="parent_name" value="{{$rawClient->parent_name}}"
-                                                    class="form-control form-control-sm"
-                                                    oninput="checkInputText(this, 'parentName')">
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label for="">Parent's Email</label>
-                                                <input type="text" name="" id="parent_email" value="{{$rawClient->parent_mail}}"
-                                                    class="form-control form-control-sm"
-                                                    oninput="checkInputText(this, 'parentEmail')">
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label for="">Parent's Phone</label>
-                                                <input type="tel" name="" id="parent_phone" value="{{$rawClient->parent_phone}}"
-                                                    class="form-control form-control-sm"
-                                                    oninput="checkInputText(this, 'parentPhone')">
-                                            </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label for="">Parent's Name</label>
+                                            <input type="text" name="" id="parentName"
+                                                class="form-control form-control-sm" value="{{ $rawClient->parent_name }}"
+                                                oninput="checkInputText(this, 'parent')">
                                         </div>
-                                        <div class="d-flex justify-content-around align-items-center w-100 gap-3">
-                                            <hr class="border border-warning border-1 opacity-50 w-100">
-                                            <div class="text-nowrap">Or Use Existing Parent</div>
-                                            <hr class="border border-warning border-1 opacity-50 w-100">
+                                        <div class="col-md-4">
+                                            <label for="">Parent's Email</label>
+                                            <input type="text" name="" id="parentEmail"
+                                                class="form-control form-control-sm" value="{{ $rawClient->parent_mail }}"
+                                                oninput="checkInputText(this, 'parentEmail')">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="">Parent's Phone</label>
+                                            <input type="text" name="" id="parentPhone"
+                                                class="form-control form-control-sm"
+                                                value="{{ $rawClient->parent_phone }}"
+                                                oninput="checkInputText(this, 'parentPhone')">
                                         </div>
                                     @endif
                                     <div class="mb-2">
@@ -235,28 +223,28 @@
                                 <td>School Name</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="schoolPreview">{{$rawClient->school}}</div>
-                                    <input type="hidden" name="schoolFinal" id="schoolInputPreview" value="{{$rawClient->school}}">
+                                    <div id="schoolPreview">{{ $rawClient->school }}</div>
+                                    <input type="hidden" name="schoolFinal" id="schoolInputPreview">
                                 </td>
                             </tr>
                             <tr>
                                 <td>Parent Name</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="parentPreview">{{$rawClient->parent_name}}</div>
-                                    <input type="hidden" name="parentType" id="parentTypeInput" value="new">
-                                    <input type="hidden" name="parentName" id="parentNameInputPreview" value="{{$rawClient->parent_name}}">
+                                    <div id="parentPreview">{{ $rawClient->parent_name }}</div>
+                                    <input type="hidden" name="parentType" id="parentTypeInput" value="exist">
                                     <input type="hidden" name="parentFinal" id="parentInputPreview"
-                                        value="{{ $rawClient->parent_uuid }}">
+                                        value="{{ $rawClient->parent_id }}">
+                                    <input type="hidden" name="parentName" id="parentNameInputPreview"
+                                        value="{{ $rawClient->parent_name }}">
                                 </td>
                             </tr>
                             <tr>
-                                <td>Parent Mail</td>
+                                <td>Parent Email</td>
                                 <td>:</td>
                                 <td>
                                     <div id="parentEmailPreview">{{ $rawClient->parent_mail }}</div>
-                                    <input type="hidden" name="parentMail" id="parentEmailInputPreview"
-                                        value="{{ $rawClient->parent_mail }}">
+                                    <input type="hidden" name="parentFinal" id="parentEmailInputPreview">
                                 </td>
                             </tr>
                             <tr>
@@ -264,8 +252,7 @@
                                 <td>:</td>
                                 <td>
                                     <div id="parentPhonePreview">{{ $rawClient->parent_phone }}</div>
-                                    <input type="hidden" name="parentPhone" id="parentPhoneInputPreview"
-                                        value="{{ $rawClient->parent_phone }}">
+                                    <input type="hidden" name="parentFinal" id="parentPhoneInputPreview">
                                 </td>
                             </tr>
                         </table>
@@ -284,8 +271,26 @@
 @endsection
 @push('scripts')
     <script>
-        $('#schoolNew').on('select2:unselect', function(e) {
-            alert('close')
+        $('#schoolExist').on('select2:unselect', function(e) {
+            $('#schoolNew').prop('disabled', false).val('{{ $rawClient->school }}')
+            $('#schoolPreview').html('{{ $rawClient->school }}')
+            $('#schoolInputPreview').val('{{ $rawClient->school }}')
+        });
+
+        $('#parentNew').on('select2:unselect', function(e) {
+            $('#parentName').prop('disabled', false).val('{{ $rawClient->parent_name }}')
+            $('#parentEmail').prop('disabled', false).val('{{ $rawClient->parent_mail }}')
+            $('#parentPhone').prop('disabled', false).val('{{ $rawClient->parent_phone }}')
+
+
+            $('#parentTypeInput').val('new')
+            $('#parentInputPreview').val('')
+            $('#parentPreview').html('{{ $rawClient->parent_name }}')
+            $('#parentEmailPreview').html('{{ $rawClient->parent_mail }}')
+            $('#parentPhonePreview').html('{{ $rawClient->parent_phone }}')
+            $('#parentNameInputPreview').val('{{ $rawClient->parent_name }}')
+            $('#parentEmailInputPreview').val('{{ $rawClient->parent_mail }}')
+            $('#parentPhoneInputPreview').val('{{ $rawClient->parent_phone }}')
         });
 
         function checkInputText(item, init, type = null) {
@@ -294,19 +299,29 @@
                 $('#' + init + 'Preview').html($(item).val())
 
                 if (type == 'select') {
-                    $('#' + init + 'InputPreview').val($(item).find(":selected").data('id'))
-                    if(init == 'parent'){
-                        $('#' + init + 'InputPreview').val($(item).find(":selected").data('id'))
-                        $('#' + init + 'NamePreview').html($(item).val())
+                    if (init == 'school') {
+                        $('#' + init + 'New').prop('disabled', true).val('')
+                    } else if (init == 'parent') {
+                        $('#' + init + 'Name').prop('disabled', true).val('')
+                        $('#' + init + 'Email').prop('disabled', true).val('')
+                        $('#' + init + 'Phone').prop('disabled', true).val('')
+
+                        $('#' + init + 'Preview').html($(item).find(":selected").data('name'))
+                        $('#' + init + 'NameInputPreview').val($(item).find(":selected").data('name'))
                         $('#' + init + 'EmailPreview').html($(item).find(":selected").data('email'))
-                        $('#' + init + 'PhonePreview').html($(item).find(":selected").data('phone'))
-                        $('#' + init + 'NameInputPreview').val($(item).val())
                         $('#' + init + 'EmailInputPreview').val($(item).find(":selected").data('email'))
+                        $('#' + init + 'PhonePreview').html($(item).find(":selected").data('phone'))
                         $('#' + init + 'PhoneInputPreview').val($(item).find(":selected").data('phone'))
+
                         $('#parentTypeInput').val('exist_select')
                     }
+                    $('#' + init + 'InputPreview').val($(item).find(":selected").data('id'))
                 } else {
-                    $('#' + init + 'InputPreview').val($(item).val())
+                    if(init=='parent') {
+                        $('#' + init + 'NameInputPreview').val($(item).val())
+                    } else {
+                        $('#' + init + 'InputPreview').val($(item).val())
+                    }
                 }
             }
         }
@@ -324,8 +339,8 @@
             axios.get("{{ url('api/instance/school') }}")
                 .then(function(response) {
                     const data = response.data.data
-                    $('#schoolNew').html('')
-                    $('#schoolNew').append('<option value=""></option>')
+                    $('#schoolExist').html('')
+                    $('#schoolExist').append('<option value=""></option>')
                     data.forEach(element => {
                         $('#schoolNew').append(
                             '<option data-id="' + element.uuid + '" value="' + element.sch_name + '">' +
@@ -352,7 +367,7 @@
                         const fullname = element.first_name + last_name
                         $('#parentNew').append(
                             '<option data-id="' + element.id + '" ' +
-                            'data-name="' + element.fullname + '"' +
+                            'data-name="' + fullname + '"' +
                             'data-email="' + element.mail + '"' +
                             'data-phone="' + element.phone + '"' +
                             'value="' + fullname + '">' + fullname +
@@ -367,7 +382,7 @@
                 })
         }
 
-        syncSchool()
         syncParent()
+        syncSchool()
     </script>
 @endpush

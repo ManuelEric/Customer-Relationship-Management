@@ -444,13 +444,13 @@
                         $('#' + init + 'NameInputPreview').val($(item).val())
                         $('#' + init + 'EmailInputPreview').val($(item).find(":selected").data('email'))
                         $('#' + init + 'PhoneInputPreview').val($(item).find(":selected").data('phone'))
+                        $('#parentTypeInput').val('exist_select')
                     } else {
                         $('#' + init + 'InputPreview').val($(item).find(":selected").data('id'))
                     }
                 } else {
                     $('#' + init + 'InputPreview').val($(item).val())
                 }
-                $('#parentTypeInput').val('exist_select')
             }
 
 
@@ -513,7 +513,7 @@
                 })
         }
 
-        syncSchool()
         syncParent()
+        syncSchool()
     </script>
 @endpush
