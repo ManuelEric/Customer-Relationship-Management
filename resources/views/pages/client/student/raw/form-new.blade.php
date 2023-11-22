@@ -64,8 +64,9 @@
                                 <div class="row g-2">
                                     <div class="col-5 d-flex gap-2">
                                         <div class="w-100">
-                                            <input type="text" name="" id=""
-                                                class="form-control form-control-sm">
+                                            <input type="text" name="" id="schoolNew"
+                                                class="form-control form-control-sm" value="{{ $rawClient->school }}"
+                                                oninput="checkInputText(this, 'school')">
                                             <small class="text-danger">
                                                 <i class="bi bi-info-circle-fill"></i>
                                                 Not Verified School
@@ -76,7 +77,7 @@
                                         </div>
                                     </div>
                                     <div class="col-5">
-                                        <select class="select w-100 school" name="school" id="schoolNew"
+                                        <select class="select w-100 school" name="school" id="schoolExist"
                                             onchange="checkInputText(this, 'school', 'select')">
                                             <option value=""></option>
                                         </select>
@@ -106,17 +107,21 @@
                                         <div class="col-md-4">
                                             <label for="">Parent's Name</label>
                                             <input type="text" name="" id="parentName"
-                                                class="form-control form-control-sm">
+                                                class="form-control form-control-sm" value="{{ $rawClient->parent_name }}"
+                                                oninput="checkInputText(this, 'parent')">
                                         </div>
                                         <div class="col-md-4">
                                             <label for="">Parent's Email</label>
-                                            <input type="text" name="" id="parentName"
-                                                class="form-control form-control-sm">
+                                            <input type="text" name="" id="parentEmail"
+                                                class="form-control form-control-sm" value="{{ $rawClient->parent_mail }}"
+                                                oninput="checkInputText(this, 'parentEmail')">
                                         </div>
                                         <div class="col-md-4">
                                             <label for="">Parent's Phone</label>
-                                            <input type="text" name="" id="parentName"
-                                                class="form-control form-control-sm">
+                                            <input type="text" name="" id="parentPhone"
+                                                class="form-control form-control-sm"
+                                                value="{{ $rawClient->parent_phone }}"
+                                                oninput="checkInputText(this, 'parentPhone')">
                                         </div>
                                     </div>
                                     <div class="d-flex justify-content-around align-items-center w-100 gap-3">
@@ -206,7 +211,7 @@
                                 <td>School Name</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="schoolPreview"></div>
+                                    <div id="schoolPreview">{{ $rawClient->school }}</div>
                                     <input type="hidden" name="schoolFinal" id="schoolInputPreview">
                                 </td>
                             </tr>
@@ -214,8 +219,28 @@
                                 <td>Parent Name</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="parentPreview"></div>
-                                    <input type="hidden" name="parentFinal" id="parentInputPreview">
+                                    <div id="parentPreview">{{ $rawClient->parent_name }}</div>
+                                    <input type="hidden" name="parentType" id="parentTypeInput" value="exist">
+                                    <input type="hidden" name="parentFinal" id="parentInputPreview"
+                                        value="{{ $rawClient->parent_id }}">
+                                    <input type="hidden" name="parentName" id="parentNameInputPreview"
+                                        value="{{ $rawClient->parent_name }}">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Parent Email</td>
+                                <td>:</td>
+                                <td>
+                                    <div id="parentEmailPreview">{{ $rawClient->parent_mail }}</div>
+                                    <input type="hidden" name="parentFinal" id="parentEmailInputPreview">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Parent Phone</td>
+                                <td>:</td>
+                                <td>
+                                    <div id="parentPhonePreview">{{ $rawClient->parent_phone }}</div>
+                                    <input type="hidden" name="parentFinal" id="parentPhoneInputPreview">
                                 </td>
                             </tr>
                         </table>
@@ -234,8 +259,26 @@
 @endsection
 @push('scripts')
     <script>
-        $('#schoolNew').on('select2:unselect', function(e) {
-            alert('close')
+        $('#schoolExist').on('select2:unselect', function(e) {
+            $('#schoolNew').prop('disabled', false).val('{{ $rawClient->school }}')
+            $('#schoolPreview').html('{{ $rawClient->school }}')
+            $('#schoolInputPreview').val('{{ $rawClient->school }}')
+        });
+
+        $('#parentNew').on('select2:unselect', function(e) {
+            $('#parentName').prop('disabled', false).val('{{ $rawClient->parent_name }}')
+            $('#parentEmail').prop('disabled', false).val('{{ $rawClient->parent_mail }}')
+            $('#parentPhone').prop('disabled', false).val('{{ $rawClient->parent_phone }}')
+
+
+            $('#parentTypeInput').val('new')
+            $('#parentInputPreview').val('')
+            $('#parentPreview').html('{{ $rawClient->parent_name }}')
+            $('#parentEmailPreview').html('{{ $rawClient->parent_mail }}')
+            $('#parentPhonePreview').html('{{ $rawClient->parent_phone }}')
+            $('#parentNameInputPreview').val('{{ $rawClient->parent_name }}')
+            $('#parentEmailInputPreview').val('{{ $rawClient->parent_mail }}')
+            $('#parentPhoneInputPreview').val('{{ $rawClient->parent_phone }}')
         });
 
         function checkInputText(item, init, type = null) {
@@ -244,9 +287,30 @@
                 $('#' + init + 'Preview').html($(item).val())
 
                 if (type == 'select') {
+                    if (init == 'school') {
+                        $('#' + init + 'New').prop('disabled', true).val('')
+                    } else if (init == 'parent') {
+                        $('#' + init + 'Name').prop('disabled', true).val('')
+                        $('#' + init + 'Email').prop('disabled', true).val('')
+                        $('#' + init + 'Phone').prop('disabled', true).val('')
+
+                        $('#' + init + 'Preview').html($(item).find(":selected").data('name'))
+                        $('#' + init + 'NameInputPreview').val($(item).find(":selected").data('name'))
+                        $('#' + init + 'EmailPreview').html($(item).find(":selected").data('email'))
+                        $('#' + init + 'EmailInputPreview').val($(item).find(":selected").data('email'))
+                        $('#' + init + 'PhonePreview').html($(item).find(":selected").data('phone'))
+                        $('#' + init + 'PhoneInputPreview').val($(item).find(":selected").data('phone'))
+
+                        $('#parentTypeInput').val('exist_select')
+                    }
                     $('#' + init + 'InputPreview').val($(item).find(":selected").data('id'))
+
                 } else {
-                    $('#' + init + 'InputPreview').val($(item).val())
+                    if(init=='parent') {
+                        $('#' + init + 'NameInputPreview').val($(item).val())
+                    } else {
+                        $('#' + init + 'InputPreview').val($(item).val())
+                    }
                 }
             }
         }
@@ -264,10 +328,10 @@
             axios.get("{{ url('api/instance/school') }}")
                 .then(function(response) {
                     const data = response.data.data
-                    $('#schoolNew').html('')
-                    $('#schoolNew').append('<option value=""></option>')
+                    $('#schoolExist').html('')
+                    $('#schoolExist').append('<option value=""></option>')
                     data.forEach(element => {
-                        $('#schoolNew').append(
+                        $('#schoolExist').append(
                             '<option data-id="' + element.sch_id + '" value="' + element.sch_name + '">' +
                             element.sch_name + '</option>'
                         )
@@ -291,7 +355,11 @@
                         const last_name = element.last_name == null ? '' : ' ' + element.last_name
                         const fullname = element.first_name + last_name
                         $('#parentNew').append(
-                            '<option data-id="' + element.id + '" value="' + fullname + '">' + fullname +
+                            '<option data-id="' + element.id + '" ' +
+                            'data-name="' + fullname + '"' +
+                            'data-email="' + element.mail + '"' +
+                            'data-phone="' + element.phone + '"' +
+                            'value="' + fullname + '">' + fullname +
                             '</option>'
                         )
                     });
@@ -303,7 +371,7 @@
                 })
         }
 
-        syncSchool()
         syncParent()
+        syncSchool()
     </script>
 @endpush
