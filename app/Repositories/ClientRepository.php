@@ -841,12 +841,12 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getClientById($clientId)
     {
-        return Client::find($clientId);
+        return UserClient::find($clientId);
     }
 
     public function getClientByUUID($clientUUID)
     {
-        return Client::where('uuid', $clientUUID)->first();
+        return UserClient::where('uuid', $clientUUID)->first();
     }
 
     public function getClientByMonthCreatedAt(array $month)

@@ -72,20 +72,32 @@
                             </div>
                             <div class="mb-2">
                                 <div class="row g-2">
-                                    <div class="col-5 d-flex gap-2">
-                                        <div class="w-100">
-                                            <input type="text" name="" id=""
-                                                class="form-control form-control-sm">
-                                            <small class="text-danger">
-                                                <i class="bi bi-info-circle-fill"></i>
-                                                Not Verified School
+                                    @if($rawClient->school != null)    
+                                        <div class="col-5 d-flex gap-2">
+                                            <div class="w-100">
+                                                <input type="text" name="" id=""
+                                                    class="form-control form-control-sm">
+                                                <small class="text-danger">
+                                                    <i class="bi bi-info-circle-fill"></i>
+                                                    Not Verified School
+                                                </small>
+                                            </div>
+                                            <div class="mt-2">
+                                                OR
+                                            </div>
+                                        </div>
+                                        <div class="col-5">
+                                            <select class="select w-100 school" name="school" id="schoolNew"
+                                                onchange="checkInputText(this, 'school', 'select')">
+                                                <option value=""></option>
+                                            </select>
+                                            <small class="text-success">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                                Verified School
                                             </small>
-                                        </div>
-                                        <div class="mt-2">
-                                            OR
-                                        </div>
-                                    </div>
-                                    <div class="col-5">
+                                        </div>                                    
+                                    @endif
+                                    <div class="col-10">
                                         <select class="select w-100 school" name="school" id="schoolNew"
                                             onchange="checkInputText(this, 'school', 'select')">
                                             <option value=""></option>
@@ -94,7 +106,7 @@
                                             <i class="bi bi-check-circle-fill"></i>
                                             Verified School
                                         </small>
-                                    </div>
+                                    </div>         
                                     <div class="col-1">
                                         <button class="btn btn-sm btn-outline-dark w-100" onclick="syncSchool()">
                                             <i class="bi bi-arrow-clockwise"></i>
@@ -112,28 +124,30 @@
                         <div class="col-md-12 mb-2">
                             <div class="card">
                                 <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <label for="">Parent's Name</label>
-                                            <input type="text" name="" id="parentName"
-                                                class="form-control form-control-sm">
+                                    @if($rawClient->relation_key != null)
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <label for="">Parent's Name</label>
+                                                <input type="text" name="" id="parentName"
+                                                    class="form-control form-control-sm">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="">Parent's Email</label>
+                                                <input type="text" name="" id="parentName"
+                                                    class="form-control form-control-sm">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="">Parent's Phone</label>
+                                                <input type="text" name="" id="parentName"
+                                                    class="form-control form-control-sm">
+                                            </div>
                                         </div>
-                                        <div class="col-md-4">
-                                            <label for="">Parent's Email</label>
-                                            <input type="text" name="" id="parentName"
-                                                class="form-control form-control-sm">
+                                        <div class="d-flex justify-content-around align-items-center w-100 gap-3">
+                                            <hr class="border border-warning border-1 opacity-50 w-100">
+                                            <div class="text-nowrap">Or Use Existing Parent</div>
+                                            <hr class="border border-warning border-1 opacity-50 w-100">
                                         </div>
-                                        <div class="col-md-4">
-                                            <label for="">Parent's Phone</label>
-                                            <input type="text" name="" id="parentName"
-                                                class="form-control form-control-sm">
-                                        </div>
-                                    </div>
-                                    <div class="d-flex justify-content-around align-items-center w-100 gap-3">
-                                        <hr class="border border-warning border-1 opacity-50 w-100">
-                                        <div class="text-nowrap">Or Use Existing Parent</div>
-                                        <hr class="border border-warning border-1 opacity-50 w-100">
-                                    </div>
+                                    @endif
                                     <div class="mb-2">
                                         <div class="row g-1">
                                             <div class="col-10">
@@ -272,7 +286,7 @@
                     $('#schoolNew').append('<option value=""></option>')
                     data.forEach(element => {
                         $('#schoolNew').append(
-                            '<option data-id="' + element.sch_id + '" value="' + element.sch_name + '">' +
+                            '<option data-id="' + element.uuid + '" value="' + element.sch_name + '">' +
                             element.sch_name + '</option>'
                         )
                     });

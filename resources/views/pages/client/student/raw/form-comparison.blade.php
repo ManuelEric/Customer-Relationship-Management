@@ -152,7 +152,7 @@
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input school" type="radio" name="school"
                                             id="schoolInput1" onchange="checkInputRadio(this, 'school', 'select')"
-                                            data-name="{{ $client->school_name }}" value="{{ $client->sch_id }}"
+                                            data-name="{{ $client->school_name }}" value="{{ $client->sch_uuid }}"
                                             checked>
                                         <label class="form-check-label" for="schoolInput1">
                                             {{ $client->school_name ? $client->school_name : '-' }} <span
@@ -163,7 +163,7 @@
                                         <input class="form-check-input school" type="radio" name="school"
                                             data-name="{{ $rawClient->school }}" id="schoolInput2"
                                             onchange="checkInputRadio(this, 'school', 'select')"
-                                            value="{{ $rawClient->school }}">
+                                            value="{{ $rawClient->sch_uuid }}">
                                         <label class="form-check-label" for="schoolInput2">
                                             {{ $rawClient->school ? $rawClient->school : '-' }} <span
                                                 class="text-info">(New
@@ -329,7 +329,7 @@
                                 <td>
                                     <div id="schoolPreview">{{ $client->school_name }}</div>
                                     <input type="hidden" name="schoolFinal" id="schoolInputPreview"
-                                        value="{{ $client->sch_id }}">
+                                        value="{{ $client->sch_uuid }}">
                                 </td>
                             </tr>
                             <tr>
