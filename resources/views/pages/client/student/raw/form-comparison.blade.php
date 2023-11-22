@@ -398,6 +398,18 @@
                         $('#' + init + 'Detail').prop('hidden', false)
                     }
                     $('#' + init + 'NamePreview').html($(item).data('name'))
+
+                    // for parents detail 
+                    $('#' + init + '_name').val($(item).data('name'))
+                    $('#' + init + '_email').val($(item).data('email'))
+                    $('#' + init + '_phone').val($(item).data('phone'))
+
+                    // for parent detail summarize 
+                    $('#' + init + 'NameInputPreview').val($(item).data('name'))
+                    $('#' + init + 'EmailInputPreview').val($(item).data('email'))
+                    $('#' + init + 'PhoneInputPreview').val($(item).data('phone'))
+                    $('#' + init + 'EmailPreview').html($(item).data('email'))
+                    $('#' + init + 'PhonePreview').html($(item).data('phone'))
                 } else {
                     if ($(item).data('name')) {
                         $('#' + init + 'Preview').html($(item).data('name'))
@@ -408,19 +420,6 @@
 
                 // Sumarize 
                 $('#' + init + 'InputPreview').val($(item).val())
-
-                // for parents detail 
-                $('#' + init + '_name').val($(item).data('name'))
-                $('#' + init + '_email').val($(item).data('email'))
-                $('#' + init + '_phone').val($(item).data('phone'))
-
-                // for parent detail summarize 
-                $('#' + init + 'InputPreview').val($(item).val())
-                $('#' + init + 'NameInputPreview').val($(item).data('name'))
-                $('#' + init + 'EmailInputPreview').val($(item).data('email'))
-                $('#' + init + 'PhoneInputPreview').val($(item).data('phone'))
-                $('#' + init + 'EmailPreview').html($(item).data('email'))
-                $('#' + init + 'PhonePreview').html($(item).data('phone'))
             }
 
             if (itemType == 'new') {
@@ -442,6 +441,9 @@
                         $('#' + init + 'NamePreview').html($(item).val())
                         $('#' + init + 'EmailPreview').html($(item).find(":selected").data('email'))
                         $('#' + init + 'PhonePreview').html($(item).find(":selected").data('phone'))
+                        $('#' + init + 'NameInputPreview').val($(item).val())
+                        $('#' + init + 'EmailInputPreview').val($(item).find(":selected").data('email'))
+                        $('#' + init + 'PhoneInputPreview').val($(item).find(":selected").data('phone'))
                     } else {
                         $('#' + init + 'InputPreview').val($(item).find(":selected").data('id'))
                     }
