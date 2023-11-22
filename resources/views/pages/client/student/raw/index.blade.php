@@ -400,6 +400,8 @@
                 ],
             });
 
+            realtimeData(table)
+
 
             // Add a click event listener to each row in the parent DataTable
             table.on('click', 'td.dt-control', function(e) {

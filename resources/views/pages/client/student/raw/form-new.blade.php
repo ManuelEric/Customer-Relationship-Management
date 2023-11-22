@@ -17,14 +17,14 @@
                 <div class="card-body">
 
                     @if ($errors->any())
-                    <div class="alert alert-danger">
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     <div class="row">
                         <div class="col-md-6 mb-2">
                             <div class="mb-1">
@@ -72,18 +72,24 @@
                             </div>
                             <div class="mb-2">
                                 <div class="row g-2">
-                                    <div class="col-5 d-flex gap-2">
-                                        <div class="w-100">
-                                            <input type="text" name="" id="schoolNew"
-                                                class="form-control form-control-sm" value="{{ $rawClient->school }}"
-                                                oninput="checkInputText(this, 'school')">
-                                            <small class="text-danger">
-                                                <i class="bi bi-info-circle-fill"></i>
-                                                Not Verified School
-                                            </small>
+                                    @if ($rawClient->school != null)
+                                        <div class="col-5 d-flex gap-2">
+                                            <div class="w-100">
+                                                <input type="text" name="" id="schoolNew"
+                                                    data-id="{{ $rawClient->sch_uuid }}"
+                                                    class="form-control form-control-sm" value="{{ $rawClient->school }}"
+                                                    oninput="checkInputText(this, 'school')">
+                                                <small class="text-danger">
+                                                    <i class="bi bi-info-circle-fill"></i>
+                                                    Not Verified School
+                                                </small>
+                                            </div>
+                                            <div class="mt-2">
+                                                OR
+                                            </div>
                                         </div>
                                         <div class="col-5">
-                                            <select class="select w-100 school" name="school" id="schoolNew"
+                                            <select class="select w-100 school" name="school" id="schoolExist"
                                                 onchange="checkInputText(this, 'school', 'select')">
                                                 <option value=""></option>
                                             </select>
@@ -92,35 +98,49 @@
                                                 Verified School
                                             </small>
                                         </div>
-                                    </div>
-                                    <div class="col-5">
-                                        <select class="select w-100 school" name="school" id="schoolExist"
-                                            onchange="checkInputText(this, 'school', 'select')">
-                                            <option value=""></option>
-                                        </select>
-                                        <small class="text-success">
-                                            <i class="bi bi-check-circle-fill"></i>
-                                            Verified School
-                                        </small>
-                                    </div>
-                                    <div class="col-1">
-                                        <button class="btn btn-sm btn-outline-dark w-100" onclick="syncSchool()">
-                                            <i class="bi bi-arrow-clockwise"></i>
-                                        </button>
-                                    </div>
-                                    <div class="col-1">
-                                        <button class="btn btn-sm btn-outline-dark w-100" type="button"
-                                            onclick="addNewData('school')">
-                                            <i class="bi bi-plus-lg"></i>
-                                        </button>
-                                    </div>
+                                        <div class="col-1">
+                                            <button class="btn btn-sm btn-outline-dark w-100" onclick="syncSchool()">
+                                                <i class="bi bi-arrow-clockwise"></i>
+                                            </button>
+                                        </div>
+                                        <div class="col-1">
+                                            <button class="btn btn-sm btn-outline-dark w-100" type="button"
+                                                onclick="addNewData('school')">
+                                                <i class="bi bi-plus-lg"></i>
+                                            </button>
+                                        </div>
+                                    @else
+                                        <div class="col-10">
+                                            <select class="select w-100 school" name="school" id="schoolExist"
+                                                onchange="checkInputText(this, 'school', 'select')">
+                                                <option value=""></option>
+                                            </select>
+                                            <small class="text-success">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                                Verified School
+                                            </small>
+                                        </div>
+                                        <div class="col-1">
+                                            <button class="btn btn-sm btn-outline-dark w-100" onclick="syncSchool()">
+                                                <i class="bi bi-arrow-clockwise"></i>
+                                            </button>
+                                        </div>
+                                        <div class="col-1">
+                                            <button class="btn btn-sm btn-outline-dark w-100" type="button"
+                                                onclick="addNewData('school')">
+                                                <i class="bi bi-plus-lg"></i>
+                                            </button>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-12 mb-2">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="row">
+                    </div>
+                    <div class="col-md-12 mb-2">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    @if ($rawClient->relation_key != null)
                                         <div class="col-md-4">
                                             <label for="">Parent's Name</label>
                                             <input type="text" name="" id="parentName"
@@ -173,7 +193,8 @@
         </div>
         <div class="col-md-5">
             <div class="card rounded position-sticky" style="top:15%;">
-                <form action="{{ route('client.convert', ['rawclient_id' => $rawClient->id, 'type' => 'new']) }}" method="post">
+                <form action="{{ route('client.convert', ['rawclient_id' => $rawClient->id, 'type' => 'new']) }}"
+                    method="post">
                     @csrf
                     <div class="card-header">
                         <h5>Summarize</h5>
@@ -224,7 +245,8 @@
                                 <td>:</td>
                                 <td>
                                     <div id="schoolPreview">{{ $rawClient->school }}</div>
-                                    <input type="hidden" name="schoolFinal" id="schoolInputPreview">
+                                    <input type="hidden" name="schoolFinal" id="schoolInputPreview"
+                                        value="{{ $rawClient->sch_uuid }}">
                                 </td>
                             </tr>
                             <tr>
@@ -232,9 +254,9 @@
                                 <td>:</td>
                                 <td>
                                     <div id="parentPreview">{{ $rawClient->parent_name }}</div>
-                                    <input type="hidden" name="parentType" id="parentTypeInput" value="exist">
+                                    <input type="hidden" name="parentType" id="parentTypeInput" value="new">
                                     <input type="hidden" name="parentFinal" id="parentInputPreview"
-                                        value="{{ $rawClient->parent_id }}">
+                                        value="{{ $rawClient->parent_uuid }}">
                                     <input type="hidden" name="parentName" id="parentNameInputPreview"
                                         value="{{ $rawClient->parent_name }}">
                                 </td>
@@ -274,7 +296,7 @@
         $('#schoolExist').on('select2:unselect', function(e) {
             $('#schoolNew').prop('disabled', false).val('{{ $rawClient->school }}')
             $('#schoolPreview').html('{{ $rawClient->school }}')
-            $('#schoolInputPreview').val('{{ $rawClient->school }}')
+            $('#schoolInputPreview').val('{{ $rawClient->sch_uuid }}')
         });
 
         $('#parentNew').on('select2:unselect', function(e) {
@@ -288,6 +310,7 @@
             $('#parentPreview').html('{{ $rawClient->parent_name }}')
             $('#parentEmailPreview').html('{{ $rawClient->parent_mail }}')
             $('#parentPhonePreview').html('{{ $rawClient->parent_phone }}')
+            $('#parentInputPreview').val('{{ $rawClient->parent_uuid }}')
             $('#parentNameInputPreview').val('{{ $rawClient->parent_name }}')
             $('#parentEmailInputPreview').val('{{ $rawClient->parent_mail }}')
             $('#parentPhoneInputPreview').val('{{ $rawClient->parent_phone }}')
@@ -317,8 +340,10 @@
                     }
                     $('#' + init + 'InputPreview').val($(item).find(":selected").data('id'))
                 } else {
-                    if(init=='parent') {
+                    if (init == 'parent') {
                         $('#' + init + 'NameInputPreview').val($(item).val())
+                    } else if (init == 'school') {
+                        $('#' + init + 'InputPreview').val($(item).data('id'))
                     } else {
                         $('#' + init + 'InputPreview').val($(item).val())
                     }
@@ -339,10 +364,11 @@
             axios.get("{{ url('api/instance/school') }}")
                 .then(function(response) {
                     const data = response.data.data
+                    console.log(data)
                     $('#schoolExist').html('')
                     $('#schoolExist').append('<option value=""></option>')
                     data.forEach(element => {
-                        $('#schoolNew').append(
+                        $('#schoolExist').append(
                             '<option data-id="' + element.uuid + '" value="' + element.sch_name + '">' +
                             element.sch_name + '</option>'
                         )
@@ -366,7 +392,7 @@
                         const last_name = element.last_name == null ? '' : ' ' + element.last_name
                         const fullname = element.first_name + last_name
                         $('#parentNew').append(
-                            '<option data-id="' + element.id + '" ' +
+                            '<option data-id="' + element.uuid + '" ' +
                             'data-name="' + fullname + '"' +
                             'data-email="' + element.mail + '"' +
                             'data-phone="' + element.phone + '"' +

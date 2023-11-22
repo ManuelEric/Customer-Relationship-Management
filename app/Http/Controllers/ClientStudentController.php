@@ -836,7 +836,7 @@ class ClientStudentController extends ClientController
             'sch_uuid' => $request->schoolFinal,
         ];
 
-        if($request->parentName != null){
+        if ($request->parentName != null) {
             $parentName = $this->explodeName($request->parentName);
             $parentDetails = [
                 'first_name' => $parentName['firstname'],
@@ -846,7 +846,7 @@ class ClientStudentController extends ClientController
             ];
             $parentId = $request->parentFinal;
         }
-     
+
 
         DB::beginTransaction();
         try {
@@ -856,37 +856,32 @@ class ClientStudentController extends ClientController
                     $student = $this->clientRepository->getClientById($clientId);
                     $this->clientRepository->updateClient($clientId, $clientDetails);
 
-                    $rawStudent = $this->clientRepository->getRawClientById($rawclientId);
+                    $rawStudent = $this->clientRepository->getViewRawClientById($rawclientId);
 
 
-                    if($parentType == 'new'){
-                        if ($request->parentFinal == null)
-                        { 
+                    if ($parentType == 'new') {
+                        if ($request->parentFinal == null) {
                             # Remove relation parent
-                            $student->parents()->count() > 0 ? $student->parents()->detach() : null; 
-                        }else{
+                            $student->parents()->count() > 0 ? $student->parents()->detach() : null;
+                        } else {
                             $parentDetails['lead_id'] = $student->lead_id;
                             $parentDetails['register_as'] = $student->register_as;
-        
+
                             # Add relation new parent
                             $parent = $this->clientRepository->createClient('parent', $parentDetails);
                             $this->clientRepository->attachClientRelation($parent->id, $clientId);
-        
-                            # Delete parent from raw client
-                            $this->clientRepository->deleteRawClient($request->parentFinal);
-                            }
-
-                    }else if($parentType == 'exist'){
+                        }
+                    } else if ($parentType == 'exist') {
                         $this->clientRepository->updateClient($parentId, $parentDetails);
                         $this->clientRepository->createClientRelation($parentId, $clientId);
-                    }elseif($parentType == 'exist_select'){
+                    } elseif ($parentType == 'exist_select') {
                         $this->clientRepository->createClientRelation($parentId, $clientId);
                     }
 
                     break;
 
                 case 'new':
-                    $rawStudent = $this->clientRepository->getRawClientById($rawclientId);
+                    $rawStudent = $this->clientRepository->getViewRawClientById($rawclientId);
                     $lead_id = $rawStudent->lead_id;
                     $register_as = $rawStudent->register_as;
 
@@ -894,7 +889,7 @@ class ClientStudentController extends ClientController
                     $clientDetails['register_as'] = $register_as;
 
                     $student = $this->clientRepository->createClient('student', $clientDetails);
-                    
+
                     if ($parentType == 'new' && $request->parentFinal != null) {
                         $parentDetails['lead_id'] = $lead_id;
                         $parentDetails['register_as'] = $register_as;
@@ -903,12 +898,10 @@ class ClientStudentController extends ClientController
                         $parent = $this->clientRepository->createClient('parent', $parentDetails);
                         $this->clientRepository->attachClientRelation($parent->id, $student->id);
 
-                        # Delete parent from raw client
-                        $this->clientRepository->deleteRawClient($request->parentFinal);
-                    }else if($parentType == 'exist'){
+                    } else if ($parentType == 'exist') {
                         $this->clientRepository->updateClient($parentId, $parentDetails);
                         $this->clientRepository->createClientRelation($parentId, $clientId);
-                    }elseif($parentType == 'exist_select'){
+                    } elseif ($parentType == 'exist_select') {
                         $this->clientRepository->createClientRelation($parentId, $clientId);
                     }
 
@@ -918,9 +911,13 @@ class ClientStudentController extends ClientController
             # sync destination country
             if ($rawStudent->interest_countries != null)
                 $this->syncDestinationCountry($rawStudent->interest_countries, $student);
-
+            
+            # Delete raw parent
+            $rawStudent->parent_uuid != null ? $this->clientRepository->deleteRawClientByUUID($rawStudent->parent_uuid) : null;
+            
             # delete student from raw client
             $this->clientRepository->deleteRawClient($rawclientId);
+
 
             DB::commit();
         } catch (Exception $e) {

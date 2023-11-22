@@ -31,6 +31,7 @@ return new class extends Migration
             rc.role,
             rc.relation_key,
             rc.school_uuid as sch_uuid,
+            rc.lead_id,
             (CASE 
                 WHEN l.main_lead = "KOL" THEN CONCAT("KOL - ", l.sub_lead)
                 ELSE l.main_lead

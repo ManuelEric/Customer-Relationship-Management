@@ -27,10 +27,6 @@ interface ClientRepositoryInterface
     public function getClientHotLeads($initialProgram);
     public function addInterestProgram($studentId, $interestProgram);
     public function removeInterestProgram($studentId, $interstProgram, $progId);
-    public function getAllRawClientDataTables($roleName);
-    public function getViewRawClientById($rawClientId);
-    public function getRawClientById($rawClientId);
-    public function deleteRawClient($rawClientId);
     /* ~ END */
 
     /* API External use */
@@ -83,6 +79,13 @@ interface ClientRepositoryInterface
     public function getStudentByStudentId($studentId);
     public function getStudentByStudentName($studentName);
     public function getAllClientByRoleAndDate($roleName, $month = null);
+
+    # Raw Client
+    public function getAllRawClientDataTables($roleName);
+    public function getViewRawClientById($rawClientId);
+    public function getRawClientById($rawClientId);
+    public function deleteRawClient($rawClientId);
+    public function deleteRawClientByUUID($rawClientUUID);
 
     # CRM
     public function getStudentFromV1();

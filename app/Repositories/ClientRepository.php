@@ -1295,5 +1295,11 @@ class ClientRepository implements ClientRepositoryInterface
         return RawClient::destroy($rawClientId);
     }
 
+    public function deleteRawClientByUUID($rawClientUUID)
+    {
+        return RawClient::where('uuid', $rawClientUUID)->delete();
+    }
+
+
     
 }
