@@ -513,7 +513,7 @@
                 })
         }
 
-        syncSchool()
         syncParent()
+        syncSchool()
     </script>
 @endpush
