@@ -450,7 +450,7 @@
                 } else {
                     $('#' + init + 'InputPreview').val($(item).val())
                 }
-                $('#parentTypeInput').val('exist')
+                $('#parentTypeInput').val('exist_select')
             }
 
 
