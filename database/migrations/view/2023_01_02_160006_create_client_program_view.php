@@ -71,7 +71,7 @@ return new class extends Migration
             LEFT JOIN tbl_client c
                 ON c.uuid = cp.client_uuid
                     LEFT JOIN tbl_sch sch
-                        ON sch.uuid = c.sch_uuid
+                        ON sch.sch_id = c.sch_id
                     LEFT JOIN tbl_lead cl
                         ON cl.lead_id = c.lead_id
                             LEFT JOIN tbl_eduf_lead cedl

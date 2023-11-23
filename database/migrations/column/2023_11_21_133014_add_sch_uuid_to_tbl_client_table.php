@@ -39,19 +39,19 @@ return new class extends Migration
     public function down()
     {
         Schema::table('tbl_client', function (Blueprint $table) {
-            $table->char('sch_id', 8)->nullable()->after('sch_uuid');
-            $table->foreign('sch_id')->references('sch_id')->on('tbl_sch')->onUpdate('cascade')->onDelete('cascade');
+            $table->char('sch_id', 8)->collation('utf8mb4_general_ci')->nullable()->after('sch_uuid');
         });
         
         DB::statement('
             UPDATE tbl_client c
-            LEFT JOIN tbl_sch s ON s.sch_id = c.sch_id
+            LEFT JOIN tbl_sch s ON s.uuid = c.sch_uuid
             SET c.sch_id = s.sch_id
         ');
 
         Schema::table('tbl_client', function (Blueprint $table) {
             $table->dropForeign('tbl_client_sch_uuid_foreign');
             $table->dropColumn('sch_uuid');
+            $table->foreign('sch_id')->references('sch_id')->on('tbl_sch')->onUpdate('cascade')->onDelete('cascade');
         });
 
     }
