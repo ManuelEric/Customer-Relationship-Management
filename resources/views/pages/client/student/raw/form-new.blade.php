@@ -266,7 +266,7 @@
                                 <td>:</td>
                                 <td>
                                     <div id="parentEmailPreview">{{ $rawClient->parent_mail }}</div>
-                                    <input type="hidden" name="parentFinal" id="parentEmailInputPreview">
+                                    <input type="hidden" name="parentMail" id="parentEmailInputPreview">
                                 </td>
                             </tr>
                             <tr>
@@ -274,7 +274,7 @@
                                 <td>:</td>
                                 <td>
                                     <div id="parentPhonePreview">{{ $rawClient->parent_phone }}</div>
-                                    <input type="hidden" name="parentFinal" id="parentPhoneInputPreview">
+                                    <input type="hidden" name="parentPhone" id="parentPhoneInputPreview">
                                 </td>
                             </tr>
                         </table>
@@ -392,7 +392,7 @@
                         const last_name = element.last_name == null ? '' : ' ' + element.last_name
                         const fullname = element.first_name + last_name
                         $('#parentNew').append(
-                            '<option data-id="' + element.uuid + '" ' +
+                            '<option data-id="' + element.id + '" ' +
                             'data-name="' + fullname + '"' +
                             'data-email="' + element.mail + '"' +
                             'data-phone="' + element.phone + '"' +

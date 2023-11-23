@@ -38,8 +38,14 @@ return new class extends Migration
             END) AS lead_source,
             (CASE 
                 WHEN SUBSTR(rc.school_uuid, 1, 2) = "rs" THEN rs.sch_name
+                WHEN SUBSTR(rc.school_uuid, 1, 2) = "vs" THEN vs.sch_name
                 ELSE null
             END) AS school,
+            (CASE 
+                WHEN SUBSTR(rc.school_uuid, 1, 2) = "rs" THEN "Raw"
+                WHEN SUBSTR(rc.school_uuid, 1, 2) = "vs" THEN "Verified"
+                ELSE null
+            END) AS status_school,
             rc.interest_countries,
             rc.created_at,
             rc.updated_at
@@ -53,6 +59,8 @@ return new class extends Migration
                 ON l.lead_id = rc.lead_id
             LEFT JOIN tbl_raw_school rs
                 ON rs.uuid = rc.school_uuid
+            LEFT JOIN tbl_sch vs
+                ON vs.uuid = rc.school_uuid
         ');
     }
 

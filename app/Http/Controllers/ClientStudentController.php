@@ -847,7 +847,6 @@ class ClientStudentController extends ClientController
             $parentId = $request->parentFinal;
         }
 
-
         DB::beginTransaction();
         try {
             switch ($type) {
@@ -869,7 +868,7 @@ class ClientStudentController extends ClientController
 
                             # Add relation new parent
                             $parent = $this->clientRepository->createClient('parent', $parentDetails);
-                            $this->clientRepository->attachClientRelation($parent->id, $clientId);
+                            $this->clientRepository->createClientRelation($parent->id, $clientId);
                         }
                     } else if ($parentType == 'exist') {
                         $this->clientRepository->updateClient($parentId, $parentDetails);
@@ -896,13 +895,13 @@ class ClientStudentController extends ClientController
 
                         # Add relation new parent
                         $parent = $this->clientRepository->createClient('parent', $parentDetails);
-                        $this->clientRepository->attachClientRelation($parent->id, $student->id);
+                        $this->clientRepository->createClientRelation($parent->id, $student->id);
 
                     } else if ($parentType == 'exist') {
                         $this->clientRepository->updateClient($parentId, $parentDetails);
-                        $this->clientRepository->createClientRelation($parentId, $clientId);
+                        $this->clientRepository->createClientRelation($parentId, $student->id);
                     } elseif ($parentType == 'exist_select') {
-                        $this->clientRepository->createClientRelation($parentId, $clientId);
+                        $this->clientRepository->createClientRelation($parentId, $student->id);
                     }
 
                     break;

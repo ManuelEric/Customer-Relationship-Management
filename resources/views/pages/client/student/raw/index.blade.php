@@ -400,7 +400,7 @@
                 ],
             });
 
-            realtimeData(table)
+            // realtimeData(table)
 
 
             // Add a click event listener to each row in the parent DataTable
