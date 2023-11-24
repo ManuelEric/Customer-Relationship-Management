@@ -107,6 +107,9 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
                         'st_abryear' => isset($row['year_of_study_abroad']) ? $row['year_of_study_abroad'] : null,
                     ];
 
+                    isset($row['joined_date']) ? $studentDetails['created_at'] = $row['joined_date'] : null;
+                    isset($row['joined_date']) ? $studentDetails['updated_at'] = $row['joined_date'] : null;
+                    
                     $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['student'])->first();
 
                     $student = UserClient::create($studentDetails);
@@ -230,6 +233,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
             'country_of_study_abroad' => $data['country_of_study_abroad'],
             // 'university_destination' => $data['university_destination'],
             'interest_major' => $data['interest_major'],
+            'joined_date' => isset($data['joined_date']) ? Date::excelToDateTimeObject($data['joined_date'])->format('Y-m-d') : null,
         ];
         return $data;
     }
@@ -260,6 +264,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
             '*.year_of_study_abroad' => ['nullable', 'integer'],
             '*.country_of_study_abroad' => ['nullable'],
             '*.interest_major' => ['nullable'],
+            '*.joined_date' => ['nullable', 'date'],
         ];
     }
 
