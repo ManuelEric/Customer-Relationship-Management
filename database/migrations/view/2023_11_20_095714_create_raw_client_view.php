@@ -30,22 +30,13 @@ return new class extends Migration
             rc.graduation_year,
             rc.role,
             rc.relation_key,
-            rc.school_uuid as sch_uuid,
             rc.lead_id,
             (CASE 
                 WHEN l.main_lead = "KOL" THEN CONCAT("KOL - ", l.sub_lead)
                 ELSE l.main_lead
             END) AS lead_source,
-            (CASE 
-                WHEN SUBSTR(rc.school_uuid, 1, 2) = "rs" THEN rs.sch_name
-                WHEN SUBSTR(rc.school_uuid, 1, 2) = "vs" THEN vs.sch_name
-                ELSE null
-            END) AS school,
-            (CASE 
-                WHEN SUBSTR(rc.school_uuid, 1, 2) = "rs" THEN "Raw"
-                WHEN SUBSTR(rc.school_uuid, 1, 2) = "vs" THEN "Verified"
-                ELSE null
-            END) AS status_school,
+            sch.sch_id,
+            sch.sch_name AS school_name,
             rc.interest_countries,
             rc.created_at,
             rc.updated_at
@@ -57,10 +48,8 @@ return new class extends Migration
                 AND rcp.role = "parent"  
             LEFT JOIN tbl_lead l
                 ON l.lead_id = rc.lead_id
-            LEFT JOIN tbl_raw_school rs
-                ON rs.uuid = rc.school_uuid
-            LEFT JOIN tbl_sch vs
-                ON vs.uuid = rc.school_uuid
+            LEFT JOIN tbl_sch sch
+                ON sch.sch_id = rc.sch_id
         ');
     }
 

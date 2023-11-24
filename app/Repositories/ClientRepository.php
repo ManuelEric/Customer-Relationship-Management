@@ -1271,7 +1271,7 @@ class ClientRepository implements ClientRepositoryInterface
     {
         return Datatables::eloquent(ViewRawClient::where('role', $roleName))
         ->addColumn('suggestion', function ($data) use ($roleName) {
-            $client = UserClient::with('school')
+            $client = UserClient::with('school', 'parents', 'clientProgram.program')
                 ->whereHas('roles', function ($query) use ($roleName) {
                     $query->where('role_name', $roleName);
                 })->where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->fullname .'%')->get();

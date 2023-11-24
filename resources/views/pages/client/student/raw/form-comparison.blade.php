@@ -152,7 +152,7 @@
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input school" type="radio" name="school"
                                             id="schoolInput1" onchange="checkInputRadio(this, 'school', 'select')"
-                                            data-name="{{ $client->school_name }}" value="{{ $client->sch_uuid }}"
+                                            data-name="{{ $client->school_name }}" value="{{ $client->sch_id }}"
                                             checked>
                                         <label class="form-check-label" for="schoolInput1">
                                             {{ $client->school_name ? $client->school_name : '-' }} <span
@@ -161,11 +161,11 @@
                                     </div>
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input school" type="radio" name="school"
-                                            data-name="{{ $rawClient->school }}" id="schoolInput2"
+                                            data-name="{{ $rawClient->school_name }}" id="schoolInput2"
                                             onchange="checkInputRadio(this, 'school', 'select')"
-                                            value="{{ $rawClient->sch_uuid }}">
+                                            value="{{ $rawClient->sch_id }}">
                                         <label class="form-check-label" for="schoolInput2">
-                                            {{ $rawClient->school ? $rawClient->school : '-' }} <span
+                                            {{ $rawClient->school_name ? $rawClient->school_name : '-' }} <span
                                                 class="text-info">(New
                                                 Data)</span>
                                         </label>
@@ -329,7 +329,7 @@
                                 <td>
                                     <div id="schoolPreview">{{ $client->school_name }}</div>
                                     <input type="hidden" name="schoolFinal" id="schoolInputPreview"
-                                        value="{{ $client->sch_uuid }}">
+                                        value="{{ $client->sch_id }}">
                                 </td>
                             </tr>
                             <tr>

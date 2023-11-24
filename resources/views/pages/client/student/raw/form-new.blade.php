@@ -76,8 +76,8 @@
                                         <div class="col-5 d-flex gap-2">
                                             <div class="w-100">
                                                 <input type="text" name="" id="schoolNew"
-                                                    data-id="{{ $rawClient->sch_uuid }}"
-                                                    class="form-control form-control-sm" value="{{ $rawClient->school }}"
+                                                    data-id="{{ $rawClient->sch_id }}"
+                                                    class="form-control form-control-sm" value="{{ $rawClient->school_name }}"
                                                     oninput="checkInputText(this, 'school')">
                                                 <small class="text-danger">
                                                     <i class="bi bi-info-circle-fill"></i>
@@ -244,9 +244,9 @@
                                 <td>School Name</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="schoolPreview">{{ $rawClient->school }}</div>
+                                    <div id="schoolPreview">{{ $rawClient->school_name }}</div>
                                     <input type="hidden" name="schoolFinal" id="schoolInputPreview"
-                                        value="{{ $rawClient->sch_uuid }}">
+                                        value="{{ $rawClient->sch_id }}">
                                 </td>
                             </tr>
                             <tr>
@@ -369,7 +369,7 @@
                     $('#schoolExist').append('<option value=""></option>')
                     data.forEach(element => {
                         $('#schoolExist').append(
-                            '<option data-id="' + element.uuid + '" value="' + element.sch_name + '">' +
+                            '<option data-id="' + element.sch_id + '" value="' + element.sch_name + '">' +
                             element.sch_name + '</option>'
                         )
                     });
@@ -392,7 +392,7 @@
                         const last_name = element.last_name == null ? '' : ' ' + element.last_name
                         const fullname = element.first_name + last_name
                         $('#parentNew').append(
-                            '<option data-id="' + element.id + '" ' +
+                            '<option data-id="' + element.uuid + '" ' +
                             'data-name="' + fullname + '"' +
                             'data-email="' + element.mail + '"' +
                             'data-phone="' + element.phone + '"' +

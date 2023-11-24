@@ -833,7 +833,7 @@ class ClientStudentController extends ClientController
             'mail' => $request->emailFinal,
             'phone' => $this->setPhoneNumber($request->phoneFinal),
             'graduation_year' => $request->graduationFinal,
-            'sch_uuid' => $request->schoolFinal,
+            'sch_id' => $request->schoolFinal,
         ];
 
         if ($request->parentName != null) {

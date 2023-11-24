@@ -257,15 +257,25 @@
             // Formatting function for row details - modify as you need
             function format(d) {
                 var similar = '<table class="table w-auto table-hover">'
+                var joined_program = ''; 
 
                 if (d.suggestion.length > 0) {
                     similar +=
-                        '<th colspan=6>Comparison with Similar Names:</th>' +
+                        '<th colspan=8>Comparison with Similar Names:</th>' +
                         '</tr>' +
                         '<tr>' +
-                        '<th>#</th><th>Name</th><th>Email</th><th>Phone Number</th><th>School Name</th><th>Graduation Year</th>' +
+                        '<th>#</th><th>Name</th><th>Email</th><th>Phone Number</th><th>School Name</th><th>Parent Name</th><th>Graduation Year</th><th>Joined Program</th>' +
                         '</tr>';
                     d.suggestion.forEach(function(item, index) {
+
+                        if(item.client_program.length > 0){
+                            item.client_program.forEach(function(clientprog, index){
+                                console.log(typeof(clientprog.program.program_name))
+                               joined_program += clientprog.program.program_name;
+                               (item.client_program.length !== index+1 ? joined_program += ', ' : '')
+                            })
+                        }
+
                         similar += '<tr onclick="comparison(' +
                             d.id + ',' + item.id + ')" class="cursor-pointer">' +
                             '<td><input type="radio" name="similar' + d.id +
@@ -276,22 +286,28 @@
                             '<td>' + (item.phone !== null ? item.phone : '-') + '</td>' +
                             '<td>' + (typeof item.school !== 'undefined' && item.school !== null ? item
                                 .school.sch_name : '-') + '</td>' +
+                            '<td>' + (item.parents.length > 0 ? item.parents[0].first_name + ' ' + (item.parents[0].last_name ?? item.parents[0].last_name) : '-')  + '</td>' +
                             '<td>' + (item.graduation_year_real !== null ? item.graduation_year_real :
                             '-') + '</td>' +
+                            '<td>'  +
+                                    (item.client_program.length > 0 ?
+                                        joined_program
+                                    : '-') +
+                            '</td>' +
                             '</tr>'
                     });
                 }
 
                 similar +=
                     '<tr>' +
-                    '<th colspan=6>Convert without Comparison</th>' +
+                    '<th colspan=8>Convert without Comparison</th>' +
                     '</tr>' +
                     '<tr class="cursor-pointer" onclick="newLeads(' +
                     d.id + ')">' +
                     '<td><input type="radio" name="similar' + d.id +
                     '" class="form-check-input item-'+d.id+'" onclick="newLeads(' +
                     d.id + ')" /></td>' +
-                    '<td colspan=5>New Student</td>' +
+                    '<td colspan=7>New Student</td>' +
                     '</tr>' +
                     '</table>'
                 // `d` is the original data object for the row
@@ -369,7 +385,7 @@
                         defaultContent: '-'
                     },
                     {
-                        data: 'school',
+                        data: 'school_name',
                         defaultContent: '-',
                     },
                     {

@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -14,9 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('tbl_raw_school', function (Blueprint $table) {
-            $table->string('uuid', 39)->default(DB::raw('(CONCAT("rs-", UUID()))'))->change();
-            DB::statement("ALTER TABLE tbl_raw_school CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci ");
+        Schema::table('tbl_raw_client', function (Blueprint $table) {
+            $table->dropColumn('school_uuid');
+            $table->char('sch_id', 8)->collation('utf8mb4_general_ci')->after('relation_key')->nullable();
+            $table->foreign('sch_id')->references('sch_id')->on('tbl_sch')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('tbl_raw_school', function (Blueprint $table) {
+        Schema::table('tbl_raw_client', function (Blueprint $table) {
             //
         });
     }
