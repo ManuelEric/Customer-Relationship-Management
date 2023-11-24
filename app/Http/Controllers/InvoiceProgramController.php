@@ -179,7 +179,9 @@ class InvoiceProgramController extends Controller
 
         $invoiceDetails['inv_category'] = $invoiceDetails['is_session'] == "yes" ? "session" : $param;
         $invoiceDetails['session'] = isset($invoiceDetails['session']) && $invoiceDetails['session'] != 0 ? $invoiceDetails['session'] : 0;
-        $invoiceDetails['currency'] = $currency;
+        if ($currency !== null)
+            $invoiceDetails['currency'] = $currency;
+
         $invoiceDetails['inv_paymentmethod'] = $invoiceDetails['inv_paymentmethod'] == "full" ? 'Full Payment' : 'Installment';
 
         DB::beginTransaction();
