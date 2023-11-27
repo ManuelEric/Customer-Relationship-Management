@@ -32,7 +32,7 @@ class ViewRawClient extends Authenticatable
         'register_as',
         'role',
         'relation_key',
-        'sch_uuid',
+        'sch_id',
         'interest_countries',
         'lead_source',
         'graduation_year',

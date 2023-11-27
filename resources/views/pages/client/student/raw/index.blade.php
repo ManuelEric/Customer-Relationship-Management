@@ -286,7 +286,7 @@
                             '<td>' + (item.phone !== null ? item.phone : '-') + '</td>' +
                             '<td>' + (typeof item.school !== 'undefined' && item.school !== null ? item
                                 .school.sch_name : '-') + '</td>' +
-                            '<td>' + (item.parents.length > 0 ? item.parents[0].first_name + ' ' + (item.parents[0].last_name ?? item.parents[0].last_name) : '-')  + '</td>' +
+                            '<td>' + (item.parents.length > 0 ? item.parents[0].first_name + ' ' + (item.parents[0].last_name !== null ? item.parents[0].last_name : '') : '-')  + '</td>' +
                             '<td>' + (item.graduation_year_real !== null ? item.graduation_year_real :
                             '-') + '</td>' +
                             '<td>'  +

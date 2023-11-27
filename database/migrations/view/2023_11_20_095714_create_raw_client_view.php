@@ -37,6 +37,7 @@ return new class extends Migration
             END) AS lead_source,
             sch.sch_id,
             sch.sch_name AS school_name,
+            sch.is_verified,
             rc.interest_countries,
             rc.created_at,
             rc.updated_at

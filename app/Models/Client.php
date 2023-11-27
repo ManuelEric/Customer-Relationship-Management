@@ -27,7 +27,7 @@ class Client extends Model
         'city',
         'postal_code',
         'address',
-        'sch_uuid',
+        'sch_id',
         'st_grade',
         'lead_id',
         'eduf_id',
@@ -96,7 +96,7 @@ class Client extends Model
 
     public function school()
     {
-        return $this->belongsTo(School::class, 'sch_uuid', 'uuid');
+        return $this->belongsTo(School::class, 'sch_id', 'sch_id');
     }
 
     public function lead()

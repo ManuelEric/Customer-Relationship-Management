@@ -158,6 +158,19 @@
                                             {{ $client->school_name ? $client->school_name : '-' }} <span
                                                 class="text-warning">(Existing Data)</span>
                                         </label>
+                                        @if($client->school_name != null)
+                                            @if($client->school->is_verified == 'Y')
+                                                <small class="text-success">
+                                                    <i class="bi bi-check-circle-fill"></i>
+                                                    Verified School
+                                                </small>
+                                            @else
+                                                <small class="text-danger">
+                                                    <i class="bi bi-info-circle-fill"></i>
+                                                    Not Verified School
+                                                </small>
+                                            @endif
+                                        @endif
                                     </div>
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input school" type="radio" name="school"
@@ -169,6 +182,19 @@
                                                 class="text-info">(New
                                                 Data)</span>
                                         </label>
+                                        @if($rawClient->sch_id != null)
+                                            @if($rawClient->is_verified == 'Y')
+                                                <small class="text-success">
+                                                    <i class="bi bi-check-circle-fill"></i>
+                                                    Verified School
+                                                </small>
+                                            @else
+                                                <small class="text-danger">
+                                                    <i class="bi bi-info-circle-fill"></i>
+                                                    Not Verified School
+                                                </small>
+                                            @endif
+                                        @endif
                                     </div>
                                     <div class="row g-1">
                                         <div class="col-10">

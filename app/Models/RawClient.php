@@ -28,7 +28,7 @@ class RawClient extends Authenticatable
         'register_as',
         'role',
         'relation_key',
-        'school_uuid',
+        'sch_id',
         'interest_countries',
         'lead_id',
         'graduation_year',
@@ -42,6 +42,11 @@ class RawClient extends Authenticatable
         return Attribute::make(
             get: fn ($value) => isset($this->last_name) ? $this->first_name . ' ' . $this->last_name : $this->first_name,
         );
+    }
+
+    public function school()
+    {
+        return $this->belongsTo(School::class, 'sch_id', 'sch_id');
     }
 
 }

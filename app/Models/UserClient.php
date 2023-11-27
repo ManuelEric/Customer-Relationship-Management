@@ -40,8 +40,8 @@ class UserClient extends Authenticatable
         'city',
         'postal_code',
         'address',
-        // 'sch_id',
-        'sch_uuid',
+        'sch_id',
+        // 'sch_uuid',
         'st_grade',
         'lead_id',
         'eduf_id',
@@ -177,7 +177,7 @@ class UserClient extends Authenticatable
 
     public function school()
     {
-        return $this->belongsTo(School::class, 'sch_uuid', 'uuid');
+        return $this->belongsTo(School::class, 'sch_id', 'sch_id');
     }
 
     public function lead()

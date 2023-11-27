@@ -72,17 +72,26 @@
                             </div>
                             <div class="mb-2">
                                 <div class="row g-2">
-                                    @if ($rawClient->school != null)
+                                    @if ($rawClient->sch_id != null)
                                         <div class="col-5 d-flex gap-2">
                                             <div class="w-100">
                                                 <input type="text" name="" id="schoolNew"
                                                     data-id="{{ $rawClient->sch_id }}"
                                                     class="form-control form-control-sm" value="{{ $rawClient->school_name }}"
                                                     oninput="checkInputText(this, 'school')">
-                                                <small class="text-danger">
-                                                    <i class="bi bi-info-circle-fill"></i>
-                                                    Not Verified School
-                                                </small>
+                                                @if($rawClient->sch_id != null)
+                                                    @if($rawClient->is_verified == 'Y')
+                                                        <small class="text-success">
+                                                            <i class="bi bi-check-circle-fill"></i>
+                                                            Verified School
+                                                        </small>
+                                                    @else
+                                                        <small class="text-danger">
+                                                            <i class="bi bi-info-circle-fill"></i>
+                                                            Not Verified School
+                                                        </small>
+                                                    @endif
+                                                @endif
                                             </div>
                                             <div class="mt-2">
                                                 OR
@@ -296,7 +305,7 @@
         $('#schoolExist').on('select2:unselect', function(e) {
             $('#schoolNew').prop('disabled', false).val('{{ $rawClient->school }}')
             $('#schoolPreview').html('{{ $rawClient->school }}')
-            $('#schoolInputPreview').val('{{ $rawClient->sch_uuid }}')
+            $('#schoolInputPreview').val('{{ $rawClient->sch_id }}')
         });
 
         $('#parentNew').on('select2:unselect', function(e) {

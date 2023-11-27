@@ -33,7 +33,8 @@ class School extends Model
         'sch_city',
         'sch_location',
         'sch_score',
-        'status'
+        'status',
+        'is_verified'
     ];
 
     public function createdAt(): Attribute
