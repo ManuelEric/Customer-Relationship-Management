@@ -18,6 +18,12 @@ Route::prefix('university')->name('university.')->group(function () {
     Route::resource('{university}/detail', UniversityPicController::class);
 });
 
+Route::get('school/raw', function () {
+    return view('pages.instance.school.raw.index');
+});
+Route::get('school/raw/1/new', function () {
+    return view('pages.instance.school.raw.form-new');
+});
 Route::resource('school', SchoolController::class);
 Route::prefix('school')->name('school.')->group(function() {
     Route::resource('{school}/detail', SchoolDetailController::class);
