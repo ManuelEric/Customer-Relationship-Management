@@ -70,30 +70,26 @@ Route::prefix('alumni')->group(function() {
 });
 Route::resource('alumni', ClientMenteeController::class);
 
-Route::get('teacher-counselor/raw', function () {
-    return view('pages.client.teacher.raw.index');
-});
-Route::get('teacher-counselor/raw/1/comparison/2', function () {
-    return view('pages.client.teacher.raw.form-comparison');
-});
-Route::get('teacher-counselor/raw/1/new', function () {
-    return view('pages.client.teacher.raw.form-new');
-});
+// Route::get('teacher-counselor/raw', function () {
+//     return view('pages.client.teacher.raw.index');
+// });
+// Route::get('teacher-counselor/raw/1/comparison/2', function () {
+//     return view('pages.client.teacher.raw.form-comparison');
+// });
+// Route::get('teacher-counselor/raw/1/new', function () {
+//     return view('pages.client.teacher.raw.form-new');
+// });
+
+Route::get('teacher-counselor/raw',  [ClientTeacherCounselorController::class, 'indexRaw']);
+Route::get('teacher-counselor/raw/{rawclient_id}/{type}/{client_id?}', [ClientTeacherCounselorController::class, 'cleaningData']);
+Route::post('teacher-counselor/raw/{rawclient_id}/{type}/{client_id?}', [ClientTeacherCounselorController::class, 'convertData'])->name('client.convert.parent');
+
 Route::resource('teacher-counselor', ClientTeacherCounselorController::class);
 Route::prefix('teacher-counselor')->name('teacher-counselor.')->group(function () {
     Route::post('import', [ClientTeacherCounselorController::class, 'import'])->name('import');
     Route::get('{teacher}/status/{status}', [ClientTeacherCounselorController::class, 'updateStatus'])->name('update.status');
 });
 
-// Route::get('parent/raw', function () {
-//     return view('pages.client.parent.raw.index');
-// });
-// Route::get('parent/raw/1/comparison/2', function () {
-//     return view('pages.client.parent.raw.form-comparison');
-// });
-// Route::get('parent/raw/1/new', function () {
-//     return view('pages.client.parent.raw.form-new');
-// });
 
 Route::get('parent/raw',  [ClientParentController::class, 'indexRaw']);
 Route::get('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'cleaningData']);

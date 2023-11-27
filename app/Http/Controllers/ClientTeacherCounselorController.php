@@ -61,6 +61,15 @@ class ClientTeacherCounselorController extends ClientController
         return view('pages.client.teacher.index');
     }
 
+    public function indexRaw(Request $request)
+    {
+        if ($request->ajax()) {
+            return $this->clientRepository->getAllRawClientDataTables('teacher/counselor');
+        }
+
+        return view('pages.client.teacher.raw.index');
+    }
+
     public function create()
     {
         $schools = $this->schoolRepository->getAllSchools();
@@ -327,5 +336,41 @@ class ClientTeacherCounselorController extends ClientController
         $import->import($file);
 
         return back()->withSuccess('Teacher successfully imported');
+    }
+
+    public function cleaningData(Request $request)
+    {
+        $type = $request->route('type');
+        $rawClientId = $request->route('rawclient_id');
+        $clientId = $request->route('client_id');
+
+        DB::beginTransaction();
+        try {
+
+            $rawClient = $this->clientRepository->getViewRawClientById($rawClientId);
+            $clientId != null ? $client = $this->clientRepository->getViewClientById($clientId) : null;
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            Log::error('Fetch data raw client failed : ' . $e->getMessage() . ' ' . $e->getLine());
+            return Redirect::to('client/teacher-counselor/raw')->withError('Something went wrong. Please try again or contact the administrator.');
+        }
+
+        switch ($type) {
+            case 'comparison':
+                return view('pages.client.teacher.raw.form-comparison')->with([
+                    'rawClient' => $rawClient,
+                    'client' => $client
+                ]);
+                break;
+
+            case 'new':
+                return view('pages.client.teacher.raw.form-new')->with([
+                    'rawClient' => $rawClient,
+                ]);
+                break;
+        }
     }
 }
