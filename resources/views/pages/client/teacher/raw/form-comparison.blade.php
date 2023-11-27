@@ -185,7 +185,7 @@
         </div>
         <div class="col-md-5">
             <div class="card rounded position-sticky" style="top:15%;">
-                <form action="{{ route('client.convert.student', ['client_id' => $client->id, 'type' => 'merge', 'rawclient_id' => $rawClient->id]) }}" method="post">
+                <form action="{{ route('client.convert.teacher', ['client_id' => $client->id, 'type' => 'merge', 'rawclient_id' => $rawClient->id]) }}" method="post">
                     @csrf
                     <div class="card-header">
                         <h5>Summarize</h5>
@@ -249,8 +249,16 @@
         function checkInputRadio(item, init, type, itemType = null) {
             if (type == "text") {
                 $('#' + init + 'New').val('')
-            } else {
+            } else if (type == 'select') {
                 $('#' + init + 'New').val('').trigger('change')
+
+                if(init == 'school'){
+                    if ($(item).data('name')) {
+                        $('#' + init + 'Preview').html($(item).data('name'))
+                    } else {
+                        $('#' + init + 'Preview').html($(item).val())
+                    }
+                }
             }
 
             // Sumarize 

@@ -21,7 +21,7 @@
                                 Full Name
                             </div>
                             <div class="mb-2">
-                                <input type="text" name="name" id="nameNew" value=""
+                                <input type="text" name="name" id="nameNew" value="{{ $rawClient->fullname }}"
                                     class="form-control form-control-sm" placeholder="Type new full name"
                                     oninput="checkInputText(this, 'name')">
                             </div>
@@ -31,7 +31,7 @@
                                 Email
                             </div>
                             <div class="mb-2">
-                                <input type="email" name="email" id="emailNew" value=""
+                                <input type="email" name="email" id="emailNew" value="{{ $rawClient->mail }}"
                                     class="form-control form-control-sm" placeholder="Type new email"
                                     oninput="checkInputText(this, 'email')">
                             </div>
@@ -41,7 +41,7 @@
                                 Phone Number
                             </div>
                             <div class="mb-2">
-                                <input type="tel" name="phone" id="phoneNew" value=""
+                                <input type="tel" name="phone" id="phoneNew" value="{{ $rawClient->phone }}"
                                     class="form-control form-control-sm" placeholder="Type new phone number"
                                     oninput="checkInputText(this, 'phone')">
                             </div>
@@ -52,41 +52,75 @@
                             </div>
                             <div class="mb-2">
                                 <div class="row g-2">
-                                    <div class="col-5 d-flex gap-2">
-                                        <div class="w-100">
-                                            <input type="text" name="" id="schoolNew"
-                                                class="form-control form-control-sm" value="New School"
-                                                oninput="checkInputText(this, 'school')">
-                                            <small class="text-danger">
-                                                <i class="bi bi-info-circle-fill"></i>
-                                                Not Verified School
+                                    @if ($rawClient->sch_id != null)
+                                        <div class="col-5 d-flex gap-2">
+                                            <div class="w-100">
+                                                <input type="text" name="" id="schoolNew"
+                                                    data-id="{{ $rawClient->sch_id }}"
+                                                    class="form-control form-control-sm" value="{{ $rawClient->school_name }}"
+                                                    oninput="checkInputText(this, 'school')">
+                                                @if($rawClient->sch_id != null)
+                                                    @if($rawClient->is_verified == 'Y')
+                                                        <small class="text-success">
+                                                            <i class="bi bi-check-circle-fill"></i>
+                                                            Verified School
+                                                        </small>
+                                                    @else
+                                                        <small class="text-danger">
+                                                            <i class="bi bi-info-circle-fill"></i>
+                                                            Not Verified School
+                                                        </small>
+                                                    @endif
+                                                @endif
+                                            </div>
+                                            <div class="mt-2">
+                                                OR
+                                            </div>
+                                        </div>
+                                        <div class="col-5">
+                                            <select class="select w-100 school" name="school" id="schoolExist"
+                                                onchange="checkInputText(this, 'school', 'select')">
+                                                <option value=""></option>
+                                            </select>
+                                            <small class="text-success">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                                Verified School
                                             </small>
                                         </div>
-                                        <div class="mt-2">
-                                            OR
+                                        <div class="col-1">
+                                            <button class="btn btn-sm btn-outline-dark w-100" onclick="syncSchool()">
+                                                <i class="bi bi-arrow-clockwise"></i>
+                                            </button>
                                         </div>
-                                    </div>
-                                    <div class="col-5">
-                                        <select class="select w-100 school" name="school" id="schoolExist"
-                                            onchange="checkInputText(this, 'school', 'select')">
-                                            <option value=""></option>
-                                        </select>
-                                        <small class="text-success">
-                                            <i class="bi bi-check-circle-fill"></i>
-                                            Verified School
-                                        </small>
-                                    </div>
-                                    <div class="col-1">
-                                        <button class="btn btn-sm btn-outline-dark w-100" onclick="syncSchool()">
-                                            <i class="bi bi-arrow-clockwise"></i>
-                                        </button>
-                                    </div>
-                                    <div class="col-1">
-                                        <button class="btn btn-sm btn-outline-dark w-100" type="button"
-                                            onclick="addNewData('school')">
-                                            <i class="bi bi-plus-lg"></i>
-                                        </button>
-                                    </div>
+                                        <div class="col-1">
+                                            <button class="btn btn-sm btn-outline-dark w-100" type="button"
+                                                onclick="addNewData('school')">
+                                                <i class="bi bi-plus-lg"></i>
+                                            </button>
+                                        </div>
+                                    @else
+                                        <div class="col-10">
+                                            <select class="select w-100 school" name="school" id="schoolExist"
+                                                onchange="checkInputText(this, 'school', 'select')">
+                                                <option value=""></option>
+                                            </select>
+                                            <small class="text-success">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                                Verified School
+                                            </small>
+                                        </div>
+                                        <div class="col-1">
+                                            <button class="btn btn-sm btn-outline-dark w-100" onclick="syncSchool()">
+                                                <i class="bi bi-arrow-clockwise"></i>
+                                            </button>
+                                        </div>
+                                        <div class="col-1">
+                                            <button class="btn btn-sm btn-outline-dark w-100" type="button"
+                                                onclick="addNewData('school')">
+                                                <i class="bi bi-plus-lg"></i>
+                                            </button>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -96,7 +130,7 @@
         </div>
         <div class="col-md-5">
             <div class="card rounded position-sticky" style="top:15%;">
-                <form action="">
+                <form action="{{ route('client.convert.teacher', ['rawclient_id' => $rawClient->id, 'type' => 'new']) }}" method="post">
                     @csrf
                     <div class="card-header">
                         <h5>Summarize</h5>
@@ -110,32 +144,32 @@
                                 <td width="30%">Full Name</td>
                                 <td width="1%">:</td>
                                 <td>
-                                    <div id="namePreview"></div>
-                                    <input type="hidden" name="nameFinal" id="nameInputPreview" value="">
+                                    <div id="namePreview">{{ $rawClient->fullname }}</div>
+                                    <input type="hidden" name="nameFinal" id="nameInputPreview" value="{{ $rawClient->fullname }}">
                                 </td>
                             </tr>
                             <tr>
                                 <td>Email</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="emailPreview"></div>
-                                    <input type="hidden" name="emailFinal" id="emailInputPreview" value="">
+                                    <div id="emailPreview">{{ $rawClient->mail }}</div>
+                                    <input type="hidden" name="emailFinal" id="emailInputPreview" value="{{ $rawClient->mail }}">
                                 </td>
                             </tr>
                             <tr>
                                 <td>Phone Number</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="phonePreview"></div>
-                                    <input type="hidden" name="phoneFinal" id="phoneInputPreview" value="">
+                                    <div id="phonePreview">{{ $rawClient->phone }}</div>
+                                    <input type="hidden" name="phoneFinal" id="phoneInputPreview" value="{{ $rawClient->phone }}">
                                 </td>
                             </tr>
                             <tr>
                                 <td>School Name</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="schoolPreview">New School</div>
-                                    <input type="hidden" name="schoolFinal" id="schoolInputPreview">
+                                    <div id="schoolPreview">{{ $rawClient->school_name }}</div>
+                                    <input type="hidden" name="schoolFinal" id="schoolInputPreview" value="{{ $rawClient->sch_id }}">
                                 </td>
                             </tr>
                         </table>
