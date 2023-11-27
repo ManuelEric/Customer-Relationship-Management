@@ -47,6 +47,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('student/raw',  [ClientStudentController::class, 'indexRaw']);
 Route::get('student/raw/{rawclient_id}/{type}/{client_id?}', [ClientStudentController::class, 'cleaningData']);
 Route::post('student/raw/{rawclient_id}/{type}/{client_id?}', [ClientStudentController::class, 'convertData'])->name('client.convert');
+Route::delete('student/raw/{rawclient_id}', [ClientStudentController::class, 'destroyRaw'])->name('client.destroy.raw');
 
 Route::resource('student', ClientStudentController::class);
 Route::prefix('student')->name('student.')->group(function () {
@@ -84,17 +85,21 @@ Route::prefix('teacher-counselor')->name('teacher-counselor.')->group(function (
     Route::get('{teacher}/status/{status}', [ClientTeacherCounselorController::class, 'updateStatus'])->name('update.status');
 });
 
-Route::get('parent/raw', function () {
-    return view('pages.client.parent.raw.index');
-});
-Route::get('parent/raw/1/comparison/2', function () {
-    return view('pages.client.parent.raw.form-comparison');
-});
-Route::get('parent/raw/1/new', function () {
-    return view('pages.client.parent.raw.form-new');
-});
+// Route::get('parent/raw', function () {
+//     return view('pages.client.parent.raw.index');
+// });
+// Route::get('parent/raw/1/comparison/2', function () {
+//     return view('pages.client.parent.raw.form-comparison');
+// });
+// Route::get('parent/raw/1/new', function () {
+//     return view('pages.client.parent.raw.form-new');
+// });
 
+Route::get('parent/raw',  [ClientParentController::class, 'indexRaw']);
+Route::get('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'cleaningData']);
+// Route::post('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'convertData'])->name('client.convert');
 Route::resource('parent', ClientParentController::class);
+
 Route::post('parent/import', [ClientParentController::class, 'import'])->name('parent.import');
 
 

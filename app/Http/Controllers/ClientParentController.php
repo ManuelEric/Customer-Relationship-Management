@@ -82,6 +82,15 @@ class ClientParentController extends ClientController
         return view('pages.client.parent.index');
     }
 
+    public function indexRaw(Request $request)
+    {
+        if ($request->ajax()) {
+            return $this->clientRepository->getAllRawClientDataTables('parent');
+        }
+
+        return view('pages.client.parent.raw.index');
+    }
+
     public function create(Request $request)
     {
         # ajax
@@ -366,4 +375,41 @@ class ClientParentController extends ClientController
             ]
         );
     }
+
+    public function cleaningData(Request $request)
+    {
+        $type = $request->route('type');
+        $rawClientId = $request->route('rawclient_id');
+        $clientId = $request->route('client_id');
+
+        DB::beginTransaction();
+        try {
+
+            $rawClient = $this->clientRepository->getViewRawClientById($rawClientId);
+            $clientId != null ? $client = $this->clientRepository->getViewClientById($clientId) : null;
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            Log::error('Fetch data raw client failed : ' . $e->getMessage() . ' ' . $e->getLine());
+            return Redirect::to('client/parent/raw')->withError('Something went wrong. Please try again or contact the administrator.');
+        }
+
+        switch ($type) {
+            case 'comparison':
+                return view('pages.client.parent.raw.form-comparison')->with([
+                    'rawClient' => $rawClient,
+                    'client' => $client
+                ]);
+                break;
+
+            case 'new':
+                return view('pages.client.parent.raw.form-new')->with([
+                    'rawClient' => $rawClient,
+                ]);
+                break;
+        }
+    }
+
 }

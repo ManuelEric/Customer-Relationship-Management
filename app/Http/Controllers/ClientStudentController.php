@@ -928,4 +928,28 @@ class ClientStudentController extends ClientController
 
         return Redirect::to('client/student/raw')->withSuccess('Convert client successfully.');
     }
+
+    public function destroyRaw(Request $request)
+    {
+        $rawclientId = $request->route('rawclient_id');
+        $rawStudent = $this->clientRepository->getViewRawClientById($rawclientId);
+
+        DB::beginTransaction();
+        try {
+
+            $this->clientRepository->deleteRawClient($rawclientId);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Delete raw client student failed : ' . $e->getMessage());
+            return Redirect::to('client/student/raw')->withError('Failed to delete raw student');
+        }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Raw Client', Auth::user()->first_name . ' '. Auth::user()->last_name, $rawStudent);
+
+        return Redirect::to('client/student/raw')->withSuccess('Raw student successfully deleted');
+    }
 }

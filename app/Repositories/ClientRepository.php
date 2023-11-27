@@ -1269,12 +1269,24 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getAllRawClientDataTables($roleName)
     {
-        return Datatables::eloquent(ViewRawClient::where('role', $roleName))
+        $query = null;
+        switch ($roleName) {
+            case 'student':
+                $query = ViewRawClient::where('role', $roleName);
+                break;
+
+            case 'parent':
+                $query = ViewRawClient::where('role', $roleName)->where('relation_key', null);
+                break;
+        }
+
+        return Datatables::eloquent($query)
         ->addColumn('suggestion', function ($data) use ($roleName) {
-            $client = UserClient::with('school', 'parents', 'clientProgram.program')
-                ->whereHas('roles', function ($query) use ($roleName) {
-                    $query->where('role_name', $roleName);
-                })->where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->fullname .'%')->get();
+            $client = UserClient::with('school', 'clientProgram.program', $roleName == 'student' ? 'parents' : 'childrens')
+                ->whereHas('roles', function ($q) use ($roleName) {
+                    $q->where('role_name', $roleName);
+                })->where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->fullname .'%')
+                ->get();
             return $client->toArray();
         })
         ->make(true);
