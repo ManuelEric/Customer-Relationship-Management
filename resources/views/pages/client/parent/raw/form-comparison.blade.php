@@ -115,7 +115,7 @@
         </div>
         <div class="col-md-5">
             <div class="card rounded position-sticky" style="top:15%;">
-                <form action="#" method="post">
+                <form action="{{ route('client.convert.parent', ['client_id' => $client->id, 'type' => 'merge', 'rawclient_id' => $rawClient->id]) }}" method="post">
                     @csrf
                     <div class="card-header">
                         <h5>Summarize</h5>

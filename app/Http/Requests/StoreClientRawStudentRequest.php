@@ -8,7 +8,7 @@ use Illuminate\Validation\Rule;
 
 use function PHPSTORM_META\map;
 
-class StoreClientRawRequest extends FormRequest
+class StoreClientRawStudentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

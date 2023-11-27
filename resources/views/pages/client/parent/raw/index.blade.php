@@ -147,7 +147,7 @@
                     '<td><input type="radio" name="similar' + d.id +
                     '" class="form-check-input item-' + d.id + '" onclick="newLeads(' +
                     d.id + ')" /></td>' +
-                    '<td colspan=5>New Student</td>' +
+                    '<td colspan=5>New Parent</td>' +
                     '</tr>' +
                     '</table>'
                 // `d` is the original data object for the row

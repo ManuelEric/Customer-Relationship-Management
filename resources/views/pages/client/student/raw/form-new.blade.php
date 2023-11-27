@@ -202,7 +202,7 @@
         </div>
         <div class="col-md-5">
             <div class="card rounded position-sticky" style="top:15%;">
-                <form action="{{ route('client.convert', ['rawclient_id' => $rawClient->id, 'type' => 'new']) }}"
+                <form action="{{ route('client.convert.student', ['rawclient_id' => $rawClient->id, 'type' => 'new']) }}"
                     method="post">
                     @csrf
                     <div class="card-header">

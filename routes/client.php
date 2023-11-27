@@ -46,7 +46,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('student/raw',  [ClientStudentController::class, 'indexRaw']);
 Route::get('student/raw/{rawclient_id}/{type}/{client_id?}', [ClientStudentController::class, 'cleaningData']);
-Route::post('student/raw/{rawclient_id}/{type}/{client_id?}', [ClientStudentController::class, 'convertData'])->name('client.convert');
+Route::post('student/raw/{rawclient_id}/{type}/{client_id?}', [ClientStudentController::class, 'convertData'])->name('client.convert.student');
 Route::delete('student/raw/{rawclient_id}', [ClientStudentController::class, 'destroyRaw'])->name('client.destroy.raw');
 
 Route::resource('student', ClientStudentController::class);
@@ -97,7 +97,7 @@ Route::prefix('teacher-counselor')->name('teacher-counselor.')->group(function (
 
 Route::get('parent/raw',  [ClientParentController::class, 'indexRaw']);
 Route::get('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'cleaningData']);
-// Route::post('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'convertData'])->name('client.convert');
+Route::post('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'convertData'])->name('client.convert.parent');
 Route::resource('parent', ClientParentController::class);
 
 Route::post('parent/import', [ClientParentController::class, 'import'])->name('parent.import');

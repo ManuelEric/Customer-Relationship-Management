@@ -6,6 +6,7 @@ use App\Exceptions\StoreNewSchoolException;
 use App\Exports\StudentTemplate;
 use App\Http\Controllers\Module\ClientController;
 use App\Http\Requests\StoreClientRawRequest;
+use App\Http\Requests\StoreClientRawStudentRequest;
 use App\Http\Requests\StoreClientStudentRequest;
 use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
@@ -816,7 +817,7 @@ class ClientStudentController extends ClientController
         }
     }
 
-    public function convertData(StoreClientRawRequest $request)
+    public function convertData(StoreClientRawStudentRequest $request)
     {
 
         $type = $request->route('type');

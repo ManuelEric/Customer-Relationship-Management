@@ -27,8 +27,10 @@ use Illuminate\Support\Facades\Redirect;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ParentTemplate;
 use App\Http\Controllers\Module\ClientController;
+use App\Http\Requests\StoreClientRawParentRequest;
 use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Traits\LoggingTrait;
+use App\Http\Traits\SyncClientTrait;
 use App\Imports\MasterParentImport;
 use App\Imports\ParentImport;
 use App\Interfaces\ClientEventRepositoryInterface;
@@ -41,6 +43,7 @@ class ClientParentController extends ClientController
     use FindStatusClientTrait;
     use StandardizePhoneNumberTrait;
     use LoggingTrait;
+    use SyncClientTrait;
 
     protected ClientRepositoryInterface $clientRepository;
     protected ClientEventRepositoryInterface $clientEventRepository;
@@ -410,6 +413,61 @@ class ClientParentController extends ClientController
                 ]);
                 break;
         }
+    }
+
+    public function convertData(StoreClientRawParentRequest $request)
+    {
+
+        $type = $request->route('type');
+        $clientId = $request->route('client_id');
+        $rawclientId = $request->route('rawclient_id');
+
+        $name = $this->explodeName($request->nameFinal);
+
+        $clientDetails = [
+            'first_name' => $name['firstname'],
+            'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
+            'mail' => $request->emailFinal,
+            'phone' => $this->setPhoneNumber($request->phoneFinal)
+        ];
+
+        DB::beginTransaction();
+        try {
+            switch ($type) {
+                case 'merge':
+
+                    $this->clientRepository->updateClient($clientId, $clientDetails);
+
+                    $rawParent = $this->clientRepository->getViewRawClientById($rawclientId);
+
+                    break;
+
+                case 'new':
+                    $rawParent = $this->clientRepository->getViewRawClientById($rawclientId);
+                    $lead_id = $rawParent->lead_id;
+                    $register_as = $rawParent->register_as;
+
+                    $clientDetails['lead_id'] = $lead_id;
+                    $clientDetails['register_as'] = $register_as;
+
+                    $newParent = $this->clientRepository->createClient('parent', $clientDetails);
+
+                    break;
+            }
+
+            # delete parent from raw client
+            $this->clientRepository->deleteRawClient($rawclientId);
+
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            Log::error('Convert client failed : ' . $e->getMessage() . ' ' . $e->getLine());
+            return Redirect::to('client/parent/raw')->withError('Something went wrong. Please try again or contact the administrator.');
+        }
+
+        return Redirect::to('client/parent/raw')->withSuccess('Convert client successfully.');
     }
 
 }
