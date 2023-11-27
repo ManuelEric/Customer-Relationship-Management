@@ -470,4 +470,28 @@ class ClientParentController extends ClientController
         return Redirect::to('client/parent/raw')->withSuccess('Convert client successfully.');
     }
 
+    public function destroyRaw(Request $request)
+    {
+        $rawclientId = $request->route('rawclient_id');
+        $rawParent = $this->clientRepository->getViewRawClientById($rawclientId);
+
+        DB::beginTransaction();
+        try {
+
+            $this->clientRepository->deleteRawClient($rawclientId);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Delete raw client parent failed : ' . $e->getMessage());
+            return Redirect::to('client/parent/raw')->withError('Failed to delete raw parent');
+        }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Raw Client', Auth::user()->first_name . ' '. Auth::user()->last_name, $rawParent);
+
+        return Redirect::to('client/parent/raw')->withSuccess('Raw parent successfully deleted');
+    }
+
 }

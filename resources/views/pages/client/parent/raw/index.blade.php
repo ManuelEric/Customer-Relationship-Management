@@ -83,7 +83,7 @@
                             {{-- <th>Childs Name</th> --}}
                             <th>Parents Phone</th>
                             <th class="bg-info text-white">Last Updated</th>
-                            {{-- <th class="bg-info text-white">Action</th> --}}
+                            <th class="bg-info text-white">Action</th>
                         </tr>
                     </thead>
                 </table>
@@ -217,6 +217,11 @@
                         className: 'text-center',
                         defaultContent: '-'
                     },
+                    {
+                        data: '',
+                        className: 'text-center',
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteRawClient"><i class="bi bi-trash2"></i></button>'
+                    },
                 ],
             });
 
@@ -232,6 +237,11 @@
                     // Open this row
                     row.child(format(row.data())).show();
                 }
+            });
+
+            $('#rawTable tbody').on('click', '.deleteRawClient ', function() {
+                var data = table.row($(this).parents('tr')).data();
+                confirmDelete('client/parent/raw', data.id)
             });
 
         });
