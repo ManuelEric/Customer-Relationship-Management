@@ -15,28 +15,20 @@
         .btn-import:hover>span {
             display: inline-block;
         }
-
-        td.dt-control {
-            background: url('http://www.datatables.net/examples/resources/details_open.png') no-repeat center center;
-            cursor: pointer;
-        }
-
-        tr.shown td.dt-control {
-            background: url('http://www.datatables.net/examples/resources/details_close.png') no-repeat center center;
-        }
     </style>
 @endpush
 
 @section('content')
+
     <div class="card bg-secondary mb-1 p-2">
         <div class="row align-items-center justify-content-between g-3">
             <div class="col-md-6">
                 <h5 class="text-white m-0">
                     <i class="bi bi-tag me-1"></i>
-                    Students
+                    Raw
                 </h5>
             </div>
-            <div class="col-md-6">
+            {{-- <div class="col-md-6">
                 <div class="row g-2">
                     <div class="col-md-3 col-6">
                         <a href="{{ url('api/download/excel-template/student') }}"
@@ -65,9 +57,9 @@
                                         <label for="">School Name</label>
                                         <select name="school_name[]" class="select form-select form-select-sm w-100"
                                             multiple id="school-name">
-                                            {{-- @foreach ($advanced_filter['schools'] as $school)
+                                            @foreach ($advanced_filter['schools'] as $school)
                                                 <option value="{{ $school->sch_name }}">{{ $school->sch_name }}</option>
-                                            @endforeach --}}
+                                            @endforeach
                                         </select>
                                     </div>
 
@@ -75,9 +67,9 @@
                                         <label for="">Graduation Year</label>
                                         <select name="graduation_year[]" class="select form-select form-select-sm w-100"
                                             multiple id="graduation-year">
-                                            {{-- @for ($i = $advanced_filter['max_graduation_year']; $i >= 2016; $i--)
+                                            @for ($i = $advanced_filter['max_graduation_year']; $i >= 2016; $i--)
                                                 <option value="{{ $i }}">{{ $i }}</option>
-                                            @endfor --}}
+                                            @endfor
                                         </select>
                                     </div>
 
@@ -85,9 +77,9 @@
                                         <label for="">Lead Source</label>
                                         <select name="lead_source[]" class="select form-select form-select-sm w-100"
                                             multiple id="lead-sources">
-                                            {{-- @foreach ($advanced_filter['leads'] as $lead)
+                                            @foreach ($advanced_filter['leads'] as $lead)
                                                 <option value="{{ $lead['main_lead'] }}">{{ $lead['main_lead'] }}</option>
-                                            @endforeach --}}
+                                            @endforeach
                                         </select>
                                     </div>
 
@@ -95,10 +87,10 @@
                                         <label for="">Program Suggestion</label>
                                         <select name="program_name[]" class="select form-select form-select-sm w-100"
                                             multiple id="program-name">
-                                            {{-- @foreach ($advanced_filter['initial_programs'] as $init_program)
+                                            @foreach ($advanced_filter['initial_programs'] as $init_program)
                                                 <option value="{{ $init_program->name }}">{{ $init_program->name }}
                                                 </option>
-                                            @endforeach --}}
+                                            @endforeach
                                         </select>
                                     </div>
 
@@ -138,7 +130,7 @@
                                 class="bi bi-plus-square me-1"></i> Add Student</a>
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
     </div>
 
@@ -154,31 +146,6 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs flex-nowrap overflow-auto w-100 mb-3" style="overflow-y: hidden !important;">
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap active" aria-current="page" href="{{ url('client/student/raw') }}">Raw
-                        Data</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap {{ Request::get('st') == 'new-leads' ? 'active' : '' }}"
-                        aria-current="page" href="{{ url('client/student?st=new-leads') }}">New Leads</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap {{ Request::get('st') == 'potential' ? 'active' : '' }}"
-                        href="{{ url('client/student?st=potential') }}">Potential</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap {{ Request::get('st') == 'mentee' ? 'active' : '' }}"
-                        href="{{ url('client/student?st=mentee') }}">Mentee</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap {{ Request::get('st') == 'non-mentee' ? 'active' : '' }}"
-                        href="{{ url('client/student?st=non-mentee') }}">Non-Mentee</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap" href="{{ url('client/student') }}">All</a>
-                </li>
-            </ul>
 
 
             <style>
@@ -186,119 +153,63 @@
                     background: rgb(255, 151, 151)
                 }
             </style>
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover nowrap align-middle w-100" id="rawTable">
-                    <thead class="bg-secondary text-white">
-                        <tr class="text-center" role="row">
-                            <th class="bg-info text-white">#</th>
-                            </th>
-                            <th class="bg-info text-white">No</th>
-                            <th class="bg-info text-white">Name</th>
-                            <th class="bg-info text-white">Suggestion</th>
-                            <th>Mail</th>
-                            <th>Phone</th>
-                            <th>Parents Name</th>
-                            <th>Parents Mail</th>
-                            <th>Parents Phone</th>
-                            <th>School</th>
-                            <th>Graduation Year</th>
-                            <th>Lead</th>
-                            <th>Country of Study Abroad</th>
-                            <th>Joined Date</th>
-                            <th class="bg-info text-white">Last Update</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
+            <table class="table table-bordered table-hover nowrap align-middle w-100" id="clientTable">
+                <thead class="bg-secondary text-white">
+                    <tr class="text-center" role="row">
+                        <th class="bg-info text-white">#</th>
+                        <th class="bg-info text-white">No</th>
+                        <th class="bg-info text-white">Name</th>
+                        <th>Suggestion</th>
+                        <th>Mail</th>
+                        <th>Phone</th>
+                        <th>register as</th>
+                        <th>relation</th>
+                        <th>school uuid</th>
+                        <th>interest_countries</th>
+                        <th>lead id</th>
+                        <th>graduation_year</th>
+                        <th class="bg-info text-white"># Action</th>
+                    </tr>
+                </thead>
+                {{-- <tfoot class="bg-light text-white">
+                    <tr>
+                        <td colspan="12"></td>
+                    </tr>
+                </tfoot> --}}
+            </table>
         </div>
     </div>
 
-    <div class="modal fade" id="importData" tabindex="-1" aria-labelledby="importDataLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <form action="{{ route('student.import') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="importDataLabel">Import CSV Data</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <label for="">CSV File</label>
-                                <input type="file" name="file" id=""
-                                    class="form-control form-control-sm">
-                            </div>
-                            <small class="text-warning mt-3">
-                                * Please clean the file first, before importing the csv file. <br>
-                                You can download the csv template <a
-                                    href="{{ url('api/download/excel-template/student') }}">here</a>
-                            </small>
-                        </div>
-                    </div>
-                    <div class="modal-footer d-flex justify-content-between">
-                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-dismiss="modal">
-                            <i class="bi bi-x"></i>
-                            Close</button>
-                        <button type="submit" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-upload"></i>
-                            Import</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+
 @endsection
 @push('scripts')
     <script>
+        // $('#cancel').click(function() {
+        //     $(this).parents('.dropdown').find('button.dropdown-toggle').dropdown('toggle')
+        // });
+
+
         var widthView = $(window).width();
         $(document).ready(function() {
 
-            // Formatting function for row details - modify as you need
             function format(d) {
-                var similar = '<table class="table w-auto table-hover">'
 
-                if (d.suggestion.length > 0) {
-                    similar +=
-                        '<th colspan=6>Comparison with Similar Names:</th>' +
-                        '</tr>' +
-                        '<tr>' +
-                        '<th>#</th><th>Name</th><th>Email</th><th>Phone Number</th><th>School Name</th><th>Graduation Year</th>' +
-                        '</tr>';
-                    d.suggestion.forEach(function(item, index) {
-                        similar += '<tr onclick="comparison(' +
-                            d.id + ',' + item.id + ')" class="cursor-pointer">' +
-                            '<td><input type="radio" name="similar' + d.id +
-                            '" class="form-check-input item-' + item.id + '" onclick="comparison(' +
-                            d.id + ',' + item.id + ')" /></td>' +
-                            '<td>' + item.first_name + ' ' + item.last_name + '</td>' +
-                            '<td>' + (item.mail !== null ? item.mail : '-') + '</td>' +
-                            '<td>' + (item.phone !== null ? item.phone : '-') + '</td>' +
-                            '<td>' + (typeof item.school !== 'undefined' && item.school !== null ? item
-                                .school.sch_name : '-') + '</td>' +
-                            '<td>' + (item.graduation_year_real !== null ? item.graduation_year_real :
-                            '-') + '</td>' +
-                            '</tr>'
-                    });
-                }
+                var listSuggest = '<table class="table table-striped table-hover">'
+                listSuggest += '<tr>';
+                listSuggest += '<th>Name</th>';
+                listSuggest += '<th>Email</th>';
+                listSuggest += '<th>Phone</th>';
+                d.suggestion.forEach(function(item, index) {
+                    listSuggest += '<tr><td>' + item.first_name + ' ' + item.last_name + '</td>'
+                    listSuggest += '<td>' + item.mail + '</td>'
+                    listSuggest += '<td>' + item.phone + '</td></tr>'
+                });
 
-                similar +=
-                    '<tr>' +
-                    '<th colspan=6>Convert without Comparison</th>' +
-                    '</tr>' +
-                    '<tr class="cursor-pointer" onclick="newLeads(' +
-                    d.id + ')">' +
-                    '<td><input type="radio" name="similar' + d.id +
-                    '" class="form-check-input item-'+d.id+'" onclick="newLeads(' +
-                    d.id + ')" /></td>' +
-                    '<td colspan=5>New Student</td>' +
-                    '</tr>' +
-                    '</table>'
-                // `d` is the original data object for the row
-                return (similar);
+                listSuggest += '</table>';
+                return listSuggest;
             }
 
-            var table = $('#rawTable').DataTable({
+            var table = $('#clientTable').DataTable({
                 order: [
                     // [20, 'desc'],
                     [1, 'asc']
@@ -334,7 +245,7 @@
                         }
                     },
                     {
-                        data: 'fullname',
+                        data: 'first_name',
                         render: function(data, type, row, meta) {
                             return data
                         }
@@ -343,10 +254,10 @@
                         data: 'suggestion',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            return data.length > 0 ?
-                                '<div class="badge badge-warning py-1 px-2 ms-2">' + data
-                                .length + ' Similar Names</div>' : '-'
+                            return '<span class="badge badge-info">' +
+                                data.length + '</span>';
                         }
+                        // defaultContent: '-'
                     },
                     {
                         data: 'mail',
@@ -357,28 +268,15 @@
                         defaultContent: '-'
                     },
                     {
-                        data: 'parent_name',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'parent_mail',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'parent_phone',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'school',
+                        data: 'register_as',
                         defaultContent: '-',
                     },
                     {
-                        data: 'graduation_year',
-                        className: 'text-center',
+                        data: 'relation',
                         defaultContent: '-'
                     },
                     {
-                        data: 'lead_source',
+                        data: 'school_uuid',
                         className: 'text-center',
                         defaultContent: '-'
                     },
@@ -388,20 +286,24 @@
                         defaultContent: '-'
                     },
                     {
-                        data: 'created_at',
+                        data: 'lead_id',
+                        defaultContent: '-',
+                        className: 'text-center',
+                    },
+                    {
+                        data: 'graduation_year',
                         className: 'text-center',
                         defaultContent: '-'
                     },
                     {
-                        data: 'updated_at',
+                        data: '',
                         className: 'text-center',
-                        defaultContent: '-'
-                    },
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient"><i class="bi bi-eye"></i></button>'
+                    }
                 ],
             });
 
-
-            // Add a click event listener to each row in the parent DataTable
+            // Add event listener for opening and closing details
             table.on('click', 'td.dt-control', function(e) {
                 let tr = e.target.closest('tr');
                 let row = table.row(tr);
@@ -415,16 +317,26 @@
                 }
             });
 
+            @php
+                $privilage = $menus['Client']->where('submenu_name', 'Students')->first();
+            @endphp
+
+
+            @if ($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false");
+
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
+
+            @if ($privilage['export'] == 0)
+                table.button(1).disable();
+            @endif
+
+
+
+
         });
-
-        function comparison(id, id2) {
-           $('input.item-'+id2).prop('checked', true);
-            window.open("{{ url('client/student/raw/') }}" + '/' + id + '/comparison/' + id2, "_blank");
-        }
-
-        function newLeads(id) {
-            $('input.item-'+id).prop('checked', true);
-            window.open("{{ url('client/student/raw/') }}" + '/' + id + '/new', "_blank");
-        }
     </script>
 @endpush

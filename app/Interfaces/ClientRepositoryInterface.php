@@ -28,6 +28,8 @@ interface ClientRepositoryInterface
     public function addInterestProgram($studentId, $interestProgram);
     public function removeInterestProgram($studentId, $interstProgram, $progId);
     public function getAllRawClientDataTables();
+    public function getRawClientById($rawClientId);
+    public function deleteRawClient($rawClientId);
     /* ~ END */
 
     /* API External use */
@@ -55,6 +57,7 @@ interface ClientRepositoryInterface
     public function removeRole($clientId, $role);
     public function getParentsByStudentId($studentId);
     public function getParentByParentName($parentName);
+    public function attachClientRelation($parentId, $studentId);
     public function createClientRelation($parentId, $studentId);
     public function removeClientRelation($parentId, $studentId);
     public function createManyClientRelation($parentId, array $studentId);

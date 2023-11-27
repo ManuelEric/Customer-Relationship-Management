@@ -19,6 +19,7 @@ return new class extends Migration
         DB::statement('
         CREATE OR REPLACE VIEW raw_client AS
         SELECT 
+            rc.id,
             rc.fullname,
             rc.mail,
             rc.phone,
@@ -32,7 +33,7 @@ return new class extends Migration
             END) AS lead_source,
             (CASE 
                 WHEN SUBSTR(rc.school_uuid, 1, 2) = "rs" THEN rs.sch_name
-                ELSE "-"
+                ELSE null
             END) AS school,
             rc.interest_countries,
             rc.created_at,

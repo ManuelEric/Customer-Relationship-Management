@@ -36,4 +36,18 @@ class ViewRawClient extends Authenticatable
         'updated_at',
     ];
 
+    public function createdAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => date('M d, Y H:i:s', strtotime($value)),
+        );
+    }
+
+    public function updatedAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => date('M d, Y H:i:s', strtotime($value)),
+        );
+    }
+
 }

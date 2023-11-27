@@ -946,6 +946,15 @@ class ClientRepository implements ClientRepositoryInterface
         })->first();
     }
 
+    public function attachClientRelation($parentId, $studentId)
+    {
+        $student = UserClient::where('id', $studentId)->first();
+
+        $student->parents()->attach($parentId);
+        return $student;
+    }
+
+
     # connecting student with parents
     public function createClientRelation($parentId, $studentId)
     {
@@ -1262,9 +1271,21 @@ class ClientRepository implements ClientRepositoryInterface
     {
         return Datatables::eloquent(ViewRawClient::query())
         ->addColumn('suggestion', function ($data) {
-            $a = UserClient::where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->fullname .'%')->get();
+            $a = UserClient::with('school')->where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->fullname .'%')->get();
             return $a->toArray();
         })
         ->make(true);
     }
+
+    public function getRawClientById($rawClientId)
+    {
+        return ViewRawClient::where('id', $rawClientId)->first();
+    }
+
+    public function deleteRawClient($rawClientId)
+    {
+        return RawClient::destroy($rawClientId);
+    }
+
+    
 }
