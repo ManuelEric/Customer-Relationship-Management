@@ -66,7 +66,7 @@ return new class extends Migration
                         END)
                     LEFT JOIN tbl_client_prog icp ON icp.clientprog_id = i.clientprog_id
                     LEFT JOIN program ip ON ip.prog_id = icp.prog_id
-                    LEFT JOIN tbl_client ic ON ic.id = icp.client_id
+                    LEFT JOIN tbl_client ic ON ic.uuid = icp.client_uuid
                     LEFT JOIN tbl_client_relation icr ON icr.child_id = ic.id
                     LEFT JOIN tbl_client ipr ON ipr.id = icr.parent_id
                 WHERE icp.status = 1

@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Student')
+@section('title', 'Teacher')
 
 @push('styles')
 @endpush
@@ -33,16 +33,16 @@
                                 <div class="mb-2">
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input name" type="radio" name="name" id="nameInput1"
-                                            checked onchange="checkInputRadio(this, 'name', 'text')" value="Existing Name">
+                                            checked onchange="checkInputRadio(this, 'name', 'text')" value="{{ $client->full_name }}">
                                         <label class="form-check-label" for="nameInput1">
-                                            Existing Name <span class="text-warning">(Existing Data)</span>
+                                            {{ $client->full_name }} <span class="text-warning">(Existing Data)</span>
                                         </label>
                                     </div>
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input name" type="radio" name="name" id="nameInput2"
-                                            onchange="checkInputRadio(this, 'name', 'text')" value="New Name">
+                                            onchange="checkInputRadio(this, 'name', 'text')" value="{{ $rawClient->fullname }}">
                                         <label class="form-check-label" for="nameInput2">
-                                            New Name <span class="text-info">(New
+                                            {{ $rawClient->fullname ? $rawClient->fullname : '-' }} <span class="text-info">(New
                                                 Data)</span>
                                         </label>
                                     </div>
@@ -59,18 +59,18 @@
                                 <div class="mb-2">
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input email" type="radio" name="email" id="emailInput1"
-                                            onchange="checkInputRadio(this, 'email', 'text')" value="Existing Email"
+                                            onchange="checkInputRadio(this, 'email', 'text')" value="{{ $client->mail }}"
                                             checked>
                                         <label class="form-check-label" for="emailInput1">
-                                            Existing Email <span class="text-warning">(Existing
+                                            {{ $client->mail ? $client->mail : '-' }} <span class="text-warning">(Existing
                                                 Data)</span>
                                         </label>
                                     </div>
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input email" type="radio" name="email" id="emailInput2"
-                                            onchange="checkInputRadio(this, 'email', 'text')" value="New Email">
+                                            onchange="checkInputRadio(this, 'email', 'text')" value="{{ $rawClient->mail }}">
                                         <label class="form-check-label" for="emailInput2">
-                                            New Email <span class="text-info">(New
+                                            {{ $rawClient->mail ? $rawClient->mail : '-' }} <span class="text-info">(New
                                                 Data)</span>
                                         </label>
                                     </div>
@@ -87,18 +87,18 @@
                                 <div class="mb-2">
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input phone" type="radio" name="phone" id="phoneInput1"
-                                            onchange="checkInputRadio(this, 'phone', 'text')" value="Existing Phone"
+                                            onchange="checkInputRadio(this, 'phone', 'text')" value="{{ $client->phone }}"
                                             checked>
                                         <label class="form-check-label" for="phoneInput1">
-                                            Exisitng Phone <span class="text-warning">(Existing
+                                            {{ $client->phone ? $client->phone : '-' }} <span class="text-warning">(Existing
                                                 Data)</span>
                                         </label>
                                     </div>
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input phone" type="radio" name="phone" id="phoneInput2"
-                                            onchange="checkInputRadio(this, 'phone', 'text')" value="New Phone">
+                                            onchange="checkInputRadio(this, 'phone', 'text')" value="{{ $rawClient->phone }}">
                                         <label class="form-check-label" for="phoneInput2">
-                                            New Phone <span class="text-info">(New
+                                            {{ $rawClient->phone ? $rawClient->phone : '-' }} <span class="text-info">(New
                                                 Data)</span>
                                         </label>
                                     </div>
@@ -116,19 +116,45 @@
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input school" type="radio" name="school"
                                             id="schoolInput1" onchange="checkInputRadio(this, 'school', 'select')"
-                                            data-name="school-name" value="school id" checked>
+                                            data-name="{{ $client->school_name }}" value="{{ $client->sch_id }}" checked>
                                         <label class="form-check-label" for="schoolInput1">
-                                            Existing school name <span class="text-warning">(Existing Data)</span>
+                                            {{ $client->school_name ? $client->school_name : '-' }} <span class="text-warning">(Existing Data)</span>
                                         </label>
+                                        @if($client->school_name != null)
+                                            @if($client->school->is_verified == 'Y')
+                                                <small class="text-success">
+                                                    <i class="bi bi-check-circle-fill"></i>
+                                                    Verified School
+                                                </small>
+                                            @else
+                                                <small class="text-danger">
+                                                    <i class="bi bi-info-circle-fill"></i>
+                                                    Not Verified School
+                                                </small>
+                                            @endif
+                                        @endif
                                     </div>
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input school" type="radio" name="school"
-                                            data-name="New School" id="schoolInput2"
-                                            onchange="checkInputRadio(this, 'school', 'select')" value="New School">
+                                            data-name="{{ $rawClient->school_name }}" id="schoolInput2"
+                                            onchange="checkInputRadio(this, 'school', 'select')" value="{{ $rawClient->sch_id }}">
                                         <label class="form-check-label" for="schoolInput2">
-                                            New School <span class="text-info">(New
+                                            {{ $rawClient->school_name ? $rawClient->school_name : '-' }} <span class="text-info">(New
                                                 Data)</span>
                                         </label>
+                                        @if($rawClient->sch_id != null)
+                                            @if($rawClient->is_verified == 'Y')
+                                                <small class="text-success">
+                                                    <i class="bi bi-check-circle-fill"></i>
+                                                    Verified School
+                                                </small>
+                                            @else
+                                                <small class="text-danger">
+                                                    <i class="bi bi-info-circle-fill"></i>
+                                                    Not Verified School
+                                                </small>
+                                            @endif
+                                        @endif
                                     </div>
                                     <div class="row g-1">
                                         <div class="col-10">
@@ -159,7 +185,7 @@
         </div>
         <div class="col-md-5">
             <div class="card rounded position-sticky" style="top:15%;">
-                <form action="#" method="post">
+                <form action="{{ route('client.convert.teacher', ['client_id' => $client->id, 'type' => 'merge', 'rawclient_id' => $rawClient->id]) }}" method="post">
                     @csrf
                     <div class="card-header">
                         <h5>Summarize</h5>
@@ -173,34 +199,34 @@
                                 <td width="30%">Full Name</td>
                                 <td width="1%">:</td>
                                 <td>
-                                    <div id="namePreview">Existing Name</div>
-                                    <input type="hidden" name="nameFinal" id="nameInputPreview" value="Existing Name">
+                                    <div id="namePreview">{{ $client->full_name }}</div>
+                                    <input type="hidden" name="nameFinal" id="nameInputPreview" value="{{ $client->full_name }}">
                                 </td>
                             </tr>
                             <tr>
                                 <td>Email</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="emailPreview">Existing Email</div>
+                                    <div id="emailPreview">{{ $client->mail }}</div>
                                     <input type="hidden" name="emailFinal" id="emailInputPreview"
-                                        value="Existing Email">
+                                        value="{{ $client->mail }}">
                                 </td>
                             </tr>
                             <tr>
                                 <td>Phone Number</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="phonePreview">Existing Phone</div>
+                                    <div id="phonePreview">{{ $client->phone }}</div>
                                     <input type="hidden" name="phoneFinal" id="phoneInputPreview"
-                                        value="Existing Phone">
+                                        value="{{ $client->phone }}">
                                 </td>
                             </tr>
                             <tr>
                                 <td>School Name</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="schoolPreview">Existing School</div>
-                                    <input type="hidden" name="schoolFinal" id="schoolInputPreview" value="SCH ID">
+                                    <div id="schoolPreview">{{ $client->school_name }}</div>
+                                    <input type="hidden" name="schoolFinal" id="schoolInputPreview" value="{{ $client->sch_id }}">
                                 </td>
                             </tr>
                         </table>
@@ -223,13 +249,18 @@
         function checkInputRadio(item, init, type, itemType = null) {
             if (type == "text") {
                 $('#' + init + 'New').val('')
-            } else {
+            } else if (type == 'select') {
                 $('#' + init + 'New').val('').trigger('change')
+
             }
 
             // Sumarize 
             $('#' + init + 'InputPreview').val($(item).val())
-            $('#' + init + 'Preview').html($(item).val())
+            if ($(item).data('name')) {
+                $('#' + init + 'Preview').html($(item).data('name'))
+            } else {
+                $('#' + init + 'Preview').html($(item).val())
+            }
         }
 
         function checkInputText(item, init, type = null) {
@@ -241,7 +272,7 @@
                 } else {
                     $('#' + init + 'InputPreview').val($(item).val())
                 }
-                
+
                 $('#' + init + 'Preview').html($(item).val())
             }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Module\ClientController;
+use App\Http\Requests\StoreClientRawTeacherRequest;
 use App\Http\Requests\StoreClientTeacherCounselorRequest;
 use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
@@ -16,6 +17,7 @@ use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Http\Traits\SyncClientTrait;
 use App\Imports\TeacherImport;
 use App\Models\School;
 use Exception;
@@ -31,6 +33,7 @@ class ClientTeacherCounselorController extends ClientController
     use CreateCustomPrimaryKeyTrait;
     use StandardizePhoneNumberTrait;
     use LoggingTrait;
+    use SyncClientTrait;
     protected SchoolRepositoryInterface $schoolRepository;
     protected CurriculumRepositoryInterface $curriculumRepository;
     protected LeadRepositoryInterface $leadRepository;
@@ -59,6 +62,15 @@ class ClientTeacherCounselorController extends ClientController
 
 
         return view('pages.client.teacher.index');
+    }
+
+    public function indexRaw(Request $request)
+    {
+        if ($request->ajax()) {
+            return $this->clientRepository->getAllRawClientDataTables('teacher/counselor');
+        }
+
+        return view('pages.client.teacher.raw.index');
     }
 
     public function create()
@@ -327,5 +339,121 @@ class ClientTeacherCounselorController extends ClientController
         $import->import($file);
 
         return back()->withSuccess('Teacher successfully imported');
+    }
+
+    public function cleaningData(Request $request)
+    {
+        $type = $request->route('type');
+        $rawClientId = $request->route('rawclient_id');
+        $clientId = $request->route('client_id');
+
+        DB::beginTransaction();
+        try {
+
+            $rawClient = $this->clientRepository->getViewRawClientById($rawClientId);
+            $clientId != null ? $client = $this->clientRepository->getViewClientById($clientId) : null;
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            Log::error('Fetch data raw client failed : ' . $e->getMessage() . ' ' . $e->getLine());
+            return Redirect::to('client/teacher-counselor/raw')->withError('Something went wrong. Please try again or contact the administrator.');
+        }
+
+        switch ($type) {
+            case 'comparison':
+                return view('pages.client.teacher.raw.form-comparison')->with([
+                    'rawClient' => $rawClient,
+                    'client' => $client
+                ]);
+                break;
+
+            case 'new':
+                return view('pages.client.teacher.raw.form-new')->with([
+                    'rawClient' => $rawClient,
+                ]);
+                break;
+        }
+    }
+
+    public function convertData(StoreClientRawTeacherRequest $request)
+    {
+
+        $type = $request->route('type');
+        $clientId = $request->route('client_id');
+        $rawclientId = $request->route('rawclient_id');
+
+        $name = $this->explodeName($request->nameFinal);
+
+        $clientDetails = [
+            'first_name' => $name['firstname'],
+            'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
+            'mail' => $request->emailFinal,
+            'phone' => $this->setPhoneNumber($request->phoneFinal),
+            'sch_id' => $request->schoolFinal
+        ];
+
+        DB::beginTransaction();
+        try {
+            switch ($type) {
+                case 'merge':
+
+                    $this->clientRepository->updateClient($clientId, $clientDetails);
+
+                    $rawTeacher = $this->clientRepository->getViewRawClientById($rawclientId);
+
+                    break;
+
+                case 'new':
+                    $rawTeacher = $this->clientRepository->getViewRawClientById($rawclientId);
+                    $lead_id = $rawTeacher->lead_id;
+                    $register_as = $rawTeacher->register_as;
+
+                    $clientDetails['lead_id'] = $lead_id;
+                    $clientDetails['register_as'] = $register_as;
+
+                    $newTeacher = $this->clientRepository->createClient('teacher/counselor', $clientDetails);
+
+                    break;
+            }
+
+            # delete parent from raw client
+            $this->clientRepository->deleteRawClient($rawclientId);
+
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            Log::error('Convert client failed : ' . $e->getMessage() . ' ' . $e->getLine());
+            return Redirect::to('client/teacher-counselor/raw')->withError('Something went wrong. Please try again or contact the administrator.');
+        }
+
+        return Redirect::to('client/teacher-counselor/raw')->withSuccess('Convert client successfully.');
+    }
+
+    public function destroyRaw(Request $request)
+    {
+        $rawclientId = $request->route('rawclient_id');
+        $rawTeacher = $this->clientRepository->getViewRawClientById($rawclientId);
+
+        DB::beginTransaction();
+        try {
+
+            $this->clientRepository->deleteRawClient($rawclientId);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Delete raw client teacher failed : ' . $e->getMessage());
+            return Redirect::to('client/teacher-counselor/raw')->withError('Failed to delete raw teacher');
+        }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Raw Client', Auth::user()->first_name . ' '. Auth::user()->last_name, $rawTeacher);
+
+        return Redirect::to('client/teacher-counselor/raw')->withSuccess('Raw teacher successfully deleted');
     }
 }

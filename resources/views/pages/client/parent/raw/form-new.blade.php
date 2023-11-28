@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Student')
+@section('title', 'Parent')
 
 @push('styles')
 @endpush
@@ -15,13 +15,22 @@
                     </h5>
                 </div>
                 <div class="card-body">
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     <div class="row">
                         <div class="col-md-12 mb-2">
                             <div class="mb-1">
                                 Full Name
                             </div>
                             <div class="mb-2">
-                                <input type="text" name="name" id="nameNew" value=""
+                                <input type="text" name="name" id="nameNew" value="{{ $rawClient->fullname }}"
                                     class="form-control form-control-sm" placeholder="Type new full name"
                                     oninput="checkInputText(this, 'name')">
                             </div>
@@ -31,7 +40,7 @@
                                 Email
                             </div>
                             <div class="mb-2">
-                                <input type="email" name="email" id="emailNew" value=""
+                                <input type="email" name="email" id="emailNew" value="{{ $rawClient->mail }}"
                                     class="form-control form-control-sm" placeholder="Type new email"
                                     oninput="checkInputText(this, 'email')">
                             </div>
@@ -41,7 +50,7 @@
                                 Phone Number
                             </div>
                             <div class="mb-2">
-                                <input type="tel" name="phone" id="phoneNew" value=""
+                                <input type="tel" name="phone" id="phoneNew" value="{{ $rawClient->phone }}"
                                     class="form-control form-control-sm" placeholder="Type new phone number"
                                     oninput="checkInputText(this, 'phone')">
                             </div>
@@ -54,7 +63,7 @@
     <div class="row justify-content-center">
         <div class="col-md-5">
             <div class="card rounded position-sticky" style="top:15%;">
-                <form action="">
+                <form action="{{ route('client.convert.parent', ['rawclient_id' => $rawClient->id, 'type' => 'new']) }}" method="post">
                     @csrf
                     <div class="card-header">
                         <h5>Summarize</h5>
@@ -68,24 +77,24 @@
                                 <td width="30%">Full Name</td>
                                 <td width="1%">:</td>
                                 <td>
-                                    <div id="namePreview"></div>
-                                    <input type="hidden" name="nameFinal" id="nameInputPreview" value="">
+                                    <div id="namePreview">{{ $rawClient->fullname }}</div>
+                                    <input type="hidden" name="nameFinal" id="nameInputPreview" value="{{ $rawClient->fullname }}">
                                 </td>
                             </tr>
                             <tr>
                                 <td>Email</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="emailPreview"></div>
-                                    <input type="hidden" name="emailFinal" id="emailInputPreview" value="">
+                                    <div id="emailPreview">{{ $rawClient->mail }}</div>
+                                    <input type="hidden" name="emailFinal" id="emailInputPreview" value="{{ $rawClient->mail }}">
                                 </td>
                             </tr>
                             <tr>
                                 <td>Phone Number</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="phonePreview"></div>
-                                    <input type="hidden" name="phoneFinal" id="phoneInputPreview" value="">
+                                    <div id="phonePreview">{{ $rawClient->phone }}</div>
+                                    <input type="hidden" name="phoneFinal" id="phoneInputPreview" value="{{ $rawClient->phone }}">
                                 </td>
                             </tr>
                         </table>

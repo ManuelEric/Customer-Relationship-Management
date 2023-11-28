@@ -841,12 +841,12 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getClientById($clientId)
     {
-        return Client::find($clientId);
+        return UserClient::find($clientId);
     }
 
     public function getClientByUUID($clientUUID)
     {
-        return Client::where('uuid', $clientUUID)->first();
+        return UserClient::where('uuid', $clientUUID)->first();
     }
 
     public function getClientByMonthCreatedAt(array $month)
@@ -1267,25 +1267,60 @@ class ClientRepository implements ClientRepositoryInterface
         return $student;
     }
 
-    public function getAllRawClientDataTables()
+    public function getAllRawClientDataTables($roleName)
     {
-        return Datatables::eloquent(ViewRawClient::query())
-        ->addColumn('suggestion', function ($data) {
-            $a = UserClient::with('school')->where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->fullname .'%')->get();
-            return $a->toArray();
+        $query = null;
+        $relation = [];
+        switch ($roleName) {
+            case 'student':
+                $query = ViewRawClient::where('role', $roleName);
+                $relation = ['school', 'clientProgram.program', 'parents'];
+                break;
+
+            case 'parent':
+                $query = ViewRawClient::where('role', $roleName)->where('relation_key', null);
+                $relation = ['school', 'childrens'];
+
+                break;
+                
+            case 'teacher/counselor':
+                $query = ViewRawClient::where('role', $roleName);
+                $relation = ['school'];
+                break;
+        }
+
+        return Datatables::eloquent($query)
+        ->addColumn('suggestion', function ($data) use ($roleName, $relation) {
+            $client = UserClient::with($relation)
+                ->whereHas('roles', function ($q) use ($roleName) {
+                    $q->where('role_name', $roleName);
+                })->where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->fullname .'%')
+                ->get();
+            return $client->toArray();
         })
         ->make(true);
     }
 
-    public function getRawClientById($rawClientId)
+    public function getViewRawClientById($rawClientId)
     {
         return ViewRawClient::where('id', $rawClientId)->first();
+    }
+
+    public function getRawClientById($rawClientId)
+    {
+        return RawClient::where('id', $rawClientId)->first();
     }
 
     public function deleteRawClient($rawClientId)
     {
         return RawClient::destroy($rawClientId);
     }
+
+    public function deleteRawClientByUUID($rawClientUUID)
+    {
+        return RawClient::where('uuid', $rawClientUUID)->delete();
+    }
+
 
     
 }

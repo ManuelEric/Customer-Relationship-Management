@@ -206,6 +206,7 @@
                             <th>Country of Study Abroad</th>
                             <th>Joined Date</th>
                             <th class="bg-info text-white">Last Update</th>
+                            <th class="bg-info text-white">Action</th>
                         </tr>
                     </thead>
                 </table>
@@ -257,15 +258,27 @@
             // Formatting function for row details - modify as you need
             function format(d) {
                 var similar = '<table class="table w-auto table-hover">'
+                var joined_program = '';
 
                 if (d.suggestion.length > 0) {
                     similar +=
-                        '<th colspan=6>Comparison with Similar Names:</th>' +
+                        '<th colspan=8>Comparison with Similar Names:</th>' +
                         '</tr>' +
                         '<tr>' +
-                        '<th>#</th><th>Name</th><th>Email</th><th>Phone Number</th><th>School Name</th><th>Graduation Year</th>' +
+                        '<th>#</th><th>Name</th><th>Email</th><th>Phone Number</th><th>School Name</th><th>Parent Name</th><th>Graduation Year</th><th>Joined Program</th>' +
                         '</tr>';
                     d.suggestion.forEach(function(item, index) {
+                        joined_program = '';
+                        if (item.client_program.length > 0) {
+                            item.client_program.forEach(function(clientprog, index) {
+                                if (clientprog.status == 1) {
+                                    joined_program += clientprog.program.program_name;
+                                    (item.client_program.length !== index + 1 ? joined_program +=
+                                        ', ' : '')
+                                }
+                            })
+                        }
+
                         similar += '<tr onclick="comparison(' +
                             d.id + ',' + item.id + ')" class="cursor-pointer">' +
                             '<td><input type="radio" name="similar' + d.id +
@@ -276,22 +289,30 @@
                             '<td>' + (item.phone !== null ? item.phone : '-') + '</td>' +
                             '<td>' + (typeof item.school !== 'undefined' && item.school !== null ? item
                                 .school.sch_name : '-') + '</td>' +
+                            '<td>' + (item.parents.length > 0 ? item.parents[0].first_name + ' ' + (item
+                                .parents[0].last_name !== null ? item.parents[0].last_name : '') : '-') +
+                            '</td>' +
                             '<td>' + (item.graduation_year_real !== null ? item.graduation_year_real :
-                            '-') + '</td>' +
+                                '-') + '</td>' +
+                            '<td>' +
+                            (item.client_program.length > 0 ?
+                                joined_program :
+                                '-') +
+                            '</td>' +
                             '</tr>'
                     });
                 }
 
                 similar +=
                     '<tr>' +
-                    '<th colspan=6>Convert without Comparison</th>' +
+                    '<th colspan=8>Convert without Comparison</th>' +
                     '</tr>' +
                     '<tr class="cursor-pointer" onclick="newLeads(' +
                     d.id + ')">' +
                     '<td><input type="radio" name="similar' + d.id +
-                    '" class="form-check-input item-'+d.id+'" onclick="newLeads(' +
+                    '" class="form-check-input item-' + d.id + '" onclick="newLeads(' +
                     d.id + ')" /></td>' +
-                    '<td colspan=5>New Student</td>' +
+                    '<td colspan=7>New Student</td>' +
                     '</tr>' +
                     '</table>'
                 // `d` is the original data object for the row
@@ -313,7 +334,7 @@
                 scrollX: true,
                 fixedColumns: {
                     left: (widthView < 768) ? 1 : 2,
-                    right: 1
+                    right: 2
                 },
                 processing: true,
                 serverSide: true,
@@ -369,7 +390,7 @@
                         defaultContent: '-'
                     },
                     {
-                        data: 'school',
+                        data: 'school_name',
                         defaultContent: '-',
                     },
                     {
@@ -397,8 +418,15 @@
                         className: 'text-center',
                         defaultContent: '-'
                     },
+                    {
+                        data: '',
+                        className: 'text-center',
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteRawClient"><i class="bi bi-trash2"></i></button>'
+                    },
                 ],
             });
+
+            // realtimeData(table)
 
 
             // Add a click event listener to each row in the parent DataTable
@@ -415,16 +443,23 @@
                 }
             });
 
+            $('#rawTable tbody').on('click', '.deleteRawClient ', function() {
+                var data = table.row($(this).parents('tr')).data();
+                confirmDelete('client/student/raw', data.id)
+            });
+
         });
 
         function comparison(id, id2) {
-           $('input.item-'+id2).prop('checked', true);
+            $('input.item-' + id2).prop('checked', true);
             window.open("{{ url('client/student/raw/') }}" + '/' + id + '/comparison/' + id2, "_blank");
         }
 
         function newLeads(id) {
-            $('input.item-'+id).prop('checked', true);
+            $('input.item-' + id).prop('checked', true);
             window.open("{{ url('client/student/raw/') }}" + '/' + id + '/new', "_blank");
         }
+
+        
     </script>
 @endpush

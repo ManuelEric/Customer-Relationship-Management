@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Raw Data Teacher')
+@section('title', 'Raw Data Parent')
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('library/dashboard/css/vertical-layout-light/style.css') }}">
@@ -33,7 +33,7 @@
             <div class="col-md-6">
                 <h5 class="text-white m-0">
                     <i class="bi bi-tag me-1"></i>
-                    Teacher
+                    Parent
                 </h5>
             </div>
             <div class="col-md-6">
@@ -78,39 +78,14 @@
                             <th class="bg-info text-white">Parents Name</th>
                             <th class="bg-info text-white">Suggestion</th>
                             <th>Parents Email</th>
-                            <th>Parents Number</th>
-                            <th>Birthday</th>
-                            <th>Childs Name</th>
+                            {{-- <th>Parents Number</th> --}}
+                            {{-- <th>Birthday</th> --}}
+                            {{-- <th>Childs Name</th> --}}
                             <th>Parents Phone</th>
-                            <th>Last Updated</th>
+                            <th class="bg-info text-white">Last Updated</th>
                             <th class="bg-info text-white">Action</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @for ($i = 0; $i < 10; $i++)
-                            <tr>
-                                <td class="dt-control"></td>
-                                <td>{{ $i }}</td>
-                                <td>Lorem</td>
-                                <td>
-                                    <div class="badge badge-warning">
-                                        2 Similar Name
-                                    </div>
-                                </td>
-                                <td>Lorem</td>
-                                <td>Lorem</td>
-                                <td>Lorem</td>
-                                <td>Lorem</td>
-                                <td>Lorem</td>
-                                <td>Lorem</td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-danger py-1 px-2" onclick="confirmDelete('raw-data', 1)">
-                                        <i class="bi bi-eraser"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        @endfor
-                    </tbody>
                 </table>
             </div>
         </div>
@@ -124,43 +99,131 @@
             // Formatting function for row details - modify as you need
             function format(d) {
                 var similar = '<table class="table w-auto table-hover">'
-                similar +=
-                    '<th colspan=6>Comparison with Similar Names:</th>' +
-                    '</tr>' +
-                    '<tr>' +
-                    '<th>#</th><th>Name</th><th>Email</th><th>Phone Number</th><th>Child Name</th>' +
-                    '</tr>';
+                var childrens = '';
 
-                for (let i = 1; i <= 3; i++) {
-                    similar += '<tr onclick="comparison(' +
-                        1 + ',' + 2 + ')" class="cursor-pointer">' +
-                        '<td><input type="radio" name="similar' + 1 +
-                        '" class="form-check-input item-' + 2 + '" onclick="comparison(' +
-                        1 + ',' + 2 + ')" /></td>' +
-                        '<td>' + 'Name' + '</td>' +
-                        '<td>' + 'Email' + '</td>' +
-                        '<td>' + 'Phone Number' + '</td>' +
-                        '<td>' + 'Child Name' + '</td>' +
-                        '</tr>'
-                };
+                if (d.suggestion.length > 0) {
+                    similar +=
+                        '<th colspan=6>Comparison with Similar Names:</th>' +
+                        '</tr>' +
+                        '<tr>' +
+                        '<th>#</th><th>Name</th><th>Email</th><th>Phone Number</th><th>Child Name</th>' +
+                        '</tr>';
+
+                    d.suggestion.forEach(function(item, index) {
+                        childrens = '';
+                        if(item.childrens.length > 0){
+                            item.childrens.forEach(function(children, index){
+                               childrens += children.first_name + (children.last_name !== null ? ' ' + children.last_name : '');
+                               (item.childrens.length !== index+1 ? childrens += ', ' : '')
+                            })
+                        }
+
+                        similar += '<tr onclick="comparison(' +
+                            d.id + ',' + item.id + ')" class="cursor-pointer">' +
+                            '<td><input type="radio" name="similar' + d.id +
+                            '" class="form-check-input item-' + item.id + '" onclick="comparison(' +
+                            d.id + ',' + item.id + ')" /></td>' +
+                            '<td>' + item.first_name + ' ' + item.last_name + '</td>' +
+                            '<td>' + (item.mail !== null ? item.mail : '-') + '</td>' +
+                            '<td>' + (item.phone !== null ? item.phone : '-') + '</td>' +
+                            '<td>' +
+                                    (item.childrens.length > 0 ?
+                                        childrens
+                                    : '-') + '</td>' +
+                            '</tr>'
+
+                    })
+
+                }
+
+
 
                 similar +=
                     '<tr>' +
                     '<th colspan=6>Convert without Comparison</th>' +
                     '</tr>' +
                     '<tr class="cursor-pointer" onclick="newLeads(' +
-                    1 + ')">' +
-                    '<td><input type="radio" name="similar' + 1 +
-                    '" class="form-check-input item-' + 1 + '" onclick="newLeads(' +
-                    1 + ')" /></td>' +
-                    '<td colspan=5>New Student</td>' +
+                    d.id + ')">' +
+                    '<td><input type="radio" name="similar' + d.id +
+                    '" class="form-check-input item-' + d.id + '" onclick="newLeads(' +
+                    d.id + ')" /></td>' +
+                    '<td colspan=5>New Parent</td>' +
                     '</tr>' +
                     '</table>'
                 // `d` is the original data object for the row
                 return (similar);
             }
 
-            var table = $('#rawTable').DataTable();
+            var table = $('#rawTable').DataTable({
+                order: [
+                    // [20, 'desc'],
+                    [1, 'asc']
+                ],
+                dom: 'Bfrtip',
+                buttons: [
+                    'pageLength', {
+                        extend: 'excel',
+                        text: 'Export to Excel',
+                    }
+                ],
+                scrollX: true,
+                fixedColumns: {
+                    left: (widthView < 768) ? 1 : 2,
+                    right: 1
+                },
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '',
+                },
+                columns: [{
+                        className: 'dt-control',
+                        orderable: false,
+                        data: null,
+                        defaultContent: ''
+                    },
+                    {
+                        data: 'id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'fullname',
+                        render: function(data, type, row, meta) {
+                            return data
+                        }
+                    },
+                    {
+                        data: 'suggestion',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return data.length > 0 ?
+                                '<div class="badge badge-warning py-1 px-2 ms-2">' + data
+                                .length + ' Similar Names</div>' : '-'
+                        }
+                    },
+                    {
+                        data: 'mail',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'phone',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'updated_at',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: '',
+                        className: 'text-center',
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteRawClient"><i class="bi bi-trash2"></i></button>'
+                    },
+                ],
+            });
 
             // Add a click event listener to each row in the parent DataTable
             table.on('click', 'td.dt-control', function(e) {
@@ -174,6 +237,11 @@
                     // Open this row
                     row.child(format(row.data())).show();
                 }
+            });
+
+            $('#rawTable tbody').on('click', '.deleteRawClient ', function() {
+                var data = table.row($(this).parents('tr')).data();
+                confirmDelete('client/parent/raw', data.id)
             });
 
         });

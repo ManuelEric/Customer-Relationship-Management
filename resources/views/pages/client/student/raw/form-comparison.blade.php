@@ -158,17 +158,43 @@
                                             {{ $client->school_name ? $client->school_name : '-' }} <span
                                                 class="text-warning">(Existing Data)</span>
                                         </label>
+                                        @if($client->school_name != null)
+                                            @if($client->school->is_verified == 'Y')
+                                                <small class="text-success">
+                                                    <i class="bi bi-check-circle-fill"></i>
+                                                    Verified School
+                                                </small>
+                                            @else
+                                                <small class="text-danger">
+                                                    <i class="bi bi-info-circle-fill"></i>
+                                                    Not Verified School
+                                                </small>
+                                            @endif
+                                        @endif
                                     </div>
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input school" type="radio" name="school"
-                                            data-name="{{ $rawClient->school }}" id="schoolInput2"
+                                            data-name="{{ $rawClient->school_name }}" id="schoolInput2"
                                             onchange="checkInputRadio(this, 'school', 'select')"
-                                            value="{{ $rawClient->school }}">
+                                            value="{{ $rawClient->sch_id }}">
                                         <label class="form-check-label" for="schoolInput2">
-                                            {{ $rawClient->school ? $rawClient->school : '-' }} <span
+                                            {{ $rawClient->school_name ? $rawClient->school_name : '-' }} <span
                                                 class="text-info">(New
                                                 Data)</span>
                                         </label>
+                                        @if($rawClient->sch_id != null)
+                                            @if($rawClient->is_verified == 'Y')
+                                                <small class="text-success">
+                                                    <i class="bi bi-check-circle-fill"></i>
+                                                    Verified School
+                                                </small>
+                                            @else
+                                                <small class="text-danger">
+                                                    <i class="bi bi-info-circle-fill"></i>
+                                                    Not Verified School
+                                                </small>
+                                            @endif
+                                        @endif
                                     </div>
                                     <div class="row g-1">
                                         <div class="col-10">
@@ -277,7 +303,7 @@
         </div>
         <div class="col-md-5">
             <div class="card rounded position-sticky" style="top:15%;">
-                <form action="{{ route('client.convert', ['id' => $client->id, 'type' => 'merge']) }}" method="post">
+                <form action="{{ route('client.convert.student', ['client_id' => $client->id, 'type' => 'merge', 'rawclient_id' => $rawClient->id]) }}" method="post">
                     @csrf
                     <div class="card-header">
                         <h5>Summarize</h5>
@@ -285,7 +311,7 @@
                     <div class="card-body">
                         Preview first before convert this data
                         <hr class="my-1">
-                        <input type="hidden" name="id" id="existing_id">
+                        <input type="hidden" name="id" id="existing_id" value="{{$client->id}}">
                         <table class="table table-borderless">
                             <tr>
                                 <td width="30%">Full Name</td>

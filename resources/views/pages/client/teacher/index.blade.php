@@ -81,11 +81,11 @@
                         <th class="bg-info text-white">#</th>
                     </tr>
                 </thead>
-                <tfoot class="bg-light text-white">
+                {{-- <tfoot class="bg-light text-white">
                     <tr>
                         <td colspan="7"></td>
                     </tr>
-                </tfoot>
+                </tfoot> --}}
             </table>
         </div>
     </div>

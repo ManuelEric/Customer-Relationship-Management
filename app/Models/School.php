@@ -33,7 +33,8 @@ class School extends Model
         'sch_city',
         'sch_location',
         'sch_score',
-        'status'
+        'status',
+        'is_verified'
     ];
 
     public function createdAt(): Attribute
@@ -84,7 +85,7 @@ class School extends Model
 
     public function client()
     {
-        return $this->hasMany(UserClient::class, 'sch_uuid', 'uuid');
+        return $this->hasMany(UserClient::class, 'sch_id', 'sch_id');
     }
 
     public function schoolProgram()

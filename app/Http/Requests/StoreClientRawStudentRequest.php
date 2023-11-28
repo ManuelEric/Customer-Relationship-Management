@@ -8,7 +8,7 @@ use Illuminate\Validation\Rule;
 
 use function PHPSTORM_META\map;
 
-class StoreClientRawRequest extends FormRequest
+class StoreClientRawStudentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -35,9 +35,8 @@ class StoreClientRawRequest extends FormRequest
             'emailFinal' => 'required|email',
             'phoneFinal' => 'required|min:10|max:15',
             'graduationFinal' => 'nullable',
-            'gap_year' => 'nullable',
-            'schoolFinal' => 'required',
-            'parentType' => 'required|in:exist,new',
+            'schoolFinal' => 'nullable',
+            'parentType' => 'required|in:exist,new,exist_select',
             'parentName' => 'nullable',
             'parentMail' => 'nullable',
             'parentPhone' => 'nullable',
