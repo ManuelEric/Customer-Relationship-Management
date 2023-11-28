@@ -303,8 +303,8 @@
 @push('scripts')
     <script>
         $('#schoolExist').on('select2:unselect', function(e) {
-            $('#schoolNew').prop('disabled', false).val('{{ $rawClient->school }}')
-            $('#schoolPreview').html('{{ $rawClient->school }}')
+            $('#schoolNew').prop('disabled', false).val('{{ $rawClient->school_name }}')
+            $('#schoolPreview').html('{{ $rawClient->school_name }}')
             $('#schoolInputPreview').val('{{ $rawClient->sch_id }}')
         });
 
