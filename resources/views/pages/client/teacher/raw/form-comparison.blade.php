@@ -229,7 +229,11 @@
 
             // Sumarize 
             $('#' + init + 'InputPreview').val($(item).val())
-            $('#' + init + 'Preview').html($(item).val())
+            if ($(item).data('name')) {
+                $('#' + init + 'Preview').html($(item).data('name'))
+            } else {
+                $('#' + init + 'Preview').html($(item).val())
+            }
         }
 
         function checkInputText(item, init, type = null) {
@@ -241,7 +245,7 @@
                 } else {
                     $('#' + init + 'InputPreview').val($(item).val())
                 }
-                
+
                 $('#' + init + 'Preview').html($(item).val())
             }
 
