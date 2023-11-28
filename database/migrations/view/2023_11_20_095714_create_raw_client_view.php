@@ -20,16 +20,27 @@ return new class extends Migration
         CREATE OR REPLACE VIEW raw_client AS
         SELECT 
             rc.id,
-            rc.fullname,
+            CONCAT(rc.first_name, " ", COALESCE(rc.last_name, "")) as fullname,
             rc.mail,
             rc.phone,
-            rcp.uuid as parent_uuid,
-            rcp.fullname as parent_name,
-            rcp.mail as parent_mail,
-            rcp.phone as parent_phone,
-            rc.graduation_year,
-            rc.role,
-            rc.relation_key,
+            parent.is_verified as is_verifiedparent,
+            parent.id as parent_id,
+            CONCAT(parent.first_name, " ", COALESCE(parent.last_name, "")) as parent_name,
+            parent.mail as parent_mail,
+            parent.phone as parent_phone,
+            UpdateGradeStudent (
+                year(CURDATE()),
+                year(rc.created_at),
+                month(CURDATE()),
+                month(rc.created_at),
+                rc.st_grade
+            ) AS real_grade,
+            (CASE
+                WHEN (SELECT real_grade IS NULL) AND rc.graduation_year IS NOT NULL THEN (12 - (rc.graduation_year - YEAR(NOW())))  
+                ELSE (SELECT real_grade)
+            END) as grade_now,
+            (SELECT ((SELECT grade_now) - 12)) AS year_gap,
+            (SELECT YEAR((NOW() - INTERVAL (SELECT year_gap) YEAR) + INTERVAL 1 YEAR)) AS graduation_year_real,
             rc.lead_id,
             (CASE 
                 WHEN l.main_lead = "KOL" THEN CONCAT("KOL - ", l.sub_lead)
@@ -37,20 +48,31 @@ return new class extends Migration
             END) AS lead_source,
             sch.sch_id,
             sch.sch_name AS school_name,
-            sch.is_verified,
-            rc.interest_countries,
+            sch.is_verified AS is_verifiedschool,
+            (SELECT GROUP_CONCAT(
+                (CASE
+                    WHEN sqt.name = "Other" THEN sqac.country_name
+                    ELSE sqt.name 
+                END)
+                SEPARATOR ", "
+            ) FROM tbl_client_abrcountry sqac
+                JOIN tbl_tag sqt ON sqt.id = sqac.tag_id
+                WHERE sqac.client_id = rc.id GROUP BY sqac.client_id) as interest_countries,
             rc.created_at,
             rc.updated_at
             
         
-        FROM tbl_raw_client rc
-            LEFT JOIN tbl_raw_client rcp
-                ON rcp.relation_key = rc.relation_key
-                AND rcp.role = "parent"  
+        FROM tbl_client rc
+            LEFT JOIN tbl_client_relation cr
+                ON cr.child_id = rc.id
+            LEFT JOIN tbl_client parent
+                ON parent.id = cr.parent_id
             LEFT JOIN tbl_lead l
                 ON l.lead_id = rc.lead_id
             LEFT JOIN tbl_sch sch
                 ON sch.sch_id = rc.sch_id
+
+        WHERE rc.is_verified = "N"
         ');
     }
 

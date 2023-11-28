@@ -428,8 +428,10 @@ class ClientParentController extends ClientController
             'first_name' => $name['firstname'],
             'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
             'mail' => $request->emailFinal,
-            'phone' => $this->setPhoneNumber($request->phoneFinal)
+            'phone' => $this->setPhoneNumber($request->phoneFinal),
+            'is_verified' => 'Y'
         ];
+
 
         DB::beginTransaction();
         try {
@@ -456,7 +458,7 @@ class ClientParentController extends ClientController
             }
 
             # delete parent from raw client
-            $this->clientRepository->deleteRawClient($rawclientId);
+            $this->clientRepository->deleteClient($rawclientId);
 
 
             DB::commit();
@@ -478,7 +480,7 @@ class ClientParentController extends ClientController
         DB::beginTransaction();
         try {
 
-            $this->clientRepository->deleteRawClient($rawclientId);
+            $this->clientRepository->deleteClient($rawclientId);
             DB::commit();
         } catch (Exception $e) {
 

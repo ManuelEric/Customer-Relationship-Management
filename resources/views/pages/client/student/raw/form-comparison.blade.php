@@ -183,7 +183,7 @@
                                                 Data)</span>
                                         </label>
                                         @if($rawClient->sch_id != null)
-                                            @if($rawClient->is_verified == 'Y')
+                                            @if($rawClient->is_verifiedschool == 'Y')
                                                 <small class="text-success">
                                                     <i class="bi bi-check-circle-fill"></i>
                                                     Verified School
@@ -236,6 +236,19 @@
                                             {{ $client->parents()->count() > 0 ? $client->parents()->first()->first_name . ' ' . $client->parents()->first()->last_name : null }}
                                             <span class="text-warning">(Existing Data)</span>
                                         </label>
+                                        @if($client->parents()->count() > 0)
+                                            @if($client->parents()?->first()->is_verified == 'Y')
+                                                <small class="text-success">
+                                                    <i class="bi bi-check-circle-fill"></i>
+                                                    Verified
+                                                </small>
+                                            @else
+                                                <small class="text-danger">
+                                                    <i class="bi bi-info-circle-fill"></i>
+                                                    Not Verified
+                                                </small>
+                                            @endif
+                                        @endif
                                     </div>
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input parent" type="radio"
@@ -248,6 +261,19 @@
                                             {{ $rawClient->parent_name ? $rawClient->parent_name : '-' }} <span
                                                 class="text-info">(New Data)</span>
                                         </label>
+                                        @if($rawClient->is_verifiedparent != null)
+                                            @if($rawClient->is_verifiedparent == 'Y')
+                                                <small class="text-success">
+                                                    <i class="bi bi-check-circle-fill"></i>
+                                                    Verified
+                                                </small>
+                                            @else
+                                                <small class="text-danger">
+                                                    <i class="bi bi-info-circle-fill"></i>
+                                                    Not Verified
+                                                </small>
+                                            @endif
+                                        @endif
                                     </div>
                                     <div class="row my-2" id="parentDetail">
                                         <div class="col-md-4">

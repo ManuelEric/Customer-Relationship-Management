@@ -835,6 +835,7 @@ class ClientStudentController extends ClientController
             'phone' => $this->setPhoneNumber($request->phoneFinal),
             'graduation_year' => $request->graduationFinal,
             'sch_id' => $request->schoolFinal,
+            'is_verified' => 'Y'
         ];
 
         if ($request->parentName != null) {
@@ -844,6 +845,7 @@ class ClientStudentController extends ClientController
                 'last_name' => isset($parentName['lastname']) ? $parentName['lastname'] : null,
                 'mail' => $request->parentMail,
                 'phone' => isset($request->parentPhone) ? $this->setPhoneNumber($request->parentPhone) : null,
+                'is_verified' => 'Y'
             ];
             $parentId = $request->parentFinal;
         }
@@ -913,10 +915,10 @@ class ClientStudentController extends ClientController
                 $this->syncDestinationCountry($rawStudent->interest_countries, $student);
             
             # Delete raw parent
-            $rawStudent->parent_uuid != null ? $this->clientRepository->deleteRawClientByUUID($rawStudent->parent_uuid) : null;
+            // $rawStudent->parent_uuid != null ? $this->clientRepository->deleteRawClientByUUID($rawStudent->parent_uuid) : null;
             
             # delete student from raw client
-            $this->clientRepository->deleteRawClient($rawclientId);
+            $this->clientRepository->deleteClient($rawclientId);
 
 
             DB::commit();
@@ -938,7 +940,7 @@ class ClientStudentController extends ClientController
         DB::beginTransaction();
         try {
 
-            $this->clientRepository->deleteRawClient($rawclientId);
+            $this->clientRepository->deleteClient($rawclientId);
             DB::commit();
         } catch (Exception $e) {
 

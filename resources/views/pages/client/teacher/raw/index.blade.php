@@ -219,7 +219,18 @@
                     },
                     {
                         data: 'school_name',
-                        defaultContent: '-'
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            if(data != null){
+                                if(row.is_verifiedschool == 'Y'){
+                                    return data + '<div class="badge badge-success py-1 px-2 ms-2">Verified</div>'
+                                }else{
+                                    return data + '<div class="badge badge-danger py-1 px-2 ms-2">Not Verified</div>'
+                                }
+                            }else{
+                                return data
+                            }
+                        }
                     },
                     {
                         data: 'updated_at',
@@ -229,7 +240,7 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteRawClient"><i class="bi bi-trash2"></i></button>'
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-danger py-1 px-2 deleteRawClient"><i class="bi bi-eraser"></i></button>'
                     },
                 ],
             });

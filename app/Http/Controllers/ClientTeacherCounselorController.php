@@ -391,7 +391,8 @@ class ClientTeacherCounselorController extends ClientController
             'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
             'mail' => $request->emailFinal,
             'phone' => $this->setPhoneNumber($request->phoneFinal),
-            'sch_id' => $request->schoolFinal
+            'sch_id' => $request->schoolFinal,
+            'is_verified' => 'Y'
         ];
 
         DB::beginTransaction();
@@ -419,7 +420,7 @@ class ClientTeacherCounselorController extends ClientController
             }
 
             # delete parent from raw client
-            $this->clientRepository->deleteRawClient($rawclientId);
+            $this->clientRepository->deleteClient($rawclientId);
 
 
             DB::commit();

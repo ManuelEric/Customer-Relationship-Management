@@ -80,7 +80,7 @@
                                                     class="form-control form-control-sm" value="{{ $rawClient->school_name }}"
                                                     oninput="checkInputText(this, 'school')">
                                                 @if($rawClient->sch_id != null)
-                                                    @if($rawClient->is_verified == 'Y')
+                                                    @if($rawClient->is_verifiedschool == 'Y')
                                                         <small class="text-success">
                                                             <i class="bi bi-check-circle-fill"></i>
                                                             Verified School
@@ -149,7 +149,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="row">
-                                    @if ($rawClient->relation_key != null)
+                                    @if ($rawClient->parent_name != null)
                                         <div class="col-md-4">
                                             <label for="">Parent's Name</label>
                                             <input type="text" name="" id="parentName"
@@ -265,7 +265,7 @@
                                     <div id="parentPreview">{{ $rawClient->parent_name }}</div>
                                     <input type="hidden" name="parentType" id="parentTypeInput" value="new">
                                     <input type="hidden" name="parentFinal" id="parentInputPreview"
-                                        value="{{ $rawClient->parent_uuid }}">
+                                        value="{{ $rawClient->parent_id }}">
                                     <input type="hidden" name="parentName" id="parentNameInputPreview"
                                         value="{{ $rawClient->parent_name }}">
                                 </td>
@@ -319,7 +319,7 @@
             $('#parentPreview').html('{{ $rawClient->parent_name }}')
             $('#parentEmailPreview').html('{{ $rawClient->parent_mail }}')
             $('#parentPhonePreview').html('{{ $rawClient->parent_phone }}')
-            $('#parentInputPreview').val('{{ $rawClient->parent_uuid }}')
+            $('#parentInputPreview').val('{{ $rawClient->parent_id }}')
             $('#parentNameInputPreview').val('{{ $rawClient->parent_name }}')
             $('#parentEmailInputPreview').val('{{ $rawClient->parent_mail }}')
             $('#parentPhoneInputPreview').val('{{ $rawClient->parent_phone }}')
@@ -401,7 +401,7 @@
                         const last_name = element.last_name == null ? '' : ' ' + element.last_name
                         const fullname = element.first_name + last_name
                         $('#parentNew').append(
-                            '<option data-id="' + element.uuid + '" ' +
+                            '<option data-id="' + element.id + '" ' +
                             'data-name="' + fullname + '"' +
                             'data-email="' + element.mail + '"' +
                             'data-phone="' + element.phone + '"' +
