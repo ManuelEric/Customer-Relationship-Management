@@ -85,7 +85,7 @@ class School extends Model
 
     public function client()
     {
-        return $this->hasMany(UserClient::class, 'sch_uuid', 'uuid');
+        return $this->hasMany(UserClient::class, 'sch_id', 'sch_id');
     }
 
     public function schoolProgram()

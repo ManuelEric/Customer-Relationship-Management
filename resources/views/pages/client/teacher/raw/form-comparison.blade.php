@@ -252,13 +252,6 @@
             } else if (type == 'select') {
                 $('#' + init + 'New').val('').trigger('change')
 
-                if(init == 'school'){
-                    if ($(item).data('name')) {
-                        $('#' + init + 'Preview').html($(item).data('name'))
-                    } else {
-                        $('#' + init + 'Preview').html($(item).val())
-                    }
-                }
             }
 
             // Sumarize 
