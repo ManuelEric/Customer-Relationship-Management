@@ -62,6 +62,17 @@ class School extends Model
         return $instance->newQuery()->whereRaw('lower(sch_name) = ?', [$name])->first();
     }
 
+    # Scopes
+    public function scopeIsVerified($query)
+    {
+        return $query->where('is_verified', 'Y');
+    }
+
+    public function scopeIsNotVerified($query)
+    {
+        return $query->where('is_verified', 'N');
+    }
+
     # relation
     public function detail()
     {

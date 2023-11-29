@@ -22,15 +22,12 @@ return new class extends Migration
         
         BEGIN
         	DECLARE counted_program INTEGER DEFAULT 0;
-            DECLARE uuid INTEGER DEFAULT 0;
-
-            SELECT c.uuid INTO uuid FROM tbl_client c WHERE c.id = requested_client_id;
 
             SELECT COUNT(*) INTO counted_program FROM tbl_client_prog cp
                     JOIN tbl_prog p ON p.prog_id = cp.prog_id
                         JOIN tbl_main_prog mp ON mp.id = p.main_prog_id
                         JOIN tbl_sub_prog sp ON sp.id = p.sub_prog_id
-                    WHERE cp.client_uuid = uuid
+                    WHERE cp.client_id = requested_client_id
                         AND mp.prog_name = "Admissions Mentoring" AND cp.status = 1;
                    RETURN counted_program;
         END; //
@@ -45,15 +42,12 @@ return new class extends Migration
         
         BEGIN
         	DECLARE counted_program INTEGER DEFAULT 0;
-            DECLARE uuid INTEGER DEFAULT 0;
-
-            SELECT c.uuid INTO uuid FROM tbl_client c WHERE c.id = requested_client_id;
 
             SELECT COUNT(*) INTO counted_program FROM tbl_client_prog cp
                     JOIN tbl_prog p ON p.prog_id = cp.prog_id
                         JOIN tbl_main_prog mp ON mp.id = p.main_prog_id
                         JOIN tbl_sub_prog sp ON sp.id = p.sub_prog_id
-                    WHERE cp.client_uuid = uuid
+                    WHERE cp.client_id = requested_client_id
                         AND mp.prog_name != "Admissions Mentoring" AND cp.status = 1;
                    RETURN counted_program;
         END; //

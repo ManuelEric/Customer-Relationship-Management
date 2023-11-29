@@ -28,6 +28,17 @@
 @endpush
 
 @section('content')
+
+    @if ($duplicates_schools_string)
+    <div class="alert alert-warning">
+            
+        <p><i class="bi bi-exclamation-triangle"></i>
+            Please review the school data and make any necessary updates. There appear to be a few duplicate entries.<br><br>
+            Such as : <b>{{ $duplicates_schools_string }}</b>
+        </p>
+    </div>
+    @endif
+
     <div class="card bg-secondary mb-1 p-2">
         <div class="d-flex align-items-center justify-content-between">
             <h5 class="text-white m-0">
@@ -72,50 +83,6 @@
                             <th class="bg-info text-white">Action</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @for ($i = 0; $i < 10; $i++)
-                            <tr>
-                                <td class="text-center">
-                                    <input type="checkbox" class="editor-active cursor-pointer"
-                                        data-id="{{ $i }}">
-                                </td>
-                                <td>Lorem</td>
-                                <td>Lorem</td>
-                                <td>Lorem</td>
-                                <td>Lorem</td>
-                                <td>Lorem</td>
-                                <td>Lorem</td>
-                                <td class="text-center">
-                                    <div class="btn-group">
-                                        <p class="dropdown-toggle cursor-pointer" data-bs-toggle="dropdown"
-                                            aria-expanded="false">
-                                            Action
-                                        </p>
-                                        <ul class="dropdown-menu" style="font-size: 12px">
-                                            <li>
-                                                <div class="dropdown-item cursor-pointer" data-id="id" data-school="name"
-                                                    data-type="type" data-curriculum="2" onclick="convertNewSchool(this)">
-                                                    <i class="bi bi-plus-circle-dotted me-1"></i> Convert to New School
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div class="dropdown-item cursor-pointer" data-id="id" data-name="name"
-                                                    onclick="convertAliasSchool(this)">
-                                                    <i class="bi bi-bookmark-plus me-1"></i> Convert to Alias
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div class="dropdown-item text-danger cursor-pointer"
-                                                    onclick="confirmDelete('raw-school', 1)">
-                                                    <i class="bi bi-trash me-1"></i> Delete
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endfor
-                    </tbody>
                 </table>
             </div>
         </div>
@@ -126,7 +93,10 @@
         aria-labelledby="modalTitleId" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
-                <form action="">
+                <form action="#" method="POST" id="form-convert">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" name="sch_id">
                     <div class="modal-header">
                         <h5 class="modal-title" id="modalTitleId">Convert to New School</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -134,12 +104,12 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="">School Name</label>
-                            <input type="text" class="form-control form-control-sm">
+                            <input type="text" class="form-control form-control-sm" name="sch_name">
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="">Type</label>
-                                <select name="" id="typeSelect" class="w-100">
+                                <select name="sch_type" id="typeSelect" class="w-100">
                                     <option value=""></option>
                                     <option value="International">
                                         International</option>
@@ -156,7 +126,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="">Target</label>
-                                <select name="" id="targetSelect" class="w-100">
+                                <select name="sch_target" id="targetSelect" class="w-100">
                                     <option value=""></option>
                                     <option value="7">
                                         Up Market
@@ -172,12 +142,12 @@
                         </div>
                         <div class="mb-3">
                             <label for="">Address</label>
-                            <textarea name="" id="" rows="4"></textarea>
+                            <textarea name="sch_location" id="locationText" rows="4"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer d-flex justify-content-between">
                         <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-sm btn-primary">Convert</button>
+                        <button type="submit" class="btn btn-sm btn-primary">Convert</button>
                     </div>
                 </form>
             </div>
@@ -190,7 +160,9 @@
         role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-md" role="document">
             <div class="modal-content">
-                <form action="">
+                <form action="#" method="POST" id="form-alias">
+                    @csrf
+                    <input type="hidden" name="is_convert" value="true">
                     <div class="modal-header">
                         <h5 class="modal-title" id="modalTitleId">Convert to School Alias</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -198,11 +170,11 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="">Alias Name</label>
-                            <input type="text" name="" id="school_name" class="form-control form-control-sm">
+                            <input type="text" name="alias" class="form-control form-control-sm">
                         </div>
                         <div class="">
                             <label for="">School Name</label>
-                            <input type="hidden" name="" id="school_id">
+                            <input type="hidden" name="raw_sch_id" id="school_id">
                             <select class="w-100" name="school" id="schoolSelect">
                                 <option value=""></option>
                             </select>
@@ -210,7 +182,7 @@
                     </div>
                     <div class="modal-footer d-flex justify-content-between">
                         <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-sm btn-primary">Convert</button>
+                        <button type="submit" class="btn btn-sm btn-primary">Convert</button>
                     </div>
                 </form>
             </div>
@@ -218,6 +190,7 @@
     </div>
     {{-- End Convert to Alias --}}
 @endsection
+
 @push('scripts')
     <script>
         $("#targetSelect").select2({
@@ -300,6 +273,77 @@
                             multipleDelete();
                         }
                     }
+                ],
+                lengthMenu: [
+                    [10, 25, 50, 100, -1],
+                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
+                ],
+                scrollX: true,
+                fixedColumns: {
+                    left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
+                    // right: 1
+                },
+                processing: true,
+                serverSide: true,
+                ajax: '',
+                pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
+                columns: [{
+                        data: 'sch_id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return '<input type="checkbox" class="editor-active cursor-pointer" data-id="'+ meta.row + meta.settings._iDisplayStart+1 +'">'
+                        }
+                    },
+                    {
+                        data: 'sch_name',
+                    },
+                    {
+                        data: 'sch_type_text',
+                    },
+                    {
+                        data: 'curriculum',
+                        name: 'curriculum'
+                    },
+                    {
+                        data: 'sch_city',
+                    },
+                    {
+                        data: 'sch_location',
+                        type: 'html'
+                    },
+                    {
+                        data: 'status',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return data == 1 ? 'Active' : 'Inactive';
+                        }
+                    },
+                    {
+                        data: 'sch_id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return '<div class="btn-group">' +
+                                        '<p class="dropdown-toggle cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false"> Action </p>' +
+                                        '<ul class="dropdown-menu" style="font-size: 12px">' +
+                                            '<li>' +
+                                                '<div class="dropdown-item cursor-pointer" data-id="'+ row.sch_id +'" data-school="'+ row.sch_name +'" data-type="'+row.sch_type_text+'" data-target="'+ row.sch_score +'" data-address="'+ row.sch_location +'" onclick="convertNewSchool(this)">' +
+                                                    '<i class="bi bi-plus-circle-dotted me-1"></i> Convert to New School' +
+                                                '</div>' +
+                                            '</li>' +
+                                            '<li>' +
+                                                '<div class="dropdown-item cursor-pointer" data-id="'+ row.sch_id +'" data-name="'+ row.sch_name +'" onclick="convertAliasSchool(this)">' +
+                                                    '<i class="bi bi-bookmark-plus me-1"></i> Convert to Alias' +
+                                                '</div>' +
+                                            '</li>' +
+                                            '<li>' +
+                                                '<div class="dropdown-item text-danger cursor-pointer" onclick="confirmDelete(\'raw-school\', '+ row.sch_id +')">' +
+                                                    '<i class="bi bi-trash me-1"></i> Delete' +
+                                                '</div>' +
+                                            '</li>' +
+                                        '</ul>' +
+                                    '</div>';
+                        }
+                    }
                 ]
             });
 
@@ -362,14 +406,37 @@
         }
 
         function convertNewSchool(item) {
-            const school = $(item).data('school')
+            const id = $(item).data('id');
+            const school = $(item).data('school');
+            const type = $(item).data('type');
+            const target = $(item).data('target');
+            const address = $(item).data('address');
+
+            // fill the form
+            $("input[name=sch_id]").val(id);
+            $("input[name=sch_name]").val(school);
+            $("#typeSelect").val(type).trigger('change');
+            $("#targetSelect").val(target).trigger('change');
+            if (address)
+                tinymce.get('locationText').setContent(address)
+
+            // set url from javascript
+            var url = '{{ url('/') }}/instance/school/raw/' + id;
+            $("#form-convert").prop('action', url);
 
             $('#newSchool').modal('show')
-            console.log(school);
+            
         }
 
         function convertAliasSchool(item) {
             const id = $(item).data('id')
+            const alias = $(item).data('name');
+
+            $("input[name=alias]").val(alias);
+            $("#school_id").val(id);
+
+            var url = '{{ url('/') }}/instance/school/' + id + '/alias';
+            $("#form-alias").prop('action', url);
 
             syncSchool();
             $('#aliasSchool').modal('show')
@@ -384,7 +451,7 @@
                     $('#schoolSelect').append('<option value=""></option>')
                     data.forEach(element => {
                         $('#schoolSelect').append(
-                            '<option data-id="' + element.sch_id + '" value="' + element.sch_name + '">' +
+                            '<option data-id="' + element.sch_id + '" value="' + element.sch_id + '">' +
                             element.sch_name + '</option>'
                         )
                     });

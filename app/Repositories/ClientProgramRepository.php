@@ -594,7 +594,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         $userId = $this->getUser($cp_filter);
 
         return ClientProgram::
-            leftJoin('tbl_client', 'tbl_client.uuid', '=', 'tbl_client_prog.client_uuid')
+            leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
             ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client.lead_id')
             ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client.eduf_id')
             ->leftJoin('tbl_events', 'tbl_events.event_id', 'tbl_client.event_id')
@@ -1041,7 +1041,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         $userId = $this->getUser($cp_filter);
 
         return ClientProgram::
-            leftJoin('tbl_client', 'tbl_client.uuid', '=', 'tbl_client_prog.client_uuid')->
+            leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')->
             leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')->
             leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')->
             select([

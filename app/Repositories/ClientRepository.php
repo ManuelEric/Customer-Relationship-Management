@@ -862,6 +862,11 @@ class ClientRepository implements ClientRepositoryInterface
         return UserClient::whereRaw('SUBSTR(phone, 4) LIKE ?', ['%'.$phoneNumber.'%'])->first();
     }
 
+    public function getClientBySchool($schoolId)
+    {
+        return UserClient::where('sch_id', $schoolId)->get();
+    }
+
     public function getViewClientById($clientId)
     {
         return Client::find($clientId);

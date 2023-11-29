@@ -44,7 +44,7 @@ return new class extends Migration
         DB::statement('
         CREATE OR REPLACE VIEW client AS
         SELECT c.*,
-            CONCAT (c.first_name, " ", COALESCE(last_name, "")) as full_name,
+            CONCAT (c.first_name, " ", COALESCE(c.last_name, "")) as full_name,
             s.sch_name as school_name,
             (CASE 
                 WHEN l.main_lead = "KOL" THEN CONCAT("KOL - ", l.sub_lead)

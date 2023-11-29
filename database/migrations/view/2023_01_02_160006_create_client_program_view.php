@@ -69,7 +69,7 @@ return new class extends Migration
             LEFT JOIN program p
                 ON p.prog_id = cp.prog_id
             LEFT JOIN tbl_client c
-                ON c.uuid = cp.client_uuid
+                ON c.id = cp.client_id
                     LEFT JOIN tbl_sch sch
                         ON sch.sch_id = c.sch_id
                     LEFT JOIN tbl_lead cl
