@@ -471,6 +471,5 @@
             window.open("{{ url('client/student/raw/') }}" + '/' + id + '/new', "_blank");
         }
 
-        
     </script>
 @endpush
