@@ -85,7 +85,7 @@
                                 <td>:</td>
                                 <td>
                                     <div id="phonePreview"></div>
-                                    <input type="hidden" name="phoneFinal" id="phoneInputPreview" value="">
+                                    <input type="text" name="phoneFinal" id="phoneInputPreview" value="">
                                 </td>
                             </tr>
                         </table>
@@ -107,6 +107,7 @@
         function checkInputText(item, init, type = null) {
             if ($(item).val() != "") {
                 $('#' + init + 'Preview').html($(item).val())
+                $('#' + init + 'InputPreview').val($(item).val())
             }
         }
     </script>
