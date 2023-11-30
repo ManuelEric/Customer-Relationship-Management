@@ -15,12 +15,38 @@ return new class extends Migration
     public function up()
     {
 
+        DB::statement('
+        DELIMITER //
+
+        CREATE OR REPLACE FUNCTION CountSuggest ( fname VARCHAR(50), mname VARCHAR(50), lname VARCHAR(50) )
+        RETURNS INTEGER
+
+            BEGIN
+                DECLARE count_suggest INTEGER DEFAULT 0; 
+
+                SELECT COUNT(*) INTO count_suggest from tbl_client
+                    WHERE first_name like "%" + fname + "%"
+                        OR first_name like "%" + mname + "%"
+                        OR first_name like "%" + lname + "%"
+                        OR last_name like "%" + fname + "%"
+                        OR last_name like "%" + mname + "%"
+                        OR last_name like "%" + lname + "%";
+
+                RETURN count_suggest;
+            END; //
+
+        DELIMITER ;
+        ');
 
         DB::statement('
         CREATE OR REPLACE VIEW raw_client AS
         SELECT 
             rc.id,
             CONCAT(rc.first_name, " ", COALESCE(rc.last_name, "")) as fullname,
+            SUBSTRING_INDEX(SUBSTRING_INDEX((SELECT fullname), " ", 1), " ", -1) as fname,
+            SUBSTRING_INDEX(SUBSTRING_INDEX((SELECT fullname), " ", 2), " ", -1) as mname,
+            SUBSTRING_INDEX(SUBSTRING_INDEX((SELECT fullname), " ", 3), " ", -1) as lname,
+            countSuggest (select fname, select mname, select lname) as suggest,
             rc.mail,
             rc.phone,
             parent.is_verified as is_verifiedparent,
@@ -72,7 +98,7 @@ return new class extends Migration
             LEFT JOIN tbl_sch sch
                 ON sch.sch_id = rc.sch_id
 
-        WHERE rc.is_verified = "N"
+        WHERE rc.is_verified = "N" AND rc.deleted_at is null
         ');
     }
 

@@ -1198,7 +1198,19 @@ class ClientRepository implements ClientRepositoryInterface
                     ->whereHas('roles', function ($q) use ($roleName) {
                         $q->where('role_name', $roleName);
                     })
-                    ->where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->fullname . '%')
+                    ->where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like',  $data->fullname . ' %')
+                    ->orWhere(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', ' %' . $data->fullname . '%')
+                    ->orWhere(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '% ' . $data->fullname . ' %')
+                    ->orWhere(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->fullname . '%')
+                    
+                    // ->where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->fname . '%')
+                    // ->orWhere(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->mname . '%')
+                    // ->orWhere(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->lname . '%')
+                    
+                    // ->where('first_name', 'like', '%' . $data->fname . '%')
+                    // ->orWhere('first_name', 'like', '%' . $data->mname . '%')
+                    // ->orWhere('last_name', 'like', '%' . $data->mname . '%')
+                    // ->orWhere('last_name', 'like', '%' . $data->lname . '%')
                     ->where('is_verified', 'Y')
                     ->get();
                 return $client->toArray();
