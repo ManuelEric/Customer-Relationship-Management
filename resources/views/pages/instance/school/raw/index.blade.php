@@ -399,7 +399,8 @@
                         })
                         .then(function (response) {
                             swal.close();
-                            notification('success', response.message);
+                            notification('success', response.data.message);
+                            $("#rawTable").DataTable().ajax.reload()
                         })
                         .catch(function (error) {
                             swal.close();
