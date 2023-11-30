@@ -25,12 +25,13 @@ return new class extends Migration
                 DECLARE count_suggest INTEGER DEFAULT 0; 
 
                 SELECT COUNT(*) INTO count_suggest from tbl_client
-                    WHERE first_name like "%" + fname + "%"
-                        OR first_name like "%" + mname + "%"
-                        OR first_name like "%" + lname + "%"
-                        OR last_name like "%" + fname + "%"
-                        OR last_name like "%" + mname + "%"
-                        OR last_name like "%" + lname + "%";
+                    WHERE first_name like fname COLLATE utf8mb4_unicode_ci
+                        OR first_name like mname COLLATE utf8mb4_unicode_ci
+                        OR first_name like lname COLLATE utf8mb4_unicode_ci
+                        OR last_name like fname COLLATE utf8mb4_unicode_ci
+                        OR last_name like mname COLLATE utf8mb4_unicode_ci
+                        OR last_name like lname COLLATE utf8mb4_unicode_ci
+                        AND is_verified = "Y";
 
                 RETURN count_suggest;
             END; //
