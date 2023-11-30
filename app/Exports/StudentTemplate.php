@@ -10,6 +10,7 @@ use App\Models\School;
 use App\Models\UserClient;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
@@ -19,9 +20,10 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PDO;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class StudentTemplate implements FromCollection, WithHeadings, WithEvents, WithStrictNullComparison, WithTitle, WithStyles
+class StudentTemplate implements FromCollection, WithHeadings, WithEvents, WithStrictNullComparison, WithTitle, WithStyles, WithColumnFormatting
 {
 
     /**
@@ -59,6 +61,7 @@ class StudentTemplate implements FromCollection, WithHeadings, WithEvents, WithS
             'Year of Study Abroad',
             'Country of Study Abroad',
             'Interest Major',
+            'Joined Date'
         ];
 
         return $columns;
@@ -232,10 +235,17 @@ class StudentTemplate implements FromCollection, WithHeadings, WithEvents, WithS
         return 'Student';
     }
 
+    public function columnFormats(): array
+    {
+        return [
+            'X' => NumberFormat::FORMAT_DATE_YYYYMMDD,
+        ];
+    }
+
     public function styles(Worksheet $sheet)
     {
-        $sheet->getStyle('A1:W1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'D9D9D9'],]);
-        $sheet->getStyle('A1:W1')->getFont()->setSize(14);
+        $sheet->getStyle('A1:X1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'D9D9D9'],]);
+        $sheet->getStyle('A1:X1')->getFont()->setSize(14);
         $sheet->getStyle('A1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('B1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('C1')->getFont()->getColor()->setARGB('FF0000');
