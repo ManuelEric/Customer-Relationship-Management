@@ -42,16 +42,16 @@ return new class extends Migration
      */
     public function down()
     {
-        // Schema::table('tbl_client_prog', function (Blueprint $table) {
-        //     $table->unsignedBigInteger('client_id')->nullable()->after('clientprog_id');
-        //     $table->foreign('client_id')->references('id')->on('tbl_client')->onUpdate('cascade')->onDelete('cascade');
-        // });
+        Schema::table('tbl_client_prog', function (Blueprint $table) {
+            $table->unsignedBigInteger('client_id')->nullable()->after('clientprog_id');
+            $table->foreign('client_id')->references('id')->on('tbl_client')->onUpdate('cascade')->onDelete('cascade');
+        });
 
-        // DB::statement('
-        //     UPDATE tbl_client_prog cp 
-        //     LEFT JOIN tbl_client c ON c.uuid = cp.client_uuid 
-        //     SET cp.client_id = c.id
-        // ');
+        DB::statement('
+            UPDATE tbl_client_prog cp 
+            LEFT JOIN tbl_client c ON c.uuid = cp.client_uuid 
+            SET cp.client_id = c.id
+        ');
 
         Schema::table('tbl_client_prog', function (Blueprint $table) {
             $table->dropForeign('tbl_client_prog_client_uuid_foreign');

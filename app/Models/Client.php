@@ -137,7 +137,7 @@ class Client extends Model
 
     public function clientProgram()
     {
-        return $this->hasMany(ClientProgram::class, 'client_uuid', 'uuid');
+        return $this->hasMany(ClientProgram::class, 'client_id', 'id');
     }
     
     public function clientEvent()

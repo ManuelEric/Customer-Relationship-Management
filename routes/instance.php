@@ -9,6 +9,7 @@ use App\Http\Controllers\SchoolAliasController;
 use App\Http\Controllers\PartnerAgreementController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\SchoolProgramController;
+use App\Http\Controllers\SchoolRawController;
 use App\Http\Controllers\SchoolVisitController;
 use App\Http\Controllers\UniversityPicController;
 use Illuminate\Support\Facades\Route;
@@ -18,12 +19,18 @@ Route::prefix('university')->name('university.')->group(function () {
     Route::resource('{university}/detail', UniversityPicController::class);
 });
 
-Route::get('school/raw', function () {
-    return view('pages.instance.school.raw.index');
-});
-Route::get('school/raw/1/new', function () {
-    return view('pages.instance.school.raw.form-new');
-});
+
+Route::resource('school/raw', SchoolRawController::class, [
+    'names' => [
+        'index' => 'school.raw.index',
+        'store' => 'school.raw.store',
+        'create' => 'school.raw.create',
+        'show' => 'school.raw.show',
+        'update' => 'school.raw.update',
+        'edit' => 'school.raw.edit',
+        'destroy' => 'school.raw.destroy',
+    ]
+]);
 Route::resource('school', SchoolController::class);
 Route::prefix('school')->name('school.')->group(function() {
     Route::resource('{school}/detail', SchoolDetailController::class);

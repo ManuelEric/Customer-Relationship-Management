@@ -175,7 +175,7 @@ class RefundRepository implements RefundRepositoryInterface
             leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')->
             leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')->
             leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
-            ->leftJoin('tbl_client', 'tbl_client.uuid', '=', 'tbl_client_prog.client_uuid')->
+            ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')->
             leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_sch_prog.sch_id')->
             leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')
             ->leftJoin('program as b2c_c_p', 'b2c_c_p.prog_id', '=', 'tbl_client_prog.prog_id')->

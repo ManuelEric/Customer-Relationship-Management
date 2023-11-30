@@ -54,7 +54,6 @@ class SchoolController extends Controller
 
     public function index(Request $request)
     {
-
         if ($request->ajax())
             return $this->schoolRepository->getAllSchoolDataTables();
         
@@ -100,6 +99,7 @@ class SchoolController extends Controller
         $last_id = School::max('sch_id');
         $school_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 4) : '0000';
         $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
+        
 
         DB::beginTransaction();
         try {
@@ -293,4 +293,18 @@ class SchoolController extends Controller
             ]
         );
     }
+
+    ################################
+    ############## RAW #############
+    ################################
+    
+    public function raw_index()
+    {
+
+    }
+
+    ################################
+    ########### RAW END ############
+    ################################
+
 }

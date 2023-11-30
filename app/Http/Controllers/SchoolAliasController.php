@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SchoolAliasRequest;
+use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use Exception;
 use Illuminate\Http\Request;
@@ -14,10 +15,12 @@ class SchoolAliasController extends Controller
 {
 
     protected SchoolRepositoryInterface $schoolRepository;
+    protected ClientRepositoryInterface $clientRepository;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository)
+    public function __construct(SchoolRepositoryInterface $schoolRepository, ClientRepositoryInterface $clientRepository)
     {
         $this->schoolRepository = $schoolRepository;
+        $this->clientRepository = $clientRepository;
     }
 
     public function store(SchoolAliasRequest $request)
@@ -36,7 +39,28 @@ class SchoolAliasController extends Controller
                 'alias' => $alias
             ];
 
+            if ($request->is_convert) {
+                $main_school = $request->school;
+                $details['sch_id'] = $main_school;
+            }
+
             $this->schoolRepository->createNewAlias($details);
+
+            # if is_convert is true
+            # meaning that they store from form-alias on list school
+            # meaning the raw school must be deleted
+            if ($request->is_convert) {
+                $rawSchId = $request->raw_sch_id;
+
+                # getting all client that has deleted (soon) school
+                $clientIds = $this->clientRepository->getClientBySchool($rawSchId)->pluck('id')->toArray();
+                $this->clientRepository->updateClients($clientIds, ['sch_id' => $details['sch_id']]);
+
+                # delete raw school
+                $this->schoolRepository->deleteSchool($rawSchId);
+            }
+            # end process from convert to alias
+            
             DB::commit();
 
         } catch (Exception $e) {

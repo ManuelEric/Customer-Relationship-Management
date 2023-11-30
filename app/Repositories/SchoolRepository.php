@@ -24,9 +24,15 @@ class SchoolRepository implements SchoolRepositoryInterface
         $this->schoolCurriculumRepository = $schoolCurriculumRepository;
     }
 
-    public function getAllSchoolDataTables()
+    public function getAllSchoolDataTables($isRaw = false)
     {
-        $query = School::orderBy('created_at', 'desc');
+        $query = School::orderBy('created_at', 'desc')->
+                    when($isRaw, function ($subQuery) {
+                        $subQuery->isNotVerified();
+                    }, function ($subQuery) {
+                        $subQuery->isVerified();
+                    });
+
         return Datatables::eloquent($query)->rawColumns(['sch_location'])
             ->addColumn('sch_type_text', function ($data) {
                 return str_replace('_', ' ', $data->sch_type);
@@ -154,10 +160,23 @@ class SchoolRepository implements SchoolRepositoryInterface
 
     public function getDuplicateSchools()
     {
-        return School::select([
+        return School::isVerified()->select([
                 DB::raw('COUNT(*) as count'),
                 'tbl_sch.sch_name',
             ])->groupBy('sch_name')->havingRaw('count > 1')->get();
+    }
+
+    public function getDuplicateUnverifiedSchools()
+    {
+        return School::isNotVerified()->select([
+            DB::raw('COUNT(*) as count'),
+            'tbl_sch.sch_name',
+        ])->groupBy('sch_name')->havingRaw('count > 1')->get();
+    }
+
+    public function getUnverifiedSchools()
+    {
+        return School::isNotVerified();
     }
 
     public function createSchools(array $schoolDetails)
@@ -168,6 +187,11 @@ class SchoolRepository implements SchoolRepositoryInterface
     public function updateSchool($schoolId, array $newDetails)
     {
         return School::whereSchoolId($schoolId)->update($newDetails);
+    }
+
+    public function updateSchools(array $schoolIds, array $newDetails)
+    {
+        return School::whereIn('sch_id', $schoolIds)->update($newDetails);
     }
 
     public function cleaningSchool()

@@ -23,8 +23,7 @@ return new class extends Migration
         BEGIN
         	DECLARE counted_program INTEGER DEFAULT 0;
             SELECT COUNT(*) INTO counted_program FROM tbl_client_prog cp
-                LEFT JOIN tbl_client c ON c.uuid = cp.client_uuid
-                    WHERE c.id = requested_client_id;
+                    WHERE cp.client_id = requested_client_id;
                    RETURN counted_program;
         END; //
        DELIMITER ;
