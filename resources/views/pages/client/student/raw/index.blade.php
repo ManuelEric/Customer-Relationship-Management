@@ -459,7 +459,6 @@
             $('input.item-' + id).prop('checked', true);
             window.open("{{ url('client/student/raw/') }}" + '/' + id + '/new', "_blank");
         }
-
         
     </script>
 @endpush
