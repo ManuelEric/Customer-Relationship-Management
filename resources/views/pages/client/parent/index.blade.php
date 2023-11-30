@@ -60,15 +60,6 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs flex-nowrap overflow-auto w-100 mb-3" style="overflow-y: hidden !important;">
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap" aria-current="page" href="{{ url('client/parent/raw') }}">Raw
-                        Data</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap active" aria-current="page" href="{{ url('client/parent') }}">Parents</a>
-                </li>
-            </ul>
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="clientTable">
                 <thead class="bg-secondary text-white">
                     <tr class="text-center" role="row">

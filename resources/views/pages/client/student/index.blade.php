@@ -58,7 +58,7 @@
                                         <select name="school_name[]" class="select form-select form-select-sm w-100"
                                             multiple id="school-name">
                                             @foreach ($advanced_filter['schools'] as $school)
-                                                <option value="{{ $school->sch_name }}" {{ Request::get('sch') == $school->sch_name && Request::get('sch') != '' && Request::get('sch') != null ? 'selected' : null }}>{{ $school->sch_name }}</option>
+                                                <option value="{{ $school->sch_name }}">{{ $school->sch_name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -147,10 +147,6 @@
     <div class="card rounded">
         <div class="card-body">
             <ul class="nav nav-tabs flex-nowrap overflow-auto w-100 mb-3" style="overflow-y: hidden !important;">
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap"
-                        aria-current="page" href="{{ url('client/student/raw') }}">Raw Data</a>
-                </li>
                 <li class="nav-item">
                     <a class="nav-link text-nowrap {{ Request::get('st') == 'new-leads' ? 'active' : '' }}"
                         aria-current="page" href="{{ url('client/student?st=new-leads') }}">New Leads</a>

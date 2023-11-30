@@ -314,21 +314,7 @@ class InvoiceB2BBaseController extends Controller
         else
             $program_name = $invoiceB2b->{$this->module['name']}->{$this->module['program']['attribute']};
 
-
-        # assuming if the main program is referral then referral_type is 'Out'
-        # then the program name should be fetched from additional program name
-        if (!isset($invoiceB2b->{$this->module['name']}->{$this->module['program']['class']}->main_prog)) {
-
-            $param_program_name = $invoiceB2b->{$this->module['name']}->additional_prog_name;
-
-        } else {
-
-            $param_program_name = isset($invoiceB2b->{$this->module['name']}->{$this->module['program']['class']}->sub_prog) 
-                ? $invoiceB2b->{$this->module['name']}->{$this->module['program']['class']}->main_prog->prog_name . ' - ' . $invoiceB2b->{$this->module['name']}->{$this->module['program']['class']}->sub_prog->sub_prog_name 
-                : $invoiceB2b->{$this->module['name']}->{$this->module['program']['class']}->main_prog->prog_name;
-        }
-
-
+        $param_program_name = isset($invoiceB2b->{$this->module['name']}->{$this->module['program']['class']}->sub_prog) ? $invoiceB2b->{$this->module['name']}->{$this->module['program']['class']}->main_prog->prog_name . ' - ' . $invoiceB2b->{$this->module['name']}->{$this->module['program']['class']}->sub_prog->sub_prog_name : $invoiceB2b->{$this->module['name']}->{$this->module['program']['class']}->main_prog->prog_name;
 
         if (!isset($invoiceB2b->{$this->module['name']}->user)) {
             return response()->json(

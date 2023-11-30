@@ -5,14 +5,12 @@ namespace App\Http\Controllers;
 use App\Exceptions\StoreNewSchoolException;
 use App\Exports\StudentTemplate;
 use App\Http\Controllers\Module\ClientController;
-use App\Http\Requests\StoreClientRawRequest;
 use App\Http\Requests\StoreClientStudentRequest;
 use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\FindStatusClientTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
-use App\Http\Traits\SyncClientTrait;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
@@ -55,7 +53,6 @@ class ClientStudentController extends ClientController
     use FindStatusClientTrait;
     use StandardizePhoneNumberTrait;
     use LoggingTrait;
-    use SyncClientTrait;
 
     protected ClientRepositoryInterface $clientRepository;
     protected SchoolRepositoryInterface $schoolRepository;
@@ -165,16 +162,6 @@ class ClientStudentController extends ClientController
         $entries = app('App\Services\ClientStudentService')->getClientStudent();
 
         return view('pages.client.student.index')->with($entries);
-    }
-
-    public function indexRaw(Request $request)
-    {
-        if ($request->ajax()) {   
-            return $this->clientRepository->getAllRawClientDataTables();
-        }
-    
-        return view('pages.client.student.raw.index');
-
     }
 
     public function show(Request $request)
@@ -783,96 +770,5 @@ class ClientStudentController extends ClientController
         $this->logSuccess('delete', null, 'Interest Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['client_id' => $studentId]);
 
         return Redirect::to('client/student/' . $studentId)->withSuccess('interest program successfully removed.');
-    }
-
-    public function cleaningData(Request $request)
-    {
-        $type = $request->route('type');
-        $rawClientId = $request->route('rawclient_id');
-        $clientId = $request->route('client_id');
-
-        DB::beginTransaction();
-        try {
-
-            $rawClient = $this->clientRepository->getRawClientById($rawClientId);
-            $clientId != null ? $client = $this->clientRepository->getClientById($clientId) : null;    
-            
-            DB::commit();
-        } catch (Exception $e) {
-            DB::rollBack();
-
-            Log::error('Fetch data raw client failed : ' . $e->getMessage() . ' '. $e->getLine());
-            return Redirect::to('client/student/raw')->withError('Something went wrong. Please try again or contact the administrator.');
-        }
-
-        switch ($type) {
-            case 'comparison':
-                return view('pages.client.student.raw.form-comparison')->with([
-                    'rawClient' => $rawClient,
-                    'client' => $client
-                ]);
-                break;
-
-            case 'new':
-                return view('pages.client.student.raw.form-new')->with([
-                    'rawClient' => $rawClient,
-                ]);
-                break;
-        }
-
-    }
-
-    public function convertData(StoreClientRawRequest $request)
-    {
-        
-     
-
-        $type = $request->route('type');
-        $studentId = $request->id;    
-
-        $name = $this->explodeName($request->nameFinal);
-
-        $parentType = $request->parentType;
-
-        $clientDetails = [
-            'first_name' => $name['firstname'],
-            'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
-            'mail' => $request->emailFinal,
-            'phone' => $request->phoneFinal,
-            'graduation_year' => $request->graduationFinal,
-            'sch_id' => $request->schoolFinal,
-        ];
-
-        if($parentType == 'new')
-        {
-            $parentName = $this->explodeName($request->parentName);
-            $parentDetails = [
-                'first_name' => $parentName['firstname'],
-                'last_name' => isset($parentName['lastname']) ? $parentName['lastname'] : null,
-                'mail' => $request->parentMail,
-                'phone' => $request->parentPhone,
-            ];
-        }else{
-            $parentId = $request->parentFinal;
-        }
-
-        switch ($type) {
-            case 'merge':
-                $this->clientRepository->updateClient($studentId, $clientDetails);
-                if($parentType == 'new')
-                {
-                    $parent = $this->clientRepository->createClient('parent', $parentDetails);
-                    $this->clientRepository->attachClientRelation($parent->id, $studentId);
-                }else{
-                    $this->clientRepository->attachClientRelation($parentId, $studentId);
-                }
-                
-                break;
-            
-            case 'new':
-                $this->clientRepository->createClient('student', $clientDetails);
-                break;
-           
-        }
     }
 }

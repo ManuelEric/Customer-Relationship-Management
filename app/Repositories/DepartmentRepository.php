@@ -17,6 +17,6 @@ class DepartmentRepository implements DepartmentRepositoryInterface
     public function getEmployeeByDepartment($departmentId)
     {
         $department = Department::find($departmentId);
-        return $department->users()->wherePivot('tbl_user_type_detail.status', 1)->get();
+        return $department->users;
     }
 }

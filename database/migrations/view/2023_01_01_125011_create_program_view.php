@@ -37,16 +37,7 @@ return new class extends Migration
                 END)
             ELSE
                 CONCAT(mp.prog_name COLLATE utf8mb4_unicode_ci, ' : ', pr.prog_program COLLATE utf8mb4_unicode_ci)
-            END) as program_name,
-            (SELECT COUNT(*) FROM tbl_client_prog scp
-                WHERE scp.prog_id = pr.prog_id AND scp.status = 0) as connected_program_pending,
-            (SELECT COUNT(*) FROM tbl_client_prog scp
-                WHERE scp.prog_id = pr.prog_id AND scp.status = 1) as connected_program_success,
-            (SELECT COUNT(*) FROM tbl_client_prog scp
-                WHERE scp.prog_id = pr.prog_id AND scp.status = 2) as connected_program_failed,
-            (SELECT COUNT(*) FROM tbl_client_prog scp
-                WHERE scp.prog_id = pr.prog_id AND scp.status = 3) as connected_program_refund
-            
+            END) as program_name
 
         FROM tbl_prog pr
         LEFT JOIN tbl_main_prog mp 

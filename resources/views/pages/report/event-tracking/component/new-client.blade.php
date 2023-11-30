@@ -54,18 +54,18 @@
                     </li>
                 @endif
 
-                @if ($newClient->where('register_as', 'teacher/counsellor')->count() > 0)
+                @if ($newClient->where('register_as', 'teacher/counselor')->count() > 0)
                     <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
                         <div class="">Teacher / Counselor</div>
                         <div class="dropdown">
                             <span class="badge badge-info dropdown-toggle" data-bs-toggle="dropdown">
-                                {{ $newClient->where('register_as', 'teacher/counsellor')->count() }}
+                                {{ $newClient->where('register_as', 'teacher/counselor')->count() }}
                             </span>
                             <div class="dropdown-menu overflow-auto text-center px-2"
                                 style="max-width: 450px; max-height:200px;">
-                                {{ $newClient->where('register_as', 'teacher/counsellor')->count() > 0 ? '' : 'There is no data.' }}
+                                {{ $newClient->where('register_as', 'teacher/counselor')->count() > 0 ? '' : 'There is no data.' }}
                                 <table class="table table-striped table-hover">
-                                    @foreach ($newClient->where('register_as', 'teacher/counsellor') as $item)
+                                    @foreach ($newClient->where('register_as', 'teacher/counselor') as $item)
                                         <tr>
                                             <td>{{ $loop->index + 1 }}</td>
                                             <td>{{ $item->client->full_name }}</td>

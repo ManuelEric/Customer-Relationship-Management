@@ -104,16 +104,27 @@ class ReportController extends Controller
 
         # query existing mentee from client event
         $existingMentee = $this->clientEventRepository->getExistingMenteeFromClientEvent($eventId);
+        $id_mentee = $existingMentee->pluck('client_id')->toArray();
 
 
         # query existing non mentee from client event
         $existingNonMentee = $this->clientEventRepository->getExistingNonMenteeFromClientEvent($eventId);
+        $id_nonMentee = $existingNonMentee->pluck('client_id')->toArray();
 
 
-        $undefinedClients = $this->clientEventRepository->getUndefinedClientFromClientEvent($eventId);
-        $existingNonClient = $undefinedClients->whereNotNull('main_prog_id');
-        $newClient = $undefinedClients->whereNull('main_prog_id');
-        // return $newClient;
+        $undefinedClients = $clients->whereNotIn('client_id', $id_nonMentee)->whereNotIn('client_id', $id_mentee)->unique('client_id');
+        // return count($undefinedClients);
+
+        $checkClient = $this->checkExistingOrNewClientEvent($undefinedClients);
+
+        $id_nonClient = $this->getIdClient($checkClient->where('type', 'ExistNonClient'));
+
+        $existingNonClient = $clients->whereIn('client_id', $id_nonClient)->unique('client_id');
+
+        $id_newClient = $this->getIdClient($checkClient->where('type', 'New'));
+
+        $newClient = $clients->whereIn('client_id', $id_newClient)->unique('client_id');
+
 
         return view('pages.report.event-tracking.index')->with(
             [
