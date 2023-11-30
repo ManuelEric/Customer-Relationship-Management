@@ -103,7 +103,7 @@ class SchoolRawController extends Controller
         return $this->single_destroy($request);
 
     }
-#
+
     private function single_destroy(Request $request)
     {
         $rawSchoolId = $request->route('raw');
