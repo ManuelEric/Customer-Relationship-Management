@@ -291,7 +291,7 @@
                         data: 'sch_id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            return '<input type="checkbox" class="editor-active cursor-pointer" data-id="'+ meta.row + meta.settings._iDisplayStart+1 +'">'
+                            return '<input type="checkbox" class="editor-active cursor-pointer" data-id="'+ row.sch_id +'">'
                         }
                     },
                     {
@@ -336,7 +336,7 @@
                                                 '</div>' +
                                             '</li>' +
                                             '<li>' +
-                                                '<div class="dropdown-item text-danger cursor-pointer" onclick="confirmDelete(\'raw-school\', '+ row.sch_id +')">' +
+                                                '<div class="dropdown-item text-danger cursor-pointer" onclick="confirmDelete(\'instance/school/raw\', \''+ row.sch_id + '\')">' +
                                                     '<i class="bi bi-trash me-1"></i> Delete' +
                                                 '</div>' +
                                             '</li>' +
@@ -392,8 +392,20 @@
                 }).then((result) => {
                     /* Read more about isConfirmed, isDenied below */
                     if (result.isConfirmed) {
-                        // function for multiple delete 
-                        Swal.fire("Saved!", "", "success");
+                        showLoading();
+                        var link = '{{ route("school.raw.bulk.destroy") }}';
+                        axios.post(link, {
+                            choosen : selected
+                        })
+                        .then(function (response) {
+                            swal.close();
+                            notification('success', response.data.message);
+                            $("#rawTable").DataTable().ajax.reload()
+                        })
+                        .catch(function (error) {
+                            swal.close();
+                            notification('error', error.message);
+                        })
                     }
                 });
             } else {
@@ -459,7 +471,7 @@
                 })
                 .catch(function(error) {
                     swal.close()
-                    console.log(error);
+                    notification('error', error.message);
                 })
         }
     </script>

@@ -766,6 +766,11 @@ class ClientRepository implements ClientRepositoryInterface
         return UserClient::where('sch_id', $schoolId)->get();
     }
 
+    public function getClientInSchool(array $schoolIds)
+    {
+        return UserClient::whereIn('sch_id', $schoolIds)->get();
+    }
+
     public function getViewClientById($clientId)
     {
         return Client::find($clientId);

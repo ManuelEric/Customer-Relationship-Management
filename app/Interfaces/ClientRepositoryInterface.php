@@ -45,6 +45,7 @@ interface ClientRepositoryInterface
     public function getClientByMonthCreatedAt(array $createdAt);
     public function getClientByPhoneNumber($phoneNumber);
     public function getClientBySchool($schoolId);
+    public function getClientInSchool(array $schoolIds);
     public function getViewClientById($clientId);
     public function getViewClientByUUID($clientUUID);
     public function checkIfClientIsMentee($clientId);
