@@ -8,7 +8,7 @@
         <div class="d-flex align-items-center justify-content-between">
             <h5 class="text-white m-0">
                 <i class="bi bi-tag me-1"></i>
-                Schools
+                School
             </h5>
             <a href="{{ url('instance/school/create') }}" class="btn btn-sm btn-info"><i class="bi bi-plus-square me-1"></i> Add
                 School</a>
@@ -18,6 +18,17 @@
 
     <div class="card rounded">
         <div class="card-body">
+            <ul class="nav nav-tabs flex-nowrap overflow-auto w-100 mb-3" style="overflow-y: hidden !important;">
+                <li class="nav-item">
+                    <a class="nav-link text-nowrap" aria-current="page" href="{{ url('instance/school/raw') }}">Raw
+                        Data</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-nowrap active" aria-current="page" href="{{ url('instance/school') }}">School</a>
+                </li>
+            </ul>
+
+
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="schoolTable">
                 <thead class="bg-secondary text-white">
                     <tr>

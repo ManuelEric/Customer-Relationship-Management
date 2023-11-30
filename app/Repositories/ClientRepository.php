@@ -18,8 +18,10 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Models\ClientAcceptance;
 use App\Models\ClientLeadTracking;
+use App\Models\RawClient;
 use App\Models\University;
 use App\Models\User;
+use App\Models\ViewRawClient;
 use Illuminate\Support\Str; 
 
 class ClientRepository implements ClientRepositoryInterface
@@ -934,6 +936,15 @@ class ClientRepository implements ClientRepositoryInterface
         })->first();
     }
 
+    public function attachClientRelation($parentId, $studentId)
+    {
+        $student = UserClient::where('id', $studentId)->first();
+
+        $student->parents()->attach($parentId);
+        return $student;
+    }
+
+
     # connecting student with parents
     public function createClientRelation($parentId, $studentId)
     {
@@ -1245,4 +1256,26 @@ class ClientRepository implements ClientRepositoryInterface
         $student->interestPrograms()->wherePivot('id', $interestProgram)->detach($progId);
         return $student;
     }
+
+    public function getAllRawClientDataTables()
+    {
+        return Datatables::eloquent(ViewRawClient::query())
+        ->addColumn('suggestion', function ($data) {
+            $a = UserClient::with('school')->where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->fullname .'%')->get();
+            return $a->toArray();
+        })
+        ->make(true);
+    }
+
+    public function getRawClientById($rawClientId)
+    {
+        return ViewRawClient::where('id', $rawClientId)->first();
+    }
+
+    public function deleteRawClient($rawClientId)
+    {
+        return RawClient::destroy($rawClientId);
+    }
+
+    
 }

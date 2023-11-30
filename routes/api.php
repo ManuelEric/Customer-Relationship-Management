@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\v1\SalesDashboardController;
 use App\Http\Controllers\Api\v1\PartnerDashboardController;
 use App\Http\Controllers\Api\v1\FinanceDashboardController;
 use App\Http\Controllers\ClientEventController;
+use App\Http\Controllers\ClientParentController;
 use App\Http\Controllers\ClientStudentController;
 use App\Http\Controllers\ClientTeacherCounselorController;
 use App\Http\Controllers\CorporateController;
@@ -23,6 +24,7 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ReceiptSchoolController;
 use App\Http\Controllers\ReceiptPartnerController;
 use App\Http\Controllers\ReceiptReferralController;
+use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolEventController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -148,3 +150,9 @@ Route::get('event/party/{id}/{party}', [ClientEventController::class, 'updateNum
 
 # Get URL from short URL
 Route::get('track/referral/{referral}', [ClientEventController::class, 'trackReferralURL']);
+
+# Get Active School Data
+Route::get('instance/school/', [SchoolController::class, 'getSchoolData']);
+
+# Get Parents Data
+Route::get('client/parent/', [ClientParentController::class, 'getDataParents']);
