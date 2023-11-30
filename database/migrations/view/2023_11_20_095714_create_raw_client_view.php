@@ -46,7 +46,7 @@ return new class extends Migration
             SUBSTRING_INDEX(SUBSTRING_INDEX((SELECT fullname), " ", 1), " ", -1) as fname,
             SUBSTRING_INDEX(SUBSTRING_INDEX((SELECT fullname), " ", 2), " ", -1) as mname,
             SUBSTRING_INDEX(SUBSTRING_INDEX((SELECT fullname), " ", 3), " ", -1) as lname,
-            countSuggest (select fname, select mname, select lname) as suggest,
+            countSuggest ((select fname), (select mname), (select lname)) as suggest,
             rc.mail,
             rc.phone,
             parent.is_verified as is_verifiedparent,
