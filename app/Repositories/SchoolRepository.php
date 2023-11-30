@@ -116,7 +116,17 @@ class SchoolRepository implements SchoolRepositoryInterface
 
     public function deleteSchool($schoolId)
     {
+        return School::whereSchoolId($schoolId)->forceDelete();
+    }
+
+    public function moveToTrash($schoolId)
+    {
         return School::whereSchoolId($schoolId)->delete();
+    }
+
+    public function moveBulkToTrash(array $schoolIds)
+    {
+        return School::whereIn('sch_id', $schoolIds)->delete();
     }
 
     public function createSchool(array $schoolDetails)
@@ -177,6 +187,16 @@ class SchoolRepository implements SchoolRepositoryInterface
     public function getUnverifiedSchools()
     {
         return School::isNotVerified();
+    }
+
+    public function findUnverifiedSchool($schoolId)
+    {
+        return School::isNotVerified()->whereSchoolId($schoolId);
+    }
+
+    public function findVerifiedSchool($schoolId)
+    {
+        return School::isVerified()->whereSchoolId($schoolId);
     }
 
     public function createSchools(array $schoolDetails)

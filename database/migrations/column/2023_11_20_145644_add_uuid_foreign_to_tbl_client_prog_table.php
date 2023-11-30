@@ -18,16 +18,16 @@ return new class extends Migration
         # 2. Running client program view 
         # 3. Running function check participated 
         
-        Schema::table('tbl_client_prog', function (Blueprint $table) {
-            $table->string('client_uuid', 36)->nullable()->after('client_id');
-            $table->foreign('client_uuid')->references('uuid')->on('tbl_client')->onUpdate('cascade')->onDelete('cascade');
-        });
+        // Schema::table('tbl_client_prog', function (Blueprint $table) {
+        //     $table->string('client_uuid', 36)->nullable()->after('client_id');
+        //     $table->foreign('client_uuid')->references('uuid')->on('tbl_client')->onUpdate('cascade')->onDelete('cascade');
+        // });
 
-        DB::statement('
-            UPDATE tbl_client_prog cp 
-            LEFT JOIN tbl_client c ON c.id = cp.client_id 
-            SET cp.client_uuid = c.uuid
-        ');
+        // DB::statement('
+        //     UPDATE tbl_client_prog cp 
+        //     LEFT JOIN tbl_client c ON c.id = cp.client_id 
+        //     SET cp.client_uuid = c.uuid
+        // ');
 
         // Schema::table('tbl_client_prog', function (Blueprint $table) {
         //     $table->dropForeign('tbl_client_prog_client_id_foreign');

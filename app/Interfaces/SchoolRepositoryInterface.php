@@ -16,9 +16,13 @@ interface SchoolRepositoryInterface
     public function getUnverifiedSchools();
 
     public function deleteSchool($schoolId);
+    public function moveToTrash($schoolId);
+    public function moveBulkToTrash(array $schoolIds);
     public function createSchool(array $schoolDetails);
     public function createSchoolIfNotExists(array $schoolDetails, array $schoolCurriculum);
     public function findSchoolByTerms($searchTerms);
+    public function findUnverifiedSchool($schoolId);
+    public function findVerifiedSchool($schoolId);
     public function attachCurriculum($schoolId, array $curriculums);
     public function createSchools(array $schoolDetails);
     public function updateSchool($schoolId, array $schoolDetails);

@@ -14,21 +14,21 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('tbl_client', function (Blueprint $table) {
-            $table->string('sch_uuid', 39)->nullable()->after('sch_id')->collation('utf8mb4_general_ci');
-            $table->foreign('sch_uuid')->references('uuid')->on('tbl_sch')->onUpdate('cascade')->onDelete('cascade');
-        });
+        // Schema::table('tbl_client', function (Blueprint $table) {
+        //     $table->string('sch_uuid', 39)->nullable()->after('sch_id')->collation('utf8mb4_general_ci');
+        //     $table->foreign('sch_uuid')->references('uuid')->on('tbl_sch')->onUpdate('cascade')->onDelete('cascade');
+        // });
 
-        DB::statement('
-            UPDATE tbl_client c
-            LEFT JOIN tbl_sch s ON s.sch_id = c.sch_id
-            SET c.sch_uuid = s.uuid
-        ');
+        // DB::statement('
+        //     UPDATE tbl_client c
+        //     LEFT JOIN tbl_sch s ON s.sch_id = c.sch_id
+        //     SET c.sch_uuid = s.uuid
+        // ');
 
-        Schema::table('tbl_client', function (Blueprint $table) {
-            $table->dropForeign('tbl_client_sch_id_foreign');
-            $table->dropColumn('sch_id');
-        });
+        // Schema::table('tbl_client', function (Blueprint $table) {
+        //     $table->dropForeign('tbl_client_sch_id_foreign');
+        //     $table->dropColumn('sch_id');
+        // });
     }
 
     /**

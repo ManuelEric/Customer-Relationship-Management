@@ -31,6 +31,7 @@ Route::resource('school/raw', SchoolRawController::class, [
         'destroy' => 'school.raw.destroy',
     ]
 ]);
+Route::post('school/raw/bulk/delete', [SchoolRawController::class ,'destroy'])->name('school.raw.bulk.destroy');
 Route::resource('school', SchoolController::class);
 Route::prefix('school')->name('school.')->group(function() {
     Route::resource('{school}/detail', SchoolDetailController::class);

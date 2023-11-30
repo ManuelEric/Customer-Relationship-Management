@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSchoolRawRequest;
 use App\Http\Traits\LoggingTrait;
+use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use Exception;
 use Illuminate\Http\Request;
@@ -16,10 +17,12 @@ class SchoolRawController extends Controller
 {
     use LoggingTrait;
     protected SchoolRepositoryInterface $schoolRepository;
+    protected ClientRepositoryInterface $clientRepository;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository)
+    public function __construct(SchoolRepositoryInterface $schoolRepository, ClientRepositoryInterface $clientRepository)
     {
         $this->schoolRepository = $schoolRepository;
+        $this->clientRepository = $clientRepository;
     }
 
     public function index(Request $request)
@@ -88,4 +91,72 @@ class SchoolRawController extends Controller
 
         return Redirect::to('instance/school/raw')->   withSuccess('Convert raw school success');
     }
+
+
+    public function destroy (Request $request)
+    {
+        # when is method 'POST' meaning the function come from bulk delete
+        $isBulk = $request->isMethod('POST') ? true : false;
+        if ($isBulk)
+            return $this->bulk_destroy($request); 
+        
+        return $this->single_destroy($request);
+
+    }
+
+    private function single_destroy(Request $request)
+    {
+        $rawSchoolId = $request->route('raw');
+        if (!$school = $this->schoolRepository->findUnverifiedSchool($rawSchoolId))
+            Redirect::back()->withError('School does not exists');
+
+        DB::beginTransaction();
+        try {
+
+            $this->schoolRepository->moveToTrash($rawSchoolId);
+            
+            # get all client that tagged with the school
+            # and remove the school that being deleted
+            $clients = $this->clientRepository->getClientBySchool($rawSchoolId)->pluck('id')->toArray();
+            $this->clientRepository->updateClients($clients, ['sch_id' => NULL]);
+            DB::commit();
+
+        } catch (Exception $e) {
+         
+            DB::rollBack();
+            Log::error('Failed to delete raw school failed : ' . $e->getMessage());
+            return Redirect::to('instance/school/raw')->withError('Failed to delete raw school');
+
+        }
+
+        return Redirect::to('instance/school/raw')->   withSuccess('Delete raw school success');
+    }
+
+    private function bulk_destroy(Request $request)
+    {
+        # raw school id that being choose from list raw data school
+        $rawSchoolIds = $request->choosen;
+        DB::beginTransaction();
+        try {
+
+            $this->schoolRepository->moveBulkToTrash($rawSchoolIds);
+
+            # get all client that tagged with the school
+            # and remove the school that being deleted
+            $clients = $this->clientRepository->getClientInSchool($rawSchoolIds)->pluck('id')->toArray();
+            $this->clientRepository->updateClients($clients, ['sch_id' => NULL]);
+
+            DB::commit();
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Failed to bulk delete raw school failed : ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to delete raw school']);
+
+        }
+
+        return response()->json(['success' => true, 'message' => 'Delete raw school success']);
+    }
+
 }
