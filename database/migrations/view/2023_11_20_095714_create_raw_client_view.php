@@ -18,13 +18,13 @@ return new class extends Migration
         DB::statement('
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION CountSuggest ( fname VARCHAR(50), mname VARCHAR(50), lname VARCHAR(50) )
-        RETURNS INTEGER
+        CREATE OR REPLACE FUNCTION GetClientSuggestion ( fname VARCHAR(50), mname VARCHAR(50), lname VARCHAR(50) )
+        RETURNS TEXT
 
             BEGIN
-                DECLARE count_suggest INTEGER DEFAULT 0; 
+                DECLARE id_similiar TEXT DEFAULT NULL; 
 
-                SELECT COUNT(*) INTO count_suggest from tbl_client
+                SELECT GROUP_CONCAT(id) INTO id_similiar from tbl_client
                     WHERE first_name like fname COLLATE utf8mb4_unicode_ci
                         OR first_name like mname COLLATE utf8mb4_unicode_ci
                         OR first_name like lname COLLATE utf8mb4_unicode_ci
@@ -33,7 +33,7 @@ return new class extends Migration
                         OR last_name like lname COLLATE utf8mb4_unicode_ci
                         AND is_verified = "Y";
 
-                RETURN count_suggest;
+                RETURN id_similiar;
             END; //
 
         DELIMITER ;
@@ -47,7 +47,7 @@ return new class extends Migration
             SUBSTRING_INDEX(SUBSTRING_INDEX((SELECT fullname), " ", 1), " ", -1) as fname,
             SUBSTRING_INDEX(SUBSTRING_INDEX((SELECT fullname), " ", 2), " ", -1) as mname,
             SUBSTRING_INDEX(SUBSTRING_INDEX((SELECT fullname), " ", 3), " ", -1) as lname,
-            countSuggest ((select fname), (select mname), (select lname)) as suggest,
+            GetClientSuggestion ((select fname), (select mname), (select lname)) as suggest,
             rc.mail,
             rc.phone,
             parent.is_verified as is_verifiedparent,
