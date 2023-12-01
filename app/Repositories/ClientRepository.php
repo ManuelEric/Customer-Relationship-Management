@@ -1178,48 +1178,12 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getAllRawClientDataTables($roleName)
     {
-        $relation = [];
-        switch ($roleName) {
-            case 'student':
-                $relation = ['school', 'clientProgram.program', 'parents'];
-                break;
-
-            case 'parent':
-                $relation = ['school', 'childrens'];
-
-                break;
-
-            case 'teacher/counselor':
-                $relation = ['school'];
-                break;
-        }
 
         return Datatables::eloquent(
             ViewRawClient::whereHas('roles', function ($query2) use ($roleName) {
                 $query2->where('role_name', $roleName);
             }))
-            ->addColumn('suggestion', function ($data) use ($roleName, $relation) {
-                $client = UserClient::with($relation)
-                    ->whereHas('roles', function ($q) use ($roleName) {
-                        $q->where('role_name', $roleName);
-                    })
-                    ->where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like',  $data->fullname . ' %')
-                    ->orWhere(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', ' %' . $data->fullname . '%')
-                    ->orWhere(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '% ' . $data->fullname . ' %')
-                    ->orWhere(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->fullname . '%')
-                    
-                    // ->where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->fname . '%')
-                    // ->orWhere(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->mname . '%')
-                    // ->orWhere(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), 'like', '%' . $data->lname . '%')
-                    
-                    // ->where('first_name', 'like', '%' . $data->fname . '%')
-                    // ->orWhere('first_name', 'like', '%' . $data->mname . '%')
-                    // ->orWhere('last_name', 'like', '%' . $data->mname . '%')
-                    // ->orWhere('last_name', 'like', '%' . $data->lname . '%')
-                    ->where('is_verified', 'Y')
-                    ->get();
-                return $client->toArray();
-            })
+           
             ->make(true);
     }
 
@@ -1241,5 +1205,27 @@ class ClientRepository implements ClientRepositoryInterface
     public function deleteRawClientByUUID($rawClientUUID)
     {
         return RawClient::where('uuid', $rawClientUUID)->delete();
+    }
+
+    public function getClientSuggestion($clientIds, $roleName)
+    {
+
+        $relation = [];
+        switch ($roleName) {
+            case 'student':
+                $relation = ['school', 'clientProgram.program', 'parents'];
+                break;
+
+            case 'parent':
+                $relation = ['school', 'childrens'];
+
+                break;
+
+            case 'teacher/counselor':
+                $relation = ['school'];
+                break;
+        }
+
+        return UserClient::with($relation)->whereIn('id', $clientIds)->get();
     }
 }

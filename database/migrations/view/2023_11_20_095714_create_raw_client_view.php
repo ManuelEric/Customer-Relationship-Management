@@ -18,20 +18,44 @@ return new class extends Migration
         DB::statement('
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION GetClientSuggestion ( fname VARCHAR(50), mname VARCHAR(50), lname VARCHAR(50) )
+        CREATE OR REPLACE FUNCTION GetRoleClient ( client_id INTEGER )
+        RETURNS INTEGER
+
+            BEGIN
+                DECLARE role_id INTEGER DEFAULT NULL; 
+
+                SELECT tbl_client_roles.role_id into role_id FROM tbl_client 
+                    LEFT JOIN tbl_client_roles ON tbl_client_roles.client_id = tbl_client.id 
+                where tbl_client.id = client_id 
+                GROUP by tbl_client.id;
+
+                RETURN role_id;
+            END; //
+
+        DELIMITER ;
+        ');
+
+        DB::statement('
+        DELIMITER //
+
+        CREATE OR REPLACE FUNCTION GetClientSuggestion ( fname VARCHAR(50), mname VARCHAR(50), lname VARCHAR(50), role_id INTEGER)
         RETURNS TEXT
 
             BEGIN
                 DECLARE id_similiar TEXT DEFAULT NULL; 
 
-                SELECT GROUP_CONCAT(id) INTO id_similiar from tbl_client
-                    WHERE first_name like fname COLLATE utf8mb4_unicode_ci
+                SELECT GROUP_CONCAT(DISTINCT(tbl_client.id)) INTO id_similiar
+                    from tbl_client
+                    LEFT JOIN tbl_client_roles ON tbl_client_roles.client_id = tbl_client.id  
+                    WHERE (tbl_client.is_verified = "Y"
+                        AND tbl_client_roles.role_id = role_id
+                        AND tbl_client.deleted_at is null) 
+                        AND (first_name like fname COLLATE utf8mb4_unicode_ci
                         OR first_name like mname COLLATE utf8mb4_unicode_ci
                         OR first_name like lname COLLATE utf8mb4_unicode_ci
                         OR last_name like fname COLLATE utf8mb4_unicode_ci
                         OR last_name like mname COLLATE utf8mb4_unicode_ci
-                        OR last_name like lname COLLATE utf8mb4_unicode_ci
-                        AND is_verified = "Y";
+                        OR last_name like lname COLLATE utf8mb4_unicode_ci);
 
                 RETURN id_similiar;
             END; //
@@ -47,7 +71,7 @@ return new class extends Migration
             SUBSTRING_INDEX(SUBSTRING_INDEX((SELECT fullname), " ", 1), " ", -1) as fname,
             SUBSTRING_INDEX(SUBSTRING_INDEX((SELECT fullname), " ", 2), " ", -1) as mname,
             SUBSTRING_INDEX(SUBSTRING_INDEX((SELECT fullname), " ", 3), " ", -1) as lname,
-            GetClientSuggestion ((select fname), (select mname), (select lname)) as suggest,
+            GetClientSuggestion ((select fname), (select mname), (select lname), GetRoleClient(rc.id)) as suggestion,
             rc.mail,
             rc.phone,
             parent.is_verified as is_verifiedparent,

@@ -332,4 +332,17 @@ class ClientController extends Controller
 
         return true;
     }
+
+    public function getClientSuggestion(Request $request)
+    {
+        $clientIds = $request->get('clientIds');
+        $roleName = $request->get('roleName');
+        $clientSuggestion = $this->clientRepository->getClientSuggestion($clientIds, $roleName);
+        return response()->json(
+            [
+                'success' => true,
+                'data' => $clientSuggestion
+            ]
+        );
+    }
 }

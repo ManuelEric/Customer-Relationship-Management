@@ -172,7 +172,7 @@ class ClientStudentController extends ClientController
     {
         if ($request->ajax()) {
             return $this->clientRepository->getAllRawClientDataTables('student');
-        }
+            }
 
         return view('pages.client.student.raw.index');
     }
