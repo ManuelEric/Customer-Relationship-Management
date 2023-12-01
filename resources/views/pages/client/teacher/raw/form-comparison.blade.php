@@ -143,7 +143,7 @@
                                                 Data)</span>
                                         </label>
                                         @if($rawClient->sch_id != null)
-                                            @if($rawClient->is_verified == 'Y')
+                                            @if($rawClient->is_verifiedschool == 'Y')
                                                 <small class="text-success">
                                                     <i class="bi bi-check-circle-fill"></i>
                                                     Verified School

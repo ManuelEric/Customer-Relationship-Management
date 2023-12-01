@@ -61,8 +61,10 @@ class SendReminderInvoiceProgramToReferral extends Command
     
                 $partner_name = $data->partner_name;
                 $partner_pics = $data->referral->partner->pic;
+
+                # when the partner doesnt have PIC
                 if ($partner_pics->count() == 0) {
-                    # collect data parents that have no email
+                    # collect data partner that have no email
                     $partner_have_no_pic[] = [
                         'partner_name' => $partner_name,
                     ];
@@ -86,31 +88,42 @@ class SendReminderInvoiceProgramToReferral extends Command
     
                 $mail_resources = 'pages.invoice.referral.mail.reminder-payment';
     
-                try {
-                    Mail::send($mail_resources, $params, function ($message) use ($params, $subject) {
-                        $message->to($params['partner_mail'], $params['partner_pic'])
-                            ->cc([env('FINANCE_CC'), $params['pic_email']])
-                            ->subject($subject);
-                    });
-                } catch (Exception $e) {
+                if (isset($partner_pic_name) && isset($partner_pic_mail)) {
+                    
+                    try {
+                        Mail::send($mail_resources, $params, function ($message) use ($params, $subject) {
+                            $message->to($params['partner_mail'], $params['partner_pic'])
+                                ->cc([env('FINANCE_CC'), $params['pic_email']])
+                                ->subject($subject);
+                        });
+                    } catch (Exception $e) {
+        
+                        Log::error('Failed to send invoice reminder to ' . $partner_pic_mail . ' caused by : ' . $e->getMessage() . ' | Line ' . $e->getLine());
+                        return $this->error($e->getMessage() . ' | Line ' . $e->getLine());
+                    }
+        
+                    $this->info('Invoice reminder has been sent to ' . $partner_pic_mail);
+        
+                    # update reminded count to 1
+                    $data->reminded = 1;
+                    $data->save();
     
-                    Log::error('Failed to send invoice reminder to ' . $partner_pic_mail . ' caused by : ' . $e->getMessage() . ' | Line ' . $e->getLine());
-                    return $this->error($e->getMessage() . ' | Line ' . $e->getLine());
-                }
-    
-                $this->info('Invoice reminder has been sent to ' . $partner_pic_mail);
-    
-                # update reminded count to 1
-                $data->reminded = 1;
-                $data->save();
+                    # remove from mail log if the identifier mail has been successfully sent
+                    if ($logExist)
+                        $this->generalMailLogRepository->removeLog($invoiceB2bId);
 
-                # remove from mail log if the identifier mail has been successfully sent
-                if ($logExist)
-                    $this->generalMailLogRepository->removeLog($invoiceB2bId);
+                } else {
+                    
+                    Log::error('Invoice Referral cannot be sent because the partner ('.$partner_name.') don\'t have mail');
+
+                }
+
     
                 $progressBar->advance();
             }
     
+            # check if variable partner have no pic has value in it
+            # meaning that partner doesnt have a pic
             if (count($partner_have_no_pic) > 0 && !$logExist) {
                 $params = [
                     'finance_name' => env('FINANCE_NAME'),

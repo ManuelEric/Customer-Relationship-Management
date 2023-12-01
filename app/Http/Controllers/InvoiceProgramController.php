@@ -179,7 +179,9 @@ class InvoiceProgramController extends Controller
 
         $invoiceDetails['inv_category'] = $invoiceDetails['is_session'] == "yes" ? "session" : $param;
         $invoiceDetails['session'] = isset($invoiceDetails['session']) && $invoiceDetails['session'] != 0 ? $invoiceDetails['session'] : 0;
-        $invoiceDetails['currency'] = $currency;
+        if ($currency !== null)
+            $invoiceDetails['currency'] = $currency;
+
         $invoiceDetails['inv_paymentmethod'] = $invoiceDetails['inv_paymentmethod'] == "full" ? 'Full Payment' : 'Installment';
 
         DB::beginTransaction();
@@ -903,13 +905,35 @@ class InvoiceProgramController extends Controller
 
     public function remindParentsByWhatsapp(Request $request)
     {
+        # sendTo is determined when clicking the recipient modal
+        # whether parent or children
+        $sendTo = $request->sendTo;
+
         $parent = $request->parent_id != null ? $this->clientRepository->getClientById($request->parent_id) : null;
-        $client = $this->clientRepository->getClientById($parent != null ? $request->parent_id : $request->client_id);
 
-        $parent_fullname = $request->parent_fullname;
-        $phone = $request->phone;
+        switch ($sendTo) {
 
-        $client->phone != $phone ? $this->clientRepository->updateClient($client->id, ['phone' => $phone]) : null;
+            case "parent":
+                $client = $this->clientRepository->getClientById($parent != null ? $request->parent_id : $request->client_id);
+                break;
+
+            case "child":
+                $client = $this->clientRepository->getClientById($request->client_id); # client id means child id
+                break;
+
+        }
+        
+        # get the data from blade
+        $target_fullname = $client->full_name;
+        $phone = $request->phone; # this value is from input name target_phone in blade view, will be changed depends on sendTo
+
+        # check if the phone number has changed or not
+        # if the phone number changed then update the client data on database
+        if ($client->phone != $phone) {
+
+            Log::debug('Phone number changed from : '.$client->phone.' to : '.$phone);
+            $this->clientRepository->updateClient($client->id, ['phone' => $phone]);
+        }
 
         $joined_program_name = ucwords(strtolower($request->program_name));
         $joined_program_name = str_replace('&', '%26', $joined_program_name);
@@ -927,7 +951,7 @@ class InvoiceProgramController extends Controller
         }
         // $payment_method = $request->payment_method != 'Full Payment' ? ' (' . $request->payment_method . ')' : '';
 
-        $text = $parent != null ? "Dear Mr/Mrs " . $parent_fullname . "," : "Dear " . $client->first_name . " " . $client->last_name . ",";
+        $text = $parent != null ? "Dear Mr/Mrs " . $target_fullname . "," : "Dear " . $client->first_name . " " . $client->last_name . ",";
         $text .= "%0A";
         $text .= "%0A";
         $text .= "Thank you for trusting ALL-in Eduspace as your independent university consultant to help your child reach their dream to top universities.";

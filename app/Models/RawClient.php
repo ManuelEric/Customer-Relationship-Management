@@ -49,4 +49,9 @@ class RawClient extends Authenticatable
         return $this->belongsTo(School::class, 'sch_id', 'sch_id');
     }
 
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'tbl_client_roles', 'client_id', 'role_id');
+    }
+
 }
