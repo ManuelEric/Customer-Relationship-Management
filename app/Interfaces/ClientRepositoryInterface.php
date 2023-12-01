@@ -88,6 +88,7 @@ interface ClientRepositoryInterface
     public function getRawClientById($rawClientId);
     public function deleteRawClient($rawClientId);
     public function deleteRawClientByUUID($rawClientUUID);
+    public function getClientSuggestion(array $clientIds, $roleName);
 
     # CRM
     public function getStudentFromV1();
