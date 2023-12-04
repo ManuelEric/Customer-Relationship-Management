@@ -38,7 +38,7 @@ class StoreSchoolRequest extends FormRequest
         $sch_id = $this->route('school');
 
         return [
-            'sch_name' => 'required|unique:tbl_sch,sch_name',
+            'sch_name' => 'required',
             'sch_type' => 'required|in:International,National,National_plus,National_private,Home_schooling',
             'sch_curriculum' => 'required',
             'sch_curriculum.*' => 'sometimes|exists:tbl_curriculum,id',

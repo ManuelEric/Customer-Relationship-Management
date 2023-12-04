@@ -544,7 +544,7 @@
         </div>
     </div>
 
-    @if ($client_prog->client->parents->count() > 0)
+    {{-- @if ($client_prog->client->parents->count() > 0) --}}
     <div class="modal fade" id="sendToClientModal" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -576,12 +576,12 @@
                         <input type="hidden" name="clientprog_id" id="clientprog_id"
                             value="{{ $client_prog->clientprog_id }}" class="form-control w-100">
                         <input type="hidden" name="client_id" id="client_id"
-                            value="{{ $client_prog->client->parents[0]->id }}" class="form-control w-100">
+                            value="{{ $client_prog->client->parents->count() > 0 ? $client_prog->client->parents[0]->id : null}}" class="form-control w-100">
                             {{-- value="{{ $client_prog->client->id }}" class="form-control w-100"> --}}
                         <label for="">Email Parent</label>
                         
                         <input type="mail" name="mail" id="mail"
-                            value="{{ $client_prog->client->parents[0]->mail }}" class="form-control w-100">
+                            value="{{ $client_prog->client->parents->count() > 0 ? $client_prog->client->parents[0]->mail : null }}" class="form-control w-100">
                             {{-- value="{{ $client_prog->client->mail }}" class="form-control w-100"> --}}
                     </div>
                     {{-- <hr> --}}
@@ -600,7 +600,7 @@
             </div>
         </div>
     </div>
-    @endif
+    {{-- @endif --}}
 
     @if ($errors->has('attachment'))
         <script>
@@ -615,8 +615,8 @@
             var recipient = $("input[name=recipient]:checked").val();
             switch (recipient) {
                 case 'Parent':
-                    $("#client_id").val('{{ $client_prog->client->parents[0]->id }}')
-                    $("#mail").val('{{ $client_prog->client->parents[0]->mail }}')
+                    $("#client_id").val('{{ $client_prog->client->parents->count() > 0 ? $client_prog->client->parents[0]->id : null}}')
+                    $("#mail").val('{{ $client_prog->client->parents->count() > 0 ? $client_prog->client->parents[0]->mail : null }}')
                     break;
                     
                 case 'Client':

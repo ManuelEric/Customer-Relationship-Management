@@ -18,7 +18,6 @@ use App\Imports\CheckListInvitation;
 use App\Imports\ClientEventImport;
 use App\Imports\InvitationMailVIPImport;
 use App\Imports\InvitationMailVVIPImport;
-use App\Imports\QuestCompleterMailImport;
 use App\Imports\ThankMailImport;
 use App\Imports\ReminderEventImport;
 use App\Imports\ReminderReferralImport;
@@ -537,10 +536,6 @@ class ClientEventController extends Controller
 
             case 'reminder_referral':
                 $import = new ReminderReferralImport;
-                break;
-
-            case 'quest_completer':
-                $import = new QuestCompleterMailImport;
                 break;
 
         }
