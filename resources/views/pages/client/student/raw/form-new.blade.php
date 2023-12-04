@@ -263,7 +263,7 @@
                                 <td>:</td>
                                 <td>
                                     <div id="parentPreview">{{ $rawClient->parent_name }}</div>
-                                    <input type="hidden" name="parentType" id="parentTypeInput" value="new">
+                                    <input type="hidden" name="parentType" id="parentTypeInput" value="{{ $rawClient->is_verifiedparent != null && $rawClient->is_verifiedparent == "Y" ? "exist" : "new" }}">
                                     <input type="hidden" name="parentFinal" id="parentInputPreview"
                                         value="{{ $rawClient->parent_id }}">
                                     <input type="hidden" name="parentName" id="parentNameInputPreview"
@@ -275,7 +275,7 @@
                                 <td>:</td>
                                 <td>
                                     <div id="parentEmailPreview">{{ $rawClient->parent_mail }}</div>
-                                    <input type="hidden" name="parentMail" id="parentEmailInputPreview">
+                                    <input type="hidden" name="parentMail" value="{{ $rawClient->parent_mail }}" id="parentEmailInputPreview">
                                 </td>
                             </tr>
                             <tr>
@@ -283,7 +283,7 @@
                                 <td>:</td>
                                 <td>
                                     <div id="parentPhonePreview">{{ $rawClient->parent_phone }}</div>
-                                    <input type="hidden" name="parentPhone" id="parentPhoneInputPreview">
+                                    <input type="hidden" name="parentPhone" value="{{ $rawClient->parent_phone }}" id="parentPhoneInputPreview">
                                 </td>
                             </tr>
                         </table>
@@ -314,7 +314,7 @@
             $('#parentPhone').prop('disabled', false).val('{{ $rawClient->parent_phone }}')
 
 
-            $('#parentTypeInput').val('new')
+            $('#parentTypeInput').val('{{ $rawClient->is_verifiedparent != null && $rawClient->is_verifiedparent == "Y" ? "exist" : "new" }}')
             $('#parentInputPreview').val('')
             $('#parentPreview').html('{{ $rawClient->parent_name }}')
             $('#parentEmailPreview').html('{{ $rawClient->parent_mail }}')

@@ -262,7 +262,7 @@
                                             data-email="{{ $rawClient->parent_mail }}"
                                             data-phone="{{ $rawClient->parent_phone }}" name="parent" id="parentInput2"
                                             onchange="checkInputRadio(this, 'parent', 'select', 'new')"
-                                            value="{{ $rawClient->parent_name }}">
+                                            value="{{ $rawClient->parent_id }}">
                                         <label class="form-check-label" for="parentInput2">
                                             {{ $rawClient->parent_name ? $rawClient->parent_name : '-' }} <span
                                                 class="text-info">(New Data)</span>

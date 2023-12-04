@@ -404,6 +404,9 @@ class ClientTeacherCounselorController extends ClientController
 
                     $rawTeacher = $this->clientRepository->getViewRawClientById($rawclientId);
 
+                    # delete parent from raw client
+                    $this->clientRepository->deleteClient($rawclientId);
+
                     break;
 
                 case 'new':
@@ -414,14 +417,10 @@ class ClientTeacherCounselorController extends ClientController
                     $clientDetails['lead_id'] = $lead_id;
                     $clientDetails['register_as'] = $register_as;
 
-                    $newTeacher = $this->clientRepository->createClient('teacher/counselor', $clientDetails);
+                    $newTeacher = $this->clientRepository->updateClient($rawclientId, $clientDetails);
 
                     break;
             }
-
-            # delete parent from raw client
-            $this->clientRepository->deleteClient($rawclientId);
-
 
             DB::commit();
         } catch (Exception $e) {

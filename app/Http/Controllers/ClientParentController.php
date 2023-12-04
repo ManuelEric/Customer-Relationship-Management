@@ -442,6 +442,9 @@ class ClientParentController extends ClientController
 
                     $rawParent = $this->clientRepository->getViewRawClientById($rawclientId);
 
+                    # delete parent from raw client
+                    $this->clientRepository->deleteClient($rawclientId);
+
                     break;
 
                 case 'new':
@@ -452,13 +455,11 @@ class ClientParentController extends ClientController
                     $clientDetails['lead_id'] = $lead_id;
                     $clientDetails['register_as'] = $register_as;
 
-                    $newParent = $this->clientRepository->createClient('parent', $clientDetails);
+                    $newParent = $this->clientRepository->updateClient($rawclientId, $clientDetails);
 
                     break;
             }
 
-            # delete parent from raw client
-            $this->clientRepository->deleteClient($rawclientId);
 
 
             DB::commit();

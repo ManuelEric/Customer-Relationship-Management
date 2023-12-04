@@ -172,7 +172,7 @@ class ClientStudentController extends ClientController
     {
         if ($request->ajax()) {
             return $this->clientRepository->getAllRawClientDataTables('student');
-            }
+        }
 
         return view('pages.client.student.raw.index');
     }
@@ -870,15 +870,20 @@ class ClientStudentController extends ClientController
                             $parentDetails['register_as'] = $student->register_as;
 
                             # Add relation new parent
-                            $parent = $this->clientRepository->createClient('parent', $parentDetails);
-                            $this->clientRepository->createClientRelation($parent->id, $clientId);
+                            $parent = $this->clientRepository->updateClient($parentId, $parentDetails);
+                            $this->clientRepository->createClientRelation($parentId, $clientId);
                         }
                     } else if ($parentType == 'exist') {
-                        $this->clientRepository->updateClient($parentId, $parentDetails);
-                        $this->clientRepository->createClientRelation($parentId, $clientId);
+                        if ($request->parentFinal != null) {
+                            $this->clientRepository->updateClient($parentId, $parentDetails);
+                            $this->clientRepository->createClientRelation($parentId, $clientId);
+                        } 
                     } elseif ($parentType == 'exist_select') {
                         $this->clientRepository->createClientRelation($parentId, $clientId);
                     }
+
+                    # delete student from raw client
+                    $this->clientRepository->deleteClient($rawclientId);
 
                     break;
 
@@ -890,21 +895,20 @@ class ClientStudentController extends ClientController
                     $clientDetails['lead_id'] = $lead_id;
                     $clientDetails['register_as'] = $register_as;
 
-                    $student = $this->clientRepository->createClient('student', $clientDetails);
+                    $student = $this->clientRepository->updateClient($rawclientId, $clientDetails);
 
                     if ($parentType == 'new' && $request->parentFinal != null) {
                         $parentDetails['lead_id'] = $lead_id;
                         $parentDetails['register_as'] = $register_as;
 
                         # Add relation new parent
-                        $parent = $this->clientRepository->createClient('parent', $parentDetails);
-                        $this->clientRepository->createClientRelation($parent->id, $student->id);
-
+                        $this->clientRepository->updateClient($parentId, $parentDetails);
+                        $this->clientRepository->createClientRelation($parentId, $rawclientId);
                     } else if ($parentType == 'exist') {
                         $this->clientRepository->updateClient($parentId, $parentDetails);
-                        $this->clientRepository->createClientRelation($parentId, $student->id);
+                        $this->clientRepository->createClientRelation($parentId, $rawclientId);
                     } elseif ($parentType == 'exist_select') {
-                        $this->clientRepository->createClientRelation($parentId, $student->id);
+                        $this->clientRepository->createClientRelation($parentId, $rawclientId);
                     }
 
                     break;
@@ -913,13 +917,11 @@ class ClientStudentController extends ClientController
             # sync destination country
             if ($rawStudent->interest_countries != null)
                 $this->syncDestinationCountry($rawStudent->interest_countries, $student);
-            
+
             # Delete raw parent
             // $rawStudent->parent_uuid != null ? $this->clientRepository->deleteRawClientByUUID($rawStudent->parent_uuid) : null;
-            
-            # delete student from raw client
-            $this->clientRepository->deleteClient($rawclientId);
 
+          
 
             DB::commit();
         } catch (Exception $e) {
@@ -951,7 +953,7 @@ class ClientStudentController extends ClientController
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Raw Client', Auth::user()->first_name . ' '. Auth::user()->last_name, $rawStudent);
+        $this->logSuccess('delete', null, 'Raw Client', Auth::user()->first_name . ' ' . Auth::user()->last_name, $rawStudent);
 
         return Redirect::to('client/student/raw')->withSuccess('Raw student successfully deleted');
     }
