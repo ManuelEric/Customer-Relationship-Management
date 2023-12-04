@@ -27,6 +27,13 @@
                             @selected(Request::route('user_role') == 'mentor')
                         @endif
                         >Mentor</option>
+                    <option value="3" 
+                        @if (isset($user))
+                            @selected(in_array(3, $roles))
+                        @else
+                            @selected(Request::route('user_role') == 'editor')
+                        @endif
+                        >Editor</option>
                     <option value="4" 
                         @if (isset($user))
                             @selected(in_array(4, $roles))
