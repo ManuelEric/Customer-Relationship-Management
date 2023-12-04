@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Student')
+@section('title', 'Teacher')
 
 @push('styles')
 @endpush
@@ -69,7 +69,7 @@
                                                     class="form-control form-control-sm" value="{{ $rawClient->school_name }}"
                                                     oninput="checkInputText(this, 'school')">
                                                 @if($rawClient->sch_id != null)
-                                                    @if($rawClient->is_verified == 'Y')
+                                                    @if($rawClient->is_verifiedschool == 'Y')
                                                         <small class="text-success">
                                                             <i class="bi bi-check-circle-fill"></i>
                                                             Verified School
@@ -198,14 +198,15 @@
 @push('scripts')
     <script>
         $('#schoolExist').on('select2:unselect', function(e) {
-            $('#schoolNew').prop('disabled', false).val('New School')
-            $('#schoolPreview').html('New School')
-            $('#schoolInputPreview').val('New School')
+            $('#schoolNew').prop('disabled', false).val('{{ $rawClient->school_name }}')
+            $('#schoolPreview').html('{{ $rawClient->school_name }}')
+            $('#schoolInputPreview').val('{{ $rawClient->sch_id }}')
         });
 
         function checkInputText(item, init, type = null) {
             if ($(item).val() != "") {
                 $('#' + init + 'Preview').html($(item).val())
+                $('#' + init + 'InputPreview').val($(item).val())
 
                 if (type == 'select') {
                     if (init == 'school') {

@@ -116,6 +116,7 @@
         function checkInputText(item, init, type = null) {
             if ($(item).val() != "") {
                 $('#' + init + 'Preview').html($(item).val())
+                $('#' + init + 'InputPreview').val($(item).val())
             }
         }
     </script>

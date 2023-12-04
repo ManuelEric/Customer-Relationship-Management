@@ -256,18 +256,23 @@
         $(document).ready(function() {
 
             // Formatting function for row details - modify as you need
-            function format(d) {
+            function format(d, clientSuggest) {
                 var similar = '<table class="table w-auto table-hover">'
                 var joined_program = '';
+                var suggestion = d.suggestion;
+                var arrSuggest = [];
+                if (suggestion !== null && suggestion !== undefined) {
+                    arrSuggest = suggestion.split(',');
+                }
 
-                if (d.suggestion.length > 0) {
+                if (arrSuggest.length > 0) {
                     similar +=
                         '<th colspan=8>Comparison with Similar Names:</th>' +
                         '</tr>' +
                         '<tr>' +
                         '<th>#</th><th>Name</th><th>Email</th><th>Phone Number</th><th>School Name</th><th>Parent Name</th><th>Graduation Year</th><th>Joined Program</th>' +
                         '</tr>';
-                    d.suggestion.forEach(function(item, index) {
+                    clientSuggest.forEach(function(item, index) {
                         joined_program = '';
                         if (item.client_program.length > 0) {
                             item.client_program.forEach(function(clientprog, index) {
@@ -284,7 +289,7 @@
                             '<td><input type="radio" name="similar' + d.id +
                             '" class="form-check-input item-' + item.id + '" onclick="comparison(' +
                             d.id + ',' + item.id + ')" /></td>' +
-                            '<td>' + item.first_name + ' ' + item.last_name + '</td>' +
+                            '<td>' + item.first_name + ' ' + (item.last_name !== null ? item.last_name : '') + '</td>' +
                             '<td>' + (item.mail !== null ? item.mail : '-') + '</td>' +
                             '<td>' + (item.phone !== null ? item.phone : '-') + '</td>' +
                             '<td>' + (typeof item.school !== 'undefined' && item.school !== null ? item
@@ -364,9 +369,12 @@
                         data: 'suggestion',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            return data.length > 0 ?
-                                '<div class="badge badge-warning py-1 px-2 ms-2">' + data
-                                .length + ' Similar Names</div>' : '-'
+                            if (data == undefined && data == null) {
+                                return '-'
+                            } else {
+                                var arraySuggestion = data.split(',');
+                                return '<div class="badge badge-warning py-1 px-2 ms-2">' + arraySuggestion.length + ' Similar Names</div>'
+                            }
                         }
                     },
                     {
@@ -392,9 +400,22 @@
                     {
                         data: 'school_name',
                         defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            if (data != null) {
+                                if (row.is_verifiedschool == 'Y') {
+                                    return data +
+                                        '<div class="badge badge-success py-1 px-2 ms-2">Verified</div>'
+                                } else {
+                                    return data +
+                                        '<div class="badge badge-danger py-1 px-2 ms-2">Not Verified</div>'
+                                }
+                            } else {
+                                return data
+                            }
+                        }
                     },
                     {
-                        data: 'graduation_year',
+                        data: 'graduation_year_real',
                         className: 'text-center',
                         defaultContent: '-'
                     },
@@ -421,7 +442,7 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteRawClient"><i class="bi bi-trash2"></i></button>'
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-danger py-1 px-2 deleteRawClient"><i class="bi bi-eraser"></i></button>'
                     },
                 ],
             });
@@ -439,7 +460,34 @@
                     row.child.hide();
                 } else {
                     // Open this row
-                    row.child(format(row.data())).show();
+                    var suggestion = row.data().suggestion;
+                    if (suggestion !== null && suggestion !== undefined) {
+                        var arrSuggest = suggestion.split(',');
+                        var intArrSuggest = [];
+                        for (var i = 0; i < arrSuggest.length; i++)
+                            intArrSuggest.push(parseInt(arrSuggest[i]));
+
+                        showLoading()
+                        axios.get("{{ url('api/client/suggestion') }}", {
+                                params: {
+                                    clientIds: intArrSuggest,
+                                    roleName: 'student'
+                                }
+                            })
+                            .then(function(response) {
+                                const data = response.data.data
+                                row.child(format(row.data(), data)).show();
+
+                                swal.close()
+                            })
+                            .catch(function(error) {
+                                swal.close()
+                                console.log(error);
+                            })
+                    }else{
+
+                        row.child(format(row.data(), null)).show();
+                    }
                 }
             });
 
@@ -459,7 +507,5 @@
             $('input.item-' + id).prop('checked', true);
             window.open("{{ url('client/student/raw/') }}" + '/' + id + '/new', "_blank");
         }
-
-        
     </script>
 @endpush

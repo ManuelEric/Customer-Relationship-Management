@@ -46,6 +46,7 @@ class ParentTemplate implements WithEvents, WithTitle, WithHeadings, WithStyles
             'School',
             'Graduation Year',
             'Destination Country',
+            'Joined Date',
         ];
 
         return $columns;
@@ -206,8 +207,8 @@ class ParentTemplate implements WithEvents, WithTitle, WithHeadings, WithStyles
 
     public function styles(Worksheet $sheet)
     {
-        $sheet->getStyle('A1:S1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'D9D9D9'],]);
-        $sheet->getStyle('A1:S1')->getFont()->setSize(14);
+        $sheet->getStyle('A1:T1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'D9D9D9'],]);
+        $sheet->getStyle('A1:T1')->getFont()->setSize(14);
         $sheet->getStyle('A1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('B1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('C1')->getFont()->getColor()->setARGB('FF0000');

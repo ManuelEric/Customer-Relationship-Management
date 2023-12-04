@@ -81,6 +81,10 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
                         'eduf_id' => isset($row['edufair'])  && $row['lead'] == 'LS018' ? $row['edufair'] : null,
                         'st_levelinterest' => $row['level_of_interest'],
                     ];
+
+                    isset($row['joined_date']) ? $studentDetails['created_at'] = $row['joined_date'] : null;
+                    isset($row['joined_date']) ? $studentDetails['updated_at'] = $row['joined_date'] : null;
+                    
                     $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['parent'])->first();
 
                     $parent = UserClient::create($parentDetails);
@@ -196,6 +200,7 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
             'school' => $data['school'],
             'graduation_year' => $data['graduation_year'],
             'destination_country' => $data['destination_country'],
+            'joined_date' => isset($data['joined_date']) ? Date::excelToDateTimeObject($data['joined_date'])->format('Y-m-d') : null,
         ];
 
         return $data;
@@ -223,6 +228,7 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
             '*.school' => ['nullable'],
             '*.graduation_year' => ['nullable'],
             '*.destination_country' => ['nullable'],
+            '*.joined_date' => ['nullable', 'date'],
         ];
     }
 

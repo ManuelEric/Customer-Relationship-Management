@@ -22,6 +22,7 @@ use App\Http\Controllers\InvoiceSchoolController;
 use App\Http\Controllers\InvoicePartnerController;
 use App\Http\Controllers\InvoiceReferralController;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\Module\ClientController;
 use App\Http\Controllers\ReceiptSchoolController;
 use App\Http\Controllers\ReceiptPartnerController;
 use App\Http\Controllers\ReceiptReferralController;
@@ -159,3 +160,6 @@ Route::get('instance/school/', [SchoolController::class, 'getSchoolData']);
 
 # Get Parents Data
 Route::get('client/parent/', [ClientParentController::class, 'getDataParents']);
+
+# Get Client Suggestion
+Route::get('client/suggestion/', [ClientController::class, 'getClientSuggestion']);

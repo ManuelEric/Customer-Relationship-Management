@@ -1,3 +1,12 @@
+@push('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
+<style>
+    .iti {
+        display: block !important;
+    }
+</style>
+@endpush
+
 <div class="card mb-3">
     <div class="card-body">
         <div class="row justify-content-end g-1 mb-3">
@@ -134,19 +143,20 @@
                 {{-- <form action="" method="POST" id="reminderForm"> --}}
                     @csrf
                     {{-- @method('put') --}}
-                    <div class="form-group">
+                    <div class="form-phone">
 
-                        <label for="">Phone Number Parent</label>
-                        <input type="text" name="phone" id="phone" class="form-control w-100">
-                        <input type="hidden" name="client_id" id="client_id">
-                        <input type="hidden" name="clientprog_id" id="clientprog_id">
-                        <input type="hidden" name="parent_fullname" id="fullname">
-                        <input type="hidden" name="program_name" id="program_name">
-                        <input type="hidden" name="invoice_duedate" id="invoice_duedate">
-                        <input type="hidden" name="total_payment" id="total_payment">
-                        <input type="hidden" name="payment_method" id="payment_method">
-                        <input type="hidden" name="parent_id" id="parent_id">
+                        {{-- <label for="">Phone Number Parent</label>
+                        <input type="text" name="phone" id="phone" class="form-control w-100"> --}}
                     </div>
+                    <input type="hidden" name="client_id" id="client_id">
+                    <input type="hidden" name="clientprog_id" id="clientprog_id">
+                    <input type="hidden" name="program_name" id="program_name">
+                    <input type="hidden" name="invoice_duedate" id="invoice_duedate">
+                    <input type="hidden" name="total_payment" id="total_payment">
+                    <input type="hidden" name="payment_method" id="payment_method">
+                    <input type="hidden" name="parent_id" id="parent_id">
+                    <input type="hidden" name="send_to">
+                    <input type="hidden" name="target_phone">
                     {{-- <hr> --}}
                     <div class="d-flex justify-content-between">
                         <button type="button" href="#" class="btn btn-outline-danger btn-sm"
@@ -164,7 +174,68 @@
  </div>
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
 <script>
+    function initiate()
+    {
+        var parent = document.querySelector("#prPhone");
+        var child = document.querySelector("#chPhone");
+    
+        const phoneInput1 = window.intlTelInput(parent, {
+            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
+            initialCountry: 'id',
+            onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
+        });
+    
+        const phoneInput2 = window.intlTelInput(child, {
+            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
+            initialCountry: 'id',
+            onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
+        });
+
+        $("#prPhone").on('keyup', function(e) {
+            var number1 = phoneInput1.getNumber();
+            $("#prPhoneR").val(number1);
+            $("input[name=target_phone]").val(number1);
+        });
+
+        $("#chPhone").on('keyup', function(e) {
+            var number2 = phoneInput2.getNumber();
+            $("#chPhoneR").val(number2);
+            $("input[name=target_phone]").val(number2);
+        });
+    }
+</script>
+<script>
+
+    $(document).on('click', 'input[name=pr_phone]', function () {
+        sendTo('parent');
+    });
+
+    $(document).on('click', 'input[name=ch_phone]', function () {
+        sendTo('child');
+    });
+
+    function sendTo(recipient)
+    {
+        var prPhoneStatus = chPhoneStatus = false;
+        switch (recipient) {
+            case "parent":
+                var phone = $("#prPhoneR").val();
+                prPhoneStatus = true;
+                break;
+
+            case "child":
+                var phone = $("#chPhoneR").val();
+                chPhoneStatus = true;
+                break;
+        }
+
+        $('#prPhoneInput').prop('checked', prPhoneStatus);
+        $('#chPhoneInput').prop('checked', chPhoneStatus);
+        $("input[name=send_to]").val(recipient);
+        $("input[name=target_phone]").val(phone);
+    }
 
     $(".card-finance").each(function() {
         $(this).click(function() {
@@ -227,10 +298,45 @@
                                 var parent_phone = result.reminder[$(this).data('clientid')].parent_phone;
                                 var child_phone = result.reminder[$(this).data('clientid')].child_phone;
                                 var parent_id = result.reminder[$(this).data('clientid')].parent_id;
-                                $('#phone').val(parent_id == null ? child_phone : parent_phone);
+                                $('input[name=target_phone]').val(parent_id == null ? child_phone : parent_phone);
+                                $('input[name=send_to]').val(parent_id == null ? 'child' : 'parent');
+
+                                var form_phone = checked = '';
+                                if (parent_id != null) {
+
+                                    
+                                    form_phone += '<h5>Select a recipient</h5>' +
+                                        '<div class="form-check form-check-inline ms-4">' +
+                                            '<input type="radio" class="form-check-input" name="recipients" value="parent" checked id="prPhoneInput">' +
+                                            '<label class="class="form-check-label" for="prPhoneInput">' +
+                                                '<div class="form-group">' +
+                                                    '<label for="">Parent</label>' +
+                                                    '<input type="text" name="pr_phone" class="form-control w-100" value="'+ parent_phone +'" id="prPhone">' +
+                                                    '<input type="hidden" id="prPhoneR" name="pr_phone_r" value="'+ parent_phone +'">' +
+                                                '</div>' +
+                                            '</label>' +
+                                        '</div>';
+                                } else {
+                                    checked = 'checked';
+                                }
+
+                                form_phone += '<div class="form-check form-check-inline ms-4">' +
+                                            '<input type="radio" class="form-check-input" name="recipients" value="children" '+ checked +' id="chPhoneInput">' +
+                                            '<label class="class="form-check-label" for="chPhoneInput">' +
+                                                '<div class="form-group">' +
+                                                    '<label for="">Child</label>' +
+                                                    '<input type="text" name="ch_phone" class="form-control w-100" value="'+ child_phone +'" id="chPhone">' +
+                                                    '<input type="hidden" id="chPhoneR" name="ch_phone_r" value="'+ child_phone +'">' +
+                                                '</div>' +
+                                            '</label>' +
+                                        '</div>';
+
+                                $(".form-phone").html(form_phone)
+
+                                initiate();
                             }
                             $('#client_id').val($(this).data('clientid'))
-                            $('#fullname').val(result.reminder[$(this).data('clientid')].parent_fullname)
+                            // $('#fullname').val(result.reminder[$(this).data('clientid')].parent_fullname) //no longer in use
                             $('#program_name').val(result.reminder[$(this).data('clientid')].program_name)
                             $('#invoice_duedate').val(result.reminder[$(this).data('clientid')].invoice_duedate)
                             $('#total_payment').val(result.reminder[$(this).data('clientid')].total_payment)
@@ -421,17 +527,18 @@
 
     function sendWhatsapp()
     {
-
-        var link = '{{ url("/") }}/invoice/client-program/'+$('#clientprog_id').val()+'/remind/by/whatsapp';
+        var clientprog = $('#clientprog_id').val();
+        var link = '{{ url("/") }}/invoice/client-program/'+clientprog+'/remind/by/whatsapp';
             axios.post(link, {
                 parent_fullname : $('#fullname').val(),
-                phone : $('#phone').val(),
+                phone : $('input[name=target_phone]').val(),
                 program_name : $('#program_name').val(),
                 invoice_duedate : $('#invoice_duedate').val(),
                 total_payment : $('#total_payment').val(),
                 payment_method : $('#payment_method').val(),
                 parent_id : $('#parent_id').val(),
                 client_id : $('#client_id').val(),
+                sendTo : $('input[name=send_to]').val(),
             })
             .then(function(response) {
                 swal.close();
@@ -440,7 +547,7 @@
                 var link = obj.link;
                 window.open(link)
             })
-                .catch(function(error) {
+            .catch(function(error) {
                 swal.close();
                 notification('error', error)
             })
