@@ -8,12 +8,12 @@
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Employee
         </a>
-        @if(Request::route('user_role') != 'editor')
+        {{-- @if(Request::route('user_role') != 'editor') --}}
             <a href="{{ url('user/' . Request::route('user_role') . '/create') }}" class="btn btn-sm btn-primary"><i
                     class="bi bi-plus-square me-1"></i>
                 Add
                 {{ ucfirst(Request::route('user_role')) }}</a>
-        @endif
+        {{-- @endif --}}
     </div>
 
 
