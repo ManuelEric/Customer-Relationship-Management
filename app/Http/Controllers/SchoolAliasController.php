@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SchoolAliasRequest;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
+use App\Jobs\RawClient\ProcessVerifyClient;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -58,6 +59,10 @@ class SchoolAliasController extends Controller
 
                 # delete raw school
                 $this->schoolRepository->deleteSchool($rawSchId);
+
+
+                # trigger to verifying client
+                ProcessVerifyClient::dispatch($clientIds)->onQueue('verifying-client');
             }
             # end process from convert to alias
             

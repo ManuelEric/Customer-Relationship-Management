@@ -149,6 +149,8 @@ class SchoolRawController extends Controller
             $clients = $this->clientRepository->getClientInSchool($rawSchoolIds)->pluck('id')->toArray();
             $this->clientRepository->updateClients($clients, ['sch_id' => NULL]);
 
+            ProcessVerifyClient::dispatch($clients)->onQueue('verifying-client');
+
             DB::commit();
 
         } catch (Exception $e) {
