@@ -74,7 +74,7 @@ class AutomatedDeterminedHotLeads extends Command
 
                 # if the client has already graduated
                 # then no need to calculate hot leads
-                $bypass = $client->grade > 0 ? true : false;
+                $bypass = $client->grade > 0 || $client->phone == null ? true : false;
 
                 # initialize client variables
                 $type = $client->type; # existing client (new, existing mentee, existing non mentee)
@@ -434,6 +434,9 @@ class AutomatedDeterminedHotLeads extends Command
 
             switch ($initProgramName) {
                 case "Admissions Mentoring":
+                    if ($client->type == "existing_mentee")
+                        $bypass = true;
+                    
                     $specificConcerns->where('main_prog_id', 1)->first() != null ? $total_result = 1 : null;
                     break;
 
