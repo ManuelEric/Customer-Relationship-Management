@@ -101,7 +101,7 @@ class ClientRepository implements ClientRepositoryInterface
                             }
                         ])->havingRaw('client_program_count = client_program_finish_count');
                     });
-                })
+                })->where('client.is_verified', 'Y')->whereNull('client.deleted_at')
                 ->orderBy('st_statusact', 'desc')
                 ->orderBy('client.updated_at', 'DESC')
             // ->orderBy('client.updated_at', 'DESC')
@@ -449,7 +449,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->where('role_name', 'Parent');
             })->when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
-            })->where('client.st_statusact', 1);
+            })->where('client.st_statusact', 1)->where('client.is_verified', 'Y')->whereNull('client.deleted_at');
 
         return $asDatatables === false ? $query->get() : $query->orderBy('first_name', 'asc');
     }
