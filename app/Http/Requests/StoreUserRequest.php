@@ -59,7 +59,7 @@ class StoreUserRequest extends FormRequest
             'degree.*' => 'nullable',
             'major.*' => 'nullable',
 
-            'role.*' => 'required|in:1,2,4,8',
+            'role.*' => 'required|in:1,2,3,4,8',
             'department' => 'required',
             'position' => 'required',
             'hiredate' => 'required',
@@ -108,7 +108,7 @@ class StoreUserRequest extends FormRequest
             'degree.*' => 'nullable',
             'major.*' => 'nullable',
 
-            'role.*' => 'required|in:1,2,4,8',
+            'role.*' => 'required|in:1,2,3,4,8',
             'department' => 'required',
             'position' => 'required',
             'hiredate' => 'required',
