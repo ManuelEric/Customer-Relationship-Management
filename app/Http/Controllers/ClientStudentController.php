@@ -114,7 +114,7 @@ class ClientStudentController extends ClientController
     public function index(Request $request)
     {
 
-        // if ($request->ajax()) {
+        if ($request->ajax()) {
 
             $statusClient = $request->get('st');
             $asDatatables = true;
@@ -161,7 +161,7 @@ class ClientStudentController extends ClientController
             }
 
             return $this->clientRepository->getDataTables($model);
-        // }
+        }
 
         $entries = app('App\Services\ClientStudentService')->getClientStudent();
 
