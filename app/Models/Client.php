@@ -49,6 +49,7 @@ class Client extends Model
         'is_verified',
         'created_at',
         'updated_at',
+        'deleted_at',
     ];
 
     # attributes

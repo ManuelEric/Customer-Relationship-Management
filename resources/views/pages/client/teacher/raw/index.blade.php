@@ -208,6 +208,7 @@
                     {
                         data: 'suggestion',
                         className: 'text-center',
+                        searchable: false,
                         render: function(data, type, row, meta) {
                             if (data == undefined && data == null) {
                                 return '-'
