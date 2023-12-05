@@ -748,6 +748,11 @@ class ClientRepository implements ClientRepositoryInterface
         return UserClient::where('uuid', $clientUUID)->first();
     }
 
+    public function getClientsById(array $clientIds)
+    {
+        return UserClient::whereIn('id', $clientIds)->get();
+    }
+
     public function getClientByMonthCreatedAt(array $month)
     {
         return UserClient::whereIn(DB::raw('MONTH(created_at)'), $month)->whereYear('created_at', date('Y-m-d'))->get();
