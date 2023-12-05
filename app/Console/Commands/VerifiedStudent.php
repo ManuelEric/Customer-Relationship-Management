@@ -10,6 +10,12 @@ use Illuminate\Support\Facades\Log;
 
 class VerifiedStudent extends Command
 {
+    public $tries = 3;
+    public $timeout = 120;
+
+    // Priority levels: high, default, low
+    public $priority = 'high';
+    
     /**
      * The name and signature of the console command.
      *

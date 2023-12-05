@@ -77,6 +77,9 @@ class SchoolRawController extends Controller
             # insert into school
             $this->schoolRepository->updateSchool($schoolId, $schoolDetails + ['is_verified' => 'Y']);
 
+            # trigger to verifying client
+            $clients = $this->clientRepository->getClientBySchool($schoolId)->pluck('id')->toArray();
+            ProcessVerifyClient::dispatch($clients)->onQueue('verifying-client');
 
             DB::commit();
         } catch (Exception $e) {

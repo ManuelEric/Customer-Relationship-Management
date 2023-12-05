@@ -63,7 +63,7 @@ class ProcessVerifyClient implements ShouldQueue
                     }
                 }
                 
-                $isVerified == true ?  $this->clientRepository->updateClient($student->id, ['is_verified' => 'Y']) : null;
+                $isVerified == true ?  $clientRepository->updateClient($student->id, ['is_verified' => 'Y']) : null;
 
             }
             DB::commit();
