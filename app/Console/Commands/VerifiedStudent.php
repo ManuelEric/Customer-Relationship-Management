@@ -53,25 +53,24 @@ class VerifiedStudent extends Command
                 ## Update to verified
 
                 # Case 1: have joined the program with success status
-                $successProg = false;
+                $isVerified = false;
                 if($student->clientProgs->count() > 0){
                     foreach ($student->clientProgs as $clientProg) {
-                        if($clientProg->status == 1){
-                            $successProg = true;
+                        if($clientProg->status == 1 || $clientProg->status == 0){
+                            $isVerified = true;
+                        }
+                    }
+                }else{
+
+                    # Case 2: Email and phone is complete && school verified
+                    if($student->mail != null && $student->phone != null && isset($student->school) && !preg_match('/[^\x{80}-\x{F7} a-z0-9@_.\'-]/iu', $student->full_name)){
+                        if($student->school->is_verified == 'Y'){
+                            $isVerified = true;
                         }
                     }
                 }
-                // $successProg == true ? $this->info(json_encode($student)) : null;
-                $successProg == true ?  $this->clientRepository->updateClient($student->id, ['is_verified' => 'Y']) : null;
-
-
-                # Case 2: Email and phone is complete && school verified
-                if($student->mail != null && $student->phone != null && isset($student->school)){
-                    if($student->school->is_verified == 'Y'){
-                        // $this->info(json_encode($student));
-                        $this->clientRepository->updateClient($student->id, ['is_verified' => 'Y']);
-                    }
-                }
+                
+                $isVerified == true ?  $this->clientRepository->updateClient($student->id, ['is_verified' => 'Y']) : null;
 
                 $progressBar->advance();
             }

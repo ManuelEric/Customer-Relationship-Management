@@ -53,9 +53,8 @@ class VerifiedTeacher extends Command
                 ## Update to verified
 
                 # Case 1: Email and phone is complete && school verified
-                 if($teacher->mail != null && $teacher->phone != null && isset($teacher->school)){
+                 if($teacher->mail != null && $teacher->phone != null && isset($teacher->school) && !preg_match('/[^\x{80}-\x{F7} a-z0-9@_.\'-]/iu', $teacher->full_name)){
                     if($teacher->school->is_verified == 'Y'){
-                        // $this->info(json_encode($teacher));
                         $this->clientRepository->updateClient($teacher->id, ['is_verified' => 'Y']);
                     }
                 }
