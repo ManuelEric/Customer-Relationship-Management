@@ -9,6 +9,7 @@ use App\Interfaces\SalesTargetRepositoryInterface;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -60,6 +61,10 @@ class SalesTargetController extends Controller
         try {
 
             $newSalesTarget = $this->salesTargetRepository->createSalesTarget($salesTargets);
+            
+            # running command insert target tracking
+            Artisan::call('insert:target_tracking_monthly');
+
             DB::commit();
         } catch (Exception $e) {
 
