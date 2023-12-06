@@ -99,6 +99,11 @@ class SalesTargetController extends Controller
         try {
 
             $this->salesTargetRepository->updateSalesTarget($salesTargetId, $salesTargets);
+            
+            ## Update target tracking
+            # running command insert target tracking
+            Artisan::call('insert:target_tracking_monthly');
+            
             DB::commit();
         } catch (Exception $e) {
 

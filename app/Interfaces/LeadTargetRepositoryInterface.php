@@ -8,6 +8,7 @@ interface LeadTargetRepositoryInterface
     public function findThisMonthTarget($now);
     public function findThisMonthTargetByDivision($now, $divisi);
     public function getIncompleteTargetFromLastMonthByDivision($now, $divisi);
+    public function updateTargetTracking($id, array $details);
     public function updateActualLead($details, $now, $divisi);
 
     public function getAchievedLeadSalesByMonth($now);
