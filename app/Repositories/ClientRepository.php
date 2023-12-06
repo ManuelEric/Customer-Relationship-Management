@@ -58,6 +58,16 @@ class ClientRepository implements ClientRepositoryInterface
         return Client::max('graduation_year');
     }
 
+    public function findDeletedClientById($clientId)
+    {
+        return Client::whereNotNull('deleted_at')->where('id', $clientId)->first();
+    }
+
+    public function restoreClient($clientId)
+    {
+        return UserClient::where('id', $clientId)->withTrashed()->restore();
+    }
+
     public function getAllClientByRoleAndStatusDataTables($roleName, $statusClient = NULL)
     {
         # if role name is student
@@ -1180,6 +1190,55 @@ class ClientRepository implements ClientRepositoryInterface
         $student->interestPrograms()->wherePivot('id', $interestProgram)->detach($progId);
         return $student;
     }
+
+    /* trash */
+
+    public function getDeletedStudents($asDatatables)
+    {
+        $query = Client::select([
+                    'client.*',
+                    'parent.mail as parent_mail',
+                    'parent.phone as parent_phone'
+                ])->
+                selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
+                leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
+                leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
+                whereHas('roles', function($subQuery) {
+                    $subQuery->where('role_name', 'Student');
+                })->
+                whereNotNull('client.deleted_at');
+        return $asDatatables === false ? $query->get() : $query;
+    }
+
+    public function getDeletedParents($asDatatables)
+    {
+        $query = Client::select([
+                    'client.*',
+                    'children.mail as children_mail',
+                    'children.phone as children_phone'
+                ])->
+                selectRaw('GROUP_CONCAT(RTRIM(CONCAT(children.first_name, " ", COALESCE(children.last_name, ""))) SEPARATOR ", ") as children_name')->
+                // selectRaw('RTRIM(CONCAT(children.first_name, " ", COALESCE(children.last_name, ""))) as children_name')->
+                leftJoin('tbl_client_relation as relation', 'relation.parent_id', '=', 'client.id')->
+                leftJoin('tbl_client as children', 'children.id', '=', 'relation.child_id')->
+                whereHas('roles', function ($subQuery) {
+                    $subQuery->where('role_name', 'Parent');
+                })->
+                whereNotNull('client.deleted_at')->
+                groupBy('client.id');
+        return $asDatatables === false ? $query->get() : $query;
+    }
+    
+    public function getDeletedTeachers($asDatatables)
+    {
+        $query = Client::whereHas('roles', function ($query) {
+                    $query->where('role_name', 'Teacher/Counselor');
+                })->
+                whereNotNull('client.deleted_at');
+        return $asDatatables === false ? $query->get() : $query;
+    }
+
+    /* ~ END */
 
     public function getAllRawClientDataTables($roleName)
     {

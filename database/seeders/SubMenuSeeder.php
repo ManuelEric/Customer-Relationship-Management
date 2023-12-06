@@ -16,16 +16,18 @@ class SubMenuSeeder extends Seeder
      */
     public function run()
     {
+        $seeds = [];
         $main_menus = DB::table('tbl_main_menus')->orderBy('order_no', 'asc')->get();
         foreach ($main_menus as $main_menu)
         {
+
             $no = 1;
             $sub_menu = $this->getSubMenu($main_menu->mainmenu_name);
+            
 
             foreach ($sub_menu['submenus'] as $key => $value)
             {
-                $no++;
-                if (!DB::table('tbl_menus')->where('submenu_name', $value)->first()) {
+                if (!DB::table('tbl_menus')->where('mainmenu_id', $main_menu->id)->where('submenu_name', $value)->first()) {
 
                     $seeds[] = [
                         'mainmenu_id' => $main_menu->id,
@@ -36,6 +38,7 @@ class SubMenuSeeder extends Seeder
                         'updated_at' => Carbon::now()
                     ];
                 }
+                $no++;
 
             }
 
@@ -102,6 +105,12 @@ class SubMenuSeeder extends Seeder
                 return [
                     'submenus' => ['Sales Tracking', 'Event Tracking', 'Partnership', 'Invoice & Receipt', 'Unpaid Payment'],
                     'sublink' => ['report/sales', 'report/event', 'report/partnership', 'report/invoice', 'report/unpaid'],
+                ];
+
+            case "Trash":
+                return [
+                    'submenus' => ['Students', 'Parents', 'Teacher/Counselor'],
+                    'sublink' => ['recycle/client/students', 'recycle/client/parents', 'recycle/client/teacher-counselor'],
                 ];
                 break;
 

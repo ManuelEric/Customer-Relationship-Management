@@ -33,8 +33,13 @@ class MenuRepository implements MenuRepositoryInterface
                 'order_no_submenu' => $menu->order_no,
                 'menu_id' => $menu->menu_id,
                 'mainmenu_id' => $menu->main_menu_id,
-                'mainmenu_name' => $menu->mainmenu_name,
-                'submenu_name' => $menu->submenu_name,
+
+                # there is exception for trash mainmenu
+                # because mainmenu_name and submenu has different names
+                # so in order to make it equal then we need to change trash into recycle
+                # otherwise the menu won't selected when it should be selected
+                'mainmenu_name' => $menu->mainmenu_name == "Trash" ? "Recycle" : $menu->mainmenu_name,
+                'submenu_name' => $menu->submenu_name, 
                 'submenu_link' => $menu->submenu_link,
                 'copy' => true,
                 'export' => true,
