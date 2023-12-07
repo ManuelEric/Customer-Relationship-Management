@@ -109,6 +109,16 @@ class SchoolRepository implements SchoolRepositoryInterface
         })->get();
     }
 
+    public function findDeletedSchoolById($schoolId)
+    {
+        return School::onlyTrashed()->where('sch_id', $schoolId)->first();
+    }
+
+    public function restoreSchool($schoolId)
+    {
+        return School::where('sch_id', $schoolId)->withTrashed()->restore();
+    }
+
     public function getAliasBySchool($schoolId)
     {
         return SchoolAliases::where('sch_id', $schoolId)->get();
@@ -197,6 +207,39 @@ class SchoolRepository implements SchoolRepositoryInterface
     public function findVerifiedSchool($schoolId)
     {
         return School::isVerified()->whereSchoolId($schoolId);
+    }
+
+    public function getDeletedSchools($asDatatables = false)
+    {
+        $query = School::onlyTrashed();
+        
+        return $asDatatables === false ? $query->get() : $query;
+    }
+
+    public function getDataTables($model)
+    {
+        return DataTables::of($model)->
+                addColumn('sch_type_text', function ($data) {
+                    return str_replace('_', ' ', $data->sch_type);
+                })->
+                addColumn('curriculum', function ($data) {
+                    $no = 1;
+                    $curriculums = '';
+                    foreach ($data->curriculum as $curriculum) {
+                        if ($no == 1)
+                            $curriculums = $curriculum->name;
+                        else
+                            $curriculums .= ', ' . $curriculum->name;
+
+                        $no++;
+                    }
+                    return $curriculums;
+                })->
+                filterColumn('curriculum', function ($query, $keyword) {
+                    $query->whereHas('curriculum', function ($q) use ($keyword) {
+                        $q->where('name', 'like', '%' . $keyword . '%');
+                    });
+                })->make(true);
     }
 
     public function createSchools(array $schoolDetails)

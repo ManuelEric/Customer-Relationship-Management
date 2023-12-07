@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReceiptSchoolController;
 use App\Http\Controllers\ReceiptReferralController;
 use App\Http\Controllers\ReceiptPartnerController;
+use App\Http\Controllers\RecycleClientController;
 use App\Http\Controllers\RecycleController;
+use App\Http\Controllers\RecycleInstanceController;
 use App\Http\Controllers\RefundPartnerController;
 use App\Http\Controllers\RefundSchoolController;
 
@@ -20,10 +22,17 @@ use App\Http\Controllers\RefundSchoolController;
 |
 */
 
-# only for client
-Route::resource('client/{target}', RecycleController::class, [
+# route for client
+Route::resource('client/{target}', RecycleClientController::class, [
     'parameters' => [
         '{target}' => 'client'
     ]
 ]);
-Route::put('client/restore/{target}/{client}', [RecycleController::class, 'restore']);
+
+
+# route for instance
+Route::resource('instance/{target}', RecycleInstanceController::class, [
+    'parameters' => [
+        '{target}' => 'instance'
+    ]
+]);

@@ -109,8 +109,8 @@ class SubMenuSeeder extends Seeder
 
             case "Trash":
                 return [
-                    'submenus' => ['Students', 'Parents', 'Teacher/Counselor'],
-                    'sublink' => ['recycle/client/students', 'recycle/client/parents', 'recycle/client/teacher-counselor'],
+                    'submenus' => ['Students', 'Parents', 'Teacher/Counselor', 'School'],
+                    'sublink' => ['recycle/client/students', 'recycle/client/parents', 'recycle/client/teacher-counselor', 'recycle/instance/school'],
                 ];
                 break;
 

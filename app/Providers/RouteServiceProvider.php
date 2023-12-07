@@ -86,6 +86,11 @@ class RouteServiceProvider extends ServiceProvider
                     ->group(base_path('routes/recycle.php'));
 
                 Route::middleware('web')
+                    ->prefix('restore')
+                    ->namespace($this->namespace)
+                    ->group(base_path('routes/restore.php'));
+
+                Route::middleware('web')
                     ->prefix('request-sign')
                     ->namespace($this->namespace)
                     ->group(base_path('routes/request-sign.php'));

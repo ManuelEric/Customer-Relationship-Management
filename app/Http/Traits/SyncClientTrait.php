@@ -55,7 +55,7 @@ trait SyncClientTrait
         $arrayCountry = explode(", ", $destinationCountry);
 
         $destinationCountryDetails = $this->checkCountry($arrayCountry);
-
+            
         if(isset($client->destinationCountries)){
             foreach ($client->destinationCountries as $country) {
                 $countryName[] = $country->name;
@@ -114,20 +114,12 @@ trait SyncClientTrait
                     'tag_id' => $tagFromDB->id,
                     'country_name' => $regionName == 'Other' ? $countryName : null,
                 ]);
-                $destinationCountryDetails->push([
-                    'tag_id' => $tagFromDB->id,
-                    'country_name' => $regionName == 'Other' ? $countryName : null,
-                ]);
     
             } else {
                 // $newCountry = Tag::create(['name' => $regionName]);
                 $destinationCountryDetails->push([
                     'tag_id' => 7,
                     'country_name' => $countryName,
-                ]);
-                $destinationCountryDetails->push([
-                    'tag_id' => 7,
-                    'country_name' => $countryName,                
                 ]);
             }
         }

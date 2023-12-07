@@ -119,8 +119,8 @@
         </div>
     </div>
 
-    {{-- Restore User  --}}
-    <div class="modal modal-sm fade" tabindex="-1" id="restoreUser" data-bs-backdrop="static"
+    {{-- Restore Client & Instance --}}
+    <div class="modal modal-sm fade" tabindex="-1" id="restoreModal" data-bs-backdrop="static"
         data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -132,7 +132,7 @@
                             <i class="bi bi-info-circle text-info"></i>
                         </h2>
                         <h4>Are you sure?</h4>
-                        <h6>You want to restore this user?</h6>
+                        <h6>You want to restore?</h6>
                         <hr>
                         <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
                             <i class="bi bi-x-square me-1"></i>
@@ -272,7 +272,7 @@
     <script>
         function confirmRestore(subject, id) {
             // show modal 
-            var myModal = new bootstrap.Modal(document.getElementById('restoreUser'))
+            var myModal = new bootstrap.Modal(document.getElementById('restoreModal'))
             myModal.show()
 
             // change form action 
