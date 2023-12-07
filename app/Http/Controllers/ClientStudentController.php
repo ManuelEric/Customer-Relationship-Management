@@ -884,6 +884,10 @@ class ClientStudentController extends ClientController
 
                     # delete student from raw client
                     $this->clientRepository->deleteClient($rawclientId);
+                    
+                    # sync destination country
+                    if ($rawStudent->interest_countries != null)
+                       $this->syncDestinationCountry($rawStudent->interest_countries, $student);
 
                     break;
 
@@ -914,10 +918,7 @@ class ClientStudentController extends ClientController
                     break;
             }
 
-            # sync destination country
-            if ($rawStudent->interest_countries != null)
-                $this->syncDestinationCountry($rawStudent->interest_countries, $student);
-
+            
             # Delete raw parent
             // $rawStudent->parent_uuid != null ? $this->clientRepository->deleteRawClientByUUID($rawStudent->parent_uuid) : null;
 

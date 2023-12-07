@@ -441,7 +441,7 @@ class ClientTeacherCounselorController extends ClientController
         DB::beginTransaction();
         try {
 
-            $this->clientRepository->deleteRawClient($rawclientId);
+            $this->clientRepository->deleteClient($rawclientId);
             DB::commit();
         } catch (Exception $e) {
 
