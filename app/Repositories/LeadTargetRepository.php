@@ -45,6 +45,11 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         return LeadTargetTracking::whereMonth('month_year', $last_month)->whereYear('month_year', $last_year)->where('divisi', $divisi)->first();
     }
 
+    public function updateTargetTracking($id, array $details)
+    {
+        return LeadTargetTracking::where('id', $id)->update($details);
+    }
+
     public function updateActualLead($details, $now, $divisi)
     {
         $month = date('m', strtotime($now));
