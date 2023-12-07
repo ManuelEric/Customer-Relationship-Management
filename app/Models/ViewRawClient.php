@@ -55,4 +55,14 @@ class ViewRawClient extends Authenticatable
     {
         return $this->belongsToMany(Role::class, 'tbl_client_roles', 'client_id', 'role_id');
     }
+
+    public function clientEvent()
+    {
+        return $this->hasMany(ClientEvent::class, 'client_id', 'id');
+    }
+
+    public function clientProgram()
+    {
+        return $this->hasMany(ClientProgram::class, 'client_id', 'id');
+    }
 }
