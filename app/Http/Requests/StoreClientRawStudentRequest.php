@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Lead;
+use App\Models\School;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -35,7 +36,17 @@ class StoreClientRawStudentRequest extends FormRequest
             'emailFinal' => 'required|email',
             'phoneFinal' => 'required|min:10|max:15',
             'graduationFinal' => 'nullable',
-            'schoolFinal' => 'nullable',
+            'schoolFinal' => [
+                'sometimes',
+                'required',
+                'exists:tbl_sch,sch_id',
+                function ($attribute, $value, $fail){
+                    $school = School::where('sch_id', $value)->first();
+                    if($school->is_verified == 'N'){
+                        $fail("You can choose only verified school");
+                    }
+                }
+            ],
             'parentType' => 'required|in:exist,new,exist_select',
             'parentName' => 'nullable',
             'parentMail' => 'nullable',

@@ -351,8 +351,14 @@ class ClientTeacherCounselorController extends ClientController
         try {
 
             $rawClient = $this->clientRepository->getViewRawClientById($rawClientId);
-            $clientId != null ? $client = $this->clientRepository->getViewClientById($clientId) : null;
+            if (!isset($rawClient))
+                return Redirect::to('client/teacher-counselor/raw')->withError('Data does not exist');
 
+            if ($clientId != null){
+                $client = $this->clientRepository->getViewClientById($clientId);
+                if (!isset($client))
+                    return Redirect::to('client/teacher-counselor/raw')->withError('Data does not exist');
+            }
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
@@ -440,6 +446,10 @@ class ClientTeacherCounselorController extends ClientController
 
         DB::beginTransaction();
         try {
+
+            if (!isset($rawTeacher))
+                return Redirect::to('client/teacher-counselor/raw')->withError('Data does not exist');
+
 
             $this->clientRepository->deleteClient($rawclientId);
             DB::commit();

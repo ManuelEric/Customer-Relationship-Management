@@ -62,7 +62,7 @@
                             </div>
                             <div class="mb-2">
                                 <input type="text" name="graduation" id="graduationNew"
-                                    value="{{ $rawClient->graduation_year }}" class="form-control form-control-sm"
+                                    value="{{ $rawClient->graduation_year_real }}" class="form-control form-control-sm"
                                     placeholder="Type new graduation year" oninput="checkInputText(this, 'graduation')">
                             </div>
                         </div>
@@ -169,6 +169,9 @@
                                         </div>
                                     @endif
                                     <div class="mb-2">
+                                        <div class="mb-1 mt-2">
+                                            Exist Parent's 
+                                        </div>
                                         <div class="row g-1">
                                             <div class="col-10">
                                                 <select class="select w-100 parent" name="parent" id="parentNew"
