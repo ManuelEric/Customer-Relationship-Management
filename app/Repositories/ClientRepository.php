@@ -60,7 +60,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function findDeletedClientById($clientId)
     {
-        return Client::whereNotNull('deleted_at')->where('id', $clientId)->first();
+        return Client::onlyTrashed()->where('id', $clientId)->first();
     }
 
     public function restoreClient($clientId)
@@ -249,7 +249,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
             })->when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('st_statusact', $advanced_filter['active_status']);
-            })->where('client.st_statusact', 1)->where('client.is_verified', 'Y')->whereNull('client.deleted_at');
+            })->where('client.st_statusact', 1)->where('client.is_verified', 'Y');
 
         return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;
     }
@@ -849,7 +849,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function updateClient($clientId, array $newDetails)
     {
-        return UserClient::whereId($clientId)->update($newDetails);
+        return tap(UserClient::whereId($clientId))->update($newDetails)->first();
     }
 
     public function updateClients(array $clientIds, array $newDetails)
@@ -1193,7 +1193,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     /* trash */
 
-    public function getDeletedStudents($asDatatables)
+    public function getDeletedStudents($asDatatables = false)
     {
         $query = Client::select([
                     'client.*',
@@ -1206,11 +1206,11 @@ class ClientRepository implements ClientRepositoryInterface
                 whereHas('roles', function($subQuery) {
                     $subQuery->where('role_name', 'Student');
                 })->
-                whereNotNull('client.deleted_at');
+                onlyTrashed();
         return $asDatatables === false ? $query->get() : $query;
     }
 
-    public function getDeletedParents($asDatatables)
+    public function getDeletedParents($asDatatables = false)
     {
         $query = Client::select([
                     'client.*',
@@ -1224,17 +1224,17 @@ class ClientRepository implements ClientRepositoryInterface
                 whereHas('roles', function ($subQuery) {
                     $subQuery->where('role_name', 'Parent');
                 })->
-                whereNotNull('client.deleted_at')->
+                onlyTrashed()->
                 groupBy('client.id');
         return $asDatatables === false ? $query->get() : $query;
     }
     
-    public function getDeletedTeachers($asDatatables)
+    public function getDeletedTeachers($asDatatables = false)
     {
         $query = Client::whereHas('roles', function ($query) {
                     $query->where('role_name', 'Teacher/Counselor');
                 })->
-                whereNotNull('client.deleted_at');
+                onlyTrashed();
         return $asDatatables === false ? $query->get() : $query;
     }
 

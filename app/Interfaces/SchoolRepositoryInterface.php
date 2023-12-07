@@ -10,6 +10,8 @@ interface SchoolRepositoryInterface
     public function getSchoolById($schoolId);
     public function getSchoolByName($schoolName);
     public function getSchoolByAlias($alias);
+    public function findDeletedSchoolById($schoolId);
+    public function restoreSchool($schoolId);
     public function getAliasBySchool($schoolId);
     public function getDuplicateSchools();
     public function getDuplicateUnverifiedSchools();
@@ -23,6 +25,8 @@ interface SchoolRepositoryInterface
     public function findSchoolByTerms($searchTerms);
     public function findUnverifiedSchool($schoolId);
     public function findVerifiedSchool($schoolId);
+    public function getDeletedSchools($asDatatables);
+    public function getDataTables($model);
     public function attachCurriculum($schoolId, array $curriculums);
     public function createSchools(array $schoolDetails);
     public function updateSchool($schoolId, array $schoolDetails);
