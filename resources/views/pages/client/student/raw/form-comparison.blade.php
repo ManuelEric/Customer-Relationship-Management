@@ -138,9 +138,9 @@
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input graduation" type="radio" name="graduation"
                                             id="graduationInput2" onchange="checkInputRadio(this, 'graduation', 'text')"
-                                            value="{{ $rawClient->graduation_year }}">
+                                            value="{{ $rawClient->graduation_year_real }}">
                                         <label class="form-check-label" for="graduationInput2">
-                                            {{ $rawClient->graduation_year ? $rawClient->graduation_year : '-' }} <span
+                                            {{ $rawClient->graduation_year_real ? $rawClient->graduation_year_real : '-' }} <span
                                                 class="text-info">(New Data)</span>
                                         </label>
                                     </div>

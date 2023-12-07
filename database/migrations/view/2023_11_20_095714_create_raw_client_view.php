@@ -92,6 +92,7 @@ return new class extends Migration
             END) as grade_now,
             (SELECT ((SELECT grade_now) - 12)) AS year_gap,
             (SELECT YEAR((NOW() - INTERVAL (SELECT year_gap) YEAR) + INTERVAL 1 YEAR)) AS graduation_year_real,
+            rc.graduation_year,
             rc.lead_id,
             (CASE 
                 WHEN l.main_lead = "KOL" THEN CONCAT("KOL - ", l.sub_lead)

@@ -62,7 +62,7 @@
                             </div>
                             <div class="mb-2">
                                 <input type="text" name="graduation" id="graduationNew"
-                                    value="{{ $rawClient->graduation_year }}" class="form-control form-control-sm"
+                                    value="{{ $rawClient->graduation_year_real }}" class="form-control form-control-sm"
                                     placeholder="Type new graduation year" oninput="checkInputText(this, 'graduation')">
                             </div>
                         </div>
