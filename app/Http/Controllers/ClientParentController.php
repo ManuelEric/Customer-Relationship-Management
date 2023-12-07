@@ -389,7 +389,14 @@ class ClientParentController extends ClientController
         try {
 
             $rawClient = $this->clientRepository->getViewRawClientById($rawClientId);
-            $clientId != null ? $client = $this->clientRepository->getViewClientById($clientId) : null;
+            if (!isset($rawClient))
+                return Redirect::to('client/parent/raw')->withError('Data does not exist');
+
+            if ($clientId != null){
+                $client = $this->clientRepository->getViewClientById($clientId);
+                if (!isset($client))
+                    return Redirect::to('client/parent/raw')->withError('Data does not exist');
+            }
 
             DB::commit();
         } catch (Exception $e) {
@@ -480,6 +487,9 @@ class ClientParentController extends ClientController
 
         DB::beginTransaction();
         try {
+
+            if (!isset($rawParent))
+                return Redirect::to('client/parent/raw')->withError('Data does not exist');
 
             $this->clientRepository->deleteClient($rawclientId);
             DB::commit();
