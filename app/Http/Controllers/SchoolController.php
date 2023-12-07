@@ -285,7 +285,7 @@ class SchoolController extends Controller
 
     function getSchoolData()
     {
-        $schools = $this->schoolRepository->getAllSchools();
+        $schools = $this->schoolRepository->getVerifiedSchools();
         return response()->json(
             [
                 'success' => true,
