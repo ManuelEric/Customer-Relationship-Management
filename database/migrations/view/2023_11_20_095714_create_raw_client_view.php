@@ -123,7 +123,7 @@ return new class extends Migration
             LEFT JOIN tbl_sch sch
                 ON sch.sch_id = rc.sch_id
 
-        WHERE rc.is_verified = "N" AND rc.deleted_at is null
+        WHERE rc.is_verified = "N" AND rc.st_statusact = 1 AND rc.deleted_at is null
         ');
     }
 
