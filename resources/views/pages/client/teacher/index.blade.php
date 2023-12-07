@@ -184,6 +184,12 @@
                     defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient"><i class="bi bi-eye"></i></button>'
                 }
             ],
+            createdRow: function(row, data, index) {
+                    var newClientThisMonth = moment().format("MMM YY") == moment(data.created_at).format('MMM YY');
+                    if (newClientThisMonth) {
+                        $('td', row).addClass('table-success');
+                    }
+                }
         });
 
         @php

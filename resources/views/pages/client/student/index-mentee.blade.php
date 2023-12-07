@@ -254,6 +254,12 @@
                         $('td:nth-last-child(1) .deleteUser', row).addClass('d-none');
                         // $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
                     }
+
+                    var newClientThisMonth = moment().format("MMM YY") == moment(data.created_at).format('MMM YY');
+                    
+                    if (newClientThisMonth) {
+                        $('td', row).addClass('table-success');
+                    }
                 }
             });
 
