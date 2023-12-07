@@ -1,17 +1,17 @@
 @extends('layout.main')
 
-@section('title', 'Student')
+@section('title', 'Comparison Data Student')
 
 @push('styles')
 @endpush
 
 @section('content')
-@php
-    $parent = null;
-    if($client->parents()->count() > 0){
-        $parent = $client->parents()->first();
-    }
-@endphp
+    @php
+        $parent = null;
+        if ($client->parents()->count() > 0) {
+            $parent = $client->parents()->first();
+        }
+    @endphp
     <div class="row">
         <div class="col-md-7">
             <div class="card rounded">
@@ -138,9 +138,9 @@
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input graduation" type="radio" name="graduation"
                                             id="graduationInput2" onchange="checkInputRadio(this, 'graduation', 'text')"
-                                            value="{{ $rawClient->graduation_year }}">
+                                            value="{{ $rawClient->graduation_year_real }}">
                                         <label class="form-check-label" for="graduationInput2">
-                                            {{ $rawClient->graduation_year ? $rawClient->graduation_year : '-' }} <span
+                                            {{ $rawClient->graduation_year_real ? $rawClient->graduation_year_real : '-' }} <span
                                                 class="text-info">(New Data)</span>
                                         </label>
                                     </div>
@@ -164,8 +164,8 @@
                                             {{ $client->school_name ? $client->school_name : '-' }} <span
                                                 class="text-warning">(Existing Data)</span>
                                         </label>
-                                        @if($client->school_name != null)
-                                            @if($client->school->is_verified == 'Y')
+                                        @if ($client->school_name != null)
+                                            @if ($client->school->is_verified == 'Y')
                                                 <small class="text-success">
                                                     <i class="bi bi-check-circle-fill"></i>
                                                     Verified School
@@ -188,8 +188,8 @@
                                                 class="text-info">(New
                                                 Data)</span>
                                         </label>
-                                        @if($rawClient->sch_id != null)
-                                            @if($rawClient->is_verifiedschool == 'Y')
+                                        @if ($rawClient->sch_id != null)
+                                            @if ($rawClient->is_verifiedschool == 'Y')
                                                 <small class="text-success">
                                                     <i class="bi bi-check-circle-fill"></i>
                                                     Verified School
@@ -236,14 +236,13 @@
                                             data-email="{{ $parent != null ? $parent->mail : null }}"
                                             data-phone="{{ $parent != null ? $parent->phone : null }}"
                                             onchange="checkInputRadio(this, 'parent', 'select', 'exist')"
-                                            value="{{ $parent != null ?  $parent->id : null }}"
-                                            checked>
+                                            value="{{ $parent != null ? $parent->id : null }}" checked>
                                         <label class="form-check-label" for="parentInput1">
                                             {{ $parent != null ? $parent->first_name . ' ' . $parent->last_name : null }}
                                             <span class="text-warning">(Existing Data)</span>
                                         </label>
-                                        @if($parent != null)
-                                            @if($parent->is_verified == 'Y')
+                                        @if ($parent != null)
+                                            @if ($parent->is_verified == 'Y')
                                                 <small class="text-success">
                                                     <i class="bi bi-check-circle-fill"></i>
                                                     Verified
@@ -267,8 +266,8 @@
                                             {{ $rawClient->parent_name ? $rawClient->parent_name : '-' }} <span
                                                 class="text-info">(New Data)</span>
                                         </label>
-                                        @if($rawClient->is_verifiedparent != null)
-                                            @if($rawClient->is_verifiedparent == 'Y')
+                                        @if ($rawClient->is_verifiedparent != null)
+                                            @if ($rawClient->is_verifiedparent == 'Y')
                                                 <small class="text-success">
                                                     <i class="bi bi-check-circle-fill"></i>
                                                     Verified
@@ -334,16 +333,38 @@
             </div>
         </div>
         <div class="col-md-5">
-            <div class="card rounded position-sticky" style="top:15%;">
-                <form action="{{ route('client.convert.student', ['client_id' => $client->id, 'type' => 'merge', 'rawclient_id' => $rawClient->id]) }}" method="post">
+            <div class="card rounded mb-3">
+                <div class="card-header">
+                    <strong>
+                        Success Program from {{ $client->full_name }}
+                    </strong>
+                </div>
+                <div class="card-body overflow-auto" style="max-height: 300px">
+                    <ul class="list-group" style="font-size: 11px;">
+                        @for ($i = 0; $i < 5; $i++)
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-tags-fill me-1"></i>
+                                Program Name
+                            </div>
+                          <span class="badge bg-primary rounded-pill py-1 px-2" style="font-size: 11px">Anggi Prastiwi</span>
+                        </li>
+                        @endfor
+                      </ul>
+                </div>
+            </div>
+            <div class="card rounded">
+                <form
+                    action="{{ route('client.convert.student', ['client_id' => $client->id, 'type' => 'merge', 'rawclient_id' => $rawClient->id]) }}"
+                    method="post">
                     @csrf
                     <div class="card-header">
-                        <h5>Summarize</h5>
+                        <h5 class="m-0">Summarize</h5>
                     </div>
                     <div class="card-body">
                         Preview first before convert this data
                         <hr class="my-1">
-                        <input type="hidden" name="id" id="existing_id" value="{{$client->id}}">
+                        <input type="hidden" name="id" id="existing_id" value="{{ $client->id }}">
                         <table class="table table-borderless">
                             <tr>
                                 <td width="30%">Full Name</td>

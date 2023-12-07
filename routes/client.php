@@ -83,7 +83,7 @@ Route::resource('alumni', ClientMenteeController::class);
 Route::get('teacher-counselor/raw',  [ClientTeacherCounselorController::class, 'indexRaw']);
 Route::get('teacher-counselor/raw/{rawclient_id}/{type}/{client_id?}', [ClientTeacherCounselorController::class, 'cleaningData']);
 Route::post('teacher-counselor/raw/{rawclient_id}/{type}/{client_id?}', [ClientTeacherCounselorController::class, 'convertData'])->name('client.convert.teacher');
-Route::delete('teacher-counselor/raw/{rawclient_id}', [ClientTeacherCounselorController::class, 'destroyRaw'])->name('client.convert.teacher');
+Route::delete('teacher-counselor/raw/{rawclient_id}', [ClientTeacherCounselorController::class, 'destroyRaw']);
 
 Route::resource('teacher-counselor', ClientTeacherCounselorController::class);
 Route::prefix('teacher-counselor')->name('teacher-counselor.')->group(function () {
@@ -95,7 +95,7 @@ Route::prefix('teacher-counselor')->name('teacher-counselor.')->group(function (
 Route::get('parent/raw',  [ClientParentController::class, 'indexRaw']);
 Route::get('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'cleaningData']);
 Route::post('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'convertData'])->name('client.convert.parent');
-Route::delete('parent/raw/{rawclient_id}', [ClientStudentController::class, 'destroyRaw']);
+Route::delete('parent/raw/{rawclient_id}', [ClientParentController::class, 'destroyRaw']);
 
 Route::resource('parent', ClientParentController::class);
 

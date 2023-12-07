@@ -186,7 +186,7 @@ class ClientRepository implements ClientRepositoryInterface
             });
         })->when($month, function ($query) use ($month) {
             $query->whereMonth('tbl_client.created_at', date('m', strtotime($month)))->whereYear('tbl_client.created_at', date('Y', strtotime($month)));
-        })->get();
+        })->where('is_verified', 'Y')->get();
     }
 
     /* NEW */

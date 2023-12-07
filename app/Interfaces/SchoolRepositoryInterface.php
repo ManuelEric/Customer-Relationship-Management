@@ -6,6 +6,7 @@ interface SchoolRepositoryInterface
 {
     public function getAllSchoolDataTables($isRaw = false);
     public function getAllSchools();
+    public function getVerifiedSchools();
     public function getSchoolByMonthly($monthYear, $type);
     public function getSchoolById($schoolId);
     public function getSchoolByName($schoolName);

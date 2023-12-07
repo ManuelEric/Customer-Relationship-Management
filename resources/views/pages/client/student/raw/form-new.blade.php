@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Student')
+@section('title', 'Convert New Student')
 
 @push('styles')
 @endpush
@@ -28,7 +28,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-2">
                             <div class="mb-1">
-                                Full Name
+                                Full Name <sup class="text-danger">*</sup>
                             </div>
                             <div class="mb-2">
                                 <input type="text" name="name" id="nameNew" value="{{ $rawClient->fullname }}"
@@ -38,7 +38,7 @@
                         </div>
                         <div class="col-md-6 mb-2">
                             <div class="mb-1">
-                                Email
+                                Email <sup class="text-danger">*</sup>
                             </div>
                             <div class="mb-2">
                                 <input type="email" name="email" id="emailNew" value="{{ $rawClient->mail }}"
@@ -48,7 +48,7 @@
                         </div>
                         <div class="col-md-6 mb-2">
                             <div class="mb-1">
-                                Phone Number
+                                Phone Number <sup class="text-danger">*</sup>
                             </div>
                             <div class="mb-2">
                                 <input type="tel" name="phone" id="phoneNew" value="{{ $rawClient->phone }}"
@@ -58,17 +58,20 @@
                         </div>
                         <div class="col-md-6 mb-2">
                             <div class="mb-1">
-                                Graduation Year
+                                Graduation Year <sup class="text-danger">*</sup>
                             </div>
                             <div class="mb-2">
                                 <input type="text" name="graduation" id="graduationNew"
-                                    value="{{ $rawClient->graduation_year }}" class="form-control form-control-sm"
+                                    value="{{ $rawClient->graduation_year_real }}" class="form-control form-control-sm"
                                     placeholder="Type new graduation year" oninput="checkInputText(this, 'graduation')">
                             </div>
                         </div>
                         <div class="col-md-12 mb-2">
                             <div class="mb-1">
                                 School Name
+                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top"
+                                    data-bs-title="If the school data is not verified please use verified school list"></i>
+                                <sup class="text-danger">*</sup>
                             </div>
                             <div class="mb-2">
                                 <div class="row g-2">
@@ -76,22 +79,14 @@
                                         <div class="col-5 d-flex gap-2">
                                             <div class="w-100">
                                                 <input type="text" name="" id="schoolNew"
-                                                    data-id="{{ $rawClient->sch_id }}"
-                                                    class="form-control form-control-sm" value="{{ $rawClient->school_name }}"
+                                                    data-id="{{ $rawClient->is_verifiedschool == 'N' ? $rawClient->sch_id : '' }}"
+                                                    class="form-control form-control-sm"
+                                                    value="{{ $rawClient->is_verifiedschool == 'N' ? $rawClient->school_name : '' }}"
                                                     oninput="checkInputText(this, 'school')">
-                                                @if($rawClient->sch_id != null)
-                                                    @if($rawClient->is_verifiedschool == 'Y')
-                                                        <small class="text-success">
-                                                            <i class="bi bi-check-circle-fill"></i>
-                                                            Verified School
-                                                        </small>
-                                                    @else
-                                                        <small class="text-danger">
-                                                            <i class="bi bi-info-circle-fill"></i>
-                                                            Not Verified School
-                                                        </small>
-                                                    @endif
-                                                @endif
+                                                <small class="text-danger">
+                                                    <i class="bi bi-x-circle-fill"></i>
+                                                    Not Verified School
+                                                </small>
                                             </div>
                                             <div class="mt-2">
                                                 OR
@@ -148,6 +143,9 @@
                     <div class="col-md-12 mb-2">
                         <div class="card">
                             <div class="card-body">
+                                <div class="mb-1">
+                                    Parents Information
+                                </div>
                                 <div class="row">
                                     @if ($rawClient->parent_name != null)
                                         <div class="col-md-4">
@@ -171,6 +169,9 @@
                                         </div>
                                     @endif
                                     <div class="mb-2">
+                                        <div class="mb-1 mt-2">
+                                            Exist Parent's 
+                                        </div>
                                         <div class="row g-1">
                                             <div class="col-10">
                                                 <select class="select w-100 parent" name="parent" id="parentNew"
@@ -263,7 +264,8 @@
                                 <td>:</td>
                                 <td>
                                     <div id="parentPreview">{{ $rawClient->parent_name }}</div>
-                                    <input type="hidden" name="parentType" id="parentTypeInput" value="{{ $rawClient->is_verifiedparent != null && $rawClient->is_verifiedparent == "Y" ? "exist" : "new" }}">
+                                    <input type="hidden" name="parentType" id="parentTypeInput"
+                                        value="{{ $rawClient->is_verifiedparent != null && $rawClient->is_verifiedparent == 'Y' ? 'exist' : 'new' }}">
                                     <input type="hidden" name="parentFinal" id="parentInputPreview"
                                         value="{{ $rawClient->parent_id }}">
                                     <input type="hidden" name="parentName" id="parentNameInputPreview"
@@ -275,7 +277,8 @@
                                 <td>:</td>
                                 <td>
                                     <div id="parentEmailPreview">{{ $rawClient->parent_mail }}</div>
-                                    <input type="hidden" name="parentMail" value="{{ $rawClient->parent_mail }}" id="parentEmailInputPreview">
+                                    <input type="hidden" name="parentMail" value="{{ $rawClient->parent_mail }}"
+                                        id="parentEmailInputPreview">
                                 </td>
                             </tr>
                             <tr>
@@ -283,7 +286,8 @@
                                 <td>:</td>
                                 <td>
                                     <div id="parentPhonePreview">{{ $rawClient->parent_phone }}</div>
-                                    <input type="hidden" name="parentPhone" value="{{ $rawClient->parent_phone }}" id="parentPhoneInputPreview">
+                                    <input type="hidden" name="parentPhone" value="{{ $rawClient->parent_phone }}"
+                                        id="parentPhoneInputPreview">
                                 </td>
                             </tr>
                         </table>
@@ -314,7 +318,9 @@
             $('#parentPhone').prop('disabled', false).val('{{ $rawClient->parent_phone }}')
 
 
-            $('#parentTypeInput').val('{{ $rawClient->is_verifiedparent != null && $rawClient->is_verifiedparent == "Y" ? "exist" : "new" }}')
+            $('#parentTypeInput').val(
+                '{{ $rawClient->is_verifiedparent != null && $rawClient->is_verifiedparent == 'Y' ? 'exist' : 'new' }}'
+            )
             $('#parentInputPreview').val('')
             $('#parentPreview').html('{{ $rawClient->parent_name }}')
             $('#parentEmailPreview').html('{{ $rawClient->parent_mail }}')
@@ -373,7 +379,6 @@
             axios.get("{{ url('api/instance/school') }}")
                 .then(function(response) {
                     const data = response.data.data
-                    console.log(data)
                     $('#schoolExist').html('')
                     $('#schoolExist').append('<option value=""></option>')
                     data.forEach(element => {
@@ -382,6 +387,9 @@
                             element.sch_name + '</option>'
                         )
                     });
+
+                    $('#schoolExist').val("{{ $rawClient->is_verifiedschool == 'Y' ? $rawClient->school_name : '' }}")
+                        .trigger('change')
                     swal.close()
                 })
                 .catch(function(error) {

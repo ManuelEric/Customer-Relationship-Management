@@ -30,13 +30,14 @@
 @section('content')
 
     @if ($duplicates_schools_string)
-    <div class="alert alert-warning">
-            
-        <p><i class="bi bi-exclamation-triangle"></i>
-            Please review the school data and make any necessary updates. There appear to be a few duplicate entries.<br><br>
-            Such as : <b>{{ $duplicates_schools_string }}</b>
-        </p>
-    </div>
+        <div class="alert alert-warning">
+
+            <p><i class="bi bi-exclamation-triangle"></i>
+                Please review the school data and make any necessary updates. There appear to be a few duplicate
+                entries.<br><br>
+                Such as : <b>{{ $duplicates_schools_string }}</b>
+            </p>
+        </div>
     @endif
 
     <div class="card bg-secondary mb-1 p-2">
@@ -291,7 +292,8 @@
                         data: 'sch_id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            return '<input type="checkbox" class="editor-active cursor-pointer" data-id="'+ row.sch_id +'">'
+                            return '<input type="checkbox" class="editor-active cursor-pointer" data-id="' +
+                                row.sch_id + '">'
                         }
                     },
                     {
@@ -323,25 +325,32 @@
                         className: 'text-center',
                         render: function(data, type, row, meta) {
                             return '<div class="btn-group">' +
-                                        '<p class="dropdown-toggle cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false"> Action </p>' +
-                                        '<ul class="dropdown-menu" style="font-size: 12px">' +
-                                            '<li>' +
-                                                '<div class="dropdown-item cursor-pointer" data-id="'+ row.sch_id +'" data-school="'+ row.sch_name +'" data-type="'+row.sch_type_text+'" data-target="'+ row.sch_score +'" data-address="'+ row.sch_location +'" onclick="convertNewSchool(this)">' +
-                                                    '<i class="bi bi-plus-circle-dotted me-1"></i> Convert to New School' +
-                                                '</div>' +
-                                            '</li>' +
-                                            '<li>' +
-                                                '<div class="dropdown-item cursor-pointer" data-id="'+ row.sch_id +'" data-name="'+ row.sch_name +'" onclick="convertAliasSchool(this)">' +
-                                                    '<i class="bi bi-bookmark-plus me-1"></i> Convert to Alias' +
-                                                '</div>' +
-                                            '</li>' +
-                                            '<li>' +
-                                                '<div class="dropdown-item text-danger cursor-pointer" onclick="confirmDelete(\'instance/school/raw\', \''+ row.sch_id + '\')">' +
-                                                    '<i class="bi bi-trash me-1"></i> Delete' +
-                                                '</div>' +
-                                            '</li>' +
-                                        '</ul>' +
-                                    '</div>';
+                                '<p class="dropdown-toggle cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false"> Action </p>' +
+                                '<ul class="dropdown-menu" style="font-size: 12px">' +
+                                '<li>' +
+                                '<div class="dropdown-item cursor-pointer" data-id="' + row.sch_id +
+                                '" data-school="' + row.sch_name + '" data-type="' + row
+                                .sch_type_text + '" data-target="' + row.sch_score +
+                                '" data-address="' + row.sch_location +
+                                '" onclick="convertNewSchool(this)">' +
+                                '<i class="bi bi-plus-circle-dotted me-1"></i> Convert to New School' +
+                                '</div>' +
+                                '</li>' +
+                                '<li>' +
+                                '<div class="dropdown-item cursor-pointer" data-id="' + row.sch_id +
+                                '" data-name="' + row.sch_name +
+                                '" onclick="convertAliasSchool(this)">' +
+                                '<i class="bi bi-bookmark-plus me-1"></i> Convert to Alias' +
+                                '</div>' +
+                                '</li>' +
+                                '<li>' +
+                                '<div class="dropdown-item text-danger cursor-pointer" onclick="confirmDelete(\'instance/school/raw\', \'' +
+                                row.sch_id + '\')">' +
+                                '<i class="bi bi-trash me-1"></i> Delete' +
+                                '</div>' +
+                                '</li>' +
+                                '</ul>' +
+                                '</div>';
                         }
                     }
                 ]
@@ -393,19 +402,19 @@
                     /* Read more about isConfirmed, isDenied below */
                     if (result.isConfirmed) {
                         showLoading();
-                        var link = '{{ route("school.raw.bulk.destroy") }}';
+                        var link = '{{ route('school.raw.bulk.destroy') }}';
                         axios.post(link, {
-                            choosen : selected
-                        })
-                        .then(function (response) {
-                            swal.close();
-                            notification('success', response.data.message);
-                            $("#rawTable").DataTable().ajax.reload()
-                        })
-                        .catch(function (error) {
-                            swal.close();
-                            notification('error', error.message);
-                        })
+                                choosen: selected
+                            })
+                            .then(function(response) {
+                                swal.close();
+                                notification('success', response.data.message);
+                                $("#rawTable").DataTable().ajax.reload()
+                            })
+                            .catch(function(error) {
+                                swal.close();
+                                notification('error', error.message);
+                            })
                     }
                 });
             } else {
@@ -437,7 +446,7 @@
             $("#form-convert").prop('action', url);
 
             $('#newSchool').modal('show')
-            
+
         }
 
         function convertAliasSchool(item) {
