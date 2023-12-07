@@ -359,7 +359,6 @@ class ClientTeacherCounselorController extends ClientController
                 if (!isset($client))
                     return Redirect::to('client/teacher-counselor/raw')->withError('Data does not exist');
             }
-            
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();

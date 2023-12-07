@@ -83,7 +83,7 @@ Route::resource('alumni', ClientMenteeController::class);
 Route::get('teacher-counselor/raw',  [ClientTeacherCounselorController::class, 'indexRaw']);
 Route::get('teacher-counselor/raw/{rawclient_id}/{type}/{client_id?}', [ClientTeacherCounselorController::class, 'cleaningData']);
 Route::post('teacher-counselor/raw/{rawclient_id}/{type}/{client_id?}', [ClientTeacherCounselorController::class, 'convertData'])->name('client.convert.teacher');
-Route::delete('teacher-counselor/raw/{rawclient_id}', [ClientTeacherCounselorController::class, 'destroyRaw'])->name('client.convert.teacher');
+Route::delete('teacher-counselor/raw/{rawclient_id}', [ClientTeacherCounselorController::class, 'destroyRaw']);
 
 Route::resource('teacher-counselor', ClientTeacherCounselorController::class);
 Route::prefix('teacher-counselor')->name('teacher-counselor.')->group(function () {

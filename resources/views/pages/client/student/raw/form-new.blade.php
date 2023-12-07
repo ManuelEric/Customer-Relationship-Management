@@ -28,7 +28,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-2">
                             <div class="mb-1">
-                                Full Name
+                                Full Name <i class="text-danger font-weight-bold">*</i>
                             </div>
                             <div class="mb-2">
                                 <input type="text" name="name" id="nameNew" value="{{ $rawClient->fullname }}"
@@ -38,7 +38,7 @@
                         </div>
                         <div class="col-md-6 mb-2">
                             <div class="mb-1">
-                                Email
+                                Email <i class="text-danger font-weight-bold">*</i>
                             </div>
                             <div class="mb-2">
                                 <input type="email" name="email" id="emailNew" value="{{ $rawClient->mail }}"
@@ -48,7 +48,7 @@
                         </div>
                         <div class="col-md-6 mb-2">
                             <div class="mb-1">
-                                Phone Number
+                                Phone Number <i class="text-danger font-weight-bold">*</i>
                             </div>
                             <div class="mb-2">
                                 <input type="tel" name="phone" id="phoneNew" value="{{ $rawClient->phone }}"
@@ -171,6 +171,9 @@
                                         </div>
                                     @endif
                                     <div class="mb-2">
+                                        <div class="mb-1 mt-2">
+                                            Exist Parent's 
+                                        </div>
                                         <div class="row g-1">
                                             <div class="col-10">
                                                 <select class="select w-100 parent" name="parent" id="parentNew"
