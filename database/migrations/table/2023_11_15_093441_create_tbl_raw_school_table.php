@@ -13,6 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
+        #
         Schema::create('tbl_raw_school', function (Blueprint $table) {
             $table->string('sch_id', 8)->unique();
             $table->string('uuid')->unique();

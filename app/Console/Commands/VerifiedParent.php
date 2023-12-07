@@ -53,28 +53,27 @@ class VerifiedParent extends Command
                 ## Update to verified
 
                 # Case 1: have joined the program with success status
-                $successProg = false;
+                $isVerified = false;
                 if ($parent->childrens->count() > 0) {
                     foreach ($parent->childrens as $child) {
                         if ($child->clientProgs->count() > 0) {
                             foreach ($child->clientProgs as $clientProg) {
                                 if ($clientProg->status == 1) {
-                                    $successProg = true;
+                                    $isVerified = true;
                                 }
                             }
                         }
                     }
+                }else{
+                    # Case 2: Email and phone is complete
+                    if ($parent->mail != null && $parent->phone != null && !preg_match('/[^\x{80}-\x{F7} a-z0-9@_.\'-]/iu', $parent->full_name)) {
+                        $isVerified = true;
+                    }
                 }
-
-                // $successProg == true ? $this->info(json_encode($parent)) : null;
-                $successProg == true ?  $this->clientRepository->updateClient($parent->id, ['is_verified' => 'Y']) : null;
+                $isVerified == true ?  $this->clientRepository->updateClient($parent->id, ['is_verified' => 'Y']) : null;
 
 
-                # Case 2: Email and phone is complete
-                if ($parent->mail != null && $parent->phone != null) {
-                    // $this->info(json_encode($parent));
-                    $this->clientRepository->updateClient($parent->id, ['is_verified' => 'Y']);
-                }
+                
 
                 $progressBar->advance();
             }

@@ -6,6 +6,7 @@ use App\Http\Requests\StoreSchoolRawRequest;
 use App\Http\Traits\LoggingTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
+use App\Jobs\RawClient\ProcessVerifyClient;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -76,6 +77,9 @@ class SchoolRawController extends Controller
             # insert into school
             $this->schoolRepository->updateSchool($schoolId, $schoolDetails + ['is_verified' => 'Y']);
 
+            # trigger to verifying client
+            $clients = $this->clientRepository->getClientBySchool($schoolId)->pluck('id')->toArray();
+            ProcessVerifyClient::dispatch($clients)->onQueue('verifying-client');
 
             DB::commit();
         } catch (Exception $e) {
@@ -119,6 +123,8 @@ class SchoolRawController extends Controller
             # and remove the school that being deleted
             $clients = $this->clientRepository->getClientBySchool($rawSchoolId)->pluck('id')->toArray();
             $this->clientRepository->updateClients($clients, ['sch_id' => NULL]);
+
+            ProcessVerifyClient::dispatch($clients)->onQueue('verifying-client');
             DB::commit();
 
         } catch (Exception $e) {
@@ -145,6 +151,8 @@ class SchoolRawController extends Controller
             # and remove the school that being deleted
             $clients = $this->clientRepository->getClientInSchool($rawSchoolIds)->pluck('id')->toArray();
             $this->clientRepository->updateClients($clients, ['sch_id' => NULL]);
+
+            ProcessVerifyClient::dispatch($clients)->onQueue('verifying-client');
 
             DB::commit();
 
