@@ -246,7 +246,10 @@
                                 <span class="menu-title">{{ $key }}</span>
                                 <i class="menu-arrow bi bi-arrow-right"></i>
                             </a>
-                            <div class="collapse {{ Request::is(strtolower($key) . '*') ? 'show' : 'hide' }}"
+                            <div @class([
+                                    'collapse',
+                                    'show' => Request::is(strtolower($key) . '*'),
+                                ])
                                 id="{{ strtolower($key) }}">
                                 <ul class="nav flex-column sub-menu bg-secondary p-0" style="list-style-type: none;">
                                     @foreach ($menu as $key2 => $submenu)
@@ -254,10 +257,10 @@
                                             $submenu_link = $submenu['submenu_link'];
                                             $explode = explode('/', $submenu_link);
                                             $length = count($explode);
-                                            if ($length > 2) {
-                                                $submenu_link_array = array_slice($explode, 0, 2);
-                                                $submenu_link = implode('/', $submenu_link_array);
-                                            }
+                                            // if ($length > 2) {
+                                            //     $submenu_link_array = array_slice($explode, 0, 2);
+                                            //     $submenu_link = implode('/', $submenu_link_array);
+                                            // }
                                         @endphp
                                         @if ($position = strpos($submenu['submenu_link'], '?'))
                                             @php
@@ -265,7 +268,16 @@
                                             @endphp
                                         @endif
                                         <li class="p-0">
-                                            <a class="nav-link py-1 m-0 ps-5 border-bottom rounded-0 {{ Request::is($submenu_link . '*') ? 'active bg-info text-white' : 'text-white' }}"
+                                            <a @class([
+                                                    'nav-link',
+                                                    'py-1',
+                                                    'm-0',
+                                                    'ps-5',
+                                                    'border-bottom',
+                                                    'rounded-0',
+                                                    'active bg-info' => Request::is($submenu_link . '*'),
+                                                    'text-white',
+                                                ])
                                                 href="{{ url($submenu['submenu_link']) }}">
                                                 <i class="bi bi-dash me-2"></i>
                                                 {{ $submenu['submenu_name'] }}

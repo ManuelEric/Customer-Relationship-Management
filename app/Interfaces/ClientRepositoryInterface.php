@@ -14,6 +14,9 @@ interface ClientRepositoryInterface
 
     public function getMaxGraduationYearFromClient();
 
+    public function findDeletedClientById($clientId);
+    public function restoreClient($clientId);
+
     /* new */
     public function getNewLeads($asDatatables = false, $month = NULL, array $advanced_filter); # month nullable
     public function getPotentialClients($asDatatables = false, $month = NULL,  array $advanced_filter); # month nullable
@@ -27,6 +30,12 @@ interface ClientRepositoryInterface
     public function getClientHotLeads($initialProgram);
     public function addInterestProgram($studentId, $interestProgram);
     public function removeInterestProgram($studentId, $interstProgram, $progId);
+    /* ~ END */
+
+    /* trash */
+    public function getDeletedStudents($asDatatables);
+    public function getDeletedParents($asDatatables);
+    public function getDeletedTeachers($asDatatables);
     /* ~ END */
 
     /* API External use */

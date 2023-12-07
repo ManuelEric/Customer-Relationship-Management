@@ -72,6 +72,13 @@ class MainMenuSeeder extends Seeder
                 'icon' => 'bi bi-printer',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
+            ],
+            [
+                'mainmenu_name' => 'Recycle Bin',
+                'order_no' => 9,
+                'icon' => 'bi bi-trash',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ]
         ];
 

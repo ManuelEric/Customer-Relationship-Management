@@ -11,8 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class School extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'tbl_sch';
     protected $primaryKey = 'sch_id';

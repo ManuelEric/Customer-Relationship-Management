@@ -119,6 +119,33 @@
         </div>
     </div>
 
+    {{-- Restore Client & Instance --}}
+    <div class="modal modal-sm fade" tabindex="-1" id="restoreModal" data-bs-backdrop="static"
+        data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form action="" method="post" id="formRestore">
+                    @csrf
+                    @method('put')
+                    <div class="modal-body text-center">
+                        <h2>
+                            <i class="bi bi-info-circle text-info"></i>
+                        </h2>
+                        <h4>Are you sure?</h4>
+                        <h6>You want to restore?</h6>
+                        <hr>
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
+                            <i class="bi bi-x-square me-1"></i>
+                            Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="bi bi-trash3 me-1"></i>
+                            Yes!</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     {{-- Request Sign  --}}
     <div class="modal modal-sm fade" tabindex="-1" id="requestSign--modal" data-bs-backdrop="static"
         data-bs-keyboard="false">
@@ -243,6 +270,15 @@
 
     {{-- Confirm Delete & Deactivate Modal  --}}
     <script>
+        function confirmRestore(subject, id) {
+            // show modal 
+            var myModal = new bootstrap.Modal(document.getElementById('restoreModal'))
+            myModal.show()
+
+            // change form action 
+            $('#formRestore').attr('action', '{{ url('') }}/' + subject + '/' + id);
+        }
+
         function confirmDelete(subject, id) {
             // show modal 
             var myModal = new bootstrap.Modal(document.getElementById('deleteItem'))
