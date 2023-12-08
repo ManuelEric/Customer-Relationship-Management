@@ -299,22 +299,22 @@
                         <div class="d-flex align-items-center h-100">
                             <h5 class="p-0 m-0">Raw Data Client <br> Total</h5>
                             <h3 class="p-0 client-status ms-auto">
-                                402
+                                {{ array_sum($totalClientInformation['raw']) }}
                             </h3>
                         </div>
                     </div>
                     <div class="card-footer bg-primary">
                         <div class="row row-cols-3">
                             <div class="col text-center text-white">
-                                <h5 class="m-0">4</h5>
+                                <h5 class="m-0">{{ $totalClientInformation['raw']['student'] }}</h5>
                                 <small>Students</small>
                             </div>
                             <div class="col text-center text-white">
-                                <h5 class="m-0">4</h5>
+                                <h5 class="m-0">{{ $totalClientInformation['raw']['parent'] }}</h5>
                                 <small>Parents</small>
                             </div>
                             <div class="col text-center text-white">
-                                <h5 class="m-0">4</h5>
+                                <h5 class="m-0">{{ $totalClientInformation['raw']['teacher'] }}</h5>
                                 <small>Teachers</small>
                             </div>
                         </div>
@@ -324,22 +324,22 @@
                         <div class="d-flex align-items-center h-100">
                             <h5 class="p-0 m-0">Inactive Client <br> Total</h5>
                             <h3 class="p-0 client-status ms-auto">
-                                402
+                                {{ array_sum($totalClientInformation['inactive']) }}
                             </h3>
                         </div>
                     </div>
                     <div class="card-footer bg-danger">
                         <div class="row row-cols-3">
                             <div class="col text-center text-white">
-                                <h5 class="m-0">4</h5>
+                                <h5 class="m-0">{{ $totalClientInformation['inactive']['student'] }}</h5>
                                 <small>Students</small>
                             </div>
                             <div class="col text-center text-white">
-                                <h5 class="m-0">4</h5>
+                                <h5 class="m-0">{{ $totalClientInformation['inactive']['parent'] }}</h5>
                                 <small>Parents</small>
                             </div>
                             <div class="col text-center text-white">
-                                <h5 class="m-0">4</h5>
+                                <h5 class="m-0">{{ $totalClientInformation['inactive']['teacher'] }}</h5>
                                 <small>Teachers</small>
                             </div>
                         </div>

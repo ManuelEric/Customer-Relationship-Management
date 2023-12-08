@@ -109,6 +109,48 @@ class UserClient extends Authenticatable
         );
     }
 
+    # Scopes
+    public function scopeIsVerified($query)
+    {
+        return $query->where('is_verified', 'Y');
+    }
+
+    public function scopeIsNotVerified($query)
+    {
+        return $query->where('is_verified', 'N');
+    }
+
+    public function scopeIsActive($query)
+    {
+        return $query->where('st_statusact', 1);
+    }
+
+    public function scopeIsNotActive($query)
+    {
+        return $query->where('st_statusact', 0);
+    }
+
+    public function scopeIsStudent($query)
+    {
+        return $query->whereHas('roles', function ($subQuery) {
+            $subQuery->where('role_name', 'Student');
+        });
+    }
+
+    public function scopeIsParent($query)
+    {
+        return $query->whereHas('roles', function ($subQuery) {
+            $subQuery->where('role_name', 'Parent');
+        });
+    }
+
+    public function scopeIsTeacher($query)
+    {
+        return $query->whereHas('roles', function ($subQuery) {
+            $subQuery->where('role_name', 'Teacher/Counselor');
+        });
+    }
+
     public function scopeWhereRoleName(Builder $query, $role)
     {
         $query->whereHas('roles', function ($q) use ($role) {
