@@ -69,6 +69,7 @@
                     <a class="nav-link text-nowrap active" aria-current="page" href="{{ url('client/parent') }}">Parents</a>
                 </li>
             </ul>
+
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="clientTable">
                 <thead class="bg-secondary text-white">
                     <tr class="text-center" role="row">
