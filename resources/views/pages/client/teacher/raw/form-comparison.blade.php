@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Teacher')
+@section('title', 'Comparison Teachers Data')
 
 @push('styles')
 @endpush

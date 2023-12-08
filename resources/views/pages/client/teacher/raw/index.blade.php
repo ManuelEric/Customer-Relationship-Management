@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Raw Data Teacher')
+@section('title', 'Raw Teachers Data')
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('library/dashboard/css/vertical-layout-light/style.css') }}">
@@ -15,15 +15,6 @@
         .btn-import:hover>span {
             display: inline-block;
         }
-
-        td.dt-control {
-            background: url('http://www.datatables.net/examples/resources/details_open.png') no-repeat center center;
-            cursor: pointer;
-        }
-
-        tr.shown td.dt-control {
-            background: url('http://www.datatables.net/examples/resources/details_close.png') no-repeat center center;
-        }
     </style>
 @endpush
 
@@ -36,7 +27,24 @@
                     Teacher
                 </h5>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
+                <div class="row g-1">
+                    <div class="col-md-4 col-7">
+                        <a href="{{ url('api/download/excel-template/teacher') }}"
+                            class="btn btn-sm btn-light text-info btn-download w-100"><i class="bi bi-download"></i> <span
+                                class="ms-1">Template</span></a>
+                    </div>
+                    <div class="col-md-4 col-5">
+                        <a href="javascript:void(0)" class="btn btn-sm btn-light text-info btn-import w-100"
+                            data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span
+                                class="ms-1">Import</span></a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ url('client/teacher-counselor/create') }}" class="btn btn-sm btn-info w-100"><i
+                                class="bi bi-plus-square me-1"></i> Add
+                            Teacher</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -55,11 +63,13 @@
         <div class="card-body">
             <ul class="nav nav-tabs flex-nowrap overflow-auto w-100 mb-3" style="overflow-y: hidden !important;">
                 <li class="nav-item">
-                    <a class="nav-link text-nowrap active" aria-current="page" href="{{ url('client/teacher-counselor/raw') }}">Raw
+                    <a class="nav-link text-nowrap active" aria-current="page"
+                        href="{{ url('client/teacher-counselor/raw') }}">Raw
                         Data</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-nowrap" aria-current="page" href="{{ url('client/teacher-counselor') }}">Teacher</a>
+                    <a class="nav-link text-nowrap" aria-current="page"
+                        href="{{ url('client/teacher-counselor') }}">Teacher</a>
                 </li>
             </ul>
 
@@ -74,7 +84,9 @@
                     <thead class="bg-secondary text-white">
                         <tr class="text-center" role="row">
                             <th class="bg-info text-white">#</th>
-                            <th class="bg-info text-white">No</th>
+                            <th class="bg-info text-white">
+                                <i class="bi bi-check-square"></i>
+                            </th>
                             <th class="bg-info text-white">Teacher Name</th>
                             <th class="bg-info text-white">Suggestion</th>
                             <th>Teacher Email</th>
@@ -84,29 +96,6 @@
                             <th class="bg-info text-white">Action</th>
                         </tr>
                     </thead>
-                    {{-- <tbody>
-                        @for ($i = 0; $i < 10; $i++)
-                            <tr>
-                                <td class="dt-control"></td>
-                                <td>{{ $i }}</td>
-                                <td>Lorem</td>
-                                <td>
-                                    <div class="badge badge-warning">
-                                        2 Similar Name
-                                    </div>
-                                </td>
-                                <td>Lorem</td>
-                                <td>Lorem</td>
-                                <td>Lorem</td>
-                                <td>Lorem</td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-danger py-1 px-2" onclick="confirmDelete('raw-data', 1)">
-                                        <i class="bi bi-eraser"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        @endfor
-                    </tbody> --}}
                 </table>
             </div>
         </div>
@@ -126,7 +115,7 @@
                     arrSuggest = suggestion.split(',');
                 }
 
-                if(arrSuggest.length > 0){
+                if (arrSuggest.length > 0) {
                     similar +=
                         '<th colspan=5>Comparison with Similar Names:</th>' +
                         '</tr>' +
@@ -136,30 +125,18 @@
 
                     clientSuggest.forEach(function(item, index) {
                         similar += '<tr onclick="comparison(' +
-                        d.id + ',' + item.id + ')" class="cursor-pointer">' +
-                        '<td><input type="radio" name="similar' + d.id +
-                        '" class="form-check-input item-' + item.id + '" onclick="comparison(' +
-                        d.id + ',' + item.id + ')" /></td>' +
-                        '<td>' + item.first_name + ' ' + item.last_name + '</td>' +
-                        '<td>' + (item.mail !== null ? item.mail : '-') + '</td>' +
-                        '<td>' + (item.phone !== null ? item.phone : '-') + '</td>' +
-                        '</tr>'
+                            d.id + ',' + item.id + ')" class="cursor-pointer">' +
+                            '<td><input type="radio" name="similar' + d.id +
+                            '" class="form-check-input item-' + item.id + '" onclick="comparison(' +
+                            d.id + ',' + item.id + ')" /></td>' +
+                            '<td><i class="bi bi-person me-1"></i>' + item.first_name + ' ' + item.last_name + '</td>' +
+                            '<td>' + (item.mail !== null ? item.mail : '-') + '</td>' +
+                            '<td>' + (item.phone !== null ? item.phone : '-') + '</td>' +
+                            '</tr>'
                     })
                 }
 
-
-                similar +=
-                    '<tr>' +
-                    '<th colspan=5>Convert without Comparison</th>' +
-                    '</tr>' +
-                    '<tr class="cursor-pointer" onclick="newLeads(' +
-                    d.id + ')">' +
-                    '<td><input type="radio" name="similar' + d.id +
-                    '" class="form-check-input item-' + d.id + '" onclick="newLeads(' +
-                    d.id + ')" /></td>' +
-                    '<td colspan=4>New Teacher</td>' +
-                    '</tr>' +
-                    '</table>'
+                similar += '</table>'
                 // `d` is the original data object for the row
                 return (similar);
             }
@@ -174,7 +151,23 @@
                     'pageLength', {
                         extend: 'excel',
                         text: 'Export to Excel',
-                    }
+                    },
+                    {
+                        text: '<i class="bi bi-check-square me-1"></i> Select All',
+                        action: function(e, dt, node, config) {
+                            selectAll();
+                        }
+                    },
+                    {
+                        text: '<i class="bi bi-trash-fill me-1"></i> Delete',
+                        action: function(e, dt, node, config) {
+                            multipleDelete();
+                        }
+                    },
+                ],
+                lengthMenu: [
+                    [10, 50, 100, -1],
+                    ['10 Leads', '50 Leads', '100 Leads', 'Show all']
                 ],
                 scrollX: true,
                 fixedColumns: {
@@ -186,8 +179,12 @@
                 ajax: {
                     url: '',
                 },
+                rowCallback: function(row, data) {
+                    if (data.suggestion) {
+                        $('td:eq(0)', row).addClass('dt-control');
+                    }
+                },
                 columns: [{
-                        className: 'dt-control',
                         orderable: false,
                         data: null,
                         defaultContent: ''
@@ -196,7 +193,8 @@
                         data: 'id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            return meta.row + meta.settings._iDisplayStart + 1;
+                            return '<input type="checkbox" class="editor-active cursor-pointer" data-id="' +
+                                data + '">'
                         }
                     },
                     {
@@ -214,7 +212,8 @@
                                 return '-'
                             } else {
                                 var arraySuggestion = data.split(',');
-                                return '<div class="badge badge-warning py-1 px-2 ms-2">' + arraySuggestion.length + ' Similar Names</div>'
+                                return '<div class="badge badge-warning py-1 px-2 ms-2">' +
+                                    arraySuggestion.length + ' Similar Names</div>'
                             }
                         }
                     },
@@ -230,13 +229,19 @@
                         data: 'school_name',
                         defaultContent: '-',
                         render: function(data, type, row, meta) {
-                            if(data != null){
-                                if(row.is_verifiedschool == 'Y'){
-                                    return data + '<div class="badge badge-success py-1 px-2 ms-2">Verified</div>'
-                                }else{
-                                    return data + '<div class="badge badge-danger py-1 px-2 ms-2">Not Verified</div>'
+                            if (data != null) {
+                                if (row.is_verifiedschool == 'Y') {
+                                    return data +
+                                        '<i class="bi bi-check-circle-fill text-success ms-1" data-bs-toggle="tooltip" data-bs-placement="top" ' +
+                                        'data-bs-custom-class="custom-tooltip" ' +
+                                        'data-bs-title="Verified"></i>'
+                                } else {
+                                    return data +
+                                        '<i class="bi bi-x-circle-fill text-danger ms-1" data-bs-toggle="tooltip" data-bs-placement="top" ' +
+                                        'data-bs-custom-class="custom-tooltip" ' +
+                                        'data-bs-title="Not Verified"></i>'
                                 }
-                            }else{
+                            } else {
                                 return data
                             }
                         }
@@ -249,10 +254,29 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-danger py-1 px-2 deleteRawClient"><i class="bi bi-eraser"></i></button>'
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-danger py-1 px-2 deleteRawClient"><i class="bi bi-eraser"></i></button>',
+                        render: function(data, type, row, meta) {
+                            return '<div class="d-flex gap-1 justify-content-center">' +
+                                '<small class="btn btn-sm btn-info px-1 pt-1 pb-0  cursor-pointer item-' +
+                                row
+                                .id +
+                                '" data-bs-toggle="tooltip" data-bs-placement="top" ' +
+                                'data-bs-custom-class="custom-tooltip" ' +
+                                'data-bs-title="Convert to New Lead" onclick="newLeads(' +
+                                row.id + ')">' +
+                                '<i class="bi bi-send-check-fill text-secondary"></i>' +
+                                '</small>' +
+                                '<small data-bs-toggle="tooltip" data-bs-placement="top" ' +
+                                'data-bs-custom-class="custom-tooltip" ' +
+                                'data-bs-title="Delete" class="btn btn-sm btn-danger px-1 pt-1 pb-0  cursor-pointer deleteRawClient">' +
+                                '<i class="bi bi-trash"></i>' +
+                                '</small>' +
+                                '</div>';
+                        }
                     },
                 ],
             });
+
             // Add a click event listener to each row in the parent DataTable
             table.on('click', 'td.dt-control', function(e) {
                 let tr = e.target.closest('tr');
@@ -287,7 +311,7 @@
                                 swal.close()
                                 console.log(error);
                             })
-                    }else{
+                    } else {
 
                         row.child(format(row.data(), null)).show();
                     }
@@ -299,7 +323,63 @@
                 confirmDelete('client/teacher-counselor/raw', data.id)
             });
 
+            // Tooltip 
+            $('#rawTable tbody').on('mouseover', 'tr', function() {
+                $('[data-bs-toggle="tooltip"]').tooltip({
+                    trigger: 'hover',
+                    html: true
+                });
+            });
+
+            function selectAll() {
+                const check_number = $('input.editor-active').length;
+                const checked_number = $('input.editor-active:checked').length;
+                const uncheck_number = check_number - checked_number;
+
+                $('input.editor-active').each(function() {
+                    if (uncheck_number == check_number) {
+                        $(this).prop('checked', true)
+                        table.button(2).text('<i class="bi bi-x me-1"></i> Unselect All')
+                    } else if (checked_number == check_number) {
+                        $(this).prop('checked', false)
+                        table.button(2).text('<i class="bi bi-check-square me-1"></i> Select All')
+                    } else {
+                        $(this).prop('checked', true)
+                        table.button(2).text('<i class="bi bi-x me-1"></i> Unselect All')
+                    }
+                });
+            }
+
         });
+
+        function multipleDelete() {
+            var selected = [];
+            $('input.editor-active').each(function() {
+                if ($(this).prop('checked')) {
+                    selected.push($(this).data('id'));
+                }
+            });
+
+            if (selected.length > 0) {
+                Swal.fire({
+                    title: "Confirmation!",
+                    text: 'Are you sure to delete the teacher?',
+                    showCancelButton: true,
+                    confirmButtonText: "Yup",
+                }).then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed) {
+                        console.log(selected);
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Please select the school first!",
+                });
+            }
+        }
 
         function comparison(id, id2) {
             $('input.item-' + id2).prop('checked', true);
