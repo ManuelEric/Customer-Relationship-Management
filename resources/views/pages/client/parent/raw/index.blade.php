@@ -171,7 +171,7 @@
                             '<td><input type="radio" name="similar' + d.id +
                             '" class="form-check-input item-' + item.id + '" onclick="comparison(' +
                             d.id + ',' + item.id + ')" /></td>' +
-                            '<td>' + item.first_name + ' ' + (item.last_name !== null ? item.last_name :
+                            '<td><i class="bi bi-person me-1"></i>' + item.first_name + ' ' + (item.last_name !== null ? item.last_name :
                                 '') + '</td>' +
                             '<td>' + (item.mail !== null ? item.mail : '-') + '</td>' +
                             '<td>' + (item.phone !== null ? item.phone : '-') + '</td>' +
