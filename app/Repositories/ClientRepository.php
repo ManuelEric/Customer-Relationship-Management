@@ -478,6 +478,43 @@ class ClientRepository implements ClientRepositoryInterface
 
         return $model;
     }
+
+    public function getUnverifiedStudent($asDatatables = false, $month = null, $advanced_filter = [])
+    {
+        $query = Client::isStudent()->isNotVerified();
+        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;
+    }
+
+    public function getUnverifiedParent($asDatatables = false, $month = null, $advanced_filter = [])
+    {
+        $query = Client::isParent()->isNotVerified();
+        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;
+    }
+
+    public function getUnverifiedTeacher($asDatatables = false, $month = null, $advanced_filter = [])
+    {
+        $query = Client::isTeacher()->isNotVerified();
+        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;
+    }
+
+    public function getInactiveStudent($asDatatables = false, $month = null, $advanced_filter = [])
+    {
+        $query = Client::isStudent()->isNotActive();
+        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;
+    }
+
+    public function getInactiveParent($asDatatables = false, $month = null, $advanced_filter = [])
+    {
+        $query = Client::isParent()->isNotActive();
+        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;
+    }
+
+    public function getInactiveTeacher($asDatatables = false, $month = null, $advanced_filter = [])
+    {
+        $query = Client::isTeacher()->isNotActive();
+        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;
+    }
+
     /* ~ END*/
 
     /* for API External use */
