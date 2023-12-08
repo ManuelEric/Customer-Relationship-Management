@@ -21,23 +21,27 @@
                         <a href="{{ url('api/export/client') }}" class="btn btn-sm btn-outline-info btn-export"
                             style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;"><i
                                 class="bi bi-download"></i>
-                            </a>
+                        </a>
                     </div>
                     <div class="col-md-5 col-6">
-                        <button type="button" id="btn-follow-up" class="btn btn-sm btn-info position-relative pe-3 w-100"
-                            style="font-size: 11px" data-bs-toggle="modal" data-bs-target="#follow_up">
+                        <button type="button" id="btn-follow-up"
+                            class="btn btn-sm btn-info position-relative pe-3 w-100" style="font-size: 11px"
+                            data-bs-toggle="modal" data-bs-target="#follow_up">
                             Follow Up Reminder
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                            <span
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                                 style="font-size: 11px">
                                 {{ isset($followUpReminder) ? count($followUpReminder) : 0 }}
                             </span>
                         </button>
                     </div>
                     <div class="col-md-5 col-6 ps-3">
-                        <button type="button" id="btn-mentees-birthday" class="btn btn-sm btn-info position-relative pe-3 w-100"
-                            style="font-size: 11px" data-bs-toggle="modal" data-bs-target="#birthday">
+                        <button type="button" id="btn-mentees-birthday"
+                            class="btn btn-sm btn-info position-relative pe-3 w-100" style="font-size: 11px"
+                            data-bs-toggle="modal" data-bs-target="#birthday">
                             Mentee's Birthday
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                            <span
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                                 style="font-size: 11px">
                                 {{ isset($menteesBirthday) ? $menteesBirthday->count() : 0 }}
                             </span>
@@ -45,239 +49,299 @@
                     </div>
                 </div>
             </div>
-
         </div>
-        <div class="row g-3">
+        <div class="row g-3 align-items-stretch">
+            <div class="col-md-9">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="card shadow-sm">
+                            <div class="card-body d-flex justify-content-between text-warning w-full d-flex flex-column cursor-pointer card-client"
+                                data-f-date="all" data-f-client-type="new-leads">
+                                <div class="d-flex">
+                                    {{-- <h5 class="p-0 m-0">Prospective <br> Client</h5> --}}
+                                    <h5 class="p-0 m-0">New <br> Leads</h5>
+                                    <h3 class="p-0 client-status ms-auto">
+                                        {{ $totalClientInformation['newLeads']['old'] }}
+                                        @if ($totalClientInformation['newLeads']['new'] != 0)
+                                            <sup>
+                                                <span class="badge bg-primary text-white p-1 px-2">
+                                                    <small>{{ $totalClientInformation['newLeads']['new'] }} New</small>
+                                                </span>
+                                            </sup>
+                                        @endif
+                                    </h3>
+                                </div>
+                                <div class="mt-3 border-top pt-3">
+                                    <p class="mb-0 text-muted client-status-detail">
+                                        <span @class(['me-2', 'text-success'])>
+                                            <i @class(['bi', 'bi-arrow-up-short'])></i>
+                                            {{ $totalClientInformation['newLeads']['percentage'] }}%
+                                        </span>
+                                        <span>Since before</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm">
+                            <div class="card-body d-flex justify-content-between text-info w-full d-flex flex-column cursor-pointer card-client"
+                                data-f-date="all" data-f-client-type="potential">
+                                <div class="d-flex">
+                                    <h5 class="p-0 m-0">Potential <br> Client</h5>
+                                    <h3 class="p-0 m-0 client-status ms-auto">
+                                        {{ $totalClientInformation['potential']['old'] }}
+                                        @if ($totalClientInformation['potential']['new'] != 0)
+                                            <sup>
+                                                <span class="badge bg-primary text-white p-1 px-2">
+                                                    <small>{{ $totalClientInformation['potential']['new'] }} New</small>
+                                                </span>
+                                            </sup>
+                                        @endif
+                                    </h3>
+                                </div>
+                                <div class="mt-3 border-top pt-3">
+                                    <p class="mb-0 text-muted client-status-detail">
+                                        <span @class(['me-2', 'text-success'])>
+                                            <i @class(['bi', 'bi-arrow-up-short'])></i>
+                                            {{ $totalClientInformation['potential']['percentage'] }}%
+                                        </span>
+                                        <span>Since before</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm">
+                            <div class="card-body d-flex justify-content-between text-success w-full d-flex flex-column cursor-pointer card-client"
+                                data-f-date="all" data-f-client-type="existing-mentees">
+                                <div class="d-flex">
+                                    <h5 class="p-0 m-0">Existing <br> Mentee</h5>
+                                    <h3 class="p-0 client-status ms-auto">
+                                        {{ $totalClientInformation['existingMentees']['old'] }}
+                                        @if ($totalClientInformation['existingMentees']['new'] != 0)
+                                            <sup>
+                                                <span class="badge bg-primary text-white p-1 px-2">
+                                                    <small>{{ $totalClientInformation['existingMentees']['new'] }}
+                                                        New</small>
+                                                </span>
+                                            </sup>
+                                        @endif
+                                    </h3>
+                                </div>
+                                <div class="mt-3 border-top pt-3">
+                                    <p class="mb-0 text-muted client-status-detail">
+                                        <span @class(['me-2', 'text-success'])>
+                                            <i @class(['bi', 'bi-arrow-up-short'])></i>
+                                            {{ $totalClientInformation['existingMentees']['percentage'] }}%
+                                        </span>
+                                        <span>Since before</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm">
+                            <div class="card-body d-flex justify-content-between text-primary w-full d-flex flex-column cursor-pointer card-client"
+                                data-f-date="all" data-f-client-type="existing-non-mentees">
+                                <div class="d-flex">
+                                    <h5 class="p-0 m-0">Existing <br> Non-Mentee</h5>
+                                    <h3 class="p-0 client-status ms-auto">
+                                        {{ $totalClientInformation['existingNonMentees']['old'] }}
+                                        @if ($totalClientInformation['existingNonMentees']['new'] != 0)
+                                            <sup>
+                                                <span class="badge bg-primary text-white p-1 px-2">
+                                                    <small>{{ $totalClientInformation['existingNonMentees']['new'] }}
+                                                        New</small>
+                                                </span>
+                                            </sup>
+                                        @endif
+                                    </h3>
+                                </div>
+                                <div class="mt-3 border-top pt-3">
+                                    <p class="mb-0 text-muted client-status-detail">
+                                        <span @class(['me-2', 'text-success'])>
+                                            <i @class(['bi', 'bi-arrow-up-short'])></i>
+                                            {{ $totalClientInformation['existingNonMentees']['percentage'] }}%
+                                        </span>
+                                        <span>Since before</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm">
+                            <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client"
+                                data-f-date="all" data-f-client-type="alumni-mentee">
+                                <div class="d-flex">
+                                    <h5 class="p-0 m-0">Alumni <br> Mentee</h5>
+                                    <h3 class="p-0 ms-auto">
+                                        {{ $totalClientInformation['alumniMentees']['old'] }}
+                                        @if ($totalClientInformation['alumniMentees']['new'] != 0)
+                                            <sup class="d-none">
+                                                <span class="badge bg-primary text-white p-1 px-2">
+                                                    <small>{{ $totalClientInformation['alumniMentees']['new'] }}
+                                                        New</small>
+                                                </span>
+                                            </sup>
+                                        @endif
+                                    </h3>
+                                </div>
+                                <div class="mt-3 border-top pt-3">
+                                    <p class="mb-0 text-muted">
+                                        <span @class(['invisible', 'me-2', 'text-success'])>
+                                            <i @class(['bi', 'bi-arrow-up-short'])></i>
+                                            {{ $totalClientInformation['alumniMentees']['percentage'] }}%
+                                        </span>
+                                        <span class="invisible">Since before</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm">
+                            <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client"
+                                data-f-date="all" data-f-client-type="alumni-non-mentee">
+                                <div class="d-flex">
+                                    <h5 class="p-0 m-0">Alumni <br> Non-Mentee</h5>
+                                    <h3 class="p-0 ms-auto">
+                                        {{ $totalClientInformation['alumniNonMentees']['old'] }}
+                                        @if ($totalClientInformation['alumniNonMentees']['new'] != 0)
+                                            <sup>
+                                                <span class="badge bg-primary text-white p-1 px-2">
+                                                    <small>{{ $totalClientInformation['alumniNonMentees']['new'] }}
+                                                        New</small>
+                                                </span>
+                                            </sup>
+                                        @endif
+                                    </h3>
+                                </div>
+                                <div class="mt-3 border-top pt-3">
+                                    <p class="mb-0 text-muted">
+                                        <span @class(['invisible', 'me-2', 'text-success'])>
+                                            <i @class(['bi', 'bi-arrow-up-short'])></i>
+                                            {{ $totalClientInformation['alumniNonMentees']['percentage'] }}%
+                                        </span>
+                                        <span class="invisible">Since before</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm">
+                            <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client"
+                                data-f-date="all" data-f-client-type="parent">
+                                <div class="d-flex">
+                                    <h5 class="p-0 m-0">Parents <br> Total</h5>
+                                    <h3 class="p-0 client-status ms-auto">
+                                        {{ $totalClientInformation['parent']['old'] }}
+                                        @if ($totalClientInformation['parent']['new'] != 0)
+                                            <sup>
+                                                <span class="badge bg-primary text-white p-1 px-2">
+                                                    <small>{{ $totalClientInformation['parent']['new'] }} New</small>
+                                                </span>
+                                            </sup>
+                                        @endif
+                                    </h3>
+                                </div>
+                                <div class="mt-3 border-top pt-3">
+                                    <p class="mb-0 text-muted client-status-detail">
+                                        <span @class(['me-2', 'text-success'])>
+                                            <i @class(['bi', 'bi-arrow-up-short'])></i>
+                                            {{ $totalClientInformation['parent']['percentage'] }}%
+                                        </span>
+                                        <span>Since before</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm">
+                            <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client"
+                                data-f-date="all" data-f-client-type="teacher-counselor">
+                                <div class="d-flex">
+                                    <h5 class="p-0 m-0">Teacher <br> Total</h5>
+                                    <h3 class="p-0 client-status ms-auto">
+                                        {{ $totalClientInformation['teacher_counselor']['old'] }}
+                                        @if ($totalClientInformation['teacher_counselor']['new'] != 0)
+                                            <sup>
+                                                <span class="badge bg-primary text-white p-1 px-2">
+                                                    <small>{{ $totalClientInformation['teacher_counselor']['new'] }}
+                                                        New</small>
+                                                </span>
+                                            </sup>
+                                        @endif
+                                    </h3>
+                                </div>
+                                <div class="mt-3 border-top pt-3">
+                                    <p class="mb-0 text-muted client-status-detail">
+                                        <span @class(['me-2', 'text-success'])>
+                                            <i @class(['bi', 'bi-arrow-up-short'])></i>
+                                            {{ $totalClientInformation['teacher_counselor']['percentage'] }}%
+                                        </span>
+                                        <span>Since before</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="col-md-3">
-                <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between text-warning w-full d-flex flex-column cursor-pointer card-client"
-                        data-f-date="all" data-f-client-type="new-leads">
-                        <div class="d-flex">
-                            {{-- <h5 class="p-0 m-0">Prospective <br> Client</h5> --}}
-                            <h5 class="p-0 m-0">New <br> Leads</h5>
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center h-100">
+                            <h5 class="p-0 m-0">Raw Data Client <br> Total</h5>
                             <h3 class="p-0 client-status ms-auto">
-                                {{ $totalClientInformation['newLeads']['old'] }}
-                                @if ($totalClientInformation['newLeads']['new'] != 0)
-                                    <sup>
-                                        <span class="badge bg-primary text-white p-1 px-2">
-                                            <small>{{ $totalClientInformation['newLeads']['new'] }} New</small>
-                                        </span>
-                                    </sup>
-                                @endif
+                                402
                             </h3>
                         </div>
-                        <div class="mt-3 border-top pt-3">
-                            <p class="mb-0 text-muted client-status-detail">
-                                <span @class(['me-2', 'text-success'])>
-                                    <i @class(['bi', 'bi-arrow-up-short'])></i>
-                                    {{ $totalClientInformation['newLeads']['percentage'] }}%
-                                </span>
-                                <span>Since before</span>
-                            </p>
+                    </div>
+                    <div class="card-footer bg-primary">
+                        <div class="row row-cols-3">
+                            <div class="col text-center text-white">
+                                <h5 class="m-0">4</h5>
+                                <small>Students</small>
+                            </div>
+                            <div class="col text-center text-white">
+                                <h5 class="m-0">4</h5>
+                                <small>Parents</small>
+                            </div>
+                            <div class="col text-center text-white">
+                                <h5 class="m-0">4</h5>
+                                <small>Teachers</small>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between text-info w-full d-flex flex-column cursor-pointer card-client"
-                        data-f-date="all" data-f-client-type="potential">
-                        <div class="d-flex">
-                            <h5 class="p-0 m-0">Potential <br> Client</h5>
-                            <h3 class="p-0 m-0 client-status ms-auto">{{ $totalClientInformation['potential']['old'] }}
-                                @if ($totalClientInformation['potential']['new'] != 0)
-                                    <sup>
-                                        <span class="badge bg-primary text-white p-1 px-2">
-                                            <small>{{ $totalClientInformation['potential']['new'] }} New</small>
-                                        </span>
-                                    </sup>
-                                @endif
-                            </h3>
-                        </div>
-                        <div class="mt-3 border-top pt-3">
-                            <p class="mb-0 text-muted client-status-detail">
-                                <span @class(['me-2', 'text-success'])>
-                                    <i @class(['bi', 'bi-arrow-up-short'])></i>
-                                    {{ $totalClientInformation['potential']['percentage'] }}%
-                                </span>
-                                <span>Since before</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between text-success w-full d-flex flex-column cursor-pointer card-client"
-                        data-f-date="all" data-f-client-type="existing-mentees">
-                        <div class="d-flex">
-                            <h5 class="p-0 m-0">Existing <br> Mentee</h5>
+
+                    <div class="card-body">
+                        <div class="d-flex align-items-center h-100">
+                            <h5 class="p-0 m-0">Inactive Client <br> Total</h5>
                             <h3 class="p-0 client-status ms-auto">
-                                {{ $totalClientInformation['existingMentees']['old'] }}
-                                @if ($totalClientInformation['existingMentees']['new'] != 0)
-                                    <sup>
-                                        <span class="badge bg-primary text-white p-1 px-2">
-                                            <small>{{ $totalClientInformation['existingMentees']['new'] }} New</small>
-                                        </span>
-                                    </sup>
-                                @endif
+                                402
                             </h3>
-                        </div>
-                        <div class="mt-3 border-top pt-3">
-                            <p class="mb-0 text-muted client-status-detail">
-                                <span @class(['me-2', 'text-success'])>
-                                    <i @class(['bi', 'bi-arrow-up-short'])></i>
-                                    {{ $totalClientInformation['existingMentees']['percentage'] }}%
-                                </span>
-                                <span>Since before</span>
-                            </p>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between text-primary w-full d-flex flex-column cursor-pointer card-client"
-                        data-f-date="all" data-f-client-type="existing-non-mentees">
-                        <div class="d-flex">
-                            <h5 class="p-0 m-0">Existing <br> Non-Mentee</h5>
-                            <h3 class="p-0 client-status ms-auto">
-                                {{ $totalClientInformation['existingNonMentees']['old'] }}
-                                @if ($totalClientInformation['existingNonMentees']['new'] != 0)
-                                    <sup>
-                                        <span class="badge bg-primary text-white p-1 px-2">
-                                            <small>{{ $totalClientInformation['existingNonMentees']['new'] }}
-                                                New</small>
-                                        </span>
-                                    </sup>
-                                @endif
-                            </h3>
-                        </div>
-                        <div class="mt-3 border-top pt-3">
-                            <p class="mb-0 text-muted client-status-detail">
-                                <span @class(['me-2', 'text-success'])>
-                                    <i @class(['bi', 'bi-arrow-up-short'])></i>
-                                    {{ $totalClientInformation['existingNonMentees']['percentage'] }}%
-                                </span>
-                                <span>Since before</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client"
-                        data-f-date="all" data-f-client-type="alumni-mentee">
-                        <div class="d-flex">
-                            <h5 class="p-0 m-0">Alumni <br> Mentee</h5>
-                            <h3 class="p-0 ms-auto">
-                                {{ $totalClientInformation['alumniMentees']['old'] }}
-                                @if ($totalClientInformation['alumniMentees']['new'] != 0)
-                                    <sup class="d-none">
-                                        <span class="badge bg-primary text-white p-1 px-2">
-                                            <small>{{ $totalClientInformation['alumniMentees']['new'] }} New</small>
-                                        </span>
-                                    </sup>
-                                @endif
-                            </h3>
-                        </div>
-                        <div class="mt-3 border-top pt-3">
-                            <p class="mb-0 text-muted">
-                                <span @class(['invisible', 'me-2', 'text-success'])>
-                                    <i @class(['bi', 'bi-arrow-up-short'])></i>
-                                    {{ $totalClientInformation['alumniMentees']['percentage'] }}%
-                                </span>
-                                <span class="invisible">Since before</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client"
-                        data-f-date="all" data-f-client-type="alumni-non-mentee">
-                        <div class="d-flex">
-                            <h5 class="p-0 m-0">Alumni <br> Non-Mentee</h5>
-                            <h3 class="p-0 ms-auto">
-                                {{ $totalClientInformation['alumniNonMentees']['old'] }}
-                                @if ($totalClientInformation['alumniNonMentees']['new'] != 0)
-                                    <sup>
-                                        <span class="badge bg-primary text-white p-1 px-2">
-                                            <small>{{ $totalClientInformation['alumniNonMentees']['new'] }} New</small>
-                                        </span>
-                                    </sup>
-                                @endif
-                            </h3>
-                        </div>
-                        <div class="mt-3 border-top pt-3">
-                            <p class="mb-0 text-muted">
-                                <span @class(['invisible', 'me-2', 'text-success'])>
-                                    <i @class(['bi', 'bi-arrow-up-short'])></i>
-                                    {{ $totalClientInformation['alumniNonMentees']['percentage'] }}%
-                                </span>
-                                <span class="invisible">Since before</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client"
-                        data-f-date="all" data-f-client-type="parent">
-                        <div class="d-flex">
-                            <h5 class="p-0 m-0">Parents <br> Total</h5>
-                            <h3 class="p-0 client-status ms-auto">
-                                {{ $totalClientInformation['parent']['old'] }}
-                                @if ($totalClientInformation['parent']['new'] != 0)
-                                    <sup>
-                                        <span class="badge bg-primary text-white p-1 px-2">
-                                            <small>{{ $totalClientInformation['parent']['new'] }} New</small>
-                                        </span>
-                                    </sup>
-                                @endif
-                            </h3>
-                        </div>
-                        <div class="mt-3 border-top pt-3">
-                            <p class="mb-0 text-muted client-status-detail">
-                                <span @class(['me-2', 'text-success'])>
-                                    <i @class(['bi', 'bi-arrow-up-short'])></i>
-                                    {{ $totalClientInformation['parent']['percentage'] }}%
-                                </span>
-                                <span>Since before</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client"
-                        data-f-date="all" data-f-client-type="teacher-counselor">
-                        <div class="d-flex">
-                            <h5 class="p-0 m-0">Teacher/Counselor <br> Total</h5>
-                            <h3 class="p-0 client-status ms-auto">
-                                {{ $totalClientInformation['teacher_counselor']['old'] }}
-                                @if ($totalClientInformation['teacher_counselor']['new'] != 0)
-                                    <sup>
-                                        <span class="badge bg-primary text-white p-1 px-2">
-                                            <small>{{ $totalClientInformation['teacher_counselor']['new'] }}
-                                                New</small>
-                                        </span>
-                                    </sup>
-                                @endif
-                            </h3>
-                        </div>
-                        <div class="mt-3 border-top pt-3">
-                            <p class="mb-0 text-muted client-status-detail">
-                                <span @class(['me-2', 'text-success'])>
-                                    <i @class(['bi', 'bi-arrow-up-short'])></i>
-                                    {{ $totalClientInformation['teacher_counselor']['percentage'] }}%
-                                </span>
-                                <span>Since before</span>
-                            </p>
+                    <div class="card-footer bg-danger">
+                        <div class="row row-cols-3">
+                            <div class="col text-center text-white">
+                                <h5 class="m-0">4</h5>
+                                <small>Students</small>
+                            </div>
+                            <div class="col text-center text-white">
+                                <h5 class="m-0">4</h5>
+                                <small>Parents</small>
+                            </div>
+                            <div class="col text-center text-white">
+                                <h5 class="m-0">4</h5>
+                                <small>Teachers</small>
+                            </div>
                         </div>
                     </div>
                 </div>
