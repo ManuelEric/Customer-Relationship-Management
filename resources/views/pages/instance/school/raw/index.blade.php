@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Raw Data School')
+@section('title', 'Raw Schools Data')
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('library/dashboard/css/vertical-layout-light/style.css') }}">
@@ -256,16 +256,15 @@
 
             var table = $('#rawTable').DataTable({
                 dom: 'Bfrtip',
-                buttons: [{
-                        text: '<i class="bi bi-check-square me-1"></i> Select All',
-                        action: function(e, dt, node, config) {
-                            selectAll(true);
-                        }
+                buttons: [
+                    'pageLength', {
+                        extend: 'excel',
+                        text: 'Export to Excel',
                     },
                     {
-                        text: '<i class="bi bi-x-square  me-1"></i> Select None',
+                        text: '<i class="bi bi-check-square me-1"></i> Select All',
                         action: function(e, dt, node, config) {
-                            selectAll(false);
+                            selectAll();
                         }
                     },
                     {
@@ -273,11 +272,11 @@
                         action: function(e, dt, node, config) {
                             multipleDelete();
                         }
-                    }
+                    },
                 ],
                 lengthMenu: [
-                    [10, 25, 50, 100, -1],
-                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
+                    [10, 50, 100, -1],
+                    ['10 Schools', '50 Schools', '100 Schools', 'Show all']
                 ],
                 scrollX: true,
                 fixedColumns: {
@@ -321,38 +320,35 @@
                         }
                     },
                     {
-                        data: 'sch_id',
+                        data: '',
                         className: 'text-center',
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-danger py-1 px-2 deleteRawClient"><i class="bi bi-eraser"></i></button>',
                         render: function(data, type, row, meta) {
-                            return '<div class="btn-group">' +
-                                '<p class="dropdown-toggle cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false"> Action </p>' +
-                                '<ul class="dropdown-menu" style="font-size: 12px">' +
-                                '<li>' +
-                                '<div class="dropdown-item cursor-pointer" data-id="' + row.sch_id +
+                            return '<div class="d-flex gap-1 justify-content-center">' +
+                                '<small class="btn btn-sm btn-info px-1 pt-1 pb-0  cursor-pointer" data-bs-toggle="tooltip" data-bs-placement="top" ' +
+                                'data-bs-custom-class="custom-tooltip" ' +
+                                'data-bs-title="Convert to New School" data-id="' + row.sch_id +
                                 '" data-school="' + row.sch_name + '" data-type="' + row
                                 .sch_type_text + '" data-target="' + row.sch_score +
                                 '" data-address="' + row.sch_location +
                                 '" onclick="convertNewSchool(this)">' +
-                                '<i class="bi bi-plus-circle-dotted me-1"></i> Convert to New School' +
-                                '</div>' +
-                                '</li>' +
-                                '<li>' +
-                                '<div class="dropdown-item cursor-pointer" data-id="' + row.sch_id +
-                                '" data-name="' + row.sch_name +
+                                '<i class="bi bi-send-check-fill text-secondary"></i>' +
+                                '</small>' +
+                                '<small data-bs-toggle="tooltip" data-bs-placement="top" ' +
+                                'data-bs-custom-class="custom-tooltip" ' +
+                                'data-bs-title="Convert to Alias" class="btn btn-sm btn-warning px-1 pt-1 pb-0  cursor-pointer" data-id="' + row.sch_id +'" data-name="' + row.sch_name +
                                 '" onclick="convertAliasSchool(this)">' +
-                                '<i class="bi bi-bookmark-plus me-1"></i> Convert to Alias' +
-                                '</div>' +
-                                '</li>' +
-                                '<li>' +
-                                '<div class="dropdown-item text-danger cursor-pointer" onclick="confirmDelete(\'instance/school/raw\', \'' +
+                                '<i class="bi bi-plus-square"></i>' +
+                                '</small>' +
+                                '<small data-bs-toggle="tooltip" data-bs-placement="top" ' +
+                                'data-bs-custom-class="custom-tooltip" ' +
+                                'data-bs-title="Delete" class="btn btn-sm btn-danger px-1 pt-1 pb-0  cursor-pointer onclick="confirmDelete(\'instance/school/raw\', \'' +
                                 row.sch_id + '\')">' +
-                                '<i class="bi bi-trash me-1"></i> Delete' +
-                                '</div>' +
-                                '</li>' +
-                                '</ul>' +
+                                '<i class="bi bi-trash"></i>' +
+                                '</small>' +
                                 '</div>';
                         }
-                    }
+                    },
                 ]
             });
 
@@ -370,19 +366,34 @@
                 }
             });
 
-        });
+            // Tooltip 
+            $('#rawTable tbody').on('mouseover', 'tr', function() {
+                $('[data-bs-toggle="tooltip"]').tooltip({
+                    trigger: 'hover',
+                    html: true
+                });
+            });
 
-        function selectAll(condition) {
-            if (condition) {
+            function selectAll() {
+                const check_number = $('input.editor-active').length;
+                const checked_number = $('input.editor-active:checked').length;
+                const uncheck_number = check_number - checked_number;
+
                 $('input.editor-active').each(function() {
-                    $(this).prop('checked', true)
-                })
-            } else {
-                $('input.editor-active').each(function() {
-                    $(this).prop('checked', false)
-                })
+                    if (uncheck_number == check_number) {
+                        $(this).prop('checked', true)
+                        table.button(2).text('<i class="bi bi-x me-1"></i> Unselect All')
+                    } else if (checked_number == check_number) {
+                        $(this).prop('checked', false)
+                        table.button(2).text('<i class="bi bi-check-square me-1"></i> Select All')
+                    } else {
+                        $(this).prop('checked', true)
+                        table.button(2).text('<i class="bi bi-x me-1"></i> Unselect All')
+                    }
+                });
             }
-        }
+
+        });
 
         function multipleDelete() {
             var selected = [];
