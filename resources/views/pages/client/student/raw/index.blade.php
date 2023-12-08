@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Raw Data Student')
+@section('title', 'Raw Students Data')
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('library/dashboard/css/vertical-layout-light/style.css') }}">
@@ -14,15 +14,6 @@
         .btn-download:hover>span,
         .btn-import:hover>span {
             display: inline-block;
-        }
-
-        td.dt-control {
-            background: url('http://www.datatables.net/examples/resources/details_open.png') no-repeat center center;
-            cursor: pointer;
-        }
-
-        tr.shown td.dt-control {
-            background: url('http://www.datatables.net/examples/resources/details_close.png') no-repeat center center;
         }
     </style>
 @endpush
@@ -347,13 +338,7 @@
                     {
                         text: '<i class="bi bi-check-square me-1"></i> Select All',
                         action: function(e, dt, node, config) {
-                            selectAll(true);
-                        }
-                    },
-                    {
-                        text: '<i class="bi bi-x-square  me-1"></i> Select None',
-                        action: function(e, dt, node, config) {
-                            selectAll(false);
+                            selectAll();
                         }
                     },
                     {
@@ -387,7 +372,6 @@
                     }
                 },
                 columns: [{
-                        data: null,
                         orderable: false,
                         data: null,
                         defaultContent: '',
@@ -566,19 +550,26 @@
                 });
             });
 
-        });
+            function selectAll() {
+                const check_number = $('input.editor-active').length;
+                const checked_number = $('input.editor-active:checked').length;
+                const uncheck_number = check_number - checked_number;
 
-        function selectAll(condition) {
-            if (condition) {
                 $('input.editor-active').each(function() {
-                    $(this).prop('checked', true)
-                })
-            } else {
-                $('input.editor-active').each(function() {
-                    $(this).prop('checked', false)
-                })
+                    if (uncheck_number == check_number) {
+                        $(this).prop('checked', true)
+                        table.button(2).text('<i class="bi bi-x me-1"></i> Unselect All')
+                    } else if (checked_number == check_number) {
+                        $(this).prop('checked', false)
+                        table.button(2).text('<i class="bi bi-check-square me-1"></i> Select All')
+                    } else {
+                        $(this).prop('checked', true)
+                        table.button(2).text('<i class="bi bi-x me-1"></i> Unselect All')
+                    }
+                });
             }
-        }
+
+        });
 
         function multipleDelete() {
             var selected = [];
@@ -591,7 +582,7 @@
             if (selected.length > 0) {
                 Swal.fire({
                     title: "Confirmation!",
-                    text: 'Are you sure to delete the school?',
+                    text: 'Are you sure to delete the student?',
                     showCancelButton: true,
                     confirmButtonText: "Yup",
                 }).then((result) => {
