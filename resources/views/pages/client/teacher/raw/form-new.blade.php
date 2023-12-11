@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Teacher')
+@section('title', 'Convert New Teacher')
 
 @push('styles')
 @endpush
@@ -58,6 +58,9 @@
                         <div class="col-md-12 mb-2">
                             <div class="mb-1">
                                 School Name
+                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top"
+                                    data-bs-title="If the school data is not verified please use verified school list"></i>
+                                <i class="text-danger font-weight-bold">*</i>
                             </div>
                             <div class="mb-2">
                                 <div class="row g-2">
@@ -65,22 +68,14 @@
                                         <div class="col-5 d-flex gap-2">
                                             <div class="w-100">
                                                 <input type="text" name="" id="schoolNew"
-                                                    data-id="{{ $rawClient->sch_id }}"
-                                                    class="form-control form-control-sm" value="{{ $rawClient->school_name }}"
+                                                    data-id="{{ $rawClient->is_verifiedschool == 'N' ? $rawClient->sch_id : '' }}"
+                                                    class="form-control form-control-sm"
+                                                    value="{{ $rawClient->is_verifiedschool == 'N' ? $rawClient->school_name : '' }}"
                                                     oninput="checkInputText(this, 'school')">
-                                                @if($rawClient->sch_id != null)
-                                                    @if($rawClient->is_verifiedschool == 'Y')
-                                                        <small class="text-success">
-                                                            <i class="bi bi-check-circle-fill"></i>
-                                                            Verified School
-                                                        </small>
-                                                    @else
-                                                        <small class="text-danger">
-                                                            <i class="bi bi-info-circle-fill"></i>
-                                                            Not Verified School
-                                                        </small>
-                                                    @endif
-                                                @endif
+                                                <small class="text-danger">
+                                                    <i class="bi bi-info-circle-fill"></i>
+                                                    Not Verified School
+                                                </small>
                                             </div>
                                             <div class="mt-2">
                                                 OR
@@ -139,7 +134,8 @@
         </div>
         <div class="col-md-5">
             <div class="card rounded position-sticky" style="top:15%;">
-                <form action="{{ route('client.convert.teacher', ['rawclient_id' => $rawClient->id, 'type' => 'new']) }}" method="post">
+                <form action="{{ route('client.convert.teacher', ['rawclient_id' => $rawClient->id, 'type' => 'new']) }}"
+                    method="post">
                     @csrf
                     <div class="card-header">
                         <h5>Summarize</h5>
@@ -154,7 +150,8 @@
                                 <td width="1%">:</td>
                                 <td>
                                     <div id="namePreview">{{ $rawClient->fullname }}</div>
-                                    <input type="hidden" name="nameFinal" id="nameInputPreview" value="{{ $rawClient->fullname }}">
+                                    <input type="hidden" name="nameFinal" id="nameInputPreview"
+                                        value="{{ $rawClient->fullname }}">
                                 </td>
                             </tr>
                             <tr>
@@ -162,7 +159,8 @@
                                 <td>:</td>
                                 <td>
                                     <div id="emailPreview">{{ $rawClient->mail }}</div>
-                                    <input type="hidden" name="emailFinal" id="emailInputPreview" value="{{ $rawClient->mail }}">
+                                    <input type="hidden" name="emailFinal" id="emailInputPreview"
+                                        value="{{ $rawClient->mail }}">
                                 </td>
                             </tr>
                             <tr>
@@ -170,7 +168,8 @@
                                 <td>:</td>
                                 <td>
                                     <div id="phonePreview">{{ $rawClient->phone }}</div>
-                                    <input type="hidden" name="phoneFinal" id="phoneInputPreview" value="{{ $rawClient->phone }}">
+                                    <input type="hidden" name="phoneFinal" id="phoneInputPreview"
+                                        value="{{ $rawClient->phone }}">
                                 </td>
                             </tr>
                             <tr>
@@ -178,7 +177,8 @@
                                 <td>:</td>
                                 <td>
                                     <div id="schoolPreview">{{ $rawClient->school_name }}</div>
-                                    <input type="hidden" name="schoolFinal" id="schoolInputPreview" value="{{ $rawClient->sch_id }}">
+                                    <input type="hidden" name="schoolFinal" id="schoolInputPreview"
+                                        value="{{ $rawClient->sch_id }}">
                                 </td>
                             </tr>
                         </table>
@@ -238,6 +238,9 @@
                             element.sch_name + '</option>'
                         )
                     });
+
+                    $('#schoolExist').val("{{ $rawClient->is_verifiedschool == 'Y' ? $rawClient->school_name : '' }}")
+                        .trigger('change')
                     swal.close()
                 })
                 .catch(function(error) {
