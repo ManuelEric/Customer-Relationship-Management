@@ -1243,6 +1243,7 @@ class ClientRepository implements ClientRepositoryInterface
                 whereHas('roles', function($subQuery) {
                     $subQuery->where('role_name', 'Student');
                 })->
+                orderBy('deleted_at', 'desc')->
                 onlyTrashed();
         return $asDatatables === false ? $query->get() : $query;
     }
@@ -1261,6 +1262,7 @@ class ClientRepository implements ClientRepositoryInterface
                 whereHas('roles', function ($subQuery) {
                     $subQuery->where('role_name', 'Parent');
                 })->
+                orderBy('deleted_at', 'desc')->
                 onlyTrashed()->
                 groupBy('client.id');
         return $asDatatables === false ? $query->get() : $query;
@@ -1271,21 +1273,29 @@ class ClientRepository implements ClientRepositoryInterface
         $query = Client::whereHas('roles', function ($query) {
                     $query->where('role_name', 'Teacher/Counselor');
                 })->
+                orderBy('deleted_at', 'desc')->
                 onlyTrashed();
         return $asDatatables === false ? $query->get() : $query;
     }
 
     /* ~ END */
 
-    public function getAllRawClientDataTables($roleName)
+    public function getAllRawClientDataTables($roleName, $advanced_filter = [])
     {
+        $model = ViewRawClient::whereHas('roles', function ($query2) use ($roleName) {
+                    $query2->where('role_name', $roleName);
+                })->
+                when(!empty($advanced_filter['school_name']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereIn('school_name', $advanced_filter['school_name']);
+                })->
+                when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereIn('graduation_year', $advanced_filter['graduation_year']);
+                })->
+                when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereIn('lead_source', $advanced_filter['leads']);
+                });
 
-        return Datatables::eloquent(
-            ViewRawClient::whereHas('roles', function ($query2) use ($roleName) {
-                $query2->where('role_name', $roleName);
-            }))
-           
-            ->make(true);
+        return Datatables::eloquent($model)->make(true);
     }
 
     public function getViewRawClientById($rawClientId)
@@ -1306,6 +1316,11 @@ class ClientRepository implements ClientRepositoryInterface
     public function deleteRawClientByUUID($rawClientUUID)
     {
         return RawClient::where('uuid', $rawClientUUID)->delete();
+    }
+
+    public function moveBulkToTrash($clientIds)
+    {
+        return UserClient::whereIn('id', $clientIds)->delete();
     }
 
     public function getClientSuggestion($clientIds, $roleName)

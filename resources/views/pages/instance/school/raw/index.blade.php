@@ -408,7 +408,7 @@
                     title: "Confirmation!",
                     text: 'Are you sure to delete the school?',
                     showCancelButton: true,
-                    confirmButtonText: "Yup",
+                    confirmButtonText: "Yes",
                 }).then((result) => {
                     /* Read more about isConfirmed, isDenied below */
                     if (result.isConfirmed) {

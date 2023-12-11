@@ -56,9 +56,9 @@
                                         <label for="">School Name</label>
                                         <select name="school_name[]" class="select form-select form-select-sm w-100"
                                             multiple id="school-name">
-                                            {{-- @foreach ($advanced_filter['schools'] as $school)
+                                            @foreach ($advanced_filter['schools'] as $school)
                                                 <option value="{{ $school->sch_name }}">{{ $school->sch_name }}</option>
-                                            @endforeach --}}
+                                            @endforeach
                                         </select>
                                     </div>
 
@@ -66,9 +66,9 @@
                                         <label for="">Graduation Year</label>
                                         <select name="graduation_year[]" class="select form-select form-select-sm w-100"
                                             multiple id="graduation-year">
-                                            {{-- @for ($i = $advanced_filter['max_graduation_year']; $i >= 2016; $i--)
+                                            @for ($i = $advanced_filter['max_graduation_year']; $i >= 2016; $i--)
                                                 <option value="{{ $i }}">{{ $i }}</option>
-                                            @endfor --}}
+                                            @endfor
                                         </select>
                                     </div>
 
@@ -76,39 +76,9 @@
                                         <label for="">Lead Source</label>
                                         <select name="lead_source[]" class="select form-select form-select-sm w-100"
                                             multiple id="lead-sources">
-                                            {{-- @foreach ($advanced_filter['leads'] as $lead)
+                                            @foreach ($advanced_filter['leads'] as $lead)
                                                 <option value="{{ $lead['main_lead'] }}">{{ $lead['main_lead'] }}</option>
-                                            @endforeach --}}
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-12 mb-2">
-                                        <label for="">Program Suggestion</label>
-                                        <select name="program_name[]" class="select form-select form-select-sm w-100"
-                                            multiple id="program-name">
-                                            {{-- @foreach ($advanced_filter['initial_programs'] as $init_program)
-                                                <option value="{{ $init_program->name }}">{{ $init_program->name }}
-                                                </option>
-                                            @endforeach --}}
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-12 mb-2">
-                                        <label for="">Lead Status</label>
-                                        <select name="lead_status[]" class="select form-select form-select-sm w-100"
-                                            multiple id="lead-source">
-                                            <option value="Hot">Hot</option>
-                                            <option value="Warm">Warm</option>
-                                            <option value="Cold">Cold</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-12 mb-2">
-                                        <label for="">Active Status</label>
-                                        <select name="active_status[]" class="select form-select form-select-sm w-100"
-                                            multiple id="active-status">
-                                            <option value="1">Active</option>
-                                            <option value="0">Non-active</option>
+                                            @endforeach
                                         </select>
                                     </div>
 
@@ -365,6 +335,14 @@
                 serverSide: true,
                 ajax: {
                     url: '',
+                    data: function(params) {
+                        params.school_name = $("#school-name").val()
+                        params.graduation_year = $("#graduation-year").val()
+                        params.lead_source = $("#lead-sources").val()
+                        params.program_suggest = $("#program-name").val()
+                        params.status_lead = $("#lead-source").val()
+                        params.active_status = $("#active-status").val()
+                    }
                 },
                 rowCallback: function(row, data) {
                     if (data.suggestion) {
@@ -496,6 +474,22 @@
                 ],
             });
 
+            /* for advanced filter */
+            $("#school-name").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#graduation-year").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#lead-sources").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
             // Add a click event listener to each row in the parent DataTable
             table.on('click', 'td.dt-control', function(e) {
                 let tr = e.target.closest('tr');
@@ -582,20 +576,33 @@
             if (selected.length > 0) {
                 Swal.fire({
                     title: "Confirmation!",
-                    text: 'Are you sure to delete the student?',
+                    text: 'Are you sure to delete the raw data?',
                     showCancelButton: true,
-                    confirmButtonText: "Yup",
+                    confirmButtonText: "Yes",
                 }).then((result) => {
                     /* Read more about isConfirmed, isDenied below */
                     if (result.isConfirmed) {
-                        console.log(selected);
+                        showLoading();
+                        var link = '{{ route('client.raw.bulk.destroy') }}';
+                        axios.post(link, {
+                                choosen: selected
+                            })
+                            .then(function(response) {
+                                swal.close();
+                                notification('success', response.data.message);
+                                $("#rawTable").DataTable().ajax.reload()
+                            })
+                            .catch(function(error) {
+                                swal.close();
+                                notification('error', error.message);
+                            })
                     }
                 });
             } else {
                 Swal.fire({
                     icon: "error",
                     title: "Oops...",
-                    text: "Please select the school first!",
+                    text: "Please select the raw data first!",
                 });
             }
         }

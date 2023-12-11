@@ -100,11 +100,12 @@ interface ClientRepositoryInterface
     public function getAllClientByRoleAndDate($roleName, $month = null);
 
     # Raw Client
-    public function getAllRawClientDataTables($roleName);
+    public function getAllRawClientDataTables($roleName, array $advanced_filter);
     public function getViewRawClientById($rawClientId);
     public function getRawClientById($rawClientId);
     public function deleteRawClient($rawClientId);
     public function deleteRawClientByUUID($rawClientUUID);
+    public function moveBulkToTrash(array $clientIds);
     public function getClientSuggestion(array $clientIds, $roleName);
 
     # CRM

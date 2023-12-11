@@ -363,20 +363,33 @@
             if (selected.length > 0) {
                 Swal.fire({
                     title: "Confirmation!",
-                    text: 'Are you sure to delete the teacher?',
+                    text: 'Are you sure to delete the raw data?',
                     showCancelButton: true,
-                    confirmButtonText: "Yup",
+                    confirmButtonText: "Yes",
                 }).then((result) => {
                     /* Read more about isConfirmed, isDenied below */
                     if (result.isConfirmed) {
-                        console.log(selected);
+                        showLoading();
+                        var link = '{{ route('client.raw.bulk.destroy') }}';
+                        axios.post(link, {
+                                choosen: selected
+                            })
+                            .then(function(response) {
+                                swal.close();
+                                notification('success', response.data.message);
+                                $("#rawTable").DataTable().ajax.reload()
+                            })
+                            .catch(function(error) {
+                                swal.close();
+                                notification('error', error.message);
+                            })
                     }
                 });
             } else {
                 Swal.fire({
                     icon: "error",
                     title: "Oops...",
-                    text: "Please select the school first!",
+                    text: "Please select the raw data first!",
                 });
             }
         }
