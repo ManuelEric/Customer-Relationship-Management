@@ -171,10 +171,31 @@ class ClientStudentController extends ClientController
     public function indexRaw(Request $request)
     {
         if ($request->ajax()) {
-            return $this->clientRepository->getAllRawClientDataTables('student');
+
+            # advanced filter purpose
+            $school_name = $request->get('school_name');
+            $graduation_year = $request->get('graduation_year');
+            $leads = $request->get('lead_source');
+            $initial_programs = $request->get('program_suggest');
+            $status_lead = $request->get('status_lead');
+            $active_status = $request->get('active_status');
+
+            # array for advanced filter request
+            $advanced_filter = [
+                'school_name' => $school_name,
+                'graduation_year' => $graduation_year,
+                'leads' => $leads,
+                'initial_programs' => $initial_programs,
+                'status_lead' => $status_lead,
+                'active_status' => $active_status
+            ];
+
+            return $this->clientRepository->getAllRawClientDataTables('student', $advanced_filter);
         }
 
-        return view('pages.client.student.raw.index');
+        $entries = app('App\Services\ClientStudentService')->getClientStudent();
+
+        return view('pages.client.student.raw.index')->with($entries);
     }
 
     public function show(Request $request)
@@ -944,6 +965,16 @@ class ClientStudentController extends ClientController
 
     public function destroyRaw(Request $request)
     {
+        # when is method 'POST' meaning the function come from bulk delete
+        $isBulk = $request->isMethod('POST') ? true : false;
+        if ($isBulk)
+            return $this->bulk_destroy($request); 
+        
+        return $this->single_destroy($request);
+    }
+
+    private function single_destroy(Request $request)
+    {
         $rawclientId = $request->route('rawclient_id');
         $rawStudent = $this->clientRepository->getViewRawClientById($rawclientId);
 
@@ -967,5 +998,27 @@ class ClientStudentController extends ClientController
         $this->logSuccess('delete', null, 'Raw Client', Auth::user()->first_name . ' ' . Auth::user()->last_name, $rawStudent);
 
         return Redirect::to('client/student/raw')->withSuccess('Raw student successfully deleted');
+    }
+
+    private function bulk_destroy(Request $request)
+    {
+        # raw client id that being choose from list raw data client
+        $rawClientIds = $request->choosen;
+
+        DB::beginTransaction();
+        try {
+
+            $this->clientRepository->moveBulkToTrash($rawClientIds);
+            DB::commit();
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Failed to bulk delete raw client failed : ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to delete raw client'], 500);
+
+        }
+
+        return response()->json(['success' => true, 'message' => 'Delete raw client success']);
     }
 }

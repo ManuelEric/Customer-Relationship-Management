@@ -160,7 +160,7 @@ class SchoolRawController extends Controller
 
             DB::rollBack();
             Log::error('Failed to bulk delete raw school failed : ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Failed to delete raw school']);
+            return response()->json(['success' => false, 'message' => 'Failed to delete raw school'], 500);
 
         }
 
