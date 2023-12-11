@@ -20,8 +20,8 @@ class ClientProgram extends Model
      * @var array
      */
     protected $fillable = [
-        // 'client_id',
-        'client_uuid',
+        'client_id',
+        // 'client_uuid',
         'prog_id',
         'lead_id',
         'eduf_lead_id',
@@ -69,14 +69,6 @@ class ClientProgram extends Model
         'updated_at'
     ];
 
-    protected static function booted()
-    {
-        self::updated(function (self $clientProgram) {
-            $clientProgram->client_uuid = $clientProgram->client->uuid;
-            $clientProgram->save();
-        });
-    }
-
     public static function whereClientProgramId($id)
     {
         if (is_array($id) && empty($id)) return new Collection;
@@ -103,12 +95,12 @@ class ClientProgram extends Model
 
     public function client()
     {
-        return $this->belongsTo(UserClient::class, 'client_uuid', 'uuid');
+        return $this->belongsTo(UserClient::class, 'client_id', 'id');
     }
 
     public function viewClient()
     {
-        return $this->belongsTo(Client::class, 'client_uuid', 'uuid');
+        return $this->belongsTo(Client::class, 'client_id', 'id');
     }
 
     public function program()
