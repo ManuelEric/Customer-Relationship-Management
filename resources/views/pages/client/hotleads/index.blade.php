@@ -45,6 +45,7 @@
                     <tr class="text-center" role="row">
                         <th class="bg-info text-white">No</th>
                         <th class="bg-info text-white">Name</th>
+                        <th>Lead Status</th>
                         <th>Mail</th>
                         <th>Phone</th>
                         <th>Parents Name</th>
@@ -77,6 +78,72 @@
                     </tr>
                 </tfoot>
             </table>
+        </div>
+    </div>
+
+
+    {{-- Convert to Low Status --}}
+    <div class="modal fade" id="hotLeadModal" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>
+                        Reason
+                    </span>
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <div class="modal-body w-100 text-start">
+                    @csrf
+                    <div class="form-group">
+                        <div id="reason">
+                            <div class="classReason">
+                                <input type="hidden" name="clientId" id="clientId">
+                                <input type="hidden" name="initProg" id="initProg">
+                                <input type="hidden" name="leadStatus" id="leadStatus">
+                                <input type="hidden" name="leadStatusOld" id="leadStatusOld">
+                                <input type="hidden" name="groupId" id="groupId">
+                                <select name="reason_id" class="w-100" id="selectReason"
+                                    onchange="otherOption($(this).val())">
+                                    <option data-placeholder="true"></option>
+                                    {{-- @foreach ($reasons as $reason)
+                                        <option value="{{ $reason->reason_id }}"
+                                            {{ old('reason_id') == $reason->reason_id ? 'selected' : '' }}>
+                                            {{ $reason->reason_name }}
+                                        </option>
+                                    @endforeach --}}
+                                    <option value="other">
+                                        Other option
+                                    </option>
+                                </select>
+                                <div id="error-message">
+
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center d-none" id="inputReason">
+                                <input type="text" name="other_reason" class="form-control form-control-sm rounded"
+                                    id="other_reason">
+                                <div class="float-end cursor-pointer" onclick="resetOption()">
+                                    <b>
+                                        <i class="bi bi-x text-danger"></i>
+                                    </b>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button type="button" href="#" class="btn btn-outline-danger btn-sm"
+                            onclick="closeUpdateLead()">
+                            <i class="bi bi-x-square me-1"></i>
+                            Cancel</button>
+                        <button type="button" onclick="updateHotLead()" class="btn btn-primary btn-sm">
+                            <i class="bi bi-save2 me-1"></i>
+                            Update</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 @endsection
@@ -150,6 +217,37 @@
                         render: function(data, type, row, meta) {
                             return data
                         }
+                    },
+                    {
+                        data: 'status_lead',
+                        searchable: false,
+                        className: 'text-center',
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            var warm = '';
+                            var hot = '';
+                            var cold = '';
+                            switch (data) {
+                                case 'Hot':
+                                    hot = 'selected';
+                                    break;
+
+                                case 'Warm':
+                                    warm = 'selected';
+                                    break;
+
+                                case 'Cold':
+                                    cold = 'selected';
+                                    break;
+                            }
+                            return data != null ?
+                                '<select name="status_lead" style="color:#212b3d" class="select w-100 leads' +
+                                row.id + '" id="status_lead"><option value="hot" ' +
+                                hot + '>Hot</option><option value="warm" ' + warm +
+                                '>Warm</option><option value="cold" ' + cold +
+                                '>Cold</option></select>' : '-';
+                        }
+
                     },
                     {
                         data: 'mail',
@@ -298,26 +396,23 @@
                 window.open("{{ url('client/student') }}/" + data.id, "_blank");
             });
 
-            $('#clientTable tbody').on('change', '#status_lead ', function() {
+            $('#clientTable tbody').on('change', '#status_lead', function() {
                 var data = table.row($(this).parents('tr')).data();
                 var lead_status = $(this).val();
-
-                $('#groupId').val(data.group_id);
-                $('#clientId').val(data.id);
-                $('#initProg').val(data.program_suggest);
-                $('#leadStatus').val(lead_status);
-                $('#hotLeadForm').attr('action', '{{ url('client/student') }}/' + data.id +
-                    '/lead_status/');
-                $('#hotLeadModal').modal('show');
-
-                confirmUpdateLeadStatus("{{ url('client/student') }}/" + data.id + "/lead_status/" + $(
-                    this).val(), data.id, data.program_suggest, lead_status)
+                if (data.status_lead == 'Hot' || (data.status_lead == "Warm" && lead_status == "cold")) {
+                    $('#hotLeadModal').modal('show');
+                    $('#groupId').val(data.group_id);
+                    $('#clientId').val(data.id);
+                    $('#initProg').val(data.program_suggest);
+                    $('#leadStatusOld').val(data.status_lead);
+                    $('#leadStatus').val(lead_status);
+                    $('#hotLeadForm').attr('action', '{{ url('client/student') }}/' + data.id +
+                        '/lead_status/');
+                } else {
+                    confirmUpdateLeadStatus("{{ url('client/student') }}/" + data.id + "/lead_status", data
+                        .id, data.program_suggest, data.group_id, data.status_lead, lead_status)
+                }
             });
-
-            // $('#clientTable tbody').on('click', '.deleteClient ', function() {
-            //     var data = table.row($(this).parents('tr')).data();
-            //     confirmDelete('asset', data.asset_id)
-            // });
 
             /* for advanced filter */
             $("#school-name").on('change', function(e) {
@@ -350,6 +445,61 @@
                 table.draw();
             })
         });
+
+        function closeUpdateLead() {
+            const id = $('#clientId').val();
+            const old_status = $('#leadStatusOld').val().toLowerCase();
+            $('.leads' + id).val(old_status)
+            $('#hotLeadModal').modal('hide');
+            $('#selectReason').val('').trigger('change');
+            $('#other_reason').val('');
+        }
+
+        function updateHotLead() {
+            var link = '{{ url('client/student') }}/' + $('#clientId').val() + '/lead_status';
+            $('#hotLeadModal').modal('hide');
+            Swal.showLoading()
+            axios.post(link, {
+                    groupId: $('#groupId').val(),
+                    clientId: $('#clientId').val(),
+                    initProg: $('#initProg').val(),
+                    leadStatus: $('#leadStatus').val(),
+                    reason_id: $('#selectReason').val(),
+                    other_reason: $('#other_reason').val(),
+                })
+                .then(function(response) {
+                    swal.close();
+
+                    let obj = response.data;
+
+                    $('#clientTable').DataTable().ajax.reload(null, false);
+
+                    switch (obj.code) {
+                        case 200:
+                            notification('success', obj.message)
+
+                            break;
+                        case 400:
+                            $('#hotLeadModal').modal('show');
+                            if (obj.message['reason_id'] != undefined) {
+                                $('#error-message').html('<small class="text-danger fw-light">' + obj.message[
+                                    'reason_id'] + '</small>')
+                            } else if (obj.message['leadStatus'] != undefined) {
+                                $('#error-message').html('<small class="text-danger fw-light">' + obj.message[
+                                    'leadStatus'] + '</small>')
+                            }
+                            break;
+
+                        case 500:
+                            notification('error', 'Something went wrong while update lead status')
+                            break;
+                    }
+                })
+                .catch(function(error) {
+                    swal.close();
+                    notification('error', error)
+                })
+        }
 
         function updateHotLead() {
             var link = '{{ url('client/student') }}/' + $('#clientId').val() + '/lead_status';
