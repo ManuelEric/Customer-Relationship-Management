@@ -292,7 +292,7 @@
                                 'data-bs-custom-class="custom-tooltip" ' +
                                 'data-bs-title="Convert to New Lead" onclick="newLeads(' +
                                 row.id + ')">' +
-                                '<i class="bi bi-send-check-fill text-secondary"></i>' +
+                                '<i class="bi bi-send-check-fill text-secondary me-1"></i>' +
                                 '</small>' +
                                 '<small data-bs-toggle="tooltip" data-bs-placement="top" ' +
                                 'data-bs-custom-class="custom-tooltip" ' +

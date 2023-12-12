@@ -1,15 +1,16 @@
 @extends('layout.main')
 
-@section('title', 'Universities ')
+@section('title', 'List of Universitiy')
 
-@section('content')    
+@section('content')
     <div class="card bg-secondary mb-1 p-2">
         <div class="d-flex align-items-center justify-content-between">
             <h5 class="text-white m-0">
                 <i class="bi bi-tag me-1"></i>
                 Universities
             </h5>
-            <a href="{{ url('instance/university/create') }}" class="btn btn-sm btn-info"><i class="bi bi-plus-square me-1"></i>
+            <a href="{{ url('instance/university/create') }}" class="btn btn-sm btn-info"><i
+                    class="bi bi-plus-square me-1"></i>
                 Add
                 University</a>
         </div>
@@ -96,14 +97,22 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button"class="btn btn-sm btn-outline-warning editUniv"><i class="bi bi-eye"></i></button>'
+                        defaultContent: '<button type="button"class="btn btn-sm btn-outline-warning editUniv" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail"><i class="bi bi-eye"></i></button>'
                     }
                 ]
             });
 
             $('#univTable tbody').on('click', '.editUniv ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('instance/university') }}/" + data.univ_id.toLowerCase();
+                window.open("{{ url('instance/university') }}/" + data.univ_id.toLowerCase(), "_blank");
+            });
+
+            // Tooltip 
+            $('#univTable tbody').on('mouseover', 'tr', function() {
+                $('[data-bs-toggle="tooltip"]').tooltip({
+                    trigger: 'hover',
+                    html: true
+                });
             });
         });
     </script>

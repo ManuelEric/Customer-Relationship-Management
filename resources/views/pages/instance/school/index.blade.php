@@ -1,26 +1,28 @@
 @extends('layout.main')
 
-@section('title', 'Schools ')
+@section('title', 'List of School')
 
 @section('content')
 
     @if ($duplicates_schools_string)
-    <div class="alert alert-warning">
-        
-        <p><i class="bi bi-exclamation-triangle"></i>
-            Please review the school data and make any necessary updates. There appear to be a few duplicate entries.<br><br>
-            Such as : <b>{{ $duplicates_schools_string }}</b>
-        </p>
-    </div>
+        <div class="alert alert-warning">
+
+            <p><i class="bi bi-exclamation-triangle"></i>
+                Please review the school data and make any necessary updates. There appear to be a few duplicate
+                entries.<br><br>
+                Such as : <b>{{ $duplicates_schools_string }}</b>
+            </p>
+        </div>
     @endif
-    
+
     <div class="card bg-secondary mb-1 p-2">
         <div class="d-flex align-items-center justify-content-between">
             <h5 class="text-white m-0">
                 <i class="bi bi-tag me-1"></i>
                 School
             </h5>
-            <a href="{{ url('instance/school/create') }}" class="btn btn-sm btn-info"><i class="bi bi-plus-square me-1"></i> Add
+            <a href="{{ url('instance/school/create') }}" class="btn btn-sm btn-info"><i class="bi bi-plus-square me-1"></i>
+                Add
                 School</a>
         </div>
     </div>
@@ -34,7 +36,8 @@
                         Data</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-nowrap active" aria-current="page" href="{{ url('instance/school') }}">School</a>
+                    <a class="nav-link text-nowrap active" aria-current="page"
+                        href="{{ url('instance/school') }}">School</a>
                 </li>
             </ul>
 
@@ -119,7 +122,7 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editSchool"><i class="bi bi-eye"></i></button>'
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editSchool" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail"><i class="bi bi-eye"></i></button>'
                     }
                 ]
             });
@@ -128,7 +131,15 @@
 
             $('#schoolTable tbody').on('click', '.editSchool ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('instance/school') }}/" + data.sch_id.toLowerCase();
+                window.open("{{ url('instance/school') }}/" + data.sch_id.toLowerCase(), "_blank");
+            });
+
+            // Tooltip 
+            $('#schoolTable tbody').on('mouseover', 'tr', function() {
+                $('[data-bs-toggle="tooltip"]').tooltip({
+                    trigger: 'hover',
+                    html: true
+                });
             });
         });
     </script>

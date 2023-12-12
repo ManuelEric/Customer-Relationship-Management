@@ -52,7 +52,7 @@
             dom: 'Bfrtip',
             lengthMenu: [
                 [10, 25, 50, 100, -1],
-                ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
+                ['10 alumni', '25 alumni', '50 alumni', '100 alumni', 'Show all']
             ],
             buttons: [
                 'pageLength', {

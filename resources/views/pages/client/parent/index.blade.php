@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Parent ')
+@section('title', 'List of Parent')
 @push('styles')
     <style>
         .btn-download span,
@@ -128,103 +128,102 @@
 @endsection
 
 @push('scripts')
-<script>
-    var widthView = $(window).width();
-    $(document).ready(function() {
-        var table = $('#clientTable').DataTable({
-            dom: 'Bfrtip',
-            lengthMenu: [
-                [10, 25, 50, 100, -1],
-                ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-            ],
-            buttons: [
-                'pageLength', {
-                    extend: 'excel',
-                    text: 'Export to Excel',
-                }
-            ],
-            scrollX: true,
-            fixedColumns: {
-                left: (widthView < 768) ? 1 : 2,
-                right: 1
-            },
-            processing: true,
-            serverSide: true,
-            ajax: '',
-            columns: [{
-                    data: 'id',
-                    className: 'text-center',
-                    render: function(data, type, row, meta) {
-                        return meta.row + meta.settings._iDisplayStart + 1;
+    <script>
+        var widthView = $(window).width();
+        $(document).ready(function() {
+            var table = $('#clientTable').DataTable({
+                dom: 'Bfrtip',
+                lengthMenu: [
+                    [10, 25, 50, 100, -1],
+                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
+                ],
+                buttons: [
+                    'pageLength', {
+                        extend: 'excel',
+                        text: 'Export to Excel',
                     }
+                ],
+                scrollX: true,
+                fixedColumns: {
+                    left: (widthView < 768) ? 1 : 2,
+                    right: 1
                 },
-                {
-                    data: 'full_name',
-                    render: function(data, type, row, meta) {
-                        return data;
+                processing: true,
+                serverSide: true,
+                ajax: '',
+                columns: [{
+                        data: 'id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'full_name',
+                        render: function(data, type, row, meta) {
+                            return data;
+                        }
+                    },
+                    {
+                        data: 'mail',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'phone',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'dob',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'children_name',
+                        name: 'children_name',
+                        defaultContent: '-',
+                        orderable: true,
+                        searchable: true,
+                    },
+                    {
+                        data: '',
+                        className: 'text-center',
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail"><i class="bi bi-eye"></i></button>'
                     }
-                },
-                {
-                    data: 'mail',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'phone',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'dob',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'children_name',
-                    name: 'children_name',
-                    defaultContent: '-',
-                    orderable: true,
-                    searchable: true,
-                },
-                {
-                    data: '',
-                    className: 'text-center',
-                    defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient"><i class="bi bi-eye"></i></button>'
-                }
-            ],
-            // createdRow: function(row, data, index) {
-            //     // temporary condition
-            //     // will change soon
-            //     if (data['st_statusact'] == 0) {
-            //         $('td', row).addClass('text-danger');
-            //         $('td:nth-last-child(1) .deleteUser', row).addClass('d-none');
-            //         // $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
-            //     }
-            // }
-        });
-
-        @php
-            $privilage = $menus['Client']->where('submenu_name', 'Parents')->first();
-        @endphp
-
-        @if ($privilage['copy'] == 0)
-            document.oncontextmenu = new Function("return false");
-
-            $('body').bind('cut copy paste', function(event) {
-                event.preventDefault();
+                ],
             });
-        @endif
 
-        @if ($privilage['export'] == 0)
-            table.button(1).disable();
-        @endif
+            @php
+                $privilage = $menus['Client']->where('submenu_name', 'Parents')->first();
+            @endphp
 
-        $('#clientTable tbody').on('click', '.editClient ', function() {
-            var data = table.row($(this).parents('tr')).data();
-            window.location.href = "{{ url('client/parent') }}/" + data.id
+            @if ($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false");
+
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
+
+            @if ($privilage['export'] == 0)
+                table.button(1).disable();
+            @endif
+
+            // Tooltip 
+            $('#clientTable tbody').on('mouseover', 'tr', function() {
+                $('[data-bs-toggle="tooltip"]').tooltip({
+                    trigger: 'hover',
+                    html: true
+                });
+            });
+
+            $('#clientTable tbody').on('click', '.editClient ', function() {
+                var data = table.row($(this).parents('tr')).data();
+                window.open("{{ url('client/parent') }}/" + data.id, "_blank")
+            });
+
+            $('#clientTable tbody').on('click', '.deleteClient ', function() {
+                var data = table.row($(this).parents('tr')).data();
+                confirmDelete('asset', data.asset_id)
+            });
         });
-
-        $('#clientTable tbody').on('click', '.deleteClient ', function() {
-            var data = table.row($(this).parents('tr')).data();
-            confirmDelete('asset', data.asset_id)
-        });
-    });
-</script>
+    </script>
 @endpush
