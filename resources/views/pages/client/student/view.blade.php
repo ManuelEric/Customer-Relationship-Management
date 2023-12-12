@@ -7,7 +7,7 @@
     }
 </style>
 
-@section('title', 'Student')
+@section('title', 'Students Detail')
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Students</a></li>
     <li class="breadcrumb-item active" aria-current="page">View Detail</li>

@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Parent ')
+@section('title', 'Parents Detail')
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Parents</a></li>
     <li class="breadcrumb-item active" aria-current="page">View Detail</li>

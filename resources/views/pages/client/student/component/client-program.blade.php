@@ -32,98 +32,96 @@
 </div>
 
 @push('scripts')
-<script>
-    var url = "{{ url('client/student') . '/' . $student->id . '/program' }}"
-    $(document).ready(function() {
-        var table = $('#programTable').DataTable({
-            dom: 'Bfrtip',
-            lengthMenu: [
-                [10, 25, 50, 100, -1],
-                ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-            ],
-            buttons: [
-                'pageLength', {
-                    extend: 'excel',
-                    text: 'Export to Excel',
-                }
-            ],
-            scrollX: true,
-            fixedColumns: {
-                left: 0,
-                right: 0
-            },
-            processing: true,
-            serverSide: true,
-            ajax: '{{ url('api/client/' . $student->id . '/programs') }}',
-            columns: [{
-                    data: 'prog_id',
-                    className: 'text-center',
-                    render: function(data, type, row, meta) {
-                        return meta.row + meta.settings._iDisplayStart + 1;
+    <script>
+        var url = "{{ url('client/student') . '/' . $student->id . '/program' }}"
+        $(document).ready(function() {
+            var table = $('#programTable').DataTable({
+                dom: 'Bfrtip',
+                lengthMenu: [
+                    [10, 25, 50, 100, -1],
+                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
+                ],
+                buttons: [
+                    'pageLength', {
+                        extend: 'excel',
+                        text: 'Export to Excel',
                     }
+                ],
+                scrollX: true,
+                fixedColumns: {
+                    left: 0,
+                    right: 0
                 },
-                {
-                    data: 'program_name',
-                },
-                {
-                    data: 'conversion_lead',
-                    className: 'text-center',
-                },
-                {
-                    data: 'first_discuss_date',
-                    className: 'text-center',
-                    render: function(data, type, row) {
-                        return data ? moment(data).format("MMMM Do YYYY") : '-'
-                    }
-                },
-                {
-                    data: 'pic_name',
-                    className: 'text-center',
-                },
-                {
-                    data: 'program_status',
-                    className: 'text-center',
-                },
-                {
-                    data: 'prog_running_status',
-                    className: 'text-center',
-                    render: function(data, type, row, meta) {
-                        switch (parseInt(data)) {
-                            case 0:
-                                return "Not yet"
-                                break;
+                processing: true,
+                serverSide: true,
+                ajax: '{{ url('api/client/' . $student->id . '/programs') }}',
+                columns: [{
+                        data: 'prog_id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'program_name',
+                    },
+                    {
+                        data: 'conversion_lead',
+                        className: 'text-center',
+                    },
+                    {
+                        data: 'first_discuss_date',
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            return data ? moment(data).format("MMMM Do YYYY") : '-'
+                        }
+                    },
+                    {
+                        data: 'pic_name',
+                        className: 'text-center',
+                    },
+                    {
+                        data: 'program_status',
+                        className: 'text-center',
+                    },
+                    {
+                        data: 'prog_running_status',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            switch (parseInt(data)) {
+                                case 0:
+                                    return "Not yet"
+                                    break;
 
-                            case 1:
-                                return "Ongoing"
-                                break;
+                                case 1:
+                                    return "Ongoing"
+                                    break;
 
-                            case 2:
-                                return "Done"
-                                break;
+                                case 2:
+                                    return "Done"
+                                    break;
+                            }
+                        }
+
+                    },
+                    {
+                        data: 'clientprog_id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return '<a href="' + url + '/' + data +
+                                '" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail" target="_blank"><i class="bi bi-info-circle"></i></a>'
                         }
                     }
+                ]
+            });
 
-                },
-                {
-                    data: 'clientprog_id',
-                    className: 'text-center',
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + url + '/' + data +
-                            '" class="btn btn-sm btn-warning"><i class="bi bi-info-circle me-2"></i>More</a>'
-                    }
-                }
-            ]
+            // Tooltip 
+            $('#programTable tbody').on('mouseover', 'tr', function() {
+                $('[data-bs-toggle="tooltip"]').tooltip({
+                    trigger: 'hover',
+                    html: true
+                });
+            });
         });
-
-        $('#programTable tbody').on('click', '.editClient ', function() {
-            var data = table.row($(this).parents('tr')).data();
-            window.location.href = "{{ url('asset') }}/" + data.asset_id.toLowerCase() + '/edit';
-        });
-
-        $('#programTable tbody').on('click', '.deleteClient ', function() {
-            var data = table.row($(this).parents('tr')).data();
-            confirmDelete('asset', data.asset_id)
-        });
-    });
-</script>
+    </script>
 @endpush

@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'University ')
+@section('title', 'University Detail')
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Universities</a></li>
     <li class="breadcrumb-item active" aria-current="page">Form University</li>

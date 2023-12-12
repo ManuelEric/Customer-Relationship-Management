@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Alumni ')
+@section('title', 'List of Alumni')
 
 @section('content')
     <div class="card bg-secondary mb-1 p-2">
@@ -73,27 +73,9 @@
                     <tr class="text-center" role="row">
                         <th class="bg-info text-white">No</th>
                         <th class="bg-info text-white">Name</th>
-                        {{--  <th>Mail</th>  --}}
-                        {{--  <th>Phone</th>  --}}
                         <th>Parents Name</th>
-                        {{--  <th>Parents Phone</th>  --}}
                         <th>School</th>
                         <th>Graduation Year</th>
-                        {{-- <th>Grade</th> --}}
-                        {{--  <th>Instagram</th>  --}}
-                        {{--  <th>Location</th>  --}}
-                        {{--  <th>Lead</th>  --}}
-                        {{--  <th>Level of Interest</th>  --}}
-                        {{--  <th>Interested Program</th>  --}}
-                        {{-- <th>Success Program</th>
-                        <th>Mentor/Tutor</th> --}}
-                        {{--  <th>Year of Study Abroad</th>  --}}
-                        {{--  <th>Country of Study Abroad</th>  --}}
-                        {{--  <th>University Destination</th>  --}}
-                        {{--  <th>Interest Major</th>  --}}
-                        {{--  <th>Last Update</th>  --}}
-                        {{--  <th>Status</th>  --}}
-                        {{-- <th class="bg-info text-white">Score</th> --}}
                         <th class="bg-info text-white"># Action</th>
                     </tr>
                 </thead>
@@ -122,7 +104,7 @@
                 dom: 'Bfrtip',
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
-                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
+                    ['10 alumni', '25 alumni', '50 alumni', '100 alumni', 'Show all']
                 ],
                 buttons: [
                     'pageLength', {
@@ -151,15 +133,6 @@
                             return data
                         }
                     },
-                    /*
-                    {
-                        data: 'mail',
-                    },
-                    
-                    {
-                        data: 'phone',
-                    },
-                    */
                     {
                         data: 'parent_name',
                         name: 'parent_name',
@@ -167,13 +140,6 @@
                         orderable: true,
                         searchable: true,
                     },
-                    /*
-                    {
-                        data: 'parent_phone',
-                        name: 'parent_phone',
-                        defaultContent: '-'
-                    },
-                    */
                     {
                         data: 'school_name',
                         name: 'school_name',
@@ -185,65 +151,10 @@
                         className: 'text-center',
                         defaultContent: '-'
                     },
-                    /*
-                    {
-                        data: 'st_grade',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'insta',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'address',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'lead_source',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'st_levelinterest',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'interest_prog',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'st_abryear',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'abr_country',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'dream_uni',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'dream_major',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'updated_at',
-                    },
-                    {
-                        data: 'st_statusact',
-                        render: function(data, type, row, meta) {
-                            return data == 1 ? "Active" : "Non-active";
-                        }
-                    },
-                    */
-                    // {
-                    //     data: 'total_score',
-                    //     className: 'text-primary',
-                    // },
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient"><i class="bi bi-eye"></i></button>'
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail"><i class="bi bi-eye"></i></button>'
                     }
                 ],
                 createdRow: function(row, data, index) {
@@ -280,7 +191,15 @@
 
 
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('client/alumni/') }}/" + type + "/" + data.id;
+                window.open("{{ url('client/alumni/') }}/" + type + "/" + data.id, "_blank");
+            });
+
+             // Tooltip 
+             $('#clientTable tbody').on('mouseover', 'tr', function() {
+                $('[data-bs-toggle="tooltip"]').tooltip({
+                    trigger: 'hover',
+                    html: true
+                });
             });
         });
     </script>

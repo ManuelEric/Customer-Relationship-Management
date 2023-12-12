@@ -2,7 +2,7 @@
 <style>
     .lcs_wrap { scale: 0.7; margin-top: -4px; margin-left: -10px; }
 </style>
-@section('title', 'Teacher ')
+@section('title', 'Teachers Detail')
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Teacher/Counselor</a></li>
     <li class="breadcrumb-item active" aria-current="page">View Detail</li>
