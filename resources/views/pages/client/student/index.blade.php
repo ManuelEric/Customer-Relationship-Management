@@ -258,6 +258,7 @@
         </div>
     </div>
 
+    {{-- Convert to Low Status --}}
     <div class="modal fade" id="hotLeadModal" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -276,6 +277,7 @@
                                 <input type="hidden" name="clientId" id="clientId">
                                 <input type="hidden" name="initProg" id="initProg">
                                 <input type="hidden" name="leadStatus" id="leadStatus">
+                                <input type="hidden" name="leadStatusOld" id="leadStatusOld">
                                 <input type="hidden" name="groupId" id="groupId">
                                 <select name="reason_id" class="w-100" id="selectReason"
                                     onchange="otherOption($(this).val())">
@@ -309,7 +311,7 @@
                     </div>
                     <div class="d-flex justify-content-between">
                         <button type="button" href="#" class="btn btn-outline-danger btn-sm"
-                            data-bs-dismiss="modal">
+                            onclick="closeUpdateLead()">
                             <i class="bi bi-x-square me-1"></i>
                             Cancel</button>
                         <button type="button" onclick="updateHotLead()" class="btn btn-primary btn-sm">
@@ -435,7 +437,8 @@
                                     break;
                             }
                             return data != null ?
-                                '<select name="status_lead" style="color:#212b3d" class="select w-100" id="status_lead"><option value="hot" ' +
+                                '<select name="status_lead" style="color:#212b3d" class="select w-100 leads' +
+                                row.id + '" id="status_lead"><option value="hot" ' +
                                 hot + '>Hot</option><option value="warm" ' + warm +
                                 '>Warm</option><option value="cold" ' + cold +
                                 '>Cold</option></select>' : '-';
@@ -591,27 +594,24 @@
                 window.open("{{ url('client/student') }}/" + data.id, "_blank")
             });
 
-            $('#clientTable tbody').on('change', '#status_lead ', function() {
+            $('#clientTable tbody').on('change', '#status_lead', function() {
                 var data = table.row($(this).parents('tr')).data();
                 var lead_status = $(this).val();
-
-                $('#groupId').val(data.group_id);
-                $('#clientId').val(data.id);
-                $('#initProg').val(data.program_suggest);
-                $('#leadStatus').val(lead_status);
-                $('#hotLeadForm').attr('action', '{{ url('client/student') }}/' + data.id +
-                    '/lead_status/');
-                $('#hotLeadModal').modal('show');
-
-                confirmUpdateLeadStatus("{{ url('client/student') }}/" + data.id + "/lead_status/" + $(
-                    this).val(), data.id, data.program_suggest, lead_status)
+                if (data.status_lead == 'Hot' || (data.status_lead == "Warm" && lead_status == "cold")) {
+                    $('#hotLeadModal').modal('show');
+                    $('#groupId').val(data.group_id);
+                    $('#clientId').val(data.id);
+                    $('#initProg').val(data.program_suggest);
+                    $('#leadStatusOld').val(data.status_lead);
+                    $('#leadStatus').val(lead_status);
+                    $('#hotLeadForm').attr('action', '{{ url('client/student') }}/' + data.id +
+                        '/lead_status/');
+                } else {
+                    confirmUpdateLeadStatus("{{ url('client/student') }}/" + data.id + "/lead_status", data
+                        .id, data.program_suggest, data.group_id, data.status_lead, lead_status)
+                }
             });
-
-            // $('#clientTable tbody').on('click', '.deleteClient ', function() {
-            //     var data = table.row($(this).parents('tr')).data();
-            //     confirmDelete('asset', data.asset_id)
-            // });
-
+            
             /* for advanced filter */
             $("#school-name").on('change', function(e) {
                 var value = $(e.currentTarget).find("option:selected").val();
@@ -643,6 +643,15 @@
                 table.draw();
             })
         });
+
+        function closeUpdateLead() {
+            const id = $('#clientId').val();
+            const old_status = $('#leadStatusOld').val().toLowerCase();
+            $('.leads' + id).val(old_status)
+            $('#hotLeadModal').modal('hide');
+            $('#selectReason').val('').trigger('change');
+            $('#other_reason').val('');
+        }
 
         function updateHotLead() {
             var link = '{{ url('client/student') }}/' + $('#clientId').val() + '/lead_status';
