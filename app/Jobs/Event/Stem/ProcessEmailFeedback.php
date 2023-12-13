@@ -84,7 +84,7 @@ class ProcessEmailFeedback implements ShouldQueue
 
             # check if log is exists
             # when exists then just update the sent_status
-            if ($foundLog = $this->clientEventLogMailRepository->getClientEventLogMailByClientEventIdAndCategory($this->clientEventId, 'feedback-mail')) {
+            if ($foundLog = $this->clientEventLogMailRepository->getClientEventLogMailByClientEventIdAndCategory($this->clientEventId, 'thanks-mail-after')) {
                 Log::info($this->clientEventId.' dan '.json_encode($foundLog));
 
                 $this->clientEventLogMailRepository->updateClientEventLogMail($foundLog->id, ['sent_status' => 1]);

@@ -18,6 +18,7 @@ use App\Imports\CheckListInvitation;
 use App\Imports\ClientEventImport;
 use App\Imports\InvitationMailVIPImport;
 use App\Imports\InvitationMailVVIPImport;
+use App\Imports\QuestCompleterMailImport;
 use App\Imports\ThankMailImport;
 use App\Imports\ReminderEventImport;
 use App\Imports\ReminderReferralImport;
@@ -109,9 +110,8 @@ class ClientEventController extends Controller
 
     public function index(Request $request)
     {
-        if ($request->ajax())
-        {
-            
+        if ($request->ajax()) {
+
             $event_name = $request->get('event_name');
             $start_date = $request->get('start_date');
             $end_date = $request->get('end_date');
@@ -341,7 +341,7 @@ class ClientEventController extends Controller
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Client Event', Auth::user()->first_name . ' '. Auth::user()->last_name, $clientEvents);
+        $this->logSuccess('store', 'Form Input', 'Client Event', Auth::user()->first_name . ' ' . Auth::user()->last_name, $clientEvents);
 
         return Redirect::to('program/event')->withSuccess('Client event successfully created');
     }
@@ -449,7 +449,7 @@ class ClientEventController extends Controller
         try {
 
             $this->clientEventRepository->updateClientEvent($clientevent_id, $clientEvent);
-            
+
             DB::commit();
         } catch (Exception $e) {
 
@@ -461,7 +461,7 @@ class ClientEventController extends Controller
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Client Event', Auth::user()->first_name . ' '. Auth::user()->last_name, $clientEvent, $oldClientEvent);
+        $this->logSuccess('update', 'Form Input', 'Client Event', Auth::user()->first_name . ' ' . Auth::user()->last_name, $clientEvent, $oldClientEvent);
 
         return Redirect::to('program/event')->withSuccess('Client event successfully updated');
     }
@@ -486,7 +486,7 @@ class ClientEventController extends Controller
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $clientEvent);
+        $this->logSuccess('delete', null, 'Client Program', Auth::user()->first_name . ' ' . Auth::user()->last_name, $clientEvent);
 
         return Redirect::to('program/event')->withSuccess('Client event successfully deleted');
     }
@@ -497,8 +497,8 @@ class ClientEventController extends Controller
         $file = $request->file('file');
 
         // try {
-            $import = new ClientEventImport($this->clientRepository);
-            $import->import($file);
+        $import = new ClientEventImport($this->clientRepository);
+        $import->import($file);
 
 
         // } catch (Exception $e) {
@@ -506,7 +506,7 @@ class ClientEventController extends Controller
         //     return back()->withError('Something went wrong while processing the data. Please try again or contact the administrator.');
 
         // }
-        
+
         return back()->withSuccess('Client event successfully imported');
     }
 
@@ -538,6 +538,9 @@ class ClientEventController extends Controller
                 $import = new ReminderReferralImport;
                 break;
 
+            case 'quest_completer':
+                $import = new QuestCompleterMailImport;
+                break;
         }
         $import->import($file);
 
@@ -613,7 +616,7 @@ class ClientEventController extends Controller
         # prevent data be stored if
         # choosen role is student and parent name is null or -
         $parentNameIsNull = false;
-        if ($choosen_role == "student" && ($request->fullname[1] == "-" || $request->fullname[1] === NULL) ) 
+        if ($choosen_role == "student" && ($request->fullname[1] == "-" || $request->fullname[1] === NULL))
             $parentNameIsNull = true;
 
         DB::beginTransaction();
@@ -670,7 +673,7 @@ class ClientEventController extends Controller
 
             # check if client has already join the event
             if ($this->clientEventRepository->getClientEventByClientIdAndEventId($createdClient['clientId'], 'EVT-0008'))
-                return Redirect::to('form/already-join?role='.$choosen_role.'&name='.$newly_registrant_user->full_name);
+                return Redirect::to('form/already-join?role=' . $choosen_role . '&name=' . $newly_registrant_user->full_name);
 
             # store a new client event
             if ($clientEvent = $this->clientEventRepository->createClientEvent($clientEventDetails)) {
@@ -684,14 +687,12 @@ class ClientEventController extends Controller
                 if (isset($event_type) && $event_type == "offline") {
 
                     $this->sendMailQrCode($storedClientEventId, $requested_event_name, ['clientDetails' => ['mail' => $createdClient['clientMail'], 'name' => $createdClient['clientName']]]);
-
                 } else {
 
                     # send thanks mail
                     // $this->sendMailThanks($storedClientEventId, $requested_event_name, ['clientDetails' => ['mail' => $createdClient['clientMail'], 'name' => $createdClient['clientName']]]);
 
                 }
-
             }
 
 
@@ -699,21 +700,21 @@ class ClientEventController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store client event embed failed : ' . $e->getMessage() . ' on line '. $e->getLine());
+            Log::error('Store client event embed failed : ' . $e->getMessage() . ' on line ' . $e->getLine());
 
-            return Redirect::to('form/event?event_name='.$request->get('event_name'))->withErrors('Something went wrong. Please try again or contact our administrator.');
+            return Redirect::to('form/event?event_name=' . $request->get('event_name'))->withErrors('Something went wrong. Please try again or contact our administrator.');
         }
 
         # store Success
         # create log success
         $this->logSuccess('store', 'Form Embed', 'Client Event', 'Guest', $clientEvent);
 
-        
+
         # if they regist on the spot then should return view success
         if (isset($registration_type) && $registration_type == "ots")
-            return Redirect::to('form/registration/success?role='.$choosen_role.'&name='.$newly_registrant_user->full_name);
-        
-        
+            return Redirect::to('form/registration/success?role=' . $choosen_role . '&name=' . $newly_registrant_user->full_name);
+
+
         return Redirect::to('form/thanks');
     }
 
@@ -726,9 +727,9 @@ class ClientEventController extends Controller
 
         # prevent data be stored if
         # choosen role is student and parent name is null or -
-        if ($choosen_role == "student" && ($request->fullname[1] == "-" || $request->fullname[1] === NULL) ) {
+        if ($choosen_role == "student" && ($request->fullname[1] == "-" || $request->fullname[1] === NULL)) {
 
-            $relation = 1; 
+            $relation = 1;
             $parentNameIsNull = true;
         }
 
@@ -776,8 +777,6 @@ class ClientEventController extends Controller
                     ];
 
                     $clientDetails = array_merge($clientDetails, $additionalInfo);
-
-
                 } else if ($choosen_role == 'student' && $loop == 0) {
 
                     $additionalInfo = [
@@ -788,7 +787,6 @@ class ClientEventController extends Controller
                     ];
 
                     $clientDetails = array_merge($clientDetails, $additionalInfo);
-
                 }
 
                 # additional info that should be stored when role is teacher
@@ -818,9 +816,8 @@ class ClientEventController extends Controller
 
                 # stored a new client information
                 $newClient[$loop] = $this->clientRepository->createClient($this->getRoleName($role), $clientDetails);
-
             }
-            
+
             $clientArrayIds[$loop] = $existingClient['isExist'] ? $existingClient['id'] : $newClient[$loop]->id;
 
             $loop++;
@@ -828,21 +825,16 @@ class ClientEventController extends Controller
 
         # the indexes
         # the idea is assuming the index 0 as the main user that will be added into tbl_client_event
-        if ($choosen_role == 'parent')
-        {
+        if ($choosen_role == 'parent') {
             $parentId = $newClientDetails[0]['id'] = $clientArrayIds[0];
             $childId = $clientArrayIds[1];
-        }
-        else if ($choosen_role == 'student')
-        {
+        } else if ($choosen_role == 'student') {
             # to prevent empty parent name being stored into database
             if (!$parentNameIsNull)
                 $parentId = $clientArrayIds[1];
 
             $childId = $newClientDetails[0]['id'] = $clientArrayIds[0];
-        }
-        else
-        {
+        } else {
             $teacherId = $newClientDetails[0]['id'] = $clientArrayIds[0];
         }
 
@@ -868,7 +860,6 @@ class ClientEventController extends Controller
         if (($choosen_role == 'parent' || $choosen_role == 'student') && !$parentNameIsNull) {
 
             $this->clientRepository->createManyClientRelation($parentId, $childId);
-
         }
 
         return $response;
@@ -884,7 +875,6 @@ class ClientEventController extends Controller
 
             default:
                 $role = ucwords($roleName);
-
         }
 
         return $role;
@@ -918,16 +908,16 @@ class ClientEventController extends Controller
 
         $clientEvent->event_id == 'EVT-0008' ? $eventName = "STEM+ Wonderlab" : null;
 
-        $subject = 'Welcome to the '. $eventName . '!';
+        $subject = 'Welcome to the ' . $eventName . '!';
         // $mail_resources = 'mail-template.event-registration-success';
         $mail_resources = 'mail-template.thanks-email-reg';
 
         $recipientDetails = $client['clientDetails'];
 
         $url = route('program.event.qr-page', [
-                        'event_slug' => urlencode($eventName),
-                        'clientevent' => $clientEventId
-                    ]);
+            'event_slug' => urlencode($eventName),
+            'clientevent' => $clientEventId
+        ]);
 
 
         $event = [
@@ -944,12 +934,10 @@ class ClientEventController extends Controller
                     ->subject($subject);
             });
             $sent_mail = 1;
-
         } catch (Exception $e) {
 
             $sent_mail = 0;
-            Log::error('Failed send email qr code to participant of Event '.$eventName.' | error : '.$e->getMessage().' | Line '.$e->getLine());
-
+            Log::error('Failed send email qr code to participant of Event ' . $eventName . ' | error : ' . $e->getMessage() . ' | Line ' . $e->getLine());
         }
 
         # if update is true
@@ -970,7 +958,7 @@ class ClientEventController extends Controller
 
     public function sendMailThanks($clientEventId, $eventName, $client, $update = false)
     {
-        $subject = 'Welcome to the '.$eventName.'!';
+        $subject = 'Welcome to the ' . $eventName . '!';
         $mail_resources = 'mail-template.thanks-email';
 
         $recipientDetails = $client['clientDetails'];
@@ -989,12 +977,10 @@ class ClientEventController extends Controller
                     ->subject($subject);
             });
             $sent_mail = 1;
-
         } catch (Exception $e) {
 
             $sent_mail = 0;
-            Log::error('Failed send email thanks to participant of Event '.$eventName.' | error : '.$e->getMessage().' | Line '.$e->getLine());
-
+            Log::error('Failed send email thanks to participant of Event ' . $eventName . ' | error : ' . $e->getMessage() . ' | Line ' . $e->getLine());
         }
 
         # if update is true
@@ -1035,12 +1021,10 @@ class ClientEventController extends Controller
                     ->subject($subject);
             });
             $sent_mail = 1;
-
         } catch (Exception $e) {
 
             $sent_mail = 0;
-            Log::error('Failed send email claim to participant of Event '.$eventName.' | error : '.$e->getMessage().' | Line '.$e->getLine());
-
+            Log::error('Failed send email claim to participant of Event ' . $eventName . ' | error : ' . $e->getMessage() . ' | Line ' . $e->getLine());
         }
 
         # if update is true
@@ -1082,7 +1066,6 @@ class ClientEventController extends Controller
                     return view('stem-wonderlab.scan-qrcode.error')->with(['message' => 'We\'re sorry, but you haven\'t joined our event.']);
 
                 break;
-
         }
 
         $clientFullname = $client->full_name;
@@ -1110,15 +1093,14 @@ class ClientEventController extends Controller
                     'abr_country' => isset($client->destinationCountries) ? $client->destinationCountries()->pluck('tbl_tag.id')->toArray() : null
                 ];
                 break;
-                
+
             case "Teacher/Counselor":
                 $secondaryClientInfo = $clientEvent->client;
                 $responseAdditionalInfo = [
                     'sch_id' => isset($client->school) ? $client->school->sch_id : null,
                     'school' => isset($client->school->sch_name) ? $client->school->sch_name : null,
                 ];
-                break;                
-
+                break;
         }
 
         // if (!isset($secondaryClientInfo))
@@ -1235,9 +1217,9 @@ class ClientEventController extends Controller
                 ];
 
                 $child = $this->clientRepository->getClientById($client->id);
-                if(isset($clientEvent->parent)){
+                if (isset($clientEvent->parent)) {
                     $parent = $this->clientRepository->getClientById($clientEvent->parent->id);
-                }else{
+                } else {
                     $parent = null;
                 }
 
@@ -1247,7 +1229,7 @@ class ClientEventController extends Controller
                 $isTeacher = true;
 
                 $splitTeacherName = $this->split($request->fullname[0]);
-                
+
                 $newTeacherInformation = [
                     'first_name' => $splitTeacherName['first_name'],
                     'last_name' => $splitTeacherName['last_name'],
@@ -1258,7 +1240,6 @@ class ClientEventController extends Controller
                 $teacher = $this->clientRepository->getClientById($client->id);
 
                 break;
-
         }
 
         # initiate variable in order to update client event
@@ -1275,11 +1256,11 @@ class ClientEventController extends Controller
             if ($isParent || $isStudent) {
 
                 # update master client information
-                if($parent == null){
+                if ($parent == null) {
                     $parent = $this->clientRepository->createClient('Parent', $newParentInformation);
                     $this->clientRepository->createManyClientRelation($parent->id, [$child->id]);
                     $this->clientEventRepository->updateClientEvent($clientEventId, ['parent_id' => $parent->id]);
-                }else{
+                } else {
                     $parent->update($newParentInformation);
                 }
                 $child->update($newChildInformation);
@@ -1287,7 +1268,6 @@ class ClientEventController extends Controller
                 # update childs school information
                 $destination_countries = $request->destination_country;
                 $child->destinationCountries()->sync($destination_countries);
-
             }
 
             if ($isTeacher)
@@ -1300,19 +1280,17 @@ class ClientEventController extends Controller
             //     $this->sendMailClaim($clientEventId, $eventName, ['clientDetails' => ['mail' => $client->mail, 'name' => $client->full_name]], $update = false);
 
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Failed to process the attending request from '.$clientFullname.' ( '.$eventName.' ) | error : '.$e->getMessage().' '.$e->getLine());
+            Log::error('Failed to process the attending request from ' . $clientFullname . ' ( ' . $eventName . ' ) | error : ' . $e->getMessage() . ' ' . $e->getLine());
             return view('form-embed.response.error');
-
         }
 
-        return Redirect::to('form/registration/success?role='.$client->register_as.'&name='.$request->fullname[0]);
+        return Redirect::to('form/registration/success?role=' . $client->register_as . '&name=' . $request->fullname[0]);
     }
 
-    public function updateAttendance($id, $status) 
+    public function updateAttendance($id, $status)
     {
         $clientEvent = $this->clientEventRepository->getClientEventById($id);
 
@@ -1330,7 +1308,6 @@ class ClientEventController extends Controller
             Log::error('Update attendance client event failed : ' . $e->getMessage());
         }
         return response()->json($data);
-
     }
 
     public function updateNumberOfParty(int $id, int $number_of_party)
@@ -1342,9 +1319,8 @@ class ClientEventController extends Controller
             $clientEvent->number_of_attend = $number_of_party;
             $clientEvent->save();
             DB::commit();
-            
-            $success = true;
 
+            $success = true;
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Update number of party client event failed : ' . $e->getMessage());
@@ -1368,17 +1344,15 @@ class ClientEventController extends Controller
 
         $dataRegister = $this->register($client->mail, $eventId, $notes, $indexChild);
 
-        if($dataRegister['success'] && !$dataRegister['already_join']){
+        if ($dataRegister['success'] && !$dataRegister['already_join']) {
             # store Success
             # create log success
             $this->logSuccess('store', 'Register Express', 'Client Event', 'Guest', ['client_id' => $clientId, 'event_id' => $eventId, 'notes' => $notes]);
 
             return Redirect::to('form/thanks');
-        }else if($dataRegister['success'] && $dataRegister['already_join']){
-            return Redirect::to('form/already-join?role='.$client->register_as.'&name='.$client->full_name);
+        } else if ($dataRegister['success'] && $dataRegister['already_join']) {
+            return Redirect::to('form/already-join?role=' . $client->register_as . '&name=' . $client->full_name);
         }
-
-
     }
 
     public function referralPage(Request $request)
@@ -1400,16 +1374,16 @@ class ClientEventController extends Controller
         $event_slug = $request->route('event_slug');
 
         $shortUrl = ShortURL::where('url_key', $refcode)->first();
-        
+
         $slug = str_replace('-', ' ', $event_slug);
         if (!$event = $this->eventRepository->getEventByName($slug))
             abort(404);
 
         $link = 'https://makerspace.all-inedu.com';
-        $query = '?ref='.$refcode;
+        $query = '?ref=' . $refcode;
 
         return view('stem-wonderlab.referral-link.index')->with([
-            'link' => $link.$query,
+            'link' => $link . $query,
             'event' => $event,
             'notes' => $notes
         ]);
@@ -1445,5 +1419,4 @@ class ClientEventController extends Controller
             'url' => $url
         ]);
     }
-    
 }

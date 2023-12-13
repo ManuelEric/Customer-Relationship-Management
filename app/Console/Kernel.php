@@ -110,7 +110,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('ended:client_program_existing_non_mentee')->everyMinute();
 
         // $schedule->command('send:thanks_mail_event')->everyFifteenMinutes();
-
+        
         # queue worker
         $schedule->command('run:worker')->everyTwoMinutes();
     }

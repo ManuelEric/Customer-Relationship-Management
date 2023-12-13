@@ -20,6 +20,7 @@ return new class extends Migration
             cl.id,
             cl.graduation_year,
             CONCAT(cl.first_name, ' ', COALESCE(cl.last_name, '')) as name,
+            cl.phone,
             UpdateGradeStudent (
                 year(CURDATE()),
                 year(cl.created_at),

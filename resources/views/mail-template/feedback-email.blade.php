@@ -29,8 +29,7 @@
                                     </p>
 
                                     <p style="text-align: center">
-                                        <a href="https://bit.ly/FEEDBACK-STEMWONDERLAB"
-                                            style="text-decoration: none;">
+                                        <a href="https://bit.ly/FEEDBACK-STEMWONDERLAB" style="text-decoration: none;">
                                             <button
                                                 style="border: 1px solid rgb(222, 222, 12); padding: 15px 50px 15px 50px; background-color:#F0833E; border-radius: 7px; color: #FFFFFF; cursor: pointer;">STEM+
                                                 Wonderlab Feedback Form</button>
@@ -43,7 +42,7 @@
                                     </p>
                                     <p style="text-align: center;">
                                         <a href="https://all-inedu.com/id-en/resources/upcoming-events"
-                                            style="text-decoration: none; cursor:pointer !important;">
+                                            style="text-decoration: none;">
                                             <button
                                                 style="border: 1px solid rgb(222, 222, 12); padding: 15px 50px 15px 50px; background-color:#F0833E; border-radius: 7px; color: #FFFFFF; cursor: pointer;">Kegiatan
                                                 ALL-in Lainnya</button>
@@ -74,8 +73,7 @@
                                     </p>
 
                                     <p style="text-align: center">
-                                        <a href="https://bit.ly/FEEDBACK-STEMWONDERLAB"
-                                            style="text-decoration: none; cursor:pointer !important;">
+                                        <a href="https://bit.ly/FEEDBACK-STEMWONDERLAB" style="text-decoration: none;">
                                             <button
                                                 style="border: 1px solid rgb(222, 222, 12); padding: 15px 50px 15px 50px; background-color:#F0833E; border-radius: 7px; color: #FFFFFF; cursor: pointer;">STEM+
                                                 Wonderlab Feedback Form</button>
