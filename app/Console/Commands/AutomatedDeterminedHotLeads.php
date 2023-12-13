@@ -69,6 +69,9 @@ class AutomatedDeterminedHotLeads extends Command
 
             foreach ($rawData as $client) {
 
+                if ($client->id != 1336)
+                    continue;
+
                 if ($client->active == 0)
                     continue;
 
@@ -80,17 +83,13 @@ class AutomatedDeterminedHotLeads extends Command
                 $type = $client->type; # existing client (new, existing mentee, existing non mentee)
                 $weight_attribute_name = "weight_" . $type;
 
-                //? $spesificConcerns = DB::table('tbl_interest_prog')->leftjoin('tbl_prog', 'tbl_interest_prog.prog_id', '=', 'tbl_prog.prog_id')->leftjoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')->where('client_id', $clientData->id)->get();
-
                 $leadTracking = $client->leadStatus;
-
-                //? $leadTracking = $this->clientLeadTrackingRepository->getAllClientLeadTrackingByClientId($client->id);
                 
                 $newClient = $leadTracking->count() > 0 ? false : true;
     
                 # this condition is to make system run every 1 April & 1 Oktober
                 # 01 April & 01 Oktober
-                if (date('d-m H:i') == '01-04 00:00' || date('d-m H:i') == '01-08 00:00')
+                // if (date('d-m H:i') == '01-04 00:00' || date('d-m H:i') == '01-08 00:00')
                     $recalculate = true;    
     
                 # currently we have 4 initial programs
@@ -118,9 +117,9 @@ class AutomatedDeterminedHotLeads extends Command
 
                     $statusLeadTracking = $leadTracking->where('pivot.type', 'Lead')->where('pivot.group_id', $lastGroupId)->first();
 
-                    # check if the data on tbl_client_lead_tracking doesnt have status active (1)
+                    # check if the data on tbl_client_lead_tracking doesnt have status active (1) of each initial program
                     # meaning if there is no active status
-                    # then it means, set trigger update  as true so the system will running for these clients
+                    # then it means, set trigger update as true so the system will running for these clients
                     $triggerUpdate = $leadTracking->where('pivot.initialprogram_id', $initProgramId)->where('pivot.status', 1)->count() < 1 ? true : false;
                     
                     if ($recalculate == false && $triggerUpdate == false && $newClient == false)
@@ -135,6 +134,7 @@ class AutomatedDeterminedHotLeads extends Command
                     $this->info('--------------------------------');
 
                     # start calculate leads
+                    # in order to get score for either its hot, warm, or cold
                     $getLeadBucketDetails = $this->getLeadBucket($initialProgram, $weight_attribute_name, $client, $type, $programScore, $initProgramId, $group_id_with_label, $bypass);
                     $leadBucketDetails = $getLeadBucketDetails['details'];
                     $leadScore = $getLeadBucketDetails['lead_score'];
@@ -413,6 +413,7 @@ class AutomatedDeterminedHotLeads extends Command
                     $joined = ClientProgram::whereHas('program.sub_prog', function ($query) use ($subprog_id) {
                                 $query->whereIn('tbl_sub_prog.id', $subprog_id);
                             })->
+                            where('client_id', $client->id)->
                             select(DB::raw('COUNT(*) as count'))->
                             pluck('count');
 
