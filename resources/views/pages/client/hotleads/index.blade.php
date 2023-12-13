@@ -361,7 +361,7 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail"><i class="bi bi-eye"></i></button>'
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Add Program"><i class="bi bi-send-plus"></i></button>'
                     }
                 ],
             });
@@ -391,27 +391,10 @@
                 });
             });
 
+            // View More 
             $('#clientTable tbody').on('click', '.editClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.open("{{ url('client/student') }}/" + data.id, "_blank");
-            });
-
-            $('#clientTable tbody').on('change', '#status_lead', function() {
-                var data = table.row($(this).parents('tr')).data();
-                var lead_status = $(this).val();
-                if (data.status_lead == 'Hot' || (data.status_lead == "Warm" && lead_status == "cold")) {
-                    $('#hotLeadModal').modal('show');
-                    $('#groupId').val(data.group_id);
-                    $('#clientId').val(data.id);
-                    $('#initProg').val(data.program_suggest);
-                    $('#leadStatusOld').val(data.status_lead);
-                    $('#leadStatus').val(lead_status);
-                    $('#hotLeadForm').attr('action', '{{ url('client/student') }}/' + data.id +
-                        '/lead_status/');
-                } else {
-                    confirmUpdateLeadStatus("{{ url('client/student') }}/" + data.id + "/lead_status", data
-                        .id, data.program_suggest, data.group_id, data.status_lead, lead_status)
-                }
+                window.open("{{ url('client/student') }}/" + data.id + '/program/create', "_blank");
             });
 
             /* for advanced filter */

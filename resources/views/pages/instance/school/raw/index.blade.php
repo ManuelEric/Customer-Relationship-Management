@@ -322,7 +322,7 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-danger py-1 px-2 deleteRawClient"><i class="bi bi-eraser"></i></button>',
+                        defaultContent: '',
                         render: function(data, type, row, meta) {
                             return '<div class="d-flex gap-1 justify-content-center">' +
                                 '<small class="btn btn-sm btn-info px-1 pt-1 pb-0  cursor-pointer" data-bs-toggle="tooltip" data-bs-placement="top" ' +
@@ -374,6 +374,7 @@
                 });
             });
 
+            // Select All 
             function selectAll() {
                 const check_number = $('input.editor-active').length;
                 const checked_number = $('input.editor-active:checked').length;

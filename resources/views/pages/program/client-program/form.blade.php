@@ -11,7 +11,7 @@
         $disabled = !isset($edit) ? 'disabled' : null;
         // $open_information_for_tutor = isset($clientProgram->invoice) && $clientProgram->program->main_prog->prog_name == "Academic & Test Preparation" && $clientProgram->session_tutor === NULL ? true : false;
     @endphp
-{{--     
+    {{--     
     @if ($open_information_for_tutor)
     <div class="alert alert-danger">
         The specific field that needs your attention is "Session Detail". Currently, it appears to be blank, and we kindly request you to provide the necessary information.
@@ -27,13 +27,13 @@
                     @if (!request()->is('program/client/create*'))
                         <div class="mt-3 d-flex justify-content-center">
                             @if (!isset($clientProgram->invoice->refund))
-                            <a href="{{ $disabled
-                                ? route('student.program.edit', ['student' => $student->id, 'program' => $clientProgram->clientprog_id])
-                                : route('student.show', ['student' => $student->id]) }}"
-                                type="button" class="btn btn-sm btn-outline-warning rounded mx-1">
-                                <i class="bi {{ $disabled ? 'bi-pencil' : 'bi-arrow-left' }} me-1"></i>
-                                {{ $disabled ? 'Edit' : 'Back' }}
-                            </a>
+                                <a href="{{ $disabled
+                                    ? route('student.program.edit', ['student' => $student->id, 'program' => $clientProgram->clientprog_id])
+                                    : url()->previous() }}"
+                                    type="button" class="btn btn-sm btn-outline-warning rounded mx-1">
+                                    <i class="bi {{ $disabled ? 'bi-pencil' : 'bi-arrow-left' }} me-1"></i>
+                                    {{ $disabled ? 'Edit' : 'Back' }}
+                                </a>
                             @endif
 
                             @if (isset($clientProgram))
@@ -67,7 +67,7 @@
                         </h6>
                     </div>
                 </div>
-                
+
                 <div class="card-body">
                     <form
                         action="{{ isset($clientProgram)
@@ -167,7 +167,7 @@
                                                     @if (old('eduf_id') == $edufair->id) {{ 'selected' }}
                                                     @elseif (isset($clientProgram) && $clientProgram->eduf_lead_id)
                                                         {{ 'selected' }} @endif>
-                                                    @if ($edufair->title != NULL)
+                                                    @if ($edufair->title != null)
                                                         {{ $edufair->title }}
                                                     @else
                                                         {{ $edufair->organizer_name }}
@@ -277,9 +277,9 @@
                                                 {{ old('status') !== null && old('status') == 2 ? 'selected' : null }}>
                                                 Failed</option>
                                             @if (isset($clientProgram->invoice->receipt))
-                                            <option value="3"
-                                                {{ old('status') !== null && old('status') == 3 ? 'selected' : null }}>
-                                                Refund</option>
+                                                <option value="3"
+                                                    {{ old('status') !== null && old('status') == 3 ? 'selected' : null }}>
+                                                    Refund</option>
                                             @endif
                                         </select>
                                         @error('status')
@@ -432,7 +432,7 @@
                                                     <option value="{{ $mentor->id }}"
                                                         @if (old('main_mentor') == $mentor->id) {{ 'selected' }}
                                                         @elseif (isset($clientProgram->clientMentor) &&
-                                                            $clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'asc')->count() > 0)
+                                                                $clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'asc')->count() > 0)
                                                             @if ($clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'asc')->first()->id == $mentor->id)
                                                                 {{ 'selected' }} @endif
                                                         @endif
@@ -462,7 +462,7 @@
                                                     <option value="{{ $mentor->id }}"
                                                         @if (old('backup_mentor') == $mentor->id) {{ 'selected' }}
                                                         @elseif (isset($clientProgram->clientMentor) &&
-                                                            $clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'desc')->count() > 1)
+                                                                $clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'desc')->count() > 1)
                                                             @if ($clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'desc')->first()->id == $mentor->id)
                                                                 {{ 'selected' }} @endif
                                                         @endif
@@ -493,10 +493,8 @@
                                                     <option data-placeholder="true"></option>
                                                     @foreach ($tutors as $tutor)
                                                         <option value="{{ $tutor->id }}"
-                                                            @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->count() > 0) 
-                                                                @if ($clientProgram->clientMentor()->first()->id == $tutor->id)
-                                                                    {{ 'selected' }} 
-                                                                @endif
+                                                            @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->count() > 0) @if ($clientProgram->clientMentor()->first()->id == $tutor->id)
+                                                                    {{ 'selected' }} @endif
                                                             @endif
                                                             @selected(old('tutor_id') == $tutor->id)
                                                             >{{ $tutor->first_name .' ' .$tutor->last_name .' - ' .json_encode($tutor->roles()->where('role_name', 'Tutor')->pluck('tutor_subject')->toArray()) }}
@@ -538,10 +536,10 @@
                                                 @enderror
                                             </div>
                                             <div class="col-md-6">
-                                                <input type="text" name="timesheet_1" id="" {{ $disabled }}
-                                                class="form-control form-control-sm rounded"
-                                                placeholder="Timesheet 1"
-                                                value="{{ isset($clientProgram->clientMentor[0]->pivot->timesheet_link) ? $clientProgram->clientMentor[0]->pivot->timesheet_link : old('timesheet_1') }}">
+                                                <input type="text" name="timesheet_1" id=""
+                                                    {{ $disabled }} class="form-control form-control-sm rounded"
+                                                    placeholder="Timesheet 1"
+                                                    value="{{ isset($clientProgram->clientMentor[0]->pivot->timesheet_link) ? $clientProgram->clientMentor[0]->pivot->timesheet_link : old('timesheet_1') }}">
                                                 @error('timesheet_1')
                                                     <small class="text-danger fw-light">{{ $message }}</small>
                                                 @enderror
@@ -575,10 +573,10 @@
                                                 @enderror
                                             </div>
                                             <div class="col-md-6">
-                                                <input type="text" name="timesheet_2" id="" {{ $disabled }}
-                                                class="form-control form-control-sm rounded"
-                                                placeholder="Timesheet 2"
-                                                value="{{ isset($clientProgram->clientMentor[1]->pivot->timesheet_link) ? $clientProgram->clientMentor[1]->pivot->timesheet_link : old('timesheet_2') }}">
+                                                <input type="text" name="timesheet_2" id=""
+                                                    {{ $disabled }} class="form-control form-control-sm rounded"
+                                                    placeholder="Timesheet 2"
+                                                    value="{{ isset($clientProgram->clientMentor[1]->pivot->timesheet_link) ? $clientProgram->clientMentor[1]->pivot->timesheet_link : old('timesheet_2') }}">
                                                 @error('timesheet_2')
                                                     <small class="text-danger fw-light">{{ $message }}</small>
                                                 @enderror
@@ -795,17 +793,18 @@
                 var start_date = $("input[name=prog_start_date]").val();
                 var end_date = $("input[name=prog_end_date]").val();
 
-                var start_date_local = start_date+"T00:00";
-                var end_date_local = end_date+"T23:59";
+                var start_date_local = start_date + "T00:00";
+                var end_date_local = end_date + "T23:59";
 
                 if (start_date == '' || end_date == '') {
-                    notification('error', 'Please fill the start date and end date before fill the schedule session.');
+                    notification('error',
+                        'Please fill the start date and end date before fill the schedule session.');
                     $(this).val(null);
                     return;
                 }
 
                 var val = $(this).val();
-                
+
                 if (val < 1) {
                     $(this).val(1)
                     val = 1;
@@ -816,19 +815,20 @@
 
                 while (i <= val) {
 
-                    html += '<div class="row mb-3 schedule-'+i+'">'+
-                                '<div class="col-md-3">'+
-                                '<label>Session '+i+'.<sup class="text-danger">*</sup></label>' +
-                                '</div>' +
-                                '<div class="col-md-5">' +
-                                    '<small>Schedule</small>' +
-                                    '<input type="datetime-local" required class="form-control form-control-sm rounded" min="'+start_date_local+'" max="'+end_date_local+'" name="sessionDetail[]">' +
-                                '</div>' +
-                                '<div class="col-md-4">'+
-                                    '<small>Zoom link</small>' +
-                                    '<input type="url" required class="form-control form-control-sm rounded" name="sessionLinkMeet[]">'+   
-                                '</div>' +                    
-                            '</div>';
+                    html += '<div class="row mb-3 schedule-' + i + '">' +
+                        '<div class="col-md-3">' +
+                        '<label>Session ' + i + '.<sup class="text-danger">*</sup></label>' +
+                        '</div>' +
+                        '<div class="col-md-5">' +
+                        '<small>Schedule</small>' +
+                        '<input type="datetime-local" required class="form-control form-control-sm rounded" min="' +
+                        start_date_local + '" max="' + end_date_local + '" name="sessionDetail[]">' +
+                        '</div>' +
+                        '<div class="col-md-4">' +
+                        '<small>Zoom link</small>' +
+                        '<input type="url" required class="form-control form-control-sm rounded" name="sessionLinkMeet[]">' +
+                        '</div>' +
+                        '</div>';
 
                     i++;
                 }
