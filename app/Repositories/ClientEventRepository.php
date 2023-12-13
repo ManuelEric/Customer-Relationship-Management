@@ -14,7 +14,6 @@ class ClientEventRepository implements ClientEventRepositoryInterface
 
     public function getAllClientEventDataTables($filter = [])
     {
-        Log::debug(gettype((int)$filter['attendance']));
         $query = ClientEvent::leftJoin('client', 'client.id', '=', 'tbl_client_event.client_id')
                 ->leftJoin('tbl_client_roles', 'tbl_client_roles.client_id', '=', 'client.id')
                 ->leftJoin('tbl_roles', 'tbl_roles.id', '=', 'tbl_client_roles.role_id')
@@ -112,7 +111,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 when(!empty($filter['conversion_lead']), function ($searchQuery) use ($filter) {
                     $searchQuery->whereIn('tbl_lead.lead_id', $filter['conversion_lead']);
                 })->
-                when(isset($filter['attendance']), function ($searchQuery) use ($filter) {
+                when($filter && isset($filter['attendance']), function ($searchQuery) use ($filter) {
                     $searchQuery->where('tbl_client_event.status', $filter['attendance']);
                 })->
                 when(!empty($filter['registration']), function ($searchQuery) use ($filter) {
