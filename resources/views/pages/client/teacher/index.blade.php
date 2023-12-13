@@ -182,11 +182,15 @@
                     },
                     {
                         data: 'st_statusact',
+                        searchable: false,
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            return data == 1 ?
-                                "<div class='badge badge-outline-success'>Active</div>" :
-                                "<div class='badge badge-outline-danger'>NonActive</div>";
+                            const status = data == 1 ? "checked" : "";
+                            const content = '<div class="form-check form-switch m-0 p-0">' +
+                                '<input class="form-check-input status" style="margin-left:2em" type="checkbox" role="switch" id="status-' +
+                                row.id + '" ' + status + '>' +
+                                '</div>'
+                            return content;
                         }
                     },
                     {
@@ -221,6 +225,25 @@
                 });
             });
 
+            // Change Active Status 
+            $('#clientTable tbody').on('change', '.status ', function() {
+                const data = table.row($(this).parents('tr')).data();
+                const val = data.st_statusact == 1 ? 0 : 1;
+                const link = "{{ url('/') }}/client/student/" + data.id + "/status/" + val
+
+                axios.get(link)
+                    .then(function(response) {
+                        Swal.close()
+                        notification("success", response.data.message)
+                    })
+                    .catch(function(error) {
+                        Swal.close()
+                        notification("error", error.response.data.message)
+                    })
+                table.ajax.reload(null, false)
+            });
+
+            // View More 
             $('#clientTable tbody').on('click', '.editClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 window.open("{{ url('client/teacher-counselor') }}/" + data.id, "_blank");

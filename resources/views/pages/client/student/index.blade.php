@@ -19,7 +19,6 @@
 @endpush
 
 @section('content')
-
     <div class="card bg-secondary mb-1 p-2">
         <div class="row align-items-center justify-content-between g-3">
             <div class="col-md-6">
@@ -147,6 +146,7 @@
     @endif
 
     <div class="card rounded">
+
         <div class="card-body">
             <ul class="nav nav-tabs flex-nowrap overflow-auto w-100 mb-3" style="overflow-y: hidden !important;">
                 <li class="nav-item">
@@ -183,7 +183,7 @@
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="clientTable">
                 <thead class="bg-secondary text-white">
                     <tr class="text-center" role="row">
-                        <th class="bg-info text-white">No</th>
+                        <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Name</th>
                         <th class="bg-info text-white">Program Suggest</th>
                         <th class="bg-info text-white">Status Lead</th>
@@ -209,7 +209,6 @@
                         <th>Joined Date</th>
                         <th>Last Update</th>
                         <th>Status</th>
-                        {{-- <th class="bg-info text-white">Score</th> --}}
                         <th class="bg-info text-white"># Action</th>
                     </tr>
                 </thead>
@@ -354,12 +353,37 @@
     </script>
 
     <script>
-        // $('#cancel').click(function() {
-        //     $(this).parents('.dropdown').find('button.dropdown-toggle').dropdown('toggle')
-        // });
-
         var widthView = $(window).width();
         $(document).ready(function() {
+            var get_st = "{{ isset($_GET['st']) ? $_GET['st'] : '' }}"
+            var button = [
+                'pageLength', {
+                    extend: 'excel',
+                    text: 'Export to Excel',
+                },
+            ];
+
+            // button for DataTable 
+            if (get_st == 'new-leads' || get_st == 'potential') {
+                button = [
+                    'pageLength', {
+                        extend: 'excel',
+                        text: 'Export to Excel',
+                    },
+                    {
+                        text: '<i class="bi bi-check-square me-1"></i> Select All',
+                        action: function(e, dt, node, config) {
+                            selectAll();
+                        }
+                    },
+                    {
+                        text: '<i class="bi bi-trash-fill me-1"></i> Delete',
+                        action: function(e, dt, node, config) {
+                            multipleDelete();
+                        }
+                    },
+                ];
+            }
 
             var table = $('#clientTable').DataTable({
                 order: [
@@ -367,12 +391,7 @@
                     [1, 'asc']
                 ],
                 dom: 'Bfrtip',
-                buttons: [
-                    'pageLength', {
-                        extend: 'excel',
-                        text: 'Export to Excel',
-                    }
-                ],
+                buttons: [button],
                 lengthMenu: [
                     [10, 50, 100, -1],
                     ['10 row', '50 row', '100 row', 'Show all']
@@ -399,7 +418,8 @@
                         data: 'id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            return meta.row + meta.settings._iDisplayStart + 1;
+                            return '<input type="checkbox" class="editor-active cursor-pointer" data-id="' +
+                                data + '">'
                         }
                     },
                     {
@@ -411,7 +431,6 @@
 
                     {
                         data: 'program_suggest',
-                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
@@ -553,14 +572,36 @@
                         searchable: false,
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            return data == 1 ? "Active" : "Non-active";
+                            const status = data == 1 ? "checked" : "";
+                            const content = '<div class="form-check form-switch m-0 p-0">' +
+                                '<input class="form-check-input status" style="margin-left:2em" type="checkbox" role="switch" id="status-' +
+                                row.id + '" ' + status + '>' +
+                                '</div>'
+                            return content;
                         }
                     },
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail"><i class="bi bi-eye"></i></button>'
-                    }
+                        defaultContent: '',
+                        render: function(data, type, row, meta) {
+                            let content = '<div class="d-flex gap-1 justify-content-center">' +
+                                '<small class="btn btn-sm btn-outline-warning cursor-pointer editClient" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail"><i class="bi bi-eye"></i></small>'
+                            '</div>';
+
+                            if (get_st == 'new-leads' || get_st == 'potential') {
+                                content = '<div class="d-flex gap-1 justify-content-center">' +
+                                    '<small data-bs-toggle="tooltip" data-bs-placement="top" ' +
+                                    'data-bs-custom-class="custom-tooltip" ' +
+                                    'data-bs-title="Delete" class="btn btn-sm btn-outline-danger cursor-pointer deleteClient">' +
+                                    '<i class="bi bi-trash"></i>' +
+                                    '</small>' +
+                                    '<small class="btn btn-sm btn-outline-warning cursor-pointer editClient" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail"><i class="bi bi-eye"></i></small>'
+                                '</div>';
+                            }
+                            return content;
+                        }
+                    },
                 ],
             });
 
@@ -589,11 +630,37 @@
                 });
             });
 
+            // Delete Student 
+            $('#clientTable tbody').on('click', '.deleteClient ', function() {
+                var data = table.row($(this).parents('tr')).data();
+                confirmDelete('client/student', data.id)
+            });
+
+            // View More 
             $('#clientTable tbody').on('click', '.editClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 window.open("{{ url('client/student') }}/" + data.id, "_blank")
             });
 
+            // Change Active Status 
+            $('#clientTable tbody').on('change', '.status ', function() {
+                const data = table.row($(this).parents('tr')).data();
+                const val = data.st_statusact == 1 ? 0 : 1;
+                const link = "{{ url('/') }}/client/student/" + data.id + "/status/" + val
+
+                axios.get(link)
+                    .then(function(response) {
+                        Swal.close()
+                        notification("success", response.data.message)
+                    })
+                    .catch(function(error) {
+                        Swal.close()
+                        notification("error", error.response.data.message)
+                    })
+                table.ajax.reload(null, false)
+            });
+
+            // Change Lead Status 
             $('#clientTable tbody').on('change', '#status_lead', function() {
                 var data = table.row($(this).parents('tr')).data();
                 var lead_status = $(this).val();
@@ -611,7 +678,7 @@
                         .id, data.program_suggest, data.group_id, data.status_lead, lead_status)
                 }
             });
-            
+
             /* for advanced filter */
             $("#school-name").on('change', function(e) {
                 var value = $(e.currentTarget).find("option:selected").val();
@@ -642,6 +709,69 @@
                 var value = $(e.currentTarget).find("option:selected").val();
                 table.draw();
             })
+
+            function selectAll() {
+                const check_number = $('input.editor-active').length;
+                const checked_number = $('input.editor-active:checked').length;
+                const uncheck_number = check_number - checked_number;
+
+                $('input.editor-active').each(function() {
+                    if (uncheck_number == check_number) {
+                        $(this).prop('checked', true)
+                        table.button(2).text('<i class="bi bi-x me-1"></i> Unselect All')
+                    } else if (checked_number == check_number) {
+                        $(this).prop('checked', false)
+                        table.button(2).text('<i class="bi bi-check-square me-1"></i> Select All')
+                    } else {
+                        $(this).prop('checked', true)
+                        table.button(2).text('<i class="bi bi-x me-1"></i> Unselect All')
+                    }
+                });
+            }
+
+            function multipleDelete() {
+                var selected = [];
+                $('input.editor-active').each(function() {
+                    if ($(this).prop('checked')) {
+                        selected.push($(this).data('id'));
+                    }
+                });
+
+                console.log(selected);
+
+                if (selected.length > 0) {
+                    Swal.fire({
+                        title: "Confirmation!",
+                        text: 'Are you sure to delete the students data?',
+                        showCancelButton: true,
+                        confirmButtonText: "Yes",
+                    }).then((result) => {
+                        /* Read more about isConfirmed, isDenied below */
+                        if (result.isConfirmed) {
+                            showLoading();
+                            var link = '{{ route('client.raw.bulk.destroy') }}';
+                            axios.post(link, {
+                                    choosen: selected
+                                })
+                                .then(function(response) {
+                                    swal.close();
+                                    notification('success', response.data.message);
+                                    table.ajax.reload(null, false)
+                                })
+                                .catch(function(error) {
+                                    swal.close();
+                                    notification('error', error.message);
+                                })
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Please select the students data first!",
+                    });
+                }
+            }
         });
 
         function closeUpdateLead() {
