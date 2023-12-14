@@ -13,6 +13,7 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\FindStatusClientTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Http\Traits\SyncClientTrait;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
@@ -55,6 +56,7 @@ class ClientStudentController extends ClientController
     use FindStatusClientTrait;
     use StandardizePhoneNumberTrait;
     use LoggingTrait;
+    use SyncClientTrait;
 
     protected ClientRepositoryInterface $clientRepository;
     protected SchoolRepositoryInterface $schoolRepository;
