@@ -342,7 +342,6 @@
                     </div>
                     <div class="card-body overflow-auto" style="max-height: 300px">
                         <ul class="list-group" style="font-size: 11px;">
-                            {{-- @for ($i = 0; $i < 5; $i++) --}}
                             @foreach ($client->clientProgram->where('status', 1) as $clientProg)
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <div>
@@ -352,7 +351,6 @@
                                 <span class="badge bg-primary rounded-pill py-1 px-2" style="font-size: 11px">{{ isset($clientProg->internalPic) ? $clientProg->internalPic->full_name : '-' }}</span>
                                 </li>
                             @endforeach
-                            {{-- @endfor --}}
                         </ul>
                     </div>
                 </div>
