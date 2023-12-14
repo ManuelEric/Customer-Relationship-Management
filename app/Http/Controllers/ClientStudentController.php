@@ -963,6 +963,34 @@ class ClientStudentController extends ClientController
         return Redirect::to('client/student/raw')->withSuccess('Convert client successfully.');
     }
 
+    public function destroy(Request $request)
+    {
+        $client_id = $request->route('student');
+        $client = $this->clientRepository->getClientById($client_id);
+
+        DB::beginTransaction();
+        try {
+
+            if (!isset($client))
+                return Redirect::to('client/student?st=new-leads')->withError('Data does not exist');
+
+            $this->clientRepository->deleteClient($client_id);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Delete client student failed : ' . $e->getMessage());
+            return Redirect::to('client/student?st=new-leads')->withError('Failed to delete client student');
+        }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Client Student', Auth::user()->first_name . ' ' . Auth::user()->last_name, $client);
+
+        return Redirect::to('client/student?st=new-leads')->withSuccess('Client student successfully deleted');
+
+    }
+
     public function destroyRaw(Request $request)
     {
         # when is method 'POST' meaning the function come from bulk delete
