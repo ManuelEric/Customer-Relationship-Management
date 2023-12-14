@@ -342,7 +342,7 @@
                                 '</small>' +
                                 '<small data-bs-toggle="tooltip" data-bs-placement="top" ' +
                                 'data-bs-custom-class="custom-tooltip" ' +
-                                'data-bs-title="Delete" class="btn btn-sm btn-danger px-1 pt-1 pb-0  cursor-pointer onclick="confirmDelete(\'instance/school/raw\', \'' +
+                                'data-bs-title="Delete" class="btn btn-sm btn-danger px-1 pt-1 pb-0  cursor-pointer" onclick="confirmDelete(\'instance/school/raw\', \'' +
                                 row.sch_id + '\')">' +
                                 '<i class="bi bi-trash"></i>' +
                                 '</small>' +
