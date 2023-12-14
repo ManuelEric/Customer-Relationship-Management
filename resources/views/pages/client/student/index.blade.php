@@ -418,8 +418,11 @@
                         data: 'id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            return '<input type="checkbox" class="editor-active cursor-pointer" data-id="' +
-                                data + '">'
+                            if (get_st == 'new-leads' || get_st == 'potential')
+                                return '<input type="checkbox" class="editor-active cursor-pointer" data-id="' +
+                                    data + '">'
+                            else
+                                return meta.row + meta.settings._iDisplayStart + 1;
                         }
                     },
                     {
@@ -633,7 +636,7 @@
             // Delete Student 
             $('#clientTable tbody').on('click', '.deleteClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                confirmDelete('client/student', data.id)
+                confirmDelete('client/student/raw', data.id)
             });
 
             // View More 
