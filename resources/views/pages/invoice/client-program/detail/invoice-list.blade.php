@@ -76,7 +76,7 @@
                                             break;
                                     }
 
-                                    if(row.status === 1){
+                                    if(parseInt(row.status) === 1){
                                         return data;
                                     }else{
                                         return data + ' <div class="badge badge-danger py-1 px-2 ms-2">'+ status +'</div>';  
