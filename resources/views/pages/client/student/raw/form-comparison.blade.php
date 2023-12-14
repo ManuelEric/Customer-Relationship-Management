@@ -333,26 +333,30 @@
             </div>
         </div>
         <div class="col-md-5">
-            <div class="card rounded mb-3">
-                <div class="card-header">
-                    <strong>
-                        Success Program from {{ $client->full_name }}
-                    </strong>
+            @if($client->clientProgram->where('status', 1)->count() > 0)
+                <div class="card rounded mb-3">
+                    <div class="card-header">
+                        <strong>
+                            Success Program from {{ $client->full_name }}
+                        </strong>
+                    </div>
+                    <div class="card-body overflow-auto" style="max-height: 300px">
+                        <ul class="list-group" style="font-size: 11px;">
+                            {{-- @for ($i = 0; $i < 5; $i++) --}}
+                            @foreach ($client->clientProgram->where('status', 1) as $clientProg)
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi bi-tags-fill me-1"></i>
+                                        {{ $clientProg->program->program_name }}
+                                    </div>
+                                <span class="badge bg-primary rounded-pill py-1 px-2" style="font-size: 11px">{{ isset($clientProg->internalPic) ? $clientProg->internalPic->full_name : '-' }}</span>
+                                </li>
+                            @endforeach
+                            {{-- @endfor --}}
+                        </ul>
+                    </div>
                 </div>
-                <div class="card-body overflow-auto" style="max-height: 300px">
-                    <ul class="list-group" style="font-size: 11px;">
-                        @for ($i = 0; $i < 5; $i++)
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="bi bi-tags-fill me-1"></i>
-                                Program Name
-                            </div>
-                          <span class="badge bg-primary rounded-pill py-1 px-2" style="font-size: 11px">Anggi Prastiwi</span>
-                        </li>
-                        @endfor
-                      </ul>
-                </div>
-            </div>
+            @endif
             <div class="card rounded">
                 <form
                     action="{{ route('client.convert.student', ['client_id' => $client->id, 'type' => 'merge', 'rawclient_id' => $rawClient->id]) }}"
