@@ -314,6 +314,18 @@
                                         </option>
                                         <option value="gbp" {{ $invoiceRef->currency == 'gbp' ? 'selected' : '' }}>GBP
                                         </option>
+                                        <option value="aud" @selected ($invoiceRef->currency == 'aud')>
+                                            AUD</option>
+                                        <option value="vnd" @selected ($invoiceRef->currency == 'vnd')>
+                                            VND</option>
+                                        <option value="myr" @selected ($invoiceRef->currency == 'myr')>
+                                            MYR</option>
+                                        <option value="jpy" @selected ($invoiceRef->currency == 'jpy')>
+                                            JPY</option>
+                                        <option value="cny" @selected ($invoiceRef->currency == 'cny')>
+                                            CNY</option>
+                                        <option value="thb" @selected ($invoiceRef->currency == 'thb')>
+                                            THB</option>
                                     @elseif(empty($invoiceRef))
                                         <option value="usd" {{ old('currency') == 'usd' ? 'selected' : '' }}>USD
                                         </option>
@@ -321,6 +333,18 @@
                                         </option>
                                         <option value="gbp" {{ old('currency') == 'gbp' ? 'selected' : '' }}>GBP
                                         </option>
+                                        <option value="aud" @selected (old('currency') !== null && in_array('aud', (array) old('currency_detail')))>
+                                            AUD</option>
+                                        <option value="vnd" @selected (old('currency') !== null && in_array('vnd', (array) old('currency_detail')))>
+                                            VND</option>
+                                        <option value="myr" @selected (old('currency') !== null && in_array('myr', (array) old('currency_detail')))>
+                                            MYR</option>
+                                        <option value="jpy" @selected (old('currency') !== null && in_array('jpy', (array) old('currency_detail')))>
+                                            JPY</option>
+                                        <option value="cny" @selected (old('currency') !== null && in_array('cny', (array) old('currency_detail')))>
+                                            CNY</option>
+                                        <option value="thb" @selected (old('currency') !== null && in_array('thb', (array) old('currency_detail')))>
+                                            THB</option>
                                         @endif
                                 </select>
                                 @error('currency')
