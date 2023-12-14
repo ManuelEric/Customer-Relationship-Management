@@ -6,6 +6,7 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Models\School;
+use App\Models\SchoolAliases;
 use App\Models\V1\School as V1School;
 use Carbon\Carbon;
 use App\Models\SchoolDetail;
@@ -23,9 +24,15 @@ class SchoolRepository implements SchoolRepositoryInterface
         $this->schoolCurriculumRepository = $schoolCurriculumRepository;
     }
 
-    public function getAllSchoolDataTables()
+    public function getAllSchoolDataTables($isRaw = false)
     {
-        $query = School::orderBy('created_at', 'desc');
+        $query = School::orderBy('created_at', 'desc')->
+                    when($isRaw, function ($subQuery) {
+                        $subQuery->isNotVerified();
+                    }, function ($subQuery) {
+                        $subQuery->isVerified();
+                    });
+
         return Datatables::eloquent($query)->rawColumns(['sch_location'])
             ->addColumn('sch_type_text', function ($data) {
                 return str_replace('_', ' ', $data->sch_type);
@@ -54,6 +61,11 @@ class SchoolRepository implements SchoolRepositoryInterface
     public function getAllSchools()
     {
         return School::orderBy('sch_id', 'asc')->groupBy('sch_name')->get();
+    }
+
+    public function getVerifiedSchools()
+    {
+        return School::where('status', 1)->where('is_verified', 'Y')->orderBy('sch_id', 'asc')->groupBy('sch_name')->get();
     }
 
     public function getSchoolByMonthly($monthYear, $type)
@@ -95,9 +107,41 @@ class SchoolRepository implements SchoolRepositoryInterface
         // return School::where('sch_name', $schoolName)->first();
     }
 
+    public function getSchoolByAlias($alias)
+    {
+        return School::where('sch_name', 'like', '%'.$alias.'%')->orWhereHas('aliases', function ($subQuery) use ($alias) {
+            $subQuery->where('alias', 'like', '%'.$alias.'%');
+        })->get();
+    }
+
+    public function findDeletedSchoolById($schoolId)
+    {
+        return School::onlyTrashed()->where('sch_id', $schoolId)->first();
+    }
+
+    public function restoreSchool($schoolId)
+    {
+        return School::where('sch_id', $schoolId)->withTrashed()->restore();
+    }
+
+    public function getAliasBySchool($schoolId)
+    {
+        return SchoolAliases::where('sch_id', $schoolId)->get();
+    }
+
     public function deleteSchool($schoolId)
     {
+        return School::whereSchoolId($schoolId)->forceDelete();
+    }
+
+    public function moveToTrash($schoolId)
+    {
         return School::whereSchoolId($schoolId)->delete();
+    }
+
+    public function moveBulkToTrash(array $schoolIds)
+    {
+        return School::whereIn('sch_id', $schoolIds)->delete();
     }
 
     public function createSchool(array $schoolDetails)
@@ -125,10 +169,82 @@ class SchoolRepository implements SchoolRepositoryInterface
         return $school;
     }
 
+    public function findSchoolByTerms($searchTerms)
+    {
+        # using fuzzy matching
+        return School::whereRaw('sch_name like ?', ["%{$searchTerms}%"])->orWhereHas('aliases', function ($subQuery) use ($searchTerms) {
+            $subQuery->whereRaw('alias like ?', ["%{$searchTerms}%"]);
+        })->get();
+    }
+
     public function attachCurriculum($schoolId, array $curriculums)
     {
         $school = School::whereSchoolId($schoolId);
         return $school->curriculum()->attach($curriculums);
+    }
+
+    public function getDuplicateSchools()
+    {
+        return School::isVerified()->select([
+                DB::raw('COUNT(*) as count'),
+                'tbl_sch.sch_name',
+            ])->groupBy('sch_name')->havingRaw('count > 1')->get();
+    }
+
+    public function getDuplicateUnverifiedSchools()
+    {
+        return School::isNotVerified()->select([
+            DB::raw('COUNT(*) as count'),
+            'tbl_sch.sch_name',
+        ])->groupBy('sch_name')->havingRaw('count > 1')->get();
+    }
+
+    public function getUnverifiedSchools()
+    {
+        return School::isNotVerified();
+    }
+
+    public function findUnverifiedSchool($schoolId)
+    {
+        return School::isNotVerified()->whereSchoolId($schoolId);
+    }
+
+    public function findVerifiedSchool($schoolId)
+    {
+        return School::isVerified()->whereSchoolId($schoolId);
+    }
+
+    public function getDeletedSchools($asDatatables = false)
+    {
+        $query = School::onlyTrashed();
+        
+        return $asDatatables === false ? $query->get() : $query;
+    }
+
+    public function getDataTables($model)
+    {
+        return DataTables::of($model)->
+                addColumn('sch_type_text', function ($data) {
+                    return str_replace('_', ' ', $data->sch_type);
+                })->
+                addColumn('curriculum', function ($data) {
+                    $no = 1;
+                    $curriculums = '';
+                    foreach ($data->curriculum as $curriculum) {
+                        if ($no == 1)
+                            $curriculums = $curriculum->name;
+                        else
+                            $curriculums .= ', ' . $curriculum->name;
+
+                        $no++;
+                    }
+                    return $curriculums;
+                })->
+                filterColumn('curriculum', function ($query, $keyword) {
+                    $query->whereHas('curriculum', function ($q) use ($keyword) {
+                        $q->where('name', 'like', '%' . $keyword . '%');
+                    });
+                })->make(true);
     }
 
     public function createSchools(array $schoolDetails)
@@ -139,6 +255,11 @@ class SchoolRepository implements SchoolRepositoryInterface
     public function updateSchool($schoolId, array $newDetails)
     {
         return School::whereSchoolId($schoolId)->update($newDetails);
+    }
+
+    public function updateSchools(array $schoolIds, array $newDetails)
+    {
+        return School::whereIn('sch_id', $schoolIds)->update($newDetails);
     }
 
     public function cleaningSchool()
@@ -263,9 +384,21 @@ class SchoolRepository implements SchoolRepositoryInterface
     {
         return School::whereNull('sch_type')->get();
     }
-    # CRM
+
+    # CRM v1
     public function getAllSchoolFromV1()
     {
         return V1School::all();
+    }
+
+    # alias
+    public function createNewAlias($aliasDetail)
+    {
+        return SchoolAliases::create($aliasDetail);
+    }
+
+    public function deleteAlias($aliasid)
+    {
+        return SchoolAliases::find($aliasid)->delete();
     }
 }

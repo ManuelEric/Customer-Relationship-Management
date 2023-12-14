@@ -593,7 +593,8 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     {
         $userId = $this->getUser($cp_filter);
 
-        return ClientProgram::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
+        return ClientProgram::
+            leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
             ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client.lead_id')
             ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client.eduf_id')
             ->leftJoin('tbl_events', 'tbl_events.event_id', 'tbl_client.event_id')
@@ -1039,13 +1040,17 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     {
         $userId = $this->getUser($cp_filter);
 
-        return ClientProgram::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')->select([
-            'tbl_prog.prog_id',
-            DB::raw('CONCAT(tbl_main_prog.prog_name, ": ", tbl_prog.prog_program) as program_name_st'),
-            DB::raw('COUNT(*) as total_client_per_program'),
-        ])->where('status', 1)->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
-            $q->where('empl_id', $userId);
-        })
+        return ClientProgram::
+            leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')->
+            leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')->
+            leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')->
+            select([
+                'tbl_prog.prog_id',
+                DB::raw('CONCAT(tbl_main_prog.prog_name, ": ", tbl_prog.prog_program) as program_name_st'),
+                DB::raw('COUNT(*) as total_client_per_program'),
+            ])->where('status', 1)->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+                $q->where('empl_id', $userId);
+            })
             // ->whereMonth('tbl_client_prog.created_at', date('m', strtotime($cp_filter['qdate'])))
             // ->whereYear('tbl_client_prog.created_at', date('Y', strtotime($cp_filter['qdate'])))
             ->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))

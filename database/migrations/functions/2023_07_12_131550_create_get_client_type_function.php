@@ -22,6 +22,7 @@ return new class extends Migration
         
         BEGIN
         	DECLARE counted_program INTEGER DEFAULT 0;
+
             SELECT COUNT(*) INTO counted_program FROM tbl_client_prog cp
                     JOIN tbl_prog p ON p.prog_id = cp.prog_id
                         JOIN tbl_main_prog mp ON mp.id = p.main_prog_id
@@ -41,6 +42,7 @@ return new class extends Migration
         
         BEGIN
         	DECLARE counted_program INTEGER DEFAULT 0;
+
             SELECT COUNT(*) INTO counted_program FROM tbl_client_prog cp
                     JOIN tbl_prog p ON p.prog_id = cp.prog_id
                         JOIN tbl_main_prog mp ON mp.id = p.main_prog_id

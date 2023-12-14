@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Teacher ')
+@section('title', 'List of Teacher')
 
 @push('styles')
     <style>
@@ -33,8 +33,8 @@
                                 class="ms-1">Template</span></a>
                     </div>
                     <div class="col-md-4 col-5">
-                        <a href="javascript:void(0)" class="btn btn-sm btn-light text-info btn-import w-100" data-bs-toggle="modal"
-                            data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span
+                        <a href="javascript:void(0)" class="btn btn-sm btn-light text-info btn-import w-100"
+                            data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span
                                 class="ms-1">Import</span></a>
                     </div>
                     <div class="col-md-4">
@@ -59,6 +59,17 @@
 
     <div class="card rounded">
         <div class="card-body">
+            <ul class="nav nav-tabs flex-nowrap overflow-auto w-100 mb-3" style="overflow-y: hidden !important;">
+                <li class="nav-item">
+                    <a class="nav-link text-nowrap" aria-current="page" href="{{ url('client/teacher-counselor/raw') }}">Raw
+                        Data</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-nowrap active" aria-current="page"
+                        href="{{ url('client/teacher-counselor') }}">Teacher</a>
+                </li>
+            </ul>
+
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="clientTable">
                 <thead class="bg-secondary text-white">
                     <tr class="text-center" role="row">
@@ -71,11 +82,11 @@
                         <th class="bg-info text-white">#</th>
                     </tr>
                 </thead>
-                <tfoot class="bg-light text-white">
+                {{-- <tfoot class="bg-light text-white">
                     <tr>
                         <td colspan="7"></td>
                     </tr>
-                </tfoot>
+                </tfoot> --}}
             </table>
         </div>
     </div>
@@ -118,101 +129,126 @@
 @endsection
 
 @push('scripts')
-<script>
-    var widthView = $(window).width();
-    $(document).ready(function() {
-        var table = $('#clientTable').DataTable({
-            dom: 'Bfrtip',
-            lengthMenu: [
-                [10, 25, 50, 100, -1],
-                ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-            ],
-            buttons: [
-                'pageLength', {
-                    extend: 'excel',
-                    text: 'Export to Excel',
-                }
-            ],
-            scrollX: true,
-            fixedColumns: {
-                left: (widthView < 768) ? 1 : 2,
-                right: 1
-            },
-            processing: true,
-            serverSide: true,
-            ajax: '',
-            columns: [{
-                    data: 'id',
-                    className: 'text-center',
-                    render: function(data, type, row, meta) {
-                        return meta.row + meta.settings._iDisplayStart + 1;
+    <script>
+        var widthView = $(window).width();
+        $(document).ready(function() {
+            var table = $('#clientTable').DataTable({
+                dom: 'Bfrtip',
+                lengthMenu: [
+                    [10, 50, 100, -1],
+                    ['10 teachers', '50 teachers', '100 teachers', 'Show all']
+                ],
+                buttons: [
+                    'pageLength', {
+                        extend: 'excel',
+                        text: 'Export to Excel',
                     }
+                ],
+                scrollX: true,
+                fixedColumns: {
+                    left: (widthView < 768) ? 1 : 2,
+                    right: 1
                 },
-                {
-                    data: 'full_name',
-                    render: function(data, type, row, meta) {
-                        return data
+                processing: true,
+                serverSide: true,
+                ajax: '',
+                columns: [{
+                        data: 'id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'full_name',
+                        render: function(data, type, row, meta) {
+                            return data
+                        }
+                    },
+                    {
+                        data: 'mail',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'phone',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'school_name',
+                        name: 'school_name',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'st_statusact',
+                        searchable: false,
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            const status = data == 1 ? "checked" : "";
+                            const content = '<div class="form-check form-switch m-0 p-0">' +
+                                '<input class="form-check-input status" style="margin-left:2em" type="checkbox" role="switch" id="status-' +
+                                row.id + '" ' + status + '>' +
+                                '</div>'
+                            return content;
+                        }
+                    },
+                    {
+                        data: '',
+                        className: 'text-center',
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail"><i class="bi bi-eye"></i></button>'
                     }
-                },
-                {
-                    data: 'mail',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'phone',
-                    className: 'text-center',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'school_name',
-                    name: 'school_name',
-                    className: 'text-center',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'st_statusact',
-                    className: 'text-center',
-                    render: function(data, type, row, meta) {
-                        return data == 1 ?
-                            "<div class='badge badge-outline-success'>Active</div>" :
-                            "<div class='badge badge-outline-danger'>NonActive</div>";
-                    }
-                },
-                {
-                    data: '',
-                    className: 'text-center',
-                    defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient"><i class="bi bi-eye"></i></button>'
-                }
-            ],
-            createdRow: function(row, data, index) {
-                    var newClientThisMonth = moment().format("MMM YY") == moment(data.created_at).format('MMM YY');
-                    if (newClientThisMonth) {
-                        $('td', row).addClass('table-success');
-                    }
-                }
-        });
-
-        @php
-            $privilage = $menus['Client']->where('submenu_name', 'Teacher/Counselor')->first();
-        @endphp
-
-        @if ($privilage['copy'] == 0)
-            document.oncontextmenu = new Function("return false");
-
-            $('body').bind('cut copy paste', function(event) {
-                event.preventDefault();
+                ],
             });
-        @endif
 
-        @if ($privilage['export'] == 0)
-            table.button(1).disable();
-        @endif
+            @php
+                $privilage = $menus['Client']->where('submenu_name', 'Teacher/Counselor')->first();
+            @endphp
 
-        $('#clientTable tbody').on('click', '.editClient ', function() {
-            var data = table.row($(this).parents('tr')).data();
-            window.location.href = "{{ url('client/teacher-counselor') }}/" + data.id;
+            @if ($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false");
+
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
+
+            @if ($privilage['export'] == 0)
+                table.button(1).disable();
+            @endif
+
+            // Tooltip 
+            $('#clientTable tbody').on('mouseover', 'tr', function() {
+                $('[data-bs-toggle="tooltip"]').tooltip({
+                    trigger: 'hover',
+                    html: true
+                });
+            });
+
+            // Change Active Status 
+            $('#clientTable tbody').on('change', '.status ', function() {
+                const data = table.row($(this).parents('tr')).data();
+                const val = data.st_statusact == 1 ? 0 : 1;
+                const link = "{{ url('/') }}/client/student/" + data.id + "/status/" + val
+
+                axios.get(link)
+                    .then(function(response) {
+                        Swal.close()
+                        notification("success", response.data.message)
+                    })
+                    .catch(function(error) {
+                        Swal.close()
+                        notification("error", error.response.data.message)
+                    })
+                table.ajax.reload(null, false)
+            });
+
+            // View More 
+            $('#clientTable tbody').on('click', '.editClient ', function() {
+                var data = table.row($(this).parents('tr')).data();
+                window.open("{{ url('client/teacher-counselor') }}/" + data.id, "_blank");
+            });
+
         });
-
-    });
-</script>
+    </script>
 @endpush

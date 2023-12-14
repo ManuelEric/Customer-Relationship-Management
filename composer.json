@@ -12,6 +12,7 @@
         "ext-gd": "*",
         "arcanedev/log-viewer": "^9.0",
         "ashallendesign/short-url": "^7.6",
+        "barryvdh/laravel-debugbar": "^3.9",
         "barryvdh/laravel-dompdf": "^2.0",
         "doctrine/dbal": "^3.4",
         "guzzlehttp/guzzle": "^7.2",

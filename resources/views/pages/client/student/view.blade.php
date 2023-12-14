@@ -7,7 +7,7 @@
     }
 </style>
 
-@section('title', 'Student')
+@section('title', 'Students Detail')
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Students</a></li>
     <li class="breadcrumb-item active" aria-current="page">View Detail</li>
@@ -190,10 +190,6 @@
                         <div class="col-md-9 col-8">
                             <input type="checkbox" name="st_status" id="status" value=""
                                 @checked($student->st_statusact == 1)>
-                            {{-- <select name="st_status" id="status">
-                                <option value="1" {{ $student->st_statusact == 1 ? "selected" : null }}>Active</option>
-                                <option value="0" {{ $student->st_statusact == 0 ? "selected" : null }}>Inactive</option>
-                            </select> --}}
                         </div>
                     </div>
                 </div>

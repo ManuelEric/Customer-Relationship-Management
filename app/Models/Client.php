@@ -5,16 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Client extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'client';
 
     protected $fillable = [
         'id',
         'st_id',
+        'uuid',
         'first_name',
         'last_name',
         'mail',
@@ -45,8 +47,10 @@ class Client extends Model
         'preferred_program',
         'is_funding',
         'register_as',
+        'is_verified',
         'created_at',
         'updated_at',
+        'deleted_at',
     ];
 
     # attributes
@@ -61,6 +65,48 @@ class Client extends Model
     {
         return $query->whereHas($relation, $constraint)
             ->with([$relation => $constraint]);
+    }
+
+    # Scopes
+    public function scopeIsVerified($query)
+    {
+        return $query->where('is_verified', 'Y');
+    }
+
+    public function scopeIsNotVerified($query)
+    {
+        return $query->where('is_verified', 'N');
+    }
+
+    public function scopeIsActive($query)
+    {
+        return $query->where('st_statusact', 1);
+    }
+
+    public function scopeIsNotActive($query)
+    {
+        return $query->where('st_statusact', 0);
+    }
+
+    public function scopeIsStudent($query)
+    {
+        return $query->whereHas('roles', function ($subQuery) {
+            $subQuery->where('role_name', 'Student');
+        });
+    }
+
+    public function scopeIsParent($query)
+    {
+        return $query->whereHas('roles', function ($subQuery) {
+            $subQuery->where('role_name', 'Parent');
+        });
+    }
+
+    public function scopeIsTeacher($query)
+    {
+        return $query->whereHas('roles', function ($subQuery) {
+            $subQuery->where('role_name', 'Teacher/Counselor');
+        });
     }
 
     # attributes

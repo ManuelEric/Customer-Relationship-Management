@@ -27,8 +27,10 @@ use Illuminate\Support\Facades\Redirect;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ParentTemplate;
 use App\Http\Controllers\Module\ClientController;
+use App\Http\Requests\StoreClientRawParentRequest;
 use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Traits\LoggingTrait;
+use App\Http\Traits\SyncClientTrait;
 use App\Imports\MasterParentImport;
 use App\Imports\ParentImport;
 use App\Interfaces\ClientEventRepositoryInterface;
@@ -41,6 +43,7 @@ class ClientParentController extends ClientController
     use FindStatusClientTrait;
     use StandardizePhoneNumberTrait;
     use LoggingTrait;
+    use SyncClientTrait;
 
     protected ClientRepositoryInterface $clientRepository;
     protected ClientEventRepositoryInterface $clientEventRepository;
@@ -80,6 +83,15 @@ class ClientParentController extends ClientController
         }
 
         return view('pages.client.parent.index');
+    }
+
+    public function indexRaw(Request $request)
+    {
+        if ($request->ajax()) {
+            return $this->clientRepository->getAllRawClientDataTables('parent');
+        }
+
+        return view('pages.client.parent.raw.index');
     }
 
     public function create(Request $request)
@@ -356,4 +368,143 @@ class ClientParentController extends ClientController
 
         return back()->withSuccess('Parent successfully imported');
     }
+
+    public function getDataParents() {
+        $parents = $this->clientRepository->getAllClientByRole('Parent');
+        return response()->json(
+            [
+                'success' => true,
+                'data' => $parents
+            ]
+        );
+    }
+
+    public function cleaningData(Request $request)
+    {
+        $type = $request->route('type');
+        $rawClientId = $request->route('rawclient_id');
+        $clientId = $request->route('client_id');
+
+        DB::beginTransaction();
+        try {
+
+            $rawClient = $this->clientRepository->getViewRawClientById($rawClientId);
+            if (!isset($rawClient))
+                return Redirect::to('client/parent/raw')->withError('Data does not exist');
+
+            if ($clientId != null){
+                $client = $this->clientRepository->getViewClientById($clientId);
+                if (!isset($client))
+                    return Redirect::to('client/parent/raw')->withError('Data does not exist');
+            }
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            Log::error('Fetch data raw client failed : ' . $e->getMessage() . ' ' . $e->getLine());
+            return Redirect::to('client/parent/raw')->withError('Something went wrong. Please try again or contact the administrator.');
+        }
+
+        switch ($type) {
+            case 'comparison':
+                return view('pages.client.parent.raw.form-comparison')->with([
+                    'rawClient' => $rawClient,
+                    'client' => $client
+                ]);
+                break;
+
+            case 'new':
+                return view('pages.client.parent.raw.form-new')->with([
+                    'rawClient' => $rawClient,
+                ]);
+                break;
+        }
+    }
+
+    public function convertData(StoreClientRawParentRequest $request)
+    {
+
+        $type = $request->route('type');
+        $clientId = $request->route('client_id');
+        $rawclientId = $request->route('rawclient_id');
+
+        $name = $this->explodeName($request->nameFinal);
+
+        $clientDetails = [
+            'first_name' => $name['firstname'],
+            'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
+            'mail' => $request->emailFinal,
+            'phone' => $this->setPhoneNumber($request->phoneFinal),
+            'is_verified' => 'Y'
+        ];
+
+
+        DB::beginTransaction();
+        try {
+            switch ($type) {
+                case 'merge':
+
+                    $this->clientRepository->updateClient($clientId, $clientDetails);
+
+                    $rawParent = $this->clientRepository->getViewRawClientById($rawclientId);
+
+                    # delete parent from raw client
+                    $this->clientRepository->deleteClient($rawclientId);
+
+                    break;
+
+                case 'new':
+                    $rawParent = $this->clientRepository->getViewRawClientById($rawclientId);
+                    $lead_id = $rawParent->lead_id;
+                    $register_as = $rawParent->register_as;
+
+                    $clientDetails['lead_id'] = $lead_id;
+                    $clientDetails['register_as'] = $register_as;
+
+                    $newParent = $this->clientRepository->updateClient($rawclientId, $clientDetails);
+
+                    break;
+            }
+
+
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            Log::error('Convert client failed : ' . $e->getMessage() . ' ' . $e->getLine());
+            return Redirect::to('client/parent/raw')->withError('Something went wrong. Please try again or contact the administrator.');
+        }
+
+        return Redirect::to('client/parent/raw')->withSuccess('Convert client successfully.');
+    }
+
+    public function destroyRaw(Request $request)
+    {
+        $rawclientId = $request->route('rawclient_id');
+        $rawParent = $this->clientRepository->getViewRawClientById($rawclientId);
+
+        DB::beginTransaction();
+        try {
+
+            if (!isset($rawParent))
+                return Redirect::to('client/parent/raw')->withError('Data does not exist');
+
+            $this->clientRepository->deleteClient($rawclientId);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Delete raw client parent failed : ' . $e->getMessage());
+            return Redirect::to('client/parent/raw')->withError('Failed to delete raw parent');
+        }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Raw Client', Auth::user()->first_name . ' '. Auth::user()->last_name, $rawParent);
+
+        return Redirect::to('client/parent/raw')->withSuccess('Raw parent successfully deleted');
+    }
+
 }

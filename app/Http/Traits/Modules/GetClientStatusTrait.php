@@ -71,6 +71,16 @@ trait GetClientStatusTrait {
                 'old' => $total_teacher - $monthly_new_teacher,
                 'new' => $monthly_new_teacher,
                 'percentage' => $this->calculatePercentage($total_teacher, $monthly_new_teacher)
+            ],
+            'raw' => [
+                'student' => $this->clientRepository->getUnverifiedStudent(false)->count(),
+                'parent' => $this->clientRepository->getUnverifiedParent(false)->count(),
+                'teacher' => $this->clientRepository->getUnverifiedTeacher(false)->count(),
+            ],
+            'inactive' => [
+                'student' => $this->clientRepository->getInactiveStudent(false)->count(),
+                'parent' => $this->clientRepository->getInactiveParent(false)->count(),
+                'teacher' => $this->clientRepository->getInactiveTeacher(false)->count(),
             ]
         ];
         $response['followUpReminder'] = $this->followupRepository->getAllFollowupWithin(7);

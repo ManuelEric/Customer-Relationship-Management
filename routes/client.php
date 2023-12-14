@@ -44,6 +44,12 @@ use Illuminate\Support\Facades\Route;
 //     return view('pages.client.student.index-mentee', ['status' => $status]);
 // });
 
+Route::get('student/raw',  [ClientStudentController::class, 'indexRaw']);
+Route::get('student/raw/{rawclient_id}/{type}/{client_id?}', [ClientStudentController::class, 'cleaningData']);
+Route::post('student/raw/{rawclient_id}/{type}/{client_id?}', [ClientStudentController::class, 'convertData'])->name('client.convert.student');
+Route::delete('student/raw/{rawclient_id}', [ClientStudentController::class, 'destroyRaw']);
+Route::post('delete/bulk/student/raw', [ClientStudentController::class ,'destroyRaw'])->name('client.raw.bulk.destroy');
+
 Route::resource('student', ClientStudentController::class);
 Route::prefix('student')->name('student.')->group(function () {
     Route::post('import', [ClientStudentController::class, 'import'])->name('import');
@@ -65,13 +71,41 @@ Route::prefix('alumni')->group(function() {
 });
 Route::resource('alumni', ClientMenteeController::class);
 
+<<<<<<< HEAD
+=======
+// Route::get('teacher-counselor/raw', function () {
+//     return view('pages.client.teacher.raw.index');
+// });
+// Route::get('teacher-counselor/raw/1/comparison/2', function () {
+//     return view('pages.client.teacher.raw.form-comparison');
+// });
+// Route::get('teacher-counselor/raw/1/new', function () {
+//     return view('pages.client.teacher.raw.form-new');
+// });
+
+Route::get('teacher-counselor/raw',  [ClientTeacherCounselorController::class, 'indexRaw']);
+Route::get('teacher-counselor/raw/{rawclient_id}/{type}/{client_id?}', [ClientTeacherCounselorController::class, 'cleaningData']);
+Route::post('teacher-counselor/raw/{rawclient_id}/{type}/{client_id?}', [ClientTeacherCounselorController::class, 'convertData'])->name('client.convert.teacher');
+Route::delete('teacher-counselor/raw/{rawclient_id}', [ClientTeacherCounselorController::class, 'destroyRaw']);
+
+>>>>>>> origin/development-v2.1.4
 Route::resource('teacher-counselor', ClientTeacherCounselorController::class);
 Route::prefix('teacher-counselor')->name('teacher-counselor.')->group(function () {
     Route::post('import', [ClientTeacherCounselorController::class, 'import'])->name('import');
     Route::get('{teacher}/status/{status}', [ClientTeacherCounselorController::class, 'updateStatus'])->name('update.status');
 });
 
+<<<<<<< HEAD
+=======
+
+Route::get('parent/raw',  [ClientParentController::class, 'indexRaw']);
+Route::get('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'cleaningData']);
+Route::post('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'convertData'])->name('client.convert.parent');
+Route::delete('parent/raw/{rawclient_id}', [ClientParentController::class, 'destroyRaw']);
+
+>>>>>>> origin/development-v2.1.4
 Route::resource('parent', ClientParentController::class);
+
 Route::post('parent/import', [ClientParentController::class, 'import'])->name('parent.import');
 
 Route::resource('acceptance', AcceptanceController::class)->parameters(['acceptance' => 'client']);

@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Student')
+@section('title', 'List of Student')
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('library/dashboard/css/vertical-layout-light/style.css') }}">
@@ -19,7 +19,6 @@
 @endpush
 
 @section('content')
-
     <div class="card bg-secondary mb-1 p-2">
         <div class="row align-items-center justify-content-between g-3">
             <div class="col-md-6">
@@ -58,7 +57,9 @@
                                         <select name="school_name[]" class="select form-select form-select-sm w-100"
                                             multiple id="school-name">
                                             @foreach ($advanced_filter['schools'] as $school)
-                                                <option value="{{ $school->sch_name }}">{{ $school->sch_name }}</option>
+                                                <option value="{{ $school->sch_name }}"
+                                                    {{ Request::get('sch') == $school->sch_name && Request::get('sch') != '' && Request::get('sch') != null ? 'selected' : null }}>
+                                                    {{ $school->sch_name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -145,8 +146,12 @@
     @endif
 
     <div class="card rounded">
+
         <div class="card-body">
             <ul class="nav nav-tabs flex-nowrap overflow-auto w-100 mb-3" style="overflow-y: hidden !important;">
+                <li class="nav-item">
+                    <a class="nav-link text-nowrap" aria-current="page" href="{{ url('client/student/raw') }}">Raw Data</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link text-nowrap {{ Request::get('st') == 'new-leads' ? 'active' : '' }}"
                         aria-current="page" href="{{ url('client/student?st=new-leads') }}">New Leads</a>
@@ -178,7 +183,7 @@
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="clientTable">
                 <thead class="bg-secondary text-white">
                     <tr class="text-center" role="row">
-                        <th class="bg-info text-white">No</th>
+                        <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Name</th>
                         <th class="bg-info text-white">Program Suggest</th>
                         <th class="bg-info text-white">Status Lead</th>
@@ -204,7 +209,6 @@
                         <th>Joined Date</th>
                         <th>Last Update</th>
                         <th>Status</th>
-                        {{-- <th class="bg-info text-white">Score</th> --}}
                         <th class="bg-info text-white"># Action</th>
                     </tr>
                 </thead>
@@ -253,6 +257,7 @@
         </div>
     </div>
 
+    {{-- Convert to Low Status --}}
     <div class="modal fade" id="hotLeadModal" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -271,6 +276,7 @@
                                 <input type="hidden" name="clientId" id="clientId">
                                 <input type="hidden" name="initProg" id="initProg">
                                 <input type="hidden" name="leadStatus" id="leadStatus">
+                                <input type="hidden" name="leadStatusOld" id="leadStatusOld">
                                 <input type="hidden" name="groupId" id="groupId">
                                 <select name="reason_id" class="w-100" id="selectReason"
                                     onchange="otherOption($(this).val())">
@@ -304,7 +310,7 @@
                     </div>
                     <div class="d-flex justify-content-between">
                         <button type="button" href="#" class="btn btn-outline-danger btn-sm"
-                            data-bs-dismiss="modal">
+                            onclick="closeUpdateLead()">
                             <i class="bi bi-x-square me-1"></i>
                             Cancel</button>
                         <button type="button" onclick="updateHotLead()" class="btn btn-primary btn-sm">
@@ -318,392 +324,512 @@
 
 @endsection
 @push('scripts')
-<script>
-    $(document).ready(function() {
-        $('#selectReason').select2({
-            dropdownParent: $('#hotLeadModal'),
-            placeholder: "Select value",
-            allowClear: true
+    <script>
+        $(document).ready(function() {
+            $('#selectReason').select2({
+                dropdownParent: $('#hotLeadModal'),
+                placeholder: "Select value",
+                allowClear: true
+            });
         });
-    });
 
-    function otherOption(value) {
-        if (value == 'other') {
-            $('.classReason').addClass('d-none')
-            $('#inputReason').removeClass('d-none')
-            $('#inputReason input').focus()
-        } else {
-            $('#inputReason').addClass('d-none')
-            $('.classReason').removeClass('d-none')
+        function otherOption(value) {
+            if (value == 'other') {
+                $('.classReason').addClass('d-none')
+                $('#inputReason').removeClass('d-none')
+                $('#inputReason input').focus()
+            } else {
+                $('#inputReason').addClass('d-none')
+                $('.classReason').removeClass('d-none')
+            }
         }
-    }
 
-    function resetOption() {
-        $('.classReason').removeClass('d-none')
-        $('#selectReason').val(null).trigger('change')
-        $('#inputReason').addClass('d-none')
-        $('#inputReason input').val(null)
-    }
-</script>
+        function resetOption() {
+            $('.classReason').removeClass('d-none')
+            $('#selectReason').val(null).trigger('change')
+            $('#inputReason').addClass('d-none')
+            $('#inputReason input').val(null)
+        }
+    </script>
 
-<script>
-    // $('#cancel').click(function() {
-    //     $(this).parents('.dropdown').find('button.dropdown-toggle').dropdown('toggle')
-    // });
-
-    var widthView = $(window).width();
-    $(document).ready(function() {
-
-        var table = $('#clientTable').DataTable({
-            order: [
-                // [20, 'desc'],
-                [1, 'asc']
-            ],
-            dom: 'Bfrtip',
-            buttons: [
+    <script>
+        var widthView = $(window).width();
+        $(document).ready(function() {
+            var get_st = "{{ isset($_GET['st']) ? $_GET['st'] : '' }}"
+            var button = [
                 'pageLength', {
                     extend: 'excel',
                     text: 'Export to Excel',
-                }
-            ],
-            scrollX: true,
-            fixedColumns: {
-                left: (widthView < 768) ? 1 : 4,
-                right: 1
-            },
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: '',
-                data: function(params) {
-                    params.school_name = $("#school-name").val()
-                    params.graduation_year = $("#graduation-year").val()
-                    params.lead_source = $("#lead-sources").val()
-                    params.program_suggest = $("#program-name").val()
-                    params.status_lead = $("#lead-source").val()
-                    params.active_status = $("#active-status").val()
-                }
-            },
-            columns: [{
-                    data: 'id',
-                    className: 'text-center',
-                    render: function(data, type, row, meta) {
-                        return meta.row + meta.settings._iDisplayStart + 1;
-                    }
                 },
-                {
-                    data: 'full_name',
-                    render: function(data, type, row, meta) {
-                        return data
-                    }
-                },
+            ];
 
-                {
-                    data: 'program_suggest',
-                    className: 'text-center',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'status_lead',
-                    searchable: false,
-                    className: 'text-center',
-                    defaultContent: '-',
-                    render: function(data, type, row, meta) {
-                        var warm = '';
-                        var hot = '';
-                        var cold = '';
-                        switch (data) {
-                            case 'Hot':
-                                hot = 'selected';
-                                break;
-
-                            case 'Warm':
-                                warm = 'selected';
-                                break;
-
-                            case 'Cold':
-                                cold = 'selected';
-                                break;
+            // button for DataTable 
+            if (get_st == 'new-leads' || get_st == 'potential') {
+                button = [
+                    'pageLength', {
+                        extend: 'excel',
+                        text: 'Export to Excel',
+                    },
+                    {
+                        text: '<i class="bi bi-check-square me-1"></i> Select All',
+                        action: function(e, dt, node, config) {
+                            selectAll();
                         }
-                        return data != null ?
-                            '<select name="status_lead" style="color:#212b3d" class="select w-100" id="status_lead"><option value="hot" ' +
-                            hot + '>Hot</option><option value="warm" ' + warm +
-                            '>Warm</option><option value="cold" ' + cold +
-                            '>Cold</option></select>' : '-';
-                    }
+                    },
+                    {
+                        text: '<i class="bi bi-trash-fill me-1"></i> Delete',
+                        action: function(e, dt, node, config) {
+                            multipleDelete();
+                        }
+                    },
+                ];
+            }
 
+            var table = $('#clientTable').DataTable({
+                order: [
+                    // [20, 'desc'],
+                    [1, 'asc']
+                ],
+                dom: 'Bfrtip',
+                buttons: [button],
+                lengthMenu: [
+                    [10, 50, 100, -1],
+                    ['10 row', '50 row', '100 row', 'Show all']
+                ],
+                scrollX: true,
+                fixedColumns: {
+                    left: (widthView < 768) ? 1 : 4,
+                    right: 1
                 },
-                {
-                    data: 'mail',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'phone',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'parent_name',
-                    name: 'parent_name',
-                    defaultContent: '-',
-                    orderable: true,
-                },
-                {
-                    data: 'parent_mail',
-                    name: 'parent_mail',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'parent_phone',
-                    name: 'parent_phone',
-                    className: 'text-center',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'school_name',
-                    name: 'school_name',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'graduation_year',
-                    className: 'text-center',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'grade_now',
-                    defaultContent: '-',
-                    className: 'text-center',
-                    render: function(data, type, row, meta) {
-                        return data > 12 ? 'Not high school' : data;
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '',
+                    data: function(params) {
+                        params.school_name = $("#school-name").val()
+                        params.graduation_year = $("#graduation-year").val()
+                        params.lead_source = $("#lead-sources").val()
+                        params.program_suggest = $("#program-name").val()
+                        params.status_lead = $("#lead-source").val()
+                        params.active_status = $("#active-status").val()
                     }
                 },
-                {
-                    data: 'insta',
-                    className: 'text-center',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'address',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'lead_source',
-                    className: 'text-center',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'st_levelinterest',
-                    className: 'text-center',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'interest_prog',
-                    className: 'text-center',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'st_abryear',
-                    className: 'text-center',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'abr_country',
-                    className: 'text-center',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'dream_uni',
-                    className: 'text-center',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'dream_major',
-                    className: 'text-center',
-                    defaultContent: '-'
-                },
-                {
-                    data: 'created_at',
-                    searchable: false,
-                    className: 'text-center',
-                    render: function(data, type, row) {
-                        return moment(data).format('MMMM Do YYYY')
-                    }
-                },
-                {
-                    data: 'updated_at',
-                    searchable: false,
-                    className: 'text-center',
-                    render: function(data, type, row) {
-                        return moment(data).format('MMMM Do YYYY')
-                    }
-                },
-                {
-                    data: 'st_statusact',
-                    searchable: false,
-                    className: 'text-center',
-                    render: function(data, type, row, meta) {
-                        return data == 1 ? "Active" : "Non-active";
-                    }
-                },
-                // {
-                //     data: 'total_score',
-                //     className: 'text-primary text-center',
-                // },
-                {
-                    data: '',
-                    className: 'text-center',
-                    defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient"><i class="bi bi-eye"></i></button>'
-                }
-            ],
-            createdRow: function(row, data, index) {
-                    var newClientThisMonth = moment().format("MMM YY") == moment(data.created_at).format('MMM YY');
-                    if (newClientThisMonth) {
-                        $('td', row).addClass('table-success');
-                    }
-                }
-            // createdRow: function(row, data, index) {
-            //     // temporary condition
-            //     // while change soon
-            //     if (data['total_score'] < 2) {
-            //         $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
-            //         $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Cold)');
-            //     } else if ((data['total_score'] >= 2) && (data['total_score'] < 4)) {
-            //         $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
-            //         $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Warm)');
-            //     } else {
-            //         $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
-            //         $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Hot)');
-            //     }
-            // }
-            // createdRow: function(row, data, index) {
-            //     // temporary condition
-            //     // will change soon
-            //     if (data['st_statusact'] == 0) {
-            //         $('td', row).addClass('text-danger');
-            //         $('td:nth-last-child(1) .deleteUser', row).addClass('d-none');
-            //         // $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
-            //     }
-            // }
-        });
+                columns: [{
+                        data: 'id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            if (get_st == 'new-leads' || get_st == 'potential')
+                                return '<input type="checkbox" class="editor-active cursor-pointer" data-id="' +
+                                    data + '">'
+                            else
+                                return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'full_name',
+                        render: function(data, type, row, meta) {
+                            return data
+                        }
+                    },
 
-        @php
-            $privilage = $menus['Client']->where('submenu_name', 'Students')->first();
-        @endphp
+                    {
+                        data: 'program_suggest',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'status_lead',
+                        searchable: false,
+                        className: 'text-center',
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            var warm = '';
+                            var hot = '';
+                            var cold = '';
+                            switch (data) {
+                                case 'Hot':
+                                    hot = 'selected';
+                                    break;
 
+                                case 'Warm':
+                                    warm = 'selected';
+                                    break;
 
-        @if ($privilage['copy'] == 0)
-            document.oncontextmenu = new Function("return false");
+                                case 'Cold':
+                                    cold = 'selected';
+                                    break;
+                            }
+                            return data != null ?
+                                '<select name="status_lead" style="color:#212b3d" class="select w-100 leads' +
+                                row.id + '" id="status_lead"><option value="hot" ' +
+                                hot + '>Hot</option><option value="warm" ' + warm +
+                                '>Warm</option><option value="cold" ' + cold +
+                                '>Cold</option></select>' : '-';
+                        }
 
-            $('body').bind('cut copy paste', function(event) {
-                event.preventDefault();
+                    },
+                    {
+                        data: 'mail',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'phone',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'parent_name',
+                        name: 'parent_name',
+                        defaultContent: '-',
+                        orderable: true,
+                    },
+                    {
+                        data: 'parent_mail',
+                        name: 'parent_mail',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'parent_phone',
+                        name: 'parent_phone',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'school_name',
+                        name: 'school_name',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'graduation_year',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'grade_now',
+                        defaultContent: '-',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return data > 12 ? 'Not high school' : data;
+                        }
+                    },
+                    {
+                        data: 'insta',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'address',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'lead_source',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'st_levelinterest',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'interest_prog',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'st_abryear',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'abr_country',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'dream_uni',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'dream_major',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'created_at',
+                        searchable: false,
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            return moment(data).format('MMMM Do YYYY')
+                        }
+                    },
+                    {
+                        data: 'updated_at',
+                        searchable: false,
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            return moment(data).format('MMMM Do YYYY')
+                        }
+                    },
+                    {
+                        data: 'st_statusact',
+                        searchable: false,
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            const status = data == 1 ? "checked" : "";
+                            const content = '<div class="form-check form-switch m-0 p-0">' +
+                                '<input class="form-check-input status" style="margin-left:2em" type="checkbox" role="switch" id="status-' +
+                                row.id + '" ' + status + '>' +
+                                '</div>'
+                            return content;
+                        }
+                    },
+                    {
+                        data: '',
+                        className: 'text-center',
+                        defaultContent: '',
+                        render: function(data, type, row, meta) {
+                            let content = '<div class="d-flex gap-1 justify-content-center">' +
+                                '<small class="btn btn-sm btn-outline-warning cursor-pointer editClient" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail"><i class="bi bi-eye"></i></small>'
+                            '</div>';
+
+                            if (get_st == 'new-leads' || get_st == 'potential') {
+                                content = '<div class="d-flex gap-1 justify-content-center">' +
+                                    '<small data-bs-toggle="tooltip" data-bs-placement="top" ' +
+                                    'data-bs-custom-class="custom-tooltip" ' +
+                                    'data-bs-title="Delete" class="btn btn-sm btn-outline-danger cursor-pointer deleteClient">' +
+                                    '<i class="bi bi-trash"></i>' +
+                                    '</small>' +
+                                    '<small class="btn btn-sm btn-outline-warning cursor-pointer editClient" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail"><i class="bi bi-eye"></i></small>'
+                                '</div>';
+                            }
+                            return content;
+                        }
+                    },
+                ],
             });
-        @endif
 
-        @if ($privilage['export'] == 0)
-            table.button(1).disable();
-        @endif
+            @php
+                $privilage = $menus['Client']->where('submenu_name', 'Students')->first();
+            @endphp
 
-        $('#clientTable tbody').on('click', '.editClient ', function() {
-            var data = table.row($(this).parents('tr')).data();
-            window.location.href = "{{ url('client/student') }}/" + data.id;
-        });
 
-        $('#clientTable tbody').on('change', '#status_lead ', function() {
-            var data = table.row($(this).parents('tr')).data();
-            var lead_status = $(this).val();
+            @if ($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false");
 
-            $('#groupId').val(data.group_id);
-            $('#clientId').val(data.id);
-            $('#initProg').val(data.program_suggest);
-            $('#leadStatus').val(lead_status);
-            $('#hotLeadForm').attr('action', '{{ url('client/student') }}/' + data.id +
-                '/lead_status/');
-            $('#hotLeadModal').modal('show');
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
 
-            confirmUpdateLeadStatus("{{ url('client/student') }}/" + data.id + "/lead_status/" + $(
-                this).val(), data.id, data.program_suggest, lead_status)
-        });
+            @if ($privilage['export'] == 0)
+                table.button(1).disable();
+            @endif
 
-        // $('#clientTable tbody').on('click', '.deleteClient ', function() {
-        //     var data = table.row($(this).parents('tr')).data();
-        //     confirmDelete('asset', data.asset_id)
-        // });
+            // Tooltip 
+            $('#clientTable tbody').on('mouseover', 'tr', function() {
+                $('[data-bs-toggle="tooltip"]').tooltip({
+                    trigger: 'hover',
+                    html: true
+                });
+            });
 
-        /* for advanced filter */
-        $("#school-name").on('change', function(e) {
-            var value = $(e.currentTarget).find("option:selected").val();
-            table.draw();
-        })
+            // Delete Student 
+            $('#clientTable tbody').on('click', '.deleteClient ', function() {
+                var data = table.row($(this).parents('tr')).data();
+                confirmDelete('client/student/raw', data.id)
+            });
 
-        $("#graduation-year").on('change', function(e) {
-            var value = $(e.currentTarget).find("option:selected").val();
-            table.draw();
-        })
+            // View More 
+            $('#clientTable tbody').on('click', '.editClient ', function() {
+                var data = table.row($(this).parents('tr')).data();
+                window.open("{{ url('client/student') }}/" + data.id, "_blank")
+            });
 
-        $("#lead-sources").on('change', function(e) {
-            var value = $(e.currentTarget).find("option:selected").val();
-            table.draw();
-        })
+            // Change Active Status 
+            $('#clientTable tbody').on('change', '.status ', function() {
+                const data = table.row($(this).parents('tr')).data();
+                const val = data.st_statusact == 1 ? 0 : 1;
+                const link = "{{ url('/') }}/client/student/" + data.id + "/status/" + val
 
-        $("#program-name").on('change', function(e) {
-            var value = $(e.currentTarget).find("option:selected").val();
-            table.draw();
-        })
+                axios.get(link)
+                    .then(function(response) {
+                        Swal.close()
+                        notification("success", response.data.message)
+                    })
+                    .catch(function(error) {
+                        Swal.close()
+                        notification("error", error.response.data.message)
+                    })
+                table.ajax.reload(null, false)
+            });
 
-        $("#lead-source").on('change', function(e) {
-            var value = $(e.currentTarget).find("option:selected").val();
-            table.draw();
-        })
-
-        $("#active-status").on('change', function(e) {
-            var value = $(e.currentTarget).find("option:selected").val();
-            table.draw();
-        })
-    });
-
-    function updateHotLead() {
-        var link = '{{ url('client/student') }}/' + $('#clientId').val() + '/lead_status';
-        $('#hotLeadModal').modal('hide');
-        Swal.showLoading()
-        axios.post(link, {
-                groupId: $('#groupId').val(),
-                clientId: $('#clientId').val(),
-                initProg: $('#initProg').val(),
-                leadStatus: $('#leadStatus').val(),
-                reason_id: $('#selectReason').val(),
-                other_reason: $('#other_reason').val(),
-            })
-            .then(function(response) {
-                swal.close();
-
-                let obj = response.data;
-
-                $('#clientTable').DataTable().ajax.reload(null, false);
-
-                switch (obj.code) {
-                    case 200:
-                        notification('success', obj.message)
-
-                        break;
-                    case 400:
-                        $('#hotLeadModal').modal('show');
-                        if (obj.message['reason_id'] != undefined) {
-                            $('#error-message').html('<small class="text-danger fw-light">' + obj.message[
-                                'reason_id'] + '</small>')
-                        } else if (obj.message['leadStatus'] != undefined) {
-                            $('#error-message').html('<small class="text-danger fw-light">' + obj.message[
-                                'leadStatus'] + '</small>')
-                        }
-                        break;
-
-                    case 500:
-                        notification('error', 'Something went wrong while update lead status')
-                        break;
+            // Change Lead Status 
+            $('#clientTable tbody').on('change', '#status_lead', function() {
+                var data = table.row($(this).parents('tr')).data();
+                var lead_status = $(this).val();
+                if (data.status_lead == 'Hot' || (data.status_lead == "Warm" && lead_status == "cold")) {
+                    $('#hotLeadModal').modal('show');
+                    $('#groupId').val(data.group_id);
+                    $('#clientId').val(data.id);
+                    $('#initProg').val(data.program_suggest);
+                    $('#leadStatusOld').val(data.status_lead);
+                    $('#leadStatus').val(lead_status);
+                    $('#hotLeadForm').attr('action', '{{ url('client/student') }}/' + data.id +
+                        '/lead_status/');
+                } else {
+                    confirmUpdateLeadStatus("{{ url('client/student') }}/" + data.id + "/lead_status", data
+                        .id, data.program_suggest, data.group_id, data.status_lead, lead_status)
                 }
+            });
+
+            /* for advanced filter */
+            $("#school-name").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
             })
-            .catch(function(error) {
-                swal.close();
-                notification('error', error)
+
+            $("#graduation-year").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
             })
-    }
-</script>
+
+            $("#lead-sources").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#program-name").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#lead-source").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#active-status").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            function selectAll() {
+                const check_number = $('input.editor-active').length;
+                const checked_number = $('input.editor-active:checked').length;
+                const uncheck_number = check_number - checked_number;
+
+                $('input.editor-active').each(function() {
+                    if (uncheck_number == check_number) {
+                        $(this).prop('checked', true)
+                        table.button(2).text('<i class="bi bi-x me-1"></i> Unselect All')
+                    } else if (checked_number == check_number) {
+                        $(this).prop('checked', false)
+                        table.button(2).text('<i class="bi bi-check-square me-1"></i> Select All')
+                    } else {
+                        $(this).prop('checked', true)
+                        table.button(2).text('<i class="bi bi-x me-1"></i> Unselect All')
+                    }
+                });
+            }
+
+            function multipleDelete() {
+                var selected = [];
+                $('input.editor-active').each(function() {
+                    if ($(this).prop('checked')) {
+                        selected.push($(this).data('id'));
+                    }
+                });
+
+                console.log(selected);
+
+                if (selected.length > 0) {
+                    Swal.fire({
+                        title: "Confirmation!",
+                        text: 'Are you sure to delete the students data?',
+                        showCancelButton: true,
+                        confirmButtonText: "Yes",
+                    }).then((result) => {
+                        /* Read more about isConfirmed, isDenied below */
+                        if (result.isConfirmed) {
+                            showLoading();
+                            var link = '{{ route('client.raw.bulk.destroy') }}';
+                            axios.post(link, {
+                                    choosen: selected
+                                })
+                                .then(function(response) {
+                                    swal.close();
+                                    notification('success', response.data.message);
+                                    table.ajax.reload(null, false)
+                                })
+                                .catch(function(error) {
+                                    swal.close();
+                                    notification('error', error.message);
+                                })
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Please select the students data first!",
+                    });
+                }
+            }
+        });
+
+        function closeUpdateLead() {
+            const id = $('#clientId').val();
+            const old_status = $('#leadStatusOld').val().toLowerCase();
+            $('.leads' + id).val(old_status)
+            $('#hotLeadModal').modal('hide');
+            $('#selectReason').val('').trigger('change');
+            $('#other_reason').val('');
+        }
+
+        function updateHotLead() {
+            var link = '{{ url('client/student') }}/' + $('#clientId').val() + '/lead_status';
+            $('#hotLeadModal').modal('hide');
+            Swal.showLoading()
+            axios.post(link, {
+                    groupId: $('#groupId').val(),
+                    clientId: $('#clientId').val(),
+                    initProg: $('#initProg').val(),
+                    leadStatus: $('#leadStatus').val(),
+                    reason_id: $('#selectReason').val(),
+                    other_reason: $('#other_reason').val(),
+                })
+                .then(function(response) {
+                    swal.close();
+
+                    let obj = response.data;
+
+                    $('#clientTable').DataTable().ajax.reload(null, false);
+
+                    switch (obj.code) {
+                        case 200:
+                            notification('success', obj.message)
+
+                            break;
+                        case 400:
+                            $('#hotLeadModal').modal('show');
+                            if (obj.message['reason_id'] != undefined) {
+                                $('#error-message').html('<small class="text-danger fw-light">' + obj.message[
+                                    'reason_id'] + '</small>')
+                            } else if (obj.message['leadStatus'] != undefined) {
+                                $('#error-message').html('<small class="text-danger fw-light">' + obj.message[
+                                    'leadStatus'] + '</small>')
+                            }
+                            break;
+
+                        case 500:
+                            notification('error', 'Something went wrong while update lead status')
+                            break;
+                    }
+                })
+                .catch(function(error) {
+                    swal.close();
+                    notification('error', error)
+                })
+        }
+    </script>
 @endpush

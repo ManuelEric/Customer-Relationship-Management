@@ -18,6 +18,7 @@ use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
+use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\ClientProgramLogMailRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Models\Program;
@@ -50,13 +51,14 @@ class ClientProgramController extends Controller
     private SchoolRepositoryInterface $schoolRepository;
     private TagRepositoryInterface $tagRepository;
     private ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository;
+    private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
     private $admission_prog_list;
     private $tutoring_prog_list;
     private $satact_prog_list;
 
     use CreateCustomPrimaryKeyTrait;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository, TagRepositoryInterface $tagRepository, ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository, TagRepositoryInterface $tagRepository, ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->programRepository = $programRepository;
@@ -71,6 +73,7 @@ class ClientProgramController extends Controller
         $this->schoolRepository = $schoolRepository;
         $this->tagRepository = $tagRepository;
         $this->clientProgramLogMailRepository = $clientProgramLogMailRepository;
+        $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
 
         $this->admission_prog_list = Program::whereHas('main_prog', function ($query) {
             $query->where('prog_name', 'Admissions Mentoring');
@@ -153,14 +156,14 @@ class ClientProgramController extends Controller
     public function show(Request $request)
     {
         if ($request->route('student') !== null)
-            $studentId = $request->route('student');
+            $studentID = $request->route('student');
         elseif ($request->route('client') !== null)
-            $studentId = $request->route('client');
+            $studentID = $request->route('client');
         // $studentId = isset($request->route('student')) ? $request->route('student') : isset($request->route('client')) ? $request->route('client') : null;
         $clientProgramId = $request->route('program');
 
-        $student = $this->clientRepository->getClientById($studentId);
-        $viewStudent = $this->clientRepository->getViewClientById($studentId);
+        $student = $this->clientRepository->getClientById($studentID);
+        $viewStudent = $this->clientRepository->getViewClientById($studentID);
         $clientProgram = $this->clientProgramRepository->getClientProgramById($clientProgramId);
 
         # programs
@@ -170,7 +173,7 @@ class ClientProgramController extends Controller
 
         # main leads
         $leads = $this->leadRepository->getAllMainLead();
-        $clientEvents = $this->clientEventRepository->getAllClientEventByClientId($studentId);
+        $clientEvents = $this->clientEventRepository->getAllClientEventByClientId($studentID);
         $external_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
         $partners = $this->corporateRepository->getAllCorporate();
@@ -438,6 +441,16 @@ class ClientProgramController extends Controller
                         $this->clientRepository->updateClient($studentId, ['st_statuscli' => 3]);
 
                     break;
+            }
+
+            $leadsTracking = $this->clientLeadTrackingRepository->getCurrentClientLead($studentId);
+
+            //! perlu nunggu 1 menit dlu sampai ada client lead tracking status yg 1
+            # update status client lead tracking
+            if($leadsTracking->count() > 0){
+                foreach($leadsTracking as $leadTracking){
+                    $this->clientLeadTrackingRepository->updateClientLeadTrackingById($leadTracking->id, ['status' => 0]);
+                }
             }
 
             DB::commit();
@@ -736,6 +749,16 @@ class ClientProgramController extends Controller
                         $this->clientRepository->removeRole($studentId, 'Mentee');
                     }
                     break;
+            }
+
+            $leadsTracking = $this->clientLeadTrackingRepository->getCurrentClientLead($studentId);
+
+            //! perlu nunggu 1 menit dlu sampai ada client lead tracking status yg 1
+            # update status client lead tracking
+            if($leadsTracking->count() > 0){
+                foreach($leadsTracking as $leadTracking){
+                    $this->clientLeadTrackingRepository->updateClientLeadTrackingById($leadTracking->id, ['status' => 0]);
+                }
             }
 
             DB::commit();

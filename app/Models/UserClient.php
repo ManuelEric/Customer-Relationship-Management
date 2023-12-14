@@ -9,13 +9,14 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 
 class UserClient extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     protected $table = 'tbl_client';
     protected $appends = ['lead_source'];
@@ -28,6 +29,7 @@ class UserClient extends Authenticatable
     protected $fillable = [
         'id',
         'st_id',
+        'uuid',
         'first_name',
         'last_name',
         'mail',
@@ -40,6 +42,7 @@ class UserClient extends Authenticatable
         'postal_code',
         'address',
         'sch_id',
+        // 'sch_uuid',
         'st_grade',
         'lead_id',
         'eduf_id',
@@ -57,10 +60,18 @@ class UserClient extends Authenticatable
         'st_password',
         'preferred_program',
         'is_funding',
+        'is_verified',
         'register_as',
         'created_at',
         'updated_at',
     ];
+
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = ['deleted_at'];
 
     # attributes
     protected function fullName(): Attribute
@@ -96,6 +107,48 @@ class UserClient extends Authenticatable
         return Attribute::make(
             get: fn ($value) => $this->getParticipatedFromView($this->id)
         );
+    }
+
+    # Scopes
+    public function scopeIsVerified($query)
+    {
+        return $query->where('is_verified', 'Y');
+    }
+
+    public function scopeIsNotVerified($query)
+    {
+        return $query->where('is_verified', 'N');
+    }
+
+    public function scopeIsActive($query)
+    {
+        return $query->where('st_statusact', 1);
+    }
+
+    public function scopeIsNotActive($query)
+    {
+        return $query->where('st_statusact', 0);
+    }
+
+    public function scopeIsStudent($query)
+    {
+        return $query->whereHas('roles', function ($subQuery) {
+            $subQuery->where('role_name', 'Student');
+        });
+    }
+
+    public function scopeIsParent($query)
+    {
+        return $query->whereHas('roles', function ($subQuery) {
+            $subQuery->where('role_name', 'Parent');
+        });
+    }
+
+    public function scopeIsTeacher($query)
+    {
+        return $query->whereHas('roles', function ($subQuery) {
+            $subQuery->where('role_name', 'Teacher/Counselor');
+        });
     }
 
     public function scopeWhereRoleName(Builder $query, $role)

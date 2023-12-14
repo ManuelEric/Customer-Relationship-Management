@@ -119,6 +119,33 @@
         </div>
     </div>
 
+    {{-- Restore Client & Instance --}}
+    <div class="modal modal-sm fade" tabindex="-1" id="restoreModal" data-bs-backdrop="static"
+        data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form action="" method="post" id="formRestore">
+                    @csrf
+                    @method('put')
+                    <div class="modal-body text-center">
+                        <h2>
+                            <i class="bi bi-info-circle text-info"></i>
+                        </h2>
+                        <h4>Are you sure?</h4>
+                        <h6>You want to restore?</h6>
+                        <hr>
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
+                            <i class="bi bi-x-square me-1"></i>
+                            Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="bi bi-trash3 me-1"></i>
+                            Yes!</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     {{-- Request Sign  --}}
     <div class="modal modal-sm fade" tabindex="-1" id="requestSign--modal" data-bs-backdrop="static"
         data-bs-keyboard="false">
@@ -178,17 +205,16 @@
         data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                {{-- <form action="" method="post" id="formAction"> --}}
-                {{-- @csrf --}}
-                {{-- @method('delete') --}}
                 <div class="modal-body text-center">
                     <h2>
                         <i class="bi bi-info-circle text-info"></i>
                     </h2>
                     <h4>Are you sure?</h4>
                     <h6>You want to update this data?</h6>
+                    <input type="hidden" value="" id="statusLeadOld">
+                    <input type="hidden" value="" id="clientLeadId">
                     <hr>
-                    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="closeModalLeadConfirm()">
                         <i class="bi bi-x-square me-1"></i>
                         Cancel</button>
                     <button type="button" id="btn-update-lead" class="btn btn-primary btn-sm">
@@ -243,6 +269,15 @@
 
     {{-- Confirm Delete & Deactivate Modal  --}}
     <script>
+        function confirmRestore(subject, id) {
+            // show modal 
+            var myModal = new bootstrap.Modal(document.getElementById('restoreModal'))
+            myModal.show()
+
+            // change form action 
+            $('#formRestore').attr('action', '{{ url('') }}/' + subject + '/' + id);
+        }
+
         function confirmDelete(subject, id) {
             // show modal 
             var myModal = new bootstrap.Modal(document.getElementById('deleteItem'))
@@ -295,25 +330,26 @@
             })
         }
 
-        function confirmUpdateLeadStatus(link, clientId, initProg, leadStatus) {
+        function confirmUpdateLeadStatus(link, clientId, initProg, groupId, leadStatusOld, leadStatus) {
             // show modal 
             var myModal = new bootstrap.Modal(document.getElementById('updateLeadStatus'))
             myModal.show()
+            $('#statusLeadOld').val(leadStatusOld);
+            $('#clientLeadId').val(clientId);
 
             $('#btn-update-lead').on('click', function() {
                 showLoading()
-                var link = "{{ url('client/student') }}/" + clientId + "/lead_status/" + $(this).val();
                 axios.post(link, {
                         clientId: clientId,
                         initProg: initProg,
                         leadStatus: leadStatus,
+                        groupId: groupId,
                     })
                     .then(function(response) {
+                        console.log(response);
                         myModal.hide()
                         swal.close();
-
                         notification('success', response.data.message)
-
                     })
                     .catch(function(error) {
                         myModal.hide()
@@ -321,7 +357,14 @@
                         notification('error', error)
                     })
             });
+        }
+        
+        function closeModalLeadConfirm() {
+            const id = $('#clientLeadId').val();
+            const old_status = $('#statusLeadOld').val().toLowerCase();
 
+            $('.leads' + id).val(old_status);           
+            $('#updateLeadStatus').modal('hide');
         }
     </script>
 

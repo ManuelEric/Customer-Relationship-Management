@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class School extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'tbl_sch';
     protected $primaryKey = 'sch_id';
@@ -24,6 +25,7 @@ class School extends Model
      */
     protected $fillable = [
         'sch_id',
+        'uuid',
         'sch_name',
         'sch_type',
         'sch_mail',
@@ -32,7 +34,8 @@ class School extends Model
         'sch_city',
         'sch_location',
         'sch_score',
-        'status'
+        'status',
+        'is_verified'
     ];
 
     public function createdAt(): Attribute
@@ -60,10 +63,26 @@ class School extends Model
         return $instance->newQuery()->whereRaw('lower(sch_name) = ?', [$name])->first();
     }
 
+    # Scopes
+    public function scopeIsVerified($query)
+    {
+        return $query->where('is_verified', 'Y');
+    }
+
+    public function scopeIsNotVerified($query)
+    {
+        return $query->where('is_verified', 'N');
+    }
+
     # relation
     public function detail()
     {
         return $this->hasMany(SchoolDetail::class, 'sch_id', 'sch_id');
+    }
+
+    public function aliases()
+    {
+        return $this->hasMany(SchoolAliases::class, 'sch_id', 'sch_id');
     }
 
     public function edufair()

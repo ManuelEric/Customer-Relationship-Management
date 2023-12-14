@@ -21,6 +21,7 @@ class ClientProgram extends Model
      */
     protected $fillable = [
         'client_id',
+        // 'client_uuid',
         'prog_id',
         'lead_id',
         'eduf_lead_id',

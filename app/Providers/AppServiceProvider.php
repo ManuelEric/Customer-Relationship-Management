@@ -7,6 +7,7 @@ use App\Models\Department;
 use App\Repositories\MenuRepository;
 use App\Models\User;
 use App\Repositories\AlarmRepository;
+use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
@@ -36,6 +37,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
+        if (Auth::check() && Auth::user()->email != 'manuel.eric@all-inedu.com')
+            Debugbar::disable();
+
         view()->composer('*', function ($view) {
 
             $user = auth()->user();

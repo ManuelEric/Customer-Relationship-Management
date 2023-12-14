@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Partner ')
+@section('title', 'List of Partner')
 
 @section('content')
 
@@ -117,7 +117,7 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editCorporate"><i class="bi bi-eye"></i></button>'
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editCorporate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail"><i class="bi bi-eye"></i></button>'
                     }
                 ]
             });
@@ -126,7 +126,15 @@
 
             $('#corporateTable tbody').on('click', '.editCorporate ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('instance/corporate') }}/" + data.corp_id.toLowerCase();
+                window.open("{{ url('instance/corporate') }}/" + data.corp_id.toLowerCase(), "_blank");
+            });
+
+            // Tooltip 
+            $('#corporateTable tbody').on('mouseover', 'tr', function() {
+                $('[data-bs-toggle="tooltip"]').tooltip({
+                    trigger: 'hover',
+                    html: true
+                });
             });
         });
     </script>

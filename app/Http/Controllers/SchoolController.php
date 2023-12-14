@@ -54,11 +54,31 @@ class SchoolController extends Controller
 
     public function index(Request $request)
     {
-
-        if ($request->ajax()) {
+        if ($request->ajax())
             return $this->schoolRepository->getAllSchoolDataTables();
+        
+        
+        $duplicates_schools = $this->schoolRepository->getDuplicateSchools();
+        $duplicates_schools_string = $this->convertDuplicatesSchoolAsString($duplicates_schools);
+
+        return view('pages.instance.school.index')->with(
+            [
+                'duplicates_schools_string' => $duplicates_schools_string,
+                'duplicates_schools' => $duplicates_schools->pluck('sch_name')->toArray()
+            ]
+        );
+    }
+
+    private function convertDuplicatesSchoolAsString($schools)
+    {
+        $response = '';
+        foreach ($schools as $school) {
+
+            $response .= ', '.$school->sch_name;
+
         }
-        return view('pages.instance.school.index');
+
+        return $response;
     }
 
     public function store(StoreSchoolRequest $request)
@@ -79,6 +99,7 @@ class SchoolController extends Controller
         $last_id = School::max('sch_id');
         $school_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 4) : '0000';
         $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
+        
 
         DB::beginTransaction();
         try {
@@ -109,6 +130,7 @@ class SchoolController extends Controller
     public function create()
     {
         $curriculums = $this->curriculumRepository->getAllCurriculums();
+
         return view('pages.instance.school.form')->with(
             [
                 'curriculums' => $curriculums
@@ -145,6 +167,9 @@ class SchoolController extends Controller
         # school visit data
         $schoolVisits = $this->schoolVisitRepository->getSchoolVisitBySchoolId($schoolId);
 
+        # aliases
+        $aliases = $this->schoolRepository->getAliasBySchool($schoolId);
+
         return view('pages.instance.school.form')->with(
             [
                 'school' => $school,
@@ -154,7 +179,8 @@ class SchoolController extends Controller
                 'schoolVisits' => $schoolVisits,
                 'leads' => $leads,
                 'employees' => $employees,
-                'details' => $schoolDetails
+                'details' => $schoolDetails,
+                'aliases' => $aliases
             ]
         );
     }
@@ -256,4 +282,29 @@ class SchoolController extends Controller
 
         return Redirect::to('instance/school')->withSuccess('School successfully deleted');
     }
+
+    function getSchoolData()
+    {
+        $schools = $this->schoolRepository->getVerifiedSchools();
+        return response()->json(
+            [
+                'success' => true,
+                'data' => $schools
+            ]
+        );
+    }
+
+    ################################
+    ############## RAW #############
+    ################################
+    
+    public function raw_index()
+    {
+
+    }
+
+    ################################
+    ########### RAW END ############
+    ################################
+
 }

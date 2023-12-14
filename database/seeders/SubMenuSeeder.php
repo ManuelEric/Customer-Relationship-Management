@@ -16,16 +16,18 @@ class SubMenuSeeder extends Seeder
      */
     public function run()
     {
+        $seeds = [];
         $main_menus = DB::table('tbl_main_menus')->orderBy('order_no', 'asc')->get();
-        foreach ($main_menus as $main_menu)
-        {
+        foreach ($main_menus as $main_menu) {
+            if ($main_menu->id != 9)
+                continue;
+
             $no = 1;
             $sub_menu = $this->getSubMenu($main_menu->mainmenu_name);
 
-            foreach ($sub_menu['submenus'] as $key => $value)
-            {
-                $no++;
-                if (!DB::table('tbl_menus')->where('submenu_name', $value)->first()) {
+
+            foreach ($sub_menu['submenus'] as $key => $value) {
+                if (!DB::table('tbl_menus')->where('mainmenu_id', $main_menu->id)->where('submenu_name', $value)->first()) {
 
                     $seeds[] = [
                         'mainmenu_id' => $main_menu->id,
@@ -36,9 +38,8 @@ class SubMenuSeeder extends Seeder
                         'updated_at' => Carbon::now()
                     ];
                 }
-
+                $no++;
             }
-
         }
 
         if (count($seeds) > 0)
@@ -103,8 +104,13 @@ class SubMenuSeeder extends Seeder
                     'submenus' => ['Sales Tracking', 'Event Tracking', 'Partnership', 'Invoice & Receipt', 'Unpaid Payment'],
                     'sublink' => ['report/sales', 'report/event', 'report/partnership', 'report/invoice', 'report/unpaid'],
                 ];
-                break;
 
+            case "Recycle":
+                return [
+                    'submenus' => ['Students', 'Parents', 'Teacher/Counselor', 'School'],
+                    'sublink' => ['recycle/client/students', 'recycle/client/parents', 'recycle/client/teacher-counselor', 'recycle/instance/school'],
+                ];
+                break;
         }
     }
 }
