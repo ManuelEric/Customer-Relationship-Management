@@ -710,7 +710,7 @@
         </div>
     </div>
 
-    @if ($clientProg->client->parents->count() > 0) 
+    {{-- @if ($clientProg->client->parents->count() > 0) --}}
     <div class="modal fade" id="sendToClientModal" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -728,11 +728,11 @@
                     <div class="form-group">
                         <div class="d-flex justify-content-around">
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input input-recipient" id="stc-parent" type="radio" name="recipient" value="Parent" onchange="checkRecipient()" checked>
+                                <input class="form-check-input input-recipient" id="stc-parent" type="radio" name="recipient" value="Parent" onchange="checkRecipient()" {{ $clientProg->client->parents->count() > 0 ? 'checked' : null}}>
                                 <label class="form-check-label" for="stc-parent">Parent</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input input-recipient" id="stc-client" type="radio" name="recipient" value="Client" onchange="checkRecipient()">
+                                <input class="form-check-input input-recipient" id="stc-client" type="radio" name="recipient" value="Client" onchange="checkRecipient()" {{ $clientProg->client->parents->count() < 1  ? 'checked' : null}}>
                                 <label class="form-check-label" for="stc-client">Client</label>
                             </div>
                         </div>
@@ -740,12 +740,10 @@
                         <input type="hidden" name="clientprog_id" id="clientprog_id"
                             value="{{ $clientProg->clientprog_id }}" class="form-control w-100">
                         <input type="hidden" name="client_id" id="client_id"
-                            value="{{ $clientProg->client->parents[0]->id }}" class="form-control w-100">
-                            {{-- value="{{ $clientProg->client->id }}" class="form-control w-100"> --}}
+                            value="{{ $clientProg->client->parents->count() > 0 ? $clientProg->client->parents[0]->id : $clientProg->client->id }}" class="form-control w-100">
                         <label for="">Email</label>
                         <input type="mail" name="mail" id="mail"
-                            value="{{ $clientProg->client->parents[0]->mail }}" class="form-control w-100">
-                            {{-- value="{{ $clientProg->client->mail }}" class="form-control w-100"> --}}
+                            value="{{ $clientProg->client->parents->count() > 0 ? $clientProg->client->parents[0]->mail : $clientProg->client->mail }}" class="form-control w-100">
                     </div>
                     {{-- <hr> --}}
                     <div class="d-flex justify-content-between">
@@ -763,7 +761,7 @@
             </div>
         </div>
     </div>
-    @endif
+    {{-- @endif --}}
 
     @include('pages.invoice.pic-modal')
 

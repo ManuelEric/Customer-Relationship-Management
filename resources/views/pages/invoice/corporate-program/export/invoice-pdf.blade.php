@@ -237,12 +237,14 @@
                             A/C No. <br>
                             Branch <br>
                             {{-- Branch Address <br> --}}
+                            Swift Code <br>
                         </td>
                         <td width="78%">
                             : PT. Jawara Edukasih Indonesia <br>
                             : BCA <br>
                             : 2483016611 <br>
                             : KCP Pasar Kebayoran Lama Jakarta Selatan
+                            : CENAIDJA
                         </td>
                         {{-- <td width="78%">
                                     : Jawara Edukasih International Pte Ltd <br>

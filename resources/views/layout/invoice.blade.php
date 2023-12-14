@@ -44,7 +44,7 @@
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Poppins', sans-serif !important;
         }
 
         h4 {
