@@ -430,6 +430,18 @@
                                         SGD</option>
                                     <option value="gbp" @if (old('currency') !== null && in_array('gbp', (array) old('currency_detail'))) {{ 'selected' }} @endif>
                                         GBP</option>
+                                    <option value="aud" @if (old('currency') !== null && in_array('aud', (array) old('currency_detail'))) {{ 'selected' }} @endif>
+                                        AUD</option>
+                                    <option value="vnd" @if (old('currency') !== null && in_array('vnd', (array) old('currency_detail'))) {{ 'selected' }} @endif>
+                                        VND</option>
+                                    <option value="myr" @if (old('currency') !== null && in_array('myr', (array) old('currency_detail'))) {{ 'selected' }} @endif>
+                                        MYR</option>
+                                    <option value="jpy" @if (old('currency') !== null && in_array('jpy', (array) old('currency_detail'))) {{ 'selected' }} @endif>
+                                        JPY</option>
+                                    <option value="cny" @if (old('currency') !== null && in_array('cny', (array) old('currency_detail'))) {{ 'selected' }} @endif>
+                                        CNY</option>
+                                    <option value="thb" @if (old('currency') !== null && in_array('thb', (array) old('currency_detail'))) {{ 'selected' }} @endif>
+                                        THB</option>
                                 </select>
                             </div>
 
@@ -859,6 +871,8 @@
                             swal.close()
 
                         }).catch(function(error) {
+
+                            $("#current_rate").val('');
 
                             swal.close()
                             notification('error',
