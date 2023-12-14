@@ -58,7 +58,7 @@
                                 data: 'program_name',
                                 render: function(data, type, row, meta) {
                                     var status;
-                                    switch (row.status) {
+                                    switch (parseInt(row.status)) {
                                         case 0:
                                             status = 'Pending';
                                             break;
