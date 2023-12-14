@@ -203,6 +203,9 @@ class SchoolController extends Controller
 
         # retrieve school data by id
         $school = $this->schoolRepository->getSchoolById($schoolId);
+        
+        # aliases
+        $aliases = $this->schoolRepository->getAliasBySchool($schoolId);
 
         return view('pages.instance.school.form')->with(
             [
@@ -211,7 +214,8 @@ class SchoolController extends Controller
                 'programs' => $programs,
                 'leads' => $leads,
                 'employees' => $employees,
-                'curriculums' => $curriculums
+                'curriculums' => $curriculums,
+                'aliases' => $aliases
             ]
         );
     }

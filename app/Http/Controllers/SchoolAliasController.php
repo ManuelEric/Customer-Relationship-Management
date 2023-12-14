@@ -76,7 +76,9 @@ class SchoolAliasController extends Controller
 
         }
 
-        return redirect()->route('school.show', ['school' => $schoolId])->withSuccess('New alias has been added');
+        $schools = $this->schoolRepository->getSchoolById($details['sch_id']);
+
+        return redirect()->route('school.index')->withSuccess('New alias has been added to '.$schools->sch_name);
 
     }
 

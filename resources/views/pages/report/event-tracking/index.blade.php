@@ -190,12 +190,12 @@
             },
             processing: true,
             serverSide: true,
-            ajax: {
-                url: '',
-                data: function(params) {
-                    params.event_name = $("#event-name").val()
-                }
-            },
+            // ajax: {
+            //     url: '',
+            //     data: function(params) {
+            //         params.event_name = $("#event-name").val()
+            //     }
+            // },
             columns: [{
                     data: 'event_id',
                     defaultContent: '-',
@@ -306,8 +306,8 @@
 
         realtimeData(table)
 
-        $("#select-event").on("submit", function(){
-            var value = $(e.currentTarget).find("option:selected").val();
+        $("#select-event").on("submit", function(e){
+            var value = $('#event-name').find("option:selected").val();
             table.draw();
         })
 

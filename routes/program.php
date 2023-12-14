@@ -83,17 +83,8 @@ Route::prefix('corporate')->name('corporate_prog.')->group(function () {
     Route::delete('{corp}/detail/{corp_prog}/collaborators/{collaborators}/{collaborators_id}', [PartnerProgramCollaboratorsController::class, 'destroy'])->name('collaborators.destroy');
 });
 
-
-Route::get('school', function () {
-    return view('pages.program.school-program.index');
-});
-
-Route::get('school/create', function () {
-    return view('pages.program.school-program.form');
-});
-// Route::match(array('GET','POST'), 'school', 'SchoolProgramController@index');
-Route::get('school', [SchoolProgramController::class, 'index'])->name('school.index');
-Route::post('school', [SchoolProgramController::class, 'index'])->name('school.index');
+Route::get('school', [SchoolProgramController::class, 'index'])->name('program.school.index');
+Route::post('school', [SchoolProgramController::class, 'index'])->name('program.school.index');
 Route::prefix('school')->name('school.')->group(function () {
     Route::resource('{school}/detail', SchoolProgramController::class);
     Route::resource('{school}/detail/{sch_prog}/speaker', SchoolProgramSpeakerController::class);
@@ -102,6 +93,3 @@ Route::prefix('school')->name('school.')->group(function () {
 Route::post('school/{school}/detail/{sch_prog}/collaborators/{collaborators}', [SchoolProgramCollaboratorsController::class, 'store'])->name('school_prog.collaborators.store');
 Route::delete('school/{school}/detail/{sch_prog}/collaborators/{collaborators}/{collaborators_id}', [SchoolProgramCollaboratorsController::class, 'destroy'])->name('school_prog.collaborators.destroy');
 
-Route::get('school/1', function () {
-    return view('pages.program.school-program.form');
-});

@@ -28,6 +28,7 @@ use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
+use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\EdufLeadRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
@@ -78,6 +79,7 @@ class ClientEventController extends Controller
     protected RoleRepositoryInterface $roleRepository;
     protected ClientEventLogMailRepositoryInterface $clientEventLogMailRepository;
     protected TagRepositoryInterface $tagRepository;
+    protected ClientProgramRepositoryInterface $clientProgramRepository;
 
 
     public function __construct(
@@ -92,7 +94,8 @@ class ClientEventController extends Controller
         SchoolCurriculumRepositoryInterface $schoolCurriculumRepository,
         RoleRepositoryInterface $roleRepository,
         ClientEventLogMailRepositoryInterface $clientEventLogMailRepository,
-        TagRepositoryInterface $tagRepository
+        TagRepositoryInterface $tagRepository, 
+        ClientProgramRepositoryInterface $clientProgramRepository, 
     ) {
         $this->curriculumRepository = $curriculumRepository;
         $this->clientRepository = $clientRepository;
@@ -106,6 +109,7 @@ class ClientEventController extends Controller
         $this->roleRepository = $roleRepository;
         $this->clientEventLogMailRepository = $clientEventLogMailRepository;
         $this->tagRepository = $tagRepository;
+        $this->clientProgramRepository = $clientProgramRepository;
     }
 
     public function index(Request $request)
@@ -113,11 +117,23 @@ class ClientEventController extends Controller
         if ($request->ajax()) {
 
             $event_name = $request->get('event_name');
+            $audience = $request->get('audience');
+            $school_name = $request->get('school_name');
+            $graduation_year = $request->get('graduation_year');
+            $conversion_lead = $request->get('conversion_lead');
+            $attendance = $request->get('attendance');
+            $registration = $request->get('registration');
             $start_date = $request->get('start_date');
             $end_date = $request->get('end_date');
 
             $filter = [
                 'event_name' => $event_name,
+                'audience' => $audience,
+                'school_name' => $school_name,
+                'graduation_year' => $graduation_year,
+                'conversion_lead' => $conversion_lead,
+                'attendance' => $attendance,
+                'registration' => $registration,
                 'start_date' => $start_date,
                 'end_date' => $end_date
             ];
@@ -126,10 +142,15 @@ class ClientEventController extends Controller
         }
 
         $events = $this->eventRepository->getAllEvents();
+        $schools = $this->schoolRepository->getAllSchools();
+        $conversion_leads = $this->clientProgramRepository->getAllConversionLeadOnClientProgram();
+
 
         return view('pages.program.client-event.index')->with(
             [
-                'events' => $events
+                'events' => $events,
+                'schools' => $schools,
+                'conversion_leads' => $conversion_leads
             ]
         );
     }

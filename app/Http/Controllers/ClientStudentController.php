@@ -622,6 +622,8 @@ class ClientStudentController extends ClientController
         $studentId = $request->clientId;
         $initprogName = $request->initProg;
         $leadStatus = $request->leadStatus;
+        
+        
         $groupId = $request->groupId;
         $reason = $request->reason_id;
         $programScore = $leadScore = 0;

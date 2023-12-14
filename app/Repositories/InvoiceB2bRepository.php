@@ -577,18 +577,18 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
 
         $queryInv = Invb2b::leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
             ->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
-            ->leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
-            ->where(
-                DB::raw('(CASE
-                                WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch_prog.status
-                                WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_partner_prog.status
-                                WHEN tbl_invb2b.ref_id > 0 THEN tbl_referral.referral_type 
-                            END)'),
-                DB::raw('(CASE
-                                WHEN tbl_invb2b.ref_id > 0 THEN "Out" 
-                                ELSE 1
-                            END)')
-            );
+            ->leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id');
+            // ->where(
+            //     DB::raw('(CASE
+            //                     WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch_prog.status
+            //                     WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_partner_prog.status
+            //                     WHEN tbl_invb2b.ref_id > 0 THEN tbl_referral.referral_type 
+            //                 END)'),
+            //     DB::raw('(CASE
+            //                     WHEN tbl_invb2b.ref_id > 0 THEN "Out" 
+            //                     ELSE 1
+            //                 END)')
+            // );
 
         if (isset($start_date) && isset($end_date)) {
             $queryInv->whereDate('tbl_invb2b.created_at', '>=', $start_date)

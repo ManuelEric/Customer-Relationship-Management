@@ -7,6 +7,7 @@ use App\Models\ClientEvent;
 use App\Models\User;
 use DataTables;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ClientEventRepository implements ClientEventRepositoryInterface
 {
@@ -89,8 +90,32 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     END) AS conversion_lead'),
                     'client_ref_code_view.full_name as referral_from'
                 )->
+                when(!empty($filter['audience']), function ($searchQuery) use ($filter) {
+                    $searchQuery->whereIn('client.register_as', $filter['audience']);
+                })->
                 when(!empty($filter['event_name']), function ($searchQuery) use ($filter) {
                     $searchQuery->where('event_title', $filter['event_name']);
+                })->
+                when(!empty($filter['school_name']), function ($searchQuery) use ($filter) {
+                    $searchQuery->whereIn(DB::raw('(CASE
+                            WHEN tbl_roles.role_name = "Parent" THEN child.school_name
+                            WHEN tbl_roles.role_name != "Parent" THEN client.school_name
+                        END)'), $filter['school_name']);
+                })->
+                when(!empty($filter['graduation_year']), function ($searchQuery) use ($filter) {
+                    $searchQuery->whereIn(DB::raw('(CASE
+                            WHEN tbl_roles.role_name = "Parent" THEN child.graduation_year_real
+                            WHEN tbl_roles.role_name != "Parent" THEN client.graduation_year_real
+                        END)'), $filter['graduation_year']);
+                })->
+                when(!empty($filter['conversion_lead']), function ($searchQuery) use ($filter) {
+                    $searchQuery->whereIn('tbl_lead.lead_id', $filter['conversion_lead']);
+                })->
+                when($filter && isset($filter['attendance']), function ($searchQuery) use ($filter) {
+                    $searchQuery->where('tbl_client_event.status', $filter['attendance']);
+                })->
+                when(!empty($filter['registration']), function ($searchQuery) use ($filter) {
+                    $searchQuery->where('tbl_client_event.registration_type', $filter['registration']);
                 })->
                 when(!empty($filter['start_date']) && !empty($filter['end_date']), function ($searchQuery) use ($filter) {
                     $searchQuery->whereBetween('joined_date', [$filter['start_date'], $filter['end_date']]);

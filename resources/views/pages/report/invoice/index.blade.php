@@ -45,6 +45,14 @@
                            
                         </div>
                     </div>
+                    <hr class="my-2">
+                    <div class="d-flex justify-content-between">
+                        <strong>Total Refund ({{ $countRefund }})</strong>
+                        <div class="text-end">
+                                Rp. {{ number_format($totalRefund) }}
+                           
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -77,13 +85,26 @@
                                     <th>Amount USD</th>
                                     <th>Amount SGD</th>
                                     <th>Amount GBP</th>
+                                    <th>Amount Refund</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($invoices as $invoice)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ isset($invoice->inv_id) ? $invoice->inv_id : $invoice->invb2b_id}}</td>
+                                        <td>
+                                            @if(isset($invoice->inv_id))
+                                                {{ $invoice->inv_id }}
+                                                <div class="badge badge-{{ $invoice->inv_status == 2 ? 'danger' : 'success' }} py-1 px-2 ms-2">
+                                                    {{ $invoice->inv_status == 2 ? 'Refund' : 'Success' }}
+                                                </div>
+                                            @else
+                                                {{ $invoice->invb2b_id }}
+                                                <div class="badge badge-{{ $invoice->invb2b_status == 2 ? 'danger' : 'success' }} py-1 px-2 ms-2">
+                                                    {{ $invoice->invb2b_status == 2 ? 'Refund' : 'Success' }}
+                                                </div>
+                                            @endif
+                                        </td>
                                         
                                         {{-- Client Name --}}
                                         @if(isset($invoice->clientprog_id))
@@ -145,6 +166,8 @@
                                         {{-- Amount GBP --}}
                                         <td>{{ $invoice->currency == 'gbp' ? $invoice->invoiceTotalprice : '-' }}</td>
 
+                                        {{-- Amount Refund --}}
+                                        <td>{{ isset($invoice->refund) ? $invoice->refund->totalRefundedStr : '-' }}</td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -183,13 +206,24 @@
                                     <th>Amount USD</th>
                                     <th>Amount SGD</th>
                                     <th>Amount GBP</th>
+                                    <th>Amount Refund</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($receipts as $receipt)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $receipt->receipt_id }}</td>
+                                        <td>{{ $receipt->receipt_id }}
+                                            @if(isset($receipt->inv_id))
+                                                <div class="badge badge-{{ $receipt->invoiceProgram->inv_status == 2 ? 'danger' : 'success' }} py-1 px-2 ms-2">
+                                                    {{ $receipt->invoiceProgram->inv_status == 2 ? 'Refund' : 'Success' }}
+                                                </div>
+                                            @elseif(isset($receipt->invb2b_id))
+                                                <div class="badge badge-{{ $receipt->invoiceB2b->invb2b_status == 2 ? 'danger' : 'success' }} py-1 px-2 ms-2">
+                                                    {{ $receipt->invoiceB2b->invb2b_status == 2 ? 'Refund' : 'Success' }}
+                                                </div>                                            
+                                            @endif
+                                        </td>
                                         
                                         {{-- Client Name --}}
                                         @if(isset($receipt->inv_id))
@@ -253,6 +287,13 @@
                                             <td>{{ $receipt->invoiceProgram->currency == 'gbp' ? $receipt->receipt_amount : '-' }}</td>
                                         @elseif(isset($receipt->invb2b_id))
                                             <td>{{ $receipt->invoiceB2b->currency == 'gbp' ? $receipt->receipt_amount : '-' }}</td>
+                                        @endif
+
+                                        {{-- Amount Refund--}}
+                                        @if(isset($receipt->inv_id))
+                                            <td>{{ isset($receipt->invoiceProgram->refund) ? $receipt->invoiceProgram->refund->totalRefundedStr : '-' }}</td>
+                                        @elseif(isset($receipt->invb2b_id))
+                                            <td>{{ isset($receipt->invoiceB2b->refund) ? $receipt->invoiceB2b->refund->totalRefundedStr : '-' }}</td>
                                         @endif 
                                     </tr>
                                 @empty
@@ -304,14 +345,16 @@
             })
 
             sheetName.forEach(function (d, i){
+
                 var sheet = d;
                 var full_ref = workbook.Sheets[sheet]['!fullref'];
                 var last_ref = full_ref.slice(full_ref.indexOf(':') + 1);
-                var last_col = parseInt(last_ref.slice(last_ref.indexOf('L') + 1)) - 1;
+                var last_col = parseInt(last_ref.slice(last_ref.indexOf('M') + 1)) - 1;
 
-                var col = ['I', 'J', 'K', 'L']; //  I = Amount IDR, J = USD, K = SGD, L = GBP
+                var col = ['I', 'J', 'K', 'L', 'M']; //  I = Amount IDR, J = USD, K = SGD, L = GBP, M = Refund(IDR)
                 
                 col.forEach(function (d, i){
+                    // console.log(last_col);
                     for(var i = 2; i <= last_col; i++) {
                         var index = d + i;
 
@@ -319,6 +362,7 @@
                         var remove_cursymbol;
                         switch (d) {
                             case 'I':
+                            case 'M':
                                 remove_cursymbol = 'Rp.';
                                 format_cell = 'Rp#,##0;(Rp#,##0)';
                                 break;
@@ -341,6 +385,8 @@
                         workbook.Sheets[sheet][index].z = format_cell;
                     }
                     workbook.Sheets[sheet][d + i] = { t:'n', z:format_cell, f: `SUM(${d+2}:` + index +")", F:d + i + ":" + d + i }
+                    
+
                 })
 
             })

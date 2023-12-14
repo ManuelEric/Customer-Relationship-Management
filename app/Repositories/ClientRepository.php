@@ -246,9 +246,13 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('program_suggest', $advanced_filter['initial_programs']);
             })->when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
-            })->when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('st_statusact', $advanced_filter['active_status']);
-            })->where('client.st_statusact', 1)->where('client.is_verified', 'Y');
+            })->
+            when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('client.st_statusact', $advanced_filter['active_status']);
+            }, function ($subQuery) {
+                $subQuery->where('client.st_statusact', 1);
+            })->
+            isVerified();
 
         return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;
     }
@@ -279,9 +283,13 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('program_suggest', $advanced_filter['initial_programs']);
             })->when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
-            })->when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('st_statusact', $advanced_filter['active_status']);
-            })->where('client.st_statusact', 1)->where('client.is_verified', 'Y')->whereNull('client.deleted_at');
+            })->
+            when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('client.st_statusact', $advanced_filter['active_status']);
+            }, function ($subQuery) {
+                $subQuery->where('client.st_statusact', 1);
+            })->
+            isVerified();
 
         return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
@@ -313,9 +321,13 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('program_suggest', $advanced_filter['initial_programs']);
             })->when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
-            })->when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('st_statusact', $advanced_filter['active_status']);
-            })->where('client.st_statusact', 1)->where('client.is_verified', 'Y')->whereNull('client.deleted_at');
+            })->
+            when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('client.st_statusact', $advanced_filter['active_status']);
+            }, function ($subQuery) {
+                $subQuery->where('client.st_statusact', 1);
+            })->
+            isVerified();
 
         return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
@@ -353,9 +365,13 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('program_suggest', $advanced_filter['initial_programs']);
             })->when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
-            })->when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('st_statusact', $advanced_filter['active_status']);
-            })->where('client.st_statusact', 1)->where('client.is_verified', 'Y')->whereNull('client.deleted_at');
+            })->
+            when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('client.st_statusact', $advanced_filter['active_status']);
+            }, function ($subQuery) {
+                $subQuery->where('client.st_statusact', 1);
+            })->
+            isVerified();
 
         return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
