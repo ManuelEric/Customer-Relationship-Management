@@ -69,14 +69,12 @@ class AutomatedDeterminedHotLeads extends Command
 
             foreach ($rawData as $client) {
 
-                if ($client->id != 1336)
-                    continue;
-
                 if ($client->active == 0)
                     continue;
 
                 # if the client has already graduated
                 # then no need to calculate hot leads
+                # this grade meaning the difference between her/his actual grade and graduation year
                 $bypass = $client->grade > 0 || $client->phone == null ? true : false;
 
                 # initialize client variables
@@ -89,7 +87,7 @@ class AutomatedDeterminedHotLeads extends Command
     
                 # this condition is to make system run every 1 April & 1 Oktober
                 # 01 April & 01 Oktober
-                // if (date('d-m H:i') == '01-04 00:00' || date('d-m H:i') == '01-08 00:00')
+                if (date('d-m H:i') == '01-04 00:00' || date('d-m H:i') == '01-08 00:00')
                     $recalculate = true;    
     
                 # currently we have 4 initial programs
@@ -433,6 +431,7 @@ class AutomatedDeterminedHotLeads extends Command
             $total_result += $sub_result;
             $total_potential_point += $potential_point;
 
+            $bypass = false;
             switch ($initProgramName) {
                 case "Admissions Mentoring":
                     if ($client->type == "existing_mentee")
@@ -593,7 +592,7 @@ class AutomatedDeterminedHotLeads extends Command
                 $total_result = 1;
             }
 
-            $total_result = $bypass === true ? 0 : $total_result;
+            // $total_result = $bypass === true ? 0 : $total_result;
             $leadScore = $total_result;
 
         }
