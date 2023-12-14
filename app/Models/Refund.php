@@ -33,28 +33,28 @@ class Refund extends Model
     protected function totalRefundedStr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->total_refunded, '2', ',', '.'),
+            get: fn ($value) => "Rp. " . number_format($this->total_refunded),
         );
     }
 
     protected function totalPaidStr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->total_paid, '2', ',', '.'),
+            get: fn ($value) => "Rp. " . number_format($this->total_paid),
         );
     }
 
     protected function refundAmountStr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->refund_amount, '2', ',', '.'),
+            get: fn ($value) => "Rp. " . number_format($this->refund_amount),
         );
     }
 
     protected function taxAmountStr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->tax_amount, '2', ',', '.'),
+            get: fn ($value) => "Rp. " . number_format($this->tax_amount),
         );
     }
 
