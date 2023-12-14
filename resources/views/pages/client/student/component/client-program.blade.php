@@ -19,12 +19,19 @@
                     <th>PIC</th>
                     <th>Program Status</th>
                     <th>Running Status</th>
+                    <th>Initial Consult Date</th>
+                    <th>Initial Assessment Sent</th>
+                    <th>End Date</th>
+                    <th>Total Universities</th>
+                    <th>Total Dollar</th>
+                    <th>Kurs Dollar-Rupiah</th>
+                    <th>Total Rupiah</th>
                     <th>#</th>
                 </tr>
             </thead>
             <tfoot class="bg-light text-white">
                 <tr>
-                    <td colspan="8"></td>
+                    <td colspan="15"></td>
                 </tr>
             </tfoot>
         </table>
@@ -105,11 +112,86 @@
 
                     },
                     {
+                        data: 'initconsult_date',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'assessmentsent_date',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'prog_end_date',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'total_uni',
+                        className: 'text-center',
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            if(data === 0){
+                                return "-"
+                            }else{
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        data: 'total_foreign_currency',
+                        className: 'text-center',
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            if(data === 0){
+                                return "-"
+                            }else{
+                                return new Intl.NumberFormat("en-US", {
+                                    style: "currency",
+                                    currency: "USD",
+                                    minimumFractionDigits: 0
+                                }).format(data);
+                            }
+                        }
+                    },
+                    {
+                        data: 'foreign_currency_exchange',
+                        className: 'text-center',
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            if(data === 0){
+                                return "-"
+                            }else{
+                                return new Intl.NumberFormat("id-ID", {
+                                    style: "currency",
+                                    currency: "IDR",
+                                    minimumFractionDigits: 0
+                                }).format(data);
+                            }
+                        }
+                    },
+                    {
+                        data: 'total_idr',
+                        className: 'text-center',
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            if(data === 0){
+                                return "-"
+                            }else{
+                                return new Intl.NumberFormat("id-ID", {
+                                    style: "currency",
+                                    currency: "IDR",
+                                    minimumFractionDigits: 0
+                                }).format(data);
+                            }
+                        }
+                    },
+                    {
                         data: 'clientprog_id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
                             return '<a href="' + url + '/' + data +
-                                '" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail" target="_blank"><i class="bi bi-info-circle"></i></a>'
+                                '" class="btn btn-sm btn-warning"><i class="bi bi-info-circle me-2"></i>More</a>'
                         }
                     }
                 ]
@@ -122,6 +204,7 @@
                     html: true
                 });
             });
+                
         });
     </script>
 @endpush

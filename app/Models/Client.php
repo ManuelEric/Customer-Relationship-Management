@@ -70,17 +70,17 @@ class Client extends Model
     # Scopes
     public function scopeIsVerified($query)
     {
-        return $query->where('is_verified', 'Y');
+        return $query->where('client.is_verified', 'Y');
     }
 
     public function scopeIsNotVerified($query)
     {
-        return $query->where('is_verified', 'N');
+        return $query->where('client.is_verified', 'N');
     }
 
     public function scopeIsActive($query)
     {
-        return $query->where('st_statusact', 1);
+        return $query->where('client.st_statusact', 1);
     }
 
     public function scopeIsNotActive($query)
