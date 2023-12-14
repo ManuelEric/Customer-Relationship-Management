@@ -62,6 +62,62 @@
                                         </select>
                                     </div>
                                     <div class="col-md-12 mb-2">
+                                        <label>Audience</label>
+                                        <select class="select w-100" name="audience[]" id="audience" multiple>
+                                            <option data-placeholder="true"></option>
+                                            <option value="student">Student</option>
+                                            <option value="parent">Parent</option>
+                                            <option value="teacher/counsellor">Teacher / Counsellor</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12 mb-2">
+                                        <label for="">School Name</label>
+                                        <select name="school_name[]" class="select form-select form-select-sm w-100" multiple
+                                            id="school-name">
+                                            @foreach ($schools as $school)
+                                                <option value="{{ $school->sch_name }}">
+                                                    {{ $school->sch_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12 mb-2">
+                                        <label>Graduation Year</label>
+                                        <select class="select w-100" name="graduation_year[]" id="graduation-year" multiple>
+                                            <option data-placeholder="true"></option>
+                                            @for ($i = date('Y'); $i < date('Y') + 6; $i++)
+                                                <option value="{{ $i }}">{{ $i }}
+                                                </option>
+                                            @endfor
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12 mb-2">
+                                        <label for="">Conversion Lead</label>
+                                        <select name="conversion_lead[]" class="select form-select form-select-sm w-100" multiple
+                                            id="conversion-lead">
+                                            @foreach ($conversion_leads as $lead)
+                                                <option value="{{ $lead->lead_id }}">
+                                                    {{ $lead->conversion_lead }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12 mb-2">
+                                        <label>Attendance</label>
+                                        <select class="select w-100" name="attendance" id="attendance">
+                                            <option data-placeholder="true"></option>
+                                            <option value="1">Attend</option>
+                                            <option value="0">Join</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12 mb-2">
+                                        <label>Registration Type</label>
+                                        <select class="select w-100" name="registration" id="registration">
+                                            <option data-placeholder="true"></option>
+                                            <option value="OTS">OTS</option>
+                                            <option value="PR">Pre-Registration</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12 mb-2">
                                         <div class="row g-2">
                                             <div class="col-md-6 mb-2">
                                                 <label>Start Date</label>
@@ -172,6 +228,7 @@
 
     <script>
         $(document).ready(function() {
+
             var table = $('#eventTable').DataTable({
                 dom: 'Bfrtip',
                 lengthMenu: [
@@ -237,9 +294,15 @@
                     url: '',
                     data: function(params) {
                         params.event_name = $("#event-name").val()
+                        params.audience = $("#audience").val()
+                        params.school_name = $("#school-name").val()
+                        params.graduation_year = $("#graduation-year").val()
+                        params.conversion_lead = $("#conversion-lead").val()
+                        params.attendance = $("#attendance").val()
+                        params.registration = $("#registration").val()
                         params.start_date = $('#start_date').val()
                         params.end_date = $('#end_date').val()
-                    }
+                    },
                 },
                 pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
@@ -412,7 +475,7 @@
                 }
             });
 
-            realtimeData(table)
+            // realtimeData(table)
 
             @php
                 $privilage = $menus['Program']->where('submenu_name', 'Client Event')->first();
@@ -475,7 +538,37 @@
 
             });
 
+            $("#audience").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
             $("#event-name").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#school-name").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#graduation-year").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#conversion-lead").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#attendance").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#registration").on('change', function(e) {
                 var value = $(e.currentTarget).find("option:selected").val();
                 table.draw();
             })
