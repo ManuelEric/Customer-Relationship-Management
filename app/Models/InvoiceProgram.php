@@ -11,6 +11,7 @@ class InvoiceProgram extends Model
     use HasFactory;
 
     protected $table = 'tbl_inv';
+    protected $appends = ['total_refund', 'total_refund_str'];
 
     /**
      * The attributes that should be visible in arrays.
@@ -135,6 +136,21 @@ class InvoiceProgram extends Model
     {
         return Attribute::make(
             get: fn ($value) => "Rp. " . number_format($this->inv_totalprice_idr)
+        );
+    }
+
+    protected function totalRefund(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => isset($this->refund) ? $this->refund->total_refunded : 0
+        );
+    }
+
+    protected function totalRefundStr(): Attribute
+    {
+
+        return Attribute::make(
+            get: fn ($value) => "Rp. " . number_format($this->totalRefund)
         );
     }
 

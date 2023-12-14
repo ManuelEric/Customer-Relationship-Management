@@ -15,6 +15,8 @@ class Invb2b extends Model
 
     protected $table = 'tbl_invb2b';
     protected $primaryKey = 'invb2b_num';
+    protected $appends = ['total_refund', 'total_refund_str'];
+
 
     /**
      * The attributes that should be visible in arrays.
@@ -135,6 +137,21 @@ class Invb2b extends Model
     {
         return Attribute::make(
             get: fn ($value) => "Rp. " . number_format($this->invb2b_priceidr * ($this->invb2b_participants == 0 ? 1 : $this->invb2b_participants))
+        );
+    }
+
+    protected function totalRefund(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => isset($this->refund) ? $this->refund->total_refunded : 0
+        );
+    }
+
+    protected function totalRefundStr(): Attribute
+    {
+
+        return Attribute::make(
+            get: fn ($value) => "Rp. " . number_format($this->totalRefund)
         );
     }
 
