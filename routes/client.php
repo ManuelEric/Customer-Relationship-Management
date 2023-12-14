@@ -71,8 +71,6 @@ Route::prefix('alumni')->group(function() {
 });
 Route::resource('alumni', ClientMenteeController::class);
 
-<<<<<<< HEAD
-=======
 // Route::get('teacher-counselor/raw', function () {
 //     return view('pages.client.teacher.raw.index');
 // });
@@ -88,22 +86,18 @@ Route::get('teacher-counselor/raw/{rawclient_id}/{type}/{client_id?}', [ClientTe
 Route::post('teacher-counselor/raw/{rawclient_id}/{type}/{client_id?}', [ClientTeacherCounselorController::class, 'convertData'])->name('client.convert.teacher');
 Route::delete('teacher-counselor/raw/{rawclient_id}', [ClientTeacherCounselorController::class, 'destroyRaw']);
 
->>>>>>> origin/development-v2.1.4
 Route::resource('teacher-counselor', ClientTeacherCounselorController::class);
 Route::prefix('teacher-counselor')->name('teacher-counselor.')->group(function () {
     Route::post('import', [ClientTeacherCounselorController::class, 'import'])->name('import');
     Route::get('{teacher}/status/{status}', [ClientTeacherCounselorController::class, 'updateStatus'])->name('update.status');
 });
 
-<<<<<<< HEAD
-=======
 
 Route::get('parent/raw',  [ClientParentController::class, 'indexRaw']);
 Route::get('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'cleaningData']);
 Route::post('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'convertData'])->name('client.convert.parent');
 Route::delete('parent/raw/{rawclient_id}', [ClientParentController::class, 'destroyRaw']);
 
->>>>>>> origin/development-v2.1.4
 Route::resource('parent', ClientParentController::class);
 
 Route::post('parent/import', [ClientParentController::class, 'import'])->name('parent.import');
