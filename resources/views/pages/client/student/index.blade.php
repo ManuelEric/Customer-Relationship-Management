@@ -105,14 +105,14 @@
                                         </select>
                                     </div>
 
-                                    <div class="col-md-12 mb-2">
+                                    {{-- <div class="col-md-12 mb-2">
                                         <label for="">Active Status</label>
                                         <select name="active_status[]" class="select form-select form-select-sm w-100"
                                             multiple id="active-status">
                                             <option value="1">Active</option>
                                             <option value="0">Non-active</option>
                                         </select>
-                                    </div>
+                                    </div> --}}
 
                                     <div class="col-md-12 mt-3 d-none">
                                         <div class="d-flex justify-content-between">
@@ -208,7 +208,7 @@
                         <th>Interest Major</th>
                         <th>Joined Date</th>
                         <th>Last Update</th>
-                        <th>Status</th>
+                        <th>Is Active</th>
                         <th class="bg-info text-white"># Action</th>
                     </tr>
                 </thead>
@@ -636,7 +636,7 @@
             // Delete Student 
             $('#clientTable tbody').on('click', '.deleteClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                confirmDelete('client/student/raw', data.id)
+                confirmDelete('client/student', data.id)
             });
 
             // View More 

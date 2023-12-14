@@ -267,6 +267,9 @@ class SchoolController extends Controller
         DB::beginTransaction();
         try {
 
+            if (!isset($school))
+                return Redirect::to('instance/school')->withError('Data does not exist');
+
             $this->schoolRepository->deleteSchool($schoolId);
             DB::commit();
         } catch (Exception $e) {

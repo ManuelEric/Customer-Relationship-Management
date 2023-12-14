@@ -146,7 +146,7 @@
                             return '<div class="d-flex gap-1 justify-content-center">' +
                                 '<small data-bs-toggle="tooltip" data-bs-placement="top" ' +
                                 'data-bs-custom-class="custom-tooltip" ' +
-                                'data-bs-title="Delete" class="btn btn-sm btn-outline-danger cursor-pointer onclick="confirmDelete(\'instance/school/raw\', \'' +
+                                'data-bs-title="Delete" class="btn btn-sm btn-outline-danger cursor-pointer" onclick="confirmDelete(\'instance/school\', \'' +
                                 row.sch_id + '\')">' +
                                 '<i class="bi bi-trash"></i>' +
                                 '</small>' +
