@@ -69,8 +69,9 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                         'tbl_invb2b.currency',
                         'tbl_invb2b.invb2b_totpriceidr',
                         'tbl_invb2b.invb2b_totprice',
+                        'tbl_sch_prog.status'
                     )
-                    ->where('tbl_sch_prog.status', 1)
+                    ->where('tbl_sch_prog.status', '!=', 0)
                     ->orderBy('tbl_invb2b.created_at', 'DESC');
                 break;
 
@@ -253,8 +254,10 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                         'tbl_invb2b.currency',
                         'tbl_invb2b.invb2b_totpriceidr',
                         'tbl_invb2b.invb2b_totprice',
+                        'tbl_partner_prog.status'
                     )
-                    ->where('tbl_partner_prog.status', 1)
+                    // ->where('tbl_partner_prog.status', 1)
+                    ->where('tbl_partner_prog.status', '!=', 0)
                     ->orderBy('tbl_invb2b.created_at', 'DESC');
                 // ->where('tbl_invb2b.invb2b_status', 1);
                 break;

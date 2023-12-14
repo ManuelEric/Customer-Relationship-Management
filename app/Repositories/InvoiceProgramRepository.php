@@ -37,7 +37,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                         'tbl_inv.created_at',
                         'inv_duedate',
                         'inv_totalprice_idr',
-                        'program_name'
+                        'program_name',
+                        'clientprogram.status'
                     ])->orderBy('tbl_inv.updated_at', 'desc');
                 break;
 
