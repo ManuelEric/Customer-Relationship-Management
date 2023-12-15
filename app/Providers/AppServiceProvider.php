@@ -88,57 +88,8 @@ class AppServiceProvider extends ServiceProvider
                     }
                 }
 
-
-                # if logged in user is admin
-                $department = null;
-                if ($user->roles()->where('role_name', 'admin')->exists()) {
-                    $isAdmin = true;
-                    $department = null;
-                    $collection = [];
-                    $collection = app('menu-repository-services')->getMenu();
-                }
-
-                # if logged in user is from department sales
-                if ($user->department()->where('dept_name', 'Client Management')->where('status', 1)->exists()) {
-                    $isSales = true;
-                    $department = 'Client Management';
-                }
-
-                # if logged in user is from department partnership
-                if ($user->department()->where('dept_name', 'Business Development')->where('status', 1)->exists()) {
-                    $isPartnership = true;
-                    $department = 'Business Development';
-                }
-
-                # if logged in user is from department finance
-                if ($user->department()->where('dept_name', 'Finance & Operation')->where('status', 1)->exists()) {
-                    $isFinance = true;
-                    $department = 'Finance & Operation';
-                }
-
-                # if logged in user is from department digital
-                if ($user->department()->where('dept_name', 'Digital')->where('status', 1)->exists()) {
-                    $isDigital = true;
-                    $department = 'Digital';
-                }
-
-                $deptId = $department !== null ? Department::where('dept_name', $department)->first()->id : null;
-
-                $grouped = $collection->sortBy(['order_no', 'order_no_submenu'])->values()->mapToGroups(function (array $item, int $key) {
-                    return [
-                        $item['mainmenu_name'] => [
-                            'order_no_submenu' => $item['order_no_submenu'],
-                            'mainmenu_name' => $item['mainmenu_name'],
-                            'menu_id' => $item['menu_id'],
-                            'submenu_name' => $item['submenu_name'],
-                            'submenu_link' => $item['submenu_link'],
-                            'copy' => $item['copy'],
-                            'export' => $item['export'],
-                            'icon' => $item['icon']
-                        ]
-
-                    ];
-                });
+                $roleScopeData = $this->checkRoles($user);
+                
 
                 # invoice & receipt PIC
                 $invRecPics = [
@@ -153,15 +104,8 @@ class AppServiceProvider extends ServiceProvider
                 ];
 
                 $view->with(
+                    $roleScopeData +
                     [
-                        'menus' => $grouped,
-                        'isAdmin' => $isAdmin ?? false,
-                        'isSales' => $isSales ?? false,
-                        'isPartnership' => $isPartnership ?? false,
-                        'isFinance' => $isFinance ?? false,
-                        'isDigital' => $isDigital ?? false,
-                        'loggedIn_user' => $user,
-                        'deptId' => $deptId,
                         'countAlarm' => app('alarm-repository-services')->countAlarm(),
                         'notification' => app('alarm-repository-services')->notification(),
                         'invRecPics' => $invRecPics,
@@ -169,5 +113,92 @@ class AppServiceProvider extends ServiceProvider
                 );
             }
         });
+    }
+
+    private function checkRoles($user)
+    {
+        # initialize 
+        $isAdmin = $isSales = $isPartnership = $isFinance = $isDigital = false;
+
+        # if logged in user is admin
+        $department = null;
+        if ($user->roles()->where('role_name', 'admin')->exists()) {
+            $isAdmin = true;
+            $department = null;
+            $collection = [];
+            $collection = app('menu-repository-services')->getMenu();
+        }
+
+        # if logged in user is from department sales
+        if ($user->department()->where('dept_name', 'Client Management')->where('status', 1)->exists()) {
+            $isSales = true;
+            $department = 'Client Management';
+        }
+
+        # if logged in user is from department partnership
+        if ($user->department()->where('dept_name', 'Business Development')->where('status', 1)->exists()) {
+            $isPartnership = true;
+            $department = 'Business Development';
+        }
+
+        # if logged in user is from department finance
+        if ($user->department()->where('dept_name', 'Finance & Operation')->where('status', 1)->exists()) {
+            $isFinance = true;
+            $department = 'Finance & Operation';
+        }
+
+        # if logged in user is from department digital
+        if ($user->department()->where('dept_name', 'Digital')->where('status', 1)->exists()) {
+            $isDigital = true;
+            $department = 'Digital';
+        }
+
+        # get department ID
+        # its used to insert department_id when creating lead source
+        $deptId = $department !== null ? Department::where('dept_name', $department)->first()->id : null;
+
+        $grouped = $collection->sortBy(['order_no', 'order_no_submenu'])->values()->mapToGroups(function (array $item, int $key) {
+            return [
+                $item['mainmenu_name'] => [
+                    'order_no_submenu' => $item['order_no_submenu'],
+                    'mainmenu_name' => $item['mainmenu_name'],
+                    'menu_id' => $item['menu_id'],
+                    'submenu_name' => $item['submenu_name'],
+                    'submenu_link' => $item['submenu_link'],
+                    'copy' => $item['copy'],
+                    'export' => $item['export'],
+                    'icon' => $item['icon']
+                ]
+
+            ];
+        });
+
+        return [
+            'menus' => $grouped,
+            'isAdmin' => $isAdmin ?? false,
+            'isSales' => $isSales ?? false,
+            'isPartnership' => $isPartnership ?? false,
+            'isFinance' => $isFinance ?? false,
+            'isDigital' => $isDigital ?? false,
+            'loggedIn_user' => $user,
+            'deptId' => $deptId,
+        ];
+    }
+
+    private function checkUserDepartment($user)
+    {
+        $existing_departments = ['Client Management', 'Business Development', 'Finance & Operation', 'Digital'];
+
+        $index = 0;
+        while ($index < count($existing_departments)) 
+        {
+
+            # if user logged in user is from the department
+            if ($user->department()->where('dept_name', $existing_departments[$index])->where('status', 1)->exists()) {
+                $access = true;
+                $department = 'Client Management';
+            }
+
+        }
     }
 }
