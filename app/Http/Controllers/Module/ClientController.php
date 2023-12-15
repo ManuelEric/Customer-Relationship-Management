@@ -58,6 +58,7 @@ class ClientController extends Controller
                 $parentDetails['phone'] = $this->setPhoneNumber($request->pr_phone);
                 $parentDetails['dob'] = $request->pr_dob;
                 $parentDetails['insta'] = $request->pr_insta;
+                $parentDetails['is_verified'] = 'Y';
                 // $parentDetails['st_abrcountry'] = json_encode($request->st_abrcountry);
 
                 # set lead_id based on lead_id & kol_lead_id 
@@ -87,7 +88,8 @@ class ClientController extends Controller
                     'graduation_year' => $request->graduation_year,
                     'gap_year' => $request->gap_year,
                     'is_funding' => $request->is_funding ?? 0,
-                    'register_as' => $request->register_as
+                    'register_as' => $request->register_as,
+                    'is_verified' => 'Y'
                 ];
 
                 if (isset($request->is_funding))
@@ -129,6 +131,7 @@ class ClientController extends Controller
                     $studentDetails['is_funding'] = $request->is_funding;
 
                 $studentDetails['phone'] = $this->setPhoneNumber($request->phone);
+                $studentDetails['is_verified'] = "Y";
                 // $studentDetails['st_abrcountry'] = json_encode($request->st_abrcountry);
 
                 # set lead_id based on lead_id & kol_lead_id 
@@ -155,6 +158,7 @@ class ClientController extends Controller
                     'event_id' => $studentDetails['event_id'],
                     'st_levelinterest' => $studentDetails['st_levelinterest'],
                     'st_note' => $studentDetails['st_note'],
+                    'is_verified' => 'Y'
                 ];
 
                 return compact('studentDetails', 'parentDetails');
@@ -180,6 +184,7 @@ class ClientController extends Controller
                     'st_levelinterest',
                 ]);
                 $teacherDetails['phone'] = $this->setPhoneNumber($request->phone);
+                $teacherDetails['is_verified'] = 'Y';
 
                 # set lead_id based on lead_id & kol_lead_id
                 # when lead_id is kol

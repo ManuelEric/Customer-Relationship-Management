@@ -811,6 +811,9 @@ class ClientStudentController extends ClientController
         DB::beginTransaction();
         try {
 
+            $schools = $this->schoolRepository->getVerifiedSchools();
+            $parents = $this->clientRepository->getAllClientByRole('Parent');
+
             $rawClient = $this->clientRepository->getViewRawClientById($rawClientId);
             if (!isset($rawClient))
                 return Redirect::to('client/student/raw')->withError('Data does not exist');
@@ -833,13 +836,17 @@ class ClientStudentController extends ClientController
             case 'comparison':
                 return view('pages.client.student.raw.form-comparison')->with([
                     'rawClient' => $rawClient,
-                    'client' => $client
+                    'client' => $client,
+                    'schools' => $schools,
+                    'parents' => $parents,
                 ]);
                 break;
 
             case 'new':
                 return view('pages.client.student.raw.form-new')->with([
                     'rawClient' => $rawClient,
+                    'schools' => $schools,
+                    'parents' => $parents,
                 ]);
                 break;
         }
