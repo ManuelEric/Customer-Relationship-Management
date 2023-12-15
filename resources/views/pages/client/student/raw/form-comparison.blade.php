@@ -207,6 +207,9 @@
                                             <select class="select w-100 school" name="school" id="schoolNew"
                                                 onchange="checkInputText(this, 'school', 'select')">
                                                 <option value=""></option>
+                                                @foreach ($schools as $school)
+                                                    <option data-id="{{ $school->sch_id }}" value="{{ $school->sch_name }}">{{ $school->sch_name }}</option>
+                                                @endforeach
                                             </select>
                                         </div>
                                         <div class="col-1">
@@ -298,7 +301,7 @@
                                         <div class="col-md-4">
                                             <label for="parents_email">Parent's Phone Number</label>
                                             <input type="tel" name="" id="parent_phone"
-                                                class="form-control form-control-sm parentInput"value="{{ $parent != null ? $parent->phone : null }}"
+                                                class="form-control form-control-sm parentInput" value="{{ $parent != null ? $parent->phone : null }}"
                                                 oninput="checkInputText(this, 'parentPhone')">
                                         </div>
                                     </div>
@@ -308,7 +311,10 @@
                                             <select class="select w-100 parent" name="parent" id="parentNew"
                                                 onchange="checkInputText(this, 'parent', 'select')">
                                                 <option value=""></option>
-                                                <option value="Add">Add Parent</option>
+                                                @foreach ($parents as $parent)
+                                                    <option data-id="{{ $parent->id }}" data-name="{{ $parent->full_name }}" data-email="{{ $parent->mail }}" data-phone="{{ $parent->phone }}" 
+                                                        value="{{ $parent->full_name }}">{{ $parent->full_name }}</option>
+                                                @endforeach
                                             </select>
                                         </div>
                                         <div class="col-1">
@@ -594,7 +600,7 @@
                 })
         }
 
-        syncParent()
-        syncSchool()
+        // syncParent()
+        // syncSchool()
     </script>
 @endpush

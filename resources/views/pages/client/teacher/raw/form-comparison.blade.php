@@ -161,6 +161,9 @@
                                             <select class="select w-100 school" name="school" id="schoolNew"
                                                 onchange="checkInputText(this, 'school', 'select')">
                                                 <option value=""></option>
+                                                @foreach ($schools as $school)
+                                                    <option data-id="{{ $school->sch_id }}" value="{{ $school->sch_name }}">{{ $school->sch_name }}</option>
+                                                @endforeach
                                             </select>
                                         </div>
                                         <div class="col-1">
@@ -307,6 +310,6 @@
                 })
         }
 
-        syncSchool()
+        // syncSchool()
     </script>
 @endpush
