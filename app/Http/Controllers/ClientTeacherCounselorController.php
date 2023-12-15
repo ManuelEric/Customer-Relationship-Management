@@ -436,7 +436,7 @@ class ClientTeacherCounselorController extends ClientController
             return Redirect::to('client/teacher-counselor/raw')->withError('Something went wrong. Please try again or contact the administrator.');
         }
 
-        return Redirect::to('client/teacher-counselor/raw')->withSuccess('Convert client successfully.');
+        return Redirect::to('client/teacher-counselor/'. (isset($clientId) ? $clientId : $rawclientId))->withSuccess('Convert client successfully.');
     }
 
     public function destroyRaw(Request $request)
