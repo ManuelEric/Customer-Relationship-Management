@@ -64,7 +64,7 @@ Route::post('form/program', [ClientProgramController::class, 'storeFormEmbed'])-
 Route::get('form/registration', [PublicRegistrationController::class, 'register']);
 Route::post('form/registrations', [PublicRegistrationController::class, 'store'])->name('submit.registration');
 
-Route::get('form/thanks', function() {
+Route::get('form/thanks', function () {
     return view('form-embed.thanks');
 })->name('form.event.registration.success');
 
@@ -72,22 +72,26 @@ Route::get('form/registration/success', [ClientEventController::class, 'successP
 
 Route::get('form/already-join', [ClientEventController::class, 'alreadyJoinPage']);
 
-Route::get('registration', function() {
+Route::get('registration', function () {
     return view('stem-wonderlab.registration');
 });
 
-Route::get('onsite', function() {
+Route::get('onsite', function () {
     return view('stem-wonderlab.onsite');
 });
 
-Route::get('scan', function() {
+Route::get('scan', function () {
     return view('stem-wonderlab.scan-qrcode.index');
 });
 
 Route::get('client-detail/{identifier}/{screening_type}', [ClientEventController::class, 'previewClientInformation']);
 
-Route::get('mailing', function() {
+Route::get('mailing', function () {
     return view('mailing.stem-wonderlab');
+});
+
+Route::get('sample/form', function () {
+    return view('form-embed.form-sample');
 });
 
 # FORM EVENT EMBED END --------------------------------
