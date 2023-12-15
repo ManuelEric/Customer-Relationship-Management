@@ -163,7 +163,6 @@
                                                 <option value=""></option>
                                                 @foreach ($schools as $school)
                                                     <option data-id="{{ $school->sch_id }}" value="{{ $school->sch_name }}">{{ $school->sch_name }}</option>
-                                                    
                                                 @endforeach
                                             </select>
                                         </div>
