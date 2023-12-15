@@ -130,7 +130,7 @@ class StoreInvoiceB2bRequest extends FormRequest
             'invb2b_notes' => 'nullable',
             'invb2b_tnc' => 'nullable',
             'curs_rate' => 'integer|nullable',
-            'currency' => 'in:gbp,usd,sgd|nullable',
+            'currency' => 'in:gbp,usd,sgd,aud,myr,vnd,jpy,cny,thb|nullable',
             // 'invdtl_installment.*' => 'required_if:invb2b_pm,installment|nullable',
             // 'invdtl_installment.*' => ['required_if:invb2b_pm,installment','nullable', Rule::unique('tbl_invdtl', 'invdtl_installment')->where(fn ($query) => $query->where('invb2b_id', $invoiceB2b->invb2b_id))],
             // 'invdtl_installment_other.*' => 'required_if:invb2b_pm,installment|nullable',
