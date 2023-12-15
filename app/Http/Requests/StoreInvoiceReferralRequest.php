@@ -82,7 +82,7 @@ class StoreInvoiceReferralRequest extends FormRequest
             'invb2b_notes' => 'nullable',
             'invb2b_tnc' => 'nullable',
             'curs_rate' => 'integer|nullable',
-            'currency' => 'in:gbp,usd,sgd|nullable',
+            'currency' => 'in:gbp,usd,sgd,aud,myr,vnd,jpy,cny,thb|nullable',
         ];
     }
 }

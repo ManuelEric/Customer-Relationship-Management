@@ -13,6 +13,7 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\FindStatusClientTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Http\Traits\SyncClientTrait;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
@@ -55,6 +56,7 @@ class ClientStudentController extends ClientController
     use FindStatusClientTrait;
     use StandardizePhoneNumberTrait;
     use LoggingTrait;
+    use SyncClientTrait;
 
     protected ClientRepositoryInterface $clientRepository;
     protected SchoolRepositoryInterface $schoolRepository;
@@ -894,7 +896,9 @@ class ClientStudentController extends ClientController
                     $this->clientRepository->updateClient($clientId, $clientDetails);
 
                     $rawStudent = $this->clientRepository->getViewRawClientById($rawclientId);
-
+                    
+                    // return $rawStudent->destinationCountries->count();
+                    // exit;
 
                     if ($parentType == 'new') {
                         if ($request->parentFinal == null) {
@@ -921,8 +925,8 @@ class ClientStudentController extends ClientController
                     $this->clientRepository->deleteClient($rawclientId);
                     
                     # sync destination country
-                    if ($rawStudent->interest_countries != null)
-                       $this->syncDestinationCountry($rawStudent->interest_countries, $student);
+                    if ($rawStudent->destinationCountries->count() > 0)
+                        $this->syncDestinationCountry($rawStudent->destinationCountries, $student);
 
                     break;
 
@@ -967,7 +971,7 @@ class ClientStudentController extends ClientController
             return Redirect::to('client/student/raw')->withError('Something went wrong. Please try again or contact the administrator.');
         }
 
-        return Redirect::to('client/student/raw')->withSuccess('Convert client successfully.');
+        return Redirect::to('client/student/'. (isset($clientId) ? $clientId : $rawclientId))->withSuccess('Convert client successfully.');
     }
 
     public function destroy(Request $request)

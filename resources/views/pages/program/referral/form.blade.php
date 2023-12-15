@@ -143,6 +143,12 @@
                                             <option value="USD" {{ isset($referral->currency) && $referral->currency == "USD" ? "selected" : null }}>USD</option>
                                             <option value="SGD" {{ isset($referral->currency) && $referral->currency == "SGD" ? "selected" : null }}>SGD</option>
                                             <option value="GBP" {{ isset($referral->currency) && $referral->currency == "GBP" ? "selected" : null }}>GBP</option>
+                                            <option value="AUD" {{ isset($referral->currency) && $referral->currency == "AUD" ? "selected" : null }}>AUD</option>
+                                            <option value="VND" {{ isset($referral->currency) && $referral->currency == "VND" ? "selected" : null }}>VND</option>
+                                            <option value="MYR" {{ isset($referral->currency) && $referral->currency == "MYR" ? "selected" : null }}>MYR</option>
+                                            <option value="JPY" {{ isset($referral->currency) && $referral->currency == "JPY" ? "selected" : null }}>JPY</option>
+                                            <option value="CNY" {{ isset($referral->currency) && $referral->currency == "CNY" ? "selected" : null }}>CNY</option>
+                                            <option value="THB" {{ isset($referral->currency) && $referral->currency == "THB" ? "selected" : null }}>THB</option>
                                         </select>
                                     </div>
                                     <div class="col-9">
@@ -235,7 +241,8 @@
         function checkCurrency() {
             let cur = $('#currency').val()
             // console.log()
-            if (cur == 'USD' || cur == 'SGD' || cur == 'GBP') {
+            const currency = ['USD', 'SGD', 'GBP', 'AUD', 'VND', 'MYR', 'JPY', 'CNY', 'THB']
+            if (currency.includes(cur)) {
                 $('.referral-other').removeClass('d-none')
             } else {
                 $('.referral-other').addClass('d-none')
@@ -275,6 +282,7 @@
     
                         }).catch(function (error) {
     
+                            $("#curs_rate").val('')
                             swal.close()
                             notification('error', 'Something went wrong. Please try again');
     
