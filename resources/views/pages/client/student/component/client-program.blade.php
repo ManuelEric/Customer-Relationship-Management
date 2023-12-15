@@ -131,7 +131,7 @@
                         className: 'text-center',
                         defaultContent: '-',
                         render: function(data, type, row, meta) {
-                            if(data === 0){
+                            if(parseInt(data) === 0){
                                 return "-"
                             }else{
                                 return data;
@@ -143,7 +143,7 @@
                         className: 'text-center',
                         defaultContent: '-',
                         render: function(data, type, row, meta) {
-                            if(data === 0){
+                            if(parseInt(data) === 0){
                                 return "-"
                             }else{
                                 return new Intl.NumberFormat("en-US", {
@@ -159,7 +159,7 @@
                         className: 'text-center',
                         defaultContent: '-',
                         render: function(data, type, row, meta) {
-                            if(data === 0){
+                            if(parseInt(data) === 0){
                                 return "-"
                             }else{
                                 return new Intl.NumberFormat("id-ID", {
@@ -175,7 +175,7 @@
                         className: 'text-center',
                         defaultContent: '-',
                         render: function(data, type, row, meta) {
-                            if(data === 0){
+                            if(parseInt(data) === 0){
                                 return "-"
                             }else{
                                 return new Intl.NumberFormat("id-ID", {

@@ -485,11 +485,25 @@ class ClientRepository implements ClientRepositoryInterface
                 'client.*',
                 'parent.mail as parent_mail',
                 'parent.phone as parent_phone'
-            ])->selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->withAndWhereHas('leadStatus', function ($subQuery) use ($initialProgram) {
+            ])->
+            selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
+            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
+            withAndWhereHas('leadStatus', function ($subQuery) use ($initialProgram) {
                 $subQuery->where('type', 'program')->where('total_result', '>=', '0.65')->where('status', 1)->where('tbl_initial_program_lead.name', $initialProgram);
-            })->where('client.st_statusact', 1)->orderByDesc(
-                DB::table('tbl_client_lead_tracking AS clt')->leftJoin('tbl_initial_program_lead AS ipl', 'ipl.id', '=', 'clt.initialprogram_id')->select('clt.total_result')->whereColumn('clt.client_id', 'client.id')->where('clt.type', 'lead')->where('ipl.name', $initialProgram)->where('clt.status', 1)
-            )->where('client.is_verified', 'Y')->whereNull('client.deleted_at');
+            })->
+            isActive()->
+            orderByDesc(
+                DB::table('tbl_client_lead_tracking AS clt')->
+                    leftJoin('tbl_initial_program_lead AS ipl', 'ipl.id', '=', 'clt.initialprogram_id')->
+                    select('clt.total_result')->
+                    whereColumn('clt.client_id', 'client.id')->
+                    where('clt.type', 'lead')->
+                    where('ipl.name', $initialProgram)->
+                    where('clt.status', 1)->
+                    groupBy('clt.client_id')
+            )->
+            isVerified();
 
         return $model;
     }

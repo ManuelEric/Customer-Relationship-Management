@@ -55,7 +55,33 @@
                                 data: 'fullname'
                             },
                             {
-                                data: 'program_name'
+                                data: 'program_name',
+                                render: function(data, type, row, meta) {
+                                    var status;
+                                    switch (parseInt(row.status)) {
+                                        case 0:
+                                            status = 'Pending';
+                                            break;
+
+                                        case 1:
+                                            status = 'Success';
+                                            break;
+
+                                        case 2:
+                                            status = 'Failed';
+                                            break;
+
+                                        case 3:
+                                            status = 'Refund';
+                                            break;
+                                    }
+
+                                    if(parseInt(row.status) === 1){
+                                        return data;
+                                    }else{
+                                        return data + ' <div class="badge badge-danger py-1 px-2 ms-2">'+ status +'</div>';  
+                                    }
+                                }
                             },
                             {
                                 data: 'inv_id',

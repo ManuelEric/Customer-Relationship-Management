@@ -49,7 +49,7 @@
         </div>
     </div>
 </div>
-
+@push('scripts')
 <script>
     function checkInvoiceOther() {
         let detail = $('#currency_detail').val()
@@ -63,3 +63,4 @@
         $('#invoice_other_word_idr').val(wordConverter(total * kurs) +' Rupiah')
     }
 </script>
+@endpush

@@ -9,13 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class VerifiedStudent extends Command
-{
-    public $tries = 3;
-    public $timeout = 120;
-
-    // Priority levels: high, default, low
-    public $priority = 'high';
-    
+{    
     /**
      * The name and signature of the console command.
      *
@@ -84,8 +78,9 @@ class VerifiedStudent extends Command
             $progressBar->finish();
         } catch (Exception $e) {
 
+            echo $e->getMessage();
             DB::rollBack();
-            Log::info('Failed to check verified student : ' . $e->getMessage() . ' on line ' . $e->getLine());
+            Log::debug('Failed to check verified student : ' . $e->getMessage() . ' on line ' . $e->getLine());
         }
 
         return Command::SUCCESS;
