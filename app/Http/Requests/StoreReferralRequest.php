@@ -65,13 +65,13 @@ class StoreReferralRequest extends FormRequest
                 }
             ],
             'additional_prog_name' => 'required_if:referral_type,Out',
-            'currency' => 'required|in:IDR,USD,SGD,GBP',
+            'currency' => 'required|in:IDR,USD,SGD,GBP,AUD,MYR,VND,JPY,CNY,THB',
             'number_of_student' => 'required',
             'revenue' => 'required',
             'ref_date' => 'required|date',
             'notes' => 'nullable',
-            'curs_rate' => 'required_if:currency,USD,SGD,GBP',
-            'revenue_idr' => 'required_if:currency,USD,SGD,GBP',
+            'curs_rate' => 'required_if:currency,USD,SGD,GBP,AUD,MYR,VND,JPY,CNY,THB',
+            'revenue_idr' => 'required_if:currency,USD,SGD,GBP,AUD,MYR,VND,JPY,CNY,THB',
         ];
 
         if ($this->input('referral_type') == 'In')

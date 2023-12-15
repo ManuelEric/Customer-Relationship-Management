@@ -85,6 +85,9 @@
                                             <select class="select w-100 school" name="school" id="schoolExist"
                                                 onchange="checkInputText(this, 'school', 'select')">
                                                 <option value=""></option>
+                                                @foreach ($schools as $school)
+                                                    <option data-id="{{ $school->sch_id }}" value="{{ $school->sch_name }}" {{ $rawClient->sch_id == $school->sch_id ? 'selected' : '' }}>{{ $school->sch_name }}</option>
+                                                @endforeach
                                             </select>
                                             <small class="text-success">
                                                 <i class="bi bi-check-circle-fill"></i>
@@ -107,6 +110,9 @@
                                             <select class="select w-100 school" name="school" id="schoolExist"
                                                 onchange="checkInputText(this, 'school', 'select')">
                                                 <option value=""></option>
+                                                @foreach ($schools as $school)
+                                                    <option data-id="{{ $school->sch_id }}" value="{{ $school->sch_name }}">{{ $school->sch_name }}</option>
+                                                @endforeach
                                             </select>
                                             <small class="text-success">
                                                 <i class="bi bi-check-circle-fill"></i>

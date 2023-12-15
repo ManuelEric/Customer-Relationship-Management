@@ -350,6 +350,8 @@ class ClientTeacherCounselorController extends ClientController
         DB::beginTransaction();
         try {
 
+            $schools = $this->schoolRepository->getVerifiedSchools();
+
             $rawClient = $this->clientRepository->getViewRawClientById($rawClientId);
             if (!isset($rawClient))
                 return Redirect::to('client/teacher-counselor/raw')->withError('Data does not exist');
@@ -371,13 +373,15 @@ class ClientTeacherCounselorController extends ClientController
             case 'comparison':
                 return view('pages.client.teacher.raw.form-comparison')->with([
                     'rawClient' => $rawClient,
-                    'client' => $client
+                    'client' => $client,
+                    'schools' => $schools,
                 ]);
                 break;
 
             case 'new':
                 return view('pages.client.teacher.raw.form-new')->with([
                     'rawClient' => $rawClient,
+                    'schools' => $schools,
                 ]);
                 break;
         }
@@ -436,7 +440,7 @@ class ClientTeacherCounselorController extends ClientController
             return Redirect::to('client/teacher-counselor/raw')->withError('Something went wrong. Please try again or contact the administrator.');
         }
 
-        return Redirect::to('client/teacher-counselor/raw')->withSuccess('Convert client successfully.');
+        return Redirect::to('client/teacher-counselor/'. (isset($clientId) ? $clientId : $rawclientId))->withSuccess('Convert client successfully.');
     }
 
     public function destroyRaw(Request $request)

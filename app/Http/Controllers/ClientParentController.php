@@ -477,7 +477,7 @@ class ClientParentController extends ClientController
             return Redirect::to('client/parent/raw')->withError('Something went wrong. Please try again or contact the administrator.');
         }
 
-        return Redirect::to('client/parent/raw')->withSuccess('Convert client successfully.');
+        return Redirect::to('client/parent/' . (isset($clientId) ? $clientId : $rawclientId))->withSuccess('Convert client successfully.');
     }
 
     public function destroyRaw(Request $request)

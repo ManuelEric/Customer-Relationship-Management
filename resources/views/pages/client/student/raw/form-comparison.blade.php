@@ -207,6 +207,9 @@
                                             <select class="select w-100 school" name="school" id="schoolNew"
                                                 onchange="checkInputText(this, 'school', 'select')">
                                                 <option value=""></option>
+                                                @foreach ($schools as $school)
+                                                    <option data-id="{{ $school->sch_id }}" value="{{ $school->sch_name }}">{{ $school->sch_name }}</option>
+                                                @endforeach
                                             </select>
                                         </div>
                                         <div class="col-1">
@@ -298,7 +301,7 @@
                                         <div class="col-md-4">
                                             <label for="parents_email">Parent's Phone Number</label>
                                             <input type="tel" name="" id="parent_phone"
-                                                class="form-control form-control-sm parentInput"value="{{ $parent != null ? $parent->phone : null }}"
+                                                class="form-control form-control-sm parentInput" value="{{ $parent != null ? $parent->phone : null }}"
                                                 oninput="checkInputText(this, 'parentPhone')">
                                         </div>
                                     </div>
@@ -308,7 +311,10 @@
                                             <select class="select w-100 parent" name="parent" id="parentNew"
                                                 onchange="checkInputText(this, 'parent', 'select')">
                                                 <option value=""></option>
-                                                <option value="Add">Add Parent</option>
+                                                @foreach ($parents as $parent)
+                                                    <option data-id="{{ $parent->id }}" data-name="{{ $parent->full_name }}" data-email="{{ $parent->mail }}" data-phone="{{ $parent->phone }}" 
+                                                        value="{{ $parent->full_name }}">{{ $parent->full_name }}</option>
+                                                @endforeach
                                             </select>
                                         </div>
                                         <div class="col-1">
@@ -333,26 +339,28 @@
             </div>
         </div>
         <div class="col-md-5">
-            <div class="card rounded mb-3">
-                <div class="card-header">
-                    <strong>
-                        Success Program from {{ $client->full_name }}
-                    </strong>
+            @if($client->clientProgram->where('status', 1)->count() > 0)
+                <div class="card rounded mb-3">
+                    <div class="card-header">
+                        <strong>
+                            Success Program from {{ $client->full_name }}
+                        </strong>
+                    </div>
+                    <div class="card-body overflow-auto" style="max-height: 300px">
+                        <ul class="list-group" style="font-size: 11px;">
+                            @foreach ($client->clientProgram->where('status', 1) as $clientProg)
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi bi-tags-fill me-1"></i>
+                                        {{ $clientProg->program->program_name }}
+                                    </div>
+                                <span class="badge bg-primary rounded-pill py-1 px-2" style="font-size: 11px">{{ isset($clientProg->internalPic) ? $clientProg->internalPic->full_name : '-' }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
                 </div>
-                <div class="card-body overflow-auto" style="max-height: 300px">
-                    <ul class="list-group" style="font-size: 11px;">
-                        @for ($i = 0; $i < 5; $i++)
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="bi bi-tags-fill me-1"></i>
-                                Program Name
-                            </div>
-                          <span class="badge bg-primary rounded-pill py-1 px-2" style="font-size: 11px">Anggi Prastiwi</span>
-                        </li>
-                        @endfor
-                      </ul>
-                </div>
-            </div>
+            @endif
             <div class="card rounded">
                 <form
                     action="{{ route('client.convert.student', ['client_id' => $client->id, 'type' => 'merge', 'rawclient_id' => $rawClient->id]) }}"
@@ -592,7 +600,7 @@
                 })
         }
 
-        syncParent()
-        syncSchool()
+        // syncParent()
+        // syncSchool()
     </script>
 @endpush
