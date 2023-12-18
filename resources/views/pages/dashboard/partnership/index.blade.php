@@ -36,4 +36,4 @@
     @include('pages.dashboard.partnership.detail.program-comparison')
 </section>
 
-@includeWhen(!$isAdmin, 'pages.dashboard.sales.detail.client-event')
+@includeWhen(!$isSuperAdmin, 'pages.dashboard.sales.detail.client-event')

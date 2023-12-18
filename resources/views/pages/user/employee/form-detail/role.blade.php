@@ -41,7 +41,7 @@
                             @selected(Request::route('user_role') == 'tutor')
                         @endif
                         >Tutor</option>
-                    @if ($isAdmin)
+                    @if ($isSuperAdmin)
                     <option value="8" 
                         @if (isset($user))
                             @selected(in_array(8, $roles))

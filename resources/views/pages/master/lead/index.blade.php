@@ -66,7 +66,7 @@
                         <div class="put"></div>
 
                         <div class="row g-2">
-                            @if ($isAdmin)
+                            @if ($isSuperAdmin)
                                 <div class="col-md-12">
                                     <div class="mb-0">
                                         <label for="">

@@ -226,7 +226,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             '))->
             # add new condition
             # not included refunded invoice
-            where('tbl_inv.inv_status', 1)->
+            whereIn('tbl_inv.inv_status', [0,1])->
+            // where('tbl_inv.inv_status', 1)->
             orderBy('date_difference', 'asc')->
             groupBy('tbl_inv.inv_id')->
             get();

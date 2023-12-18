@@ -16,33 +16,34 @@
 
      <div @class([
         'row',
-        'row-cols-md-2' => $isAdmin,
-        'row-cols-md-1' => !$isAdmin,
+        'row-cols-md-2' => $isSuperAdmin,
+        'row-cols-md-1' => !$isSuperAdmin,
         'row-cols-1',
         'g-3',
         'mb-3'
      ])>
+
         {{-- Sales --}}
-        @includeWhen($isAdmin || $isSales, 'pages.dashboard.sales.detail.alarm')
+        @includeWhen($isSuperAdmin || $isSalesAdmin || $isSales, 'pages.dashboard.sales.detail.alarm')
 
         {{-- Digital --}}
-        @includeWhen($isAdmin || $isDigital, 'pages.dashboard.digital.detail.alarm')
+        @includeWhen($isSuperAdmin || $isDigital, 'pages.dashboard.digital.detail.alarm')
 
     </div> 
 
     {{-- End Alert --}}
 
     {{-- Sales --}}
-    @includeWhen($isAdmin || $isSales, 'pages.dashboard.sales.index')
+    @includeWhen($isSuperAdmin || $isSales, 'pages.dashboard.sales.index')
 
     {{-- Partnership --}}
-    @includeWhen($isAdmin || $isPartnership, 'pages.dashboard.partnership.index')
+    @includeWhen($isSuperAdmin || $isPartnership, 'pages.dashboard.partnership.index')
 
     {{-- Digital  --}}
-    @includeWhen($isAdmin || $isDigital, 'pages.dashboard.digital.index')
+    @includeWhen($isSuperAdmin || $isDigital, 'pages.dashboard.digital.index')
 
     {{-- Finance  --}}
-    @includeWhen($isAdmin || $isFinance, 'pages.dashboard.finance.index')
+    @includeWhen($isSuperAdmin || $isFinance, 'pages.dashboard.finance.index')
 
 @endsection
 
