@@ -188,6 +188,7 @@ class AppServiceProvider extends ServiceProvider
     private function checkUserDepartment($user)
     {
         $existing_departments = ['Client Management', 'Business Development', 'Finance & Operation', 'Digital'];
+        $roles = []; # get data from tbl_roles
 
         $index = 0;
         while ($index < count($existing_departments)) 
@@ -195,8 +196,8 @@ class AppServiceProvider extends ServiceProvider
 
             # if user logged in user is from the department
             if ($user->department()->where('dept_name', $existing_departments[$index])->where('status', 1)->exists()) {
-                $access = true;
-                $department = 'Client Management';
+                
+                
             }
 
         }
