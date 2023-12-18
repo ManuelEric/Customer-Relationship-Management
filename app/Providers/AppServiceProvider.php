@@ -47,7 +47,7 @@ class AppServiceProvider extends ServiceProvider
             $collection = new Collection();
 
 
-            if (isset($user) && ($user->department()->wherePivot('status', 1)->count() > 0 || $user->roles()->where('role_name', 'admin')->count() > 0) ) {
+            if (isset($user) && ($user->department()->wherePivot('status', 1)->count() > 0 || $user->roles()->where('role_name', 'Super Admin')->count() > 0) ) {
                 foreach ($user->department()->wherePivot('status', 1)->get() as $menus) {
                     foreach ($menus->access_menus as $menu) {
                         $collection->push([
@@ -89,6 +89,7 @@ class AppServiceProvider extends ServiceProvider
                 }
 
                 $roleScopeData = $this->checkRoles($user);
+                // $roleScopeData = [];
                 
 
                 # invoice & receipt PIC
@@ -117,40 +118,14 @@ class AppServiceProvider extends ServiceProvider
 
     private function checkRoles($user)
     {
-        # initialize 
-        $isAdmin = $isSales = $isPartnership = $isFinance = $isDigital = false;
 
         # if logged in user is admin
         $department = null;
-        if ($user->roles()->where('role_name', 'admin')->exists()) {
-            $isAdmin = true;
+        if ($user->hasRole('Super Admin')) {
+            $isSuperAdmin = true;
             $department = null;
             $collection = [];
             $collection = app('menu-repository-services')->getMenu();
-        }
-
-        # if logged in user is from department sales
-        if ($user->department()->where('dept_name', 'Client Management')->where('status', 1)->exists()) {
-            $isSales = true;
-            $department = 'Client Management';
-        }
-
-        # if logged in user is from department partnership
-        if ($user->department()->where('dept_name', 'Business Development')->where('status', 1)->exists()) {
-            $isPartnership = true;
-            $department = 'Business Development';
-        }
-
-        # if logged in user is from department finance
-        if ($user->department()->where('dept_name', 'Finance & Operation')->where('status', 1)->exists()) {
-            $isFinance = true;
-            $department = 'Finance & Operation';
-        }
-
-        # if logged in user is from department digital
-        if ($user->department()->where('dept_name', 'Digital')->where('status', 1)->exists()) {
-            $isDigital = true;
-            $department = 'Digital';
         }
 
         # get department ID
@@ -173,33 +148,70 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
-        return [
+        $response = [
+            'isDigital' => false,
+            'isSales' => false,
+            'isSalesAdmin' => false,
+            'isSuperAdmin' => $isSuperAdmin ?? false,
             'menus' => $grouped,
-            'isAdmin' => $isAdmin ?? false,
-            'isSales' => $isSales ?? false,
-            'isPartnership' => $isPartnership ?? false,
-            'isFinance' => $isFinance ?? false,
-            'isDigital' => $isDigital ?? false,
             'loggedIn_user' => $user,
-            'deptId' => $deptId,
+            'deptId' => $deptId
         ];
+
+        $entries = $this->checkUserDepartment($user);
+        $index = 0;
+        while ($index < count($entries)) {
+
+            $response["{$entries[$index]['alias']}"] = $entries[$index]['status'];
+            $index++;
+
+        }
+
+        return $response;
     }
 
     private function checkUserDepartment($user)
     {
-        $existing_departments = ['Client Management', 'Business Development', 'Finance & Operation', 'Digital'];
-        $roles = []; # get data from tbl_roles
+        # initiate default variables
+        $entries = [
+            [
+                'department' => 'Client Management',
+                'alias' => 'isSales',
+                'status' => false,
+            ],
+            [
+                'department' => 'Business Development',
+                'alias' => 'isPartnership',
+                'status' => false,
+            ],
+            [
+                'department' => 'Finance & Operation',
+                'alias' => 'isFinance',
+                'status' => false,
+            ],
+            [
+                'department' => 'Digital',
+                'alias' => 'isDigital',
+                'status' => false,
+            ]
+        ];
 
         $index = 0;
-        while ($index < count($existing_departments)) 
+        while ($index < count($entries)) 
         {
 
             # if user logged in user is from the department
-            if ($user->department()->where('dept_name', $existing_departments[$index])->where('status', 1)->exists()) {
+            if ($user->hasDepartment($entries[$index]['department'])) {
                 
-                
-            }
+                $entries[$index]['status'] = true;
 
+                if ($user->hasRole('admin'))
+                    $entries[$index]['alias'] = 'isSalesAdmin';
+
+            }
+            $index++;
         }
+
+        return $entries;
     }
 }

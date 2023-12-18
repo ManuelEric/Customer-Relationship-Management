@@ -7,7 +7,7 @@
 
 @include('pages.dashboard.sales.detail.client-status')
 
-@includeWhen(!$isAdmin, 'pages.dashboard.sales.detail.leads')
+@includeWhen(!$isSuperAdmin, 'pages.dashboard.sales.detail.leads')
 
 <div class="d-flex flex-md-row flex-column-reverse justify-content-between align-items-center">
     <ul class="nav nav-tabs flex-nowrap w-100 overflow-auto mt-md-0 mt-1" style="overflow-y: hidden !important;">
@@ -32,7 +32,7 @@
         @foreach ($employees as $employee)
             @if ($isSales && $loggedIn_user == $employee->uuid)
                 <option value="{{ $employee->uuid }}" @selected($employee->uuid == Request::get('quser'))>{{ $employee->full_name }}</option>
-            @elseif ($isAdmin)
+            @elseif ($isSuperAdmin)
                 <option value="{{ $employee->uuid }}" @selected($employee->uuid == Request::get('quser'))>{{ $employee->full_name }}</option>
             @endif
         @endforeach

@@ -252,6 +252,9 @@ class ClientRepository implements ClientRepositoryInterface
             }, function ($subQuery) {
                 $subQuery->where('client.st_statusact', 1);
             })->
+            when(!auth()->user()->isAdminSales(), function ($subQuery) {
+                $subQuery->where('pic', auth()->user()->id);
+            })->
             isVerified();
 
         return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;

@@ -113,7 +113,6 @@ class ClientStudentController extends ClientController
 
     public function index(Request $request)
     {
-
         if ($request->ajax()) {
 
             $statusClient = $request->get('st');
