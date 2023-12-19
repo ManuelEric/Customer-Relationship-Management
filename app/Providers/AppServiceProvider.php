@@ -11,7 +11,9 @@ use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use PDO;
@@ -119,13 +121,18 @@ class AppServiceProvider extends ServiceProvider
     private function checkRoles($user)
     {
 
+        # Session user_role used for query new leads and raw data
+
         # if logged in user is admin
+        $collection = [];
+        $collection = app('menu-repository-services')->getMenu();
         $department = null;
-        if ($user->hasRole('Super Admin')) {
+        if ($user->roles()->where('role_name', 'Super Admin')->count() > 0) {
             $isSuperAdmin = true;
             $department = null;
-            $collection = [];
-            $collection = app('menu-repository-services')->getMenu();
+            Session::put('user_role', 'SuperAdmin');
+        }else{
+            Session::put('user_role', 'Employee');
         }
 
         # get department ID
@@ -205,8 +212,10 @@ class AppServiceProvider extends ServiceProvider
                 
                 $entries[$index]['status'] = true;
 
-                if ($user->hasRole('admin'))
+                if ($user->hasRole('admin')){
                     $entries[$index]['alias'] = 'isSalesAdmin';
+                    Session::put('user_role', 'SalesAdmin');
+                }
 
             }
             $index++;

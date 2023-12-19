@@ -110,6 +110,7 @@ return new class extends Migration
             ) FROM tbl_client_abrcountry sqac
                 JOIN tbl_tag sqt ON sqt.id = sqac.tag_id
                 WHERE sqac.client_id = rc.id GROUP BY sqac.client_id) as interest_countries,
+            rc.pic,
             rc.created_at,
             rc.updated_at,
             (SELECT GROUP_CONCAT(sr.role_name SEPARATOR ", ") FROM tbl_client_roles scr

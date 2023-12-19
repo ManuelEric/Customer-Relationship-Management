@@ -49,6 +49,7 @@ Route::get('student/raw/{rawclient_id}/{type}/{client_id?}', [ClientStudentContr
 Route::post('student/raw/{rawclient_id}/{type}/{client_id?}', [ClientStudentController::class, 'convertData'])->name('client.convert.student');
 Route::delete('student/raw/{rawclient_id}', [ClientStudentController::class, 'destroyRaw']);
 Route::post('delete/bulk/student/raw', [ClientStudentController::class ,'destroyRaw'])->name('client.raw.bulk.destroy');
+Route::post('assign/bulk/student/', [ClientStudentController::class ,'assign'])->name('client.bulk.assign');
 
 Route::resource('student', ClientStudentController::class);
 Route::prefix('student')->name('student.')->group(function () {

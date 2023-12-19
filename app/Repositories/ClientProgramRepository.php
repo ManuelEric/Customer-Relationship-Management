@@ -17,6 +17,7 @@ use App\Models\ViewClientProgram;
 use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class ClientProgramRepository implements ClientProgramRepositoryInterface
 {
@@ -49,7 +50,15 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
         return Datatables::eloquent(
             ViewClientProgram::
-                when($searchQuery['clientId'], function ($query) use ($searchQuery) {
+                when(Session::get('user_role') == 'Employee', function ($subQuery) {
+                    $subQuery->whereHas('internalPic', function ($query2) {
+                        $query2->where('users.id', auth()->user()->id);
+                    });
+                })
+                ->when(Session::get('user_role') == 'Employee', function ($subQuery) {
+                    $subQuery->where('pic_client', auth()->user()->id);
+                })
+                ->when($searchQuery['clientId'], function ($query) use ($searchQuery) {
                     $query->where('client_id', $searchQuery['clientId']);
                 })
                 # search by program name 

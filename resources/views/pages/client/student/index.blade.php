@@ -149,10 +149,11 @@
 
         <div class="card-body">
             <ul class="nav nav-tabs flex-nowrap overflow-auto w-100 mb-3" style="overflow-y: hidden !important;">
-                @if ($isSalesAdmin)
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap" aria-current="page" href="{{ url('client/student/raw') }}">Raw Data</a>
-                </li>
+                @if ($isSalesAdmin || $isSuperAdmin)
+                    <li class="nav-item">
+                        <a class="nav-link text-nowrap" aria-current="page" href="{{ url('client/student/raw') }}">Raw
+                            Data</a>
+                    </li>
                 @endif
                 <li class="nav-item">
                     <a class="nav-link text-nowrap {{ Request::get('st') == 'new-leads' ? 'active' : '' }}"
@@ -189,6 +190,7 @@
                         <th class="bg-info text-white">Name</th>
                         <th class="bg-info text-white">Program Suggest</th>
                         <th class="bg-info text-white">Status Lead</th>
+                        <th>PIC</th>
                         <th>Mail</th>
                         <th>Phone</th>
                         <th>Parents Name</th>
@@ -324,6 +326,51 @@
         </div>
     </div>
 
+    <div class="modal fade" id="assignForm" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header d-flex justify-content-between">
+                    <span>
+                        Assign
+                    </span>
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <div class="modal-body w-100">
+                    <form action="" method="POST" id="formAssign">
+                        @csrf
+                        <div class="put"></div>
+                        <div class="row g-2">
+                            <div class="col-md-12">
+                                <div class="mb-2">
+                                    <label for="">
+                                        PIC <sup class="text-danger">*</sup>
+                                    </label>
+                                    <select name="pic_id" id="pic-id" class="modal-select w-100">
+                                        <option data-placeholder="true"></option>
+
+                                    </select>
+                                    @error('pic_id')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <a href="#" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
+                                <i class="bi bi-x-square me-1"></i>
+                                Cancel</a>
+                            <button type="button" id="btnSubmit" class="btn btn-primary btn-sm">
+                                <i class="bi bi-save2 me-1"></i>
+                                Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 @push('scripts')
     <script>
@@ -357,6 +404,12 @@
     <script>
         var widthView = $(window).width();
         $(document).ready(function() {
+            $('.modal-select').select2({
+                dropdownParent: $('#assignForm .modal-content'),
+                placeholder: "Select value",
+                allowClear: true
+            });
+
             var get_st = "{{ isset($_GET['st']) ? $_GET['st'] : '' }}"
             var button = [
                 'pageLength', {
@@ -382,6 +435,33 @@
                         text: '<i class="bi bi-trash-fill me-1"></i> Delete',
                         action: function(e, dt, node, config) {
                             multipleDelete();
+                        }
+                    },
+                ];
+            }
+
+            if (get_st == 'new-leads' && ('{{ $isSalesAdmin }}' || '{{ $isSuperAdmin }}')) {
+                button = [
+                    'pageLength', {
+                        extend: 'excel',
+                        text: 'Export to Excel',
+                    },
+                    {
+                        text: '<i class="bi bi-check-square me-1"></i> Select All',
+                        action: function(e, dt, node, config) {
+                            selectAll();
+                        }
+                    },
+                    {
+                        text: '<i class="bi bi-trash-fill me-1"></i> Delete',
+                        action: function(e, dt, node, config) {
+                            multipleDelete();
+                        }
+                    },
+                    {
+                        text: '<i class="bi bi-person-fill me-1"></i> Assign',
+                        action: function(e, dt, node, config) {
+                            multipleAssign();
                         }
                     },
                 ];
@@ -468,6 +548,10 @@
                                 '>Cold</option></select>' : '-';
                         }
 
+                    },
+                    {
+                        data: 'pic_name',
+                        defaultContent: '-'
                     },
                     {
                         data: 'mail',
@@ -777,6 +861,70 @@
                     });
                 }
             }
+
+            function multipleAssign() {
+                var selected = [];
+                $('input.editor-active').each(function() {
+                    if ($(this).prop('checked')) {
+                        selected.push($(this).data('id'));
+                    }
+                });
+
+
+                axios.get("{{ url('api/user/sales-team') }}")
+                    .then(function(response) {
+                        const data = response.data.data
+                        $('#pic-id').html('')
+                        $('#pic-id').append('<option value=""></option>')
+                        data.forEach(element => {
+                            const last_name = element.last_name == null ? '' : ' ' + element.last_name
+                            const fullname = element.first_name + last_name
+                            $('#pic-id').append(
+                                '<option' +
+                                ' value="' + element.id + '">' + fullname +
+                                '</option>'
+                            )
+                        });
+                    })
+                    .catch(function(error) {
+                        swal.close()
+                        console.log(error);
+                    })
+
+                if (selected.length > 0) {
+                    $('#assignForm').modal('show');
+
+                }
+
+            };
+
+            $("#btnSubmit").click(function() {
+                showLoading();
+                var selected = [];
+                $('input.editor-active').each(function() {
+                    if ($(this).prop('checked')) {
+                        selected.push($(this).data('id'));
+                    }
+                });
+                var pic_id = $('#pic-id').val();
+
+                var link = '{{ route('client.bulk.assign') }}';
+                axios.post(link, {
+                        choosen: selected,
+                        pic_id: pic_id
+                    })
+                    .then(function(response) {
+                        swal.close();
+                        notification('success', response.data.message);
+                        table.ajax.reload(null, false)
+                        $('#assignForm').modal('hide');
+                    })
+                    .catch(function(error) {
+                        swal.close();
+                        notification('error', error.message);
+                        $('#assignForm').modal('hide');
+                    })
+            });
         });
 
         function closeUpdateLead() {
