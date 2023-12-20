@@ -183,6 +183,17 @@
                     <div class="row mb-2 g-1">
                         <div class="col d-flex justify-content-between">
                             <label>
+                                PIC
+                            </label>
+                            <label>:</label>
+                        </div>
+                        <div class="col-md-9 col-8">
+                            {{ isset($student->pic_client) ? $student->pic_client->full_name : null }}
+                        </div>
+                    </div>
+                    <div class="row mb-2 g-1">
+                        <div class="col d-flex justify-content-between">
+                            <label>
                                 Active Status
                             </label>
                             <label>:</label>

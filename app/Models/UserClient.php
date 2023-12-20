@@ -296,4 +296,9 @@ class UserClient extends Authenticatable
     {
         return $this->belongsToMany(University::class, 'tbl_client_acceptance', 'client_id', 'univ_id')->using(ClientAcceptance::class)->withPivot('id', 'status', 'major_id')->withTimestamps();
     }
+
+    public function pic_client()
+    {
+        return $this->belongsTo(User::class, 'pic', 'id');
+    }
 }
