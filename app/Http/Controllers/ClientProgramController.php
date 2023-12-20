@@ -99,6 +99,7 @@ class ClientProgramController extends Controller
         $data['programName'] = $request->get('program_name') ?? null;
         $data['schoolName'] = $request->get('school_name') ?? null;
         $data['leadId'] = $request->get('conversion_lead') ?? null;
+        $data['grade'] = $request->get('grade') ?? null;
         
         if ($raw_program_status = $request->get('program_status')) {
             

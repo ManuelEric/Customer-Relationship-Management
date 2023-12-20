@@ -256,6 +256,7 @@ class ClientRepository implements ClientRepositoryInterface
             when(Session::get('user_role') == 'Employee', function ($subQuery) {
                 $subQuery->where('client.pic', auth()->user()->id);
             })->
+            
             isVerified();
 
         return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;

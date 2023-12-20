@@ -440,7 +440,7 @@
                 ];
             }
 
-            if (get_st == 'new-leads' && ('{{ $isSalesAdmin }}' || '{{ $isSuperAdmin }}')) {
+            if (get_st == 'new-leads' && ('{{ $isSalesAdmin }}' || '{{ $isSuperAdmin }}') && '{{ auth()->user()->email }}' != 'ericko.siswanto@all-inedu.com') {
                 button = [
                     'pageLength', {
                         extend: 'excel',
