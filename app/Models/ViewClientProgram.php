@@ -13,6 +13,7 @@ class ViewClientProgram extends Model
 
     protected $table = 'clientprogram';
     protected $primaryKey = 'clientprog_id';
+    protected $appends = ['strip_tag_notes', 'strip_tag_notes_full'];
 
     public static function whereClientProgramId($id)
     {
@@ -21,6 +22,20 @@ class ViewClientProgram extends Model
         $instance = new static;
 
         return $instance->newQuery()->where('clientprog_id', $id)->first();
+    }
+
+    protected function stripTagNotes(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => substr(strip_tags($this->meeting_notes), 0, 50)
+        );
+    }
+
+    protected function stripTagNotesFull(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => strip_tags($this->meeting_notes)
+        );
     }
 
     protected function invoiceTotalpriceIdr(): Attribute

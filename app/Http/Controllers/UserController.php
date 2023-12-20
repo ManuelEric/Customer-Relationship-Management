@@ -569,4 +569,27 @@ class UserController extends Controller
 
         return response()->json(['message' => 'Password has been set'], 200);
     }
+
+    public function getSalesTeam()
+    {
+        DB::beginTransaction();
+        try {
+
+            # update on users table
+            $salesTeam = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('failed to get sales team' . $e->getMessage());
+            return response()->json(['message' => 'Failed to get sales team'], 422);
+        }
+
+        return response()->json(
+            [
+                'success' => true,
+                'data' => $salesTeam
+            ]
+        );    
+    } 
 }

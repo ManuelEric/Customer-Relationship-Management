@@ -1,5 +1,5 @@
 <ul class="nav nav-tabs flex-nowrap overflow-auto w-100 mb-3" style="overflow-y: hidden !important;">
-    @if ($isSalesAdmin)
+    @if ($isSalesAdmin || $isSuperAdmin)
     <li class="nav-item">
         <a @class([
             'nav-link',

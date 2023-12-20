@@ -62,6 +62,7 @@ class UserClient extends Authenticatable
         'is_funding',
         'is_verified',
         'register_as',
+        'pic',
         'created_at',
         'updated_at',
     ];

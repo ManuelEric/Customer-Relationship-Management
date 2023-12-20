@@ -21,6 +21,7 @@ use App\Models\ClientLeadTracking;
 use App\Models\University;
 use App\Models\User;
 use App\Models\ViewRawClient;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 
 class ClientRepository implements ClientRepositoryInterface
@@ -252,9 +253,10 @@ class ClientRepository implements ClientRepositoryInterface
             }, function ($subQuery) {
                 $subQuery->where('client.st_statusact', 1);
             })->
-            when(!auth()->user()->isAdminSales(), function ($subQuery) {
-                $subQuery->where('pic', auth()->user()->id);
+            when(Session::get('user_role') == 'Employee', function ($subQuery) {
+                $subQuery->where('client.pic', auth()->user()->id);
             })->
+            
             isVerified();
 
         return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
@@ -291,6 +293,9 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('client.st_statusact', $advanced_filter['active_status']);
             }, function ($subQuery) {
                 $subQuery->where('client.st_statusact', 1);
+            })->
+            when(Session::get('user_role') == 'Employee', function ($subQuery) {
+                $subQuery->where('client.pic', auth()->user()->id);
             })->
             isVerified();
 
@@ -329,6 +334,9 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('client.st_statusact', $advanced_filter['active_status']);
             }, function ($subQuery) {
                 $subQuery->where('client.st_statusact', 1);
+            })->
+            when(Session::get('user_role') == 'Employee', function ($subQuery) {
+                $subQuery->where('client.pic', auth()->user()->id);
             })->
             isVerified();
 
@@ -373,6 +381,9 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('client.st_statusact', $advanced_filter['active_status']);
             }, function ($subQuery) {
                 $subQuery->where('client.st_statusact', 1);
+            })->
+            when(Session::get('user_role') == 'Employee', function ($subQuery) {
+                $subQuery->where('client.pic', auth()->user()->id);
             })->
             isVerified();
 
@@ -1337,8 +1348,12 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getAllRawClientDataTables($roleName, $advanced_filter = [])
     {
-        $model = ViewRawClient::
-                where('roles', $roleName)->
+        $model = ViewRawClient::whereHas('roles', function ($query2) use ($roleName) {
+                    $query2->where('role_name', $roleName);
+                })->
+                when(Session::get('user_role') == 'Employee', function ($subQuery) {
+                    $subQuery->where('pic', auth()->user()->id);
+                })->
                 when(!empty($advanced_filter['school_name']), function ($querySearch) use ($advanced_filter) {
                     $querySearch->whereIn('school_name', $advanced_filter['school_name']);
                 })->

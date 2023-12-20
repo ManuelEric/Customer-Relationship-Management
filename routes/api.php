@@ -28,6 +28,7 @@ use App\Http\Controllers\ReceiptPartnerController;
 use App\Http\Controllers\ReceiptReferralController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolEventController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -163,3 +164,6 @@ Route::get('client/parent/', [ClientParentController::class, 'getDataParents']);
 
 # Get Client Suggestion
 Route::get('client/suggestion/', [ClientController::class, 'getClientSuggestion']);
+
+# Get Sales Team
+Route::get('user/sales-team/', [UserController::class, 'getSalesTeam']);

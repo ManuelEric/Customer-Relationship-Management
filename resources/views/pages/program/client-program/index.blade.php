@@ -24,8 +24,8 @@
                     data-bs-auto-close="false" id="filter">
                     <i class="bi bi-funnel me-2"></i> Filter
                 </button>
-                <form action="" class="dropdown-menu dropdown-menu-end pt-0 shadow filter-clientprog" style="width: 400px;"
-                    id="advanced-filter">
+                <form action="" class="dropdown-menu dropdown-menu-end pt-0 shadow filter-clientprog"
+                    style="width: 400px;" id="advanced-filter">
                     <div class="dropdown-header bg-info text-dark py-2 d-flex justify-content-between">
                         Advanced Filter
                         <i class="bi bi-search"></i>
@@ -62,6 +62,17 @@
                                         @if ($request->get('conversion_lead') !== null && in_array($lead->lead_id, $request->get('conversion_lead'))) {{ 'selected' }} @endif>
                                         {{ $lead->conversion_lead }}</option>
                                 @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            <label for="">Grade</label>
+                            <select name="grade[]" class="select form-select form-select-sm w-100" multiple
+                                id="grade">
+                                @for ($grade = 1; $grade <= 12; $grade++)
+                                    <option value="{{ $grade }}"
+                                        @if ($request->get('grade') !== null && $grade == $request->get('grade')) {{ 'selected' }} @endif>
+                                        {{ $grade }}</option>
+                                @endfor
                             </select>
                         </div>
                         <div class="col-md-12 mb-2">
@@ -144,6 +155,7 @@
                         <th>End Program Date</th>
                         <th>Lead Source</th>
                         <th>Conversion Lead</th>
+                        <th>Notes</th>
                         <th>Program Status</th>
                         <th>Running Status</th>
                         <th>Reason</th>
@@ -234,6 +246,7 @@
         });
 
         $(document).ready(function() {
+
             var table = $('#programTable').DataTable({
                 dom: 'Bfrtip',
                 lengthMenu: [
@@ -315,6 +328,12 @@
                     {
                         data: 'conversion_lead',
                         className: 'text-center'
+                    },
+                    {
+                        data: 'strip_tag_notes',
+                        className: 'text-center',
+                        searchable: false,
+
                     },
                     {
                         data: 'status',

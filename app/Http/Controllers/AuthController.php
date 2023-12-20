@@ -80,6 +80,7 @@ class AuthController extends Controller
         Cache::flush();
         
         $request->session()->invalidate();
+        $request->session()->forget('user_role');
         $request->session()->regenerateToken();
         return redirect('/');
     }
@@ -89,6 +90,7 @@ class AuthController extends Controller
         $timeout = 3600;
         Auth::logout();
         $request->session()->invalidate();
+        $request->session()->forget('user_role');
         $request->session()->regenerateToken();
         return Redirect::to('login')->withError('You had not activity in '.$timeout/60 .' minutes ago.');
     }

@@ -46,6 +46,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
@@ -1062,5 +1063,28 @@ class ClientStudentController extends ClientController
         }
 
         return response()->json(['success' => true, 'message' => 'Delete raw client success']);
+    }
+
+    public function assign(Request $request)
+    {
+        # raw client id that being choose from list raw data client
+        $clientIds = $request->choosen;
+        $pic = $request->pic_id;
+
+        DB::beginTransaction();
+        try {
+
+            $this->clientRepository->updateClients($clientIds, ['pic' => $pic]);
+            DB::commit();
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Failed to bulk assign client : ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to assign client'], 500);
+
+        }
+
+        return response()->json(['success' => true, 'message' => 'Assign client success']);
     }
 }
