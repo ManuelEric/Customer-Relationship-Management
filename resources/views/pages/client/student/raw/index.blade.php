@@ -115,38 +115,15 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs flex-nowrap overflow-auto w-100 mb-3" style="overflow-y: hidden !important;">
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap active" aria-current="page" href="{{ url('client/student/raw') }}">Raw
-                        Data</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap {{ Request::get('st') == 'new-leads' ? 'active' : '' }}"
-                        aria-current="page" href="{{ url('client/student?st=new-leads') }}">New Leads</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap {{ Request::get('st') == 'potential' ? 'active' : '' }}"
-                        href="{{ url('client/student?st=potential') }}">Potential</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap {{ Request::get('st') == 'mentee' ? 'active' : '' }}"
-                        href="{{ url('client/student?st=mentee') }}">Mentee</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap {{ Request::get('st') == 'non-mentee' ? 'active' : '' }}"
-                        href="{{ url('client/student?st=non-mentee') }}">Non-Mentee</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap" href="{{ url('client/student') }}">All</a>
-                </li>
-            </ul>
+            <x-client.student.nav />
 
-
+            @push('styles')
             <style>
                 #clientTable tr td.danger {
                     background: rgb(255, 151, 151)
                 }
             </style>
+            @endpush
             <div class="table-responsive">
                 <table class="table table-bordered table-hover nowrap align-middle w-100" id="rawTable">
                     <thead class="bg-secondary text-white">
@@ -391,15 +368,15 @@
                         defaultContent: '-'
                     },
                     {
-                        data: 'parent_name',
+                        data: 'second_client_name',
                         defaultContent: '-'
                     },
                     {
-                        data: 'parent_mail',
+                        data: 'second_client_mail',
                         defaultContent: '-'
                     },
                     {
-                        data: 'parent_phone',
+                        data: 'second_client_phone',
                         defaultContent: '-'
                     },
                     {
@@ -471,7 +448,7 @@
                                 '</div>';
                         }
                     },
-                ],
+                ]
             });
 
             /* for advanced filter */

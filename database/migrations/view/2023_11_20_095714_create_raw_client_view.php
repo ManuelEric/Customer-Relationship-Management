@@ -74,11 +74,12 @@ return new class extends Migration
             GetClientSuggestion ((select fname), (select mname), (select lname), GetRoleClient(rc.id)) as suggestion,
             rc.mail,
             rc.phone,
-            parent.is_verified as is_verifiedparent,
-            parent.id as parent_id,
-            CONCAT(parent.first_name, " ", COALESCE(parent.last_name, "")) as parent_name,
-            parent.mail as parent_mail,
-            parent.phone as parent_phone,
+            second_client.is_verified as is_verifiedsecond_client,
+            second_client.id as second_client_id,
+            CONCAT(second_client.first_name, " ", COALESCE(second_client.last_name, "")) as second_client_name,
+            second_client.mail as second_client_mail,
+            second_client.phone as second_client_phone,
+            second_client.st_statusact as second_client_statusact,
             UpdateGradeStudent (
                 year(CURDATE()),
                 year(rc.created_at),
@@ -116,12 +117,21 @@ return new class extends Migration
                 LEFT JOIN tbl_roles sr ON sr.id = scr.role_id
                 WHERE scr.client_id = rc.id) as roles
             
-        
+            
         FROM tbl_client rc
+            INNER JOIN tbl_client_roles crl ON crl.client_id = rc.id
+            INNER JOIN tbl_roles rl ON rl.id = crl.role_id
+
             LEFT JOIN tbl_client_relation cr
-                ON cr.child_id = rc.id
-            LEFT JOIN tbl_client parent
-                ON parent.id = cr.parent_id
+                ON (CASE 
+                        WHEN rl.role_name = "Student" THEN cr.child_id
+                        WHEN rl.role_name = "Parent" THEN cr.parent_id
+                    END) = rc.id
+            LEFT JOIN tbl_client second_client
+                ON second_client.id = (CASE 
+                                        WHEN rl.role_name = "Student" THEN cr.parent_id
+                                        WHEN rl.role_name = "Parent" THEN cr.child_id
+                                    END)
             LEFT JOIN tbl_lead l
                 ON l.lead_id = rc.lead_id
             LEFT JOIN tbl_sch sch

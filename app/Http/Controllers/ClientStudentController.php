@@ -155,6 +155,10 @@ class ClientStudentController extends ClientController
                     $model = $this->clientRepository->getExistingNonMentees($asDatatables, null, $advanced_filter);
                     break;
 
+                case "inactive":
+                    $model = $this->clientRepository->getInactiveStudent($asDatatables, null, $advanced_filter);
+                    break;
+
                 default:
                     $model = $this->clientRepository->getAllClientStudent($advanced_filter);
             }

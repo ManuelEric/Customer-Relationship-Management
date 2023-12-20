@@ -257,7 +257,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             isVerified();
 
-        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;
+        return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
     }
 
     public function getPotentialClients($asDatatables = false, $month = null, $advanced_filter = [])
@@ -294,7 +294,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             isVerified();
 
-        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getExistingMentees($asDatatables = false, $month = null, $advanced_filter = [])
@@ -332,7 +332,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             isVerified();
 
-        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getExistingNonMentees($asDatatables = false, $month = null, $advanced_filter = [])
@@ -376,7 +376,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             isVerified();
 
-        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getAllClientStudent($advanced_filter = [])
@@ -473,7 +473,11 @@ class ClientRepository implements ClientRepositoryInterface
                 'client.*',
                 'children.mail as children_mail',
                 'children.phone as children_phone'
-            ])->selectRaw('RTRIM(CONCAT(children.first_name, " ", COALESCE(children.last_name, ""))) as children_name')->leftJoin('tbl_client_relation as relation', 'relation.parent_id', '=', 'client.id')->leftJoin('tbl_client as children', 'children.id', '=', 'relation.child_id')->whereHas('roles', function ($subQuery) {
+            ])->
+            selectRaw('RTRIM(CONCAT(children.first_name, " ", COALESCE(children.last_name, ""))) as children_name')->
+            leftJoin('tbl_client_relation as relation', 'relation.parent_id', '=', 'client.id')->
+            leftJoin('tbl_client as children', 'children.id', '=', 'relation.child_id')->
+            whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'Parent');
             })->when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
@@ -531,8 +535,36 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getInactiveStudent($asDatatables = false, $month = null, $advanced_filter = [])
     {
-        $query = Client::isStudent()->isNotActive();
-        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;
+        $query = Client::select([
+                'client.*',
+                'parent.mail as parent_mail',
+                'parent.phone as parent_phone'
+            ])->
+            selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
+            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
+            when($month, function ($subQuery) use ($month) {
+                $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
+            })->
+            when(!empty($advanced_filter['school_name']), function ($subQuery) use ($advanced_filter) {
+                $subQuery->whereIn('school_name', $advanced_filter['school_name']);
+            })->
+            when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('graduation_year', $advanced_filter['graduation_year']);
+            })->
+            when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('lead_source', $advanced_filter['leads']);
+            })->
+            when(!empty($advanced_filter['initial_programs']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('program_suggest', $advanced_filter['initial_programs']);
+            })->
+            when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
+            })->
+            isStudent()->
+            isNotActive();
+
+        return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getInactiveParent($asDatatables = false, $month = null, $advanced_filter = [])
@@ -1305,9 +1337,8 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getAllRawClientDataTables($roleName, $advanced_filter = [])
     {
-        $model = ViewRawClient::whereHas('roles', function ($query2) use ($roleName) {
-                    $query2->where('role_name', $roleName);
-                })->
+        $model = ViewRawClient::
+                where('roles', $roleName)->
                 when(!empty($advanced_filter['school_name']), function ($querySearch) use ($advanced_filter) {
                     $querySearch->whereIn('school_name', $advanced_filter['school_name']);
                 })->

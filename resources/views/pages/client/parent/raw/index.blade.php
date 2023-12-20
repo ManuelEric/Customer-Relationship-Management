@@ -89,6 +89,7 @@
                             <th class="bg-info text-white">Suggestion</th>
                             <th>Parents Email</th>
                             <th>Parents Phone</th>
+                            <th>Child Name</th>
                             <th class="bg-info text-white">Last Updated</th>
                             <th class="bg-info text-white">Action</th>
                         </tr>
@@ -275,6 +276,16 @@
                         defaultContent: '-'
                     },
                     {
+                        data: 'second_client_name',
+                        defaultContent: '-',
+                        render: function (data, type, row, meta) {
+                            if (row.second_client_statusact == 0)
+                                return '<a target="_blank" href="{{ url('/') }}/client/student/' + row.second_client_id + '" class="text-decoration-none text-danger" title="You can\'t see this student in new leads tab cause he/she is inactive">' + data + '&nbsp;<i class="bi bi-info-circle"></i></a>';
+
+                            return data;
+                        }
+                    },
+                    {
                         data: 'updated_at',
                         className: 'text-center',
                         defaultContent: '-'
@@ -302,7 +313,7 @@
                                 '</div>';
                         }
                     },
-                ],
+                ]
             });
 
             // Add a click event listener to each row in the parent DataTable

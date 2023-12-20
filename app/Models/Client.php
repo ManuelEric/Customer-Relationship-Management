@@ -85,7 +85,7 @@ class Client extends Model
 
     public function scopeIsNotActive($query)
     {
-        return $query->where('st_statusact', 0);
+        return $query->where('client.st_statusact', 0);
     }
 
     public function scopeIsStudent($query)
