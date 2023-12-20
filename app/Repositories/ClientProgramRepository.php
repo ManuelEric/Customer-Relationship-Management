@@ -50,14 +50,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
         return Datatables::eloquent(
             ViewClientProgram::
-                // when(Session::get('user_role') == 'Employee', function ($subQuery) {
-                //     $subQuery->whereHas('internalPic', function ($query2) {
-                //         $query2->where('users.id', auth()->user()->id);
-                //     });
-                // })
-                // ->when(Session::get('user_role') == 'Employee', function ($subQuery) {
-                //     $subQuery->where('pic_client', auth()->user()->id);
-                // })
+                when(Session::get('user_role') == 'Employee', function ($subQuery) {
+                    $subQuery->whereHas('internalPic', function ($query2) {
+                        $query2->where('users.id', auth()->user()->id);
+                    })->where('pic_client', auth()->user()->id);
+                })->
                 when($searchQuery['clientId'], function ($query) use ($searchQuery) {
                     $query->where('client_id', $searchQuery['clientId']);
                 })
