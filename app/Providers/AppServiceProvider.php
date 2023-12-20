@@ -46,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
         view()->composer('*', function ($view) {
 
             $user = auth()->user();
+
             $collection = new Collection();
 
 
@@ -127,13 +128,13 @@ class AppServiceProvider extends ServiceProvider
         $collection = [];
         $collection = app('menu-repository-services')->getMenu();
         $department = null;
+        Session::put('user_role', 'Employee');
         if ($user->roles()->where('role_name', 'Super Admin')->count() > 0) {
             $isSuperAdmin = true;
             $department = null;
             Session::put('user_role', 'SuperAdmin');
-        }else{
-            Session::put('user_role', 'Employee');
         }
+        
 
         # get department ID
         # its used to insert department_id when creating lead source
@@ -159,6 +160,8 @@ class AppServiceProvider extends ServiceProvider
             'isDigital' => false,
             'isSales' => false,
             'isSalesAdmin' => false,
+            'isPartnership' => false,
+            'isFinance' => false,
             'isSuperAdmin' => $isSuperAdmin ?? false,
             'menus' => $grouped,
             'loggedIn_user' => $user,
@@ -208,11 +211,11 @@ class AppServiceProvider extends ServiceProvider
         {
 
             # if user logged in user is from the department
-            if ($user->hasDepartment($entries[$index]['department'])) {
+            if ($user->department()->where('dept_name', $entries[$index]['department'])->wherePivot('status', 1)->count() > 0) {
                 
                 $entries[$index]['status'] = true;
 
-                if ($user->hasRole('admin')){
+                if ($user->roles()->where('role_name', 'Admin')->count() > 0){
                     $entries[$index]['alias'] = 'isSalesAdmin';
                     Session::put('user_role', 'SalesAdmin');
                 }

@@ -7,7 +7,7 @@
 
 @include('pages.dashboard.sales.detail.client-status')
 
-@includeWhen(!$isSuperAdmin, 'pages.dashboard.sales.detail.leads')
+@includeWhen(!$isSuperAdmin && !$isSalesAdmin, 'pages.dashboard.sales.detail.leads')
 
 <div class="d-flex flex-md-row flex-column-reverse justify-content-between align-items-center">
     <ul class="nav nav-tabs flex-nowrap w-100 overflow-auto mt-md-0 mt-1" style="overflow-y: hidden !important;">
