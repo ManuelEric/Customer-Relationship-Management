@@ -27,20 +27,20 @@
         @includeWhen($isSuperAdmin || $isSalesAdmin || $isSales, 'pages.dashboard.sales.detail.alarm')
 
         {{-- Digital --}}
-        @includeWhen($isSuperAdmin || $isDigital, 'pages.dashboard.digital.detail.alarm')
+        @includeWhen($isSuperAdmin || $isSalesAdmin || $isDigital, 'pages.dashboard.digital.detail.alarm')
 
     </div> 
 
     {{-- End Alert --}}
 
     {{-- Sales --}}
-    @includeWhen($isSuperAdmin || $isSales, 'pages.dashboard.sales.index')
+    @includeWhen($isSuperAdmin || $isSalesAdmin || $isSales, 'pages.dashboard.sales.index')
 
     {{-- Partnership --}}
     @includeWhen($isSuperAdmin || $isPartnership, 'pages.dashboard.partnership.index')
 
     {{-- Digital  --}}
-    @includeWhen($isSuperAdmin || $isDigital, 'pages.dashboard.digital.index')
+    @includeWhen($isSuperAdmin || $isSalesAdmin || $isDigital, 'pages.dashboard.digital.index')
 
     {{-- Finance  --}}
     @includeWhen($isSuperAdmin || $isFinance, 'pages.dashboard.finance.index')

@@ -39,6 +39,7 @@ use App\Interfaces\TargetTrackingRepositoryInterface;
 use App\Interfaces\LeadTargetRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Models\Client;
+use App\Models\User;
 use App\Models\UserClient;
 use App\Repositories\ClientRepository;
 use Illuminate\Http\Request;
@@ -116,7 +117,7 @@ class DashboardController extends SalesDashboardController
     }
 
     public function index(Request $request)
-    {  
+    { 
         $data = (new SalesDashboardController($this))->get($request);
         $data = array_merge($data, (new PartnerDashboardController($this))->get($request));
         $data = array_merge($data, (new FinanceDashboardController($this))->get($request));
