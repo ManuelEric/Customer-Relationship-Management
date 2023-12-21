@@ -502,7 +502,16 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->where('role_name', 'Parent');
             })->when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
-            })->where('client.st_statusact', 1)->where('client.is_verified', 'Y')->whereNull('client.deleted_at');
+            })->
+            isActive()->
+            isVerified();
+
+        return $asDatatables === false ? $query->get() : $query->orderBy('first_name', 'asc');
+    }
+
+    public function getTeachers($asDatatables = false, $month = null)
+    {
+        $query = Client::isTeacher()->isActive()->isVerified();
 
         return $asDatatables === false ? $query->get() : $query->orderBy('first_name', 'asc');
     }
@@ -590,8 +599,21 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getInactiveParent($asDatatables = false, $month = null, $advanced_filter = [])
     {
-        $query = Client::isParent()->isNotActive();
-        return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;
+        $query = Client::select([
+                'client.*',
+                'children.mail as children_mail',
+                'children.phone as children_phone'
+            ])->
+            selectRaw('RTRIM(CONCAT(children.first_name, " ", COALESCE(children.last_name, ""))) as children_name')->
+            leftJoin('tbl_client_relation as relation', 'relation.parent_id', '=', 'client.id')->
+            leftJoin('tbl_client as children', 'children.id', '=', 'relation.child_id')->
+            when($month, function ($subQuery) use ($month) {
+                $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
+            })->
+            isParent()->
+            isNotActive();
+
+            return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getInactiveTeacher($asDatatables = false, $month = null, $advanced_filter = [])

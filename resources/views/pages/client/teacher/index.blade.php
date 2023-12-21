@@ -59,16 +59,7 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs flex-nowrap overflow-auto w-100 mb-3" style="overflow-y: hidden !important;">
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap" aria-current="page" href="{{ url('client/teacher-counselor/raw') }}">Raw
-                        Data</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap active" aria-current="page"
-                        href="{{ url('client/teacher-counselor') }}">Teacher</a>
-                </li>
-            </ul>
+            <x-client.teacher.nav />
 
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="clientTable">
                 <thead class="bg-secondary text-white">
@@ -235,12 +226,12 @@
                     .then(function(response) {
                         Swal.close()
                         notification("success", response.data.message)
+                        table.ajax.reload(null, false)
                     })
                     .catch(function(error) {
                         Swal.close()
                         notification("error", error.response.data.message)
                     })
-                table.ajax.reload(null, false)
             });
 
             // View More 
