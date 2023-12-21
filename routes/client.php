@@ -99,6 +99,8 @@ Route::get('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentControl
 Route::post('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'convertData'])->name('client.convert.parent');
 Route::delete('parent/raw/{rawclient_id}', [ClientParentController::class, 'destroyRaw']);
 
+Route::get('parent/inactive', [ClientParentController::class, 'index']);
+
 Route::resource('parent', ClientParentController::class);
 
 Route::post('parent/import', [ClientParentController::class, 'import'])->name('parent.import');

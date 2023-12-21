@@ -78,7 +78,19 @@ class ClientParentController extends ClientController
     {
         if ($request->ajax()) {
             $asDatatables = true;
-            $model = $this->clientRepository->getParents($asDatatables);
+            $statusClient = $request->get('st');
+
+            switch ($statusClient) {
+
+                case "inactive":
+                    $model = $this->clientRepository->getInactiveParent($asDatatables);
+                    break;
+
+                default:
+                    $model = $this->clientRepository->getParents($asDatatables);
+
+            }
+            
             return $this->clientRepository->getDataTables($model);
         }
 
