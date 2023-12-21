@@ -138,6 +138,11 @@ class UserClient extends Authenticatable
         });
     }
 
+    public function scopeHasNoPIC($query)
+    {
+        return $query->whereNull('pic');
+    }
+
     public function scopeIsParent($query)
     {
         return $query->whereHas('roles', function ($subQuery) {

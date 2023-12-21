@@ -1,4 +1,5 @@
 <ul class="nav nav-tabs flex-nowrap overflow-auto w-100 mb-3" style="overflow-y: hidden !important;">
+    @env(['local', 'production'])
     @if ($isSalesAdmin || $isSuperAdmin)
     <li class="nav-item">
         <a @class([
@@ -43,6 +44,8 @@
             'active' => Request::segment(3) == NULL && Request::get('st') == NULL
         ]) aria-current="page" href="{{ url('client/student') }}">All</a>
     </li>
+    @endenv
+    @env('local')
     <li class="nav-item">
         <a @class([
             'nav-link',
@@ -50,4 +53,5 @@
             'active' => Request::get('st') == 'inactive'
         ]) aria-current="page" href="{{ url('client/student?st=inactive') }}">Inactive</a>
     </li>
+    @endenv
 </ul>
