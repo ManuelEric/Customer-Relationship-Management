@@ -127,8 +127,10 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         $query2->whereIn('users.id', $searchQuery['emplId']);
                     });
                 })
-                ->orderBy('updated_at', 'desc')
-        )->filterColumn(
+                // ->orderBy('updated_at', 'desc')
+        )->
+        rawColumns(['strip_tag_notes'])->
+        filterColumn(
             'status',
             function ($query, $keyword) {
                 $sql = '(CASE 
