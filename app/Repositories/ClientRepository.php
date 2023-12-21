@@ -189,6 +189,16 @@ class ClientRepository implements ClientRepositoryInterface
         })->where('is_verified', 'Y')->get();
     }
 
+    public function getClientWithNoPicAndHaveProgram()
+    {
+        # exclude raw data
+        return UserClient::with('clientProgram')->hasNoPic()->whereHas('clientProgram', function ($programQuery) {
+                $programQuery->whereHas('internalPic');
+            })->
+            isVerified()->
+            get();
+    }
+
     /* NEW */
     public function getDataTables($model)
     {

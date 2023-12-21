@@ -34,6 +34,7 @@ interface ClientRepositoryInterface
     public function getInactiveStudent($asDatatables = false, $month = null, array $advanced_filter);
     public function getInactiveParent($asDatatables = false, $month = null, array $advanced_filter);
     public function getInactiveTeacher($asDatatables = false, $month = null, array $advanced_filter);
+    public function getClientWithNoPicAndHaveProgram();
 
     public function addInterestProgram($studentId, $interestProgram);
     public function removeInterestProgram($studentId, $interstProgram, $progId);
