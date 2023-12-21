@@ -82,6 +82,15 @@
                                         </select>
                                     </div>
 
+                                    <div class="col-md-12 mb-2">
+                                        <label for="">Role</label>
+                                        <select name="roles[]" class="select form-select form-select-sm w-100"
+                                            multiple id="roles">
+                                                <option value="Student">Student</option>
+                                                <option value="Parent">Parent</option>
+                                        </select>
+                                    </div>
+
                                     <div class="col-md-12 mt-3 d-none">
                                         <div class="d-flex justify-content-between">
                                             <button type="button" class="btn btn-sm btn-outline-danger"
@@ -118,11 +127,11 @@
             <x-client.student.nav />
 
             @push('styles')
-            <style>
-                #clientTable tr td.danger {
-                    background: rgb(255, 151, 151)
-                }
-            </style>
+                <style>
+                    #clientTable tr td.danger {
+                        background: rgb(255, 151, 151)
+                    }
+                </style>
             @endpush
             <div class="table-responsive">
                 <table class="table table-bordered table-hover nowrap align-middle w-100" id="rawTable">
@@ -134,15 +143,18 @@
                             </th>
                             <th class="bg-info text-white">Name</th>
                             <th class="bg-info text-white">Suggestion</th>
+                            <th>Role</th>
                             <th>Mail</th>
                             <th>Phone</th>
-                            <th>Parents Name</th>
-                            <th>Parents Mail</th>
-                            <th>Parents Phone</th>
+                            <th>Student\Parents Name</th>
+                            <th>Student\Parents Mail</th>
+                            <th>Student\Parents Phone</th>
                             <th>School</th>
                             <th>Graduation Year</th>
                             <th>Lead</th>
                             <th>Country of Study Abroad</th>
+                            <th>Joined Event</th>
+                            <th>Interest Program</th>
                             <th>Joined Date</th>
                             <th class="bg-info text-white">Last Update</th>
                             <th class="bg-info text-white">Action</th>
@@ -200,6 +212,7 @@
                 var joined_program = '';
                 var suggestion = d.suggestion;
                 var arrSuggest = [];
+                var roles = "'" + d.roles + "'";
                 if (suggestion !== null && suggestion !== undefined) {
                     arrSuggest = suggestion.split(',');
                 }
@@ -239,10 +252,10 @@
                         }
 
                         similar += '<tr onclick="comparison(' +
-                            d.id + ',' + item.id + ')" class="cursor-pointer">' +
+                            d.id + ',' + item.id + ', ' + roles.toLowerCase() + ')" class="cursor-pointer">' +
                             '<td><input type="radio" name="similar' + d.id +
                             '" class="form-check-input item-' + item.id + '" onclick="comparison(' +
-                            d.id + ',' + item.id + ')" /></td>' +
+                            d.id + ',' + item.id + ', ' + roles.toLowerCase() + ')" /></td>' +
                             '<td><i class="bi bi-person"></i> ' + item.first_name + ' ' + (item
                                 .last_name !== null ? item.last_name :
                                 '') + '</td>' +
@@ -274,7 +287,7 @@
             var table = $('#rawTable').DataTable({
                 order: [
                     // [20, 'desc'],
-                    [1, 'asc']
+                    [17, 'desc']
                 ],
                 dom: 'Bfrtip',
                 buttons: [
@@ -316,6 +329,7 @@
                         params.school_name = $("#school-name").val()
                         params.graduation_year = $("#graduation-year").val()
                         params.lead_source = $("#lead-sources").val()
+                        params.roles = $("#roles").val()
                         params.program_suggest = $("#program-name").val()
                         params.status_lead = $("#lead-source").val()
                         params.active_status = $("#active-status").val()
@@ -360,6 +374,10 @@
                         }
                     },
                     {
+                        data: 'roles',
+                        defaultContent: '-'
+                    },
+                    {
                         data: 'mail',
                         defaultContent: '-'
                     },
@@ -380,11 +398,11 @@
                         defaultContent: '-'
                     },
                     {
-                        data: 'school_name',
+                        data: 'second_school_name',
                         defaultContent: '-',
                         render: function(data, type, row, meta) {
                             if (data != null) {
-                                if (row.is_verifiedschool == 'Y') {
+                                if (row.is_verifiedsecond_school == 'Y') {
                                     return data +
                                         '<i class="bi bi-check-circle-fill text-success ms-1" data-bs-toggle="tooltip" data-bs-placement="top" ' +
                                         'data-bs-custom-class="custom-tooltip" ' +
@@ -416,6 +434,16 @@
                         defaultContent: '-'
                     },
                     {
+                        data: 'joined_event',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'interest_prog',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
                         data: 'created_at',
                         className: 'text-center',
                         defaultContent: '-'
@@ -430,6 +458,7 @@
                         className: 'text-center',
                         defaultContent: '<button type="button" class="btn btn-sm btn-outline-danger py-1 px-2 deleteRawClient"><i class="bi bi-eraser"></i></button>',
                         render: function(data, type, row, meta) {
+                            var roles = "'" + row.roles + "'";
                             return '<div class="d-flex gap-1 justify-content-center">' +
                                 '<small class="btn btn-sm btn-info px-1 pt-1 pb-0  cursor-pointer item-' +
                                 row
@@ -437,7 +466,7 @@
                                 '" data-bs-toggle="tooltip" data-bs-placement="top" ' +
                                 'data-bs-custom-class="custom-tooltip" ' +
                                 'data-bs-title="Convert to New Lead" onclick="newLeads(' +
-                                row.id + ')">' +
+                                row.id + ', ' + roles.toLowerCase() + ')">' +
                                 '<i class="bi bi-send-check-fill me-1 text-secondary"></i>' +
                                 '</small>' +
                                 '<small data-bs-toggle="tooltip" data-bs-placement="top" ' +
@@ -467,6 +496,11 @@
                 table.draw();
             })
 
+            $("#roles").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
             // Add a click event listener to each row in the parent DataTable
             table.on('click', 'td.dt-control', function(e) {
                 let tr = e.target.closest('tr');
@@ -488,7 +522,7 @@
                         axios.get("{{ url('api/client/suggestion') }}", {
                                 params: {
                                     clientIds: intArrSuggest,
-                                    roleName: 'student'
+                                    roleName: row.data().roles.toLowerCase()
                                 }
                             })
                             .then(function(response) {
@@ -584,14 +618,14 @@
             }
         }
 
-        function comparison(id, id2) {
+        function comparison(id, id2, roles) {
             $('input.item-' + id2).prop('checked', true);
-            window.open("{{ url('client/student/raw/') }}" + '/' + id + '/comparison/' + id2, "_blank");
+            window.open("{{ url('client/') }}" + '/' + roles + '/raw/' + id + '/comparison/' + id2, "_blank");
         }
 
-        function newLeads(id) {
+        function newLeads(id, roles) {
             $('input.item-' + id).prop('checked', true);
-            window.open("{{ url('client/student/raw/') }}" + '/' + id + '/new', "_blank");
+            window.open("{{ url('client/') }}" + '/' + roles + '/raw/' + id + '/new', "_blank");
         }
     </script>
 @endpush

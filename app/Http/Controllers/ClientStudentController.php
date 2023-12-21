@@ -183,6 +183,7 @@ class ClientStudentController extends ClientController
             $initial_programs = $request->get('program_suggest');
             $status_lead = $request->get('status_lead');
             $active_status = $request->get('active_status');
+            $roles = $request->get('roles');
 
             # array for advanced filter request
             $advanced_filter = [
@@ -191,7 +192,8 @@ class ClientStudentController extends ClientController
                 'leads' => $leads,
                 'initial_programs' => $initial_programs,
                 'status_lead' => $status_lead,
-                'active_status' => $active_status
+                'active_status' => $active_status,
+                'roles' => $roles
             ];
 
             return $this->clientRepository->getAllRawClientDataTables('student', $advanced_filter);

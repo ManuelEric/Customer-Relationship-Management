@@ -333,6 +333,7 @@
                         data: 'strip_tag_notes',
                         className: 'text-center',
                         searchable: false,
+                        orderable: false,
 
                     },
                     {

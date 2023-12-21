@@ -127,7 +127,6 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         $query2->whereIn('users.id', $searchQuery['emplId']);
                     });
                 })
-                ->orderBy('updated_at', 'desc')
         )->filterColumn(
             'status',
             function ($query, $keyword) {

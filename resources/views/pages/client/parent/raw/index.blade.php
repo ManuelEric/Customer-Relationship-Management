@@ -90,6 +90,12 @@
                             <th>Parents Email</th>
                             <th>Parents Phone</th>
                             <th>Child Name</th>
+                            <th>School Name</th>
+                            <th>Graduation Year</th>
+                            <th>Country of Study Aboard</th>
+                            <th>Joined Event</th>
+                            <th>Interest Program</th>
+                            <th>Joined Date</th>
                             <th class="bg-info text-white">Last Updated</th>
                             <th class="bg-info text-white">Action</th>
                         </tr>
@@ -284,6 +290,52 @@
 
                             return data;
                         }
+                    },
+                    {
+                        data: 'second_school_name',
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            if (data != null) {
+                                if (row.is_verifiedschool == 'Y') {
+                                    return data +
+                                        '<i class="bi bi-check-circle-fill text-success ms-1" data-bs-toggle="tooltip" data-bs-placement="top" ' +
+                                        'data-bs-custom-class="custom-tooltip" ' +
+                                        'data-bs-title="Verified"></i>'
+                                } else {
+                                    return data +
+                                        '<i class="bi bi-x-circle-fill text-danger ms-1" data-bs-toggle="tooltip" data-bs-placement="top" ' +
+                                        'data-bs-custom-class="custom-tooltip" ' +
+                                        'data-bs-title="Not Verified"></i>'
+                                }
+                            } else {
+                                return data
+                            }
+                        }
+                    },
+                    {
+                        data: 'second_client_graduation_year_real',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'second_client_interest_countries',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'second_client_joined_event',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'second_client_interest_prog',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'second_client_created_at',
+                        className: 'text-center',
+                        defaultContent: '-'
                     },
                     {
                         data: 'updated_at',

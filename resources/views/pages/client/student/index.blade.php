@@ -444,7 +444,7 @@
             var table = $('#clientTable').DataTable({
                 order: [
                     // [20, 'desc'],
-                    [1, 'asc']
+                    [23, 'desc']
                 ],
                 dom: 'Bfrtip',
                 buttons: [button],
