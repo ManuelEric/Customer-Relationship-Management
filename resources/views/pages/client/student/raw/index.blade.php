@@ -63,6 +63,16 @@
                                     </div>
 
                                     <div class="col-md-12 mb-2">
+                                        <label for="">Grade</label>
+                                        <select name="grade[]" class="select form-select form-select-sm w-100"
+                                            multiple id="grade">
+                                            @for ($grade = 1; $grade <= 12; $grade++)
+                                                <option value="{{ $grade }}">{{ $grade }}</option>
+                                            @endfor
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-12 mb-2">
                                         <label for="">Graduation Year</label>
                                         <select name="graduation_year[]" class="select form-select form-select-sm w-100"
                                             multiple id="graduation-year">
@@ -150,6 +160,7 @@
                             <th>Student\Parents Mail</th>
                             <th>Student\Parents Phone</th>
                             <th>School</th>
+                            <th>Grade</th>
                             <th>Graduation Year</th>
                             <th>Lead</th>
                             <th>Country of Study Abroad</th>
@@ -327,6 +338,7 @@
                     url: '',
                     data: function(params) {
                         params.school_name = $("#school-name").val()
+                        params.grade = $("#grade").val()
                         params.graduation_year = $("#graduation-year").val()
                         params.lead_source = $("#lead-sources").val()
                         params.roles = $("#roles").val()
@@ -419,6 +431,11 @@
                         }
                     },
                     {
+                        data: 'grade_now',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
                         data: 'graduation_year_real',
                         className: 'text-center',
                         defaultContent: '-'
@@ -488,6 +505,11 @@
 
             /* for advanced filter */
             $("#school-name").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#grade").on('change', function(e) {
                 var value = $(e.currentTarget).find("option:selected").val();
                 table.draw();
             })

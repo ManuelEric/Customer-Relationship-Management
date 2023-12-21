@@ -178,6 +178,7 @@ class ClientStudentController extends ClientController
 
             # advanced filter purpose
             $school_name = $request->get('school_name');
+            $grade = $request->get('grade');
             $graduation_year = $request->get('graduation_year');
             $leads = $request->get('lead_source');
             $initial_programs = $request->get('program_suggest');
@@ -188,6 +189,7 @@ class ClientStudentController extends ClientController
             # array for advanced filter request
             $advanced_filter = [
                 'school_name' => $school_name,
+                'grade' => $grade,
                 'graduation_year' => $graduation_year,
                 'leads' => $leads,
                 'initial_programs' => $initial_programs,
