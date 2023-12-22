@@ -78,7 +78,19 @@ class ClientParentController extends ClientController
     {
         if ($request->ajax()) {
             $asDatatables = true;
-            $model = $this->clientRepository->getParents($asDatatables);
+            $statusClient = $request->get('st');
+
+            switch ($statusClient) {
+
+                case "inactive":
+                    $model = $this->clientRepository->getInactiveParent($asDatatables);
+                    break;
+
+                default:
+                    $model = $this->clientRepository->getParents($asDatatables);
+
+            }
+            
             return $this->clientRepository->getDataTables($model);
         }
 
@@ -88,7 +100,7 @@ class ClientParentController extends ClientController
     public function indexRaw(Request $request)
     {
         if ($request->ajax()) {
-            return $this->clientRepository->getAllRawClientDataTables('parent');
+            return $this->clientRepository->getAllRawClientDataTables('parent', []);
         }
 
         return view('pages.client.parent.raw.index');
@@ -477,7 +489,8 @@ class ClientParentController extends ClientController
             return Redirect::to('client/parent/raw')->withError('Something went wrong. Please try again or contact the administrator.');
         }
 
-        return Redirect::to('client/parent/' . (isset($clientId) ? $clientId : $rawclientId))->withSuccess('Convert client successfully.');
+        // return Redirect::to('client/parent/' . (isset($clientId) ? $clientId : $rawclientId))->withSuccess('Convert client successfully.');
+        return Redirect::to('client/student?st=new-leads')->withSuccess('Convert client successfully.');
     }
 
     public function destroyRaw(Request $request)

@@ -7,9 +7,9 @@
 
 @section('content')
     @php
-        $parent = null;
+        $existParent = null;
         if ($client->parents()->count() > 0) {
-            $parent = $client->parents()->first();
+            $existParent = $client->parents()->first();
         }
     @endphp
     <div class="row">
@@ -235,17 +235,17 @@
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input parent" type="radio" name="parent"
                                             id="parentInput1"
-                                            data-name="{{ $parent != null ? $parent->first_name . ' ' . $parent->last_name : null }}"
-                                            data-email="{{ $parent != null ? $parent->mail : null }}"
-                                            data-phone="{{ $parent != null ? $parent->phone : null }}"
+                                            data-name="{{ $existParent != null ? $existParent->first_name . ' ' . $existParent->last_name : null }}"
+                                            data-email="{{ $existParent != null ? $existParent->mail : null }}"
+                                            data-phone="{{ $existParent != null ? $existParent->phone : null }}"
                                             onchange="checkInputRadio(this, 'parent', 'select', 'exist')"
-                                            value="{{ $parent != null ? $parent->id : null }}" checked>
+                                            value="{{ $existParent != null ? $existParent->id : null }}" checked>
                                         <label class="form-check-label" for="parentInput1">
-                                            {{ $parent != null ? $parent->first_name . ' ' . $parent->last_name : null }}
+                                            {{ $existParent != null ? $existParent->first_name . ' ' . $existParent->last_name : null }}
                                             <span class="text-warning">(Existing Data)</span>
                                         </label>
-                                        @if ($parent != null)
-                                            @if ($parent->is_verified == 'Y')
+                                        @if ($existParent != null)
+                                            @if ($existParent->is_verified == 'Y')
                                                 <small class="text-success">
                                                     <i class="bi bi-check-circle-fill"></i>
                                                     Verified
@@ -260,13 +260,13 @@
                                     </div>
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input parent" type="radio"
-                                            data-name="{{ $rawClient->parent_name }}"
-                                            data-email="{{ $rawClient->parent_mail }}"
-                                            data-phone="{{ $rawClient->parent_phone }}" name="parent" id="parentInput2"
+                                            data-name="{{ $rawClient->second_client_name }}"
+                                            data-email="{{ $rawClient->second_client_mail }}"
+                                            data-phone="{{ $rawClient->second_client_phone }}" name="parent" id="parentInput2"
                                             onchange="checkInputRadio(this, 'parent', 'select', 'new')"
-                                            value="{{ $rawClient->parent_id }}">
+                                            value="{{ $rawClient->second_client_id }}">
                                         <label class="form-check-label" for="parentInput2">
-                                            {{ $rawClient->parent_name ? $rawClient->parent_name : '-' }} <span
+                                            {{ $rawClient->second_client_name ? $rawClient->second_client_name : '-' }} <span
                                                 class="text-info">(New Data)</span>
                                         </label>
                                         @if ($rawClient->is_verifiedparent != null)
@@ -288,20 +288,20 @@
                                             <label for="parents_email">Parent's Name</label>
                                             <input type="email" name="" id="parent_name"
                                                 class="form-control form-control-sm parentInput"
-                                                value="{{ $parent != null ? $parent->first_name . ' ' . $parent->last_name : null }}"
+                                                value="{{ $existParent != null ? $existParent->first_name . ' ' . $existParent->last_name : null }}"
                                                 oninput="checkInputText(this, 'parentName')">
                                         </div>
                                         <div class="col-md-4">
                                             <label for="parents_email">Parent's Email</label>
                                             <input type="email" name="" id="parent_email"
                                                 class="form-control form-control-sm parentInput"
-                                                value="{{ $parent != null ? $parent->mail : null }}"
+                                                value="{{ $existParent != null ? $existParent->mail : null }}"
                                                 oninput="checkInputText(this, 'parentEmail')">
                                         </div>
                                         <div class="col-md-4">
                                             <label for="parents_email">Parent's Phone Number</label>
                                             <input type="tel" name="" id="parent_phone"
-                                                class="form-control form-control-sm parentInput" value="{{ $parent != null ? $parent->phone : null }}"
+                                                class="form-control form-control-sm parentInput" value="{{ $existParent != null ? $existParent->phone : null }}"
                                                 oninput="checkInputText(this, 'parentPhone')">
                                         </div>
                                     </div>
@@ -424,31 +424,31 @@
                                 <td>:</td>
                                 <td>
                                     <div id="parentNamePreview">
-                                        {{ $parent != null ? $parent->first_name . ' ' . $parent->last_name : null }}
+                                        {{ $existParent != null ? $existParent->first_name . ' ' . $existParent->last_name : null }}
                                     </div>
                                     <input type="hidden" name="parentType" id="parentTypeInput" value="exist">
                                     <input type="hidden" name="parentName" id="parentNameInputPreview"
-                                        value="{{ $parent != null ? $parent->first_name . ' ' . $parent->last_name : null }}">
+                                        value="{{ $existParent != null ? $existParent->first_name . ' ' . $existParent->last_name : null }}">
                                     <input type="hidden" name="parentFinal" id="parentInputPreview"
-                                        value="{{ $parent != null ? $parent->id : null }}">
+                                        value="{{ $existParent != null ? $existParent->id : null }}">
                                 </td>
                             </tr>
                             <tr>
                                 <td>Parent Mail</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="parentEmailPreview">{{ $parent != null ? $parent->mail : null }}</div>
+                                    <div id="parentEmailPreview">{{ $existParent != null ? $existParent->mail : null }}</div>
                                     <input type="hidden" name="parentMail" id="parentEmailInputPreview"
-                                        value="{{ $parent != null ? $parent->mail : null }}">
+                                        value="{{ $existParent != null ? $existParent->mail : null }}">
                                 </td>
                             </tr>
                             <tr>
                                 <td>Parent Phone</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="parentPhonePreview">{{ $parent != null ? $parent->phone : null }}</div>
+                                    <div id="parentPhonePreview">{{ $existParent != null ? $existParent->phone : null }}</div>
                                     <input type="hidden" name="parentPhone" id="parentPhoneInputPreview"
-                                        value="{{ $parent != null ? $parent->phone : null }}">
+                                        value="{{ $existParent != null ? $existParent->phone : null }}">
                                 </td>
                             </tr>
                         </table>

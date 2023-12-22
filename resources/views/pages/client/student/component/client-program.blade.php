@@ -22,6 +22,7 @@
                     <th>Initial Consult Date</th>
                     <th>Initial Assessment Sent</th>
                     <th>End Date</th>
+                    <th>Notes</th>
                     <th>Total Universities</th>
                     <th>Total Dollar</th>
                     <th>Kurs Dollar-Rupiah</th>
@@ -124,6 +125,12 @@
                     {
                         data: 'prog_end_date',
                         className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'strip_tag_notes',
+                        className: 'text-center',
+                        searchable: false,
                         defaultContent: '-'
                     },
                     {

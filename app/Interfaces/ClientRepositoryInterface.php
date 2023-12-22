@@ -27,6 +27,7 @@ interface ClientRepositoryInterface
     public function getAlumniMenteesSiblings();
     public function getAlumniNonMentees($groupBy = false, $asDatatables = false, $month = NULL); # month nullable
     public function getParents($asDatatables = false, $month = NULL);
+    public function getTeachers($asDatatables = false, $month = NULL);
     public function getClientHotLeads($initialProgram);
     public function getUnverifiedStudent($asDatatables = false, $month = NULL, array $advanced_filter);
     public function getUnverifiedParent($asDatatables = false, $month = NULL, array $advanced_filter);
@@ -34,6 +35,7 @@ interface ClientRepositoryInterface
     public function getInactiveStudent($asDatatables = false, $month = null, array $advanced_filter);
     public function getInactiveParent($asDatatables = false, $month = null, array $advanced_filter);
     public function getInactiveTeacher($asDatatables = false, $month = null, array $advanced_filter);
+    public function getClientWithNoPicAndHaveProgram();
 
     public function addInterestProgram($studentId, $interestProgram);
     public function removeInterestProgram($studentId, $interstProgram, $progId);

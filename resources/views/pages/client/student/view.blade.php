@@ -195,6 +195,7 @@
                 </div>
             </div>
 
+            @include('pages.client.student.component.pic-client')
             @include('pages.client.student.component.interest-program')
         </div>
         <div class="col-md-5">
@@ -270,6 +271,11 @@
          $(document).ready(function() {
             $('.modal-select').select2({
                 dropdownParent: $('#addInterestProgram .modal-content'),
+                placeholder: "Select value",
+                allowClear: true
+            });
+            $('.modal-select').select2({
+                dropdownParent: $('#modalPICclient .modal-content'),
                 placeholder: "Select value",
                 allowClear: true
             });

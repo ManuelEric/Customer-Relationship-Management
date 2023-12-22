@@ -57,9 +57,22 @@ class ClientTeacherCounselorController extends ClientController
 
     public function index(Request $request)
     {
-        if ($request->ajax())
-            return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Teacher/Counselor');
+        if ($request->ajax()) {
+            $statusClient = $request->get('st');
 
+            switch ($statusClient) {
+
+                case "inactive":
+                    $model = $this->clientRepository->getInactiveTeacher(true);
+                    break;
+
+                default:
+                    $model = $this->clientRepository->getTeachers(true);
+
+            }
+
+            return $this->clientRepository->getDataTables($model);
+        }
 
         return view('pages.client.teacher.index');
     }
@@ -67,7 +80,7 @@ class ClientTeacherCounselorController extends ClientController
     public function indexRaw(Request $request)
     {
         if ($request->ajax()) {
-            return $this->clientRepository->getAllRawClientDataTables('teacher/counselor');
+            return $this->clientRepository->getAllRawClientDataTables('teacher/counselor', []);
         }
 
         return view('pages.client.teacher.raw.index');

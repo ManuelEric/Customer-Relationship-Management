@@ -70,7 +70,7 @@
                 </ul>
                 <ul class="navbar-nav ms-auto">
 
-                    @if ($isAdmin || $isSales || $isDigital)
+                    @if ($isSuperAdmin || $isSales || $isDigital)
                         <li class="nav-item dropdown d-none d-lg-block user-dropdown me-lg-3 me-0">
                             <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown"
                                 aria-expanded="false">
@@ -79,7 +79,7 @@
                                     @php
                                         if ($isSales) {
                                             $count = $countAlarm['sales'];
-                                        } elseif ($isAdmin) {
+                                        } elseif ($isSuperAdmin) {
                                             $count = $countAlarm['general'];
                                         } elseif ($isDigital) {
                                             $count = $countAlarm['digital'];
@@ -105,7 +105,7 @@
                                             $notification = $notification['sales'];
                                         } elseif ($isDigital) {
                                             $notification = $notification['digital'];
-                                        } elseif ($isAdmin) {
+                                        } elseif ($isSuperAdmin) {
                                             $notification = $notification['general'];
                                         }
                                     @endphp
@@ -149,14 +149,14 @@
                     </li>
                 </ul>
                 <div class="dropdown d-block d-lg-none me-3">
-                    @if ($isAdmin || $isSales || $isDigital)
+                    @if ($isSuperAdmin || $isSales || $isDigital)
                         <a class="" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-bell" style="font-size: 2em;"></i>
                             @if (isset($countAlarm))
                                 @php
                                     if ($isSales) {
                                         $count = $countAlarm['sales'];
-                                    } elseif ($isAdmin) {
+                                    } elseif ($isSuperAdmin) {
                                         $count = $countAlarm['general'];
                                     } elseif ($isDigital) {
                                         $count = $countAlarm['digital'];
@@ -289,7 +289,7 @@
                         </li>
                     @endforeach
 
-                    @if ($isAdmin)
+                    @if ($isSuperAdmin)
                         <li class="nav-item">
                             <a href="{{ url('request-sign?type=invoice') }}"
                                 class="nav-link {{ Request::is('request-sign') ? 'bg-secondary text-white' : '' }}">

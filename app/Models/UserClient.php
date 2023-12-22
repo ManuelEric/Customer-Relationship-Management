@@ -62,6 +62,7 @@ class UserClient extends Authenticatable
         'is_funding',
         'is_verified',
         'register_as',
+        'pic',
         'created_at',
         'updated_at',
     ];
@@ -135,6 +136,11 @@ class UserClient extends Authenticatable
         return $query->whereHas('roles', function ($subQuery) {
             $subQuery->where('role_name', 'Student');
         });
+    }
+
+    public function scopeHasNoPIC($query)
+    {
+        return $query->whereNull('pic');
     }
 
     public function scopeIsParent($query)
@@ -294,5 +300,10 @@ class UserClient extends Authenticatable
     public function universityAcceptance()
     {
         return $this->belongsToMany(University::class, 'tbl_client_acceptance', 'client_id', 'univ_id')->using(ClientAcceptance::class)->withPivot('id', 'status', 'major_id')->withTimestamps();
+    }
+
+    public function pic_client()
+    {
+        return $this->belongsTo(User::class, 'pic', 'id');
     }
 }

@@ -17,6 +17,7 @@ use App\Models\ViewClientProgram;
 use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class ClientProgramRepository implements ClientProgramRepositoryInterface
 {
@@ -49,6 +50,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
         return Datatables::eloquent(
             ViewClientProgram::
+                when(Session::get('user_role') == 'Employee', function ($subQuery) {
+                    $subQuery->whereHas('internalPic', function ($query2) {
+                        $query2->where('users.id', auth()->user()->id);
+                    })->where('pic_client', auth()->user()->id);
+                })->
                 when($searchQuery['clientId'], function ($query) use ($searchQuery) {
                     $query->where('client_id', $searchQuery['clientId']);
                 })
@@ -63,6 +69,20 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 # search by conversion lead
                 ->when(isset($searchQuery['leadId']), function ($query) use ($searchQuery) {
                     $query->whereIn('lead_id', $searchQuery['leadId']);
+                })
+                # search by grade
+                ->when(isset($searchQuery['grade']), function ($query) use ($searchQuery) {
+                    if(in_array('not_high_school', $searchQuery['grade'])){
+                        $key = array_search('not_high_school', $searchQuery['grade']);
+                        unset($searchQuery["grade"][$key]);
+                        count($searchQuery['grade']) > 0
+                            ?
+                                $query->where('grade_now', '>', 12)->orWhereIn('grade_now', $searchQuery['grade'])
+                                    :
+                                        $query->where('grade_now', '>', 12);
+                    }else{
+                        $query->whereIn('grade_now', $searchQuery['grade']);
+                    }
                 })
                 # search by status
                 ->when(isset($searchQuery['status']) && $searchQuery['status'] != null, function ($query) use ($searchQuery) {
@@ -117,8 +137,10 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         $query2->whereIn('users.id', $searchQuery['emplId']);
                     });
                 })
-                ->orderBy('updated_at', 'desc')
-        )->filterColumn(
+                // ->orderBy('updated_at', 'desc')
+        )->
+        rawColumns(['strip_tag_notes'])->
+        filterColumn(
             'status',
             function ($query, $keyword) {
                 $sql = '(CASE 

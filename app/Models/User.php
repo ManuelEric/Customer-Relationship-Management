@@ -111,6 +111,30 @@ class User extends Authenticatable
         );
     }
 
+    # scope
+    public function scopeIsAdminSales($query)
+    {
+        return $query->whereHas('roles', function ($subQuery) {
+            $subQuery->where('role_name', 'Admin');
+        })->whereHas('department', function ($subQuery) {
+            $subQuery->where('dept_name', 'Client Management')->where('tbl_user_type_detail.status', 1);
+        })->count() > 0 ? true : false;
+    }
+
+    public function scopeHasRole($query, $role)
+    {
+        return $query->whereHas('roles', function ($subQuery) use ($role) {
+            $subQuery->where('role_name', $role);
+        })->exists();
+    }
+
+    public function scopeHasDepartment($query, $department)
+    {
+        return $query->whereHas('department', function ($subQuery) {
+            $subQuery->where('tbl_user_type_detail.status', 1);
+        })->exists();
+    }
+
     # relation
     public function roles()
     {

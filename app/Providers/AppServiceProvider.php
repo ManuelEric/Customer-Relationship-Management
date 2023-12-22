@@ -11,7 +11,9 @@ use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use PDO;
@@ -46,8 +48,8 @@ class AppServiceProvider extends ServiceProvider
             $user = auth()->user();
             $collection = new Collection();
 
-
-            if (isset($user) && ($user->department()->wherePivot('status', 1)->count() > 0 || $user->roles()->where('role_name', 'admin')->count() > 0) ) {
+            # check if the user has authenticated 
+            if (isset($user) && (($user->department()->wherePivot('status', 1)->count() > 0 || $user->roles()->where('role_name', 'Super Admin')->count() > 0)) ) {
                 foreach ($user->department()->wherePivot('status', 1)->get() as $menus) {
                     foreach ($menus->access_menus as $menu) {
                         $collection->push([
@@ -88,57 +90,7 @@ class AppServiceProvider extends ServiceProvider
                     }
                 }
 
-
-                # if logged in user is admin
-                $department = null;
-                if ($user->roles()->where('role_name', 'admin')->exists()) {
-                    $isAdmin = true;
-                    $department = null;
-                    $collection = [];
-                    $collection = app('menu-repository-services')->getMenu();
-                }
-
-                # if logged in user is from department sales
-                if ($user->department()->where('dept_name', 'Client Management')->where('status', 1)->exists()) {
-                    $isSales = true;
-                    $department = 'Client Management';
-                }
-
-                # if logged in user is from department partnership
-                if ($user->department()->where('dept_name', 'Business Development')->where('status', 1)->exists()) {
-                    $isPartnership = true;
-                    $department = 'Business Development';
-                }
-
-                # if logged in user is from department finance
-                if ($user->department()->where('dept_name', 'Finance & Operation')->where('status', 1)->exists()) {
-                    $isFinance = true;
-                    $department = 'Finance & Operation';
-                }
-
-                # if logged in user is from department digital
-                if ($user->department()->where('dept_name', 'Digital')->where('status', 1)->exists()) {
-                    $isDigital = true;
-                    $department = 'Digital';
-                }
-
-                $deptId = $department !== null ? Department::where('dept_name', $department)->first()->id : null;
-
-                $grouped = $collection->sortBy(['order_no', 'order_no_submenu'])->values()->mapToGroups(function (array $item, int $key) {
-                    return [
-                        $item['mainmenu_name'] => [
-                            'order_no_submenu' => $item['order_no_submenu'],
-                            'mainmenu_name' => $item['mainmenu_name'],
-                            'menu_id' => $item['menu_id'],
-                            'submenu_name' => $item['submenu_name'],
-                            'submenu_link' => $item['submenu_link'],
-                            'copy' => $item['copy'],
-                            'export' => $item['export'],
-                            'icon' => $item['icon']
-                        ]
-
-                    ];
-                });
+                $roleScopeData = $this->checkRoles($user, $collection);                
 
                 # invoice & receipt PIC
                 $invRecPics = [
@@ -153,15 +105,8 @@ class AppServiceProvider extends ServiceProvider
                 ];
 
                 $view->with(
+                    $roleScopeData +
                     [
-                        'menus' => $grouped,
-                        'isAdmin' => $isAdmin ?? false,
-                        'isSales' => $isSales ?? false,
-                        'isPartnership' => $isPartnership ?? false,
-                        'isFinance' => $isFinance ?? false,
-                        'isDigital' => $isDigital ?? false,
-                        'loggedIn_user' => $user,
-                        'deptId' => $deptId,
                         'countAlarm' => app('alarm-repository-services')->countAlarm(),
                         'notification' => app('alarm-repository-services')->notification(),
                         'invRecPics' => $invRecPics,
@@ -169,5 +114,113 @@ class AppServiceProvider extends ServiceProvider
                 );
             }
         });
+    }
+
+    private function checkRoles($user, $collection)
+    {
+
+        # Session user_role used for query new leads and raw data
+
+        # if logged in user is admin
+        Session::put('user_role', 'Employee');
+        if ($user->roles()->where('role_name', 'Super Admin')->count() > 0) {
+            $collection = [];
+            $collection = app('menu-repository-services')->getMenu();
+            $isSuperAdmin = true;
+            Session::put('user_role', 'SuperAdmin');
+        }
+        
+
+        # get department ID
+        # its used to insert department_id when creating lead source
+        // $deptId = $department !== null ? Department::where('dept_name', $department)->first()->id : null;
+        $deptId = $user->department()->first()->id ?? null;
+
+        $grouped = $collection->sortBy(['order_no', 'order_no_submenu'])->values()->mapToGroups(function (array $item, int $key) {
+            return [
+                $item['mainmenu_name'] => [
+                    'order_no_submenu' => $item['order_no_submenu'],
+                    'mainmenu_name' => $item['mainmenu_name'],
+                    'menu_id' => $item['menu_id'],
+                    'submenu_name' => $item['submenu_name'],
+                    'submenu_link' => $item['submenu_link'],
+                    'copy' => $item['copy'],
+                    'export' => $item['export'],
+                    'icon' => $item['icon']
+                ]
+
+            ];
+        });
+
+        # default variables
+        $response = [
+            'isDigital' => false,
+            'isSales' => false,
+            'isSalesAdmin' => false,
+            'isPartnership' => false,
+            'isFinance' => false,
+            'isSuperAdmin' => $isSuperAdmin ?? false,
+            'menus' => $grouped,
+            'loggedIn_user' => $user,
+            'deptId' => $deptId
+        ];
+
+        $entries = $this->checkUserDepartment($user);
+        $index = 0;
+        while ($index < count($entries)) {
+
+            $response["{$entries[$index]['alias']}"] = $entries[$index]['status'];
+            $index++;
+
+        }
+
+        return $response;
+    }
+
+    private function checkUserDepartment($user)
+    {
+        # initiate default variables
+        $entries = [
+            [
+                'department' => 'Client Management',
+                'alias' => 'isSales',
+                'status' => false,
+            ],
+            [
+                'department' => 'Business Development',
+                'alias' => 'isPartnership',
+                'status' => false,
+            ],
+            [
+                'department' => 'Finance & Operation',
+                'alias' => 'isFinance',
+                'status' => false,
+            ],
+            [
+                'department' => 'Digital',
+                'alias' => 'isDigital',
+                'status' => false,
+            ]
+        ];
+
+        $index = 0;
+        while ($index < count($entries)) 
+        {
+
+            # if user logged in user is from the department
+            if ($user->department()->where('dept_name', $entries[$index]['department'])->wherePivot('status', 1)->count() > 0) {
+                
+                $entries[$index]['status'] = true;
+
+                if ($user->roles()->where('role_name', 'Admin')->count() > 0){
+                    $entries[$index]['alias'] = 'isSalesAdmin';
+                    Session::put('user_role', 'SalesAdmin');
+                }
+
+            }
+            $index++;
+        }
+
+        return $entries;
     }
 }

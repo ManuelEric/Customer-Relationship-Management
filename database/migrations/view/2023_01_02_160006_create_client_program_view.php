@@ -16,7 +16,8 @@ return new class extends Migration
     {
         DB::statement('
         CREATE OR REPLACE VIEW clientprogram AS
-        SELECT cp.*, 
+        SELECT cp.*,
+            c.pic AS pic_client, 
             c.st_grade,
             c.register_as,
             UpdateGradeStudent (

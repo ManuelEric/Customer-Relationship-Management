@@ -8,7 +8,7 @@
                     <i class="bi bi-alarm me-1"></i> Sales Team Alarm
                 </small>
             </legend>
-            <div class="row {{$isAdmin ? 'row-cols-md-2' : 'row-cols-md-4'}} row-cols-1 g-2">
+            <div class="row {{$isSuperAdmin ? 'row-cols-md-2' : 'row-cols-md-4'}} row-cols-1 g-2">
                 @foreach ($alarmLeads['sales'] as $alarmTime)
                     @foreach ($alarmTime as $key => $alarm)
                         @if($alarm)

@@ -61,22 +61,15 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs flex-nowrap overflow-auto w-100 mb-3" style="overflow-y: hidden !important;">
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap active" aria-current="page" href="{{ url('client/parent/raw') }}">Raw
-                        Data</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap" aria-current="page" href="{{ url('client/parent') }}">Parents</a>
-                </li>
-            </ul>
+            <x-client.parent.nav />
 
-
+            @push('styles')
             <style>
                 #clientTable tr td.danger {
                     background: rgb(255, 151, 151)
                 }
             </style>
+            @endpush
             <div class="table-responsive">
                 <table class="table table-bordered table-hover nowrap align-middle w-100" id="rawTable">
                     <thead class="bg-secondary text-white">
@@ -89,6 +82,13 @@
                             <th class="bg-info text-white">Suggestion</th>
                             <th>Parents Email</th>
                             <th>Parents Phone</th>
+                            <th>Child Name</th>
+                            <th>School Name</th>
+                            <th>Graduation Year</th>
+                            <th>Country of Study Aboard</th>
+                            <th>Joined Event</th>
+                            <th>Interest Program</th>
+                            <th>Joined Date</th>
                             <th class="bg-info text-white">Last Updated</th>
                             <th class="bg-info text-white">Action</th>
                         </tr>
@@ -193,7 +193,7 @@
             var table = $('#rawTable').DataTable({
                 order: [
                     // [20, 'desc'],
-                    [1, 'asc']
+                    [13, 'desc']
                 ],
                 dom: 'Bfrtip',
                 buttons: [
@@ -275,6 +275,62 @@
                         defaultContent: '-'
                     },
                     {
+                        data: 'second_client_name',
+                        defaultContent: '-',
+                        render: function (data, type, row, meta) {
+                            if (row.second_client_statusact == 0)
+                                return '<a target="_blank" href="{{ url('/') }}/client/student/' + row.second_client_id + '" class="text-decoration-none text-danger" title="You can\'t see this student in new leads tab cause he/she is inactive">' + data + '&nbsp;<i class="bi bi-info-circle"></i></a>';
+
+                            return data;
+                        }
+                    },
+                    {
+                        data: 'second_school_name',
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            if (data != null) {
+                                if (row.is_verifiedschool == 'Y') {
+                                    return data +
+                                        '<i class="bi bi-check-circle-fill text-success ms-1" data-bs-toggle="tooltip" data-bs-placement="top" ' +
+                                        'data-bs-custom-class="custom-tooltip" ' +
+                                        'data-bs-title="Verified"></i>'
+                                } else {
+                                    return data +
+                                        '<i class="bi bi-x-circle-fill text-danger ms-1" data-bs-toggle="tooltip" data-bs-placement="top" ' +
+                                        'data-bs-custom-class="custom-tooltip" ' +
+                                        'data-bs-title="Not Verified"></i>'
+                                }
+                            } else {
+                                return data
+                            }
+                        }
+                    },
+                    {
+                        data: 'second_client_graduation_year_real',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'second_client_interest_countries',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'second_client_joined_event',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'second_client_interest_prog',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'created_at',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
                         data: 'updated_at',
                         className: 'text-center',
                         defaultContent: '-'
@@ -303,6 +359,12 @@
                         }
                     },
                 ],
+                createdRow: function(row, data, index) {
+                    let currentDate = new Date().toJSON().slice(0, 10);
+                    if (moment(data['created_at']).format('YYYY-MM-DD') == currentDate) {
+                        $('td', row).addClass('table-success');
+                    }
+                }
             });
 
             // Add a click event listener to each row in the parent DataTable

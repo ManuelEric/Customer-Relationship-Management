@@ -49,6 +49,7 @@ Route::get('student/raw/{rawclient_id}/{type}/{client_id?}', [ClientStudentContr
 Route::post('student/raw/{rawclient_id}/{type}/{client_id?}', [ClientStudentController::class, 'convertData'])->name('client.convert.student');
 Route::delete('student/raw/{rawclient_id}', [ClientStudentController::class, 'destroyRaw']);
 Route::post('delete/bulk/student/raw', [ClientStudentController::class ,'destroyRaw'])->name('client.raw.bulk.destroy');
+Route::post('assign/bulk/student/', [ClientStudentController::class ,'assign'])->name('client.bulk.assign');
 
 Route::resource('student', ClientStudentController::class);
 Route::prefix('student')->name('student.')->group(function () {
@@ -97,6 +98,8 @@ Route::get('parent/raw',  [ClientParentController::class, 'indexRaw']);
 Route::get('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'cleaningData']);
 Route::post('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'convertData'])->name('client.convert.parent');
 Route::delete('parent/raw/{rawclient_id}', [ClientParentController::class, 'destroyRaw']);
+
+Route::get('parent/inactive', [ClientParentController::class, 'index']);
 
 Route::resource('parent', ClientParentController::class);
 

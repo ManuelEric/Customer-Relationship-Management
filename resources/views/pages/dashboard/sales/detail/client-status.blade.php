@@ -51,7 +51,9 @@
             </div>
         </div>
         <div class="row g-3 align-items-stretch">
-            <div class="col-md-9">
+            <div @class([
+                'col-md-9' => $isSuperAdmin || $isSalesAdmin,
+            ])>
                 <div class="row g-3">
                     <div class="col-md-3">
                         <div class="card shadow-sm">
@@ -232,6 +234,7 @@
                             </div>
                         </div>
                     </div>
+                    @if ($isSuperAdmin || $isSalesAdmin)
                     <div class="col-md-3">
                         <div class="card shadow-sm">
                             <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client"
@@ -291,8 +294,10 @@
                             </div>
                         </div>
                     </div>
+                    @endif
                 </div>
             </div>
+            @if ($isSuperAdmin || $isSalesAdmin)
             <div class="col-md-3">
                 <div class="card h-100">
                     <div class="card-body">
@@ -346,6 +351,7 @@
                     </div>
                 </div>
             </div>
+            @endif
         </div>
     </div>
 </div>

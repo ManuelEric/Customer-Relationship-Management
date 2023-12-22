@@ -153,24 +153,24 @@
                                     Parents Information
                                 </div>
                                 <div class="row">
-                                    @if ($rawClient->parent_name != null)
+                                    @if ($rawClient->second_client_name != null)
                                         <div class="col-md-4">
                                             <label for="">Parent's Name</label>
                                             <input type="text" name="" id="parentName"
-                                                class="form-control form-control-sm" value="{{ $rawClient->parent_name }}"
+                                                class="form-control form-control-sm" value="{{ $rawClient->second_client_name }}"
                                                 oninput="checkInputText(this, 'parent')">
                                         </div>
                                         <div class="col-md-4">
                                             <label for="">Parent's Email</label>
                                             <input type="text" name="" id="parentEmail"
-                                                class="form-control form-control-sm" value="{{ $rawClient->parent_mail }}"
+                                                class="form-control form-control-sm" value="{{ $rawClient->second_client_mail }}"
                                                 oninput="checkInputText(this, 'parentEmail')">
                                         </div>
                                         <div class="col-md-4">
                                             <label for="">Parent's Phone</label>
                                             <input type="text" name="" id="parentPhone"
                                                 class="form-control form-control-sm"
-                                                value="{{ $rawClient->parent_phone }}"
+                                                value="{{ $rawClient->second_client_phone }}"
                                                 oninput="checkInputText(this, 'parentPhone')">
                                         </div>
                                     @endif
@@ -272,21 +272,21 @@
                                 <td>Parent Name</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="parentPreview">{{ $rawClient->parent_name }}</div>
+                                    <div id="parentPreview">{{ $rawClient->second_client_name }}</div>
                                     <input type="hidden" name="parentType" id="parentTypeInput"
-                                        value="{{ $rawClient->is_verifiedparent != null && $rawClient->is_verifiedparent == 'Y' ? 'exist' : 'new' }}">
+                                        value="{{ $rawClient->is_verifiedsecond_client != null && $rawClient->is_verifiedsecond_client == 'Y' ? 'exist' : 'new' }}">
                                     <input type="hidden" name="parentFinal" id="parentInputPreview"
-                                        value="{{ $rawClient->parent_id }}">
+                                        value="{{ $rawClient->second_client_id }}">
                                     <input type="hidden" name="parentName" id="parentNameInputPreview"
-                                        value="{{ $rawClient->parent_name }}">
+                                        value="{{ $rawClient->second_client_name }}">
                                 </td>
                             </tr>
                             <tr>
                                 <td>Parent Email</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="parentEmailPreview">{{ $rawClient->parent_mail }}</div>
-                                    <input type="hidden" name="parentMail" value="{{ $rawClient->parent_mail }}"
+                                    <div id="parentEmailPreview">{{ $rawClient->second_client_mail }}</div>
+                                    <input type="hidden" name="parentMail" value="{{ $rawClient->second_client_mail }}"
                                         id="parentEmailInputPreview">
                                 </td>
                             </tr>
@@ -294,8 +294,8 @@
                                 <td>Parent Phone</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="parentPhonePreview">{{ $rawClient->parent_phone }}</div>
-                                    <input type="hidden" name="parentPhone" value="{{ $rawClient->parent_phone }}"
+                                    <div id="parentPhonePreview">{{ $rawClient->second_client_phone }}</div>
+                                    <input type="hidden" name="parentPhone" value="{{ $rawClient->second_client_phone }}"
                                         id="parentPhoneInputPreview">
                                 </td>
                             </tr>
@@ -322,22 +322,22 @@
         });
 
         $('#parentNew').on('select2:unselect', function(e) {
-            $('#parentName').prop('disabled', false).val('{{ $rawClient->parent_name }}')
-            $('#parentEmail').prop('disabled', false).val('{{ $rawClient->parent_mail }}')
-            $('#parentPhone').prop('disabled', false).val('{{ $rawClient->parent_phone }}')
+            $('#parentName').prop('disabled', false).val('{{ $rawClient->second_client_name }}')
+            $('#parentEmail').prop('disabled', false).val('{{ $rawClient->second_client_mail }}')
+            $('#parentPhone').prop('disabled', false).val('{{ $rawClient->second_client_phone }}')
 
 
             $('#parentTypeInput').val(
-                '{{ $rawClient->is_verifiedparent != null && $rawClient->is_verifiedparent == 'Y' ? 'exist' : 'new' }}'
+                '{{ $rawClient->is_verifiedsecond_client != null && $rawClient->is_verifiedsecond_client == 'Y' ? 'exist' : 'new' }}'
             )
             $('#parentInputPreview').val('')
-            $('#parentPreview').html('{{ $rawClient->parent_name }}')
-            $('#parentEmailPreview').html('{{ $rawClient->parent_mail }}')
-            $('#parentPhonePreview').html('{{ $rawClient->parent_phone }}')
-            $('#parentInputPreview').val('{{ $rawClient->parent_id }}')
-            $('#parentNameInputPreview').val('{{ $rawClient->parent_name }}')
-            $('#parentEmailInputPreview').val('{{ $rawClient->parent_mail }}')
-            $('#parentPhoneInputPreview').val('{{ $rawClient->parent_phone }}')
+            $('#parentPreview').html('{{ $rawClient->second_client_name }}')
+            $('#parentEmailPreview').html('{{ $rawClient->second_client_mail }}')
+            $('#parentPhonePreview').html('{{ $rawClient->second_client_phone }}')
+            $('#parentInputPreview').val('{{ $rawClient->second_client_id }}')
+            $('#parentNameInputPreview').val('{{ $rawClient->second_client_name }}')
+            $('#parentEmailInputPreview').val('{{ $rawClient->second_client_mail }}')
+            $('#parentPhoneInputPreview').val('{{ $rawClient->second_client_phone }}')
         });
 
         function checkInputText(item, init, type = null) {
