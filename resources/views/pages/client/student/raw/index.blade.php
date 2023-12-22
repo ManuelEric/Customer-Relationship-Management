@@ -434,7 +434,13 @@
                     {
                         data: 'grade_now',
                         className: 'text-center',
-                        defaultContent: '-'
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            if (data > 12)
+                                return "Not High School";
+
+                            return data;
+                        }
                     },
                     {
                         data: 'graduation_year_real',

@@ -183,17 +183,6 @@
                     <div class="row mb-2 g-1">
                         <div class="col d-flex justify-content-between">
                             <label>
-                                PIC
-                            </label>
-                            <label>:</label>
-                        </div>
-                        <div class="col-md-9 col-8">
-                            {{ isset($student->pic_client) ? $student->pic_client->full_name : null }}
-                        </div>
-                    </div>
-                    <div class="row mb-2 g-1">
-                        <div class="col d-flex justify-content-between">
-                            <label>
                                 Active Status
                             </label>
                             <label>:</label>
@@ -206,6 +195,7 @@
                 </div>
             </div>
 
+            @include('pages.client.student.component.pic-client')
             @include('pages.client.student.component.interest-program')
         </div>
         <div class="col-md-5">
@@ -281,6 +271,11 @@
          $(document).ready(function() {
             $('.modal-select').select2({
                 dropdownParent: $('#addInterestProgram .modal-content'),
+                placeholder: "Select value",
+                allowClear: true
+            });
+            $('.modal-select').select2({
+                dropdownParent: $('#modalPICclient .modal-content'),
                 placeholder: "Select value",
                 allowClear: true
             });
