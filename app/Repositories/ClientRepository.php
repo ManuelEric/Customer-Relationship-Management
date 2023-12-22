@@ -1370,7 +1370,17 @@ class ClientRepository implements ClientRepositoryInterface
                     $querySearch->whereIn('school_name', $advanced_filter['school_name']);
                 })->
                 when(!empty($advanced_filter['grade']), function ($querySearch) use ($advanced_filter) {
-                    $querySearch->whereIn('grade_now', $advanced_filter['grade']);
+                    if(in_array('not_high_school', $advanced_filter['grade'])){
+                        $key = array_search('not_high_school', $advanced_filter['grade']);
+                        unset($advanced_filter["grade"][$key]);
+                        count($advanced_filter['grade']) > 0
+                            ?
+                                $querySearch->where('grade_now', '>', 12)->orWhereIn('grade_now', $advanced_filter['grade'])
+                                    :
+                                        $querySearch->where('grade_now', '>', 12);
+                    }else{
+                        $querySearch->whereIn('grade_now', $advanced_filter['grade']);
+                    }
                 })->
                 when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
                     $querySearch->whereIn('graduation_year', $advanced_filter['graduation_year']);

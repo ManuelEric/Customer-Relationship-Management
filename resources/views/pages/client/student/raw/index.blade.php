@@ -69,6 +69,7 @@
                                             @for ($grade = 1; $grade <= 12; $grade++)
                                                 <option value="{{ $grade }}">{{ $grade }}</option>
                                             @endfor
+                                                <option value="not_high_school">Not High School</option>
                                         </select>
                                     </div>
 
@@ -156,9 +157,9 @@
                             <th>Role</th>
                             <th>Mail</th>
                             <th>Phone</th>
-                            <th>Student\Parents Name</th>
-                            <th>Student\Parents Mail</th>
-                            <th>Student\Parents Phone</th>
+                            <th>Student/Parents Name</th>
+                            <th>Student/Parents Mail</th>
+                            <th>Student/Parents Phone</th>
                             <th>School</th>
                             <th>Grade</th>
                             <th>Graduation Year</th>
@@ -298,7 +299,7 @@
             var table = $('#rawTable').DataTable({
                 order: [
                     // [20, 'desc'],
-                    [17, 'desc']
+                    [18, 'desc']
                 ],
                 dom: 'Bfrtip',
                 buttons: [

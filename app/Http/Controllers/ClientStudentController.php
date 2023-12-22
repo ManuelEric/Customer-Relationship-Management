@@ -208,6 +208,7 @@ class ClientStudentController extends ClientController
 
     public function show(Request $request)
     {
+        
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
 

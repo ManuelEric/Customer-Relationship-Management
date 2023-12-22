@@ -72,7 +72,17 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 })
                 # search by grade
                 ->when(isset($searchQuery['grade']), function ($query) use ($searchQuery) {
-                    $query->whereIn('grade_now', $searchQuery['grade']);
+                    if(in_array('not_high_school', $searchQuery['grade'])){
+                        $key = array_search('not_high_school', $searchQuery['grade']);
+                        unset($searchQuery["grade"][$key]);
+                        count($searchQuery['grade']) > 0
+                            ?
+                                $query->where('grade_now', '>', 12)->orWhereIn('grade_now', $searchQuery['grade'])
+                                    :
+                                        $query->where('grade_now', '>', 12);
+                    }else{
+                        $query->whereIn('grade_now', $searchQuery['grade']);
+                    }
                 })
                 # search by status
                 ->when(isset($searchQuery['status']) && $searchQuery['status'] != null, function ($query) use ($searchQuery) {
