@@ -200,40 +200,48 @@ class ClientRepository implements ClientRepositoryInterface
     }
 
     /* NEW */
-    public function getDataTables($model)
+    public function getDataTables($model, $raw = false)
     {
 
+        if ($raw === true) 
+            return DataTables::of($model)->make(true);
+
         return DataTables::of($model)->
-            // addColumn('parent_name', function ($data) {
-            //     return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
-            // })->
-            // addColumn('parent_mail', function ($data) {
-            //     return $data->parents()->count() > 0 ? $data->parents()->first()->mail : null;
-            // })->
-            // addColumn('parent_phone', function ($data) {
-            //     return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null;
-            // })->
-            // addColumn('children_name', function ($data) {
-            //     return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name . ' ' . $data->childrens()->first()->last_name : null;
-            // })->
-            // addColumn('parent_name', function ($data) {
-            //     return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
-            // })->
-            // addColumn('parent_phone', function ($data) {
-            //     return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null;
-            // })->
-            // addColumn('children_name', function ($data) {
-            //     return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name . ' ' . $data->childrens()->first()->last_name : null;
-            // })->
+            // // addColumn('parent_name', function ($data) {
+            // //     return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
+            // // })->
+            // // addColumn('parent_mail', function ($data) {
+            // //     return $data->parents()->count() > 0 ? $data->parents()->first()->mail : null;
+            // // })->
+            // // addColumn('parent_phone', function ($data) {
+            // //     return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null;
+            // // })->
+            // // addColumn('children_name', function ($data) {
+            // //     return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name . ' ' . $data->childrens()->first()->last_name : null;
+            // // })->
+            // // addColumn('parent_name', function ($data) {
+            // //     return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
+            // // })->
+            // // addColumn('parent_phone', function ($data) {
+            // //     return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null;
+            // // })->
+            // // addColumn('children_name', function ($data) {
+            // //     return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name . ' ' . $data->childrens()->first()->last_name : null;
+            // // })->
+
             rawColumns(['address'])->filterColumn('parent_name', function ($query, $keyword) {
                 $query->whereRaw("RTRIM(CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, ''))) like ?", "%{$keyword}%");
-            })->filterColumn('parent_mail', function ($query, $keyword) {
+            })->
+            filterColumn('parent_mail', function ($query, $keyword) {
                 $query->whereRaw("parent.mail like ?", "%{$keyword}%");
-            })->filterColumn('parent_phone', function ($query, $keyword) {
+            })->
+            filterColumn('parent_phone', function ($query, $keyword) {
                 $query->whereRaw("parent.phone like ?", "%{$keyword}%");
-            })->filterColumn('children_name', function ($query, $keyword) {
+            })->
+            filterColumn('children_name', function ($query, $keyword) {
                 $query->whereRaw("RTRIM(CONCAT(children.first_name, ' ', COALESCE(children.last_name, ''))) like ?", "%{$keyword}%");
-            })->make(true);
+            })->
+            make(true);
     }
 
     public function getNewLeads($asDatatables = false, $month = null, $advanced_filter = [])
@@ -554,19 +562,19 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getUnverifiedStudent($asDatatables = false, $month = null, $advanced_filter = [])
     {
-        $query = Client::isStudent()->isNotVerified();
+        $query = Client::isStudent()->isActive()->isNotVerified();
         return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;
     }
 
     public function getUnverifiedParent($asDatatables = false, $month = null, $advanced_filter = [])
     {
-        $query = Client::isParent()->isNotVerified();
+        $query = Client::isParent()->isActive()->isNotVerified();
         return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;
     }
 
     public function getUnverifiedTeacher($asDatatables = false, $month = null, $advanced_filter = [])
     {
-        $query = Client::isTeacher()->isNotVerified();
+        $query = Client::isTeacher()->isActive()->isNotVerified();
         return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;
     }
 
@@ -1385,9 +1393,9 @@ class ClientRepository implements ClientRepositoryInterface
 
     /* ~ END */
 
-    public function getAllRawClientDataTables($roleName, $advanced_filter = [])
+    public function getAllRawClientDataTables($roleName, $asDatatables = false, $advanced_filter = [])
     {
-        $model = ViewRawClient::whereHas('roles', function ($query2) use ($roleName) {
+        $query = ViewRawClient::whereHas('roles', function ($query2) use ($roleName) {
                     switch ($roleName) {
                         case 'student':
                             $query2->whereIn('role_name', ['student', 'parent'])
@@ -1431,7 +1439,9 @@ class ClientRepository implements ClientRepositoryInterface
                     $querySearch->whereIn('roles', $advanced_filter['roles']);
                 });
 
-        return Datatables::eloquent($model)->make(true);
+        // return Datatables::eloquent($model)->make(true);
+        
+        return $asDatatables === false ? $query->get() : $query;
     }
 
     public function getViewRawClientById($rawClientId)

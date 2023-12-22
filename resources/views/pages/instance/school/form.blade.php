@@ -664,7 +664,7 @@
         },
     })
 
-    $("select[name=sch_id]").on('change', function() {
+    $("select[name=choosen_school]").on('change', function() {
         var val = $(this).val();
         if (val == 'SCH-NEW') {
 

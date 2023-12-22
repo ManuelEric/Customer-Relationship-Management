@@ -113,6 +113,12 @@ class Kernel extends ConsoleKernel
         
         # queue worker
         $schedule->command('run:worker')->everyTwoMinutes();
+
+        # run verifying raw data
+        $schedule->command('verified:parent')->everyMinute()->runInBackground();
+        $schedule->command('verified:school')->everyMinute()->runInBackground();
+        $schedule->command('verified:student')->everyMinute()->runInBackground();
+        $schedule->command('verified:teacher')->everyMinute()->runInBackground();
     }
 
     /**
