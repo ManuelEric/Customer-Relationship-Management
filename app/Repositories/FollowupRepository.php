@@ -6,6 +6,7 @@ use App\Interfaces\FollowupRepositoryInterface;
 use App\Models\FollowUp;
 use DateTime;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Session;
 
 class FollowupRepository implements FollowupRepositoryInterface 
 {
@@ -43,11 +44,28 @@ class FollowupRepository implements FollowupRepositoryInterface
         $lastday = date('Y-m-d', strtotime('+'.$days.' days'));
 
         $data = [];
-        if ($followup = FollowUp::when($month, function($query) use ($month) {
-            $query->whereMonth('followup_date', date('m', strtotime($month)))->whereYear('followup_date', date('Y', strtotime($month)));
-        }, function ($query) use ($today, $lastday) {
-            $query->whereBetween('followup_date', [$today, $lastday]);
-        })->orderBy('followup_date', 'asc')->get()) {
+
+        # employee that logged in
+        $empl_id = auth()->user()->id;
+
+        $followup = FollowUp::when($month, function($query) use ($month) {
+                        $query->whereMonth('followup_date', date('m', strtotime($month)))->whereYear('followup_date', date('Y', strtotime($month)));
+                    }, function ($query) use ($today, $lastday) {
+                        $query->whereBetween('followup_date', [$today, $lastday]);
+                    })->
+                    when(Session::get('user_role') == 'Employee', function ($query) use ($empl_id) {
+                        $query->whereHas('clientProgram', function ($subQuery) use ($empl_id) {
+                            $subQuery->where(function ($Q2) use ($empl_id) {
+                                
+                                $Q2->where('empl_id', $empl_id)->orWhereHas('client', function ($Q3) use ($empl_id) {
+                                    $Q3->where('pic', $empl_id);
+                                });
+                            });
+                        });
+                    })->
+                    orderBy('followup_date', 'asc')->get();
+
+        if ($followup) {
 
             foreach ($followup as $detail) 
             {

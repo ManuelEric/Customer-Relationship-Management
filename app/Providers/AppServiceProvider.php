@@ -46,11 +46,10 @@ class AppServiceProvider extends ServiceProvider
         view()->composer('*', function ($view) {
 
             $user = auth()->user();
-
             $collection = new Collection();
 
-
-            if (isset($user) && ($user->department()->wherePivot('status', 1)->count() > 0 || $user->roles()->where('role_name', 'Super Admin')->count() > 0) ) {
+            # check if the user has authenticated 
+            if (isset($user) && (($user->department()->wherePivot('status', 1)->count() > 0 || $user->roles()->where('role_name', 'Super Admin')->count() > 0)) ) {
                 foreach ($user->department()->wherePivot('status', 1)->get() as $menus) {
                     foreach ($menus->access_menus as $menu) {
                         $collection->push([
@@ -91,9 +90,7 @@ class AppServiceProvider extends ServiceProvider
                     }
                 }
 
-                $roleScopeData = $this->checkRoles($user);
-                // $roleScopeData = [];
-                
+                $roleScopeData = $this->checkRoles($collection, $user);                
 
                 # invoice & receipt PIC
                 $invRecPics = [
@@ -119,26 +116,25 @@ class AppServiceProvider extends ServiceProvider
         });
     }
 
-    private function checkRoles($user)
+    private function checkRoles($collection, $user)
     {
 
         # Session user_role used for query new leads and raw data
 
         # if logged in user is admin
-        $collection = [];
-        $collection = app('menu-repository-services')->getMenu();
-        $department = null;
         Session::put('user_role', 'Employee');
         if ($user->roles()->where('role_name', 'Super Admin')->count() > 0) {
+            $collection = [];
+            $collection = app('menu-repository-services')->getMenu();
             $isSuperAdmin = true;
-            $department = null;
             Session::put('user_role', 'SuperAdmin');
         }
         
 
         # get department ID
         # its used to insert department_id when creating lead source
-        $deptId = $department !== null ? Department::where('dept_name', $department)->first()->id : null;
+        // $deptId = $department !== null ? Department::where('dept_name', $department)->first()->id : null;
+        $deptId = $user->department()->first()->id ?? null;
 
         $grouped = $collection->sortBy(['order_no', 'order_no_submenu'])->values()->mapToGroups(function (array $item, int $key) {
             return [
@@ -156,6 +152,7 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        # default variables
         $response = [
             'isDigital' => false,
             'isSales' => false,

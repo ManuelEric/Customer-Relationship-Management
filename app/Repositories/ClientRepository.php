@@ -266,7 +266,6 @@ class ClientRepository implements ClientRepositoryInterface
             when(Session::get('user_role') == 'Employee', function ($subQuery) {
                 $subQuery->where('client.pic', auth()->user()->id);
             })->
-            
             isVerified();
 
         return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
@@ -438,7 +437,11 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
-            })->where('client.is_verified', 'Y')->whereNull('client.deleted_at');
+            })->
+            when(Session::get('user_role') == 'Employee', function ($subQuery) {
+                $subQuery->where('client.pic', auth()->user()->id);
+            })->
+            isVerified();
 
         return $asDatatables === false ?
             ($groupBy === true ? $query->select('*')->addSelect(DB::raw('YEAR(client.created_at) AS year'))->orderBy('client.created_at', 'desc')->get()->groupBy('year') : $query->get())
@@ -481,7 +484,11 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
-            })->where('client.is_verified', 'Y')->whereNull('client.deleted_at');
+            })->
+            when(Session::get('user_role') == 'Employee', function ($subQuery) {
+                $subQuery->where('client.pic', auth()->user()->id);
+            })->
+            isVerified();
 
         return $asDatatables === false ?
             ($groupBy === true ? $query->select('*')->addSelect(DB::raw('YEAR(client.created_at) AS year'))->orderBy('client.created_at', 'desc')->get()->groupBy('year') : $query->get())
