@@ -554,19 +554,19 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getUnverifiedStudent($asDatatables = false, $month = null, $advanced_filter = [])
     {
-        $query = Client::isStudent()->isNotVerified();
+        $query = Client::isStudent()->isActive()->isNotVerified();
         return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;
     }
 
     public function getUnverifiedParent($asDatatables = false, $month = null, $advanced_filter = [])
     {
-        $query = Client::isParent()->isNotVerified();
+        $query = Client::isParent()->isActive()->isNotVerified();
         return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;
     }
 
     public function getUnverifiedTeacher($asDatatables = false, $month = null, $advanced_filter = [])
     {
-        $query = Client::isTeacher()->isNotVerified();
+        $query = Client::isTeacher()->isActive()->isNotVerified();
         return $asDatatables === false ? $query->orderBy('client.created_at', 'desc')->get() : $query;
     }
 
