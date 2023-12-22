@@ -91,7 +91,7 @@ class AppServiceProvider extends ServiceProvider
                     }
                 }
 
-                $roleScopeData = $this->checkRoles($user);
+                $roleScopeData = $this->checkRoles($user, $collection);
                 // $roleScopeData = [];
                 
 
@@ -119,17 +119,17 @@ class AppServiceProvider extends ServiceProvider
         });
     }
 
-    private function checkRoles($user)
+    private function checkRoles($user, $collection)
     {
 
         # Session user_role used for query new leads and raw data
 
         # if logged in user is admin
-        $collection = [];
-        $collection = app('menu-repository-services')->getMenu();
         $department = null;
         Session::put('user_role', 'Employee');
         if ($user->roles()->where('role_name', 'Super Admin')->count() > 0) {
+            $collection = [];
+            $collection = app('menu-repository-services')->getMenu();
             $isSuperAdmin = true;
             $department = null;
             Session::put('user_role', 'SuperAdmin');
