@@ -52,6 +52,11 @@ class AppServiceProvider extends ServiceProvider
             if (isset($user) && (($user->department()->wherePivot('status', 1)->count() > 0 || $user->roles()->where('role_name', 'Super Admin')->count() > 0)) ) {
                 foreach ($user->department()->wherePivot('status', 1)->get() as $menus) {
                     foreach ($menus->access_menus as $menu) {
+
+                        $keyMenu = $collection->where('submenu_name', $menu->submenu_name)->keys()->first();
+                        // Delete submenu by key
+                        $collection->forget($keyMenu);
+                        
                         $collection->push([
                             'order_no' => $menu->mainmenu->order_no,
                             'order_no_submenu' => $menu->order_no,
