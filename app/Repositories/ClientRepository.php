@@ -308,7 +308,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             isVerified();
 
-        return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
     }
 
     public function getExistingMentees($asDatatables = false, $month = null, $advanced_filter = [])
@@ -349,7 +349,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             isVerified();
 
-        return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
     }
 
     public function getExistingNonMentees($asDatatables = false, $month = null, $advanced_filter = [])
@@ -396,7 +396,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             isVerified();
 
-        return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
     }
 
     public function getAllClientStudent($advanced_filter = [])
@@ -1388,7 +1388,19 @@ class ClientRepository implements ClientRepositoryInterface
     public function getAllRawClientDataTables($roleName, $advanced_filter = [])
     {
         $model = ViewRawClient::whereHas('roles', function ($query2) use ($roleName) {
-                    $query2->where('role_name', $roleName);
+                    switch ($roleName) {
+                        case 'student':
+                            $query2->whereIn('role_name', ['student', 'parent'])
+                                ->whereRaw(DB::raw('(CASE WHEN roles = "Parent" THEN count_second_client = 0 ELSE count_second_client >= 0 END)'));
+                            break;
+                        case 'parent':
+                            $query2->where('role_name', $roleName)
+                                ->where('is_verifiedsecond_client', 'Y');
+                            break;
+                        case 'teacher/counselor':
+                            $query2->where('role_name', $roleName);
+                            break;
+                    }
                 })->
                 when(Session::get('user_role') == 'Employee', function ($subQuery) {
                     $subQuery->where('pic', auth()->user()->id);
@@ -1396,11 +1408,27 @@ class ClientRepository implements ClientRepositoryInterface
                 when(!empty($advanced_filter['school_name']), function ($querySearch) use ($advanced_filter) {
                     $querySearch->whereIn('school_name', $advanced_filter['school_name']);
                 })->
+                when(!empty($advanced_filter['grade']), function ($querySearch) use ($advanced_filter) {
+                    if(in_array('not_high_school', $advanced_filter['grade'])){
+                        $key = array_search('not_high_school', $advanced_filter['grade']);
+                        unset($advanced_filter["grade"][$key]);
+                        count($advanced_filter['grade']) > 0
+                            ?
+                                $querySearch->where('grade_now', '>', 12)->orWhereIn('grade_now', $advanced_filter['grade'])
+                                    :
+                                        $querySearch->where('grade_now', '>', 12);
+                    }else{
+                        $querySearch->whereIn('grade_now', $advanced_filter['grade']);
+                    }
+                })->
                 when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
                     $querySearch->whereIn('graduation_year', $advanced_filter['graduation_year']);
                 })->
                 when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                     $querySearch->whereIn('lead_source', $advanced_filter['leads']);
+                })->
+                when(!empty($advanced_filter['roles']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereIn('roles', $advanced_filter['roles']);
                 });
 
         return Datatables::eloquent($model)->make(true);

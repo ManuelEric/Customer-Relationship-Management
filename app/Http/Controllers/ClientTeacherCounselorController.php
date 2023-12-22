@@ -80,7 +80,7 @@ class ClientTeacherCounselorController extends ClientController
     public function indexRaw(Request $request)
     {
         if ($request->ajax()) {
-            return $this->clientRepository->getAllRawClientDataTables('teacher/counselor');
+            return $this->clientRepository->getAllRawClientDataTables('teacher/counselor', []);
         }
 
         return view('pages.client.teacher.raw.index');

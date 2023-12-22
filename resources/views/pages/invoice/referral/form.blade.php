@@ -303,7 +303,7 @@
                             </div>
                             <div class="col-md-3 mb-3 currency-detail d-none">
                                 <label for="">Currency Detail</label>
-                                {{ $invoiceRef->currency }}
+                                {{-- {{ $invoiceRef->currency }} --}}
                                 <select class="select w-100" name="currency" id="currency_detail"
                                     onchange="checkCurrencyDetail()"
                                     {{ empty($invoiceRef) || $status == 'edit' ? '' : 'disabled' }}>

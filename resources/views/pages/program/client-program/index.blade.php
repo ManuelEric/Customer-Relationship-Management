@@ -70,9 +70,12 @@
                                 id="grade">
                                 @for ($grade = 1; $grade <= 12; $grade++)
                                     <option value="{{ $grade }}"
-                                        @if ($request->get('grade') !== null && $grade == $request->get('grade')) {{ 'selected' }} @endif>
+                                        @if ($request->get('grade') !== null && in_array($grade, $request->get('grade'))) {{ 'selected' }} @endif>
                                         {{ $grade }}</option>
                                 @endfor
+                                    <option value="not_high_school" @if ($request->get('grade') !== null && in_array('not_high_school', $request->get('grade'))) {{ 'selected' }} @endif>
+                                        Not High School
+                                    </option>
                             </select>
                         </div>
                         <div class="col-md-12 mb-2">

@@ -64,6 +64,34 @@ return new class extends Migration
         ');
 
         DB::statement('
+        DELIMITER //
+
+        CREATE OR REPLACE FUNCTION CountRawClientRelation ( raw_client_id INTEGER, roles VARCHAR(50) )
+        RETURNS INTEGER
+        
+        BEGIN
+        	DECLARE counted_relation INTEGER DEFAULT 0;
+
+            IF roles = "student" OR roles = "parent" THEN
+
+                SELECT COUNT(*) INTO counted_relation FROM tbl_client_relation cr
+
+                        WHERE (CASE 
+                                    WHEN roles = "student" THEN child_id
+                                    WHEN roles = "parent" THEN parent_id
+                                END) = raw_client_id;
+                                
+                    RETURN counted_relation ;
+            ELSE
+                RETURN 0;
+            END IF;
+        END; //
+        DELIMITER ;
+        ');
+
+
+
+        DB::statement('
         CREATE OR REPLACE VIEW raw_client AS
         SELECT 
             rc.id,
@@ -79,6 +107,39 @@ return new class extends Migration
             CONCAT(second_client.first_name, " ", COALESCE(second_client.last_name, "")) as second_client_name,
             second_client.mail as second_client_mail,
             second_client.phone as second_client_phone,
+            scsch.sch_name as second_school_name,
+            scsch.is_verified as is_verifiedsecond_school,
+            UpdateGradeStudent (
+                year(CURDATE()),
+                year(rc.created_at),
+                month(CURDATE()),
+                month(rc.created_at),
+                second_client.st_grade
+            ) AS second_client_real_grade,
+            (CASE
+                WHEN (SELECT second_client_real_grade IS NULL) AND second_client.graduation_year IS NOT NULL THEN (12 - (second_client.graduation_year - YEAR(NOW())))  
+                ELSE (SELECT second_client_real_grade)
+            END) as second_client_grade_now,
+            (SELECT ((SELECT second_client_grade_now) - 12)) AS second_client_year_gap,
+            (SELECT YEAR((NOW() - INTERVAL (SELECT second_client_year_gap) YEAR) + INTERVAL 1 YEAR)) AS second_client_graduation_year_real,
+            (SELECT GROUP_CONCAT(
+                (CASE
+                    WHEN sqt.name = "Other" THEN sqac.country_name
+                    ELSE sqt.name 
+                END)
+                SEPARATOR ", "
+            ) FROM tbl_client_abrcountry sqac
+                JOIN tbl_tag sqt ON sqt.id = sqac.tag_id
+                WHERE sqac.client_id = second_client.id GROUP BY sqac.client_id) as second_client_interest_countries,
+            (SELECT GROUP_CONCAT(evt.event_title
+                SEPARATOR ", "
+            ) FROM tbl_client_event ce
+                JOIN tbl_events evt ON evt.event_id = ce.event_id
+                WHERE ce.client_id = second_client.id GROUP BY ce.client_id) as second_client_joined_event,
+            (SELECT GROUP_CONCAT(sqp.prog_program) FROM tbl_interest_prog sqip
+                LEFT JOIN tbl_prog sqp ON sqp.prog_id = sqip.prog_id
+                WHERE sqip.client_id = second_client.id GROUP BY sqip.client_id) as second_client_interest_prog,
+            second_client.created_at as second_client_created_at,
             second_client.st_statusact as second_client_statusact,
             UpdateGradeStudent (
                 year(CURDATE()),
@@ -116,7 +177,16 @@ return new class extends Migration
             rc.updated_at,
             (SELECT GROUP_CONCAT(sr.role_name SEPARATOR ", ") FROM tbl_client_roles scr
                 LEFT JOIN tbl_roles sr ON sr.id = scr.role_id
-                WHERE scr.client_id = rc.id) as roles
+                WHERE scr.client_id = rc.id) as roles,
+            CountRawClientRelation((SELECT rc.id), (SELECT roles)) as count_second_client,
+            (SELECT GROUP_CONCAT(evt.event_title
+                SEPARATOR ", "
+            ) FROM tbl_client_event ce
+                JOIN tbl_events evt ON evt.event_id = ce.event_id
+                WHERE ce.client_id = rc.id GROUP BY ce.client_id) as joined_event,
+            (SELECT GROUP_CONCAT(sqp.prog_program) FROM tbl_interest_prog sqip
+                LEFT JOIN tbl_prog sqp ON sqp.prog_id = sqip.prog_id
+                WHERE sqip.client_id = rc.id GROUP BY sqip.client_id) as interest_prog
             
             
         FROM tbl_client rc
@@ -137,6 +207,8 @@ return new class extends Migration
                 ON l.lead_id = rc.lead_id
             LEFT JOIN tbl_sch sch
                 ON sch.sch_id = rc.sch_id
+            LEFT JOIN tbl_sch scsch
+                ON scsch.sch_id = second_client.sch_id
 
         WHERE rc.is_verified = "N" AND rc.st_statusact = 1 AND rc.deleted_at is null
         ');

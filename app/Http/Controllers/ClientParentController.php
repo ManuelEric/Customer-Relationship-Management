@@ -100,7 +100,7 @@ class ClientParentController extends ClientController
     public function indexRaw(Request $request)
     {
         if ($request->ajax()) {
-            return $this->clientRepository->getAllRawClientDataTables('parent');
+            return $this->clientRepository->getAllRawClientDataTables('parent', []);
         }
 
         return view('pages.client.parent.raw.index');

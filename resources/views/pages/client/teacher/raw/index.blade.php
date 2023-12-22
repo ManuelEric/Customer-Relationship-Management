@@ -144,7 +144,7 @@
             var table = $('#rawTable').DataTable({
                 order: [
                     // [20, 'desc'],
-                    [1, 'asc']
+                    [7, 'desc']
                 ],
                 dom: 'Bfrtip',
                 buttons: [

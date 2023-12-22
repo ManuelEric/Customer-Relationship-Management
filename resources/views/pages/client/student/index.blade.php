@@ -444,7 +444,7 @@
             var table = $('#clientTable').DataTable({
                 order: [
                     // [20, 'desc'],
-                    [1, 'asc']
+                    [23, 'desc']
                 ],
                 dom: 'Bfrtip',
                 buttons: [button],
@@ -665,7 +665,13 @@
                             return content;
                         }
                     },
-                ]
+                ],
+                createdRow: function(row, data, index) {
+                    let currentDate = new Date().toJSON().slice(0, 10);
+                    if (moment(data['created_at']).format('YYYY-MM-DD') == currentDate) {
+                        $('td', row).addClass('table-success');
+                    }
+                }
             });
 
             @php

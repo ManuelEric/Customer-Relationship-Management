@@ -33,6 +33,7 @@ use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\ReasonRepositoryInterface;
 use App\Imports\MasterStudentImport;
 use App\Imports\StudentImport;
+use App\Interfaces\UserRepositoryInterface;
 use App\Models\ClientLeadTracking;
 use App\Models\Lead;
 use App\Models\School;
@@ -76,8 +77,9 @@ class ClientStudentController extends ClientController
     private InitialProgramRepositoryInterface $initialProgramRepository;
     private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
     private ReasonRepositoryInterface $reasonRepository;
+    private UserRepositoryInterface $userRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository, ClientProgramRepositoryInterface $clientProgramRepository, CountryRepositoryInterface $countryRepository, ClientEventRepositoryInterface $clientEventRepository, InitialProgramRepositoryInterface $initialProgramRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ReasonRepositoryInterface $reasonRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository, ClientProgramRepositoryInterface $clientProgramRepository, CountryRepositoryInterface $countryRepository, ClientEventRepositoryInterface $clientEventRepository, InitialProgramRepositoryInterface $initialProgramRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ReasonRepositoryInterface $reasonRepository, UserRepositoryInterface $userRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->schoolRepository = $schoolRepository;
@@ -96,6 +98,7 @@ class ClientStudentController extends ClientController
         $this->initialProgramRepository = $initialProgramRepository;
         $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
         $this->reasonRepository = $reasonRepository;
+        $this->userRepository = $userRepository;
     }
 
     # ajax start
@@ -178,20 +181,24 @@ class ClientStudentController extends ClientController
 
             # advanced filter purpose
             $school_name = $request->get('school_name');
+            $grade = $request->get('grade');
             $graduation_year = $request->get('graduation_year');
             $leads = $request->get('lead_source');
             $initial_programs = $request->get('program_suggest');
             $status_lead = $request->get('status_lead');
             $active_status = $request->get('active_status');
+            $roles = $request->get('roles');
 
             # array for advanced filter request
             $advanced_filter = [
                 'school_name' => $school_name,
+                'grade' => $grade,
                 'graduation_year' => $graduation_year,
                 'leads' => $leads,
                 'initial_programs' => $initial_programs,
                 'status_lead' => $status_lead,
-                'active_status' => $active_status
+                'active_status' => $active_status,
+                'roles' => $roles
             ];
 
             return $this->clientRepository->getAllRawClientDataTables('student', $advanced_filter);
@@ -204,6 +211,7 @@ class ClientStudentController extends ClientController
 
     public function show(Request $request)
     {
+        
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
 
@@ -214,6 +222,8 @@ class ClientStudentController extends ClientController
         $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C', true);
         $programsB2C = $this->programRepository->getAllProgramByType('B2C', true);
         $programs = $programsB2BB2C->merge($programsB2C)->sortBy('program_name');
+        
+        $salesTeams = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
 
         $initialPrograms = $this->initialProgramRepository->getAllInitProg();
         $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
@@ -227,7 +237,8 @@ class ClientStudentController extends ClientController
                 'initialPrograms' => $initialPrograms,
                 'historyLeads' => $historyLeads,
                 'viewStudent' => $viewStudent,
-                'programs' => $programs
+                'programs' => $programs,
+                'salesTeams' => $salesTeams
             ]
         );
     }

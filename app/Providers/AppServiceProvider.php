@@ -90,7 +90,7 @@ class AppServiceProvider extends ServiceProvider
                     }
                 }
 
-                $roleScopeData = $this->checkRoles($collection, $user);                
+                $roleScopeData = $this->checkRoles($user, $collection);                
 
                 # invoice & receipt PIC
                 $invRecPics = [
@@ -116,7 +116,7 @@ class AppServiceProvider extends ServiceProvider
         });
     }
 
-    private function checkRoles($collection, $user)
+    private function checkRoles($user, $collection)
     {
 
         # Session user_role used for query new leads and raw data
