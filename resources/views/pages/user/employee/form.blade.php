@@ -180,8 +180,17 @@
         </div>
     </div>
 
+    {{-- Modal for deactive --}}
+    @include('pages.user.employee.form-detail.deactive')
+
 
     <script type="text/javascript">
+        $('.modal-select').select2({
+            dropdownParent: $('#modalDeactive .modal-content'),
+            placeholder: "Select value",
+            allowClear: true
+        });
+
         @if (isset($user))
         $("#deactivate-user").on('click', function() {
             changeStatus('deactivate')
@@ -194,8 +203,9 @@
         function changeStatus(status)
         {
             // show modal 
-            var myModal = new bootstrap.Modal(document.getElementById('deactiveUser'))
-            myModal.show()
+            // var myModal = new bootstrap.Modal(document.getElementById('deactiveUser'))
+            // myModal.show()
+            $('#modalDeactive').modal('show');
 
             // $("#deactivate-user--app-3103").attr('onclick', 'deactivateUser(\''+status+'\')')
             $("#deactivate-user--app-3103").bind('click', function() {

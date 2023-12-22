@@ -453,6 +453,8 @@ class UserController extends Controller
         $departments = $this->departmentRepository->getAllDepartment();
         $positions = $this->positionRepository->getAllPositions();
         $user_types = $this->userTypeRepository->getAllUserType();
+        $salesTeams = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+
 
         return view('pages.user.employee.form')->with(
             [
@@ -462,7 +464,8 @@ class UserController extends Controller
                 'departments' => $departments,
                 'positions' => $positions,
                 'user_types' => $user_types,
-                'user' => $user
+                'user' => $user,
+                'salesTeams' => $salesTeams
             ]
         );
     }
