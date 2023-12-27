@@ -53,9 +53,9 @@ class AppServiceProvider extends ServiceProvider
                 foreach ($user->department()->wherePivot('status', 1)->get() as $menus) {
                     foreach ($menus->access_menus as $menu) {
 
-                        $keyMenu = $collection->where('submenu_name', $menu->submenu_name)->keys()->first();
+                        // $keyMenu = $collection->where('submenu_name', $menu->submenu_name)->keys()->first();
                         // Delete submenu by key
-                        $collection->forget($keyMenu);
+                        // $collection->forget($keyMenu);
                         
                         $collection->push([
                             'order_no' => $menu->mainmenu->order_no,
@@ -76,9 +76,10 @@ class AppServiceProvider extends ServiceProvider
 
                     foreach ($user->access_menus as $menu) {
                         // Get key same submenu name 
-                        $keyMenu = $collection->where('submenu_name', $menu->submenu_name)->keys()->first();
+                        
+                        // $keyMenu = $collection->where('submenu_name', $menu->submenu_name)->keys()->first();
                         // Delete submenu by key
-                        $collection->forget($keyMenu);
+                        // $collection->forget($keyMenu);
     
                         $collection->push([
                             'order_no' => $menu->mainmenu->order_no,
