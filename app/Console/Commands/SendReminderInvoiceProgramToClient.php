@@ -97,8 +97,10 @@ class SendReminderInvoiceProgramToClient extends Command
                     'due_date' => date('d/m/Y', strtotime($data->inv_duedate)),
                     'child_fullname' => $data->fullname,
                     'inv_paymentmethod' => $data->inv_paymentmethod,
-                    'total_payment' => $this->formatCurrency($data->currency, $data->inv_totalprice_idr, $data->inv_totalprice ?? 0),
-                    'pic_email' => $pic_email
+                    'total_payment_other' => $data->currency != 'idr' ? $this->formatCurrency($data->currency, $data->inv_totalprice_idr, $data->inv_totalprice ?? 0) : 0,
+                    'total_payment_idr' => $this->formatCurrency('idr', $data->inv_totalprice_idr, $data->inv_totalprice ?? 0),
+                    'pic_email' => $pic_email,
+                    'currency' => $data->currency
                 ];
 
                 $mail_resources = 'pages.invoice.client-program.mail.reminder-payment';
