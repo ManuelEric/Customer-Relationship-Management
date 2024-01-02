@@ -3,6 +3,13 @@
 @section('title', 'Employee - Bigdata Platform')
 
 @section('content')
+@php
+    $departmentId = [];
+    $departmentThisUser = null;
+    if (isset($user) && $typeInfo = $user->user_type()->where('tbl_user_type_detail.status', 1)->first()) 
+        $departmentId = $typeInfo->pivot->department_id;
+        $departmentThisUser = $departments->where('id', $departmentId)->first();
+@endphp
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('user/employee') }}" class="text-decoration-none text-muted">
@@ -183,7 +190,6 @@
     {{-- Modal for deactive --}}
     @include('pages.user.employee.form-detail.deactive')
 
-
     <script type="text/javascript">
         $('.modal-select').select2({
             dropdownParent: $('#modalDeactive .modal-content'),
@@ -202,32 +208,48 @@
 
         function changeStatus(status)
         {
-            // show modal 
-            // var myModal = new bootstrap.Modal(document.getElementById('deactiveUser'))
-            // myModal.show()
-            $('#modalDeactive').modal('show');
-
-            // $("#deactivate-user--app-3103").attr('onclick', 'deactivateUser(\''+status+'\')')
-            $("#deactivate-user--app-3103").bind('click', function() {
-                deactivateUser(status)
-            })
-
+            var myModal = new bootstrap.Modal(document.getElementById('deactiveUser'))
+            switch (status) {
+                case 'activate':
+                    myModal.show()
+                    $("#deactivate-user--app-3103").unbind('click');
+                    $("#deactivate-user--app-3103").bind('click', function() {
+                        deactivateUser(status)
+                    })
+                    break;
+                
+                case 'deactivate':
+                    // show modal 
+                    $('#modalDeactive').modal('show');
+                    
+                    $("#btn-deactive").unbind('click');
+                    $('#btn-deactive').bind('click', function(){
+                        deactivateUser(status)
+                    })
+                    break;
+            }            
             
         }
 
         function deactivateUser(status) {
+            var deactivated_at = $('#deactivated_at').val();
+            var pic_id = $('#pic_id').val();
             showLoading()
             
             axios.post('{{ route('user.update.status', ['user_role' => Request::route('user_role'), 'user' => $user->id]) }}', {
                     _token: '{{ csrf_token() }}',
                     params: {
-                        new_status: status
+                        new_status: status,
+                        deactivated_at: deactivated_at,
+                        new_pic: pic_id ?? null,
+                        department: '{{ $departmentThisUser != null ? $departmentThisUser->dept_name : "" }}'
                     },
                 })
                 .then((response) => {
                     console.log(response);
-
+                    
                     Swal.close()
+                    $('#modalDeactive').modal('hide');
                     $("#deactiveUser").modal('hide')
                     notification('success', response.data.message)
                     switch(status) {

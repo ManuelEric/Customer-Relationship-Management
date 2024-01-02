@@ -23,7 +23,7 @@ interface UserRepositoryInterface
     public function createUsers(array $userDetails);
     public function createUser(array $userDetails);
     public function updateUser($userId, array $newDetails);
-    public function updateStatusUser($userId, $newStatus);
+    public function updateStatusUser($userId, array $detail);
     public function deleteUserType($userTypeId);
     public function getUserRoles($userId, $roleName);
     public function cleaningUser();

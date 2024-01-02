@@ -228,6 +228,11 @@ class ClientStudentController extends ClientController
         $initialPrograms = $this->initialProgramRepository->getAllInitProg();
         $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
 
+        $picActive = null;
+        if (count($student->picClient) > 0){
+            $picActive = $student->picClient->where('status', 1)->first();
+        }
+
         if (!$student)
             abort(404);
 
@@ -238,7 +243,8 @@ class ClientStudentController extends ClientController
                 'historyLeads' => $historyLeads,
                 'viewStudent' => $viewStudent,
                 'programs' => $programs,
-                'salesTeams' => $salesTeams
+                'salesTeams' => $salesTeams,
+                'picActive' => $picActive
             ]
         );
     }
@@ -1082,10 +1088,20 @@ class ClientStudentController extends ClientController
         $clientIds = $request->choosen;
         $pic = $request->pic_id;
 
+        foreach ($clientIds as $clientId) {
+            $picDetails[] = [
+                'client_id' => $clientId,
+                'user_id' => $pic,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ];
+        }
+
         DB::beginTransaction();
         try {
 
-            $this->clientRepository->updateClients($clientIds, ['pic' => $pic]);
+            $this->clientRepository->insertPicClient($picDetails);
+            
             DB::commit();
 
         } catch (Exception $e) {
@@ -1097,5 +1113,35 @@ class ClientStudentController extends ClientController
         }
 
         return response()->json(['success' => true, 'message' => 'Assign client success']);
+    }
+
+    public function updatePic(Request $request)
+    {
+        $new_pic = $request->new_pic;
+        $client_id = $request->client_id;
+        $pic_client_id = $request->pic_client_id;
+
+        $picDetail[] = [
+            'client_id' => $client_id,
+            'user_id' => $new_pic,
+        ];
+
+        DB::beginTransaction();
+        try {
+
+            $this->clientRepository->updatePicClient($pic_client_id, $picDetail);
+            DB::commit();
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Failed to update PIC client : ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to update PIC client'], 500);
+
+        }
+
+        return response()->json(['success' => true, 'message' => 'Update PIC client success']);
+
+
     }
 }

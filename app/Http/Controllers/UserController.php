@@ -254,12 +254,19 @@ class UserController extends Controller
         $status = $data['new_status'];
         $newStatus = $status == "activate" ? 1 : 0;
 
+        $detail = [
+            'status' => $newStatus,
+            'deativated_at' => $data['deactivated_at'],
+            'new_pic' => $data['new_pic'],
+            'department' => $data['department']
+        ];
+
 
         DB::beginTransaction();
         try {
 
             # update on users table
-            $this->userRepository->updateStatusUser($userId, $newStatus);
+            $this->userRepository->updateStatusUser($userId, $detail);
             DB::commit();
         } catch (Exception $e) {
 
@@ -465,7 +472,7 @@ class UserController extends Controller
                 'positions' => $positions,
                 'user_types' => $user_types,
                 'user' => $user,
-                'salesTeams' => $salesTeams
+                'salesTeams' => $salesTeams->whereNotIn('id', [$userId]),
             ]
         );
     }

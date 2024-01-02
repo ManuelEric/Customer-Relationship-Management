@@ -323,12 +323,14 @@
                             var newClientEvent = moment().format("MMM Do YY") == moment(row
                                 .created_at).format('MMM Do YY');
 
-                            var clientRole = (row.register_as).toLowerCase();
-                            var intoURLParam = clientRole.replace("/", "-");
-                            var intoURLParam = intoURLParam.replace('counsellor', 'counselor');
-
-                            let URL = "{{ url('/') }}/client/" + intoURLParam + "/" + row
-                                .client_id;
+                            var URL = '#';
+                            if (row.register_as != null){
+                                var clientRole = (row.register_as).toLowerCase();
+                                var intoURLParam = clientRole.replace("/", "-");
+                                var intoURLParam = intoURLParam.replace('counsellor', 'counselor');
+                                URL = "{{ url('/') }}/client/" + intoURLParam + "/" + row
+                                    .client_id;
+                            }    
 
                             return "<a class='text-dark text-decoration-none' href='" + URL + "'>" +
                                 data + "</a>" + (existing == true ?
@@ -345,7 +347,11 @@
                         data: 'register_as',
                         name: 'client.register_as',
                         render: function(data, type, row, meta) {
-                            return data.charAt(0).toUpperCase() + data.slice(1);
+                            if (data != null){
+                                return data?.charAt(0).toUpperCase() + data?.slice(1);
+                            }else{
+                                return '-';
+                            }
                         }
                     },
                     {

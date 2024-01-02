@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Models\ClientAcceptance;
 use App\Models\ClientLeadTracking;
+use App\Models\PicClient;
 use App\Models\University;
 use App\Models\User;
 use App\Models\ViewRawClient;
@@ -264,7 +265,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->where('client.st_statusact', 1);
             })->
             when(Session::get('user_role') == 'Employee', function ($subQuery) {
-                $subQuery->where('client.pic', auth()->user()->id);
+                $subQuery->where('client.pic_id', auth()->user()->id);
             })->
             isVerified();
 
@@ -304,7 +305,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->where('client.st_statusact', 1);
             })->
             when(Session::get('user_role') == 'Employee', function ($subQuery) {
-                $subQuery->where('client.pic', auth()->user()->id);
+                $subQuery->where('client.pic_id', auth()->user()->id);
             })->
             isVerified();
 
@@ -345,7 +346,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->where('client.st_statusact', 1);
             })->
             when(Session::get('user_role') == 'Employee', function ($subQuery) {
-                $subQuery->where('client.pic', auth()->user()->id);
+                $subQuery->where('client.pic_id', auth()->user()->id);
             })->
             isVerified();
 
@@ -392,7 +393,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->where('client.st_statusact', 1);
             })->
             when(Session::get('user_role') == 'Employee', function ($subQuery) {
-                $subQuery->where('client.pic', auth()->user()->id);
+                $subQuery->where('client.pic_id', auth()->user()->id);
             })->
             isVerified();
 
@@ -439,7 +440,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->where('role_name', 'student');
             })->
             when(Session::get('user_role') == 'Employee', function ($subQuery) {
-                $subQuery->where('client.pic', auth()->user()->id);
+                $subQuery->where('client.pic_id', auth()->user()->id);
             })->
             isVerified();
 
@@ -486,7 +487,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->where('role_name', 'student');
             })->
             when(Session::get('user_role') == 'Employee', function ($subQuery) {
-                $subQuery->where('client.pic', auth()->user()->id);
+                $subQuery->where('client.pic_id', auth()->user()->id);
             })->
             isVerified();
 
@@ -1479,5 +1480,21 @@ class ClientRepository implements ClientRepositoryInterface
         }
 
         return UserClient::with($relation)->whereIn('id', $clientIds)->get();
+    }
+
+    public function insertPicClient(array $picDetails)
+    {
+        return PicClient::insert($picDetails);
+    }
+
+    public function updatePicClient($picClientId, array $picDetails)
+    {
+
+        $picDetails['status'] = 0;
+
+        PicClient::where('id', $picClientId)->update(['status' => 0]);
+        unset($picDetails['status']);
+
+        return $this->insertPicClient($picDetails);
     }
 }

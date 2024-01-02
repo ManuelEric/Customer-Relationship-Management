@@ -3,7 +3,10 @@
 namespace App\Repositories;
 
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Models\ClientProgram;
+use App\Models\PicClient;
 use App\Models\pivot\UserRole;
 use App\Models\pivot\UserTypeDetail;
 use App\Models\User;
@@ -17,6 +20,12 @@ use Illuminate\Support\Facades\Log;
 class UserRepository implements UserRepositoryInterface
 {
     use CreateCustomPrimaryKeyTrait;
+    private ClientRepositoryInterface $clientRepository;
+
+    public function __construct(ClientRepositoryInterface $clientRepository)
+    {
+        $this->clientRepository = $clientRepository;
+    }
 
     public function getAllUsersByRoleDataTables($role)
     {
@@ -231,23 +240,46 @@ class UserRepository implements UserRepositoryInterface
         return User::find($userId)->update($newDetails);
     }
 
-    public function updateStatusUser($userId, $newStatus)
+    public function updateStatusUser($userId, array $detail)
     {
         # update status users
-        $user = User::find($userId)->update(['active' => $newStatus]);
+        $user = User::find($userId)->update(['active' => $detail]);
 
         # update status user type detail
-        switch ($newStatus) {
+        switch ($detail['status']) {
 
             case 0: # deactivate
+                if($detail['department'] != null && $detail['department'] == 'Client Management')
+                {
+                    $picClients = PicClient::where('user_id', $userId)->get();
+    
+                    foreach ($picClients as $picClient) {
+                        $picDetail = [
+                            'client_id' => $picClient->client_id,
+                            'user_id' => $detail['new_pic'],
+                        ];
+    
+                        $this->clientRepository->updatePicClient($picClient->id, $picDetail);
+                    }
+
+                    ClientProgram::where('empl_id', $userId)->update(['empl_id' => $detail['new_pic']]);
+                }
+
+                $this->updateUser($userId, ['active' => 0]);
+
                 return UserTypeDetail::where('user_id', $userId)->where('status', 1)->update([
                     'status' => 0,
+                    'deactivated_at' => $detail['deativated_at']
                 ]);
                 break;
 
             case 1: # activate
-                return UserTypeDetail::where('user_id', $userId)->where('status', 0)->whereNull('deactivated_at')->update([
+                
+                $this->updateUser($userId, ['active' => 1]);
+
+                return UserTypeDetail::where('user_id', $userId)->where('status', 0)->update([
                     'status' => 1,
+                    'deactivated_at' => null
                 ]);
                 break;
         }

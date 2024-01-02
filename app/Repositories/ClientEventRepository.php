@@ -125,8 +125,8 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 })->
                 when(empty($filter['start_date']) && !empty($filter['end_date']), function ($searchQuery) use ($filter) {
                     $searchQuery->where('joined_date', '<=', $filter['end_date']);
-                })->
-                orderBy('tbl_client_event.created_at', 'DESC')
+                })
+                ->orderBy('tbl_client_event.created_at', 'DESC')
                 ->groupBy('tbl_client_event.clientevent_id');
 
 

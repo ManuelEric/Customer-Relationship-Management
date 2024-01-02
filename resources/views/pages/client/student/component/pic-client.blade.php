@@ -3,7 +3,7 @@
         <div class="d-flex justify-content-between align-items-center">
             <h5 class="m-0 p-0">PIC</h5>
             @if($isSalesAdmin || $isSuperAdmin)
-                @if (!isset($student->pic_client))
+                @if ($picActive == null)
                     <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalPICclient"><i
                             class="bi bi-plus"></i></button>
                 @else
@@ -14,16 +14,16 @@
     </div>
     <div class="card-body overflow-auto" style="max-height: 150px;">
 
-        @if (isset($student->pic_client))
+        @forelse ($student->picClient->sortBy('created_at') as $picClient)  
             <div class="d-flex align-items-center justify-content-between w-100 ">
-                <a href="" class="text-decoration-none text-info" style="font-size:12px;">
+                <a href="#" class="text-decoration-none {{ $picClient->status == 1  ? 'text-primary' : 'text-dark' }}" style="font-size:12px;">
                     <div>
                         <i class="bi bi-arrow-right"></i>
-                        {{ $student->pic_client->full_name }}
+                        {{ $picClient->user->full_name }}
                     </div>
                 </a>
             </div>
-        @else
+        @empty
             There's no PIC yet
         @endforelse
     </div>
@@ -40,6 +40,8 @@
             <div class="modal-body">
                 <form action="" method="post" id="formAssign">
                     @csrf
+                    <input type="hidden" name="type" id="type" value="{{ $picActive != null ? 'update' : 'add' }}">
+                    <input type="hidden" name="old_pic" id="old-pic" value="{{ $picActive != null ? $picActive->user->id : '' }}">
                     <label for="">Assign</label>
                     <select name="pic" id="select-pic" class="modal-select w-100">
                         <option data-placeholder="true"></option>
@@ -74,12 +76,11 @@
 @endif
 
 <script>
-    @if (isset($student->pic_client))
+    @if ($picActive != null)
         $("#btn-edit-pic").on('click', function(e) {
-            $('#modalPICclient').modal('show');
-            $('#select-pic option[value="{{ $student->pic_client->id }}"]').prop('selected', 'selected')
-                .change();
-
+        $('#modalPICclient').modal('show');
+        $('#select-pic option[value="{{ $picActive->user->id }}"]').prop('selected', 'selected')
+            .change();
         })
     @endif
 
@@ -87,13 +88,26 @@
         showLoading();
 
         var pic_id = $('#select-pic').val();
+        var type = $('#type').val();
+        // var old_pic = $('#old-pic').val();
         var student = ['{{ $student->id }}'];
 
-        var link = '{{ route('client.bulk.assign') }}';
-        axios.post(link, {
-                choosen: student,
-                pic_id: pic_id
-            })
+        if (type == 'update'){
+            var link = '{{ route('client.update.pic') }}';
+            var data = {
+                'pic_client_id': '{{ $picActive != null ? $picActive->id : "" }}',
+                'new_pic': pic_id,
+                'client_id': '{{ $student->id }}',
+            };
+        }else{
+            var link = '{{ route('client.bulk.assign') }}';
+            var data = {
+                'choosen': student,
+                'pic_id': pic_id,
+            }
+        }
+
+        axios.post(link, data)
             .then(function(response) {
                 swal.close();
                 notification('success', response.data.message);

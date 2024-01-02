@@ -56,11 +56,6 @@
                 @enderror
             </div>
             <div class="col-md-3 mb-3">
-                @php
-                $departmentId = [];
-                if (isset($user) && $typeInfo = $user->user_type()->where('tbl_user_type_detail.status', 1)->first()) 
-                    $departmentId = $typeInfo->pivot->department_id
-                @endphp
                 <label for="">Department <sup class="text-danger">*</sup></label>
                 <select name="department" id="" class="select w-100">
                     <option data-placeholder="true"></option>

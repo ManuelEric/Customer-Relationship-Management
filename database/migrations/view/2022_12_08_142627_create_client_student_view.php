@@ -115,7 +115,16 @@ return new class extends Migration
                     WHERE clt3.client_id = c.id AND clt3.type = "Program" AND clt3.total_result >= 0.5 AND clt3.status = 1
                     ORDER BY clt3.total_result DESC LIMIT 1) as group_id,
             (SELECT CONVERT(checkParticipated (c.id) USING utf8mb4)) AS participated,
-            CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) as pic_name
+            (SELECT pic.id 
+                        FROM tbl_pic_client pic
+                    LEFT JOIN users u on u.id = pic.user_id
+                    WHERE pic.client_id = c.id AND pic.status = 1)
+             as pic_id,
+            (SELECT CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) 
+                        FROM tbl_pic_client pic
+                    LEFT JOIN users u on u.id = pic.user_id
+                    WHERE pic.client_id = c.id AND pic.status = 1)
+             as pic_name
             
         
         FROM tbl_client c
@@ -127,8 +136,6 @@ return new class extends Migration
                 ON el.id = c.eduf_id
             LEFT JOIN tbl_events ts
                 ON ts.event_id = c.event_id
-            LEFT JOIN users u
-                ON u.id = c.pic
         ');
     }
 

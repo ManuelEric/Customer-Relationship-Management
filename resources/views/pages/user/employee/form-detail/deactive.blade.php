@@ -14,27 +14,29 @@
                     @csrf
                     <div class="mb-2">
                         <label for="">Deactive Date</label>
-                        <input class="form-control form-control-sm rounded" type="date" name="deativated_at">
+                        <input class="form-control form-control-sm rounded" id="deactivated_at" type="date" name="deativated_at">
                         @error('deativated_at')
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
-                    {{-- <div class="mb-2">
-                        <label for="">Change PIC</label>
-                        <select name="pic_id" id="" class="modal-select w-100">
-                            <option data-placeholder="true"></option>
-                            @foreach ($salesTeams as $salesTeam)
-                                <option value="{{ $salesTeam->id }}"
-                                    {{ old('pic_id') == $salesTeam->id ? 'selected' : null }}>
-                                    {{ $salesTeam->full_name }}</option>
-                            @endforeach
-                        </select>
-                        @error('pic_id')
-                            <small class="text-danger fw-light">{{ $message }}</small>
-                        @enderror
-                    </div> --}}
+                    @if($departmentThisUser != null && $departmentThisUser->dept_name == 'Client Management')
+                        <div class="mb-2">
+                            <label for="">Change PIC</label>
+                            <select name="pic_id" id="pic_id" class="modal-select w-100">
+                                <option data-placeholder="true"></option>
+                                @foreach ($salesTeams as $salesTeam)
+                                    <option value="{{ $salesTeam->id }}"
+                                        {{ old('pic_id') == $salesTeam->id ? 'selected' : null }}>
+                                        {{ $salesTeam->full_name }}</option>
+                                @endforeach
+                            </select>
+                            @error('pic_id')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
+                        </div>
+                    @endif
                     <div class="mt-3 text-center">
-                        <button class="btn btn-sm btn-primary">
+                        <button class="btn btn-sm btn-primary" type="button" id="btn-deactive">
                             <i class="bi bi-save"></i>
                             Submit
                         </button>

@@ -109,6 +109,10 @@ interface ClientRepositoryInterface
     public function moveBulkToTrash(array $clientIds);
     public function getClientSuggestion(array $clientIds, $roleName);
 
+    # Pic Client
+    public function insertPicClient(array $picDetails);
+    public function updatePicClient($picClientId, array $picDetails);
+
     # CRM
     public function getStudentFromV1();
     public function getParentFromV1();

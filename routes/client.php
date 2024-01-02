@@ -50,6 +50,7 @@ Route::post('student/raw/{rawclient_id}/{type}/{client_id?}', [ClientStudentCont
 Route::delete('student/raw/{rawclient_id}', [ClientStudentController::class, 'destroyRaw']);
 Route::post('delete/bulk/student/raw', [ClientStudentController::class ,'destroyRaw'])->name('client.raw.bulk.destroy');
 Route::post('assign/bulk/student/', [ClientStudentController::class ,'assign'])->name('client.bulk.assign');
+Route::post('update/pic', [ClientStudentController::class ,'updatePic'])->name('client.update.pic');
 
 Route::resource('student', ClientStudentController::class);
 Route::prefix('student')->name('student.')->group(function () {
