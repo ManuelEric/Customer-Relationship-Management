@@ -21,7 +21,7 @@
                                     @foreach ($newClient->where('register_as', 'student') as $item)
                                         <tr>
                                             <td>{{ $loop->index + 1 }}</td>
-                                            <td>{{ $item->client->full_name }}</td>
+                                            <td>{{ $item->client->full_name ?? '-' }}</td>
                                             <td>{{ $item->client->school->sch_name ?? '-' }}</td>
                                         </tr>
                                     @endforeach
@@ -45,7 +45,7 @@
                                     @foreach ($newClient->where('register_as', 'parent') as $item)
                                         <tr>
                                             <td>{{ $loop->index + 1 }}</td>
-                                            <td>{{ $item->client->full_name }}</td>
+                                            <td>{{ $item->client->full_name ?? '-' }}</td>
                                         </tr>
                                     @endforeach
                                 </table>
@@ -68,7 +68,7 @@
                                     @foreach ($newClient->where('register_as', 'teacher/counselor') as $item)
                                         <tr>
                                             <td>{{ $loop->index + 1 }}</td>
-                                            <td>{{ $item->client->full_name }}</td>
+                                            <td>{{ $item->client->full_name ?? '-' }}</td>
                                             <td>{{ $item->client->school->sch_name ?? '-' }}</td>
                                         </tr>
                                     @endforeach

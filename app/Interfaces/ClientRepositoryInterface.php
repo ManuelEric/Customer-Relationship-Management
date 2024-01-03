@@ -10,7 +10,7 @@ interface ClientRepositoryInterface
     public function getAllClientDataTables();
     public function getAllClientByRoleAndStatusDataTables($roleName, $statusClient = null);
     public function getAllClientByRole($roleName, $month = NULL); # mentee, parent, teacher
-    public function getDataTables($model);
+    public function getDataTables($model, $raw = false);
 
     public function getMaxGraduationYearFromClient();
 
@@ -101,7 +101,7 @@ interface ClientRepositoryInterface
     public function getAllClientByRoleAndDate($roleName, $month = null);
 
     # Raw Client
-    public function getAllRawClientDataTables($roleName, array $advanced_filter);
+    public function getAllRawClientDataTables($roleName, $asDatatables = false, array $advanced_filter);
     public function getViewRawClientById($rawClientId);
     public function getRawClientById($rawClientId);
     public function deleteRawClient($rawClientId);

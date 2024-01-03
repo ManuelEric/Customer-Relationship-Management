@@ -81,8 +81,10 @@ class SendReminderInvoiceProgramToPartner extends Command
                     'program_name' => $program_name,
                     'due_date' => date('d/m/Y', strtotime($data->invb2b_duedate)),
                     'partner_name' => $partner_name,
-                    'total_payment' => $this->formatCurrency($data->currency, $data->invb2b_totpriceidr, $data->invb2b_totprice ?? 0),
+                    'total_payment_other' => $data->currency != 'idr' ? $this->formatCurrency($data->currency, $data->invb2b_totpriceidr, $data->invb2b_totprice ?? 0) : 0,
+                    'total_payment_idr' => $this->formatCurrency('idr', $data->invb2b_totpriceidr, $data->invb2b_totprice ?? 0),
                     'pic_email' => $pic_email,
+                    'currency' => $data->currency
                 ];
 
                 $mail_resources = 'pages.invoice.corporate-program.mail.reminder-payment';

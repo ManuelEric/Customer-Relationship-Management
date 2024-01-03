@@ -18,7 +18,7 @@
                                 @foreach ($existingMentee as $existMentee)
                                     <tr>
                                         <td>{{ $loop->index + 1 }}</td>
-                                        <td>{{ $existMentee->client->full_name }}</td>
+                                        <td>{{ $existMentee->client->full_name ?? '-' }}</td>
                                         <td>{{ $existMentee->client->school->sch_name ?? '-' }}</td>
                                     </tr>
                                 @endforeach
@@ -38,7 +38,7 @@
                                 @foreach ($existingNonMentee as $item)
                                     <tr>
                                         <td>{{ $loop->index + 1 }}</td>
-                                        <td>{{ $item->client->full_name }}</td>
+                                        <td>{{ $item->client->full_name ?? '-' }}</td>
                                         <td>{{ $item->client->school->sch_name ?? '-' }}</td>
                                     </tr>
                                 @endforeach
@@ -58,7 +58,7 @@
                                 @foreach ($existingNonClient as $item)
                                     <tr>
                                         <td>{{ $loop->index + 1 }}</td>
-                                        <td>{{ $item->client->full_name }}</td>
+                                        <td>{{ $item->client->full_name ?? '-' }}</td>
                                         <td>{{ $item->client->school->sch_name ?? '-' }}</td>
                                     </tr>
                                 @endforeach

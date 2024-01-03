@@ -201,7 +201,8 @@ class ClientStudentController extends ClientController
                 'roles' => $roles
             ];
 
-            return $this->clientRepository->getAllRawClientDataTables('student', $advanced_filter);
+            $model = $this->clientRepository->getAllRawClientDataTables('student', true, $advanced_filter);
+            return $this->clientRepository->getDataTables($model, true);
         }
 
         $entries = app('App\Services\ClientStudentService')->getClientStudent();

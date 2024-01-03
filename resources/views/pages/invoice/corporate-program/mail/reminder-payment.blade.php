@@ -29,9 +29,15 @@
             <td>Program</td>
             <td>{{ $program_name }}</td>
         </tr>
+        @if($currency != 'idr')
+            <tr>
+                <td>Total Payment {{ strtoupper($currency) }}</td>
+                <td>{{ $total_payment_other }}</td>
+            </tr>
+        @endif
         <tr>
-            <td>Total Payment</td>
-            <td>{{ $total_payment }}</td>
+            <td>Total Payment IDR</td>
+            <td>{{ $total_payment_idr }}</td>
         </tr>
     </table>
     <br>
