@@ -595,13 +595,16 @@
                             <div class="col-md-9">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <select name="empl_id" id="" class="select w-100" {{ $disabled }}>
+                                        <select name="empl_id" id="" class="select w-100" {{ $disabled }} {{ !$disabled && Session::get('user_role') == 'Employee' ? 'disabled' : '' }}>
                                             <option data-placeholder="true"></option>
                                             @foreach ($internalPIC as $pic)
                                                 <option value="{{ $pic->id }}"
                                                     @if (old('empl_id') == $pic->id) {{ 'selected' }}
                                                     @elseif (isset($clientProgram->empl_id) && $clientProgram->empl_id == $pic->id)
-                                                        {{ 'selected' }} @endif>
+                                                        {{ 'selected' }} 
+                                                    @elseif (Session::get('user_role') == 'Employee' && !isset($clientProgram) && Auth::user()->id == $pic->id)
+                                                        {{ 'selected' }}    
+                                                    @endif>
                                                     {{ $pic->first_name . ' ' . $pic->last_name }}</option>
                                             @endforeach
                                         </select>
