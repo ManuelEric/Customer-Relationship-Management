@@ -262,7 +262,6 @@ class UserRepository implements UserRepositoryInterface
                         $this->clientRepository->updatePicClient($picClient->id, $picDetail);
                     }
 
-                    ClientProgram::where('empl_id', $userId)->update(['empl_id' => $detail['new_pic']]);
                 }
 
                 $this->updateUser($userId, ['active' => 0]);

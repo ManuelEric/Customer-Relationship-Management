@@ -516,10 +516,18 @@ class UserController extends Controller
     {
         $userId = $request->user;
         $newStatus = 0; # inactive
+
+        $detail = [
+            'status' => $newStatus,
+            'deativated_at' => Carbon::now(),
+            'new_pic' => null,
+            'department' => null
+        ];
+
         DB::beginTransaction();
         try {
 
-            $this->userRepository->updateStatusUser($userId, $newStatus);
+            $this->userRepository->updateStatusUser($userId, $detail);
             DB::commit();
         } catch (Exception $e) {
 
