@@ -257,6 +257,8 @@ class UserRepository implements UserRepositoryInterface
                         $picDetail = [
                             'client_id' => $picClient->client_id,
                             'user_id' => $detail['new_pic'],
+                            'created_at' => $detail['deativated_at'],
+                            'updated_at' => $detail['deativated_at'],
                         ];
     
                         $this->clientRepository->updatePicClient($picClient->id, $picDetail);
