@@ -161,8 +161,6 @@ return new class extends Migration
                 ELSE l.main_lead
             END) AS lead_source,
             sch.sch_id,
-            sch.sch_name AS school_name,
-            sch.is_verified AS is_verifiedschool,
             (SELECT GROUP_CONCAT(
                 (CASE
                     WHEN sqt.name = "Other" THEN sqac.country_name
@@ -178,6 +176,14 @@ return new class extends Migration
             (SELECT GROUP_CONCAT(sr.role_name SEPARATOR ", ") FROM tbl_client_roles scr
                 LEFT JOIN tbl_roles sr ON sr.id = scr.role_id
                 WHERE scr.client_id = rc.id) as roles,
+            (CASE 
+                WHEN (SELECT roles) = "Parent" THEN scsch.sch_name 
+                ELSE sch.sch_name
+            END) AS school_name,
+            (CASE 
+                WHEN (SELECT roles) = "Parent" THEN scsch.is_verified 
+                ELSE sch.is_verified
+            END) AS is_verifiedschool,
             CountRawClientRelation((SELECT rc.id), (SELECT roles)) as count_second_client,
             (SELECT GROUP_CONCAT(evt.event_title
                 SEPARATOR ", "
