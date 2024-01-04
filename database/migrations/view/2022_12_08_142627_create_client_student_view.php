@@ -75,12 +75,15 @@ return new class extends Migration
                 c.st_grade
             ) AS real_grade,
             (CASE
-                WHEN (SELECT real_grade IS NULL) AND c.graduation_year IS NOT NULL THEN (12 - (c.graduation_year - YEAR(NOW())))  
+                WHEN (SELECT real_grade IS NULL) AND c.graduation_year IS NOT NULL THEN getGradeStudentByGraduationYear(c.graduation_year)  
                 ELSE (SELECT real_grade)
             END) as grade_now,
             (SELECT ((SELECT grade_now) - 12)) AS year_gap,
-            (SELECT YEAR((NOW() - INTERVAL (SELECT year_gap) YEAR) + INTERVAL 1 YEAR)) AS graduation_year_real,
-
+            (CASE
+                WHEN (SELECT real_grade IS NULL) AND c.graduation_year IS NOT NULL THEN c.graduation_year  
+                ELSE getGraduationYearReal((SELECT grade_now))
+            END) AS graduation_year_real,
+            (SELECT YEAR((NOW() - INTERVAL (SELECT year_gap) YEAR) + INTERVAL 1 YEAR)) AS graduation_year_test,
             (SELECT GROUP_CONCAT(squ.univ_name) FROM tbl_dreams_uni sqdu
                     LEFT JOIN tbl_univ squ ON squ.univ_id = sqdu.univ_id
                     WHERE sqdu.client_id = c.id GROUP BY sqdu.client_id) as dream_uni,

@@ -26,6 +26,8 @@ return new class extends Migration
 
                 IF (mnow >= 7 AND minput < 7) AND (ynow > yinput) THEN
                     SET gradeNow = (ynow - yinput) + (ginput + 1); 
+                ELSEIF (mnow < 7 AND minput >= 7) AND (ynow > yinput) THEN
+                    SET gradeNow = (ynow - yinput) + (ginput - 1);
                 ELSEIF (mnow >= 7 AND minput < 7) AND (ynow = yinput) THEN
                     SET gradeNow = ginput + 1;  
                 ELSEIF (mnow < 7 AND minput >= 7) AND (ynow = yinput) THEN

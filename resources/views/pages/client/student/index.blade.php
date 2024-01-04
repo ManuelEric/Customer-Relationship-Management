@@ -558,7 +558,7 @@
                         defaultContent: '-'
                     },
                     {
-                        data: 'graduation_year',
+                        data: 'graduation_year_real',
                         className: 'text-center',
                         defaultContent: '-'
                     },

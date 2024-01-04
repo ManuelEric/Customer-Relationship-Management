@@ -17,24 +17,25 @@ return new class extends Migration
         DB::statement('
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION getGradeStudentByGraduationYear ( graduation_year INTEGER )
+        CREATE OR REPLACE FUNCTION getGraduationYearReal ( grade_now INTEGER )
         RETURNS INTEGER
         DETERMINISTIC
 
             BEGIN
-                DECLARE grade INTEGER;
+                DECLARE graduation_year_real INTEGER;
+                DECLARE year_now INTEGER;
                 DECLARE month_now INTEGER;
-                DECLARE diff_year INTEGER;
                 
-                SET diff_year = graduation_year - YEAR(NOW());
-                SET grade = 12 - diff_year;
+                SET year_now = YEAR(now());
                 SET month_now = MONTH(now());
 
                 IF (month_now >= 7) THEN 
-                    SET grade = grade + 1;
+                    SET graduation_year_real = (12 - grade_now) + year_now + 1;
+                ELSE
+                    SET graduation_year_real = (12 - grade_now) + year_now;
                 END IF;
 
-            RETURN grade;
+            RETURN graduation_year_real;
         END; //
 
         DELIMITER ;
