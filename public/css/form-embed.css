@@ -2,9 +2,13 @@ body {
     background: transparent;
 }
 
-.form-control, .border-form, .form-check-input {
+.form-control, .form-select, .border-form, .form-check-input {
     box-shadow: none !important;
     border: 1px solid #eaeaea;
+}
+
+.select2-container--default .select2-selection--multiple {
+    border: 1px solid #f0efef;
 }
 
 small.text-danger {
@@ -119,4 +123,19 @@ small.text-danger {
     text-align: center;
     cursor: pointer;
     transition: all .3s ease-in-out;
+}
+
+/* Gaya untuk elemen datalist */
+#suggestions {
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+/* Gaya untuk opsi di dalam datalist */
+#suggestions option {
+    padding: 8px;
+    font-size: 14px;
+    color: #333;
 }

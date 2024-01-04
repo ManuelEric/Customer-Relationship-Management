@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('css/form-embed.css') }}">
 </head>
 
@@ -181,14 +182,17 @@
                                                         <div class="col-md-6 mt-3">
                                                             <form class="form-floating">
                                                                 <input type="text" class="form-control"
-                                                                    id="childEmailInput" placeholder="">
+                                                                    id="childEmailInput" placeholder=""
+                                                                    v-model="registration.secondary_email">
                                                                 <label for="childEmailInput">Your child email</label>
                                                             </form>
                                                         </div>
                                                         <div class="col-md-6 mt-3">
                                                             <form class="form-floating">
                                                                 <input type="text" class="form-control"
-                                                                    id="childPhoneInput" placeholder="">
+                                                                    id="childPhoneInput" placeholder=""
+                                                                    v-model="registration.secondary_phone"
+                                                                    @input="formatPhone('secondary_phone')">
                                                                 <label for="childPhoneInput">Your child phone
                                                                     number</label>
                                                             </form>
@@ -276,9 +280,15 @@
                                                             v-model="registration.school"
                                                             :class="shouldShowError('school') ?
                                                                 'is-invalid' : ''"
-                                                            @input="touchField('school')">
+                                                            @input="touchField('school')" list="suggestions">
+
                                                         <label for="teacherSchoolName">Which school are you from? <span
                                                                 class="text-danger">*</span></label>
+
+                                                        <datalist id="suggestions">
+                                                            <option v-for="item in school" :key="item"
+                                                                :value="item.sch_name">
+                                                        </datalist>
                                                     </form>
                                                     <small class="text-danger" v-if="shouldShowError('school')">
                                                         @{{ validate.school.$silentErrors[0]?.$message }}
@@ -301,32 +311,41 @@
                                                 </div>
                                                 <div class="col-md-6 mt-3">
                                                     <form class="form-floating">
-                                                        <input type="text" class="form-control" id="Destination"
-                                                            placeholder="" v-model="registration.destination_country"
-                                                            :class="shouldShowError('destination_country') ?
-                                                                'is-invalid' : ''"
-                                                            @input="touchField('destination_country')">
-                                                        <label for="Destination">Which country are you thinking of
-                                                            studying in?<span class="text-danger">*</span></label>
-                                                    </form>
-                                                    <small class="text-danger"
-                                                        v-if="shouldShowError('destination_country')">
-                                                        @{{ validate.destination_country.$silentErrors[0]?.$message }}
-                                                    </small>
-                                                </div>
-                                                <div class="col-md-12 mt-3">
-                                                    <form class="form-floating">
-                                                        <input type="text" class="form-control" id="Scholarship"
-                                                            placeholder="" v-model="registration.scholarship"
+                                                        <select class="form-select" v-model="registration.scholarship"
                                                             :class="shouldShowError('scholarship') ?
                                                                 'is-invalid' : ''"
-                                                            @input="touchField('scholarship')">
+                                                            @change="touchField('scholarship')">
+                                                            <option value="">Open this select menu</option>
+                                                            <option value="Yes">Yes</option>
+                                                            <option value="No">No</option>
+                                                        </select>
+
                                                         <label for="Scholarship">Are you eligible for a
                                                             need-based scholarship?<span
                                                                 class="text-danger">*</span></label>
                                                     </form>
                                                     <small class="text-danger" v-if="shouldShowError('scholarship')">
                                                         @{{ validate.scholarship.$silentErrors[0]?.$message }}
+                                                    </small>
+                                                </div>
+                                                <div class="col-md-12 mt-3">
+                                                    <form class="border p-2">
+                                                        <small class="text-muted" for="Destination">Which country are
+                                                            you thinking of
+                                                            studying in?<span class="text-danger">*</span></small>
+                                                        <select class="select w-100"
+                                                            :value="registration.destination_country"
+                                                            :class="shouldShowError('destination_country') ?
+                                                                'is-invalid' : ''"
+                                                            multiple>
+                                                            <option value="">Open this select menu</option>
+                                                            <option value="Item 1">Item 1</option>
+                                                            <option value="Item 2">Item 2</option>
+                                                        </select>
+                                                    </form>
+                                                    <small class="text-danger"
+                                                        v-if="shouldShowError('destination_country')">
+                                                        @{{ validate.destination_country.$silentErrors[0]?.$message }}
                                                     </small>
                                                 </div>
                                             </div>
@@ -339,23 +358,32 @@
                                                     placeholder="" v-model="registration.school"
                                                     :class="shouldShowError('school') ?
                                                         'is-invalid' : ''"
-                                                    @input="touchField('school')">
+                                                    @input="touchField('school')" list="suggestions">
+
                                                 <label for="teacherSchoolName">Which school are you from? <span
                                                         class="text-danger">*</span></label>
+
+                                                <datalist id="suggestions">
+                                                    <option v-for="item in school" :key="item"
+                                                        :value="item.sch_name">
+                                                </datalist>
                                             </form>
                                             <small class="text-danger" v-if="shouldShowError('school')">
                                                 @{{ validate.school.$silentErrors[0]?.$message }}
                                             </small>
                                         </div>
 
-
                                         <div class="col-md-12 mt-3">
                                             <form class="form-floating">
-                                                <input type="text" class="form-control" id="leadSource"
-                                                    placeholder="" v-model="registration.leadSource"
+                                                <select class="form-select" v-model="registration.leadSource"
                                                     :class="shouldShowError('leadSource') ?
                                                         'is-invalid' : ''"
-                                                    @input="touchField('leadSource')">
+                                                    @change="touchField('leadSource')">
+                                                    <option selected>Open this select menu</option>
+                                                    <option value="1">One</option>
+                                                    <option value="2">Two</option>
+                                                    <option value="3">Three</option>
+                                                </select>
                                                 <label for="leadSource">I know this event from <span
                                                         class="text-danger">*</span></label>
                                             </form>
@@ -388,6 +416,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
     </script>
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
+        integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
@@ -395,12 +426,22 @@
     <script src="https://cdn.jsdelivr.net/npm/@vuelidate/core"></script>
     <script src="https://cdn.jsdelivr.net/npm/@vuelidate/validators"></script>
     <script src="https://unpkg.com/libphonenumber-js@1.9.6/bundle/libphonenumber-max.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
     <script>
+        $(document).ready(function() {
+            $('.select').select2({
+                placeholder: "Select a value"
+            });
+        });
+
+        const endpoint = "{{ url('/api/') }}"
+
         const {
             createApp,
             ref,
-            computed
+            computed,
+            onMounted,
         } = Vue;
 
         const {
@@ -415,11 +456,10 @@
             alpha
         } = VuelidateValidators;
 
-
         createApp({
             setup() {
                 let formTouched = true;
-                const section = ref(1)
+                const section = ref(2)
                 const loading = ref(false)
                 const registration = ref({
                     role: 'student',
@@ -431,7 +471,7 @@
                     secondary_phone: '',
                     school: '',
                     graduation_year: '',
-                    destination_country: '',
+                    destination_country: [],
                     school: '',
                     scholarship: '',
                     leadSource: '',
@@ -460,7 +500,13 @@
                         minLength: minLength(5),
                     },
                     secondary_name: {
-                        required
+                        required,
+                    },
+                    secondary_email: {
+                        email,
+                    },
+                    secondary_phone: {
+                        minLength: minLength(5)
                     },
                     school: {
                         required
@@ -479,6 +525,8 @@
                     },
                 }))
 
+                const school = ref({})
+
                 const section_1_rule = ['fullname', 'email', 'phone']
                 const student_rule = ['school', 'graduation_year', 'destination_country', 'scholarship',
                     'leadSource'
@@ -493,6 +541,8 @@
 
                 const touchField = (field) => {
                     validate.value[field].$touch();
+                    if (field == "school")
+                        checkSchool();
                 };
 
                 const shouldShowError = (field) => {
@@ -557,16 +607,30 @@
                         console.log(registration.value);
                 }
 
+                const checkSchool = () => {
+                    axios.get(endpoint + '/school?search=' + registration.value.school)
+                        .then(function(response) {
+                            // handle success
+                            school.value = response.data
+                        })
+                        .catch(function(error) {
+                            // handle error
+                            console.log(error);
+                        })
+                }
+
                 return {
                     loading,
                     section,
                     registration,
+                    school,
                     validate,
                     touchField,
                     shouldShowError,
                     updateSection,
                     formatPhone,
-                    submitForm
+                    submitForm,
+                    checkSchool,
                 }
             }
         }).mount('#app')
