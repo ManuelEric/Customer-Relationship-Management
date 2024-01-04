@@ -151,6 +151,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 'clientprogram.parent_fullname',
                 'clientprogram.parent_phone',
                 'clientprogram.parent_mail',
+                'clientprogram.status',
                 'program_name',
                 'tbl_inv.currency',
                 'tbl_inv.inv_paymentmethod as master_paymentmethod',
@@ -227,6 +228,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             # add new condition
             # not included refunded invoice
             whereIn('tbl_inv.inv_status', [0,1])->
+            # not included status program failed
+            where('clientprogram.status', 1)->
             // where('tbl_inv.inv_status', 1)->
             orderBy('date_difference', 'asc')->
             groupBy('tbl_inv.inv_id')->

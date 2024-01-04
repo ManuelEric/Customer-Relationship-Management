@@ -411,11 +411,11 @@
                         defaultContent: '-'
                     },
                     {
-                        data: 'second_school_name',
+                        data: 'school_name',
                         defaultContent: '-',
                         render: function(data, type, row, meta) {
                             if (data != null) {
-                                if (row.is_verifiedsecond_school == 'Y') {
+                                if (row.is_verified_school == 'Y') {
                                     return data +
                                         '<i class="bi bi-check-circle-fill text-success ms-1" data-bs-toggle="tooltip" data-bs-placement="top" ' +
                                         'data-bs-custom-class="custom-tooltip" ' +
