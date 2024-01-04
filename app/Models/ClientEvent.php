@@ -53,22 +53,22 @@ class ClientEvent extends Model
 
     public function client()
     {
-        return $this->belongsTo(Client::class, 'client_id', 'id');
+        return $this->belongsTo(Client::class, 'client_id', 'id')->withTrashed();
     }
 
     public function clientMaster()
     {
-        return $this->belongsTo(UserClient::class, 'client_id', 'id');
+        return $this->belongsTo(UserClient::class, 'client_id', 'id')->withTrashed();
     }
 
     public function children()
     {
-        return $this->belongsTo(Client::class, 'child_id', 'id');
+        return $this->belongsTo(Client::class, 'child_id', 'id')->withTrashed();
     }
 
     public function parent()
     {
-        return $this->belongsTo(Client::class, 'parent_id', 'id');
+        return $this->belongsTo(Client::class, 'parent_id', 'id')->withTrashed();
     }
 
     public function edufLead()
