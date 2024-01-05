@@ -702,7 +702,9 @@
     $("#grade").on('change', async function() {
         var grade = $(this).val()
         var year = '{{isset($student) ? date("Y", strtotime($student->created_at)) : date("Y") }}'
-        var graduation_year = (12 - parseInt(grade)) + parseInt(year) + 1
+        var month = '{{isset($student) ? date("m", strtotime($student->created_at)) : date("m") }}'
+        
+        var graduation_year = parseInt(month) > 7 ? (12 - parseInt(grade)) + parseInt(year) + 1 : (12 - parseInt(grade)) + parseInt(year)
         $('#auto_grad_year').val(graduation_year);
     })
 
