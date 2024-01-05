@@ -374,7 +374,7 @@ class ClientParentController extends ClientController
 
         // try {
             $import = new ParentImport();
-            $import->queue($file);
+            $import->import($file);
 
         // } catch (Exception $e) {
         //     return back()->withError('Something went wrong while processing the data. Please try again or contact the administrator.');
