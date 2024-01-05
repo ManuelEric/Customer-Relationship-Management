@@ -46,7 +46,7 @@
                 <form action="{{ route('student.add.interest.program', ['student' => $student->id]) }}" method="post">
                     @csrf
                     <label for="">Program Name</label>
-                    <select name="interest_program" id="" class="modal-select w-100">
+                    <select name="interest_program" id="" class="modal-select2 w-100">
                         <option data-placeholder="true"></option>
                         @foreach ($programs as $program)
                             <option value="{{ $program->prog_id }}"

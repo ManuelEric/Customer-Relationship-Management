@@ -11,6 +11,7 @@ class PicClient extends Model
     use HasFactory;
 
     protected $table = 'tbl_pic_client';
+    public $timestamps = true;
 
     /**
      * The attributes that should be visible in arrays.

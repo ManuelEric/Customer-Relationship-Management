@@ -39,10 +39,10 @@ use App\Models\Lead;
 use App\Models\School;
 use App\Models\UserClient;
 use App\Services\ClientStudentService;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -1094,7 +1094,7 @@ class ClientStudentController extends ClientController
                 'client_id' => $clientId,
                 'user_id' => $pic,
                 'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
+                'updated_at' => Carbon::now(),
             ];
         }
 
@@ -1125,6 +1125,8 @@ class ClientStudentController extends ClientController
         $picDetail[] = [
             'client_id' => $client_id,
             'user_id' => $new_pic,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ];
 
         DB::beginTransaction();

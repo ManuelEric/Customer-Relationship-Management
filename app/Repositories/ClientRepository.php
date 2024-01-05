@@ -910,7 +910,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getClientById($clientId)
     {
-        return UserClient::find($clientId);
+        return UserClient::withTrashed()->find($clientId);
     }
 
     public function getClientByUUID($clientUUID)
@@ -948,7 +948,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getViewClientById($clientId)
     {
-        return Client::find($clientId);
+        return Client::withTrashed()->find($clientId);
     }
 
     public function getViewClientByUUID($clientUUID)

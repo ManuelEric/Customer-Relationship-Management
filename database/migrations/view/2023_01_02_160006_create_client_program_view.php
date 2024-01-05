@@ -17,7 +17,11 @@ return new class extends Migration
         DB::statement('
         CREATE OR REPLACE VIEW clientprogram AS
         SELECT cp.*,
-            c.pic AS pic_client, 
+            (SELECT pic.user_id 
+                        FROM tbl_pic_client pic
+                    LEFT JOIN users u on u.id = pic.user_id
+                    WHERE pic.client_id = c.id AND pic.status = 1)
+             as pic_client, 
             c.st_grade,
             c.register_as,
             UpdateGradeStudent (
@@ -40,7 +44,7 @@ return new class extends Migration
                 WHEN cp.status = 2 THEN "Failed"
                 WHEN cp.status = 3 THEN "Refund"
             END) AS program_status,
-            CONCAT(u.first_name, " ", u.last_name) AS pic_name,
+            CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) AS pic_name,
             u.email as pic_mail,
             (CASE 
                 WHEN cl.department_id = 1 THEN "Sales"

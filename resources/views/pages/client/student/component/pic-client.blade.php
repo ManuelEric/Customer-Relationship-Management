@@ -16,12 +16,22 @@
 
         @forelse ($student->picClient->sortByDesc('created_at') as $picClient)  
             <div class="d-flex align-items-center justify-content-between w-100 ">
-                <a href="#" class="text-decoration-none {{ $picClient->status == 1  ? 'text-primary' : 'text-dark' }}" style="font-size:12px;">
+                <a href="#" class="text-decoration-none {{ $picClient->status == 1  ? 'text-primary' : 'text-muted' }}" style="font-size:12px;">
                     <div>
                         <i class="bi bi-arrow-right"></i>
                         {{ $picClient->user->full_name }}
                     </div>
                 </a>
+                <div class="text-decoration-none {{ $picClient->status == 1  ? 'text-primary' : 'text-muted' }}">
+                    <i class="bi bi-clock-history"></i>
+                        {{ date('M d, Y', strtotime($picClient->created_at)) }}
+                    @if($picClient->status == 1)
+                        - Now
+                    @else
+                        - {{ date('M d, Y', strtotime($picClient->updated_at)) }}
+                    @endif
+                    
+                </div>
             </div>
         @empty
             There's no PIC yet

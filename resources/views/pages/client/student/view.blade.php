@@ -269,7 +269,7 @@
 
     <script>
          $(document).ready(function() {
-            $('.modal-select').select2({
+            $('.modal-select2').select2({
                 dropdownParent: $('#addInterestProgram .modal-content'),
                 placeholder: "Select value",
                 allowClear: true

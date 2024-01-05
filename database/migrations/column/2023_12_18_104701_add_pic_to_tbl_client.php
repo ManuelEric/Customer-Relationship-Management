@@ -27,7 +27,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('tbl_client', function (Blueprint $table) {
-            //
+            $table->dropColumn('pic');
         });
     }
 };
