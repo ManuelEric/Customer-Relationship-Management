@@ -16,6 +16,7 @@ use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\SyncClientTrait;
+use App\Jobs\RawClient\ProcessVerifyClient;
 use App\Models\Corporate;
 use App\Models\EdufLead;
 use App\Models\Event;
@@ -82,8 +83,7 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
                         'st_levelinterest' => $row['level_of_interest'],
                     ];
 
-                    isset($row['joined_date']) ? $studentDetails['created_at'] = $row['joined_date'] : null;
-                    isset($row['joined_date']) ? $studentDetails['updated_at'] = $row['joined_date'] : null;
+                    isset($row['joined_date']) ? $parentDetails['created_at'] = $row['joined_date'] : null;
                     
                     $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['parent'])->first();
 
@@ -118,6 +118,8 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
                             'eduf_id' => isset($row['edufair'])  && $row['lead'] == 'LS018' ? $row['edufair'] : null,
                         ];
 
+                        isset($row['joined_date']) ? $childrenDetails['created_at'] = $row['joined_date'] : null;
+
                         $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['student'])->first();
 
                         $children = UserClient::create($childrenDetails);
@@ -136,11 +138,20 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
                     }
                 }
 
+                $childrenIds[] = $children->id;
+                $parentIds[] = $parent['id'];
 
                 $logDetails[] = [
                     'client_id' => $parent['id']
                 ];
             }
+            # trigger to verifying parent
+            ProcessVerifyClient::dispatch($parentIds)->onQueue('verifying-client-parent');
+            
+            # trigger to verifying children
+            ProcessVerifyClient::dispatch($childrenIds)->onQueue('verifying-client');
+
+            Log::debug('ass');
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
@@ -224,7 +235,7 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
             '*.kol' => ['required_if:lead,KOL', 'nullable', 'exists:tbl_lead,lead_id'],
             '*.level_of_interest' => ['nullable', 'in:High,Medium,Low'],
             '*.interested_program' => ['nullable'],
-            '*.children_name' => ['nullable', 'different:*.full_name'],
+            '*.children_name' => ['nullable'],
             '*.school' => ['nullable'],
             '*.graduation_year' => ['nullable'],
             '*.destination_country' => ['nullable'],
