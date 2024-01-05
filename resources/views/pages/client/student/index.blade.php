@@ -178,6 +178,7 @@
                         <th>Location</th>
                         <th>Lead</th>
                         <th>Level of Interest</th>
+                        <th>Joined Event</th>
                         <th>Interested Program</th>
                         {{-- <th>Success Program</th>
                         <th>Mentor/Tutor</th> --}}
@@ -589,6 +590,11 @@
                     },
                     {
                         data: 'st_levelinterest',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'joined_event',
                         className: 'text-center',
                         defaultContent: '-'
                     },
