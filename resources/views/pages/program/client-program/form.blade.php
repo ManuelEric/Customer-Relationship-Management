@@ -636,263 +636,265 @@
         </div>
     </div>
 
-    <script>
-        function otherOption(value) {
-            if (value == 'other') {
-                $('.classReason').addClass('d-none')
-                $('#inputReason').removeClass('d-none')
-                $('#inputReason input').focus()
-            } else {
-                $('#inputReason').addClass('d-none')
-                $('.classReason').removeClass('d-none')
-            }
-        }
-
-        function resetOption() {
-            $('.classReason').removeClass('d-none')
-            $('#selectReason').val(null).trigger('change')
+@endsection
+@push('scripts')
+<script>
+    function otherOption(value) {
+        if (value == 'other') {
+            $('.classReason').addClass('d-none')
+            $('#inputReason').removeClass('d-none')
+            $('#inputReason input').focus()
+        } else {
             $('#inputReason').addClass('d-none')
-            $('#inputReason input').val(null)
+            $('.classReason').removeClass('d-none')
         }
+    }
 
-        $("#main_lead").on('change', function() {
-            var program = $("#program_name option:selected")
-            var lead = $(this).select2().find(":selected").data('lead')
-            let programName = program.text()
+    function resetOption() {
+        $('.classReason').removeClass('d-none')
+        $('#selectReason').val(null).trigger('change')
+        $('#inputReason').addClass('d-none')
+        $('#inputReason input').val(null)
+    }
 
-            if (programName) {
-                if (lead.includes('All-In Event')) {
+    $("#main_lead").on('change', function() {
+        var program = $("#program_name option:selected")
+        var lead = $(this).select2().find(":selected").data('lead')
+        let programName = program.text()
 
-                    $("#event").removeClass('d-none')
-                    $("#edufair").addClass("d-none")
-                    $("#kol").addClass("d-none")
-                    $("#partner").addClass("d-none")
+        if (programName) {
+            if (lead.includes('All-In Event')) {
 
-                } else if (lead.includes('External Edufair')) {
+                $("#event").removeClass('d-none')
+                $("#edufair").addClass("d-none")
+                $("#kol").addClass("d-none")
+                $("#partner").addClass("d-none")
 
-                    $("#event").addClass("d-none")
-                    $("#edufair").removeClass("d-none")
-                    $("#kol").addClass("d-none")
-                    $("#partner").addClass("d-none")
+            } else if (lead.includes('External Edufair')) {
 
-                } else if (lead.includes('KOL')) {
+                $("#event").addClass("d-none")
+                $("#edufair").removeClass("d-none")
+                $("#kol").addClass("d-none")
+                $("#partner").addClass("d-none")
 
-                    $("#event").addClass("d-none")
-                    $("#edufair").addClass("d-none")
-                    $("#kol").removeClass("d-none")
-                    $("#partner").addClass("d-none")
+            } else if (lead.includes('KOL')) {
 
-                } else if (lead.includes('All-In Partners')) {
+                $("#event").addClass("d-none")
+                $("#edufair").addClass("d-none")
+                $("#kol").removeClass("d-none")
+                $("#partner").addClass("d-none")
 
-                    $("#event").addClass("d-none")
-                    $("#edufair").addClass("d-none")
-                    $("#kol").addClass("d-none")
-                    $("#partner").removeClass("d-none")
+            } else if (lead.includes('All-In Partners')) {
 
-                } else {
+                $("#event").addClass("d-none")
+                $("#edufair").addClass("d-none")
+                $("#kol").addClass("d-none")
+                $("#partner").removeClass("d-none")
 
-                    $("#event").addClass("d-none")
-                    $("#edufair").addClass("d-none")
-                    $("#kol").addClass("d-none")
-                    $("#partner").addClass("d-none")
+            } else {
+
+                $("#event").addClass("d-none")
+                $("#edufair").addClass("d-none")
+                $("#kol").addClass("d-none")
+                $("#partner").addClass("d-none")
+
+            }
+        } else {
+            notification('warning', 'Please, select program name first!')
+            $('#main_lead').select2('destroy');
+            $('#main_lead').val(null);
+            $('#main_lead').select2({
+                placeholder: "Select value",
+                allowClear: true
+            });
+            $('#program_name').select2('open');
+        }
+    })
+
+
+    function changeProgramStatus() {
+
+        var program = $("#program_name option:selected")
+        let programName = program.text()
+        let prog_mentor = program.data('pmentor');
+        let programMainProg = program.data('mprog')
+        let programSubProg = program.data('sprog')
+        let programStatus = $('#program_status').val()
+        $('.program-detail').addClass('d-none')
+        $('.mentor-tutor').addClass('d-none')
+
+        if (programName) {
+            if (programStatus == 0) { // pending
+                if (programMainProg.includes('Admission') || programSubProg.includes('Admission')) { // mentoring
+
+                    $('#pending_mentoring').removeClass('d-none')
+
+                } else if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring')) {
+
+                    $('#pending_tutoring').removeClass('d-none')
 
                 }
-            } else {
-                notification('warning', 'Please, select program name first!')
-                $('#main_lead').select2('destroy');
-                $('#main_lead').val(null);
-                $('#main_lead').select2({
-                    placeholder: "Select value",
-                    allowClear: true
-                });
-                $('#program_name').select2('open');
+            } else if (programStatus == 1) { // success
+                $('#success_date').removeClass('d-none')
+                $('#running_status').removeClass('d-none')
+
+                // Detail Program Check 
+                if (programMainProg.includes('Admission') || programSubProg.includes('Admission')) { // mentoring
+                    $('#success_mentoring').removeClass('d-none')
+                } else if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring')) {
+                    $('#success_tutoring').removeClass('d-none')
+                } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg
+                    .includes(
+                        'SAT') || programSubProg.includes('SAT')) {
+
+                    $('#success_sat_act').removeClass('d-none')
+                }
+
+                // Mentor & Tutor Needs Check 
+                switch (prog_mentor) {
+                    case "Mentor":
+                        $("#available-mentor").removeClass("d-none")
+                        $("#available-tutor").addClass("d-none")
+
+                        break;
+
+                    case "Tutor":
+                        $("#available-mentor").addClass("d-none")
+                        $("#available-tutor").removeClass("d-none")
+                        if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring')) {
+                            $('#tutoring').removeClass('d-none')
+                            $('#sat-act').addClass('d-none')
+                        } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg
+                            .includes('SAT') || programSubProg.includes('SAT')) {
+                            $('#tutoring').addClass('d-none')
+                            $('#sat-act').removeClass('d-none')
+
+                        }
+                        break;
+                }
+
+            } else if (programStatus == 2) { // failed
+                $('#failed_date').removeClass('d-none')
+                $('#reason').removeClass('d-none')
+            } else if (programStatus == 3) { // refund
+                $('#refund_date').removeClass('d-none')
+                $('#refund_notes').removeClass('d-none')
+                $('#reason').removeClass('d-none')
             }
+        } else {
+            notification('warning', 'Please, select program name first!')
+            $('#program_status').select2('destroy');
+            $('#program_status').val(null);
+            $('#program_status').select2({
+                placeholder: "Select value",
+                allowClear: true
+            });
+            $('#program_name').select2('open');
+        }
+
+    }
+
+    changeProgramStatus()
+</script>
+<script>
+    $(document).ready(function() {
+
+        $("input[name=session]").on('change', function() {
+            var start_date = $("input[name=prog_start_date]").val();
+            var end_date = $("input[name=prog_end_date]").val();
+
+            var start_date_local = start_date + "T00:00";
+            var end_date_local = end_date + "T23:59";
+
+            if (start_date == '' || end_date == '') {
+                notification('error',
+                    'Please fill the start date and end date before fill the schedule session.');
+                $(this).val(null);
+                return;
+            }
+
+            var val = $(this).val();
+
+            if (val < 1) {
+                $(this).val(1)
+                val = 1;
+            }
+
+            var i = 1;
+            var html = '';
+
+            while (i <= val) {
+
+                html += '<div class="row mb-3 schedule-' + i + '">' +
+                    '<div class="col-md-3">' +
+                    '<label>Session ' + i + '.<sup class="text-danger">*</sup></label>' +
+                    '</div>' +
+                    '<div class="col-md-5">' +
+                    '<small>Schedule</small>' +
+                    '<input type="datetime-local" required class="form-control form-control-sm rounded" min="' +
+                    start_date_local + '" max="' + end_date_local + '" name="sessionDetail[]">' +
+                    '</div>' +
+                    '<div class="col-md-4">' +
+                    '<small>Zoom link</small>' +
+                    '<input type="url" required class="form-control form-control-sm rounded" name="sessionLinkMeet[]">' +
+                    '</div>' +
+                    '</div>';
+
+                i++;
+            }
+
+            $("#section-session").html(html);
         })
 
+        @if (isset($clientProgram) && $clientProgram->status !== false)
+            $("#program_status").val("{{ $clientProgram->status }}").trigger('change');
+        @endif
 
-        function changeProgramStatus() {
+        @error('followup_date')
+            $("#plan").modal('show')
+        @enderror
 
-            var program = $("#program_name option:selected")
-            let programName = program.text()
-            let prog_mentor = program.data('pmentor');
-            let programMainProg = program.data('mprog')
-            let programSubProg = program.data('sprog')
-            let programStatus = $('#program_status').val()
-            $('.program-detail').addClass('d-none')
-            $('.mentor-tutor').addClass('d-none')
+        const documentReady = () => {
 
-            if (programName) {
-                if (programStatus == 0) { // pending
-                    if (programMainProg.includes('Admission') || programSubProg.includes('Admission')) { // mentoring
-
-                        $('#pending_mentoring').removeClass('d-none')
-
-                    } else if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring')) {
-
-                        $('#pending_tutoring').removeClass('d-none')
-
-                    }
-                } else if (programStatus == 1) { // success
-                    $('#success_date').removeClass('d-none')
-                    $('#running_status').removeClass('d-none')
-
-                    // Detail Program Check 
-                    if (programMainProg.includes('Admission') || programSubProg.includes('Admission')) { // mentoring
-                        $('#success_mentoring').removeClass('d-none')
-                    } else if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring')) {
-                        $('#success_tutoring').removeClass('d-none')
-                    } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg
-                        .includes(
-                            'SAT') || programSubProg.includes('SAT')) {
-
-                        $('#success_sat_act').removeClass('d-none')
-                    }
-
-                    // Mentor & Tutor Needs Check 
-                    switch (prog_mentor) {
-                        case "Mentor":
-                            $("#available-mentor").removeClass("d-none")
-                            $("#available-tutor").addClass("d-none")
-
-                            break;
-
-                        case "Tutor":
-                            $("#available-mentor").addClass("d-none")
-                            $("#available-tutor").removeClass("d-none")
-                            if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring')) {
-                                $('#tutoring').removeClass('d-none')
-                                $('#sat-act').addClass('d-none')
-                            } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg
-                                .includes('SAT') || programSubProg.includes('SAT')) {
-                                $('#tutoring').addClass('d-none')
-                                $('#sat-act').removeClass('d-none')
-
-                            }
-                            break;
-                    }
-
-                } else if (programStatus == 2) { // failed
-                    $('#failed_date').removeClass('d-none')
-                    $('#reason').removeClass('d-none')
-                } else if (programStatus == 3) { // refund
-                    $('#refund_date').removeClass('d-none')
-                    $('#refund_notes').removeClass('d-none')
-                    $('#reason').removeClass('d-none')
-                }
-            } else {
-                notification('warning', 'Please, select program name first!')
-                $('#program_status').select2('destroy');
-                $('#program_status').val(null);
-                $('#program_status').select2({
-                    placeholder: "Select value",
-                    allowClear: true
-                });
-                $('#program_name').select2('open');
-            }
-
-        }
-
-        changeProgramStatus()
-    </script>
-    <script>
-        $(document).ready(function() {
-
-            $("input[name=session]").on('change', function() {
-                var start_date = $("input[name=prog_start_date]").val();
-                var end_date = $("input[name=prog_end_date]").val();
-
-                var start_date_local = start_date + "T00:00";
-                var end_date_local = end_date + "T23:59";
-
-                if (start_date == '' || end_date == '') {
-                    notification('error',
-                        'Please fill the start date and end date before fill the schedule session.');
-                    $(this).val(null);
-                    return;
-                }
-
-                var val = $(this).val();
-
-                if (val < 1) {
-                    $(this).val(1)
-                    val = 1;
-                }
-
-                var i = 1;
-                var html = '';
-
-                while (i <= val) {
-
-                    html += '<div class="row mb-3 schedule-' + i + '">' +
-                        '<div class="col-md-3">' +
-                        '<label>Session ' + i + '.<sup class="text-danger">*</sup></label>' +
-                        '</div>' +
-                        '<div class="col-md-5">' +
-                        '<small>Schedule</small>' +
-                        '<input type="datetime-local" required class="form-control form-control-sm rounded" min="' +
-                        start_date_local + '" max="' + end_date_local + '" name="sessionDetail[]">' +
-                        '</div>' +
-                        '<div class="col-md-4">' +
-                        '<small>Zoom link</small>' +
-                        '<input type="url" required class="form-control form-control-sm rounded" name="sessionLinkMeet[]">' +
-                        '</div>' +
-                        '</div>';
-
-                    i++;
-                }
-
-                $("#section-session").html(html);
-            })
-
-            @if (isset($clientProgram) && $clientProgram->status !== false)
-                $("#program_status").val("{{ $clientProgram->status }}").trigger('change');
+            @if (isset($p) && $p !== null)
+                $("#program_name").select2().val("{{ $p }}").trigger('change');
+            @elseif (isset($clientProgram))
+                $("#program_name").select2().val("{{ $clientProgram->prog_id }}").trigger('change');
             @endif
 
-            @error('followup_date')
-                $("#plan").modal('show')
-            @enderror
-
-            const documentReady = () => {
-
-                @if (isset($p) && $p !== null)
-                    $("#program_name").select2().val("{{ $p }}").trigger('change');
-                @elseif (isset($clientProgram))
-                    $("#program_name").select2().val("{{ $clientProgram->prog_id }}").trigger('change');
+            @if (old('lead_id') !== null)
+                $("#main_lead").select2().val("{{ old('lead_id') }}").trigger('change');
+            @elseif (isset($clientProgram->lead_id))
+                @if ($clientProgram->lead->main_lead == 'KOL')
+                    $("#main_lead").select2().val("kol").trigger('change');
+                @else
+                    $("#main_lead").select2().val("{{ $clientProgram->lead_id }}").trigger('change');
                 @endif
+            @endif
 
-                @if (old('lead_id') !== null)
-                    $("#main_lead").select2().val("{{ old('lead_id') }}").trigger('change');
-                @elseif (isset($clientProgram->lead_id))
-                    @if ($clientProgram->lead->main_lead == 'KOL')
-                        $("#main_lead").select2().val("kol").trigger('change');
-                    @else
-                        $("#main_lead").select2().val("{{ $clientProgram->lead_id }}").trigger('change');
-                    @endif
-                @endif
+            @if (old('event_id') !== null)
+                $("#event_id").select2().val("{{ old('event_id') }}").trigger('change');
+            @endif
 
-                @if (old('event_id') !== null)
-                    $("#event_id").select2().val("{{ old('event_id') }}").trigger('change');
-                @endif
+            @if (old('kol_lead_id') !== null)
+                $("#kol_lead_id").select2().val("{{ old('kol_lead_id') }}").trigger('change');
+            @endif
 
-                @if (old('kol_lead_id') !== null)
-                    $("#kol_lead_id").select2().val("{{ old('kol_lead_id') }}").trigger('change');
-                @endif
+            @if (old('eduf_id') !== null)
+                $("#eduf_id").select2().val("{{ old('eduf_id') }}").trigger('change');
+            @endif
 
-                @if (old('eduf_id') !== null)
-                    $("#eduf_id").select2().val("{{ old('eduf_id') }}").trigger('change');
-                @endif
+            @if (old('partner_id') !== null)
+                $("#partner_id").select2().val("{{ old('partner_id') }}").trigger('change');
+            @endif
 
-                @if (old('partner_id') !== null)
-                    $("#partner_id").select2().val("{{ old('partner_id') }}").trigger('change');
-                @endif
+            @if (old('status') !== null)
+                $("#program_status").select2().val("{{ (int) old('status') }}").trigger('change');
+            @endif
 
-                @if (old('status') !== null)
-                    $("#program_status").select2().val("{{ (int) old('status') }}").trigger('change');
-                @endif
+        }
 
-            }
-
-            documentReady();
-        })
-    </script>
-@endsection
+        documentReady();
+    })
+</script>
+@endpush

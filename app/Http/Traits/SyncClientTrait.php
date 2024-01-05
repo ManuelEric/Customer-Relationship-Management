@@ -259,7 +259,7 @@ trait SyncClientTrait
 
     private function createSchoolIfNotExists($sch_name)
     {
-        $last_id = School::max('sch_id');
+        $last_id = School::withTrashed()->max('sch_id');
         $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
         $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
 
