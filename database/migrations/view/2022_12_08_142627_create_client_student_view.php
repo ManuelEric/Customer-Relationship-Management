@@ -118,7 +118,7 @@ return new class extends Migration
                     WHERE clt3.client_id = c.id AND clt3.type = "Program" AND clt3.total_result >= 0.5 AND clt3.status = 1
                     ORDER BY clt3.total_result DESC LIMIT 1) as group_id,
             (SELECT CONVERT(checkParticipated (c.id) USING utf8mb4)) AS participated,
-            (SELECT pic.id 
+            (SELECT pic.user_id 
                         FROM tbl_pic_client pic
                     LEFT JOIN users u on u.id = pic.user_id
                     WHERE pic.client_id = c.id AND pic.status = 1)
