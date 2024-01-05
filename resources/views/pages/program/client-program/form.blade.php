@@ -592,10 +592,11 @@
                                     PIC <sup class="text-danger">*</sup>
                                 </label>
                             </div>
+                            <!-- Update 01052024 not pushed -->
                             <div class="col-md-9">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <select name="empl_id" id="" class="select w-100" {{ $disabled }} {{ !$disabled && Session::get('user_role') == 'Employee' ? 'disabled' : '' }}>
+                                        <select name="empl_id" id="internal-pic" class="select w-100" {{ !$disabled && Session::get('user_role') == 'Employee' ? 'disabled' : '' }}>
                                             <option data-placeholder="true"></option>
                                             @foreach ($internalPIC as $pic)
                                                 <option value="{{ $pic->id }}"
@@ -608,12 +609,16 @@
                                                     {{ $pic->first_name . ' ' . $pic->last_name }}</option>
                                             @endforeach
                                         </select>
+                                        @if (!$disabled && Session::get('user_role') == 'Employee')
+                                            <input type="hidden" name="empl_id" value="{{ Auth::user()->id }}">
+                                        @endif
                                         @error('empl_id')
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
                                 </div>
                             </div>
+                            <!-- end of update -->
                         </div>
                         <hr>
                         @if (!$disabled)
