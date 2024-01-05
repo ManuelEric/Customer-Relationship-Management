@@ -160,6 +160,7 @@
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="clientTable">
                 <thead class="bg-secondary text-white">
                     <tr class="text-center" role="row">
+                        <th class="d-none">Score</th>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Name</th>
                         <th class="bg-info text-white">Program Suggest</th>
@@ -442,10 +443,7 @@
             }
 
             var table = $('#clientTable').DataTable({
-                order: [
-                    // [20, 'desc'],
-                    [23, 'desc']
-                ],
+                order: [],
                 dom: 'Bfrtip',
                 buttons: [button],
                 lengthMenu: [
@@ -470,7 +468,12 @@
                         params.active_status = $("#active-status").val()
                     }
                 },
-                columns: [{
+                columns: [
+                    {
+                        data: 'status_lead_score',
+                        visible: false,
+                    },
+                    {
                         data: 'id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {

@@ -114,6 +114,18 @@ return new class extends Migration
                     LEFT JOIN tbl_initial_program_lead ipl2 ON clt2.initialprogram_id = ipl2.id
                     WHERE clt2.client_id = c.id AND clt2.type = "Lead" AND ipl2.name = program_suggest AND clt2.status = 1
                     ORDER BY clt2.total_result DESC LIMIT 1) as status_lead,
+            (CASE 
+                WHEN
+                    (SELECT total_result FROM tbl_client_lead_tracking clt2
+                        LEFT JOIN tbl_initial_program_lead ipl2 ON clt2.initialprogram_id = ipl2.id
+                        WHERE clt2.client_id = c.id AND clt2.type = "Lead" AND ipl2.name = program_suggest AND clt2.status = 1
+                        ORDER BY clt2.total_result DESC LIMIT 1) IS NULL THEN 0
+                ELSE 
+                (SELECT total_result FROM tbl_client_lead_tracking clt2
+                    LEFT JOIN tbl_initial_program_lead ipl2 ON clt2.initialprogram_id = ipl2.id
+                    WHERE clt2.client_id = c.id AND clt2.type = "Lead" AND ipl2.name = program_suggest AND clt2.status = 1
+                    ORDER BY clt2.total_result DESC LIMIT 1)
+            END) AS status_lead_score,
             (SELECT group_id FROM tbl_client_lead_tracking clt3
                     WHERE clt3.client_id = c.id AND clt3.type = "Program" AND clt3.total_result >= 0.5 AND clt3.status = 1
                     ORDER BY clt3.total_result DESC LIMIT 1) as group_id,

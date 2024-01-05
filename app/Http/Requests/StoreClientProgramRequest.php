@@ -125,7 +125,7 @@ class StoreClientProgramRequest extends FormRequest
                         'meeting_notes' => 'nullable',
                         'status' => 'required|in:0,1,2,3',
                         'empl_id' => [
-                            'required', 'required',
+                            'required',
                             function ($attribute, $value, $fail) {
                                 if (!User::with('roles')->whereHas('roles', function ($q) {
                                     $q->where('role_name', 'Employee');

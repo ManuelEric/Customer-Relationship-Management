@@ -242,6 +242,15 @@ class ClientRepository implements ClientRepositoryInterface
             filterColumn('children_name', function ($query, $keyword) {
                 $query->whereRaw("RTRIM(CONCAT(children.first_name, ' ', COALESCE(children.last_name, ''))) like ?", "%{$keyword}%");
             })->
+            # query for ordering client by status suggest (Hot --> Cold)
+            # orderColumn is used to handle sorting when user click javascript header
+            orderColumn('status_lead', function ($query, $order) {
+                $query->orderBy('status_lead_score', $order);
+            })->
+            # order is used to handle sorting by default when page refreshed
+            order(function ($query) {
+                $query->orderBy('status_lead_score', 'desc');
+            })->
             make(true);
     }
 
@@ -251,8 +260,13 @@ class ClientRepository implements ClientRepositoryInterface
         $query = Client::select([
                 'client.*',
                 'parent.mail as parent_mail',
-                'parent.phone as parent_phone'
-            ])->selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->doesntHave('clientProgram')->when($month, function ($subQuery) use ($month) {
+                'parent.phone as parent_phone',
+            ])->
+            selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
+            selectRaW('REPLACE(status_lead, "Hot", "A") as Hot')->
+            selectRaW('REPLACE(status_lead, "Warm", "B") as Warm')->
+            selectRaW('REPLACE(status_lead, "Cold", "C") as Cold')->
+            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->doesntHave('clientProgram')->when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
@@ -277,7 +291,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             isVerified();
 
-        return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
+        return $asDatatables === false ? $query->get() : $query;
     }
 
     public function getPotentialClients($asDatatables = false, $month = null, $advanced_filter = [])
