@@ -263,9 +263,6 @@ class ClientRepository implements ClientRepositoryInterface
                 'parent.phone as parent_phone',
             ])->
             selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
-            selectRaW('REPLACE(status_lead, "Hot", "A") as Hot')->
-            selectRaW('REPLACE(status_lead, "Warm", "B") as Warm')->
-            selectRaW('REPLACE(status_lead, "Cold", "C") as Cold')->
             leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->doesntHave('clientProgram')->when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {
@@ -286,9 +283,8 @@ class ClientRepository implements ClientRepositoryInterface
             }, function ($subQuery) {
                 $subQuery->where('client.st_statusact', 1);
             })->
-            when(Session::get('user_role') == 'Employee', function ($subQuery) {
-                $subQuery->where('client.pic_id', auth()->user()->id);
-            })->
+            isNotSalesAdmin()->
+            isUsingAPI()->
             isVerified();
 
         return $asDatatables === false ? $query->get() : $query;
@@ -326,9 +322,8 @@ class ClientRepository implements ClientRepositoryInterface
             }, function ($subQuery) {
                 $subQuery->where('client.st_statusact', 1);
             })->
-            when(Session::get('user_role') == 'Employee', function ($subQuery) {
-                $subQuery->where('client.pic_id', auth()->user()->id);
-            })->
+            isNotSalesAdmin()->
+            isUsingAPI()->
             isVerified();
 
         return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
@@ -367,9 +362,8 @@ class ClientRepository implements ClientRepositoryInterface
             }, function ($subQuery) {
                 $subQuery->where('client.st_statusact', 1);
             })->
-            when(Session::get('user_role') == 'Employee', function ($subQuery) {
-                $subQuery->where('client.pic_id', auth()->user()->id);
-            })->
+            isNotSalesAdmin()->
+            isUsingAPI()->
             isVerified();
 
         return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
@@ -414,9 +408,8 @@ class ClientRepository implements ClientRepositoryInterface
             }, function ($subQuery) {
                 $subQuery->where('client.st_statusact', 1);
             })->
-            when(Session::get('user_role') == 'Employee', function ($subQuery) {
-                $subQuery->where('client.pic_id', auth()->user()->id);
-            })->
+            isNotSalesAdmin()->
+            isUsingAPI()->
             isVerified();
 
         return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
@@ -461,9 +454,8 @@ class ClientRepository implements ClientRepositoryInterface
             })->whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
             })->
-            when(Session::get('user_role') == 'Employee', function ($subQuery) {
-                $subQuery->where('client.pic_id', auth()->user()->id);
-            })->
+            isNotSalesAdmin()->
+            isUsingAPI()->
             isVerified();
 
         return $asDatatables === false ?
@@ -508,9 +500,8 @@ class ClientRepository implements ClientRepositoryInterface
             })->whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
             })->
-            when(Session::get('user_role') == 'Employee', function ($subQuery) {
-                $subQuery->where('client.pic_id', auth()->user()->id);
-            })->
+            isNotSalesAdmin()->
+            isUsingAPI()->
             isVerified();
 
         return $asDatatables === false ?
@@ -1149,8 +1140,11 @@ class ClientRepository implements ClientRepositoryInterface
     public function getMenteesBirthdayMonthly($month)
     {
         return Client::whereMonth('dob', date('m', strtotime($month)))->whereHas('roles', function ($query) {
-            $query->where('role_name', 'Student');
-        })->where('st_statusact', 1)->get();
+                    $query->where('role_name', 'Student');
+                })->where('st_statusact', 1)->
+                isNotSalesAdmin()->
+                isUsingAPI()->
+                get();
     }
 
     public function getStudentByStudentId($studentId)

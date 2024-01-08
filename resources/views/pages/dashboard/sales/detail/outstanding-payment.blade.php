@@ -26,6 +26,8 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
+            const bearer_token = `Bearer {{ Session::get('access_token') }}`;
+
             var widthView = $(window).width();
             var table = $('#outstandingTable').DataTable({
                 dom: 'Bfrtip',
@@ -45,7 +47,12 @@
                 },
                 processing: true,
                 serverSide: true,
-                ajax: '{{ url('/') }}/api/get/outstanding-payment',
+                ajax: {
+                    url: '{{ url('/') }}/api/get/outstanding-payment',
+                    beforeSend : function( xhr ) {
+                        xhr.setRequestHeader( 'Authorization', bearer_token);
+                    },
+                },
                 columns: [{
                         data: 'id',
                         searchable: false,

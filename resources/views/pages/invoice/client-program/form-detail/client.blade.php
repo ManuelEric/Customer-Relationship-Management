@@ -42,7 +42,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                {!! $clientProg->client->address !!}
+                                {{ strip_tags($clientProg->client->address)  }}
                                 {{ $clientProg->client->postal_code }} <br>
                                 {{ $clientProg->client->city }}
                             </div>

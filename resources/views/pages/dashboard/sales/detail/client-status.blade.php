@@ -568,8 +568,13 @@
                 let f_type = $(this).data('f-client-type')
 
                 let url = window.location.origin + '/api/get/client/' + f_date + '/type/' + f_type;
+                const bearer_token = `Bearer {{ Session::get('access_token') }}`;
 
-                axios.get(url)
+                axios.get(url, {
+                    headers: {
+                        Authorization: bearer_token
+                    }
+                })
                     .then(function(response) {
 
 
@@ -707,8 +712,13 @@
                 month = moment(today).format('YYYY-MM')
 
             var url = window.location.origin + '/api/get/follow-up-reminder/' + month
+            const bearer_token = `Bearer {{ Session::get('access_token') }}`;
 
-            axios.get(url)
+                axios.get(url, {
+                    headers: {
+                        Authorization: bearer_token
+                    }
+                })
                 .then(function(response) {
 
                     var obj = response.data.data
@@ -739,8 +749,13 @@
                 month = moment(today).format('YYYY-MM')
 
             var url = window.location.origin + '/api/get/mentee-birthday/' + month
+            const bearer_token = `Bearer {{ Session::get('access_token') }}`;
 
-            axios.get(url)
+                axios.get(url, {
+                    headers: {
+                        Authorization: bearer_token
+                    }
+                })
                 .then(function(response) {
 
                     var obj = response.data.data
