@@ -86,7 +86,8 @@
                     </li>
 
                     <li class="nav-item dropdown d-none d-lg-block user-dropdown me-lg-3 me-0">
-                        <a class="nav-link" href="#" role="button" data-bs-toggle="modal" data-bs-target="#birthday" title="Mentee Birthday">
+                        <a class="nav-link" href="#" role="button" data-bs-toggle="modal" data-bs-target="#birthday"
+                            title="Mentee Birthday">
                             <i class="bi bi-gift"></i>
                             @if (isset($birthDay))
                                 <span
@@ -455,11 +456,12 @@
                                 <ul class="list-group">
                                     @foreach ($detail as $info)
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <div class="">
+                                            <a href="{{ url('client/student/' . $info->clientProgram->client->id . '/program/' . $info->clientProgram->clientprog_id) }}"
+                                                class="text-decoration-none" target="_blank">
                                                 <p class="m-0 p-0 lh-1">{{ $info->clientProgram->client->full_name }}</p>
                                                 <small
                                                     class="m-0">{{ $info->clientProgram->program->program_name }}</small>
-                                            </div>
+                                            </a>
                                             <div class="">
                                                 <input class="form-check-input me-1" type="checkbox" value="1"
                                                     @checked($info->status == 1) id="mark_{{ $loop->index }}"
@@ -498,7 +500,8 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <button type="button" class="btn btn-sm btn-outline-danger"
                                     onclick="cancelMarked()">Cancel</button>
-                                <button type="submit" id="btn-submit-followup" class="btn btn-sm btn-primary">Submit</button>
+                                <button type="submit" id="btn-submit-followup"
+                                    class="btn btn-sm btn-primary">Submit</button>
                             </div>
                         </form>
                     </div>
@@ -533,98 +536,98 @@
         </div>
 
         @push('scripts')
-    <script>
-        function marked(i) {
-            $('.marked_id').val(i)
-            var mark = $("#mark_" + i)
+            <script>
+                function marked(i) {
+                    $('.marked_id').val(i)
+                    var mark = $("#mark_" + i)
 
-            if (mark.is(':checked')) {
-                $('#follow_up_notes').modal('show')
+                    if (mark.is(':checked')) {
+                        $('#follow_up_notes').modal('show')
 
-                var student = mark.data('student')
-                var program = mark.data('program')
-                var followup = mark.data('followup')
-                var link = '/client/student/' + student + '/program/' + program + '/followup/' + followup;
+                        var student = mark.data('student')
+                        var program = mark.data('program')
+                        var followup = mark.data('followup')
+                        var link = '/client/student/' + student + '/program/' + program + '/followup/' + followup;
 
-                $("#followUpForm").attr('action', link)
+                        $("#followUpForm").attr('action', link)
 
-            } else {
-                $('#cancel_follow_up_notes').modal('show')
+                    } else {
+                        $('#cancel_follow_up_notes').modal('show')
 
-                var student = mark.data('student')
-                var program = mark.data('program')
-                var followup = mark.data('followup')
-                var link = '/client/student/' + student + '/program/' + program + '/followup/' + followup;
+                        var student = mark.data('student')
+                        var program = mark.data('program')
+                        var followup = mark.data('followup')
+                        var link = '/client/student/' + student + '/program/' + program + '/followup/' + followup;
 
-                $("#cancelFollowUpForm").attr('action', link)
-            }
-        }
+                        $("#cancelFollowUpForm").attr('action', link)
+                    }
+                }
 
-        function cancelMarked() {
-            let i = $('.marked_id').val()
-            $('#mark_' + i).prop('checked', false)
-            $('#follow_up_notes').modal('hide')
-        }
-
-        function backMarked() {
-            let i = $('.marked_id').val()
-            $('#mark_' + i).prop('checked', true)
-            $('#cancel_follow_up_notes').modal('hide')
-        }
-
-        // function that change followup status to 1 
-        $("#btn-submit-followup").click(function(e) {
-            e.preventDefault()
-            e.stopPropagation()
-
-            var link = $('#followUpForm').attr('action')
-            var data = $('#followUpForm').serialize()
-
-            console.log(link);
-
-            var obj = [{
-                "mark": true
-            }]
-
-            axios.post(link, data + '&' + $.param(obj[0]))
-                .then((response) => {
-                    Swal.close()
-                    notification('success', 'Follow-up has been marked as done')
-
+                function cancelMarked() {
+                    let i = $('.marked_id').val()
+                    $('#mark_' + i).prop('checked', false)
                     $('#follow_up_notes').modal('hide')
+                }
 
-                }, (error) => {
-                    Swal.close()
-                    notification('error', 'Failed to mark follow-up')
-                });
-        })
-
-        // function that change followup status to 0
-        $("#btn-cancel-followup").click(function(e) {
-            e.preventDefault()
-            e.stopPropagation()
-
-            var link = $('#cancelFollowUpForm').attr('action')
-            var data = $('#cancelFollowUpForm').serialize()
-
-            var obj = [{
-                "mark": false
-            }]
-
-            axios.post(link, data + '&' + $.param(obj[0]))
-                .then((response) => {
-                    Swal.close()
-                    notification('success', 'Follow-up has been marked as waiting')
-
+                function backMarked() {
+                    let i = $('.marked_id').val()
+                    $('#mark_' + i).prop('checked', true)
                     $('#cancel_follow_up_notes').modal('hide')
+                }
 
-                }, (error) => {
-                    Swal.close()
-                    notification('error', 'Failed to mark follow-up')
-                });
-        })
-    </script>
-@endpush
+                // function that change followup status to 1 
+                $("#btn-submit-followup").click(function(e) {
+                    e.preventDefault()
+                    e.stopPropagation()
+
+                    var link = $('#followUpForm').attr('action')
+                    var data = $('#followUpForm').serialize()
+
+                    console.log(link);
+
+                    var obj = [{
+                        "mark": true
+                    }]
+
+                    axios.post(link, data + '&' + $.param(obj[0]))
+                        .then((response) => {
+                            Swal.close()
+                            notification('success', 'Follow-up has been marked as done')
+
+                            $('#follow_up_notes').modal('hide')
+
+                        }, (error) => {
+                            Swal.close()
+                            notification('error', 'Failed to mark follow-up')
+                        });
+                })
+
+                // function that change followup status to 0
+                $("#btn-cancel-followup").click(function(e) {
+                    e.preventDefault()
+                    e.stopPropagation()
+
+                    var link = $('#cancelFollowUpForm').attr('action')
+                    var data = $('#cancelFollowUpForm').serialize()
+
+                    var obj = [{
+                        "mark": false
+                    }]
+
+                    axios.post(link, data + '&' + $.param(obj[0]))
+                        .then((response) => {
+                            Swal.close()
+                            notification('success', 'Follow-up has been marked as waiting')
+
+                            $('#cancel_follow_up_notes').modal('hide')
+
+                        }, (error) => {
+                            Swal.close()
+                            notification('error', 'Failed to mark follow-up')
+                        });
+                })
+            </script>
+        @endpush
 
         {{-- END MODAL  --}}
     </div>
