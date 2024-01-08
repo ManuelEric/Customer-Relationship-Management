@@ -784,7 +784,7 @@
                 var student = mark.data('student')
                 var program = mark.data('program')
                 var followup = mark.data('followup')
-                var link = 'client/student/' + student + '/program/' + program + '/followup/' + followup;
+                var link = '/client/student/' + student + '/program/' + program + '/followup/' + followup;
 
                 $("#followUpForm").attr('action', link)
 
@@ -794,7 +794,7 @@
                 var student = mark.data('student')
                 var program = mark.data('program')
                 var followup = mark.data('followup')
-                var link = 'client/student/' + student + '/program/' + program + '/followup/' + followup;
+                var link = '/client/student/' + student + '/program/' + program + '/followup/' + followup;
 
                 $("#cancelFollowUpForm").attr('action', link)
             }

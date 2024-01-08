@@ -489,7 +489,6 @@
                     fullname: {
                         required,
                         minLength: minLength(3),
-                        alpha
                     },
                     email: {
                         required,
