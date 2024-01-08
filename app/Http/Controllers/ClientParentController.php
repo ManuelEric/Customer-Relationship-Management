@@ -134,6 +134,7 @@ class ClientParentController extends ClientController
         $programs = $programsB2BB2C->merge($programsB2C);
         $countries = $this->tagRepository->getAllTags();
         $majors = $this->majorRepository->getAllMajors();
+        $listReferral = $this->clientRepository->getAllClientByRole('Parent');
 
         return view('pages.client.parent.form')->with(
             [
@@ -148,6 +149,7 @@ class ClientParentController extends ClientController
                 'countries' => $countries,
                 'majors' => $majors,
                 'student' => $student,
+                'listReferral' => $listReferral
             ]
         );
     }
@@ -244,7 +246,7 @@ class ClientParentController extends ClientController
 
         return view('pages.client.parent.view')->with(
             [
-                'parent' => $parent
+                'parent' => $parent,
             ]
         );
     }

@@ -229,6 +229,8 @@ class ClientStudentController extends ClientController
         $initialPrograms = $this->initialProgramRepository->getAllInitProg();
         $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
 
+        $parents = $this->clientRepository->getAllClientByRole('Parent');
+
         $picActive = null;
         if (count($student->picClient) > 0){
             $picActive = $student->picClient->where('status', 1)->first();
@@ -245,7 +247,8 @@ class ClientStudentController extends ClientController
                 'viewStudent' => $viewStudent,
                 'programs' => $programs,
                 'salesTeams' => $salesTeams,
-                'picActive' => $picActive
+                'picActive' => $picActive,
+                'parents' => $parents
             ]
         );
     }

@@ -164,6 +164,7 @@
                             <th>Grade</th>
                             <th>Graduation Year</th>
                             <th>Lead</th>
+                            <th>Referral Name</th>
                             <th>Country of Study Abroad</th>
                             <th>Joined Event</th>
                             <th>Interest Program</th>
@@ -451,6 +452,18 @@
                         data: 'lead_source',
                         className: 'text-center',
                         defaultContent: '-'
+                    },
+                    {
+                        data: 'referral_name',
+                        className: 'text-center',
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            if (row.lead_source == "Referral"){
+                                return data;
+                            }else{
+                                return '-';
+                            }
+                        }
                     },
                     {
                         data: 'interest_countries',

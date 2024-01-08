@@ -94,6 +94,7 @@ class ClientTeacherCounselorController extends ClientController
         $events = $this->eventRepository->getAllEvents();
         $ext_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
+        $listReferral = $this->clientRepository->getAllClientByRole('Parent');
 
         return view('pages.client.teacher.form')->with(
             [
@@ -102,7 +103,8 @@ class ClientTeacherCounselorController extends ClientController
                 'leads' => $leads,
                 'events' => $events,
                 'ext_edufair' => $ext_edufair,
-                'kols' => $kols
+                'kols' => $kols,
+                'listReferral' => $listReferral
             ]
         );
     }

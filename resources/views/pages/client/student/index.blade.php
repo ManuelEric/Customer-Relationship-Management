@@ -177,6 +177,7 @@
                         <th>Instagram</th>
                         <th>Location</th>
                         <th>Lead</th>
+                        <th>Referral From</th>
                         <th>Level of Interest</th>
                         <th>Interested Program</th>
                         {{-- <th>Success Program</th>
@@ -585,7 +586,20 @@
                     {
                         data: 'lead_source',
                         className: 'text-center',
-                        defaultContent: '-'
+                        defaultContent: '-',
+                    },
+                    {
+                        data: 'referral_name',
+                        name: 'referral_name',
+                        className: 'text-center',
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            if (row.lead_source == "Referral"){
+                                return data;
+                            }else{
+                                return '-';
+                            }
+                        }
                     },
                     {
                         data: 'st_levelinterest',

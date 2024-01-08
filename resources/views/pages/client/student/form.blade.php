@@ -431,6 +431,23 @@
                             @enderror
                         </div>
                     </div>
+                    <div class="col-md-4 referral d-none">
+                        <div class="mb-2">
+                            <label>Referral <i class="text-danger font-weight-bold">*</i></label>
+                            <select class="select w-100" id="refCode" name="referral_code">
+                                <option data-placeholder="true"></option>
+                                @if (isset($parents) && count($parents) > 0)
+                                    @foreach ($parents as $parent)
+                                        <option value="{{ $parent->viewClientRefCode->ref_code }}"
+                                            @selected(old('referral_code') == $parent->viewClientRefCode->ref_code)>{{ $parent->full_name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                            @error('referral_code')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
+                        </div>
+                    </div>
 
                     <div class="col-md-4 program d-none">
                         <div class="mb-2">
@@ -676,24 +693,35 @@
             $(".program").removeClass("d-none")
             $(".edufair").addClass("d-none")
             $(".kol").addClass("d-none")
+            $(".referral").addClass("d-none")
 
         } else if (lead.includes('External Edufair')) {
 
             $(".program").addClass("d-none")
             $(".edufair").removeClass("d-none")
             $(".kol").addClass("d-none")
+            $(".referral").addClass("d-none")
 
         } else if (lead.includes('KOL')) {
 
             $(".program").addClass("d-none")
             $(".edufair").addClass("d-none")
             $(".kol").removeClass("d-none")
+            $(".referral").addClass("d-none")
+
+        } else if (lead.includes('Referral')) {
+
+            $(".program").addClass("d-none")
+            $(".edufair").addClass("d-none")
+            $(".kol").addClass("d-none")
+            $(".referral").removeClass("d-none")
 
         } else {
 
             $(".program").addClass("d-none")
             $(".edufair").addClass("d-none")
             $(".kol").addClass("d-none")
+            $(".referral").addClass("d-none")
 
 
         }

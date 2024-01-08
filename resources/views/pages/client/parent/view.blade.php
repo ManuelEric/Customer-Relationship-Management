@@ -79,7 +79,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9 col-8">
-                            {{ $parent->lead_source }}
+                            {{ $parent->lead_source }} {{ $parent->referral_code != null && $parent->lead_source == "Referral" ? '(' . $parent->referral_name . ')' : null }}
                         </div>
                     </div>
                 </div>

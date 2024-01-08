@@ -82,6 +82,7 @@ class StoreClientProgramRequest extends FormRequest
             return [
                 'prog_id' => 'required|exists:tbl_prog,prog_id',
                 'lead_id' => 'required',
+                'referral_code' => 'required_if:lead_id,LS005',
                 'first_discuss_date' => 'required|date',
                 'meeting_notes' => 'nullable',
                 'status' => 'required|in:0,1,2,3',
@@ -121,6 +122,7 @@ class StoreClientProgramRequest extends FormRequest
                             }
                         ],
                         'lead_id' => 'required',
+                        'referral_code' => 'required_if:lead_id,LS005',
                         'first_discuss_date' => 'required|date',
                         'meeting_notes' => 'nullable',
                         'status' => 'required|in:0,1,2,3',
@@ -187,6 +189,7 @@ class StoreClientProgramRequest extends FormRequest
                         }
                     ],
                     'lead_id' => 'required',
+                    'referral_code' => 'required_if:lead_id,LS005',
                     'clientevent_id' => 'required_if:lead_id,LS003',
                     'eduf_lead_id' => 'required_if:lead_id,LS018',
                     'kol_lead_id' => [
@@ -231,6 +234,7 @@ class StoreClientProgramRequest extends FormRequest
                         }
                     ],
                     'lead_id' => 'required',
+                    'referral_code' => 'required_if:lead_id,LS005',
                     'clientevent_id' => 'required_if:lead_id,LS003',
                     'eduf_lead_id' => 'required_if:lead_id,LS018',
                     'kol_lead_id' => [
@@ -292,6 +296,7 @@ class StoreClientProgramRequest extends FormRequest
                 }
             ],
             'lead_id' => 'required',
+            'referral_code' => 'required_if:lead_id,LS005',
             'clientevent_id' => 'required_if:lead_id,LS003',
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
@@ -340,6 +345,7 @@ class StoreClientProgramRequest extends FormRequest
                 }
             ],
             'lead_id' => 'required',
+            'referral_code' => 'required_if:lead_id,LS005',
             'clientevent_id' => 'required_if:lead_id,LS003',
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
@@ -420,6 +426,7 @@ class StoreClientProgramRequest extends FormRequest
                 }
             ],
             'lead_id' => 'required',
+            'referral_code' => 'required_if:lead_id,LS005',
             'clientevent_id' => 'required_if:lead_id,LS003',
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
@@ -464,6 +471,7 @@ class StoreClientProgramRequest extends FormRequest
                 }
             ],
             'lead_id' => 'required',
+            'referral_code' => 'required_if:lead_id,LS005',
             'clientevent_id' => 'required_if:lead_id,LS003',
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
@@ -534,6 +542,7 @@ class StoreClientProgramRequest extends FormRequest
                 }
             ],
             'lead_id' => 'required',
+            'referral_code' => 'required_if:lead_id,LS005',
             'clientevent_id' => 'required_if:lead_id,LS003',
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [

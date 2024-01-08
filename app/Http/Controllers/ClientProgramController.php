@@ -233,6 +233,8 @@ class ClientProgramController extends Controller
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
+        $listReferral = $this->clientRepository->getAllClientByRole('Parent');
+
         return view('pages.program.client-program.form')->with(
             [
                 'p' => $p,
@@ -248,7 +250,8 @@ class ClientProgramController extends Controller
                 'internalPIC' => $internalPic,
                 'tutors' => $tutors,
                 'mentors' => $mentors,
-                'reasons' => $reasons
+                'reasons' => $reasons,
+                'listReferral' => $listReferral
             ]
         );
     }
@@ -277,6 +280,7 @@ class ClientProgramController extends Controller
             'first_discuss_date',
             'meeting_notes',
             'status',
+            'referral_code',
             'empl_id'
         ]);
 
