@@ -391,6 +391,8 @@ class ClientStudentController extends ClientController
         $majors = $this->majorRepository->getAllActiveMajors();
         $regions = $this->countryRepository->getAllRegionByLocale('en');
 
+        $listReferral = $this->clientRepository->getAllClients();
+
         return view('pages.client.student.form')->with(
             [
                 'schools' => $schools,
@@ -403,7 +405,8 @@ class ClientStudentController extends ClientController
                 'programs' => $programs,
                 'countries' => $countries,
                 'majors' => $majors,
-                'regions' => $regions
+                'regions' => $regions,
+                'listReferral' => $listReferral
             ]
         );
     }
@@ -433,6 +436,8 @@ class ClientStudentController extends ClientController
         $countries = $this->tagRepository->getAllTags();
         $majors = $this->majorRepository->getAllMajors();
 
+        $listReferral = $this->clientRepository->getAllClients();
+
         return view('pages.client.student.form')->with(
             [
                 'student' => $student,
@@ -447,6 +452,7 @@ class ClientStudentController extends ClientController
                 'programs' => $programs,
                 'countries' => $countries,
                 'majors' => $majors,
+                'listReferral' => $listReferral
             ]
         );
     }
@@ -462,6 +468,11 @@ class ClientStudentController extends ClientController
 
         DB::beginTransaction();
         try {
+
+            # set referral code null if lead != referral
+            if ($data['studentDetails']['lead_id'] != 'LS005'){
+                $data['studentDetails']['referral_code'] = null;
+            }
 
             //! perlu nunggu 1 menit dlu sampai ada client lead tracking status yg 1
             # update status client lead tracking
@@ -482,6 +493,9 @@ class ClientStudentController extends ClientController
             # when pr_id is "add-new" 
 
             if ($data['studentDetails']['pr_id'] !== NULL) {
+                if ($data['studentDetails']['lead_id'] != 'LS005'){
+                    $data['parentDetails']['referral_code'] = null;
+                }
                 if (!$parentId = $this->createParentsIfAddNew($data['parentDetails'], $data['studentDetails']))
                     throw new Exception('Failed to store new parent', 2);
             }

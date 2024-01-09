@@ -248,13 +248,15 @@
                     </div>
                     <div class="col-md-4 referral d-none">
                         <div class="mb-2">
-                            <label>Referral <i class="text-danger font-weight-bold">*</i></label>
+                            <label>Referral Name <i class="text-danger font-weight-bold">*</i></label>
                             <select class="select w-100" id="refCode" name="referral_code">
                                 <option data-placeholder="true"></option>
                                 @if (isset($listReferral) && count($listReferral) > 0)
                                     @foreach ($listReferral as $referral)
                                         <option value="{{ $referral->viewClientRefCode->ref_code }}"
-                                            @selected(old('referral_code') == $referral->viewClientRefCode->ref_code)>{{ $referral->full_name }}</option>
+                                            @if (old('referral_code') == $referral->viewClientRefCode->ref_code) {{ 'selected' }}
+                                            @elseif (isset($teacher_counselor) && $teacher_counselor->referral_code == $referral->viewClientRefCode->ref_code)
+                                            {{ 'selected' }} @endif>{{ $referral->full_name }}</option>
                                     @endforeach
                                 @endif
                             </select>

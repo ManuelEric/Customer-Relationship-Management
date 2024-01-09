@@ -917,6 +917,10 @@
                 $("#partner_id").select2().val("{{ old('partner_id') }}").trigger('change');
             @endif
 
+            @if (old('referral_code') !== null)
+                $("#referral_code").select2().val("{{ old('referral_code') }}").trigger('change');
+            @endif
+
             @if (old('status') !== null)
                 $("#program_status").select2().val("{{ (int) old('status') }}").trigger('change');
             @endif

@@ -186,6 +186,8 @@ class ClientProgramController extends Controller
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
+        $listReferral = $this->clientRepository->getAllClients();
+
         return view('pages.program.client-program.form')->with(
             [
                 'student' => $student,
@@ -200,7 +202,8 @@ class ClientProgramController extends Controller
                 'internalPIC' => $internalPic,
                 'tutors' => $tutors,
                 'mentors' => $mentors,
-                'reasons' => $reasons
+                'reasons' => $reasons,
+                'listReferral' => $listReferral
             ]
         );
     }
@@ -233,7 +236,7 @@ class ClientProgramController extends Controller
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
-        $listReferral = $this->clientRepository->getAllClientByRole('Parent');
+        $listReferral = $this->clientRepository->getAllClients();
 
         return view('pages.program.client-program.form')->with(
             [
@@ -502,6 +505,8 @@ class ClientProgramController extends Controller
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
+        $listReferral = $this->clientRepository->getAllClients();
+
         return view('pages.program.client-program.form')->with(
             [
                 'edit' => true,
@@ -517,7 +522,8 @@ class ClientProgramController extends Controller
                 'internalPIC' => $internalPic,
                 'tutors' => $tutors,
                 'mentors' => $mentors,
-                'reasons' => $reasons
+                'reasons' => $reasons,
+                'listReferral' => $listReferral
             ]
         );
     }
@@ -543,7 +549,8 @@ class ClientProgramController extends Controller
             'first_discuss_date',
             'meeting_notes',
             'status',
-            'empl_id'
+            'empl_id',
+            'referral_code'
         ]);
 
         switch ($request->lead_id) {
@@ -554,7 +561,7 @@ class ClientProgramController extends Controller
                 $clientProgramDetails['partner_id'] = null;
                 break;
 
-            case "LS015": #ALL-In Partners
+            case "LS010": #ALL-In Partners
                 $clientProgramDetails['eduf_lead_id'] = null;
                 // $clientProgramDetails['kol_lead_id'] = null;
                 $clientProgramDetails['clientevent_id'] = null;
@@ -583,6 +590,11 @@ class ClientProgramController extends Controller
 
             unset($clientProgramDetails['lead_id']);
             $clientProgramDetails['lead_id'] = $request->kol_lead_id;
+        }
+
+        if ($request->lead_id != 'LS005') # Referral
+        {
+            $clientProgramDetails['referral_code'] = null;
         }
 
         switch ($status) {

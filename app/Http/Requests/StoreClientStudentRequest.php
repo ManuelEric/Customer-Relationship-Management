@@ -23,7 +23,8 @@ class StoreClientStudentRequest extends FormRequest
     public function messages()
     {
         return [
-            'st_firstname.required' => 'The first name field is required'
+            'st_firstname.required' => 'The first name field is required',
+            'referral_code.required' => 'The Referral name field is required'
         ];
     }
 

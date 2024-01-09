@@ -176,4 +176,10 @@ class ClientProgram extends Model
     {
         return $this->hasMany(ClientProgramLogMail::class, 'clientprog_id', 'clientprog_id');
     }
+
+    # PIC from sales team
+    public function handledBy()
+    {
+        return $this->belongsToMany(User::class, 'tbl_pic_client', 'client_id', 'user_id');
+    }
 }

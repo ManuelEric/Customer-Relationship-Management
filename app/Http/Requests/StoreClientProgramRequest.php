@@ -201,7 +201,7 @@ class StoreClientProgramRequest extends FormRequest
                                 $fail('The KOL name is invalid');
                         }
                     ],
-                    'partner_id' => 'required_if:lead_id,LS015',
+                    'partner_id' => 'required_if:lead_id,LS010',
                     'first_discuss_date' => 'required|date',
                     'meeting_notes' => 'nullable',
                     'status' => 'required|in:0,1,2,3',
@@ -246,7 +246,7 @@ class StoreClientProgramRequest extends FormRequest
                                 $fail('The KOL name is invalid');
                         }
                     ],
-                    'partner_id' => 'required_if:lead_id,LS015',
+                    'partner_id' => 'required_if:lead_id,LS010',
                     'first_discuss_date' => 'required|date',
                     'meeting_notes' => 'nullable',
                     'status' => [
@@ -308,7 +308,7 @@ class StoreClientProgramRequest extends FormRequest
                         $fail('The KOL name is invalid');
                 }
             ],
-            'partner_id' => 'required_if:lead_id,LS015',
+            'partner_id' => 'required_if:lead_id,LS010',
             'first_discuss_date' => 'required|date',
             'meeting_notes' => 'nullable',
             'status' => 'required|in:0,1,2,3',
@@ -357,7 +357,7 @@ class StoreClientProgramRequest extends FormRequest
                         $fail('The KOL name is invalid');
                 }
             ],
-            'partner_id' => 'required_if:lead_id,LS015',
+            'partner_id' => 'required_if:lead_id,LS010',
             'first_discuss_date' => 'required|date',
             'meeting_notes' => 'nullable',
             // 'status' => 'required|in:0,1,2,3',
@@ -438,7 +438,7 @@ class StoreClientProgramRequest extends FormRequest
                         $fail('The KOL name is invalid');
                 }
             ],
-            'partner_id' => 'required_if:lead_id,LS015',
+            'partner_id' => 'required_if:lead_id,LS010',
             'first_discuss_date' => 'required|date',
             'meeting_notes' => 'nullable',
             'status' => 'required|in:0,1,2,3',
@@ -483,7 +483,7 @@ class StoreClientProgramRequest extends FormRequest
                         $fail('The KOL name is invalid');
                 }
             ],
-            'partner_id' => 'required_if:lead_id,LS015',
+            'partner_id' => 'required_if:lead_id,LS010',
             'first_discuss_date' => 'required|date',
             'meeting_notes' => 'nullable',
             // 'status' => 'required|in:0,1,2,3',
@@ -554,7 +554,7 @@ class StoreClientProgramRequest extends FormRequest
                         $fail('The KOL name is invalid');
                 }
             ],
-            'partner_id' => 'required_if:lead_id,LS015',
+            'partner_id' => 'required_if:lead_id,LS010',
             'first_discuss_date' => 'required|date',
             'meeting_notes' => 'nullable',
             // 'status' => 'required|in:0,1,2,3',
