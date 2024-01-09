@@ -216,6 +216,11 @@ class ClientStudentController extends ClientController
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
 
+        # validate
+        # if user forced to access student that isn't his/her 
+        if (!$this->clientRepository->findHandledClient($studentId))
+            abort(403);
+
         $initialPrograms = $this->initialProgramRepository->getAllInitProg();
         // $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
         $viewStudent = $this->clientRepository->getViewClientById($studentId);

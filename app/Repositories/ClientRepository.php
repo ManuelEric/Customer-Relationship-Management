@@ -41,7 +41,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getAllClients()
     {
-        return UserClient::all();
+        return UserClient::dependsOnPIC()->get();
     }
 
     public function getAllClientsFromViewTable()
@@ -926,6 +926,11 @@ class ClientRepository implements ClientRepositoryInterface
     public function getClientsById(array $clientIds)
     {
         return UserClient::whereIn('id', $clientIds)->get();
+    }
+
+    public function findHandledClient(int $clientId)
+    {
+        return UserClient::where('id', $clientId)->DependsOnPIC()->exists();
     }
 
     public function getClientByMonthCreatedAt(array $month)
