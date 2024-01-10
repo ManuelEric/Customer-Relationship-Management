@@ -425,12 +425,12 @@
                         defaultContent: '<button type="button"class="btn btn-sm btn-outline-warning showClientProgram"><i class="bi bi-eye"></i></button>'
                     }
                 ],
-                createdRow: function(row, data, index) {
-                    let currentDate = new Date().toJSON().slice(0, 10);
-                    if (data['created_at'].slice(0, 10) == currentDate) {
-                        $('td', row).addClass('table-success');
-                    }
-                }
+                // createdRow: function(row, data, index) {
+                //     let currentDate = new Date().toJSON().slice(0, 10);
+                //     if (data['created_at'].slice(0, 10) == currentDate) {
+                //         $('td', row).addClass('table-success');
+                //     }
+                // }
             })
 
             realtimeData(table)

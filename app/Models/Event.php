@@ -32,6 +32,7 @@ class Event extends Model
         'status',
         'event_target',
         'event_banner',
+        'category'
     ];
 
     protected function eventTarget(): Attribute
