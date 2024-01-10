@@ -27,6 +27,7 @@
             </div>
             <div class="col-md-5">
                 <div class="row align-items-center g-2">
+                    @if (Session::get('user_role') != 'Employee')
                     <div class="col-md-3 col-6">
                         <a href="{{ url('api/download/excel-template/client-event') }}"
                             class="btn btn-sm btn-light text-info btn-download text-nowrap w-100"><i
@@ -39,7 +40,11 @@
                             data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload me-1"></i>
                             <span>Import</span></a>
                     </div>
-                    <div class="col-md-3">
+                    @endif
+                    <div @class([
+                        'col-md-3',
+                        'offset-6' => Session::get('user_role') == 'Employee',
+                    ])>
                         <div class="dropdown">
                             <button href="#" class="btn btn-sm btn-light text-dark dropdown-toggle w-100"
                                 data-bs-toggle="dropdown" data-bs-auto-close="false" id="filter">

@@ -7,6 +7,7 @@ use App\Interfaces\InitialProgramRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\ReasonRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 
 class ClientStudentService 
 {
@@ -15,13 +16,15 @@ class ClientStudentService
     protected ClientRepositoryInterface $clientRepository;
     protected LeadRepositoryInterface $leadRepository;
     protected InitialProgramRepositoryInterface $initialProgramRepository;
+    protected UserRepositoryInterface $userRepository;
 
     public function __construct(
         ReasonRepositoryInterface $reasonRepository,
         SchoolRepositoryInterface $schoolRepository,
         ClientRepositoryInterface $clientRepository,
         LeadRepositoryInterface $leadRepository,
-        InitialProgramRepositoryInterface $initialProgramRepository
+        InitialProgramRepositoryInterface $initialProgramRepository,
+        UserRepositoryInterface $userRepository
         )
     {
         $this->reasonRepository = $reasonRepository;
@@ -29,6 +32,7 @@ class ClientStudentService
         $this->clientRepository = $clientRepository;
         $this->leadRepository = $leadRepository;
         $this->initialProgramRepository = $initialProgramRepository;
+        $this->userRepository = $userRepository;
     }
 
     public function getClientStudent()
@@ -54,6 +58,8 @@ class ClientStudentService
         $leads = $main_leads->merge($sub_leads);
         $initial_programs = $this->initialProgramRepository->getAllInitProg();
 
+        $pics = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+
         return [
             'reasons' => $reasons,
             'advanced_filter' => [
@@ -61,7 +67,8 @@ class ClientStudentService
                 'parents' => $parents,
                 'leads' => $leads,
                 'max_graduation_year' => $max_graduation_year,
-                'initial_programs' => $initial_programs
+                'initial_programs' => $initial_programs,
+                'pics' => $pics
             ]
         ];
     }

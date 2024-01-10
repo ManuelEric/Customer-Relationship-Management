@@ -114,6 +114,18 @@
                                         </select>
                                     </div> --}}
 
+                                    @if (Session::get('user_role') != 'Employee')
+                                    <div class="col-md-12 mb-2">
+                                        <label for="">PIC</label>
+                                        <select name="pic[]" class="select form-select form-select-sm w-100"
+                                            multiple id="pic">
+                                            @foreach ($advanced_filter['pics'] as $pic) 
+                                                <option value="{{ $pic->id }}">{{ $pic->full_name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    @endif
+
                                     <div class="col-md-12 mt-3 d-none">
                                         <div class="d-flex justify-content-between">
                                             <button type="button" class="btn btn-sm btn-outline-danger"
@@ -163,8 +175,9 @@
                         <th class="d-none">Score</th>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Name</th>
+                        <th class="bg-info text-white">Interested Program</th>
                         <th class="bg-info text-white">Program Suggest</th>
-                        <th class="bg-info text-white">Status Lead</th>
+                        <th>Status Lead</th>
                         <th>PIC</th>
                         <th>Mail</th>
                         <th>Phone</th>
@@ -179,7 +192,6 @@
                         <th>Lead</th>
                         <th>Level of Interest</th>
                         <th>Joined Event</th>
-                        <th>Interested Program</th>
                         {{-- <th>Success Program</th>
                         <th>Mentor/Tutor</th> --}}
                         <th>Year of Study Abroad</th>
@@ -467,6 +479,7 @@
                         params.program_suggest = $("#program-name").val()
                         params.status_lead = $("#lead-source").val()
                         params.active_status = $("#active-status").val()
+                        params.pic = $("#pic").val()
                     }
                 },
                 columns: [
@@ -491,6 +504,11 @@
                         render: function(data, type, row, meta) {
                             return data
                         }
+                    },
+                    {
+                        data: 'interest_prog',
+                        className: 'text-center',
+                        defaultContent: '-'
                     },
                     {
                         data: 'program_suggest',
@@ -595,11 +613,6 @@
                     },
                     {
                         data: 'joined_event',
-                        className: 'text-center',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'interest_prog',
                         className: 'text-center',
                         defaultContent: '-'
                     },
@@ -784,6 +797,11 @@
             })
 
             $("#active-status").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#pic").on('change', function (e) {
                 var value = $(e.currentTarget).find("option:selected").val();
                 table.draw();
             })
