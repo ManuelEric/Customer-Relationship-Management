@@ -51,6 +51,7 @@ use App\Models\v1\Student as CRMStudent;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Benchmark;
 use Illuminate\Support\Facades\Cache;
+use Laravel\Passport\Passport;
 
 class DashboardController extends SalesDashboardController
 {
@@ -117,7 +118,7 @@ class DashboardController extends SalesDashboardController
     }
 
     public function index(Request $request)
-    { 
+    {
         $data = (new SalesDashboardController($this))->get($request);
         $data = array_merge($data, (new PartnerDashboardController($this))->get($request));
         $data = array_merge($data, (new FinanceDashboardController($this))->get($request));

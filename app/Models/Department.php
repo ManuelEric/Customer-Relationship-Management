@@ -37,6 +37,11 @@ class Department extends Model
         );
     }
 
+    public function scopeWithAndWhereHas($query, $relation, $constraint){
+        return $query->whereHas($relation, $constraint)
+                     ->with([$relation => $constraint]);
+    }
+
     # relation
     // public function user_roles()
     // {
@@ -45,7 +50,7 @@ class Department extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'tbl_user_type_detail', 'department_id', 'user_id')->withTimestamps();
+        return $this->belongsToMany(User::class, 'tbl_user_type_detail', 'department_id', 'user_id')->withTimestamps()->withPivot('status');
     }
 
     public function purchase_request()
