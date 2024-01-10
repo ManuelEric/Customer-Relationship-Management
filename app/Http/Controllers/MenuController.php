@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Interfaces\DepartmentRepositoryInterface;
 use App\Interfaces\MenuRepositoryInterface;
+use App\Models\Department;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,7 @@ class MenuController extends Controller
     }
 
     public function index()
-    {
+    {        
         $departments = $this->departmentRepository->getAllDepartment();
         $menus = $this->menuRepository->getMenu();
 
