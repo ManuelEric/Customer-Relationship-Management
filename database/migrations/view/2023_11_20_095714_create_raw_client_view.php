@@ -160,6 +160,10 @@ return new class extends Migration
                 WHEN l.main_lead = "KOL" THEN CONCAT("KOL - ", l.sub_lead)
                 ELSE l.main_lead
             END) AS lead_source,
+            (CASE 
+                WHEN rc.referral_code is not null THEN GetReferralNameByRefCode (rc.referral_code)
+                ELSE NUll
+            END COLLATE utf8mb4_unicode_ci) AS referral_name,
             sch.sch_id,
             (SELECT GROUP_CONCAT(
                 (CASE

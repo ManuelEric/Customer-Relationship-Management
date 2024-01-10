@@ -94,6 +94,7 @@ class ClientTeacherCounselorController extends ClientController
         $events = $this->eventRepository->getAllEvents();
         $ext_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
+        $listReferral = $this->clientRepository->getAllClients();
 
         return view('pages.client.teacher.form')->with(
             [
@@ -102,7 +103,8 @@ class ClientTeacherCounselorController extends ClientController
                 'leads' => $leads,
                 'events' => $events,
                 'ext_edufair' => $ext_edufair,
-                'kols' => $kols
+                'kols' => $kols,
+                'listReferral' => $listReferral
             ]
         );
     }
@@ -175,6 +177,7 @@ class ClientTeacherCounselorController extends ClientController
         $events = $this->eventRepository->getAllEvents();
         $ext_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
+        $listReferral = $this->clientRepository->getAllClients();
 
         return view('pages.client.teacher.form')->with(
             [
@@ -184,7 +187,8 @@ class ClientTeacherCounselorController extends ClientController
                 'leads' => $leads,
                 'events' => $events,
                 'ext_edufair' => $ext_edufair,
-                'kols' => $kols
+                'kols' => $kols,
+                'listReferral' => $listReferral
             ]
         );
     }
@@ -208,6 +212,7 @@ class ClientTeacherCounselorController extends ClientController
             'kol_lead_id',
             'event_id',
             'st_levelinterest',
+            'referral_code'
         ]);
 
         $newTeacherCounselorDetails['phone'] = $this->setPhoneNumber($request->phone);
@@ -229,6 +234,11 @@ class ClientTeacherCounselorController extends ClientController
 
         DB::beginTransaction();
         try {
+
+            # set referral code null if lead != referral
+            if ($newTeacherCounselorDetails['lead_id'] != 'LS005'){
+                $newTeacherCounselorDetails['referral_code'] = null;
+            }
 
             # case 1
             # create new school

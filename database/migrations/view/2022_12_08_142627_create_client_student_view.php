@@ -45,6 +45,10 @@ return new class extends Migration
         CREATE OR REPLACE VIEW client AS
         SELECT c.*,
             CONCAT (c.first_name, " ", COALESCE(c.last_name, "")) as full_name,
+            (CASE 
+                WHEN c.referral_code is not null THEN GetReferralNameByRefCode (c.referral_code)
+                ELSE NULL
+            END COLLATE utf8mb4_unicode_ci) AS referral_name,
             s.sch_name as school_name,
             (CASE 
                 WHEN l.main_lead = "KOL" THEN CONCAT("KOL - ", l.sub_lead)

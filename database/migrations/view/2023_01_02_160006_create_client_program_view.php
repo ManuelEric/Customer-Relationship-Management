@@ -21,7 +21,11 @@ return new class extends Migration
                         FROM tbl_pic_client pic
                     LEFT JOIN users u on u.id = pic.user_id
                     WHERE pic.client_id = c.id AND pic.status = 1)
-             as pic_client, 
+             as pic_client,
+            (CASE 
+                WHEN cp.referral_code is not null THEN GetReferralNameByRefCode (cp.referral_code)
+                ELSE NULL
+            END COLLATE utf8mb4_unicode_ci) AS referral_name,
             c.st_grade,
             c.register_as,
             UpdateGradeStudent (
