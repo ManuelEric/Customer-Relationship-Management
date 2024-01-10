@@ -320,6 +320,6 @@ class UserClient extends Authenticatable
     # PIC from sales team
     public function handledBy()
     {
-        return $this->belongsToMany(User::class, 'tbl_pic_client', 'client_id', 'user_id');
+        return $this->belongsToMany(User::class, 'tbl_pic_client', 'client_id', 'user_id')->withPivot('id', 'status');
     }
 }

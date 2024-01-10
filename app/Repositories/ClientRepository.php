@@ -263,20 +263,32 @@ class ClientRepository implements ClientRepositoryInterface
                 'parent.phone as parent_phone',
             ])->
             selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
-            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->doesntHave('clientProgram')->when($month, function ($subQuery) use ($month) {
+            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
+            doesntHave('clientProgram')->
+            when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
-            })->whereHas('roles', function ($subQuery) {
+            })->
+            whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
-            })->when(!empty($advanced_filter['school_name']), function ($querySearch) use ($advanced_filter) {
+            })->
+            when(!empty($advanced_filter['school_name']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('school_name', $advanced_filter['school_name']);
-            })->when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
+            })->
+            when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('graduation_year', $advanced_filter['graduation_year']);
-            })->when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
+            })->
+            when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
-            })->when(!empty($advanced_filter['initial_programs']), function ($querySearch) use ($advanced_filter) {
+            })->
+            when(!empty($advanced_filter['initial_programs']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('program_suggest', $advanced_filter['initial_programs']);
-            })->when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
+            })->
+            when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
+            })->
+            when(!empty($advanced_filter['pic']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('client.pic_id', $advanced_filter['pic']);
             })->
             when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('client.st_statusact', $advanced_filter['active_status']);
@@ -1519,5 +1531,25 @@ class ClientRepository implements ClientRepositoryInterface
         unset($picDetails['status']);
 
         return $this->insertPicClient($picDetails);
+    }
+
+    public function checkActivePICByClient($clientId)
+    {
+        return UserClient::where('id', $clientId)->withAndWhereHas('handledBy', function ($query) {
+            $query->where('tbl_pic_client.status', 1);
+        })->first();
+    }
+
+    public function inactivePreviousPIC(UserClient $client)
+    {
+                
+        foreach ($client->handledBy as $pic) {
+            
+            $picId = $pic->id;
+            $client->handledBy()->updateExistingPivot($picId, ['status' => 0]);
+        }
+
+        return $client;
+        
     }
 }
