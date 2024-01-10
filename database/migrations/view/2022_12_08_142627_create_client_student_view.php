@@ -87,6 +87,11 @@ return new class extends Migration
             (SELECT GROUP_CONCAT(squ.univ_name) FROM tbl_dreams_uni sqdu
                     LEFT JOIN tbl_univ squ ON squ.univ_id = sqdu.univ_id
                     WHERE sqdu.client_id = c.id GROUP BY sqdu.client_id) as dream_uni,
+            (SELECT GROUP_CONCAT(evt.event_title
+                    SEPARATOR ", "
+                ) FROM tbl_client_event ce
+                    JOIN tbl_events evt ON evt.event_id = ce.event_id
+                    WHERE ce.client_id = c.id GROUP BY ce.client_id) as joined_event,
             (SELECT GROUP_CONCAT(sqp.prog_program) FROM tbl_interest_prog sqip
                     LEFT JOIN tbl_prog sqp ON sqp.prog_id = sqip.prog_id
                     WHERE sqip.client_id = c.id GROUP BY sqip.client_id) as interest_prog,
