@@ -1,5 +1,5 @@
 
-<section id="client-event" class="dashboard-partnership d-none">
+<section id="client-event" >
     <div class="card mb-3">
         <div class="card-body">
             <div class="row justify-content-end mb-2">

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use Laravel\Sanctum\HasApiTokens;
 
 class UserClient extends Authenticatable
@@ -174,6 +175,15 @@ class UserClient extends Authenticatable
             ->with([$relation => $constraint]);
     }
 
+    public function scopeDependsOnPIC($query)
+    {
+        return $query->when(Session::get('user_role') == 'Employee', function ($subQuery) {
+            $subQuery->whereHas('handledBy', function ($subQuery_2) {
+                $subQuery_2->where('users.id', auth()->user()->id);
+            });
+        });
+    }
+
     public function getLeadSource($parameter)
     {
         switch ($parameter) {
@@ -305,5 +315,11 @@ class UserClient extends Authenticatable
     public function picClient()
     {
         return $this->hasMany(PicClient::class, 'client_id', 'id');
+    }
+
+    # PIC from sales team
+    public function handledBy()
+    {
+        return $this->belongsToMany(User::class, 'tbl_pic_client', 'client_id', 'user_id');
     }
 }

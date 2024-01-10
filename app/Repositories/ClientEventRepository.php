@@ -8,6 +8,7 @@ use App\Models\User;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class ClientEventRepository implements ClientEventRepositoryInterface
 {
@@ -125,6 +126,9 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 })->
                 when(empty($filter['start_date']) && !empty($filter['end_date']), function ($searchQuery) use ($filter) {
                     $searchQuery->where('joined_date', '<=', $filter['end_date']);
+                })
+                ->when(Session::get('user_role') == 'Employee', function ($sub) {
+                    $sub->where('client.pic_id', auth()->user()->id);
                 })
                 ->orderBy('tbl_client_event.created_at', 'DESC')
                 ->groupBy('tbl_client_event.clientevent_id');

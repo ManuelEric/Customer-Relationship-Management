@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Interfaces\MenuRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\UserTypeRepositoryInterface;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
@@ -60,6 +61,40 @@ class AuthController extends Controller
             $this->logSuccess('auth', null, 'Login', $request->email);
             
             $request->session()->regenerate();
+
+
+
+            # check roles
+            # set the default scopes
+            $scopes = ['employee'];
+            $request->session()->put('user_role', 'Employee');
+            if ($user->roles()->where('role_name', 'Super Admin')->exists()) {
+                $scopes = ['super-admin'];
+                $request->session()->put('user_role', 'SuperAdmin');
+            } else {
+
+                if ($user->roles()->where('role_name', 'Admin')->exists() && $user->department()->where('dept_name', 'Client Management')->exists()) {
+                    $scopes = ['sales-admin'];
+                    $request->session()->put('user_role', 'SalesAdmin');
+                } 
+                
+            }
+            
+
+            # if scope is employee
+            if (in_array('employee', $scopes)) {
+
+                # create access token 
+                # in order to access api with data session
+                if (!$token = $user->createToken('Grant User Access', $scopes)->accessToken) 
+                    Log::error('Failed to generate token');
+                
+                # store the access token
+                $request->session()->put([
+                    'access_token' => $token,
+                    'scopes' => $scopes
+                ]);
+            }
             
             return redirect()->intended('/dashboard');
             
@@ -82,6 +117,13 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->forget('user_role');
         $request->session()->regenerateToken();
+
+        # revoke token
+        if ($request->user()) {
+            $token = $request->user()->token();
+            $token->revoke();
+        }
+
         return redirect('/');
     }
 

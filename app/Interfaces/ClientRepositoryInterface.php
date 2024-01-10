@@ -61,6 +61,7 @@ interface ClientRepositoryInterface
     public function getClientById($clientId);
     public function getClientByUUID($clientUUID);
     public function getClientsById(array $clientIds);
+    public function findHandledClient(int $clientId);
     public function getClientByMonthCreatedAt(array $createdAt);
     public function getClientByPhoneNumber($phoneNumber);
     public function getClientBySchool($schoolId);
