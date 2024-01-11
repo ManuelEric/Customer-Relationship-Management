@@ -155,6 +155,7 @@ class SalesDashboardController extends Controller
                     $html .= '<tr ' . $styling . ' data-detail="' . $client->id . '">
                                 <td>' . $index++ . '</td>
                                 <td>' . $client->full_name . '</td>
+                                <td>' . $client->handledBy()->first()->full_name .'</td>
                                 <td>' . $client->mail . '</td>
                                 <td>' . $client->phone . '</td>
                                 <td>' . $client->graduation_year_real . '</td>
@@ -173,9 +174,12 @@ class SalesDashboardController extends Controller
                 $now = date('Y-m', strtotime($month));
                 $styling = $client_register_date == $now ? 'class="bg-primary text-white popup-modal-detail-client"' : 'class="popup-modal-detail-client"';
 
+                $clientsPic = $client->handledBy->first()->fullname ?? "-";
+
                 $html .= '<tr ' . $styling . ' data-detail="' . $client->id . '">
                             <td>' . $index++ . '</td>
                             <td>' . $client->full_name . '</td>
+                            <td class="text-center">' . $clientsPic . '</td>
                             <td>' . $client->mail . '</td>
                             <td>' . $client->phone . '</td>
                             <td>' . $client->graduation_year_real . '</td>

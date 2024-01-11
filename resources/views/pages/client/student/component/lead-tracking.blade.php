@@ -21,7 +21,7 @@
                     @if (isset($currentLead))
                         <div class="col-md-3 col-4 text-center d-flex align-items-center">
                             <i
-                                class="{{ $currentLead['total_result_program'] >= 0.5 ? 'bi bi-check text-success' : 'bi bi-x text-danger' }}  fs-3"></i>
+                                class="fs-3"></i>
                             <small class="text-muted">({{ $currentLead['total_result_program'] }}/1)</small>
                         </div>
                         <div class="col-md-3 col-4 text-center d-flex align-items-center">
