@@ -14,6 +14,7 @@ use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\MailingEventOfflineTrait;
 use App\Http\Traits\SplitNameTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Http\Traits\SyncClientTrait;
 use App\Imports\CheckListInvitation;
 use App\Imports\ClientEventImport;
 use App\Imports\InvitationMailVIPImport;
@@ -37,6 +38,8 @@ use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
+use App\Jobs\RawClient\ProcessVerifyClient;
+use App\Jobs\RawClient\ProcessVerifyClientParent;
 use App\Models\Client;
 use App\Models\School;
 use App\Models\UserClientAdditionalInfo;
@@ -67,6 +70,7 @@ class ClientEventController extends Controller
     use StandardizePhoneNumberTrait;
     use MailingEventOfflineTrait;
     use LoggingTrait;
+    use SyncClientTrait;
     protected CurriculumRepositoryInterface $curriculumRepository;
     protected ClientRepositoryInterface $clientRepository;
     protected ClientEventRepositoryInterface $clientEventRepository;
@@ -693,7 +697,7 @@ class ClientEventController extends Controller
             $newly_registrant_user = $this->clientRepository->getClientById($newly_registrant);
 
             # check if client has already join the event
-            if ($this->clientEventRepository->getClientEventByClientIdAndEventId($createdClient['clientId'], 'EVT-0008'))
+            if ($this->clientEventRepository->getClientEventByClientIdAndEventId($createdClient['clientId'], $event->event_id))
                 return Redirect::to('form/already-join?role=' . $choosen_role . '&name=' . $newly_registrant_user->full_name);
 
             # store a new client event
@@ -849,20 +853,35 @@ class ClientEventController extends Controller
         if ($choosen_role == 'parent') {
             $parentId = $newClientDetails[0]['id'] = $clientArrayIds[0];
             $childId = $clientArrayIds[1];
+            # trigger to verifying parent
+            ProcessVerifyClientParent::dispatch([$parentId])->onQueue('verifying-client-parent');
+            # trigger to verifying children
+            ProcessVerifyClient::dispatch([$childId])->onQueue('verifying-client');
+            
         } else if ($choosen_role == 'student') {
             # to prevent empty parent name being stored into database
             if (!$parentNameIsNull)
                 $parentId = $clientArrayIds[1];
+                # trigger to verifying parent
+                ProcessVerifyClientParent::dispatch([$parentId])->onQueue('verifying-client-parent');
 
             $childId = $newClientDetails[0]['id'] = $clientArrayIds[0];
+            # trigger to verifying children
+            ProcessVerifyClient::dispatch([$childId])->onQueue('verifying-client');
+
         } else {
             $teacherId = $newClientDetails[0]['id'] = $clientArrayIds[0];
+            # trigger to verifying teacher
+            ProcessVerifyClient::dispatch([$teacherId])->onQueue('verifying-client-teacher');
+
         }
 
         # store the destination country if registrant either parent or student
         if ($choosen_role == 'parent' || $choosen_role == 'student') {
 
-            $this->clientRepository->createDestinationCountry($childId, $request->destination_country);
+            $client = $this->clientRepository->getClientById($childId);
+            isset($request->category) ? $client->interestPrograms()->syncWithoutDetaching(['prog_id' => $request->category]) : null;
+            isset($request->destination_country) ? $this->clientRepository->createDestinationCountry($childId, $request->destination_country) : null;
         }
 
         $response = [
