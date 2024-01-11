@@ -109,6 +109,7 @@ return new class extends Migration
             second_client.phone as second_client_phone,
             scsch.sch_name as second_school_name,
             scsch.is_verified as is_verifiedsecond_school,
+            rc.scholarship,
             UpdateGradeStudent (
                 year(CURDATE()),
                 year(rc.created_at),
@@ -194,7 +195,7 @@ return new class extends Migration
             ) FROM tbl_client_event ce
                 JOIN tbl_events evt ON evt.event_id = ce.event_id
                 WHERE ce.client_id = rc.id GROUP BY ce.client_id) as joined_event,
-            (SELECT GROUP_CONCAT(sqp.prog_program) FROM tbl_interest_prog sqip
+            (SELECT GROUP_CONCAT(DISTINCT sqp.prog_program SEPARATOR ", ") FROM tbl_interest_prog sqip
                 LEFT JOIN tbl_prog sqp ON sqp.prog_id = sqip.prog_id
                 WHERE sqip.client_id = rc.id GROUP BY sqip.client_id) as interest_prog
             

@@ -200,6 +200,7 @@
                         <th>University Destination</th>
                         <th>Interest Major</th>
                         <th>Joined Date</th>
+                        <th>Scholarship Eligible</th>
                         <th>Last Update</th>
                         <th>Is Active</th>
                         <th class="bg-info text-white"># Action</th>
@@ -651,11 +652,19 @@
                         defaultContent: '-'
                     },
                     {
-                        data: 'created_at',
-                        searchable: false,
+                        data: 'dream_major',
                         className: 'text-center',
-                        render: function(data, type, row) {
-                            return moment(data).format('MMMM Do YYYY')
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'scholarship',
+                        className: 'text-center',
+                        searchable: false,
+                        render: function(data, type, row, meta) {
+                            if (data == "Y")
+                                return "Yes"
+                            else
+                                return "No"
                         }
                     },
                     {

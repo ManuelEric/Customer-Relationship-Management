@@ -112,7 +112,7 @@ return new class extends Migration
                     WHERE sqdm.client_id = c.id GROUP BY sqdm.client_id) as dream_major,
             (SELECT name FROM tbl_client_lead_tracking clt
                     LEFT JOIN tbl_initial_program_lead ipl ON clt.initialprogram_id = ipl.id
-                    WHERE clt.client_id = c.id AND clt.type = "Program" AND clt.total_result >= 0.5 AND clt.status = 1
+                    WHERE clt.client_id = c.id AND clt.type = "Program" AND clt.status = 1
                     ORDER BY clt.total_result DESC LIMIT 1) as program_suggest,
             (SELECT (CASE 
                         WHEN total_result >= 0.65 THEN "Hot"
@@ -136,7 +136,7 @@ return new class extends Migration
                     ORDER BY clt2.total_result DESC LIMIT 1)
             END) AS status_lead_score,
             (SELECT group_id FROM tbl_client_lead_tracking clt3
-                    WHERE clt3.client_id = c.id AND clt3.type = "Program" AND clt3.total_result >= 0.5 AND clt3.status = 1
+                    WHERE clt3.client_id = c.id AND clt3.type = "Program" AND clt3.status = 1
                     ORDER BY clt3.total_result DESC LIMIT 1) as group_id,
             (SELECT CONVERT(checkParticipated (c.id) USING utf8mb4)) AS participated,
             (SELECT pic.user_id 

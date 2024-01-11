@@ -61,6 +61,7 @@ class UserClient extends Authenticatable
         'st_password',
         'preferred_program',
         'is_funding',
+        'scholarship',
         'is_verified',
         'register_as',
         'pic',

@@ -329,6 +329,19 @@ class ClientStudentController extends ClientController
             if (!$this->createInterestedMajor($data['interestMajors'], $newStudentId))
                 throw new Exception('Failed to store interest major', 7);
 
+            # case 8
+            # Set default PIC if sales member add student
+            if (Session::get('user_role') == 'Employee') {
+                $picDetails[] = [
+                    'client_id' => $newStudentId,
+                    'user_id' => auth()->user()->id,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ];
+
+                $this->clientRepository->insertPicClient($picDetails);
+            }
+
             DB::commit();
         } catch (Exception $e) {
 

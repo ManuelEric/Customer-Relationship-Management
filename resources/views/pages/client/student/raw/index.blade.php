@@ -168,6 +168,7 @@
                             <th>Country of Study Abroad</th>
                             <th>Joined Event</th>
                             <th>Interest Program</th>
+                            <th>Scholarship Eligible</th>
                             <th>Joined Date</th>
                             <th class="bg-info text-white">Last Update</th>
                             <th class="bg-info text-white">Action</th>
@@ -479,6 +480,17 @@
                         data: 'interest_prog',
                         className: 'text-center',
                         defaultContent: '-'
+                    },
+                    {
+                        data: 'scholarship',
+                        className: 'text-center',
+                        searchable: false,
+                        render: function(data, type, row, meta) {
+                            if (data == "Y")
+                                return "Yes"
+                            else
+                                return "No"
+                        }
                     },
                     {
                         data: 'created_at',
