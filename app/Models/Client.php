@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Session;
+use Laravel\Sanctum\HasApiTokens;
 
 class Client extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasApiTokens, HasFactory, SoftDeletes;
 
     protected $table = 'client';
 
@@ -112,6 +114,22 @@ class Client extends Model
         });
     }
 
+    public function scopeIsNotSalesAdmin($query)
+    {
+        return $query->when(Session::get('user_role') == 'Employee', function ($subQuery) {
+            $subQuery->where('client.pic_id', auth()->user()->id);
+        });
+    }
+
+    public function scopeIsUsingAPI($query)
+    {
+        return $query->when(auth()->guard('api')->user(), function ($subQuery) {
+            $subQuery->whereHas('handledBy', function ($subQuery_2) {
+                $subQuery_2->where('users.id', auth()->guard('api')->user()->id);
+            });
+        });
+    }
+
     # attributes
     protected function updatedAt(): Attribute
     {
@@ -210,5 +228,11 @@ class Client extends Model
     public function leadStatus()
     {
         return $this->belongsToMany(InitialProgram::class, 'tbl_client_lead_tracking', 'client_id', 'initialprogram_id')->using(ClientLeadTracking::class)->withPivot('type', 'total_result', 'status')->withTimestamps();
+    }
+
+    # PIC from sales team
+    public function handledBy()
+    {
+        return $this->belongsToMany(User::class, 'tbl_pic_client', 'client_id', 'user_id');
     }
 }

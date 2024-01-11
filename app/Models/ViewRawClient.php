@@ -37,6 +37,7 @@ class ViewRawClient extends Authenticatable
         'updated_at',
         'roles',
         'lead_id',
+        'scholarship',
     ];
 
     public function createdAt(): Attribute

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use Laravel\Sanctum\HasApiTokens;
 
 class UserClient extends Authenticatable
@@ -19,7 +20,7 @@ class UserClient extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     protected $table = 'tbl_client';
-    protected $appends = ['lead_source', 'graduation_year_real'];
+    protected $appends = ['lead_source', 'graduation_year_real', 'referral_name'];
 
     /**
      * The attributes that should be visible in arrays.
@@ -60,9 +61,11 @@ class UserClient extends Authenticatable
         'st_password',
         'preferred_program',
         'is_funding',
+        'scholarship',
         'is_verified',
         'register_as',
         'pic',
+        'referral_code',
         'created_at',
         'updated_at',
     ];
@@ -107,6 +110,13 @@ class UserClient extends Authenticatable
     {
         return Attribute::make(
             get: fn ($value) => $this->getParticipatedFromView($this->id)
+        );
+    }
+
+    protected function referralName(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->referral_code != NULL ? $this->getReferralNameFromRefCodeView($this->referral_code) : NULL
         );
     }
 
@@ -174,6 +184,15 @@ class UserClient extends Authenticatable
             ->with([$relation => $constraint]);
     }
 
+    public function scopeDependsOnPIC($query)
+    {
+        return $query->when(Session::get('user_role') == 'Employee', function ($subQuery) {
+            $subQuery->whereHas('handledBy', function ($subQuery_2) {
+                $subQuery_2->where('users.id', auth()->user()->id);
+            });
+        });
+    }
+
     public function getLeadSource($parameter)
     {
         switch ($parameter) {
@@ -208,6 +227,11 @@ class UserClient extends Authenticatable
     public function getParticipatedFromView($id)
     {
         return DB::table('client')->find($id)->participated;
+    }
+
+    public function getReferralNameFromRefCodeView($refCode)
+    {
+        return ViewClientRefCode::whereRaw('ref_code COLLATE utf8mb4_unicode_ci = (?)', $refCode)->first()->full_name;
     }
 
 
@@ -305,5 +329,16 @@ class UserClient extends Authenticatable
     public function picClient()
     {
         return $this->hasMany(PicClient::class, 'client_id', 'id');
+    }
+
+    public function viewClientRefCode()
+    {
+        return $this->belongsTo(ViewClientRefCode::class, 'id', 'id');
+    }
+  
+    # PIC from sales team
+    public function handledBy()
+    {
+        return $this->belongsToMany(User::class, 'tbl_pic_client', 'client_id', 'user_id')->withPivot('id', 'status');
     }
 }

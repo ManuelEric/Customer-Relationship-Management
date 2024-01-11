@@ -94,7 +94,8 @@ class StoreFormEventEmbedRequest extends FormRequest
             'graduation_year' => 'required',
             'referral' => 'nullable',
             'destination_country' => 'nullable|exists:tbl_tag,id',
-            'leadsource' => 'required_without:referral|exists:tbl_lead,lead_id'
+            'leadsource' => 'required_without:referral|exists:tbl_lead,lead_id',
+            'scholarship_eligibility' => 'required|in:Y,N',
         ];
     }
 

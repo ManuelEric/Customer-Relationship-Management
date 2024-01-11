@@ -17,6 +17,6 @@ class DepartmentRepository implements DepartmentRepositoryInterface
     public function getEmployeeByDepartment($departmentId)
     {
         $department = Department::find($departmentId);
-        return $department->users;
+        return $department->users->where('pivot.status', 1);
     }
 }

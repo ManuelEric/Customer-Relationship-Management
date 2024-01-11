@@ -133,8 +133,8 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
                     }
 
                     // Sync country of study abroad
-                    if (isset($secondClient['destination_country'])) {
-                        $children != null ?  $this->syncDestinationCountry($secondClient['destination_country'], $children) : null;
+                    if (isset($row['destination_country'])) {
+                        $children != null ?  $this->syncDestinationCountry($row['destination_country'], $children) : null;
                     }
                 }
 

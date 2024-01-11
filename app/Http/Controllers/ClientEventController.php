@@ -640,6 +640,9 @@ class ClientEventController extends Controller
         if ($choosen_role == "student" && ($request->fullname[1] == "-" || $request->fullname[1] === NULL))
             $parentNameIsNull = true;
 
+        # scholarship eligibility
+        $scholarship_eligibility = $request->scholarship_eligibility;
+
         DB::beginTransaction();
         try {
 
@@ -673,6 +676,7 @@ class ClientEventController extends Controller
                 'notes' => $notes,
                 'referral_code' => $referral_code,
                 'status' => $attend_status,
+                'scholarship' => $scholarship_eligibility,
                 'joined_date' => Carbon::now(),
             ];
 

@@ -218,6 +218,24 @@
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
+                                    <div class="col-md-6 d-none" id="referral">
+                                        <small>Sub Lead <sup class="text-danger">*</sup></small>
+                                        <select name="referral_code" id="referral_code" class="select w-100" {{ $disabled }}>
+                                            <option data-placeholder="true"></option>
+                                            @if (isset($listReferral) && count($listReferral) > 0)
+                                                @foreach ($listReferral as $referral)
+                                                    <option value="{{ $referral->viewClientRefCode->ref_code }}"
+                                                        @if (old('referral_code') == $referral->viewClientRefCode->ref_code) {{ 'selected' }}
+                                                        @elseif (isset($clientProgram) && $clientProgram->referral_code == $referral->viewClientRefCode->ref_code)
+                                                            {{ 'selected' }} @endif>
+                                                            {{ $referral->full_name }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                        @error('referral_code')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -669,6 +687,7 @@
                 $("#edufair").addClass("d-none")
                 $("#kol").addClass("d-none")
                 $("#partner").addClass("d-none")
+                $("#referral").addClass("d-none")
 
             } else if (lead.includes('External Edufair')) {
 
@@ -676,6 +695,7 @@
                 $("#edufair").removeClass("d-none")
                 $("#kol").addClass("d-none")
                 $("#partner").addClass("d-none")
+                $("#referral").addClass("d-none")
 
             } else if (lead.includes('KOL')) {
 
@@ -683,6 +703,7 @@
                 $("#edufair").addClass("d-none")
                 $("#kol").removeClass("d-none")
                 $("#partner").addClass("d-none")
+                $("#referral").addClass("d-none")
 
             } else if (lead.includes('All-In Partners')) {
 
@@ -690,6 +711,15 @@
                 $("#edufair").addClass("d-none")
                 $("#kol").addClass("d-none")
                 $("#partner").removeClass("d-none")
+                $("#referral").addClass("d-none")
+
+            } else if (lead.includes('Referral')) {
+
+                $("#event").addClass("d-none")
+                $("#edufair").addClass("d-none")
+                $("#kol").addClass("d-none")
+                $("#partner").addClass("d-none")
+                $("#referral").removeClass("d-none")
 
             } else {
 
@@ -697,6 +727,7 @@
                 $("#edufair").addClass("d-none")
                 $("#kol").addClass("d-none")
                 $("#partner").addClass("d-none")
+                $("#referral").addClass("d-none")
 
             }
         } else {
@@ -886,6 +917,10 @@
 
             @if (old('partner_id') !== null)
                 $("#partner_id").select2().val("{{ old('partner_id') }}").trigger('change');
+            @endif
+
+            @if (old('referral_code') !== null)
+                $("#referral_code").select2().val("{{ old('referral_code') }}").trigger('change');
             @endif
 
             @if (old('status') !== null)

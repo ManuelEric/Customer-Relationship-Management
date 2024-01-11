@@ -7,6 +7,8 @@ use App\Models\Department;
 use App\Repositories\MenuRepository;
 use App\Models\User;
 use App\Repositories\AlarmRepository;
+use App\Repositories\ClientRepository;
+use App\Repositories\FollowupRepository;
 use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +32,8 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind('menu-repository-services', MenuRepository::class);
         $this->app->bind('alarm-repository-services', AlarmRepository::class);
+        $this->app->bind('follow-up', FollowupRepository::class);
+        $this->app->bind('birthday', ClientRepository::class);
     }
 
     /**
@@ -115,6 +119,8 @@ class AppServiceProvider extends ServiceProvider
                     [
                         'countAlarm' => app('alarm-repository-services')->countAlarm(),
                         'notification' => app('alarm-repository-services')->notification(),
+                        'followUp' => app('follow-up')->getAllFollowupWithin(7),
+                        'birthDay' => app('birthday')->getMenteesBirthdayMonthly(date('m')),
                         'invRecPics' => $invRecPics,
                     ]
                 );
@@ -128,12 +134,10 @@ class AppServiceProvider extends ServiceProvider
         # Session user_role used for query new leads and raw data
 
         # if logged in user is admin
-        Session::put('user_role', 'Employee');
         if ($user->roles()->where('role_name', 'Super Admin')->count() > 0) {
             $collection = [];
             $collection = app('menu-repository-services')->getMenu();
             $isSuperAdmin = true;
-            Session::put('user_role', 'SuperAdmin');
         }
         
 
@@ -220,7 +224,6 @@ class AppServiceProvider extends ServiceProvider
 
                 if ($user->roles()->where('role_name', 'Admin')->count() > 0){
                     $entries[$index]['alias'] = 'isSalesAdmin';
-                    Session::put('user_role', 'SalesAdmin');
                 }
 
             }

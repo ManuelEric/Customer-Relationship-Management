@@ -134,6 +134,7 @@ class ClientParentController extends ClientController
         $programs = $programsB2BB2C->merge($programsB2C);
         $countries = $this->tagRepository->getAllTags();
         $majors = $this->majorRepository->getAllMajors();
+        $listReferral = $this->clientRepository->getAllClients();
 
         return view('pages.client.parent.form')->with(
             [
@@ -148,6 +149,7 @@ class ClientParentController extends ClientController
                 'countries' => $countries,
                 'majors' => $majors,
                 'student' => $student,
+                'listReferral' => $listReferral
             ]
         );
     }
@@ -244,7 +246,7 @@ class ClientParentController extends ClientController
 
         return view('pages.client.parent.view')->with(
             [
-                'parent' => $parent
+                'parent' => $parent,
             ]
         );
     }
@@ -273,6 +275,7 @@ class ClientParentController extends ClientController
         $programs = $programsB2BB2C->merge($programsB2C);
         $countries = $this->tagRepository->getAllTags();
         $majors = $this->majorRepository->getAllMajors();
+        $listReferral = $this->clientRepository->getAllClients();
 
         return view('pages.client.parent.form')->with(
             [
@@ -287,6 +290,7 @@ class ClientParentController extends ClientController
                 'programs' => $programs,
                 'countries' => $countries,
                 'majors' => $majors,
+                'listReferral' => $listReferral
             ]
         );
     }
@@ -301,6 +305,11 @@ class ClientParentController extends ClientController
 
         DB::beginTransaction();
         try {
+
+            # set referral code null if lead != referral
+            if ($data['parentDetails']['lead_id'] != 'LS005'){
+                $data['parentDetails']['referral_code'] = null;
+            }
 
             # case 1
             # add relation between parent and student
