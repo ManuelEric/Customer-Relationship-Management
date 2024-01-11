@@ -256,6 +256,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getNewLeads($asDatatables = false, $month = null, $advanced_filter = [])
     {
+        // return UserClient::all();
         # new client that havent offering our program
         $query = Client::select([
                 'client.*',
@@ -263,10 +264,10 @@ class ClientRepository implements ClientRepositoryInterface
                 'parent.phone as parent_phone',
             ])->
             selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
-            selectRaW('REPLACE(status_lead, "Hot", "A") as Hot')->
-            selectRaW('REPLACE(status_lead, "Warm", "B") as Warm')->
-            selectRaW('REPLACE(status_lead, "Cold", "C") as Cold')->
-            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->doesntHave('clientProgram')->when($month, function ($subQuery) use ($month) {
+            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
+            doesntHave('clientProgram')->
+            when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');

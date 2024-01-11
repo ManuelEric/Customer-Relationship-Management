@@ -163,8 +163,9 @@
                         <th class="d-none">Score</th>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Name</th>
+                        <th class="bg-info text-white">Interested Program</th>
                         <th class="bg-info text-white">Program Suggest</th>
-                        <th class="bg-info text-white">Status Lead</th>
+                        <th>Status Lead</th>
                         <th>PIC</th>
                         <th>Mail</th>
                         <th>Phone</th>
@@ -178,7 +179,6 @@
                         <th>Location</th>
                         <th>Lead</th>
                         <th>Level of Interest</th>
-                        <th>Interested Program</th>
                         {{-- <th>Success Program</th>
                         <th>Mentor/Tutor</th> --}}
                         <th>Year of Study Abroad</th>
@@ -492,6 +492,11 @@
                         }
                     },
                     {
+                        data: 'interest_prog',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
                         data: 'program_suggest',
                         defaultContent: '-'
                     },
@@ -589,11 +594,6 @@
                     },
                     {
                         data: 'st_levelinterest',
-                        className: 'text-center',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'interest_prog',
                         className: 'text-center',
                         defaultContent: '-'
                     },

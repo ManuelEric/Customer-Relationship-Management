@@ -51,7 +51,7 @@ class Client extends Model
         'created_at',
         'updated_at',
         'deleted_at',
-        'pic',
+        'pic_id',
         'status_lead',
         'status_lead_score',
     ];
