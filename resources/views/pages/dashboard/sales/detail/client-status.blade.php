@@ -235,122 +235,123 @@
                         </div>
                     </div>
                     @if ($isSuperAdmin || $isSalesAdmin)
-                    <div class="col-md-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client"
-                                data-f-date="all" data-f-client-type="parent">
-                                <div class="d-flex">
-                                    <h5 class="p-0 m-0">Parents <br> Total</h5>
-                                    <h3 class="p-0 client-status ms-auto">
-                                        {{ $totalClientInformation['parent']['old'] }}
-                                        @if ($totalClientInformation['parent']['new'] != 0)
-                                            <sup>
-                                                <span class="badge bg-primary text-white p-1 px-2">
-                                                    <small>{{ $totalClientInformation['parent']['new'] }} New</small>
-                                                </span>
-                                            </sup>
-                                        @endif
-                                    </h3>
-                                </div>
-                                <div class="mt-3 border-top pt-3">
-                                    <p class="mb-0 text-muted client-status-detail">
-                                        <span @class(['me-2', 'text-success'])>
-                                            <i @class(['bi', 'bi-arrow-up-short'])></i>
-                                            {{ $totalClientInformation['parent']['percentage'] }}%
-                                        </span>
-                                        <span>Since before</span>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client"
-                                data-f-date="all" data-f-client-type="teacher-counselor">
-                                <div class="d-flex">
-                                    <h5 class="p-0 m-0">Teacher <br> Total</h5>
-                                    <h3 class="p-0 client-status ms-auto">
-                                        {{ $totalClientInformation['teacher_counselor']['old'] }}
-                                        @if ($totalClientInformation['teacher_counselor']['new'] != 0)
-                                            <sup>
-                                                <span class="badge bg-primary text-white p-1 px-2">
-                                                    <small>{{ $totalClientInformation['teacher_counselor']['new'] }}
-                                                        New</small>
-                                                </span>
-                                            </sup>
-                                        @endif
-                                    </h3>
-                                </div>
-                                <div class="mt-3 border-top pt-3">
-                                    <p class="mb-0 text-muted client-status-detail">
-                                        <span @class(['me-2', 'text-success'])>
-                                            <i @class(['bi', 'bi-arrow-up-short'])></i>
-                                            {{ $totalClientInformation['teacher_counselor']['percentage'] }}%
-                                        </span>
-                                        <span>Since before</span>
-                                    </p>
+                        <div class="col-md-3">
+                            <div class="card shadow-sm">
+                                <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client"
+                                    data-f-date="all" data-f-client-type="parent">
+                                    <div class="d-flex">
+                                        <h5 class="p-0 m-0">Parents <br> Total</h5>
+                                        <h3 class="p-0 client-status ms-auto">
+                                            {{ $totalClientInformation['parent']['old'] }}
+                                            @if ($totalClientInformation['parent']['new'] != 0)
+                                                <sup>
+                                                    <span class="badge bg-primary text-white p-1 px-2">
+                                                        <small>{{ $totalClientInformation['parent']['new'] }}
+                                                            New</small>
+                                                    </span>
+                                                </sup>
+                                            @endif
+                                        </h3>
+                                    </div>
+                                    <div class="mt-3 border-top pt-3">
+                                        <p class="mb-0 text-muted client-status-detail">
+                                            <span @class(['me-2', 'text-success'])>
+                                                <i @class(['bi', 'bi-arrow-up-short'])></i>
+                                                {{ $totalClientInformation['parent']['percentage'] }}%
+                                            </span>
+                                            <span>Since before</span>
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        <div class="col-md-3">
+                            <div class="card shadow-sm">
+                                <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client"
+                                    data-f-date="all" data-f-client-type="teacher-counselor">
+                                    <div class="d-flex">
+                                        <h5 class="p-0 m-0">Teacher <br> Total</h5>
+                                        <h3 class="p-0 client-status ms-auto">
+                                            {{ $totalClientInformation['teacher_counselor']['old'] }}
+                                            @if ($totalClientInformation['teacher_counselor']['new'] != 0)
+                                                <sup>
+                                                    <span class="badge bg-primary text-white p-1 px-2">
+                                                        <small>{{ $totalClientInformation['teacher_counselor']['new'] }}
+                                                            New</small>
+                                                    </span>
+                                                </sup>
+                                            @endif
+                                        </h3>
+                                    </div>
+                                    <div class="mt-3 border-top pt-3">
+                                        <p class="mb-0 text-muted client-status-detail">
+                                            <span @class(['me-2', 'text-success'])>
+                                                <i @class(['bi', 'bi-arrow-up-short'])></i>
+                                                {{ $totalClientInformation['teacher_counselor']['percentage'] }}%
+                                            </span>
+                                            <span>Since before</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     @endif
                 </div>
             </div>
             @if ($isSuperAdmin || $isSalesAdmin)
-            <div class="col-md-3">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center h-100">
-                            <h5 class="p-0 m-0">Raw Data Client <br> Total</h5>
-                            <h3 class="p-0 client-status ms-auto">
-                                {{ array_sum($totalClientInformation['raw']) }}
-                            </h3>
-                        </div>
-                    </div>
-                    <div class="card-footer bg-primary">
-                        <div class="row row-cols-3">
-                            <div class="col text-center text-white">
-                                <h5 class="m-0">{{ $totalClientInformation['raw']['student'] }}</h5>
-                                <small>Students</small>
-                            </div>
-                            <div class="col text-center text-white">
-                                <h5 class="m-0">{{ $totalClientInformation['raw']['parent'] }}</h5>
-                                <small>Parents</small>
-                            </div>
-                            <div class="col text-center text-white">
-                                <h5 class="m-0">{{ $totalClientInformation['raw']['teacher'] }}</h5>
-                                <small>Teachers</small>
+                <div class="col-md-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center h-100">
+                                <h5 class="p-0 m-0">Raw Data Client <br> Total</h5>
+                                <h3 class="p-0 client-status ms-auto">
+                                    {{ array_sum($totalClientInformation['raw']) }}
+                                </h3>
                             </div>
                         </div>
-                    </div>
+                        <div class="card-footer bg-primary">
+                            <div class="row row-cols-3">
+                                <div class="col text-center text-white">
+                                    <h5 class="m-0">{{ $totalClientInformation['raw']['student'] }}</h5>
+                                    <small>Students</small>
+                                </div>
+                                <div class="col text-center text-white">
+                                    <h5 class="m-0">{{ $totalClientInformation['raw']['parent'] }}</h5>
+                                    <small>Parents</small>
+                                </div>
+                                <div class="col text-center text-white">
+                                    <h5 class="m-0">{{ $totalClientInformation['raw']['teacher'] }}</h5>
+                                    <small>Teachers</small>
+                                </div>
+                            </div>
+                        </div>
 
-                    <div class="card-body">
-                        <div class="d-flex align-items-center h-100">
-                            <h5 class="p-0 m-0">Inactive Client <br> Total</h5>
-                            <h3 class="p-0 client-status ms-auto">
-                                {{ array_sum($totalClientInformation['inactive']) }}
-                            </h3>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center h-100">
+                                <h5 class="p-0 m-0">Inactive Client <br> Total</h5>
+                                <h3 class="p-0 client-status ms-auto">
+                                    {{ array_sum($totalClientInformation['inactive']) }}
+                                </h3>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-footer bg-danger">
-                        <div class="row row-cols-3">
-                            <div class="col text-center text-white">
-                                <h5 class="m-0">{{ $totalClientInformation['inactive']['student'] }}</h5>
-                                <small>Students</small>
-                            </div>
-                            <div class="col text-center text-white">
-                                <h5 class="m-0">{{ $totalClientInformation['inactive']['parent'] }}</h5>
-                                <small>Parents</small>
-                            </div>
-                            <div class="col text-center text-white">
-                                <h5 class="m-0">{{ $totalClientInformation['inactive']['teacher'] }}</h5>
-                                <small>Teachers</small>
+                        <div class="card-footer bg-danger">
+                            <div class="row row-cols-3">
+                                <div class="col text-center text-white">
+                                    <h5 class="m-0">{{ $totalClientInformation['inactive']['student'] }}</h5>
+                                    <small>Students</small>
+                                </div>
+                                <div class="col text-center text-white">
+                                    <h5 class="m-0">{{ $totalClientInformation['inactive']['parent'] }}</h5>
+                                    <small>Parents</small>
+                                </div>
+                                <div class="col text-center text-white">
+                                    <h5 class="m-0">{{ $totalClientInformation['inactive']['teacher'] }}</h5>
+                                    <small>Teachers</small>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
             @endif
         </div>
     </div>
@@ -480,11 +481,12 @@
                         <ul class="list-group">
                             @foreach ($detail as $info)
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div class="">
+                                    <a href="{{ url('client/student/' . $info->clientProgram->client->id . '/program/' . $info->clientProgram->clientprog_id) }}"
+                                        class="text-decoration-none" target="_blank">
                                         <p class="m-0 p-0 lh-1">{{ $info->clientProgram->client->full_name }}</p>
                                         <small
                                             class="m-0">{{ $info->clientProgram->program->program_name }}</small>
-                                    </div>
+                                    </a>
                                     <div class="">
                                         <input class="form-check-input me-1" type="checkbox" value="1"
                                             @checked($info->status == 1) id="mark_{{ $loop->index }}"
@@ -799,7 +801,7 @@
                 var student = mark.data('student')
                 var program = mark.data('program')
                 var followup = mark.data('followup')
-                var link = 'client/student/' + student + '/program/' + program + '/followup/' + followup;
+                var link = '/client/student/' + student + '/program/' + program + '/followup/' + followup;
 
                 $("#followUpForm").attr('action', link)
 
@@ -809,7 +811,7 @@
                 var student = mark.data('student')
                 var program = mark.data('program')
                 var followup = mark.data('followup')
-                var link = 'client/student/' + student + '/program/' + program + '/followup/' + followup;
+                var link = '/client/student/' + student + '/program/' + program + '/followup/' + followup;
 
                 $("#cancelFollowUpForm").attr('action', link)
             }
