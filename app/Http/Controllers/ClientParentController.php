@@ -34,6 +34,7 @@ use App\Http\Traits\SyncClientTrait;
 use App\Imports\MasterParentImport;
 use App\Imports\ParentImport;
 use App\Interfaces\ClientEventRepositoryInterface;
+use App\Jobs\RawClient\ProcessVerifyClient;
 use Illuminate\Support\Facades\Auth;
 
 class ClientParentController extends ClientController
@@ -88,9 +89,8 @@ class ClientParentController extends ClientController
 
                 default:
                     $model = $this->clientRepository->getParents($asDatatables);
-
             }
-            
+
             return $this->clientRepository->getDataTables($model);
         }
 
@@ -134,6 +134,7 @@ class ClientParentController extends ClientController
         $programs = $programsB2BB2C->merge($programsB2C);
         $countries = $this->tagRepository->getAllTags();
         $majors = $this->majorRepository->getAllMajors();
+        $listReferral = $this->clientRepository->getAllClients();
 
         return view('pages.client.parent.form')->with(
             [
@@ -148,6 +149,7 @@ class ClientParentController extends ClientController
                 'countries' => $countries,
                 'majors' => $majors,
                 'student' => $student,
+                'listReferral' => $listReferral
             ]
         );
     }
@@ -162,7 +164,7 @@ class ClientParentController extends ClientController
         $query = $qChildrenId . $qClientProgId;
 
         $data = $this->initializeVariablesForStoreAndUpdate('parent', $request);
-        
+
         $childrens = $request->child_id;
 
         DB::beginTransaction();
@@ -219,7 +221,7 @@ class ClientParentController extends ClientController
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $parent);
+        $this->logSuccess('store', 'Form Input', 'Parent', Auth::user()->first_name . ' ' . Auth::user()->last_name, $parent);
 
         if ($query != NULL) {
             if ($qChildrenId != NULL && $qClientProgId == NULL)
@@ -244,7 +246,7 @@ class ClientParentController extends ClientController
 
         return view('pages.client.parent.view')->with(
             [
-                'parent' => $parent
+                'parent' => $parent,
             ]
         );
     }
@@ -273,6 +275,7 @@ class ClientParentController extends ClientController
         $programs = $programsB2BB2C->merge($programsB2C);
         $countries = $this->tagRepository->getAllTags();
         $majors = $this->majorRepository->getAllMajors();
+        $listReferral = $this->clientRepository->getAllClients();
 
         return view('pages.client.parent.form')->with(
             [
@@ -287,6 +290,7 @@ class ClientParentController extends ClientController
                 'programs' => $programs,
                 'countries' => $countries,
                 'majors' => $majors,
+                'listReferral' => $listReferral
             ]
         );
     }
@@ -301,6 +305,11 @@ class ClientParentController extends ClientController
 
         DB::beginTransaction();
         try {
+
+            # set referral code null if lead != referral
+            if ($data['parentDetails']['lead_id'] != 'LS005'){
+                $data['parentDetails']['referral_code'] = null;
+            }
 
             # case 1
             # add relation between parent and student
@@ -362,7 +371,7 @@ class ClientParentController extends ClientController
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $data['parentDetails'], $oldParent);
+        $this->logSuccess('update', 'Form Input', 'Parent', Auth::user()->first_name . ' ' . Auth::user()->last_name, $data['parentDetails'], $oldParent);
 
         return Redirect::to('client/parent/' . $parentId)->withSuccess('A parent has been updated.');
     }
@@ -372,17 +381,19 @@ class ClientParentController extends ClientController
 
         $file = $request->file('file');
 
-        try{
+        // try {
             $import = new ParentImport();
             $import->import($file);
-        } catch (Exception $e) {
-            return back()->withError('Something went wrong while processing the data. Please try again or contact the administrator.');
-        }
+
+        // } catch (Exception $e) {
+        //     return back()->withError('Something went wrong while processing the data. Please try again or contact the administrator.');
+        // }
 
         return back()->withSuccess('Parent successfully imported');
     }
 
-    public function getDataParents() {
+    public function getDataParents()
+    {
         $parents = $this->clientRepository->getAllClientByRole('Parent');
         return response()->json(
             [
@@ -405,7 +416,7 @@ class ClientParentController extends ClientController
             if (!isset($rawClient))
                 return Redirect::to('client/parent/raw')->withError('Data does not exist');
 
-            if ($clientId != null){
+            if ($clientId != null) {
                 $client = $this->clientRepository->getViewClientById($clientId);
                 if (!isset($client))
                     return Redirect::to('client/parent/raw')->withError('Data does not exist');
@@ -516,9 +527,8 @@ class ClientParentController extends ClientController
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Raw Client', Auth::user()->first_name . ' '. Auth::user()->last_name, $rawParent);
+        $this->logSuccess('delete', null, 'Raw Client', Auth::user()->first_name . ' ' . Auth::user()->last_name, $rawParent);
 
         return Redirect::to('client/parent/raw')->withSuccess('Raw parent successfully deleted');
     }
-
 }

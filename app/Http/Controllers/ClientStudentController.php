@@ -117,6 +117,7 @@ class ClientStudentController extends ClientController
 
     public function index(Request $request)
     {
+
         if ($request->ajax()) {
 
             $statusClient = $request->get('st');
@@ -129,6 +130,7 @@ class ClientStudentController extends ClientController
             $initial_programs = $request->get('program_suggest');
             $status_lead = $request->get('status_lead');
             $active_status = $request->get('active_status');
+            $pic = $request->get('pic');
 
             # array for advanced filter request
             $advanced_filter = [
@@ -137,7 +139,8 @@ class ClientStudentController extends ClientController
                 'leads' => $leads,
                 'initial_programs' => $initial_programs,
                 'status_lead' => $status_lead,
-                'active_status' => $active_status
+                'active_status' => $active_status,
+                'pic' => $pic
             ];
 
             switch ($statusClient) {
@@ -216,6 +219,11 @@ class ClientStudentController extends ClientController
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
 
+        # validate
+        # if user forced to access student that isn't his/her 
+        if (!$this->clientRepository->findHandledClient($studentId))
+            abort(403);
+
         $initialPrograms = $this->initialProgramRepository->getAllInitProg();
         // $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
         $viewStudent = $this->clientRepository->getViewClientById($studentId);
@@ -228,6 +236,8 @@ class ClientStudentController extends ClientController
 
         $initialPrograms = $this->initialProgramRepository->getAllInitProg();
         $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
+
+        $parents = $this->clientRepository->getAllClientByRole('Parent');
 
         $picActive = null;
         if (count($student->picClient) > 0){
@@ -245,7 +255,8 @@ class ClientStudentController extends ClientController
                 'viewStudent' => $viewStudent,
                 'programs' => $programs,
                 'salesTeams' => $salesTeams,
-                'picActive' => $picActive
+                'picActive' => $picActive,
+                'parents' => $parents
             ]
         );
     }
@@ -388,6 +399,8 @@ class ClientStudentController extends ClientController
         $majors = $this->majorRepository->getAllActiveMajors();
         $regions = $this->countryRepository->getAllRegionByLocale('en');
 
+        $listReferral = $this->clientRepository->getAllClients();
+
         return view('pages.client.student.form')->with(
             [
                 'schools' => $schools,
@@ -400,7 +413,8 @@ class ClientStudentController extends ClientController
                 'programs' => $programs,
                 'countries' => $countries,
                 'majors' => $majors,
-                'regions' => $regions
+                'regions' => $regions,
+                'listReferral' => $listReferral
             ]
         );
     }
@@ -430,6 +444,8 @@ class ClientStudentController extends ClientController
         $countries = $this->tagRepository->getAllTags();
         $majors = $this->majorRepository->getAllMajors();
 
+        $listReferral = $this->clientRepository->getAllClients();
+
         return view('pages.client.student.form')->with(
             [
                 'student' => $student,
@@ -444,6 +460,7 @@ class ClientStudentController extends ClientController
                 'programs' => $programs,
                 'countries' => $countries,
                 'majors' => $majors,
+                'listReferral' => $listReferral
             ]
         );
     }
@@ -459,6 +476,11 @@ class ClientStudentController extends ClientController
 
         DB::beginTransaction();
         try {
+
+            # set referral code null if lead != referral
+            if ($data['studentDetails']['lead_id'] != 'LS005'){
+                $data['studentDetails']['referral_code'] = null;
+            }
 
             //! perlu nunggu 1 menit dlu sampai ada client lead tracking status yg 1
             # update status client lead tracking
@@ -479,6 +501,9 @@ class ClientStudentController extends ClientController
             # when pr_id is "add-new" 
 
             if ($data['studentDetails']['pr_id'] !== NULL) {
+                if ($data['studentDetails']['lead_id'] != 'LS005'){
+                    $data['parentDetails']['referral_code'] = null;
+                }
                 if (!$parentId = $this->createParentsIfAddNew($data['parentDetails'], $data['studentDetails']))
                     throw new Exception('Failed to store new parent', 2);
             }
@@ -1088,18 +1113,22 @@ class ClientStudentController extends ClientController
         # raw client id that being choose from list raw data client
         $clientIds = $request->choosen;
         $pic = $request->pic_id;
-
-        foreach ($clientIds as $clientId) {
-            $picDetails[] = [
-                'client_id' => $clientId,
-                'user_id' => $pic,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ];
-        }
+        $picDetails = [];
 
         DB::beginTransaction();
         try {
+
+            foreach ($clientIds as $clientId) {
+                $picDetails[] = [
+                    'client_id' => $clientId,
+                    'user_id' => $pic,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ];
+
+                if ($client = $this->clientRepository->checkActivePICByClient($clientId)) 
+                    $this->clientRepository->inactivePreviousPIC($client);
+            }
 
             $this->clientRepository->insertPicClient($picDetails);
             
@@ -1108,7 +1137,7 @@ class ClientStudentController extends ClientController
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Failed to bulk assign client : ' . $e->getMessage());
+            Log::error('Failed to bulk assign client : ' . $e->getMessage(). ' on line '.$e->getLine());
             return response()->json(['success' => false, 'message' => 'Failed to assign client'], 500);
 
         }

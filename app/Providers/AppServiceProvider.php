@@ -134,12 +134,10 @@ class AppServiceProvider extends ServiceProvider
         # Session user_role used for query new leads and raw data
 
         # if logged in user is admin
-        Session::put('user_role', 'Employee');
         if ($user->roles()->where('role_name', 'Super Admin')->count() > 0) {
             $collection = [];
             $collection = app('menu-repository-services')->getMenu();
             $isSuperAdmin = true;
-            Session::put('user_role', 'SuperAdmin');
         }
         
 
@@ -226,7 +224,6 @@ class AppServiceProvider extends ServiceProvider
 
                 if ($user->roles()->where('role_name', 'Admin')->count() > 0){
                     $entries[$index]['alias'] = 'isSalesAdmin';
-                    Session::put('user_role', 'SalesAdmin');
                 }
 
             }

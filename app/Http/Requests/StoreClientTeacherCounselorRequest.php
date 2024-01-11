@@ -53,6 +53,7 @@ class StoreClientTeacherCounselorRequest extends FormRequest
             'sch_score' => 'required_if:sch_id,add-new',
             'event_id' => 'required_if:lead_id,LS003', # make sure id LS003 is all-in event
             'eduf_id' => 'required_if:lead_id,LS017', # make sure id LS017 is all-in eduf
+            'referral_code' => 'required_if:lead_id,LS005', # make sure id LS005 is referral
             'kol_lead_id' => [
                 function ($attribute, $value, $fail) {
                     if ($this->input('lead_id') == 'kol' && empty($value))

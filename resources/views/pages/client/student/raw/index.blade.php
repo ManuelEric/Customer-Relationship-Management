@@ -164,6 +164,7 @@
                             <th>Grade</th>
                             <th>Graduation Year</th>
                             <th>Lead</th>
+                            <th>Referral Name</th>
                             <th>Country of Study Abroad</th>
                             <th>Joined Event</th>
                             <th>Interest Program</th>
@@ -453,6 +454,18 @@
                         defaultContent: '-'
                     },
                     {
+                        data: 'referral_name',
+                        className: 'text-center',
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            if (row.lead_source == "Referral"){
+                                return data;
+                            }else{
+                                return '-';
+                            }
+                        }
+                    },
+                    {
                         data: 'interest_countries',
                         className: 'text-center',
                         defaultContent: '-'
@@ -504,7 +517,7 @@
                 ],
                 createdRow: function(row, data, index) {
                     let currentDate = new Date().toJSON().slice(0, 10);
-                    if (moment(data['created_at']).format('YYYY-MM-DD') == currentDate) {
+                    if (moment(data['updated_at']).format('YYYY-MM-DD') == currentDate) {
                         $('td', row).addClass('table-success');
                     }
                 }
