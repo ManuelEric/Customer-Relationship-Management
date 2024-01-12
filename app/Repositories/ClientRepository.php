@@ -276,7 +276,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('school_name', $advanced_filter['school_name']);
             })->
             when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('graduation_year', $advanced_filter['graduation_year']);
+                $querySearch->whereIn('client.graduation_year', $advanced_filter['graduation_year']);
             })->
             when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
