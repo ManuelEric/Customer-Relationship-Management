@@ -27,6 +27,7 @@
             <div class="nav-link text-nowrap sales outstanding-payment">Outstanding Payment</div>
         </li>
     </ul>
+    @if (Session::get('user_role') != "Employee")
     <select name="" id="cp_employee" class="select w-25">
         <option value="all">All</option>
         @foreach ($employees as $employee)
@@ -37,6 +38,7 @@
             @endif
         @endforeach
     </select>
+    @endif
 </div>
 
 <section id="client-program" class="dashboard-sales">

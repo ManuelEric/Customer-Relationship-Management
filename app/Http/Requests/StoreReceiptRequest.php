@@ -24,7 +24,7 @@ class StoreReceiptRequest extends FormRequest
     public function rules()
     {
         return [
-            'rec_currency' => 'required|in:idr,usd,gbp,sgd',
+            'rec_currency' => 'required|in:idr,usd,gbp,sgd,aud',
             'receipt_amount' => 'required_unless:rec_currency,idr',
             'receipt_amount_idr' => 'required_if:rec_currency,idr',
             'receipt_date' => 'required|date',

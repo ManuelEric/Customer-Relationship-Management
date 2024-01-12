@@ -50,6 +50,7 @@ class ClientController extends Controller
                     'gap_year',
                     // 'st_abrcountry',
                     'st_note',
+                    'referral_code'
                 ]);
 
                 $parentDetails['first_name'] = $request->pr_firstname;
@@ -89,6 +90,7 @@ class ClientController extends Controller
                     'gap_year' => $request->gap_year,
                     'is_funding' => $request->is_funding ?? 0,
                     'register_as' => $request->register_as,
+                    'referral_code' => $request->referral_code,
                     'is_verified' => 'Y'
                 ];
 
@@ -124,7 +126,8 @@ class ClientController extends Controller
                     'pr_id',
                     'pr_id_old',
                     // 'is_funding',
-                    'register_as'
+                    'register_as',
+                    'referral_code'
                 ]);
 
                 if (isset($request->is_funding))
@@ -158,7 +161,8 @@ class ClientController extends Controller
                     'event_id' => $studentDetails['event_id'],
                     'st_levelinterest' => $studentDetails['st_levelinterest'],
                     'st_note' => $studentDetails['st_note'],
-                    'is_verified' => 'Y'
+                    'is_verified' => 'Y',
+                    'referral_code' => $studentDetails['referral_code'],
                 ];
 
                 return compact('studentDetails', 'parentDetails');
@@ -182,6 +186,7 @@ class ClientController extends Controller
                     'kol_lead_id',
                     'event_id',
                     'st_levelinterest',
+                    'referral_code'
                 ]);
                 $teacherDetails['phone'] = $this->setPhoneNumber($request->phone);
                 $teacherDetails['is_verified'] = 'Y';

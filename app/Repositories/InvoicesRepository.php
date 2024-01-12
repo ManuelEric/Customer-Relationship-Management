@@ -10,6 +10,7 @@ use App\Models\OutstandingPaymentView;
 use App\Models\v1\Lead as V1Lead;
 use DataTables;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class InvoicesRepository implements InvoicesRepositoryInterface
 {
@@ -74,6 +75,7 @@ class InvoicesRepository implements InvoicesRepositoryInterface
             ->leftJoin('tbl_client as child', 'child.id', '=', 'tbl_client_prog.client_id')
             ->leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')
             ->leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')
+            ->leftJoin('tbl_pic_client as pic', 'pic.client_id', '=', 'child.id')
             ->select(
                 'tbl_inv.id',
                 'tbl_inv.inv_id as invoice_id',
@@ -116,7 +118,13 @@ class InvoicesRepository implements InvoicesRepositoryInterface
                 $query->whereBetween($whereBy, [$start_date, $end_date]);
             }
 
-        $query->whereRelation('clientprog', 'status', 1);
+        $query->whereRelation('clientprog', 'status', 1)->
+            when(Session::get('user_role') == 'Employee', function ($subQuery) {
+                $subQuery->where('pic.user_id', auth()->user()->id);
+            })->
+            when(auth()->guard('api')->user(), function ($subQuery) {
+                $subQuery->where('pic.user_id', auth()->guard('api')->user()->id);
+            });
 
         return $query;
     }

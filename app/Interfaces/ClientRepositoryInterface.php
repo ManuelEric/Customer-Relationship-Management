@@ -2,6 +2,8 @@
 
 namespace App\Interfaces;
 
+use App\Models\UserClient;
+
 interface ClientRepositoryInterface
 {
     public function getAllClients();
@@ -61,6 +63,7 @@ interface ClientRepositoryInterface
     public function getClientById($clientId);
     public function getClientByUUID($clientUUID);
     public function getClientsById(array $clientIds);
+    public function findHandledClient(int $clientId);
     public function getClientByMonthCreatedAt(array $createdAt);
     public function getClientByPhoneNumber($phoneNumber);
     public function getClientBySchool($schoolId);
@@ -110,8 +113,10 @@ interface ClientRepositoryInterface
     public function getClientSuggestion(array $clientIds, $roleName);
 
     # Pic Client
+    public function checkActivePICByClient($clientId);
     public function insertPicClient(array $picDetails);
     public function updatePicClient($picClientId, array $picDetails);
+    public function inactivePreviousPIC(UserClient $picDetails);
 
     # CRM
     public function getStudentFromV1();

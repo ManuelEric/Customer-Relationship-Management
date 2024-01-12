@@ -13,6 +13,7 @@ class ClientProgram extends Model
 
     protected $table = 'tbl_client_prog';
     protected $primaryKey = 'clientprog_id';
+    protected $appends = ['referral_name'];
 
     /**
      * The attributes that should be visible in arrays.
@@ -65,9 +66,17 @@ class ClientProgram extends Model
         'trial_date',
         'session_tutor',
         'registration_type',
+        'referral_code',
         'created_at',
         'updated_at'
     ];
+
+    protected function referralName(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->referral_code != NULL ? $this->getReferralNameFromRefCodeView($this->referral_code) : NULL
+        );
+    }
 
     public static function whereClientProgramId($id)
     {
@@ -91,6 +100,11 @@ class ClientProgram extends Model
         return Attribute::make(
             get: fn ($value) => $this->program->prog_main . ': ' . $this->program->prog_program,
         );
+    }
+
+    public function getReferralNameFromRefCodeView($refCode)
+    {
+        return ViewClientRefCode::whereRaw('ref_code COLLATE utf8mb4_unicode_ci = (?)', $refCode)->first()->full_name;
     }
 
     public function client()
@@ -161,5 +175,11 @@ class ClientProgram extends Model
     public function logMail()
     {
         return $this->hasMany(ClientProgramLogMail::class, 'clientprog_id', 'clientprog_id');
+    }
+
+    # PIC from sales team
+    public function handledBy()
+    {
+        return $this->belongsToMany(User::class, 'tbl_pic_client', 'client_id', 'user_id');
     }
 }

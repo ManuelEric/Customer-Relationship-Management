@@ -387,13 +387,25 @@
                                 placeholder="">
                                 <option value=""></option>
                                 @foreach ($tags as $tag)
+                                    @if ($tag->name != 'Other')
                                     <option value="{{ $tag->id }}">{{ $tag->name }}</option>
+                                    @endif
                                 @endforeach
                             </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                             @error('destination_country')
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
+                        </div>
+                        <div class="mb-4" id="scholarship_input">
+                            <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
+                                Are you eligible for a need-based scholarship?
+                            </label>
+                            <select name="scholarship_eligibility" id="scholarship_eligibility" class="w-full form-select md:text-xl text-md border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0">
+                                <option value=""></option>
+                                <option value="Y">Yes</option>
+                                <option value="N">No</option>
+                            </select>
                         </div>
                         @if (request()->get('status') || request()->get('status') == 'ots')
                             <div class="mb-4">
@@ -466,12 +478,9 @@
         </div>
     </div>
 </body>
-<script src="
-https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js
-"></script>
-<link href="
-https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
-" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
     integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -493,8 +502,34 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
     });
 
     new TomSelect('#schoolList', {
-        create: true
+        create: true,
     });
+
+    
+    // $("select[name=choosen_school]").select2({
+    //     placeholder: "Write school name",
+    //     ajax: {
+    //         delay: 250, // wait 250 milliseconds before triggering the request
+    //         url: '{{ url('/') }}/api/school',
+    //         dataType: 'json',
+    //         data: function (params) {
+    //             var query = {
+    //                 search: params.term
+    //             }
+
+    //             // Query parameters will be ?search=[term]
+    //             return query;
+    //         }, 
+    //         processResults: function (data) {
+    //             return {
+    //                 results: $.map(data, function (obj) {
+    //                     return { id: obj.sch_id, text: obj.sch_name}
+    //                 })
+    //             }
+    //         }
+
+    //     },
+    // })
 
     new TomSelect('#graduation_year', {
         create: false
@@ -505,6 +540,10 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
     });
 
     new TomSelect('#leadSource', {
+        create: false
+    });
+
+    new TomSelect('#scholarship_eligibility', {
         create: false
     });
 
@@ -533,6 +572,7 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
         const input_child_name = $('#input_child_name')
         const graduation_input = $('#graduation_input')
         const country_input = $('#country_input')
+        const scholarship_input = $("#scholarship_input")
         const role = $('.role')
         const main_user = $(".main-user")
         const user_other = $('.user-other')
@@ -545,6 +585,7 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
             other_name.addClass('required')
             graduation_input.removeClass('hidden')
             country_input.removeClass('hidden')
+            scholarship_input.removeClass('hidden')
 
             setAdditionalInputLabel({
                 "school": "Which school are you from? <span class='text-red-400'>*</span>",
@@ -559,6 +600,7 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
             other_name.addClass('required')
             graduation_input.removeClass('hidden')
             country_input.removeClass('hidden')
+            scholarship_input.removeClass('hidden')
 
             setAdditionalInputLabel({
                 "school": "What school does your child go to? <span class='text-red-400'>*</span>",
@@ -571,6 +613,7 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
             other_name.removeClass('required')
             graduation_input.addClass('hidden')
             country_input.addClass('hidden')
+            scholarship_input.addClass('hidden')
 
             setAdditionalInputLabel({
                 "school": "Which school are you from? <span class='text-red-400'>*</span>",
@@ -631,7 +674,9 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
         }
     }
 </script>
+
 <script>
+
     $("#phoneUser1").on('keyup', function(e) {
         var number1 = phoneInput1.getNumber();
         $("#phone1").val(number1);

@@ -164,9 +164,11 @@
                             <th>Grade</th>
                             <th>Graduation Year</th>
                             <th>Lead</th>
+                            <th>Referral Name</th>
                             <th>Country of Study Abroad</th>
                             <th>Joined Event</th>
                             <th>Interest Program</th>
+                            <th>Scholarship Eligible</th>
                             <th>Joined Date</th>
                             <th class="bg-info text-white">Last Update</th>
                             <th class="bg-info text-white">Action</th>
@@ -453,6 +455,18 @@
                         defaultContent: '-'
                     },
                     {
+                        data: 'referral_name',
+                        className: 'text-center',
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            if (row.lead_source == "Referral"){
+                                return data;
+                            }else{
+                                return '-';
+                            }
+                        }
+                    },
+                    {
                         data: 'interest_countries',
                         className: 'text-center',
                         defaultContent: '-'
@@ -466,6 +480,17 @@
                         data: 'interest_prog',
                         className: 'text-center',
                         defaultContent: '-'
+                    },
+                    {
+                        data: 'scholarship',
+                        className: 'text-center',
+                        searchable: false,
+                        render: function(data, type, row, meta) {
+                            if (data == "Y")
+                                return "Yes"
+                            else
+                                return "No"
+                        }
                     },
                     {
                         data: 'created_at',

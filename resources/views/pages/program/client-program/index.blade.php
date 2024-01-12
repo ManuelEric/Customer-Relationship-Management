@@ -158,6 +158,7 @@
                         <th>End Program Date</th>
                         <th>Lead Source</th>
                         <th>Conversion Lead</th>
+                        <th>Referral Name</th>
                         <th>Notes</th>
                         <th>Program Status</th>
                         <th>Running Status</th>
@@ -331,6 +332,11 @@
                     {
                         data: 'conversion_lead',
                         className: 'text-center'
+                    },
+                    {
+                        data: 'referral_name',
+                        className: 'text-center',
+                        defaultContent: '-'
                     },
                     {
                         data: 'strip_tag_notes',
