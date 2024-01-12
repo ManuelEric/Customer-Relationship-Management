@@ -175,7 +175,6 @@ return new class extends Migration
             ) FROM tbl_client_abrcountry sqac
                 JOIN tbl_tag sqt ON sqt.id = sqac.tag_id
                 WHERE sqac.client_id = rc.id GROUP BY sqac.client_id) as interest_countries,
-            rc.pic,
             rc.created_at,
             rc.updated_at,
             (SELECT GROUP_CONCAT(sr.role_name SEPARATOR ", ") FROM tbl_client_roles scr
@@ -197,7 +196,12 @@ return new class extends Migration
                 WHERE ce.client_id = rc.id GROUP BY ce.client_id) as joined_event,
             (SELECT GROUP_CONCAT(DISTINCT sqp.prog_program SEPARATOR ", ") FROM tbl_interest_prog sqip
                 LEFT JOIN tbl_prog sqp ON sqp.prog_id = sqip.prog_id
-                WHERE sqip.client_id = rc.id GROUP BY sqip.client_id) as interest_prog
+                WHERE sqip.client_id = rc.id GROUP BY sqip.client_id) as interest_prog,
+            (SELECT pic.user_id 
+                    FROM tbl_pic_client pic
+                LEFT JOIN users u on u.id = pic.user_id
+                WHERE pic.client_id = rc.id AND pic.status = 1)
+             as pic
             
             
         FROM tbl_client rc
