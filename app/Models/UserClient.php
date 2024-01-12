@@ -64,7 +64,6 @@ class UserClient extends Authenticatable
         'scholarship',
         'is_verified',
         'register_as',
-        'pic',
         'referral_code',
         'created_at',
         'updated_at',
