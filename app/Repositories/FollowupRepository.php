@@ -58,7 +58,9 @@ class FollowupRepository implements FollowupRepositoryInterface
                             $subQuery->where(function ($Q2) use ($empl_id) {
                                 
                                 $Q2->where('empl_id', $empl_id)->orWhereHas('client', function ($Q3) use ($empl_id) {
-                                    $Q3->where('pic', $empl_id);
+                                    $Q3->whereHas('handledBy', function ($Q4) use ($empl_id) {
+                                        $Q4->where('users.id', $empl_id);
+                                    });
                                 });
                             });
                         });
@@ -68,7 +70,9 @@ class FollowupRepository implements FollowupRepositoryInterface
                             $subQuery->where(function ($Q2) use ($empl_id) {
                                 
                                 $Q2->where('empl_id', $empl_id)->orWhereHas('client', function ($Q3) use ($empl_id) {
-                                    $Q3->where('pic', $empl_id);
+                                    $Q3->whereHas('handledBy', function ($Q4) use ($empl_id) {
+                                        $Q4->where('users.id', $empl_id);
+                                    });
                                 });
                             });
                         });
