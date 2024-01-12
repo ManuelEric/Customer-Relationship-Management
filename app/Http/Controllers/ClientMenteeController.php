@@ -7,6 +7,7 @@ use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\InitialProgramRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\ReasonRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 use Illuminate\Http\Request;
 
 class ClientMenteeController extends Controller
@@ -17,15 +18,17 @@ class ClientMenteeController extends Controller
     private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
     private ProgramRepositoryInterface $programRepository;
     private ReasonRepositoryInterface $reasonRepository;
+    private UserRepositoryInterface $userRepository;
 
 
-    public function __construct(ClientRepositoryInterface $clientRepository, InitialProgramRepositoryInterface $initialProgramRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ReasonRepositoryInterface $reasonRepository, ProgramRepositoryInterface $programRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, InitialProgramRepositoryInterface $initialProgramRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ReasonRepositoryInterface $reasonRepository, ProgramRepositoryInterface $programRepository, UserRepositoryInterface $userRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->initialProgramRepository = $initialProgramRepository;
         $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
         $this->reasonRepository = $reasonRepository;
         $this->programRepository = $programRepository;
+        $this->userRepository = $userRepository;
 
     }
     
@@ -71,13 +74,22 @@ class ClientMenteeController extends Controller
         if (!$student)
             abort(404);
 
+        $picActive = null;
+        if (count($student->picClient) > 0){
+            $picActive = $student->picClient->where('status', 1)->first();
+        }
+        
+        $salesTeams = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+
         return view('pages.client.student.view')->with(
             [
                 'student' => $student,
                 'viewStudent' => $viewStudent,
                 'initialPrograms' => $initialPrograms,
                 'historyLeads' => $historyLeads,
-                'programs' => $programs
+                'programs' => $programs,
+                'picActive' => $picActive,
+                'salesTeams' => $salesTeams,
             ]
         );
     }
