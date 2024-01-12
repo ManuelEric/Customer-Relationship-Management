@@ -329,6 +329,9 @@ class ClientRepository implements ClientRepositoryInterface
             })->when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
             })->
+            when(!empty($advanced_filter['pic']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('client.pic_id', $advanced_filter['pic']);
+            })->
             when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('client.st_statusact', $advanced_filter['active_status']);
             }, function ($subQuery) {
@@ -368,6 +371,9 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('program_suggest', $advanced_filter['initial_programs']);
             })->when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
+            })->
+            when(!empty($advanced_filter['pic']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('client.pic_id', $advanced_filter['pic']);
             })->
             when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('client.st_statusact', $advanced_filter['active_status']);
@@ -414,6 +420,9 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('program_suggest', $advanced_filter['initial_programs']);
             })->when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
+            })->
+            when(!empty($advanced_filter['pic']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('client.pic_id', $advanced_filter['pic']);
             })->
             when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('client.st_statusact', $advanced_filter['active_status']);
@@ -623,6 +632,9 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
+            })->
+            when(!empty($advanced_filter['pic']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('client.pic_id', $advanced_filter['pic']);
             })->
             isStudent()->
             isNotActive();
