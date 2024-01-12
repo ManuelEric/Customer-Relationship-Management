@@ -17,6 +17,7 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\SyncClientTrait;
 use App\Jobs\RawClient\ProcessVerifyClient;
+use App\Jobs\RawClient\ProcessVerifyClientParent;
 use App\Models\Corporate;
 use App\Models\EdufLead;
 use App\Models\Event;
@@ -146,12 +147,11 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
                 ];
             }
             # trigger to verifying parent
-            ProcessVerifyClient::dispatch($parentIds)->onQueue('verifying-client-parent');
+            ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent');
             
             # trigger to verifying children
             ProcessVerifyClient::dispatch($childrenIds)->onQueue('verifying-client');
 
-            Log::debug('ass');
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();

@@ -139,7 +139,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 })
                 // ->orderBy('updated_at', 'desc')
         )->
-        rawColumns(['strip_tag_notes'])->
+        // rawColumns(['strip_tag_notes'])->
         filterColumn(
             'status',
             function ($query, $keyword) {

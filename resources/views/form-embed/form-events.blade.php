@@ -117,6 +117,8 @@
                 @csrf
                 {{-- Event Name  --}}
                 <input type="hidden" name="event_name" value="{{ $_GET['event_name'] }}">
+                {{-- Category  --}}
+                <input type="hidden" name="category" value="{{ $event->category ?? null }}">
                 {{-- Attend Status  --}}
                 <input type="hidden" name="attend_status" id=""
                     value="{{ request()->get('attend_status') == 'attend' ? 'attend' : 'join' }}">

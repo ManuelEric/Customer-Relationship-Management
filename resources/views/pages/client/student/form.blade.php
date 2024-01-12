@@ -436,7 +436,7 @@
                             <label>Referral Name <i class="text-danger font-weight-bold">*</i></label>
                             <select class="select w-100" id="refCode" name="referral_code">
                                 <option data-placeholder="true"></option>
-                                @if (isset($listReferral) && count($listReferral) > 0 && isset($referral->viewClientRefCode))
+                                @if (isset($listReferral) && count($listReferral) > 0)
                                     @foreach ($listReferral as $referral)
                                         <option value="{{ $referral->viewClientRefCode->ref_code }}"
                                             @if (old('referral_code') == $referral->viewClientRefCode->ref_code) {{ 'selected' }}
