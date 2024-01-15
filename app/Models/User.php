@@ -121,6 +121,13 @@ class User extends Authenticatable
         })->count() > 0 ? true : false;
     }
 
+    public function scopeIsSales($query)
+    {
+        return $query->whereHas('department', function ($subQuery) {
+            $subQuery->where('dept_name', 'Client Management')->where('tbl_user_type_detail.status', 1);
+        });
+    }
+
     public function scopeHasRole($query, $role)
     {
         return $query->whereHas('roles', function ($subQuery) use ($role) {
