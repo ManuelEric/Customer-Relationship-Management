@@ -28,6 +28,9 @@ use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\SplitNameTrait;
 use App\Http\Traits\SyncClientTrait;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Jobs\RawClient\ProcessVerifyClient;
+use App\Jobs\RawClient\ProcessVerifyClientParent;
+use App\Jobs\RawClient\ProcessVerifyClientTeacher;
 use App\Models\ClientEventLogMail;
 use App\Models\Major;
 use App\Models\Tag;
@@ -129,10 +132,26 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                 ];
 
                 # add additional identification
-                if ($row['audience'] == "Parent")
-                    $data['child_id'] = isset($createdSubClient) ? $createdSubClient : null;
-                elseif ($row['audience'] == "Student")
-                    $data['parent_id'] = isset($createdSubClient) ? $createdSubClient : null;
+                if ($row['audience'] == "Parent"){
+                    # trigger to verifying parent
+                    ProcessVerifyClientParent::dispatch($createdMainClient)->onQueue('verifying-client-parent');
+                    if(isset($createdSubClient))
+                        $data['child_id'] = $createdSubClient;
+                        # trigger to verifying children
+                        ProcessVerifyClient::dispatch($createdSubClient)->onQueue('verifying-client');
+                    
+                }elseif ($row['audience'] == "Student"){
+                    # trigger to verifying children
+                    ProcessVerifyClient::dispatch($createdSubClient)->onQueue('verifying-client');
+                    if(isset($createdSubClient))
+                        $data['parent_id'] = $createdSubClient;
+                        # trigger to verifying parent
+                        ProcessVerifyClientParent::dispatch($createdMainClient)->onQueue('verifying-client-parent');
+                }else{
+                    # trigger to verifying parent
+                    ProcessVerifyClientTeacher::dispatch($createdMainClient)->onQueue('verifying-client-teacher');
+                }
+
 
                 $existClientEvent = ClientEvent::where('event_id', $data['event_id'])
                     ->where('client_id', $data['client_id'])
@@ -282,7 +301,6 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                 $existClient = $this->checkExistingClient($phone, $row['email']);
                 $email = $row['email'];
                 $fullname = $row['name'];
-                Log::debug($role . ' Main ' . gettype($fullname));
                 break;
                 
             case 'sub':
@@ -290,7 +308,6 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                 $email = isset($row['child_parent_email']) ? $row['child_parent_email'] : null;
                 $existClient = $this->checkExistingClient($phone, $email);
                 $fullname = $row['child_parent_name'];
-                Log::debug('Sub ' . gettype($fullname));
 
                 break;
         }
@@ -425,7 +442,6 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
             
         }
 
-        Log::debug($clientId);
         return $clientId;
        
     }
