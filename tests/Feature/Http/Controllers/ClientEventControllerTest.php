@@ -17,7 +17,7 @@ class ClientEventControllerTest extends TestCase
      *
      * @return void
      */
-    public function test_stores_form_embed_data()
+    public function test_stores_form_embed_event_data()
     {
         $event = Event::factory()->create();
         $school = School::inRandomOrder()->first();

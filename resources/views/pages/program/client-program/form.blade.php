@@ -674,6 +674,7 @@
     }
 
     $("#main_lead").on('change', function() {
+        console.log("A")
         var program = $("#program_name option:selected")
         var lead = $(this).select2().find(":selected").data('lead')
         let programName = program.text()
@@ -823,7 +824,7 @@
 
     }
 
-    changeProgramStatus()
+    // changeProgramStatus()
 </script>
 <script>
     $(document).ready(function() {
