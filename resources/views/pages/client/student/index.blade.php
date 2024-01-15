@@ -735,6 +735,11 @@
                 });
             });
 
+            // Hold Student 
+            $('#clientTable tbody').on('click', '.holdClient ', function() {
+                var data = table.row($(this).parents('tr')).data();
+            });
+
             // Delete Student 
             $('#clientTable tbody').on('click', '.deleteClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
