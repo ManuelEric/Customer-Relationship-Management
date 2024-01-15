@@ -6,6 +6,16 @@ body {
     color: #494949 !important;
 }
 
+.custom-tooltip {
+    --bs-tooltip-bg: #0c58cb;
+    --bs-tooltip-color: #fff;
+    --bs-tooltip-max-width: 500px;
+    --bs-tooltip-opacity: 1;
+    --bs-tooltip-padding-y: 10px;
+    --bs-tooltip-padding-x: 20px; 
+    --bs-tooltip-font-size: 13px;
+}
+
 .select2-container--default .select2-selection--single .select2-selection__rendered {
     line-height: 29px !important;
 }
