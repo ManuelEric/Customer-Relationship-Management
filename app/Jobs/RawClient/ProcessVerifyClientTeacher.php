@@ -37,7 +37,7 @@ class ProcessVerifyClientTeacher implements ShouldQueue
      */
     public function handle(ClientRepositoryInterface $clientRepository)
     {
-        $teachers = $clientRepository->getAllClientByRole('Teacher/Counselor');
+        $teachers = $clientRepository->getClientsById($this->clientIds);
         DB::beginTransaction();
         try {
 
@@ -48,6 +48,7 @@ class ProcessVerifyClientTeacher implements ShouldQueue
                 # Case 1: Email and phone is complete && school verified
                 if($teacher->mail != null && $teacher->phone != null && isset($teacher->school) && !preg_match('/[^\x{80}-\x{F7} a-z0-9@_.\'-]/iu', $teacher->full_name)){
                     if($teacher->school->is_verified == 'Y'){
+                        Log::debug(['client_id' => $teacher->id, 'is_verified' => true]);
                         $clientRepository->updateClient($teacher->id, ['is_verified' => 'Y']);
                     }
                 }

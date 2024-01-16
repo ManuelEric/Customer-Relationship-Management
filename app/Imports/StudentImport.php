@@ -12,6 +12,8 @@ use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\SyncClientTrait;
+use App\Jobs\RawClient\ProcessVerifyClient;
+use App\Jobs\RawClient\ProcessVerifyClientParent;
 use App\Models\Corporate;
 use App\Models\EdufLead;
 use App\Models\Event;
@@ -25,14 +27,16 @@ use App\Models\University;
 use App\Models\UserClient;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 
-class StudentImport implements ToCollection, WithHeadingRow, WithValidation, WithMultipleSheets
+class StudentImport implements ToCollection, WithHeadingRow, WithValidation, WithMultipleSheets, WithChunkReading, ShouldQueue
 {
     /**
      * @param Collection $collection
@@ -45,6 +49,13 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
     use LoggingTrait;
     use SyncClientTrait;
 
+    public $importedBy;
+
+    public function __construct($importedBy)
+    {
+        $this->importedBy = $importedBy;
+    }
+
     public function sheets(): array
     {
         return [
@@ -55,7 +66,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
     public function collection(Collection $rows)
     {
 
-        $logDetails = []; 
+        $logDetails = $childIds = $parentIds = []; 
 
         DB::beginTransaction();
         try {
@@ -144,7 +155,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
                         $parent->roles()->attach($roleId);
                         $student->parents()->attach($parent);
                     }
-
+                    $parentIds[] = $parent['id'];
                 }
 
                 // Sync interest program
@@ -165,7 +176,16 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
                 $logDetails[] = [
                     'client_id' => $student['id']
                 ];
+
+                $childIds[] = $student['id'];
             }
+
+            # trigger to verifying children
+            count($childIds) > 0 ? ProcessVerifyClient::dispatch($childIds)->onQueue('verifying-client') : null;
+
+            # trigger to verifying parent
+            count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent') : null;
+
             DB::commit();
         } catch (Exception $e) {
 
@@ -173,7 +193,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
             Log::error('Import student failed : ' . $e->getMessage() . $e->getLine());
         }
 
-        $this->logSuccess('store', 'Import Student', 'Student', Auth::user()->first_name . ' '. Auth::user()->last_name, $logDetails);
+        $this->logSuccess('store', 'Import Student', 'Student', $this->importedBy, $logDetails);
 
     }
 
@@ -321,5 +341,10 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
         }
 
         return $data;
+    }
+
+    public function chunkSize(): int
+    {
+        return 50;
     }
 }
