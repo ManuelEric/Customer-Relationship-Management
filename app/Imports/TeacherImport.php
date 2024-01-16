@@ -99,7 +99,6 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation, Wit
                 $teacherIds[] = $teacher['id'];
             }
 
-            Log::debug($teacherIds);
             # trigger to verifying parent
             count($teacherIds) > 0 ? ProcessVerifyClientTeacher::dispatch($teacherIds)->onQueue('verifying-client-teacher') : null;
 
