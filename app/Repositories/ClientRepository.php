@@ -296,6 +296,15 @@ class ClientRepository implements ClientRepositoryInterface
             }, function ($subQuery) {
                 $subQuery->where('client.st_statusact', 1);
             })->
+            when(!empty($advanced_filter['start_joined_date']) && empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '>=', $advanced_filter['start_joined_date']);
+            })->
+            when(!empty($advanced_filter['end_joined_date']) && empty($advanced_filter['start_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '<=', $advanced_filter['end_joined_date']);
+            })->
+            when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
+            })->
             isNotSalesAdmin()->
             isUsingAPI()->
             isVerified();
@@ -329,14 +338,18 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('program_suggest', $advanced_filter['initial_programs']);
             })->when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
-            })->
-            when(!empty($advanced_filter['pic']), function ($querySearch) use ($advanced_filter) {
+            })->when(!empty($advanced_filter['pic']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('client.pic_id', $advanced_filter['pic']);
-            })->
-            when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
+            })->when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('client.st_statusact', $advanced_filter['active_status']);
             }, function ($subQuery) {
                 $subQuery->where('client.st_statusact', 1);
+            })->when(!empty($advanced_filter['start_joined_date']) && empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '>=', $advanced_filter['start_joined_date']);
+            })->when(!empty($advanced_filter['end_joined_date']) && empty($advanced_filter['start_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '<=', $advanced_filter['end_joined_date']);
+            })->when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
             isNotSalesAdmin()->
             isUsingAPI()->
@@ -372,14 +385,18 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('program_suggest', $advanced_filter['initial_programs']);
             })->when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
-            })->
-            when(!empty($advanced_filter['pic']), function ($querySearch) use ($advanced_filter) {
+            })->when(!empty($advanced_filter['pic']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('client.pic_id', $advanced_filter['pic']);
-            })->
-            when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
+            })->when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('client.st_statusact', $advanced_filter['active_status']);
             }, function ($subQuery) {
                 $subQuery->where('client.st_statusact', 1);
+            })->when(!empty($advanced_filter['start_joined_date']) && empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '>=', $advanced_filter['start_joined_date']);
+            })->when(!empty($advanced_filter['end_joined_date']) && empty($advanced_filter['start_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '<=', $advanced_filter['end_joined_date']);
+            })->when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
             isNotSalesAdmin()->
             isUsingAPI()->
@@ -429,6 +446,15 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('client.st_statusact', $advanced_filter['active_status']);
             }, function ($subQuery) {
                 $subQuery->where('client.st_statusact', 1);
+            })->
+            when(!empty($advanced_filter['start_joined_date']) && empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '>=', $advanced_filter['start_joined_date']);
+            })->
+            when(!empty($advanced_filter['end_joined_date']) && empty($advanced_filter['start_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '<=', $advanced_filter['end_joined_date']);
+            })->
+            when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
             isNotSalesAdmin()->
             isUsingAPI()->
@@ -636,6 +662,15 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             when(!empty($advanced_filter['pic']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('client.pic_id', $advanced_filter['pic']);
+            })->
+            when(!empty($advanced_filter['start_joined_date']) && empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '>=', $advanced_filter['start_joined_date']);
+            })->
+            when(!empty($advanced_filter['end_joined_date']) && empty($advanced_filter['start_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '<=', $advanced_filter['end_joined_date']);
+            })->
+            when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
             isStudent()->
             isNotActive();
@@ -1485,6 +1520,15 @@ class ClientRepository implements ClientRepositoryInterface
                 })->
                 when(!empty($advanced_filter['roles']), function ($querySearch) use ($advanced_filter) {
                     $querySearch->whereIn('roles', $advanced_filter['roles']);
+                })->
+                when(!empty($advanced_filter['start_joined_date']) && empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereDate('raw_client.created_at', '>=', $advanced_filter['start_joined_date']);
+                })->
+                when(!empty($advanced_filter['end_joined_date']) && empty($advanced_filter['start_joined_date']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereDate('raw_client.created_at', '<=', $advanced_filter['end_joined_date']);
+                })->
+                when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereBetween('raw_client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
                 });
 
         // return Datatables::eloquent($model)->make(true);
