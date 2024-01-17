@@ -805,12 +805,13 @@ class ClientStudentController extends ClientController
 
         $file = $request->file('file');
 
-        try {
-            $import = new StudentImport();
-            $import->import($file);
-        } catch (Exception $e) {
-            return back()->withError('Something went wrong while processing the data. Please try again or contact the administrator.');
-        }
+        // try {
+            Excel::queueImport(new StudentImport(Auth::user()->first_name . ' '. Auth::user()->last_name), $file);
+            // $import = new StudentImport();
+            // $import->import($file);
+        // } catch (Exception $e) {
+        //     return back()->withError('Something went wrong while processing the data. Please try again or contact the administrator.');
+        // }
 
         return back()->withSuccess('Student successfully imported');
     }

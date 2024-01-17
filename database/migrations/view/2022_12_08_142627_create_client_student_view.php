@@ -96,8 +96,9 @@ return new class extends Migration
                 ) FROM tbl_client_event ce
                     JOIN tbl_events evt ON evt.event_id = ce.event_id
                     WHERE ce.client_id = c.id GROUP BY ce.client_id) as joined_event,
-            (SELECT GROUP_CONCAT(DISTINCT sqp.prog_program SEPARATOR " ") FROM tbl_interest_prog sqip
+            (SELECT GROUP_CONCAT(DISTINCT CONCAT(sqmp.prog_name, " - ", sqp.prog_program) SEPARATOR ", ") FROM tbl_interest_prog sqip
                     LEFT JOIN tbl_prog sqp ON sqp.prog_id = sqip.prog_id
+                    LEFT JOIN tbl_main_prog sqmp ON sqmp.id = sqp.main_prog_id
                     WHERE sqip.client_id = c.id GROUP BY sqip.client_id) as interest_prog,
             (SELECT GROUP_CONCAT(
                         (CASE

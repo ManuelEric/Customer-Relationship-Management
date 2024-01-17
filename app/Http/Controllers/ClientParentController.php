@@ -382,8 +382,9 @@ class ClientParentController extends ClientController
         $file = $request->file('file');
 
         // try {
-            $import = new ParentImport();
-            $import->import($file);
+            Excel::queueImport(new ParentImport(Auth::user()->first_name . ' '. Auth::user()->last_name), $file);
+            // $import = new ParentImport();
+            // $import->import($file);
 
         // } catch (Exception $e) {
         //     return back()->withError('Something went wrong while processing the data. Please try again or contact the administrator.');

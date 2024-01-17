@@ -52,6 +52,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Benchmark;
 use Illuminate\Support\Facades\Cache;
 use Laravel\Passport\Passport;
+use Mostafaznv\LaraCache\Facades\LaraCache;
 
 class DashboardController extends SalesDashboardController
 {
@@ -119,11 +120,56 @@ class DashboardController extends SalesDashboardController
 
     public function index(Request $request)
     {
-        $data = (new SalesDashboardController($this))->get($request);
-        $data = array_merge($data, (new PartnerDashboardController($this))->get($request));
-        $data = array_merge($data, (new FinanceDashboardController($this))->get($request));
-        $data = array_merge($data, (new AlarmController($this))->get($request));
-        $data = array_merge($data, (new DigitalDashboardController($this))->get($request));
+        // Cache::flush();
+        $data = array();
+        $timeStoredInSecond = 60;
+
+        if (!Cache::has('sales-data-dashboard')) {
+            $sales = (new SalesDashboardController($this))->get($request);
+            Cache::remember('sales-data-dashboard', $timeStoredInSecond, function () use ($sales) {
+                return $sales;
+            });
+        }
+        
+        $sales = Cache::get('sales-data-dashboard');
+
+        if (!Cache::has('partnership-data-dashboard')) {
+            $partnership = (new PartnerDashboardController($this))->get($request);
+            Cache::remember('partnership-data-dashboard', $timeStoredInSecond, function () use ($partnership) {
+                return $partnership;
+            });
+        }
+
+        $partnership = Cache::get('partnership-data-dashboard');
+        
+        if (!Cache::has('finance-data-dashboard')) {
+            $finance = (new FinanceDashboardController($this))->get($request);
+            Cache::remember('finance-data-dashboard', $timeStoredInSecond, function () use ($finance) {
+                return $finance;
+            });
+        }
+
+        $finance = Cache::get('finance-data-dashboard');
+        
+        if (!Cache::has('alarm-data-dashboard')) {
+            $alarm = (new AlarmController($this))->get($request);
+            Cache::remember('alarm-data-dashboard', $timeStoredInSecond, function () use ($alarm) {
+                return $alarm;
+            });
+        }
+
+        $alarm = Cache::get('alarm-data-dashboard');
+
+        if (!Cache::has('digital-data-dashboard')) {
+            $digital = (new DigitalDashboardController($this))->get($request);
+            Cache::remember('digital-data-dashboard', $timeStoredInSecond, function () use ($digital) {
+                return $digital;
+            });
+        }
+
+        $digital = Cache::get('digital-data-dashboard');
+
+        $data = array_merge($sales, $partnership, $finance, $alarm, $digital);
 
         return view('pages.dashboard.index')->with($data);
     }
