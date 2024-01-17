@@ -22,6 +22,7 @@ use App\Models\PicClient;
 use App\Models\University;
 use App\Models\User;
 use App\Models\ViewRawClient;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
@@ -299,7 +300,7 @@ class ClientRepository implements ClientRepositoryInterface
             isNotSalesAdmin()->
             isUsingAPI()->
             isVerified();
-
+            
         return $asDatatables === false ? $query->get() : $query;
     }
 

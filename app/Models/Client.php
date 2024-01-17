@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Session;
 use Laravel\Sanctum\HasApiTokens;
+use Mostafaznv\LaraCache\CacheEntity;
+use Mostafaznv\LaraCache\Traits\LaraCache;
 
 class Client extends Model
 {
