@@ -277,7 +277,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('school_name', $advanced_filter['school_name']);
             })->
             when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('client.graduation_year', $advanced_filter['graduation_year']);
+                $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
             })->
             when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
@@ -322,7 +322,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->when(!empty($advanced_filter['school_name']), function ($subQuery) use ($advanced_filter) {
                 $subQuery->whereIn('school_name', $advanced_filter['school_name']);
             })->when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('graduation_year', $advanced_filter['graduation_year']);
+                $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
             })->when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
             })->when(!empty($advanced_filter['initial_programs']), function ($querySearch) use ($advanced_filter) {
@@ -365,7 +365,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->when(!empty($advanced_filter['school_name']), function ($subQuery) use ($advanced_filter) {
                 $subQuery->whereIn('school_name', $advanced_filter['school_name']);
             })->when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('graduation_year', $advanced_filter['graduation_year']);
+                $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
             })->when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
             })->when(!empty($advanced_filter['initial_programs']), function ($querySearch) use ($advanced_filter) {
@@ -414,7 +414,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->when(!empty($advanced_filter['school_name']), function ($subQuery) use ($advanced_filter) {
                 $subQuery->whereIn('school_name', $advanced_filter['school_name']);
             })->when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('graduation_year', $advanced_filter['graduation_year']);
+                $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
             })->when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
             })->when(!empty($advanced_filter['initial_programs']), function ($querySearch) use ($advanced_filter) {
@@ -623,7 +623,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->whereIn('school_name', $advanced_filter['school_name']);
             })->
             when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('graduation_year', $advanced_filter['graduation_year']);
+                $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
             })->
             when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
