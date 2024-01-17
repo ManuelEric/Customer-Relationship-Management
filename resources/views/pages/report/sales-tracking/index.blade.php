@@ -21,15 +21,33 @@
                         <h6 class="p-0 m-0">Period</h6>
                     </div>
                     <div class="card-body">
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label>Start Date</label>
                             <input type="date" name="start" class="form-control form-control-sm rounded"
                                 value="{{ Request::get('start') }}">
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label>End Date</label>
                             <input type="date" name="end" class="form-control form-control-sm rounded"
                                 value="{{ Request::get('end') }}">
+                        </div>
+                        <div class="mb-2">
+                            <label>Main Program</label>
+                            <select name="" id="main_prog" class="select w-100">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label>Program Name</label>
+                            <select name="" id="prog_name" class="select w-100">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label>PIC</label>
+                            <select name="" id="pic_name" class="select w-100">
+                                <option value=""></option>
+                            </select>
                         </div>
                         <div class="text-center">
                             <button type="submit" class="btn btn-sm btn-outline-primary">
@@ -47,6 +65,12 @@
 
             {{-- Client Program  --}}
             @include('pages.report.sales-tracking.component.client-program')
+
+            {{-- Leads Number  --}}
+            @include('pages.report.sales-tracking.component.hot-leads-number')
+
+            {{-- Sales Target  --}}
+            @include('pages.report.sales-tracking.component.sales-target')
 
             {{-- Initial Assessment Progress  --}}
             @include('pages.report.sales-tracking.component.initial-assessment')
