@@ -61,9 +61,9 @@
 
 <body>
     {{-- <div id="overlay"></div> --}}
-    @env('local')
+    {{-- @env('local')
         <x-main.loadspeedindicator />
-    @endenv
+    @endenv --}}
 
     @yield('body')
 
