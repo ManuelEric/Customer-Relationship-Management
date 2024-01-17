@@ -275,6 +275,12 @@
                         }
                     },
                 ],
+                createdRow: function(row, data, index) {
+                    let currentDate = new Date().toJSON().slice(0, 10);
+                    if (moment(data['created_at']).format('YYYY-MM-DD') == currentDate) {
+                        $('td', row).addClass('table-success');
+                    }
+                }
             });
 
             // Add a click event listener to each row in the parent DataTable
