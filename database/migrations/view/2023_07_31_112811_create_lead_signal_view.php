@@ -59,14 +59,14 @@ return new class extends Migration
         DB::statement("
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION SetInitialConsult ( contribution_to_target INTEGER, requested_division VARCHAR(20) COLLATE utf8mb4_unicode_ci )
+        CREATE OR REPLACE FUNCTION SetInitialConsult ( contribution_to_target INTEGER, requested_division VARCHAR(20) COLLATE utf8mb4_general_ci )
         RETURNS INTEGER
 
             BEGIN
                 DECLARE initial_consult_target INTEGER;
                 DECLARE gap_from_lastmonth INTEGER;
 
-                SET gap_from_lastmonth = IFNULL(GetDiffFromLastMonth(requested_division), 0);
+                SET gap_from_lastmonth = ABS(IFNULL(GetDiffFromLastMonth(requested_division), 0));
 
                 SET initial_consult_target = (contribution_to_target + gap_from_lastmonth) * 1.5;
 
@@ -135,7 +135,7 @@ return new class extends Migration
         DB::statement("
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION GetDiffFromLastMonth( requested_division VARCHAR(20) COLLATE utf8mb4_unicode_ci )
+        CREATE OR REPLACE FUNCTION GetDiffFromLastMonth( requested_division VARCHAR(20) )
         RETURNS INTEGER
         DETERMINISTIC
 
@@ -146,7 +146,7 @@ return new class extends Migration
                     FROM target_tracking
                     WHERE MONTH(month_year) = MONTH(now() - INTERVAL 1 MONTH) 
                         AND YEAR(month_year) = YEAR(now() - INTERVAL 1 MONTH)
-                        AND divisi = requested_division;
+                        AND divisi = requested_division COLLATE utf8mb4_unicode_ci;
 
             RETURN difference;
         END; //

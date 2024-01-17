@@ -44,9 +44,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
 
-        if (Auth::check() && Auth::user()->email != 'manuel.eric@all-inedu.com')
-            Debugbar::disable();
-
         view()->composer('*', function ($view) {
 
             $user = auth()->user();
