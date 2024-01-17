@@ -55,6 +55,7 @@ class StoreEventRequest extends FormRequest
             ],
             'event_target' => 'required|min:1',
             'event_banner' => 'nullable|mimes:jpg|max:5000|image',
+            'category' => 'nullable'
         ];
     }
 
@@ -66,7 +67,7 @@ class StoreEventRequest extends FormRequest
 
         $rules = [
             'event_title' => 'required|unique:tbl_events,event_title,' . $eventId . ',event_id',
-            'event_description' => 'required',
+            'event_description' => 'nullable',
             'event_location' => 'required|max:250',
             'event_startdate' => 'required|before_or_equal:event_enddate',
             'event_enddate' => 'required|after_or_equal:event_startdate',
@@ -81,6 +82,7 @@ class StoreEventRequest extends FormRequest
                 },
             ],
             'event_target' => 'required|min:1',
+            'category' => 'nullable'
         ];
 
         if (!$uploadedBanner && !$newUploadedBanner) {

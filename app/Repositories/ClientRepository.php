@@ -22,6 +22,7 @@ use App\Models\PicClient;
 use App\Models\University;
 use App\Models\User;
 use App\Models\ViewRawClient;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 
@@ -1097,8 +1098,17 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function createDestinationCountry($studentId, $destinationCountryDetails)
     {
+        $arrayCountry = [];
         $student = UserClient::find($studentId);
-        $student->destinationCountries()->sync($destinationCountryDetails);
+        if(isset($student->destinationCountries)){
+            foreach ($student->destinationCountries as $country) {
+                $arrayCountry[] =  $country->id;
+            }
+        }
+
+        $merge = array_merge($arrayCountry, $destinationCountryDetails);
+
+        $student->destinationCountries()->sync($merge);
         return $student;
     }
 

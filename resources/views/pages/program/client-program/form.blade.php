@@ -222,7 +222,7 @@
                                         <small>Sub Lead <sup class="text-danger">*</sup></small>
                                         <select name="referral_code" id="referral_code" class="select w-100" {{ $disabled }}>
                                             <option data-placeholder="true"></option>
-                                            @if (isset($listReferral) && count($listReferral) > 0)
+                                            @if (isset($listReferral) && count($listReferral) > 0 && isset($referral->viewClientRefCode))
                                                 @foreach ($listReferral as $referral)
                                                     <option value="{{ $referral->viewClientRefCode->ref_code }}"
                                                         @if (old('referral_code') == $referral->viewClientRefCode->ref_code) {{ 'selected' }}
@@ -676,6 +676,7 @@
     }
 
     $("#main_lead").on('change', function() {
+        console.log("A")
         var program = $("#program_name option:selected")
         var lead = $(this).select2().find(":selected").data('lead')
         let programName = program.text()
@@ -825,7 +826,7 @@
 
     }
 
-    changeProgramStatus()
+    // changeProgramStatus()
 </script>
 <script>
     $(document).ready(function() {

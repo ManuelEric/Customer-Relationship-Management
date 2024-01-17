@@ -150,7 +150,23 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            <div class="col-md-12 mb-2">
+                            <div class="col-md-6 mb-2">
+                                <label>Category</label>
+                                <select name="category" class="select w-100" {{ $disabled }}>
+                                    <option data-placeholder="true"></option>
+                                    @foreach ($programs as $program)
+                                        <option value="{{ $program->prog_id }}"
+                                            @if (isset($event)) {{ $event->category == $program->prog_id ? 'selected' : null }}
+                                            @elseif (old('category'))
+                                                {{ old('category') == $program->prog_id ? 'selected' : null }} @endif>
+                                            {{ $program->program_name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('category')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+                            <div class="col-md-6 mb-2">
                                 <label>ALL-in PIC</label>
                                 <select name="user_id[]" multiple class="select w-100" {{ $disabled }}>
                                     <option data-placeholder="true"></option>

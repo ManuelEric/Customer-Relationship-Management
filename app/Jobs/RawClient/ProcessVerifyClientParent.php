@@ -37,7 +37,7 @@ class ProcessVerifyClientParent implements ShouldQueue
      */
     public function handle(ClientRepositoryInterface $clientRepository)
     {
-        $parents = $this->clientRepository->getAllClientByRole('Parent');
+        $parents = $clientRepository->getAllClientByRole('Parent');
         DB::beginTransaction();
         try {
 
@@ -63,7 +63,7 @@ class ProcessVerifyClientParent implements ShouldQueue
                         $isVerified = true;
                     }
                 }
-                $isVerified == true ?  $this->clientRepository->updateClient($parent->id, ['is_verified' => 'Y']) : null;
+                $isVerified == true ?  $clientRepository->updateClient($parent->id, ['is_verified' => 'Y']) : null;
 
             }
             DB::commit();

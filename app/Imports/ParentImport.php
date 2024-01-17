@@ -17,6 +17,7 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\SyncClientTrait;
 use App\Jobs\RawClient\ProcessVerifyClient;
+use App\Jobs\RawClient\ProcessVerifyClientParent;
 use App\Models\Corporate;
 use App\Models\EdufLead;
 use App\Models\Event;
@@ -25,12 +26,14 @@ use App\Models\Role;
 use App\Models\School;
 use App\Models\Tag;
 use Carbon\Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\Importable;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
-class ParentImport implements ToCollection, WithHeadingRow, WithValidation, WithMultipleSheets
+class ParentImport implements ToCollection, WithHeadingRow, WithValidation, WithMultipleSheets, WithChunkReading, ShouldQueue
 {
     /**
      * @param Collection $collection
@@ -43,6 +46,13 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
     use LoggingTrait;
     use SyncClientTrait;
 
+    public $importedBy;
+
+    public function __construct($importedBy)
+    {
+        $this->importedBy = $importedBy;
+    }
+
     public function sheets(): array
     {
         return [
@@ -53,7 +63,7 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
     public function collection(Collection $rows)
     {
 
-        $logDetails = [];
+        $logDetails = $parentIds = $childrenIds = [];
 
         DB::beginTransaction();
         try {
@@ -136,9 +146,10 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
                     if (isset($row['destination_country'])) {
                         $children != null ?  $this->syncDestinationCountry($row['destination_country'], $children) : null;
                     }
+                    $childrenIds[] = $children['id'];
                 }
 
-                $childrenIds[] = $children->id;
+               
                 $parentIds[] = $parent['id'];
 
                 $logDetails[] = [
@@ -146,19 +157,18 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
                 ];
             }
             # trigger to verifying parent
-            ProcessVerifyClient::dispatch($parentIds)->onQueue('verifying-client-parent');
+            count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent') : null;
             
             # trigger to verifying children
-            ProcessVerifyClient::dispatch($childrenIds)->onQueue('verifying-client');
+            count($childrenIds) > 0 ? ProcessVerifyClient::dispatch($childrenIds)->onQueue('verifying-client') : null;
 
-            Log::debug('ass');
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Import parent failed : ' . $e->getMessage() . ' ' . $e->getLine());
         }
 
-        $this->logSuccess('store', 'Import Parent', 'Parent', Auth::user()->first_name . ' ' . Auth::user()->last_name, $logDetails);
+        $this->logSuccess('store', 'Import Parent', 'Parent', $this->importedBy, $logDetails);
     }
 
     public function prepareForValidation($data)
@@ -260,6 +270,11 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
         }
 
         return $data;
+    }
+
+    public function chunkSize(): int
+    {
+        return 50;
     }
 
 }
