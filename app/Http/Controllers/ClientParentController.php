@@ -382,7 +382,9 @@ class ClientParentController extends ClientController
         $file = $request->file('file');
 
         // try {
-            Excel::queueImport(new ParentImport(Auth::user()->first_name . ' '. Auth::user()->last_name), $file);
+            // Excel::queueImport(new ParentImport(Auth::user()->first_name . ' '. Auth::user()->last_name), $file);
+            (new ParentImport($this->clientRepository, Auth::user()))->queue($file)->allOnQueue('imports-parent');
+
             // $import = new ParentImport();
             // $import->import($file);
 

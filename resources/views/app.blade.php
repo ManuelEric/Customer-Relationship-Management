@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="//cdn.datatables.net/fixedcolumns/4.1.0/css/fixedColumns.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="{{asset('css/custom.css')}}">
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
     @yield('css')
 
 
@@ -56,6 +56,35 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="{{ asset('js/generate-number.js') }}"></script>
     <script src="{{ asset('js/currency.js') }}"></script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script>
+        // Enable pusher logging - don't include this in production
+        Pusher.logToConsole = true;
+
+        var pusher = new Pusher('e69b02b944a4b7ffb31c', {
+            cluster: 'ap1'
+        });
+
+        var channel = pusher.subscribe('validation-import');
+        var html = '';
+        channel.bind('my-event', function(data) {
+            console.log(data.message);
+            if(data.message !== null){
+                Object.entries(data.message).forEach(function([key, messages]){
+                    if(messages !== null && key != 'user_id'){
+                        Object.entries(messages).forEach(([key2, value]) => {
+                            html += `<li class="text-danger">${value}</li>`
+                        });
+                    }
+                });
+
+                if( '{{ Auth::user() != null ? Auth::user()->id : null }}' == data.message.user_id ){
+                    $("#modal-validation-import").modal('show');
+                    $('#list-validation').html(html);
+                }
+            }
+        });
+    </script>
     @stack('styles')
 </head>
 
@@ -66,6 +95,23 @@
     @endenv --}}
 
     @yield('body')
+
+    <div class="modal modal-md fade" id="modal-validation-import" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="m-0 p-0">
+                        Validation Import
+                    </h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul id="list-validation">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <x-main.modal />
 
@@ -89,7 +135,7 @@
     <script>
         function realtimeData(data) {
             setInterval(() => {
-                
+
                 data.ajax.reload(null, false)
             }, 7000);
         }
@@ -97,7 +143,7 @@
 
         // for redirect to login page after session expired
         $(document).ready(function() {
-            $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
+            $.fn.dataTable.ext.errMode = function(settings, helpPage, message) {
 
                 if (settings && settings.jqXHR && settings.jqXHR.status == 401) {
                     notification('error', 'Your session has expired');
@@ -201,12 +247,12 @@
                     })
             });
         }
-        
+
         function closeModalLeadConfirm() {
             const id = $('#clientLeadId').val();
             const old_status = $('#statusLeadOld').val().toLowerCase();
 
-            $('.leads' + id).val(old_status);           
+            $('.leads' + id).val(old_status);
             $('#updateLeadStatus').modal('hide');
         }
     </script>

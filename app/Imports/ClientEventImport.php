@@ -462,11 +462,13 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
     {
         return [
             ImportFailed::class => function(ImportFailed $event) {
+                $i = 1;
                 foreach($event->getException() as $exception){
-                    $validation[] = $exception->error();
-                    // Log::debug(['a' => json_encode($exception->errors())]);
+                    $validation[] = $exception !== null && gettype($exception) == "object" ? $exception->errors()->toArray() : null;
+                    $i++;
                 }
-                Notification::send($this->importedBy, new ImportHasFailedNotification($validation));
+                $validation['user_id'] = $this->importedBy->id;
+                event(new \App\Events\MessageSent($validation, 'validation-import'));
             },
         ];
     }
