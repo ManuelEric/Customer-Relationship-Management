@@ -978,28 +978,35 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     public function getInitialConsultationInformation($cp_filter)
     {
         $userId = $this->getUser($cp_filter);
+        $count = isset($cp_filter['count']) ? $cp_filter['count'] : true;
 
-        $data[0] = ClientProgram::when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+        $soon = ClientProgram::when($cp_filter['qdate'], function ($q) use ($cp_filter) {
             // $q->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])));
             $q->whereMonth('initconsult_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('initconsult_date', date('Y', strtotime($cp_filter['qdate'])));
         })->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
             $q->where('empl_id', $userId);
-        })->where('status', 0)->where('initconsult_date', '>', Carbon::now())->count(); # soon
+        })->where('status', 0)->where('initconsult_date', '>', Carbon::now())->get(); # soon
 
         // $data[0] = $query->where('status', 0)->where('initconsult_date', '>', Carbon::now())->count(); # soon
-        $data[1] = ClientProgram::when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+        $already = ClientProgram::when($cp_filter['qdate'], function ($q) use ($cp_filter) {
             // $q->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])));
             $q->whereMonth('initconsult_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('initconsult_date', date('Y', strtotime($cp_filter['qdate'])));
         })->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
             $q->where('empl_id', $userId);
-        })->where('status', 0)->where('initconsult_date', '<', Carbon::now())->count(); # already
-        $data[2] = ClientProgram::when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+        })->where('status', 0)->where('initconsult_date', '<', Carbon::now())->get(); # already
+        
+        $success = ClientProgram::when($cp_filter['qdate'], function ($q) use ($cp_filter) {
             // $q->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])));
             $q->whereMonth('initconsult_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('initconsult_date', date('Y', strtotime($cp_filter['qdate'])));
         })->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
             $q->where('empl_id', $userId);
-        })->where('status', 1)->whereNotNull('success_date')->count(); # success
+        })->where('status', 1)->whereNotNull('success_date')->get(); # success
 
+        $data = [$soon, $already, $success];
+
+        if ($count === true)
+            $data = [$soon->count(), $already->count(), $success->count()];
+            
         return $data;
     }
 

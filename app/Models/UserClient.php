@@ -19,7 +19,7 @@ use Mostafaznv\LaraCache\Traits\LaraCache;
 
 class UserClient extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, LaraCache;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     protected $table = 'tbl_client';
     protected $appends = ['lead_source', 'graduation_year_real', 'referral_name'];
@@ -77,27 +77,6 @@ class UserClient extends Authenticatable
      * @var array
      */
     protected $dates = ['deleted_at'];
-
-    /**
-     * Define Cache Entities Entities
-     *
-     * @return CacheEntity[]
-     */
-    public static function cacheEntities(): array
-    {
-        return [
-            CacheEntity::make('list.forever')
-                ->cache(function() {
-                    return UserClient::query()->latest()->get();
-                }),
-
-            CacheEntity::make('latest')
-                ->validForRestOfDay()
-                ->cache(function() {
-                    return UserClient::query()->latest()->first();
-                })
-        ];
-    }
 
     # attributes
     protected function fullName(): Attribute
