@@ -278,7 +278,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('school_name', $advanced_filter['school_name']);
             })->
             when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('client.graduation_year', $advanced_filter['graduation_year']);
+                $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
             })->
             when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
@@ -296,6 +296,15 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('client.st_statusact', $advanced_filter['active_status']);
             }, function ($subQuery) {
                 $subQuery->where('client.st_statusact', 1);
+            })->
+            when(!empty($advanced_filter['start_joined_date']) && empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '>=', $advanced_filter['start_joined_date']);
+            })->
+            when(!empty($advanced_filter['end_joined_date']) && empty($advanced_filter['start_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '<=', $advanced_filter['end_joined_date']);
+            })->
+            when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
             isNotSalesAdmin()->
             isUsingAPI()->
@@ -323,21 +332,25 @@ class ClientRepository implements ClientRepositoryInterface
             })->when(!empty($advanced_filter['school_name']), function ($subQuery) use ($advanced_filter) {
                 $subQuery->whereIn('school_name', $advanced_filter['school_name']);
             })->when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('graduation_year', $advanced_filter['graduation_year']);
+                $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
             })->when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
             })->when(!empty($advanced_filter['initial_programs']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('program_suggest', $advanced_filter['initial_programs']);
             })->when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
-            })->
-            when(!empty($advanced_filter['pic']), function ($querySearch) use ($advanced_filter) {
+            })->when(!empty($advanced_filter['pic']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('client.pic_id', $advanced_filter['pic']);
-            })->
-            when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
+            })->when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('client.st_statusact', $advanced_filter['active_status']);
             }, function ($subQuery) {
                 $subQuery->where('client.st_statusact', 1);
+            })->when(!empty($advanced_filter['start_joined_date']) && empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '>=', $advanced_filter['start_joined_date']);
+            })->when(!empty($advanced_filter['end_joined_date']) && empty($advanced_filter['start_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '<=', $advanced_filter['end_joined_date']);
+            })->when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
             isNotSalesAdmin()->
             isUsingAPI()->
@@ -366,21 +379,25 @@ class ClientRepository implements ClientRepositoryInterface
             })->when(!empty($advanced_filter['school_name']), function ($subQuery) use ($advanced_filter) {
                 $subQuery->whereIn('school_name', $advanced_filter['school_name']);
             })->when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('graduation_year', $advanced_filter['graduation_year']);
+                $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
             })->when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
             })->when(!empty($advanced_filter['initial_programs']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('program_suggest', $advanced_filter['initial_programs']);
             })->when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
-            })->
-            when(!empty($advanced_filter['pic']), function ($querySearch) use ($advanced_filter) {
+            })->when(!empty($advanced_filter['pic']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('client.pic_id', $advanced_filter['pic']);
-            })->
-            when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
+            })->when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('client.st_statusact', $advanced_filter['active_status']);
             }, function ($subQuery) {
                 $subQuery->where('client.st_statusact', 1);
+            })->when(!empty($advanced_filter['start_joined_date']) && empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '>=', $advanced_filter['start_joined_date']);
+            })->when(!empty($advanced_filter['end_joined_date']) && empty($advanced_filter['start_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '<=', $advanced_filter['end_joined_date']);
+            })->when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
             isNotSalesAdmin()->
             isUsingAPI()->
@@ -415,7 +432,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->when(!empty($advanced_filter['school_name']), function ($subQuery) use ($advanced_filter) {
                 $subQuery->whereIn('school_name', $advanced_filter['school_name']);
             })->when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('graduation_year', $advanced_filter['graduation_year']);
+                $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
             })->when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
             })->when(!empty($advanced_filter['initial_programs']), function ($querySearch) use ($advanced_filter) {
@@ -430,6 +447,15 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('client.st_statusact', $advanced_filter['active_status']);
             }, function ($subQuery) {
                 $subQuery->where('client.st_statusact', 1);
+            })->
+            when(!empty($advanced_filter['start_joined_date']) && empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '>=', $advanced_filter['start_joined_date']);
+            })->
+            when(!empty($advanced_filter['end_joined_date']) && empty($advanced_filter['start_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '<=', $advanced_filter['end_joined_date']);
+            })->
+            when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
             isNotSalesAdmin()->
             isUsingAPI()->
@@ -624,7 +650,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->whereIn('school_name', $advanced_filter['school_name']);
             })->
             when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('graduation_year', $advanced_filter['graduation_year']);
+                $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
             })->
             when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
@@ -637,6 +663,15 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             when(!empty($advanced_filter['pic']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('client.pic_id', $advanced_filter['pic']);
+            })->
+            when(!empty($advanced_filter['start_joined_date']) && empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '>=', $advanced_filter['start_joined_date']);
+            })->
+            when(!empty($advanced_filter['end_joined_date']) && empty($advanced_filter['start_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereDate('client.created_at', '<=', $advanced_filter['end_joined_date']);
+            })->
+            when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
             isStudent()->
             isNotActive();
@@ -1392,7 +1427,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     /* trash */
 
-    public function getDeletedStudents($asDatatables = false)
+    public function getDeletedStudents($asDatatables = false, $advanced_filter = [])
     {
         $query = Client::select([
                     'client.*',
@@ -1405,7 +1440,25 @@ class ClientRepository implements ClientRepositoryInterface
                 whereHas('roles', function($subQuery) {
                     $subQuery->where('role_name', 'Student');
                 })->
-                orderBy('deleted_at', 'desc')->
+                when(!empty($advanced_filter['school_name']), function ($subQuery) use ($advanced_filter) {
+                    $subQuery->whereIn('school_name', $advanced_filter['school_name']);
+                })->
+                when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
+                })->
+                when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereIn('lead_source', $advanced_filter['leads']);
+                })->
+                when(!empty($advanced_filter['start_joined_date']) && empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereDate('client.created_at', '>=', $advanced_filter['start_joined_date']);
+                })->
+                when(!empty($advanced_filter['end_joined_date']) && empty($advanced_filter['start_joined_date']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereDate('client.created_at', '<=', $advanced_filter['end_joined_date']);
+                })->
+                when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
+                })->
+                // orderBy('deleted_at', 'desc')->
                 onlyTrashed();
         return $asDatatables === false ? $query->get() : $query;
     }
@@ -1486,6 +1539,15 @@ class ClientRepository implements ClientRepositoryInterface
                 })->
                 when(!empty($advanced_filter['roles']), function ($querySearch) use ($advanced_filter) {
                     $querySearch->whereIn('roles', $advanced_filter['roles']);
+                })->
+                when(!empty($advanced_filter['start_joined_date']) && empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereDate('raw_client.created_at', '>=', $advanced_filter['start_joined_date']);
+                })->
+                when(!empty($advanced_filter['end_joined_date']) && empty($advanced_filter['start_joined_date']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereDate('raw_client.created_at', '<=', $advanced_filter['end_joined_date']);
+                })->
+                when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereBetween('raw_client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
                 });
 
         // return Datatables::eloquent($model)->make(true);
