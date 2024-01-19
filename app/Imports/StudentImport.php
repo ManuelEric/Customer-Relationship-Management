@@ -354,10 +354,8 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
     {
         return [
             ImportFailed::class => function(ImportFailed $event) {
-                $i = 1;
                 foreach($event->getException() as $exception){
                     $validation[] = $exception !== null && gettype($exception) == "object" ? $exception->errors()->toArray() : null;
-                    $i++;
                 }
                 $validation['user_id'] = $this->importedBy->id;
                 event(new \App\Events\MessageSent($validation, 'validation-import'));
