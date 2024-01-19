@@ -392,7 +392,7 @@ class ClientParentController extends ClientController
         //     return back()->withError('Something went wrong while processing the data. Please try again or contact the administrator.');
         // }
 
-        return back()->withSuccess('Parent successfully imported');
+        return back()->withSuccess('Import parent start progress');
     }
 
     public function getDataParents()

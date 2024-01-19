@@ -105,6 +105,8 @@ return new class extends Migration
                 ON corp.corp_id = cp.partner_id
             LEFT JOIN tbl_reason r
                 ON r.reason_id = cp.reason_id
+
+            where c.deleted_at is null
             
         ');
     }

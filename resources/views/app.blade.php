@@ -57,18 +57,23 @@
     <script src="{{ asset('js/generate-number.js') }}"></script>
     <script src="{{ asset('js/currency.js') }}"></script>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+
+    {{-- Pusher --}}
     <script>
         // Enable pusher logging - don't include this in production
-        Pusher.logToConsole = true;
+        @env('local')
+            Pusher.logToConsole = true;
+        @endenv
 
-        var pusher = new Pusher('e69b02b944a4b7ffb31c', {
-            cluster: 'ap1'
+        var pusher = new Pusher('{{ env("PUSHER_APP_KEY") }}', {
+            cluster: '{{ env("PUSHER_APP_CLUSTER") }}'
         });
 
         var channel = pusher.subscribe('validation-import');
         var html = '';
+
         channel.bind('my-event', function(data) {
-            console.log(data.message);
+            // console.log(data.message);
             if(data.message !== null){
                 Object.entries(data.message).forEach(function([key, messages]){
                     if(messages !== null && key != 'user_id'){
@@ -84,6 +89,7 @@
                 }
             }
         });
+
     </script>
     @stack('styles')
 </head>
@@ -96,6 +102,7 @@
 
     @yield('body')
 
+    {{-- Modal validation import --}}
     <div class="modal modal-md fade" id="modal-validation-import" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">

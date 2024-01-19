@@ -274,11 +274,6 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
         return $data;
     }
 
-    public function chunkSize(): int
-    {
-        return 50;
-    }
-
     public function registerEvents(): array
     {
         return [
@@ -291,5 +286,11 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
             },
         ];
     }
+    
+    public function chunkSize(): int
+    {
+        return 50;
+    }
+
 
 }

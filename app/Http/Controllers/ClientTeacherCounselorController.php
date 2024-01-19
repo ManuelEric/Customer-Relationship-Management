@@ -366,7 +366,7 @@ class ClientTeacherCounselorController extends ClientController
         // $import = new TeacherImport;
         // $import->import($file);
 
-        return back()->withSuccess('Teacher successfully imported');
+        return back()->withSuccess('Import teacher start progress');
     }
 
     public function cleaningData(Request $request)

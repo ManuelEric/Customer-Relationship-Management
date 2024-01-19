@@ -805,7 +805,7 @@ class ClientStudentController extends ClientController
         //     return back()->withError('Something went wrong while processing the data. Please try again or contact the administrator.');
         // }
 
-        return back()->withSuccess('Student successfully imported');
+        return back()->withSuccess('Import student start progress');
     }
 
     public function siblings(Request $request)

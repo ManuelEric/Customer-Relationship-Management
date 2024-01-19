@@ -48,6 +48,7 @@ use Maatwebsite\Excel\Validators\Failure;
 use Throwable;
 use App\Notifications\ImportHasFailedNotification;
 use Illuminate\Support\Facades\Notification;
+use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Validators\ValidationException;
 
 class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation, WithChunkReading, ShouldQueue, WithEvents
@@ -453,11 +454,6 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
        
     }
 
-    public function chunkSize(): int
-    {
-        return 50;
-    }
-
     public function registerEvents(): array
     {
         return [
@@ -470,5 +466,12 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
             },
         ];
     }
+
+    public function chunkSize(): int
+    {
+        return 50;
+    }
+
+    
 
 }

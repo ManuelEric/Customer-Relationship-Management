@@ -214,11 +214,6 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation, Wit
         return $newSchool;
     }
 
-    public function chunkSize(): int
-    {
-        return 50;
-    }
-
     public function registerEvents(): array
     {
         return [
@@ -231,4 +226,10 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation, Wit
             },
         ];
     }
+    
+    public function chunkSize(): int
+    {
+        return 50;
+    }
+
 }

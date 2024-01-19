@@ -536,7 +536,7 @@ class ClientEventController extends Controller
 
         // }
 
-        return back()->withSuccess('Client event successfully imported');
+        return back()->withSuccess('Import client events start progress');
     }
 
     public function mailing(StoreImportExcelRequest $request)
