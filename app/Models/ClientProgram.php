@@ -104,18 +104,18 @@ class ClientProgram extends Model
 
     public function getReferralNameFromRefCodeView($refCode)
     {
-<<<<<<< HEAD
         // return ViewClientRefCode::whereRaw('ref_code COLLATE utf8mb4_unicode_ci = (?)', $refCode)->first()->full_name;
         return ViewClientRefCode::whereRaw('ref_code = (?)', $refCode)->first()->full_name;
-=======
-        return ViewClientRefCode::whereRaw('ref_code COLLATE utf8mb4_unicode_ci = (?)', $refCode)->first()->full_name;
-        // return ViewClientRefCode::whereRaw('ref_code = (?)', $refCode)->first()->full_name;
->>>>>>> origin/development-v2.2
     }
 
     public function client()
     {
         return $this->belongsTo(UserClient::class, 'client_id', 'id')->withTrashed();
+    }
+
+    public function cleanClient()
+    {
+        return $this->belongsTo(UserClient::class, 'client_id', 'id');
     }
 
     public function viewClient()
