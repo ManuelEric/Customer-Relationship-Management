@@ -126,6 +126,20 @@
                                         </div>
                                     @endif
 
+                                    <div class="col-md-12 mb-2">
+                                        <div class="row g-2">
+                                            <label>Joined Date</label>
+                                            <div class="col-md-6 mb-2">
+                                                <input type="date" name="start_joined_date" id="start_joined_date"
+                                                    class="form-control form-control-sm rounded">
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <input type="date" name="end_joined_date" id="end_joined_date"
+                                                    class="form-control form-control-sm rounded">
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div class="col-md-12 mt-3 d-none">
                                         <div class="d-flex justify-content-between">
                                             <button type="button" class="btn btn-sm btn-outline-danger"
@@ -201,6 +215,7 @@
                         <th>Interest Major</th>
                         <th>Joined Date</th>
                         <th>Scholarship Eligible</th>
+                        <th>Joined Date</th>
                         <th>Last Update</th>
                         <th>Is Active</th>
                         <th class="bg-info text-white"># Action</th>
@@ -483,6 +498,8 @@
                         params.status_lead = $("#lead-source").val()
                         params.active_status = $("#active-status").val()
                         params.pic = $("#pic").val()
+                        params.start_joined_date = $("#start_joined_date").val()
+                        params.end_joined_date = $("#end_joined_date").val()
                     }
                 },
                 columns: [{
@@ -741,6 +758,14 @@
                         }
                     },
                     {
+                        data: 'created_at',
+                        searchable: false,
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            return moment(data).format('MMMM Do YYYY')
+                        }
+                    },
+                    {
                         data: 'updated_at',
                         searchable: false,
                         className: 'text-center',
@@ -904,6 +929,16 @@
 
             $("#pic").on('change', function(e) {
                 var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#start_joined_date").on('change', function (e) {
+                var value = $(e.currentTarget).val();
+                table.draw();
+            })
+
+            $("#end_joined_date").on('change', function (e) {
+                var value = $(e.currentTarget).val();
                 table.draw();
             })
 

@@ -102,6 +102,20 @@
                                         </select>
                                     </div>
 
+                                    <div class="col-md-12 mb-2">
+                                        <div class="row g-2">
+                                            <label>Joined Date</label>
+                                            <div class="col-md-6 mb-2">
+                                                <input type="date" name="start_joined_date" id="start_joined_date"
+                                                    class="form-control form-control-sm rounded">
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <input type="date" name="end_joined_date" id="end_joined_date"
+                                                    class="form-control form-control-sm rounded">
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div class="col-md-12 mt-3 d-none">
                                         <div class="d-flex justify-content-between">
                                             <button type="button" class="btn btn-sm btn-outline-danger"
@@ -348,6 +362,8 @@
                         params.program_suggest = $("#program-name").val()
                         params.status_lead = $("#lead-source").val()
                         params.active_status = $("#active-status").val()
+                        params.start_joined_date = $("#start_joined_date").val()
+                        params.end_joined_date = $("#end_joined_date").val()
                     }
                 },
                 rowCallback: function(row, data) {
@@ -558,6 +574,16 @@
 
             $("#roles").on('change', function(e) {
                 var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#start_joined_date").on('change', function (e) {
+                var value = $(e.currentTarget).val();
+                table.draw();
+            })
+
+            $("#end_joined_date").on('change', function (e) {
+                var value = $(e.currentTarget).val();
                 table.draw();
             })
 

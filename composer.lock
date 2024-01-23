@@ -5,6 +5,7 @@
         "This file is @generated automatically"
     ],
     "content-hash": "d60d349f3ba08d7baaa200ba49c4c7fc",
+
     "packages": [
         {
             "name": "arcanedev/log-viewer",
