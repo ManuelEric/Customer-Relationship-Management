@@ -18,8 +18,8 @@ class SalesTrackingController extends Controller
 
     public function index(Request $request)
     {
-        $startDate = date('Y-m').'-01';
-        $endDate = date('Y-m').'-31';
+        $startDate = date('Y-m-01');
+        $endDate = date('Y-m-t');
         if ($request->get('start') && $request->get('end')) {
             $startDate = $request->get('start');
             $endDate = $request->get('end');

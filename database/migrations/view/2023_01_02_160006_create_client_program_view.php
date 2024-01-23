@@ -106,7 +106,11 @@ return new class extends Migration
             LEFT JOIN tbl_reason r
                 ON r.reason_id = cp.reason_id
 
-            where c.deleted_at is null
+
+                WHERE c.deleted_at is null
+                GROUP BY cp.clientprog_id
+
+
             
         ');
     }

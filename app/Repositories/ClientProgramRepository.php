@@ -679,6 +679,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     ELSE tbl_lead.main_lead
                 END) AS lead_source'),
             ])
+            ->where('tbl_client.deleted_at', null)
             ->where('tbl_client_prog.status', 1)
             ->where('tbl_client.deleted_at', null)
             ->when($filter, function ($q) use ($filter) {
@@ -754,7 +755,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
     public function getConversionLeadDetails($filter)
     {
-        return ClientProgram::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
+        return ClientProgram::has('cleanClient')->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
             ->leftJoin('tbl_lead as lc', 'lc.lead_id', '=', 'tbl_client.lead_id')
             ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
             ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')

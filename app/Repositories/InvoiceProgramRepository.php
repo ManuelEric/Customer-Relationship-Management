@@ -39,7 +39,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                         'inv_totalprice_idr',
                         'program_name',
                         'clientprogram.status'
-                    ])->orderBy('tbl_inv.updated_at', 'desc');
+                    ])->orderBy('tbl_inv.updated_at', 'desc')->groupBy('tbl_inv.inv_id');
                 break;
 
             case "reminder":
