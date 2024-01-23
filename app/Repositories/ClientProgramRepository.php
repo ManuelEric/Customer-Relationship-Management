@@ -681,6 +681,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ])
             ->where('tbl_client.deleted_at', null)
             ->where('tbl_client_prog.status', 1)
+            ->where('tbl_client.deleted_at', null)
             ->when($filter, function ($q) use ($filter) {
                 $q->whereBetween(DB::raw('
                     (CASE
@@ -778,6 +779,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 END) AS conversion_lead'),
             ])
             ->where('tbl_client_prog.status', 1)
+            ->where('tbl_client.deleted_at', null)
             ->when($filter, function ($q) use ($filter) {
                 $q->whereBetween(DB::raw('
                     (CASE
@@ -794,7 +796,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
     public function getConversionTimeSuccessfulPrograms($dateDetails)
     {
-        return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
+        return ClientProgram::has('cleanClient')->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
             ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
             ->select([
                 DB::raw('CONCAT(tbl_main_prog.prog_name, ": ", tbl_prog.prog_program) as program_name_st'),

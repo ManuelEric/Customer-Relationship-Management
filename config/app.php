@@ -193,7 +193,7 @@ return [
          */
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
+        App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
@@ -248,6 +248,7 @@ return [
         'Terbilang' => Riskihajar\Terbilang\Facades\Terbilang::class,
         'Indonesia' => Laravolt\Indonesia\Facade::class,
         'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class,
+        'Pusher' => Pusher\Pusher::class,
         
     ])->toArray(),
 
