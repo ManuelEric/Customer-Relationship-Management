@@ -25,9 +25,11 @@ use App\Models\Event;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\ImportFailed;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
-class TeacherImport implements ToCollection, WithHeadingRow, WithValidation, WithChunkReading, ShouldQueue
+class TeacherImport implements ToCollection, WithHeadingRow, WithValidation, WithChunkReading, ShouldQueue, WithEvents
 {
     /**
      * @param Collection $collection
@@ -108,7 +110,7 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation, Wit
             Log::error('Import teacher failed : ' . $e->getMessage());
         }
 
-        $this->logSuccess('store', 'Import Teacher', 'Parent', $this->importedBy, $teacher);
+        $this->logSuccess('store', 'Import Teacher', 'Parent', $this->importedBy->first_name . ' ' . $this->importedBy->last_name, $teacher);
 
     }
 
@@ -212,8 +214,22 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation, Wit
         return $newSchool;
     }
 
+    public function registerEvents(): array
+    {
+        return [
+            ImportFailed::class => function(ImportFailed $event) {
+                foreach($event->getException() as $exception){
+                    $validation[] = $exception !== null && gettype($exception) == "object" ? $exception->errors()->toArray() : null;
+                }
+                $validation['user_id'] = $this->importedBy->id;
+                event(new \App\Events\MessageSent($validation, 'validation-import'));
+            },
+        ];
+    }
+    
     public function chunkSize(): int
     {
         return 50;
     }
+
 }

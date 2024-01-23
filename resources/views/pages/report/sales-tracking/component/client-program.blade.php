@@ -34,7 +34,7 @@
                                             <table class="table table-hover table-bordered">
                                                 <tr>
                                                     <td style="width:92%">
-                                                        <a class="text-dark text-decoration-none" href="{{ url('program/client?program_name[]=' . $key3 . '&start_date=' . Request::get('start') . '&end_date=' . Request::get('end') . '&program_status[]=' . encrypt('0')) }}"
+                                                        <a class="text-dark text-decoration-none" href="{{ url('program/client?program_name[]=' . $key3 . '&start_date=' . (Request::get('start') ?? date('Y-m-01')) . '&end_date=' . (Request::get('end') ?? date('Y-m-t')) . '&program_status[]=' . encrypt('0')) }}"
                                                             class="text-decoration-none" target="_blank">
                                                             {{ $key . ' : ' . $key2 }}
                                                         </a>
@@ -86,7 +86,7 @@
                                         <table class="table table-hover table-bordered">
                                             <tr>
                                                 <td style="width:92%">
-                                                    <a class="text-dark text-decoration-none" href="{{ url('program/client?program_name[]=' . $key3 . '&start_date=' . Request::get('start') . '&end_date=' . Request::get('end') . '&program_status[]=' . encrypt('2')) }}"
+                                                    <a class="text-dark text-decoration-none" href="{{ url('program/client?program_name[]=' . $key3 . '&start_date=' . (Request::get('start') ?? date('Y-m-01')) . '&end_date=' . (Request::get('end') ?? date('Y-m-t')) . '&program_status[]=' . encrypt('2')) }}"
                                                         class="text-decoration-none" target="_blank">
                                                         {{ $key . ' : ' . $key2 }}
                                                     </a>
@@ -138,7 +138,7 @@
                                         <table class="table table-hover table-bordered">
                                             <tr>
                                                 <td style="width:92%">
-                                                    <a class="text-dark text-decoration-none" href="{{ url('program/client?program_name[]=' . $key3 . '&start_date=' . Request::get('start') . '&end_date=' . Request::get('end') . '&program_status[]=' . encrypt('3')) }}"
+                                                    <a class="text-dark text-decoration-none" href="{{ url('program/client?program_name[]=' . $key3 . '&start_date=' . (Request::get('start') ?? date('Y-m-01')) . '&end_date=' . (Request::get('end') ?? date('Y-m-t')) . '&program_status[]=' . encrypt('3')) }}"
                                                         class="text-decoration-none" target="_blank">
                                                         {{ $key . ' : ' . $key2 }}
                                                     </a>
@@ -190,7 +190,7 @@
                                         <table class="table table-hover table-bordered">
                                             <tr>
                                                 <td style="width:92%">
-                                                    <a class="text-dark text-decoration-none" href="{{ url('program/client?program_name[]=' . $key3 . '&start_date=' . Request::get('start') . '&end_date=' . Request::get('end') . '&program_status[]=' . encrypt('1')) }}"
+                                                    <a class="text-dark text-decoration-none" href="{{ url('program/client?program_name[]=' . $key3 . '&start_date=' . (Request::get('start') ?? date('Y-m-01')) . '&end_date=' . (Request::get('end') ?? date('Y-m-t')) . '&program_status[]=' . encrypt('1')) }}"
                                                         class="text-decoration-none" target="_blank">
                                                         {{ $key . ' : ' . $key2 }}
                                                     </a>

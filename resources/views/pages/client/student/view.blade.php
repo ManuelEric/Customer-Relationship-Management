@@ -133,7 +133,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9 col-8">
-                            {{ $student->lead_source }} {{ $student->referral_code != null && $student->lead_source == "Referral" ? '(' . $student->referral_name . ')' : null }}
+                            {{ $student->lead_source }} 
                         </div>
                     </div>
                     <div class="row mb-2 g-1">

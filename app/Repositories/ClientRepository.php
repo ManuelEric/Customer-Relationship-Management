@@ -258,6 +258,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getNewLeads($asDatatables = false, $month = null, $advanced_filter = [])
     {
+        // return UserClient::all();
         # new client that havent offering our program
         $query = Client::select([
                 'client.*',
@@ -1457,6 +1458,15 @@ class ClientRepository implements ClientRepositoryInterface
                 })->
                 when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
                     $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
+                })->
+                when(!empty($advanced_filter['start_deleted_date']) && empty($advanced_filter['end_deleted_date']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereDate('client.deleted_at', '>=', $advanced_filter['start_deleted_date']);
+                })->
+                when(!empty($advanced_filter['end_deleted_date']) && empty($advanced_filter['start_deleted_date']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereDate('client.deleted_at', '<=', $advanced_filter['end_deleted_date']);
+                })->
+                when(!empty($advanced_filter['start_deleted_date']) && !empty($advanced_filter['end_deleted_date']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereBetween('client.deleted_at', [$advanced_filter['start_deleted_date'], $advanced_filter['end_deleted_date']]);
                 })->
                 // orderBy('deleted_at', 'desc')->
                 onlyTrashed();

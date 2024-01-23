@@ -37,6 +37,8 @@ class RecycleClientController extends Controller
                     $pic = $request->get('pic');
                     $start_joined_date = $request->get('start_joined_date');
                     $end_joined_date = $request->get('end_joined_date');
+                    $start_deleted_date = $request->get('start_deleted_date');
+                    $end_deleted_date = $request->get('end_deleted_date');
 
                     # array for advanced filter request
                     $advanced_filter = [
@@ -48,7 +50,9 @@ class RecycleClientController extends Controller
                         'active_status' => $active_status,
                         'pic' => $pic,
                         'start_joined_date' => $start_joined_date,
-                        'end_joined_date' => $end_joined_date
+                        'end_joined_date' => $end_joined_date,
+                        'start_deleted_date' => $start_deleted_date,
+                        'end_deleted_date' => $end_deleted_date
                     ];
 
                     $model = $this->clientRepository->getDeletedStudents(true, $advanced_filter);
