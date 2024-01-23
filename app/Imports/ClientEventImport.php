@@ -42,10 +42,16 @@ use Maatwebsite\Excel\Concerns\SkipsFailures;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\ImportFailed;
 use Maatwebsite\Excel\Validators\Failure;
 use Throwable;
+use App\Notifications\ImportHasFailedNotification;
+use Illuminate\Support\Facades\Notification;
+use Maatwebsite\Excel\Events\AfterImport;
+use Maatwebsite\Excel\Validators\ValidationException;
 
-class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation, WithChunkReading, ShouldQueue
+class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation, WithChunkReading, ShouldQueue, WithEvents
 
 {
     /**
@@ -151,7 +157,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
 
 
                 $existClientEvent = ClientEvent::where('event_id', $data['event_id'])
-                    ->where('client_id', $data['client_id'])
+                    ->where('client_id', $createdMainClient)
                     ->where('joined_date', $data['joined_date'])
                     ->first();
 
@@ -181,7 +187,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
 
             # store Success
             # create log success
-            $this->logSuccess('store', 'Import Client Event', 'Client Event', $this->importedBy, $logDetails);
+            $this->logSuccess('store', 'Import Client Event', 'Client Event', $this->importedBy->first_name . ' ' . $this->importedBy->last_name, $logDetails);
             
 
             DB::commit();
@@ -448,9 +454,24 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
        
     }
 
+    public function registerEvents(): array
+    {
+        return [
+            ImportFailed::class => function(ImportFailed $event) {
+                foreach($event->getException() as $exception){
+                    $validation[] = $exception !== null && gettype($exception) == "object" ? $exception->errors()->toArray() : null;
+                }
+                $validation['user_id'] = $this->importedBy->id;
+                event(new \App\Events\MessageSent($validation, 'validation-import'));
+            },
+        ];
+    }
+
     public function chunkSize(): int
     {
         return 50;
     }
+
+    
 
 }

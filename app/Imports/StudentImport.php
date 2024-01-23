@@ -32,11 +32,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Events\ImportFailed;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 
-class StudentImport implements ToCollection, WithHeadingRow, WithValidation, WithMultipleSheets, WithChunkReading, ShouldQueue
+class StudentImport implements ToCollection, WithHeadingRow, WithValidation, WithMultipleSheets, WithChunkReading, ShouldQueue, WithEvents
 {
     /**
      * @param Collection $collection
@@ -193,7 +195,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
             Log::error('Import student failed : ' . $e->getMessage() . $e->getLine());
         }
 
-        $this->logSuccess('store', 'Import Student', 'Student', $this->importedBy, $logDetails);
+        $this->logSuccess('store', 'Import Student', 'Student', $this->importedBy->first_name . ' ' . $this->importedBy->last_name, $logDetails);
 
     }
 
@@ -343,8 +345,22 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
         return $data;
     }
 
+    public function registerEvents(): array
+    {
+        return [
+            ImportFailed::class => function(ImportFailed $event) {
+                foreach($event->getException() as $exception){
+                    $validation[] = $exception !== null && gettype($exception) == "object" ? $exception->errors()->toArray() : null;
+                }
+                $validation['user_id'] = $this->importedBy->id;
+                event(new \App\Events\MessageSent($validation, 'validation-import'));
+            },
+        ];
+    }
+    
     public function chunkSize(): int
     {
         return 50;
     }
+
 }

@@ -113,6 +113,11 @@ class ClientProgram extends Model
         return $this->belongsTo(UserClient::class, 'client_id', 'id')->withTrashed();
     }
 
+    public function cleanClient()
+    {
+        return $this->belongsTo(UserClient::class, 'client_id', 'id');
+    }
+
     public function viewClient()
     {
         return $this->belongsTo(Client::class, 'client_id', 'id');
