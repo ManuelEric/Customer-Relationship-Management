@@ -88,6 +88,20 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-12 mb-2">
+                                <div class="row g-2">
+                                    <label>Deleted Date</label>
+                                    <div class="col-md-6 mb-2">
+                                        <input type="date" name="start_deleted_date" id="start_deleted_date"
+                                            class="form-control form-control-sm rounded">
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <input type="date" name="end_deleted_date" id="end_deleted_date"
+                                            class="form-control form-control-sm rounded">
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="col-md-12 mt-3 d-none">
                                 <div class="d-flex justify-content-between">
                                     <button type="button" class="btn btn-sm btn-outline-danger"
@@ -264,6 +278,8 @@
                         params.lead_source = $("#lead-sources").val()
                         params.start_joined_date = $("#start_joined_date").val()
                         params.end_joined_date = $("#end_joined_date").val()
+                        params.start_deleted_date = $("#start_deleted_date").val()
+                        params.end_deleted_date = $("#end_deleted_date").val()
                     }
                 },
                 columns: [{
@@ -503,6 +519,16 @@
             })
 
             $("#end_joined_date").on('change', function (e) {
+                var value = $(e.currentTarget).val();
+                table.draw();
+            })
+            
+            $("#start_deleted_date").on('change', function (e) {
+                var value = $(e.currentTarget).val();
+                table.draw();
+            })
+
+            $("#end_deleted_date").on('change', function (e) {
                 var value = $(e.currentTarget).val();
                 table.draw();
             })
