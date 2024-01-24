@@ -483,7 +483,7 @@
                                 @if (isset($ext_edufair) && count($ext_edufair) > 0)
                                     @foreach ($ext_edufair as $edufair)
                                         <option value="{{ $edufair->id }}"
-                                            @if (isset($teacher_counselor->external_edufair->id)) {{ $teacher_counselor->external_edufair->id == $edufair->id ? 'selected' : null }}
+                                            @if (isset($student->external_edufair->id)) {{ $student->external_edufair->id == $edufair->id ? 'selected' : null }}
                                             @else
                                                 {{ old('eduf_id') == $edufair->id ? 'selected' : null }} @endif>
                                             {{ $edufair->organizer_name . ' - ' . date('d M Y', strtotime($edufair->event_start)) }}

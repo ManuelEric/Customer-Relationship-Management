@@ -31,6 +31,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\RegistersEventListeners;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
@@ -50,6 +52,7 @@ class SchoolImport implements ToCollection, WithHeadingRow, WithValidation, With
     use CreateCustomPrimaryKeyTrait;
     use LoggingTrait;
     use SyncClientTrait;
+    use RegistersEventListeners;
 
     public $importedBy;
 
@@ -68,7 +71,7 @@ class SchoolImport implements ToCollection, WithHeadingRow, WithValidation, With
     public function collection(Collection $rows)
     {
 
-        $logDetails = $childIds = $parentIds = []; 
+        $logDetails = $updateSchools = $newSchools = []; 
 
         DB::beginTransaction();
         try {
@@ -93,10 +96,18 @@ class SchoolImport implements ToCollection, WithHeadingRow, WithValidation, With
 
 
                 if(isset($row['sch_id'])){
-                    School::whereSchoolId($row['sch_id'])->update($schoolDetails);
+                    $updateSchools[] = $row['sch_id'];
+                    Log::info($schoolDetails);
+                    School::where('sch_id', $row['sch_id'])->update($schoolDetails);
+                    // $schoolDetails['type'] = 'old';
+                    // $schoolDetails['isExist'] = true;
                 }else{
                     // Check existing school
                     $school = School::where('sch_name', $row['sch_name'])->get()->pluck('sch_id')->first();
+                    // $schoolDetails['type'] = 'new';
+                    unset($schoolDetails['sch_score']);
+                    unset($schoolDetails['status']);
+
                     if (!isset($school)) {
                             $last_id = School::withTrashed()->max('sch_id');
                             $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
@@ -104,6 +115,8 @@ class SchoolImport implements ToCollection, WithHeadingRow, WithValidation, With
                 
                             $schoolDetails['sch_id'] = $school_id_with_label;
                             School::create($schoolDetails);
+                            $newSchools[] = $schoolDetails['sch_id'];
+                            // $schoolDetails['isExist'] = false;
                     }
                 }
             }
@@ -113,6 +126,11 @@ class SchoolImport implements ToCollection, WithHeadingRow, WithValidation, With
             Log::error('Import school failed : ' . $e->getMessage() . $e->getLine());
         }
 
+        $logDetails = [
+            'updateSchools' => $updateSchools,
+            'newSchools' => $newSchools
+        ];
+
         $this->logSuccess('store', 'Import School', 'School', $this->importedBy->first_name . ' ' . $this->importedBy->last_name, $logDetails);
 
           
@@ -120,33 +138,6 @@ class SchoolImport implements ToCollection, WithHeadingRow, WithValidation, With
 
     public function prepareForValidation($data)
     {
-
-        DB::beginTransaction();
-        try {
-
-            if ($data['lead'] == 'School' || $data['lead'] == 'Counselor') {
-                $data['lead'] = 'School/Counselor';
-            }
-
-            if ($data['lead'] == 'KOL') {
-                $lead = 'KOL';
-            } else {
-                $lead = Lead::where('main_lead', $data['lead'])->get()->pluck('lead_id')->first();
-            }
-
-            // $parentId = UserClient::where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), $data['parents_name'])->get()->pluck('id')->first();
-            $event = Event::where('event_title', $data['event'])->get()->pluck('event_id')->first();
-            $getAllEduf = EdufLead::all();
-            $edufair = $getAllEduf->where('organizerName', $data['edufair'])->pluck('id')->first();
-            $partner = Corporate::where('corp_name', $data['partner'])->get()->pluck('corp_id')->first();
-            $kol = Lead::where('main_lead', 'KOL')->where('sub_lead', $data['kol'])->get()->pluck('lead_id')->first();
-
-            DB::commit();
-        } catch (Exception $e) {
-
-            DB::rollBack();
-            Log::error('Import student failed : ' . $e->getMessage());
-        }
 
         $data = [
             'sch_id' => $data['sch_id'],
@@ -161,6 +152,7 @@ class SchoolImport implements ToCollection, WithHeadingRow, WithValidation, With
             'status' => $data['status'],
             'is_verified' => $data['is_verified'],
         ];
+
         return $data;
     }
 
@@ -170,16 +162,17 @@ class SchoolImport implements ToCollection, WithHeadingRow, WithValidation, With
             '*.sch_id' => ['nullable'],
             '*.sch_name' => ['required'],
             '*.sch_type' => ['nullable'],
-            '*.sch_mail' => ['nullable', 'email'],
+            '*.sch_mail' => ['nullable'],
             '*.sch_phone' => ['nullable'],
             '*.sch_insta' => ['nullable'],
             '*.sch_city' => ['nullable'],
-            '*.sch_location' => ['required'],
+            '*.sch_location' => ['nullable'],
             '*.sch_score' => ['nullable'],
             '*.status' => ['nullable'],
             '*.is_verified' => ['nullable'],
         ];
     }
+
 
     public function registerEvents(): array
     {
@@ -189,7 +182,7 @@ class SchoolImport implements ToCollection, WithHeadingRow, WithValidation, With
                     $validation[] = $exception !== null && gettype($exception) == "object" ? $exception->errors()->toArray() : null;
                 }
                 $validation['user_id'] = $this->importedBy->id;
-                // event(new \App\Events\MessageSent($validation, 'validation-import'));
+                event(new \App\Events\MessageSent($validation, 'validation-import'));
             },
         ];
     }
@@ -199,4 +192,5 @@ class SchoolImport implements ToCollection, WithHeadingRow, WithValidation, With
     {
         return 50;
     }
+
 }
