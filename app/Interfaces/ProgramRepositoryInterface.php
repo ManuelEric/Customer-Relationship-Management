@@ -15,6 +15,9 @@ interface ProgramRepositoryInterface
     public function updateProgram($programId, array $newDetails);
     public function cleaningProgram();
 
+    # API
+    public function getProgramNameByMainProgId($mainProgId);
+
     # CRM
     public function getProgramFromV1();
 }

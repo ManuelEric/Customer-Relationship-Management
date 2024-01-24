@@ -12,33 +12,68 @@
                             <th>Program Name</th>
                             <th class="text-center">IC</th>
                             <th class="text-center">Success</th>
-                            <th class="text-center">Conversion %</th>
+                            <th class="text-center">Conversion (%)</th>
                             <th class="text-center">IA Making</th>
                             <th class="text-center">Converted</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @php
+                            $IC_total = $success_total = $conversion_total = $initialMaking_total = $converted_total = 0;
+                        @endphp
                         @foreach ($initAssessmentProgress as $detail)
+                            @php
+                                $initialMaking = (int) $detail->initialMaking == 0 ? "less than a day" : (int) $detail->initialMaking . " day";
+                                $converted = (int) $detail->converted == 0 ? "less than a day" : (int) $detail->converted . " day";
+                                $IC = $detail->IC;
+                                $success = $detail->success;
+                                $conversion = round(($success / $IC) * 100);
+
+                                $IC_total += $IC;
+                                $success_total += $success;
+                                $conversion_total += $conversion;
+                                $initialMaking_total += $detail->initialMaking;
+                                $converted_total += $detail->converted;
+
+                            @endphp
+
                             <tr>
                                 <td class="text-center">{{ $loop->iteration }}</td>
                                 <td>{{ $detail->program_name_st }}</td>
-                                <td class="text-center">Lorem</td>
-                                <td class="text-center">Lorem</td>
-                                <td class="text-center">Lorem</td>
-                                <td class="text-center">{{ (int) $detail->initialMaking }} day</td>
-                                <td class="text-center">{{ (int) $detail->converted }} day</td>
+                                <td class="text-center">{{ $IC }}</td>
+                                <td class="text-center">{{ $success }}</td>
+                                <td class="text-center">{{ $conversion }}</td>
+                                <td class="text-center">{{ $initialMaking }}</td>
+                                <td class="text-center">{{ $converted }}</td>
                             </tr>
                         @endforeach
                     </tbody>
                     <tfoot>
-                        <th colspan="2">
+                        @php
+                            $benchmark = count($initAssessmentProgress)*100;
+                            $avg_conversion = round(($conversion_total/$benchmark)*100)
+                        @endphp
+                        <tr>
+                            <td colspan="2">Total</td>
+                            <td class="text-center">{{ $IC_total }}</td>
+                            <td class="text-center">{{ $success_total }}</td>
+                            <td class="text-center bg-secondary" colspan="3"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">Average</td>
+                            <td class="text-center bg-secondary" colspan="2"></td>
+                            <td class="text-center">{{ $avg_conversion }}</td>
+                            <td class="text-center">{{ round(($initialMaking_total/$benchmark)*100) }} day</td>
+                            <td class="text-center">{{ round(($converted_total/$benchmark)*100) }} day</td>
+                        </tr>
+                        {{-- <th colspan="2">
                             Total
                         </th>
-                        <th class="text-center">lorem</th>
-                        <th class="text-center">lorem</th>
-                        <th class="text-center">lorem</th>
-                        <th class="text-center">lorem</th>
-                        <th class="text-center">lorem</th>
+                        <th class="text-center">{{ $IC_total }}</th>
+                        <th class="text-center">{{ $success_total }}</th>
+                        <th class="text-center">{{ $avg_conversion }}</th>
+                        <th class="text-center">{{ round(($initialMaking_total/$benchmark)*100) }} day</th>
+                        <th class="text-center">{{ round(($converted_total/$benchmark)*100) }} day</th> --}}
                     </tfoot>
                 </table>
             </div>

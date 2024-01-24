@@ -5,7 +5,7 @@
     <div class="card-body">
         <div class="row g-2">
             <div class="col-md-3 text-center">
-                <a href="{{ url('program/client?start_date=' . Request::get('start') . '&end_date=' . Request::get('end') . '&program_status[]=' . encrypt('0')) }}"
+                <a href="{{ url('program/client?start_date=' . Request::get('start') . '&end_date=' . Request::get('end') . '&program_status[]=' . encrypt('0') .'&program_name[]=' . Request::get('program') . '&pic[]=' . Request::get('pic')) }}"
                     class="text-decoration-none" target="_blank">
                     <div class="border p-2 shadow-sm rounded text-warning">
                         <h3>{{ $countClientProgram['pending'] }}</h3>
@@ -14,7 +14,7 @@
                 </a>
             </div>
             <div class="col-md-3 text-center">
-                <a href="{{ url('program/client?start_date=' . Request::get('start') . '&end_date=' . Request::get('end') . '&program_status[]=' . encrypt('2')) }}"
+                <a href="{{ url('program/client?start_date=' . Request::get('start') . '&end_date=' . Request::get('end') . '&program_status[]=' . encrypt('2') .'&program_name[]=' . Request::get('program') . '&pic[]=' . Request::get('pic')) }}"
                     class="text-decoration-none" target="_blank">
                     <div class="border p-2 shadow-sm rounded text-danger">
                         <h3>{{ $countClientProgram['failed'] }}</h3>
@@ -23,7 +23,7 @@
                 </a>
             </div>
             <div class="col-md-3 text-center">
-                <a href="{{ url('program/client?start_date=' . Request::get('start') . '&end_date=' . Request::get('end') . '&program_status[]=' . encrypt('3')) }}"
+                <a href="{{ url('program/client?start_date=' . Request::get('start') . '&end_date=' . Request::get('end') . '&program_status[]=' . encrypt('3') .'&program_name[]=' . Request::get('program') . '&pic[]=' . Request::get('pic')) }}"
                     class="text-decoration-none" target="_blank">
                     <div class="border p-2 shadow-sm rounded text-info">
                         <h3>{{ $countClientProgram['refund'] }}</h3>
@@ -32,7 +32,7 @@
                 </a>
             </div>
             <div class="col-md-3 text-center">
-                <a href="{{ url('program/client?start_date=' . Request::get('start') . '&end_date=' . Request::get('end') . '&program_status[]=' . encrypt('1')) }}"
+                <a href="{{ url('program/client?start_date=' . Request::get('start') . '&end_date=' . Request::get('end') . '&program_status[]=' . encrypt('1') .'&program_name[]=' . Request::get('program') . '&pic[]=' . Request::get('pic')) }}"
                     class="text-decoration-none" target="_blank">
                     <div class="border p-2 shadow-sm rounded text-success">
                         <h3>{{ $countClientProgram['success'] }}</h3>

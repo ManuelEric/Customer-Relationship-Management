@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Crypt;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Support\Str;
 
@@ -104,6 +105,13 @@ class User extends Authenticatable
         return $instance->newQuery()->whereRaw("CONCAT(first_name, ' ', last_name) like ?", ['%' . $name . '%'])->first();
     }
 
+    protected function encryptedId(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => Crypt::encrypt($this->id)
+        );
+    }
+
     protected function fullName(): Attribute
     {
         return Attribute::make(
@@ -119,6 +127,15 @@ class User extends Authenticatable
         })->whereHas('department', function ($subQuery) {
             $subQuery->where('dept_name', 'Client Management')->where('tbl_user_type_detail.status', 1);
         })->count() > 0 ? true : false;
+    }
+
+    public function scopeIsPIC($query)
+    {
+        return $query->whereDoesntHave('roles', function ($subQuery) {
+            $subQuery->where('role_name', 'Admin');
+        })->whereHas('department', function ($subQuery) {
+            $subQuery->where('dept_name', 'Client Management')->where('tbl_user_type_detail.status', 1);
+        })->get();
     }
 
     public function scopeIsSales($query)

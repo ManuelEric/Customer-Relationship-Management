@@ -23,6 +23,8 @@ use App\Http\Controllers\InvoicePartnerController;
 use App\Http\Controllers\InvoiceReferralController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\Module\ClientController;
+use App\Http\Controllers\ProgramController;
+use App\Http\Controllers\Api\v1\ProgramController as APIProgramController;
 use App\Http\Controllers\ReceiptSchoolController;
 use App\Http\Controllers\ReceiptPartnerController;
 use App\Http\Controllers\ReceiptReferralController;
@@ -167,3 +169,6 @@ Route::get('client/suggestion/', [ClientController::class, 'getClientSuggestion'
 
 # Get Sales Team
 Route::get('user/sales-team/', [UserController::class, 'getSalesTeam']);
+
+# Get Prog Program based on Main Program Id
+Route::get('get/program/main/{mainProgId}', [APIProgramController::class, 'getProgramNameByMainProgramId']);

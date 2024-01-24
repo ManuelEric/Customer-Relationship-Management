@@ -153,6 +153,14 @@ class ProgramRepository implements ProgramRepositoryInterface
         }
     }
 
+    # API
+    public function getProgramNameByMainProgId($mainProgId)
+    {
+        return Program::whereHas('main_prog', function ($query) use ($mainProgId) {
+            $query->where('tbl_main_prog.id', $mainProgId);
+        })->get();
+    }
+
     # CRM
     public function getProgramFromV1()
     {

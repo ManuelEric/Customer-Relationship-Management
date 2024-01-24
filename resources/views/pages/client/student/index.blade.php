@@ -457,6 +457,28 @@
                 ];
             }
 
+            // unused
+            var ex_button = {
+                        extend: 'excelHtml5',
+                        text: 'Export to Excel',
+                        exportOptions: {
+                            modifier: {
+                                search: 'applied',
+                                page: 'all'
+                            },
+                            columns: ':visible',
+                            format: {
+                                body: function ( data, row, column, node) {
+                                    if (column == 0) 
+                                        return no++
+
+                                    return data
+                                }
+                            }
+                        }
+                    };
+
+            var no = 1;
             var table = $('#clientTable').DataTable({
                 order: [],
                 dom: 'Bfrtip',

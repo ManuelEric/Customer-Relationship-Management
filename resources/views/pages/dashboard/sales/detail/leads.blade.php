@@ -432,6 +432,81 @@
         });
     }
 
+    function updateProgressBarSalesTarget(result)
+    {
+        // console.log(result)
+        var html = '';
+        var no = 1;
+        
+        var divisi = ['sales', 'referral', 'digital'];
+        var typeLead = ['lead_needed', 'hot_lead', 'ic', 'contribution']
+
+        // Actual
+        chart_dataleads.data.datasets[0].data = [];
+        chart_dataleads.data.datasets[0].data = result.dataLeadChart.actual;
+
+        // Target
+        chart_dataleads.data.datasets[1].data = [];
+        chart_dataleads.data.datasets[1].data = result.dataLeadChart.target;
+
+        // Label
+        chart_dataleads.data.labels = [];
+        chart_dataleads.data.labels = result.dataLeadChart.label;
+
+        // Actual
+        chart_datarevenue.data.datasets[0].data = [];
+        chart_datarevenue.data.datasets[0].data = result.dataRevenueChart.actual;
+
+        // Target
+        chart_datarevenue.data.datasets[1].data = [];
+        chart_datarevenue.data.datasets[1].data = result.dataRevenueChart.target;
+
+        // Label
+        chart_datarevenue.data.labels = [];
+        chart_datarevenue.data.labels = result.dataRevenueChart.label;
+
+        // Lead Needed
+
+        typeLead.forEach(function(itemType, indexType) {
+            var dataKey = '';
+            switch (itemType) {
+                case 'lead_needed':
+                    dataKey = 'number_of_leads';
+                    break;
+                case 'hot_lead':
+                    dataKey = 'number_of_hot_leads';
+                    break;
+                case 'ic':
+                    dataKey = 'number_of_ic';
+                    break;
+                case 'contribution':
+                    dataKey = 'number_of_contribution';
+                    break;
+            }
+
+            // Total Lead
+            $('#status_achieved_' + itemType).removeClass('border-info')
+            $('#status_achieved_' + itemType).removeClass('border-danger')
+            $('#status_achieved_' + itemType).addClass(result.dataLeads['total_achieved_' +
+                itemType] >= result.dataLeads[dataKey] && result.dataLeads[
+                'total_achieved_' + itemType] != 0 ? 'border-info' : 'border-danger')
+            $('#tot_achieved_' + itemType).html(result.dataLeads['total_achieved_' + itemType])
+            $('#tot_target_' + itemType).html('/ ' + result.dataLeads[dataKey])
+            divisi.forEach(function(itemDivisi, indexDivisi) {
+
+                // Lead by divisi
+                $('#' + itemType + '_' + itemDivisi).html(result['actualLeads' + ucwords(
+                    itemDivisi)][itemType] + '/' + result['lead' + ucwords(
+                    itemDivisi) + 'Target'][itemType]);
+                $('#' + itemType + '_percentage_' + itemDivisi).css('width', result['lead' +
+                    ucwords(itemDivisi) + 'Target']['percentage_' + itemType]+"%")
+            })
+        })
+
+        chart_dataleads.update()
+        chart_datarevenue.update()
+    }
+
     function checkDataLead() {
 
         let month = $('#digital_lead_month').val()
@@ -461,77 +536,8 @@
         axios.get('{{ url('api/digital/all-leads') }}/' + month)
             .then((response) => {
                 var result = response.data
-                // console.log(result)
-                var html = '';
-                var no = 1;
-                var divisi = ['sales', 'referral', 'digital'];
-                var typeLead = ['lead_needed', 'hot_lead', 'ic', 'contribution']
 
-
-                // Actual
-                chart_dataleads.data.datasets[0].data = [];
-                chart_dataleads.data.datasets[0].data = result.dataLeadChart.actual;
-
-                // Target
-                chart_dataleads.data.datasets[1].data = [];
-                chart_dataleads.data.datasets[1].data = result.dataLeadChart.target;
-
-                // Label
-                chart_dataleads.data.labels = [];
-                chart_dataleads.data.labels = result.dataLeadChart.label;
-
-                // Actual
-                chart_datarevenue.data.datasets[0].data = [];
-                chart_datarevenue.data.datasets[0].data = result.dataRevenueChart.actual;
-
-                // Target
-                chart_datarevenue.data.datasets[1].data = [];
-                chart_datarevenue.data.datasets[1].data = result.dataRevenueChart.target;
-
-                // Label
-                chart_datarevenue.data.labels = [];
-                chart_datarevenue.data.labels = result.dataRevenueChart.label;
-
-                // Lead Needed
-
-                typeLead.forEach(function(itemType, indexType) {
-                    var dataKey = '';
-                    switch (itemType) {
-                        case 'lead_needed':
-                            dataKey = 'number_of_leads';
-                            break;
-                        case 'hot_lead':
-                            dataKey = 'number_of_hot_leads';
-                            break;
-                        case 'ic':
-                            dataKey = 'number_of_ic';
-                            break;
-                        case 'contribution':
-                            dataKey = 'number_of_contribution';
-                            break;
-                    }
-
-                    // Total Lead
-                    $('#status_achieved_' + itemType).removeClass('border-info')
-                    $('#status_achieved_' + itemType).removeClass('border-danger')
-                    $('#status_achieved_' + itemType).addClass(result.dataLeads['total_achieved_' +
-                        itemType] >= result.dataLeads[dataKey] && result.dataLeads[
-                        'total_achieved_' + itemType] != 0 ? 'border-info' : 'border-danger')
-                    $('#tot_achieved_' + itemType).html(result.dataLeads['total_achieved_' + itemType])
-                    $('#tot_target_' + itemType).html('/ ' + result.dataLeads[dataKey])
-                    divisi.forEach(function(itemDivisi, indexDivisi) {
-
-                        // Lead by divisi
-                        $('#' + itemType + '_' + itemDivisi).html(result['actualLeads' + ucwords(
-                            itemDivisi)][itemType] + '/' + result['lead' + ucwords(
-                            itemDivisi) + 'Target'][itemType]);
-                        $('#' + itemType + '_percentage_' + itemDivisi).css('width', result['lead' +
-                            ucwords(itemDivisi) + 'Target']['percentage_' + itemType]+"%")
-                    })
-                })
-
-                chart_dataleads.update()
-                chart_datarevenue.update()
+                updateProgressBarSalesTarget(result)
 
                 swal.close()
             }, (error) => {

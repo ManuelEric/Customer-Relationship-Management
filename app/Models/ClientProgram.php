@@ -87,6 +87,12 @@ class ClientProgram extends Model
         return $instance->newQuery()->where('clientprog_id', $id)->first();
     }
 
+
+    /**
+     * Scope a query to only include popular users.
+     */
+    
+
     # attributes
     protected function programName(): Attribute
     {
