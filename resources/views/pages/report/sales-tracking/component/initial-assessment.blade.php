@@ -3,7 +3,7 @@
         <h6 class="p-0 m-0">Admissions Mentoring Progress</h6>
     </div>
     <div class="card-body">
-        @if (isset($initAssessmentProgress))
+        @if (count($initAssessmentProgress) > 0)
             <div class="table-responsive">
                 <table class="table table-bordered mb-3">
                     <thead>
@@ -50,30 +50,24 @@
                     </tbody>
                     <tfoot>
                         @php
-                            $benchmark = count($initAssessmentProgress)*100;
-                            $avg_conversion = round(($conversion_total/$benchmark)*100)
+                            $benchmark = (count($initAssessmentProgress))*100;
+                            $avg_conversion = round(($conversion_total/$benchmark)*100);
+                            $avg_initMaking = $initialMaking_total == 0 ? 0 : round(($initialMaking_total/$benchmark)*100) . ' days';
+                            $avg_converted = $converted_total == 0 ? 0 : round(($converted_total/$benchmark)*100) . ' days';
                         @endphp
-                        <tr>
+                        <tr class="fw-bold">
                             <td colspan="2">Total</td>
                             <td class="text-center">{{ $IC_total }}</td>
                             <td class="text-center">{{ $success_total }}</td>
                             <td class="text-center bg-secondary" colspan="3"></td>
                         </tr>
-                        <tr>
+                        <tr class="fw-bold">
                             <td colspan="2">Average</td>
                             <td class="text-center bg-secondary" colspan="2"></td>
                             <td class="text-center">{{ $avg_conversion }}</td>
-                            <td class="text-center">{{ round(($initialMaking_total/$benchmark)*100) }} day</td>
-                            <td class="text-center">{{ round(($converted_total/$benchmark)*100) }} day</td>
+                            <td class="text-center">{{ $avg_initMaking }}</td>
+                            <td class="text-center">{{ $avg_converted }}</td>
                         </tr>
-                        {{-- <th colspan="2">
-                            Total
-                        </th>
-                        <th class="text-center">{{ $IC_total }}</th>
-                        <th class="text-center">{{ $success_total }}</th>
-                        <th class="text-center">{{ $avg_conversion }}</th>
-                        <th class="text-center">{{ round(($initialMaking_total/$benchmark)*100) }} day</th>
-                        <th class="text-center">{{ round(($converted_total/$benchmark)*100) }} day</th> --}}
                     </tfoot>
                 </table>
             </div>

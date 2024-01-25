@@ -197,6 +197,7 @@
     $(document).on('click', '.conversion-lead-item', function() {
         var _this = $(this);
         const requestParam = getParam(_this);
+        console.log(requestParam)
         var url = '{{ url('/api/v1/get/detail/conversion-lead') }}';
         requestParam['url'] = url;
 
@@ -232,11 +233,25 @@
         var leadName = _this.data('leadname');
         var startDate = _this.data('sdate');
         var endDate = _this.data('edate');
+        var subLead = _this.data('sublead');
+        
+        // added
+        var url = "{{ url('/') }}"
+        const urlParams = new URLSearchParams(url);
+        var mainProgId = urlParams.get('main');
+        var progId = urlParams.get('program');
+        var picUUID = urlParams.get('pic')
+
         return {
             leadId: leadId,
             leadName: leadName,
             startDate: startDate,
-            endDate: endDate
+            endDate: endDate,
+            subLead: subLead,
+            //
+            mainProgId: mainProgId,
+            progId: progId,
+            picUUID: picUUID
         }
 
     }
