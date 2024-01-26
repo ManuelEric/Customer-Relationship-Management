@@ -30,12 +30,12 @@
                         <div class="mb-2">
                             <label>Start Date</label>
                             <input type="date" name="start" class="form-control form-control-sm rounded"
-                                value="{{ Request::get('start') }}">
+                                value="{{ Request::get('start') ?? $dateDetails['startDate'] }}">
                         </div>
                         <div class="mb-2">
                             <label>End Date</label>
                             <input type="date" name="end" class="form-control form-control-sm rounded"
-                                value="{{ Request::get('end') }}">
+                                value="{{ Request::get('end') ?? $dateDetails['endDate'] }}">
                         </div>
                         <div class="mb-2">
                             <label>Main Program</label>

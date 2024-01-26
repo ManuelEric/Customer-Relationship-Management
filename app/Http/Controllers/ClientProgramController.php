@@ -98,7 +98,7 @@ class ClientProgramController extends Controller
         $status = $userId = $emplId = NULL;
 
         $data['clientId'] = NULL;
-        $data['programName'] = $request->get('program_name') ?? null;
+        $data['programName'] = array_filter($request->get('program_name'), fn ($value) => !is_null($value)) ?? null;
         $data['schoolName'] = $request->get('school_name') ?? null;
         $data['leadId'] = $request->get('conversion_lead') ?? null;
         $data['grade'] = $request->get('grade') ?? null;
@@ -126,7 +126,7 @@ class ClientProgramController extends Controller
                 $emplUUID[] = $request->get('pic')[$i];
             }
         }
-        $data['emplUUID'] = $emplUUID;
+        $data['emplUUID'] = array_filter($emplUUID, fn ($value) => !is_null($value)) ?? null;;
         $data['startDate'] = $request->get('start_date') ?? null;
         $data['endDate'] = $request->get('end_date') ?? null;
 

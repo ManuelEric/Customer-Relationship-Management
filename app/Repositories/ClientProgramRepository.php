@@ -58,7 +58,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     $query->where('client_id', $searchQuery['clientId']);
                 })
                 # search by program name 
-                ->when(isset($searchQuery['programName']), function ($query) use ($searchQuery) {
+                ->when(isset($searchQuery['programName']) && count($searchQuery['programName']) > 0, function ($query) use ($searchQuery) {
                     $query->whereIn('prog_id', $searchQuery['programName']);
                 })
                 # search by school name 
@@ -131,7 +131,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     });
                 })
                 # search by pic uuid
-                ->when(isset($searchQuery['emplUUID']), function ($query) use ($searchQuery) {
+                ->when(isset($searchQuery['emplUUID']) && count($searchQuery['emplUUID']) > 0, function ($query) use ($searchQuery) {
                     $query->whereHas('internalPic', function ($query2) use ($searchQuery) {
                         $query2->whereIn('users.uuid', $searchQuery['emplUUID']);
                     });
@@ -638,6 +638,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         orWhere('empl_id', $pic);
                     });
                 })->
+                whereHas('client', function ($query) {
+                    $query->where('status', 1);
+                })->
                 get();
 
         $no = 0;
@@ -657,21 +660,25 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         $pic = $additionalFilter['pic']; # filled with id employee
 
         $IC_query = "SELECT COUNT(*) FROM tbl_client_prog scp 
+                LEFT JOIN tbl_client c ON c.id = scp.client_id
+                LEFT JOIN tbl_pic_client pc ON pc.client_id = c.id
                 WHERE scp.prog_id = tbl_client_prog.prog_id
                 AND scp.created_at BETWEEN '".$dateDetails['startDate']."' AND '".$dateDetails['endDate']."'
                 AND (CASE 
                     WHEN scp.initconsult_date IS NOT NULL THEN scp.initconsult_date
                     ELSE scp.first_discuss_date
-                END) IS NOT NULL AND status = 1";
+                END) IS NOT NULL AND scp.status = 1";
 
         $Success_query = "SELECT COUNT(*) FROM tbl_client_prog scp 
+                LEFT JOIN tbl_client c ON c.id = scp.client_id
+                LEFT JOIN tbl_pic_client pc ON pc.client_id = c.id
                 WHERE scp.prog_id = tbl_client_prog.prog_id
                 AND scp.created_at BETWEEN '".$dateDetails['startDate']."' AND '".$dateDetails['endDate']."'
-                AND scp.success_date IS NOT NULL AND status = 1";
+                AND scp.success_date IS NOT NULL AND scp.status = 1";
 
         if ($pic) {
-            $IC_query .= " AND empl_id = ".$pic;
-            $Success_query .= " AND empl_id = ".$pic;
+            $IC_query .= " AND (pc.user_id = ".$pic." OR empl_id = ".$pic.")";
+            $Success_query .= " AND (pc.user_id = ".$pic." OR empl_id = ".$pic.")";
         }
 
         return ClientProgram::
@@ -688,7 +695,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->whereHas('program', function ($query) {
                 $query->whereHas('main_prog', function ($query2) {
                     $query2->where('prog_name', 'like', '%Admissions Mentoring%');
-                })->whereHas('sub_prog', function ($query2) {
+                })->orWhereHas('sub_prog', function ($query2) {
                     $query2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
                 });
             })
