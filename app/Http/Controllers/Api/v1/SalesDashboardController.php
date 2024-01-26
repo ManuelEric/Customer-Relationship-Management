@@ -985,6 +985,7 @@ class SalesDashboardController extends Controller
 
         $programId = null; # means all programs
         $salesTarget = $this->salesTargetRepository->getMonthlySalesTarget($programId, $cp_filter);
+        Log::debug(json_encode($salesTarget));
 
         $salesActual = $this->salesTargetRepository->getMonthlySalesActual($programId, $cp_filter);
 
@@ -998,11 +999,12 @@ class SalesDashboardController extends Controller
         $dataset_revenue = [$revenue_target, $revenue_actual];
 
         $salesDetail = $this->salesTargetRepository->getSalesDetail($programId, $cp_filter);
+
         $html = '';
         $no = 1;
         foreach ($salesDetail as $detail) {
             $percentage_participant = $detail->total_target_participant != 0 ? round(($detail->total_actual_participant / $detail->total_target_participant) * 100, 2) : 0;
-            $percentage_revenue = $detail->total_target_amount != 0 ? ($detail->total_actual_amount / $detail->total_target_amount) * 100 : 0;
+            $percentage_revenue = $detail->total_target != 0 ? ($detail->total_actual_amount / $detail->total_target) * 100 : 0;
 
             $target_student = $detail->total_target_participant ??= 0;
 
@@ -1011,7 +1013,7 @@ class SalesDashboardController extends Controller
                     <td>' . $detail->prog_id . '</td>
                     <td class="text-start">' . $detail->program_name_sales . '</td>
                     <td>' . $target_student . '</td>
-                    <td>' . number_format($detail->total_target_amount, '2', ',', '.') . '</td>
+                    <td>' . number_format($detail->total_target, '2', ',', '.') . '</td>
                     <td>' . $detail->total_actual_participant . '</td>
                     <td>' . number_format($detail->total_actual_amount, '2', ',', '.') . '</td>
                     <td>' . $percentage_participant . '%</td>
@@ -1022,7 +1024,7 @@ class SalesDashboardController extends Controller
         $html .= '<tr class="text-center">
                     <th colspan="3">Total</th>
                     <td><b>' . $salesDetail->sum('total_target_participant') . '</b></td>
-                    <td><b>' . number_format($salesDetail->sum('total_target_amount'), '2', ',', '.') . '</b></td>
+                    <td><b>' . number_format($salesDetail->sum('total_target'), '2', ',', '.') . '</b></td>
                     <td><b>' . $salesDetail->sum('total_actual_participant') . '</b></td>
                     <td><b>' . number_format($salesDetail->sum('total_actual_amount'), '2', ',', '.') . '</b></td>
                     <td><b>' . ($salesDetail->sum('total_target_participant') != 0 ?  round(($salesDetail->sum('total_actual_participant') / $salesDetail->sum('total_target_participant')) * 100, 2) : 0) . '%</b></td>

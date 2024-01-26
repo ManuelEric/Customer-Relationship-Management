@@ -2,75 +2,155 @@
 
 namespace App\Imports;
 
-use App\Http\Traits\CheckExistingClientImport;
-use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\Importable;
-use Maatwebsite\Excel\Concerns\ToCollection;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
-use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Exports\FailureExport;
+use App\Exports\UsersFailuresImportedExport;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\SyncClientTrait;
-use App\Jobs\RawClient\ProcessVerifyClient;
-use App\Jobs\RawClient\ProcessVerifyClientParent;
-use App\Models\Corporate;
-use App\Models\EdufLead;
-use App\Models\Event;
-use App\Models\Lead;
-use App\Models\Major;
-use App\Models\Program;
-use App\Models\Role;
+use App\Models\Organization;
 use App\Models\School;
-use App\Models\Tag;
-use App\Models\University;
+use App\Models\User;
 use App\Models\UserClient;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
+use Maatwebsite\Excel\Concerns\SkipsErrors;
+use Maatwebsite\Excel\Concerns\SkipsFailures;
+use Maatwebsite\Excel\Concerns\SkipsOnError;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-use Maatwebsite\Excel\Events\ImportFailed;
-use PhpOffice\PhpSpreadsheet\Shared\Date;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithStartRow;
+use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Events\AfterImport;
+use Maatwebsite\Excel\Events\BeforeImport;
+use Spatie\Permission\Models\Role;
 
-
-class SchoolImport implements ToCollection, WithHeadingRow, WithValidation, WithMultipleSheets, WithChunkReading, ShouldQueue, WithEvents
+class SchoolImport extends ToCollectionImport implements SkipsOnFailure
+    , SkipsOnError
+    , SkipsEmptyRows
+    , WithValidation
+    , WithStartRow
+    , WithHeadingRow
+    , WithChunkReading
+    , WithBatchInserts
+    , ShouldQueue
+    , WithEvents
 {
-    /**
-     * @param Collection $collection
-     */
-
-    use Importable;
-    use StandardizePhoneNumberTrait;
-    use CheckExistingClientImport;
-    use CreateCustomPrimaryKeyTrait;
-    use LoggingTrait;
-    use SyncClientTrait;
-    use RegistersEventListeners;
-
-    public $importedBy;
-
-    public function __construct($importedBy)
+    use Importable, SkipsErrors, SkipsFailures, RegistersEventListeners, CreateCustomPrimaryKeyTrait, LoggingTrait,SyncClientTrait;
+    
+    public static function beforeImport(BeforeImport $event)
     {
-        $this->importedBy = $importedBy;
+        $totalRow = $event->getReader()->getTotalRows();
+
+        $progress = [
+            'import_id' => Cache::get('import_id'),
+            'import_name' => 'school import',
+            'user_id' => Cache::get('auth')->id,
+            'isStart' => true,
+            'isFinish' => false,
+            'total_row' => reset($totalRow) - 1
+        ];
+
+        event(new \App\Events\MessageSent($progress, 'progress-import'));
+
     }
 
-    public function sheets(): array
+    public static function afterImport(AfterImport $event)
+    {
+        $auth = Cache::has('auth') ? Cache::pull('auth')->id : null;
+        $import_id = Cache::has('import_id') ? Cache::pull('import_id') : null;
+        $totalRow = $event->getReader()->getTotalRows();
+
+        $progress = [
+            'import_id' => $import_id,
+            'import_name' => 'school import',
+            'user_id' => $auth,
+            'isStart' => false,
+            'isFinish' => true,
+            'total_row' => reset($totalRow) - 1,
+            'total_error' => !empty(self::$allFailures) ? count(self::$allFailures) : 0
+        ];
+        
+        $info = [];
+        if (!empty(self::$allFailures)) {
+            foreach (self::$allFailures->toArray() as $row => $error) {
+                foreach ($error as $e) {
+                    Log::warning($e);
+                    $info[] = [
+                        'message' => $e
+                    ];
+                }
+            }
+            $info['user_id'] = $auth;
+        
+        }
+
+        $info['progress'] = $progress; 
+        event(new \App\Events\MessageSent($info, 'validation-import'));
+    }
+
+    /**
+     * skip heading row and start next row.
+     * @return int
+     */
+    public function startRow(): int
+    {
+        return 2;
+    }
+
+    /**
+     * @return string[][]
+     */
+    public function rules(): array
     {
         return [
-            0 => $this,
+            '*.sch_id' => ['nullable'],
+            '*.sch_name' => ['required'],
+            '*.sch_type' => ['nullable'],
+            '*.sch_mail' => ['nullable'],
+            '*.sch_phone' => ['nullable'],
+            '*.sch_insta' => ['nullable'],
+            '*.sch_city' => ['nullable'],
+            '*.sch_location' => ['nullable'],
+            '*.sch_score' => ['nullable'],
+            '*.status' => ['nullable'],
+            '*.is_verified' => ['nullable'],
         ];
     }
 
-    public function collection(Collection $rows)
-    {
 
+    /**
+     * @return int
+     */
+    public function chunkSize(): int
+    {
+        return 50;
+    }
+
+    public function batchSize(): int
+    {
+        return 1000;
+    }
+
+
+    /**
+     * @param Collection $rows
+     */
+    public function processImport(Collection $rows)
+    {
         $logDetails = $updateSchools = $newSchools = []; 
 
         DB::beginTransaction();
@@ -97,14 +177,10 @@ class SchoolImport implements ToCollection, WithHeadingRow, WithValidation, With
 
                 if(isset($row['sch_id'])){
                     $updateSchools[] = $row['sch_id'];
-                    Log::info($schoolDetails);
                     School::where('sch_id', $row['sch_id'])->update($schoolDetails);
-                    // $schoolDetails['type'] = 'old';
-                    // $schoolDetails['isExist'] = true;
                 }else{
                     // Check existing school
                     $school = School::where('sch_name', $row['sch_name'])->get()->pluck('sch_id')->first();
-                    // $schoolDetails['type'] = 'new';
                     unset($schoolDetails['sch_score']);
                     unset($schoolDetails['status']);
 
@@ -116,11 +192,11 @@ class SchoolImport implements ToCollection, WithHeadingRow, WithValidation, With
                             $schoolDetails['sch_id'] = $school_id_with_label;
                             School::create($schoolDetails);
                             $newSchools[] = $schoolDetails['sch_id'];
-                            // $schoolDetails['isExist'] = false;
                     }
                 }
             }
 
+            DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Import school failed : ' . $e->getMessage() . $e->getLine());
@@ -131,66 +207,11 @@ class SchoolImport implements ToCollection, WithHeadingRow, WithValidation, With
             'newSchools' => $newSchools
         ];
 
-        $this->logSuccess('store', 'Import School', 'School', $this->importedBy->first_name . ' ' . $this->importedBy->last_name, $logDetails);
+        $auth = Cache::has('auth') ? Cache::get('auth')->first_name . ' ' . Cache::get('auth')->last_name : 'unknown';
+
+        $this->logSuccess('store', 'Import School', 'School', $auth , $logDetails);
 
           
-    }
-
-    public function prepareForValidation($data)
-    {
-
-        $data = [
-            'sch_id' => $data['sch_id'],
-            'sch_name' => $data['sch_name'],
-            'sch_type' => $data['sch_type'],
-            'sch_mail' => $data['sch_mail'],
-            'sch_phone' => $data['sch_phone'],
-            'sch_insta' => $data['sch_insta'],
-            'sch_city' => $data['sch_city'],
-            'sch_location' => $data['sch_location'],
-            'sch_score' => $data['sch_score'],
-            'status' => $data['status'],
-            'is_verified' => $data['is_verified'],
-        ];
-
-        return $data;
-    }
-
-    public function rules(): array
-    {
-        return [
-            '*.sch_id' => ['nullable'],
-            '*.sch_name' => ['required'],
-            '*.sch_type' => ['nullable'],
-            '*.sch_mail' => ['nullable'],
-            '*.sch_phone' => ['nullable'],
-            '*.sch_insta' => ['nullable'],
-            '*.sch_city' => ['nullable'],
-            '*.sch_location' => ['nullable'],
-            '*.sch_score' => ['nullable'],
-            '*.status' => ['nullable'],
-            '*.is_verified' => ['nullable'],
-        ];
-    }
-
-
-    public function registerEvents(): array
-    {
-        return [
-            ImportFailed::class => function(ImportFailed $event) {
-                foreach($event->getException() as $exception){
-                    $validation[] = $exception !== null && gettype($exception) == "object" ? $exception->errors()->toArray() : null;
-                }
-                $validation['user_id'] = $this->importedBy->id;
-                event(new \App\Events\MessageSent($validation, 'validation-import'));
-            },
-        ];
-    }
-
-
-    public function chunkSize(): int
-    {
-        return 50;
     }
 
 }

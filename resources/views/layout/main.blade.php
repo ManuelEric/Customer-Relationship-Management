@@ -69,6 +69,9 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown d-none d-lg-block user-dropdown me-lg-3 me-0" id="loading-import">
+                    </li>
+
                     <li class="nav-item dropdown d-none d-lg-block user-dropdown me-lg-3 me-0">
                         <a class="nav-link" href="#" role="button" data-bs-toggle="modal" data-bs-target="#follow_up"
                             aria-expanded="false" title="Follow-up Reminder">

@@ -522,7 +522,7 @@ class ClientEventController extends Controller
 
         $file = $request->file('file');
 
-        (new ClientEventImport($this->clientRepository, Auth::user()))->queue($file)->allOnQueue('imports-client-event');
+        (new ClientEventImport(Auth::user()))->queue($file)->allOnQueue('imports-client-event');
 
         // try {
         // Excel::queueImport(new ClientEventImport($this->clientRepository, Auth::user()), $file);

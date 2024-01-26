@@ -34,12 +34,17 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
             $userId = $user->id;
         }
 
-        return ClientProgram::leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')->when($programId, function ($query) use ($programId) {
+        return SalesTarget::
+            leftJoin('tbl_client_prog', 'tbl_sales_target.prog_id', '=', 'tbl_client_prog.prog_id')->
+            leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')->
+            when($programId, function ($query) use ($programId) {
             $query->where('prog_id', $programId);
         })->when($userId, function ($query) use ($userId) {
             $query->where('tbl_client_prog.empl_id', $userId);
         })->when($filter['qdate'], function ($query) use ($filter) {
             $query->whereMonth('tbl_client_prog.success_date', date('m', strtotime($filter['qdate'])))->whereYear('tbl_client_prog.success_date', date('Y', strtotime($filter['qdate'])));
+        })->when($filter['qdate'], function ($query) use ($filter) {
+            $query->whereMonth('month_year', date('m', strtotime($filter['qdate'])))->whereYear('month_year', date('Y', strtotime($filter['qdate'])));
         })->when(isset($filter['quuid']), function ($q) use ($userId) {
             $q->where('tbl_client_prog.empl_id', $userId);
         })->select([
@@ -60,7 +65,12 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
         $usingFilterDate = $filter['qdate'] ? true : false;
         $usingUuid = $userId ? true : false;
 
-        return ClientProgram::leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')->leftJoin('tbl_prog as cp_p', 'cp_p.prog_id', '=', 'tbl_client_prog.prog_id')->leftJoin('tbl_main_prog as cp_mp', 'cp_mp.id', '=', 'cp_p.main_prog_id')->leftJoin('tbl_sales_target', 'tbl_sales_target.prog_id', '=', 'cp_p.prog_id')->when($usingProgramId, function ($query) use ($programId) {
+        return SalesTarget::
+        leftJoin('tbl_prog as cp_p', 'cp_p.prog_id', '=', 'tbl_sales_target.prog_id')->
+        leftJoin('tbl_client_prog', 'cp_p.prog_id', '=', 'tbl_client_prog.prog_id')->
+        leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')->
+        leftJoin('tbl_main_prog as cp_mp', 'cp_mp.id', '=', 'cp_p.main_prog_id')->
+        when($usingProgramId, function ($query) use ($programId) {
             $query->where('prog_id', $programId);
         })->when($usingFilterDate, function ($query) use ($filter) {
             $query->where(function ($q) use ($filter) {

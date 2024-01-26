@@ -806,7 +806,7 @@ class ClientStudentController extends ClientController
         $file = $request->file('file');
 
         // try {
-            (new StudentImport($this->clientRepository, Auth::user()))->queue($file)->allOnQueue('imports-student');
+            (new StudentImport(Auth::user()))->queue($file)->allOnQueue('imports-student');
             // Excel::queueImport(new StudentImport(Auth::user()->first_name . ' '. Auth::user()->last_name), $file);
             // $import = new StudentImport();
             // $import->import($file);

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Imports\School;
+namespace App\Imports;
 
 
 use Illuminate\Support\Facades\Log;
