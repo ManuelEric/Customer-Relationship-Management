@@ -98,7 +98,7 @@ class ClientProgramController extends Controller
         $status = $userId = $emplId = NULL;
 
         $data['clientId'] = NULL;
-        $data['programName'] = array_filter($request->get('program_name'), fn ($value) => !is_null($value)) ?? null;
+        $data['programName'] = !empty($request->get('program_name')) ? array_filter($request->get('program_name'), fn ($value) => !is_null($value)) ?? null : null;
         $data['schoolName'] = $request->get('school_name') ?? null;
         $data['leadId'] = $request->get('conversion_lead') ?? null;
         $data['grade'] = $request->get('grade') ?? null;

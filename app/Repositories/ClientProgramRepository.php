@@ -638,9 +638,6 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     orWhere('empl_id', $pic);
                 });
             })->
-            whereHas('client', function ($query) {
-                $query->where('status', 1);
-            })->
             get();
 
         $no = 0;
