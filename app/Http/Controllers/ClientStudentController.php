@@ -44,6 +44,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -802,11 +803,13 @@ class ClientStudentController extends ClientController
 
     public function import(StoreImportExcelRequest $request)
     {
+        Cache::put('auth', Auth::user());
+        Cache::put('import_id', Carbon::now()->timestamp . '-import-student');
 
         $file = $request->file('file');
 
         // try {
-            (new StudentImport(Auth::user()))->queue($file)->allOnQueue('imports-student');
+            (new StudentImport())->queue($file)->allOnQueue('imports-student');
             // Excel::queueImport(new StudentImport(Auth::user()->first_name . ' '. Auth::user()->last_name), $file);
             // $import = new StudentImport();
             // $import->import($file);

@@ -72,6 +72,12 @@
         var validationImport = pusher.subscribe('validation-import');
         var progressImport = pusher.subscribe('progress-import');
         var html = '';
+        var htmlLoading = '';
+
+        htmlLoading += '<div>'
+        htmlLoading += '<span class="spinner-border spinner-border-sm text-black" aria-hidden="true"></span>'
+        htmlLoading += '<span class="ms-2 text-black" role="status">Importing...</span>'
+        htmlLoading += '</div>'
 
         validationImport.bind('my-event', function(data) {
             if(data.message !== null){
@@ -102,22 +108,16 @@
                 }
             }
         });
-        
 
         progressImport.bind('my-event', function(data) {
+            html = ''
+
+            html += '<h3>Import Done</h3>';
+
+            html += `<li>Total Imported: ${parseInt(data.message.total_row) - data.message.total_error}</li>`
+            html += `<li>Total Error: ${data.message.total_error}</li>`
+
             if(data.message !== null){
-                html = ''
-                htmlLoading = ''
-
-                html += '<h3>Import Done</h3>';
-
-                html += `<li>Total Imported: ${parseInt(data.message.total_row) - data.message.total_error}</li>`
-                html += `<li>Total Error: ${data.message.total_error}</li>`
-                
-                htmlLoading += '<div>'
-                htmlLoading += '<span class="spinner-border spinner-border-sm text-black" aria-hidden="true"></span>'
-                htmlLoading += '<span class="ms-2 text-black" role="status">Importing...</span>'
-                htmlLoading += '</div>'
 
                 if( '{{ Auth::user() != null ? Auth::user()->id : null }}' == data.message.user_id ){
                     if(data.message.isStart == true){
@@ -126,6 +126,7 @@
 
                 }
             }
+          
         });
 
               
@@ -187,6 +188,23 @@
 
         // for redirect to login page after session expired
         $(document).ready(function() {
+
+            var htmlLoading = '';
+
+            htmlLoading += '<div>'
+            htmlLoading += '<span class="spinner-border spinner-border-sm text-black" aria-hidden="true"></span>'
+            htmlLoading += '<span class="ms-2 text-black" role="status">Importing...</span>'
+            htmlLoading += '</div>'
+
+            @php
+                $authImport = Cache::has("auth") ? Cache::get("auth") : null;
+                $isStart = Cache::has("isStartImport") ? Cache::get("isStartImport") : null;
+            @endphp
+            @if (($authImport != null && $isStart != null && Auth::user() != null) && (Auth::user()->id == $authImport['id']) && ($isStart))
+            console.log('masuk')
+                $('#loading-import').html(htmlLoading);
+            @endif
+            
             $.fn.dataTable.ext.errMode = function(settings, helpPage, message) {
 
                 if (settings && settings.jqXHR && settings.jqXHR.status == 401) {
