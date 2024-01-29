@@ -82,7 +82,7 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
             $q->where('tbl_client_prog.empl_id', $userId);
         })->select([
             'cp_p.prog_id',
-            DB::raw('CONCAT(cp_mp.prog_name COLLATE utf8mb4_unicode_ci, ": ", cp_p.prog_program COLLATE utf8mb4_unicode_ci) as program_name_sales'),
+            DB::raw('CONCAT(cp_mp.prog_name, ": ", cp_p.prog_program) as program_name_sales'),
             DB::raw('(SELECT total_participant FROM tbl_sales_target WHERE tbl_sales_target.prog_id = cp_p.prog_id AND MONTH(month_year) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(month_year) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_target_participant'),
             DB::raw('(SELECT total_target FROM tbl_sales_target WHERE tbl_sales_target.prog_id = cp_p.prog_id AND MONTH(month_year) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(month_year) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_target'),
             DB::raw('(SELECT COUNT(*) FROM tbl_client_prog as q_cp WHERE q_cp.prog_id = cp_p.prog_id AND MONTH(q_cp.success_date) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(q_cp.success_date) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_actual_participant'),

@@ -208,11 +208,11 @@
 </script>
 <script>
 
-    $(document).on('click', 'input[name=pr_phone]', function () {
+    $(document).on('click', 'input[id=prPhoneInput]', function () {
         sendTo('parent');
     });
 
-    $(document).on('click', 'input[name=ch_phone]', function () {
+    $(document).on('click', 'input[id=chPhoneInput]', function () {
         sendTo('child');
     });
 
@@ -294,12 +294,24 @@
                     $('#phone').val('');
                     $("#listFinanceTable .reminder").each(function() {
                          $(this).click(function() {
+                            var client_id = null;
                             if($(this).data('clientid') != undefined){
+                                client_id = $(this).data('clientid');
                                 var parent_phone = result.reminder[$(this).data('clientid')].parent_phone;
                                 var child_phone = result.reminder[$(this).data('clientid')].child_phone;
                                 var parent_id = result.reminder[$(this).data('clientid')].parent_id;
                                 $('input[name=target_phone]').val(parent_id == null ? child_phone : parent_phone);
                                 $('input[name=send_to]').val(parent_id == null ? 'child' : 'parent');
+                                
+                                $('#client_id').val($(this).data('clientid'))
+                                // $('#fullname').val(result.reminder[$(this).data('clientid')].parent_fullname) //no longer in use
+                                $('#program_name').val(result.reminder[$(this).data('clientid')].program_name)
+                                $('#invoice_duedate').val(result.reminder[$(this).data('clientid')].invoice_duedate)
+                                $('#total_payment').val(result.reminder[$(this).data('clientid')].total_payment)
+                                $('#clientprog_id').val(result.reminder[$(this).data('clientid')].clientprog_id)
+                                $('#payment_method').val(result.reminder[$(this).data('clientid')].payment_method)
+                                $('#parent_id').val(result.reminder[$(this).data('clientid')].parent_id)
+                                $('#client_id').val(result.reminder[$(this).data('clientid')].client_id)
 
                                 var form_phone = checked = '';
                                 if (parent_id != null) {
@@ -335,15 +347,8 @@
 
                                 initiate();
                             }
-                            $('#client_id').val($(this).data('clientid'))
-                            // $('#fullname').val(result.reminder[$(this).data('clientid')].parent_fullname) //no longer in use
-                            $('#program_name').val(result.reminder[$(this).data('clientid')].program_name)
-                            $('#invoice_duedate').val(result.reminder[$(this).data('clientid')].invoice_duedate)
-                            $('#total_payment').val(result.reminder[$(this).data('clientid')].total_payment)
-                            $('#clientprog_id').val(result.reminder[$(this).data('clientid')].clientprog_id)
-                            $('#payment_method').val(result.reminder[$(this).data('clientid')].payment_method)
-                            $('#parent_id').val(result.reminder[$(this).data('clientid')].parent_id)
-                            $('#client_id').val(result.reminder[$(this).data('clientid')].client_id)
+                            
+
                             // $("#reminderForm").attr("action", '{{ url("/") }}/invoice/client-program/'+result.reminder[$(this).data('clientid')].clientprog_id+'/remind/by/whatsapp');
                         })
                     })
