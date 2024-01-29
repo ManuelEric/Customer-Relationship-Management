@@ -115,16 +115,30 @@
                                     </div> --}}
 
                                     @if (Session::get('user_role') != 'Employee')
-                                    <div class="col-md-12 mb-2">
-                                        <label for="">PIC</label>
-                                        <select name="pic[]" class="select form-select form-select-sm w-100"
-                                            multiple id="pic">
-                                            @foreach ($advanced_filter['pics'] as $pic) 
-                                                <option value="{{ $pic->id }}">{{ $pic->full_name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                                        <div class="col-md-12 mb-2">
+                                            <label for="">PIC</label>
+                                            <select name="pic[]" class="select form-select form-select-sm w-100" multiple
+                                                id="pic">
+                                                @foreach ($advanced_filter['pics'] as $pic)
+                                                    <option value="{{ $pic->id }}">{{ $pic->full_name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     @endif
+
+                                    <div class="col-md-12 mb-2">
+                                        <div class="row g-2">
+                                            <label>Joined Date</label>
+                                            <div class="col-md-6 mb-2">
+                                                <input type="date" name="start_joined_date" id="start_joined_date"
+                                                    class="form-control form-control-sm rounded">
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <input type="date" name="end_joined_date" id="end_joined_date"
+                                                    class="form-control form-control-sm rounded">
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <div class="col-md-12 mt-3 d-none">
                                         <div class="d-flex justify-content-between">
@@ -163,11 +177,11 @@
             <x-client.student.nav />
 
             @push('styles')
-            <style>
-                #clientTable tr td.danger {
-                    background: rgb(255, 151, 151)
-                }
-            </style>
+                <style>
+                    #clientTable tr td.danger {
+                        background: rgb(255, 151, 151)
+                    }
+                </style>
             @endpush
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="clientTable">
                 <thead class="bg-secondary text-white">
@@ -175,8 +189,8 @@
                         <th class="d-none">Score</th>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Name</th>
-                        <th class="bg-info text-white">Interested Program</th>
-                        <th class="bg-info text-white">Program Suggest</th>
+                        <th>Interested Program</th>
+                        <th>Program Suggest</th>
                         <th>Status Lead</th>
                         <th>PIC</th>
                         <th>Mail</th>
@@ -201,6 +215,7 @@
                         <th>Interest Major</th>
                         <th>Joined Date</th>
                         <th>Scholarship Eligible</th>
+                        <th>Joined Date</th>
                         <th>Last Update</th>
                         <th>Is Active</th>
                         <th class="bg-info text-white"># Action</th>
@@ -430,7 +445,8 @@
                 ];
             }
 
-            if (get_st == 'new-leads' && ('{{ $isSalesAdmin }}' || '{{ $isSuperAdmin }}') && '{{ auth()->user()->email }}' != 'ericko.siswanto@all-inedu.com') {
+            if (get_st == 'new-leads' && ('{{ $isSalesAdmin }}' || '{{ $isSuperAdmin }}') &&
+                '{{ auth()->user()->email }}' != 'ericko.siswanto@all-inedu.com') {
                 button = [
                     'pageLength', {
                         extend: 'excel',
@@ -489,7 +505,7 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: (widthView < 768) ? 1 : 4,
+                    left: (widthView < 768) ? 1 : 2,
                     right: 1
                 },
                 processing: true,
@@ -504,10 +520,11 @@
                         params.status_lead = $("#lead-source").val()
                         params.active_status = $("#active-status").val()
                         params.pic = $("#pic").val()
+                        params.start_joined_date = $("#start_joined_date").val()
+                        params.end_joined_date = $("#end_joined_date").val()
                     }
                 },
-                columns: [
-                    {
+                columns: [{
                         data: 'status_lead_score',
                         visible: false,
                     },
@@ -531,8 +548,33 @@
                     },
                     {
                         data: 'interest_prog',
-                        className: 'text-center',
-                        defaultContent: '-'
+                        className: 'text-start',
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            if (data == undefined && data == null) {
+                                return '-'
+                            } else {
+                                var arrayInterest = data.split(',');
+                                var arrayLength = arrayInterest.length > 1 ? (arrayInterest.length -
+                                    1) + ' More' : ''
+
+                                var interestProgram = ""
+
+                                for (i = 0; i < arrayInterest.length; i++) {
+                                    if (i != 0) {
+                                        interestProgram += arrayInterest[i] + '</br>'
+                                    }
+                                }
+
+                                var descProgram = arrayInterest.length > 1 ?
+                                    '<div class="badge badge-primary py-1 px-2" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-placement="right" data-bs-title="' +
+                                    interestProgram + '">' + arrayLength +
+                                    '</div>' : ''
+
+
+                                return arrayInterest[0] + " " + descProgram
+                            }
+                        }
                     },
                     {
                         data: 'program_suggest',
@@ -636,9 +678,9 @@
                         className: 'text-center',
                         defaultContent: '-',
                         render: function(data, type, row, meta) {
-                            if (row.lead_source == "Referral"){
+                            if (row.lead_source == "Referral") {
                                 return data;
-                            }else{
+                            } else {
                                 return '-';
                             }
                         }
@@ -651,7 +693,31 @@
                     {
                         data: 'joined_event',
                         className: 'text-center',
-                        defaultContent: '-'
+                        render: function(data, type, row, meta) {
+                            if (data == undefined && data == null) {
+                                return '-'
+                            } else {
+                                var arrayInterest = data.split(',');
+                                var arrayLength = arrayInterest.length > 1 ? (arrayInterest.length -
+                                    1) + ' More' : ''
+
+                                var interestProgram = ""
+
+                                for (i = 0; i < arrayInterest.length; i++) {
+                                    if (i != 0) {
+                                        interestProgram += arrayInterest[i] + '</br>'
+                                    }
+                                }
+
+                                var descProgram = arrayInterest.length > 1 ?
+                                    '<div class="badge badge-primary py-1 px-2" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-placement="right" data-bs-title="' +
+                                    interestProgram + '">' + arrayLength +
+                                    '</div>' : ''
+
+
+                                return arrayInterest[0] + " " + descProgram
+                            }
+                        }
                     },
                     {
                         data: 'st_abryear',
@@ -661,7 +727,31 @@
                     {
                         data: 'abr_country',
                         className: 'text-center',
-                        defaultContent: '-'
+                        render: function(data, type, row, meta) {
+                            if (data == undefined && data == null) {
+                                return '-'
+                            } else {
+                                var arrayInterest = data.split(',');
+                                var arrayLength = arrayInterest.length > 1 ? (arrayInterest.length -
+                                    1) + ' More' : ''
+
+                                var interestProgram = ""
+
+                                for (i = 0; i < arrayInterest.length; i++) {
+                                    if (i != 0) {
+                                        interestProgram += arrayInterest[i] + '</br>'
+                                    }
+                                }
+
+                                var descProgram = arrayInterest.length > 1 ?
+                                    '<div class="badge badge-primary py-1 px-2" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-placement="right" data-bs-title="' +
+                                    interestProgram + '">' + arrayLength +
+                                    '</div>' : ''
+
+
+                                return arrayInterest[0] + " " + descProgram
+                            }
+                        }
                     },
                     {
                         data: 'dream_uni',
@@ -687,6 +777,14 @@
                                 return "Yes"
                             else
                                 return "No"
+                        }
+                    },
+                    {
+                        data: 'created_at',
+                        searchable: false,
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            return moment(data).format('MMMM Do YYYY')
                         }
                     },
                     {
@@ -764,6 +862,11 @@
                     trigger: 'hover',
                     html: true
                 });
+            });
+
+            // Hold Student 
+            $('#clientTable tbody').on('click', '.holdClient ', function() {
+                var data = table.row($(this).parents('tr')).data();
             });
 
             // Delete Student 
@@ -846,8 +949,18 @@
                 table.draw();
             })
 
-            $("#pic").on('change', function (e) {
+            $("#pic").on('change', function(e) {
                 var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#start_joined_date").on('change', function (e) {
+                var value = $(e.currentTarget).val();
+                table.draw();
+            })
+
+            $("#end_joined_date").on('change', function (e) {
+                var value = $(e.currentTarget).val();
                 table.draw();
             })
 

@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Session;
 use Laravel\Sanctum\HasApiTokens;
+use Mostafaznv\LaraCache\CacheEntity;
+use Mostafaznv\LaraCache\Traits\LaraCache;
 
 class Client extends Model
 {
@@ -53,7 +55,7 @@ class Client extends Model
         'created_at',
         'updated_at',
         'deleted_at',
-        'pic',
+        'pic_id',
         'status_lead',
         'status_lead_score',
     ];

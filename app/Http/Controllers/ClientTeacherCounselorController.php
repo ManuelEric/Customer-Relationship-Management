@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ClientTeacherCounselorController extends ClientController
 {
@@ -80,7 +81,8 @@ class ClientTeacherCounselorController extends ClientController
     public function indexRaw(Request $request)
     {
         if ($request->ajax()) {
-            return $this->clientRepository->getAllRawClientDataTables('teacher/counselor', []);
+            $model = $this->clientRepository->getAllRawClientDataTables('teacher/counselor', true, []);
+            return $this->clientRepository->getDataTables($model, true);
         }
 
         return view('pages.client.teacher.raw.index');
@@ -358,10 +360,13 @@ class ClientTeacherCounselorController extends ClientController
 
         $file = $request->file('file');
 
-        $import = new TeacherImport;
-        $import->import($file);
+        // Excel::queueImport(new TeacherImport(Auth::user()->first_name . ' '. Auth::user()->last_name), $file);
+        (new TeacherImport($this->clientRepository, Auth::user()))->queue($file)->allOnQueue('imports-teacher');
 
-        return back()->withSuccess('Teacher successfully imported');
+        // $import = new TeacherImport;
+        // $import->import($file);
+
+        return back()->withSuccess('Import teacher start progress');
     }
 
     public function cleaningData(Request $request)

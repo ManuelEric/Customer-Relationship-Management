@@ -1266,6 +1266,8 @@ class ClientStudentController extends ClientController
             $status_lead = $request->get('status_lead');
             $active_status = $request->get('active_status');
             $pic = $request->get('pic');
+            $start_joined_date = $request->get('start_joined_date');
+            $end_joined_date = $request->get('end_joined_date');
 
             # array for advanced filter request
             $advanced_filter = [
@@ -1275,7 +1277,9 @@ class ClientStudentController extends ClientController
                 'initial_programs' => $initial_programs,
                 'status_lead' => $status_lead,
                 'active_status' => $active_status,
-                'pic' => $pic
+                'pic' => $pic,
+                'start_joined_date' => $start_joined_date,
+                'end_joined_date' => $end_joined_date
             ];
 
             switch ($statusClient) {
@@ -1306,6 +1310,7 @@ class ClientStudentController extends ClientController
             }
 
             return $this->clientRepository->getDataTables($model);
+            // exit;
         }
 
         $entries = app('App\Services\ClientStudentService')->getClientStudent();
@@ -1326,6 +1331,8 @@ class ClientStudentController extends ClientController
             $status_lead = $request->get('status_lead');
             $active_status = $request->get('active_status');
             $roles = $request->get('roles');
+            $start_joined_date = $request->get('start_joined_date');
+            $end_joined_date = $request->get('end_joined_date');
 
             # array for advanced filter request
             $advanced_filter = [
@@ -1336,7 +1343,9 @@ class ClientStudentController extends ClientController
                 'initial_programs' => $initial_programs,
                 'status_lead' => $status_lead,
                 'active_status' => $active_status,
-                'roles' => $roles
+                'roles' => $roles,
+                'start_joined_date' => $start_joined_date,
+                'end_joined_date' => $end_joined_date
             ];
 
             $model = $this->clientRepository->getAllRawClientDataTables('student', true, $advanced_filter);
@@ -1931,14 +1940,16 @@ class ClientStudentController extends ClientController
 
         $file = $request->file('file');
 
-        try {
-            $import = new StudentImport();
-            $import->import($file);
-        } catch (Exception $e) {
-            return back()->withError('Something went wrong while processing the data. Please try again or contact the administrator.');
-        }
+        // try {
+            (new StudentImport($this->clientRepository, Auth::user()))->queue($file)->allOnQueue('imports-student');
+            // Excel::queueImport(new StudentImport(Auth::user()->first_name . ' '. Auth::user()->last_name), $file);
+            // $import = new StudentImport();
+            // $import->import($file);
+        // } catch (Exception $e) {
+        //     return back()->withError('Something went wrong while processing the data. Please try again or contact the administrator.');
+        // }
 
-        return back()->withSuccess('Student successfully imported');
+        return back()->withSuccess('Import student start progress');
     }
 
     public function siblings(Request $request)

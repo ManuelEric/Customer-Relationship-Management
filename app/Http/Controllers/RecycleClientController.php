@@ -21,11 +21,45 @@ class RecycleClientController extends Controller
     public function index(Request $request)
     {
         $target = $request->route('target');
+        $entries = [];
         switch ($target) {
 
             case "students":
-                $model = $this->clientRepository->getDeletedStudents(true);
+                
+                if ($request->ajax()){
+                    # advanced filter purpose
+                    $school_name = $request->get('school_name');
+                    $graduation_year = $request->get('graduation_year');
+                    $leads = $request->get('lead_source');
+                    $initial_programs = $request->get('program_suggest');
+                    $status_lead = $request->get('status_lead');
+                    $active_status = $request->get('active_status');
+                    $pic = $request->get('pic');
+                    $start_joined_date = $request->get('start_joined_date');
+                    $end_joined_date = $request->get('end_joined_date');
+                    $start_deleted_date = $request->get('start_deleted_date');
+                    $end_deleted_date = $request->get('end_deleted_date');
+
+                    # array for advanced filter request
+                    $advanced_filter = [
+                        'school_name' => $school_name,
+                        'graduation_year' => $graduation_year,
+                        'leads' => $leads,
+                        'initial_programs' => $initial_programs,
+                        'status_lead' => $status_lead,
+                        'active_status' => $active_status,
+                        'pic' => $pic,
+                        'start_joined_date' => $start_joined_date,
+                        'end_joined_date' => $end_joined_date,
+                        'start_deleted_date' => $start_deleted_date,
+                        'end_deleted_date' => $end_deleted_date
+                    ];
+
+                    $model = $this->clientRepository->getDeletedStudents(true, $advanced_filter);
+                }
+
                 $view = 'pages.recycle.client.student';
+                $entries = app('App\Services\ClientStudentService')->getClientStudent();
                 break;
 
 
@@ -45,7 +79,7 @@ class RecycleClientController extends Controller
         if ($request->ajax()) 
             return $this->clientRepository->getDataTables($model);
 
-        return view($view);
+        return view($view)->with($entries);
     }
 
 

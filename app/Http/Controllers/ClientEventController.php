@@ -60,6 +60,7 @@ use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ClientEventController extends Controller
 {
@@ -521,9 +522,12 @@ class ClientEventController extends Controller
 
         $file = $request->file('file');
 
+        (new ClientEventImport($this->clientRepository, Auth::user()))->queue($file)->allOnQueue('imports-client-event');
+
         // try {
-        $import = new ClientEventImport($this->clientRepository);
-        $import->import($file);
+        // Excel::queueImport(new ClientEventImport($this->clientRepository, Auth::user()), $file);
+        // $import = new ClientEventImport($this->clientRepository);
+        // $import->import($file);
 
 
         // } catch (Exception $e) {
@@ -532,7 +536,7 @@ class ClientEventController extends Controller
 
         // }
 
-        return back()->withSuccess('Client event successfully imported');
+        return back()->withSuccess('Import client events start progress');
     }
 
     public function mailing(StoreImportExcelRequest $request)

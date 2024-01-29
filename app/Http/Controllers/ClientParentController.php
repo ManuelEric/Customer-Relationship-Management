@@ -382,14 +382,17 @@ class ClientParentController extends ClientController
         $file = $request->file('file');
 
         // try {
-            $import = new ParentImport();
-            $import->import($file);
+            // Excel::queueImport(new ParentImport(Auth::user()->first_name . ' '. Auth::user()->last_name), $file);
+            (new ParentImport($this->clientRepository, Auth::user()))->queue($file)->allOnQueue('imports-parent');
+
+            // $import = new ParentImport();
+            // $import->import($file);
 
         // } catch (Exception $e) {
         //     return back()->withError('Something went wrong while processing the data. Please try again or contact the administrator.');
         // }
 
-        return back()->withSuccess('Parent successfully imported');
+        return back()->withSuccess('Import parent start progress');
     }
 
     public function getDataParents()

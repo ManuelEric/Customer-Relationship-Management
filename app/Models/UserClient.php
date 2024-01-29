@@ -14,6 +14,8 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Laravel\Sanctum\HasApiTokens;
+use Mostafaznv\LaraCache\CacheEntity;
+use Mostafaznv\LaraCache\Traits\LaraCache;
 
 class UserClient extends Authenticatable
 {
@@ -220,7 +222,7 @@ class UserClient extends Authenticatable
 
     public function getGraduationYearFromView($id)
     {
-        return DB::table('client')->find($id)->graduation_year_real;
+        return DB::table('client')->find($id)->graduation_year_real ?? null;
     }
 
     public function getParticipatedFromView($id)

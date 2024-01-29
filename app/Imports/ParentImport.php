@@ -26,12 +26,16 @@ use App\Models\Role;
 use App\Models\School;
 use App\Models\Tag;
 use Carbon\Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\Importable;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Events\ImportFailed;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
-class ParentImport implements ToCollection, WithHeadingRow, WithValidation, WithMultipleSheets
+class ParentImport implements ToCollection, WithHeadingRow, WithValidation, WithMultipleSheets, WithChunkReading, ShouldQueue, WithEvents
 {
     /**
      * @param Collection $collection
@@ -44,6 +48,13 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
     use LoggingTrait;
     use SyncClientTrait;
 
+    public $importedBy;
+
+    public function __construct($importedBy)
+    {
+        $this->importedBy = $importedBy;
+    }
+
     public function sheets(): array
     {
         return [
@@ -54,7 +65,7 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
     public function collection(Collection $rows)
     {
 
-        $logDetails = [];
+        $logDetails = $parentIds = $childrenIds = [];
 
         DB::beginTransaction();
         try {
@@ -137,9 +148,10 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
                     if (isset($row['destination_country'])) {
                         $children != null ?  $this->syncDestinationCountry($row['destination_country'], $children) : null;
                     }
+                    $childrenIds[] = $children['id'];
                 }
 
-                $childrenIds[] = $children->id;
+               
                 $parentIds[] = $parent['id'];
 
                 $logDetails[] = [
@@ -147,10 +159,10 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
                 ];
             }
             # trigger to verifying parent
-            ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent');
+            count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent') : null;
             
             # trigger to verifying children
-            ProcessVerifyClient::dispatch($childrenIds)->onQueue('verifying-client');
+            count($childrenIds) > 0 ? ProcessVerifyClient::dispatch($childrenIds)->onQueue('verifying-client') : null;
 
             DB::commit();
         } catch (Exception $e) {
@@ -158,7 +170,7 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
             Log::error('Import parent failed : ' . $e->getMessage() . ' ' . $e->getLine());
         }
 
-        $this->logSuccess('store', 'Import Parent', 'Parent', Auth::user()->first_name . ' ' . Auth::user()->last_name, $logDetails);
+        $this->logSuccess('store', 'Import Parent', 'Parent', $this->importedBy->first_name . ' ' . $this->importedBy->last_name, $logDetails);
     }
 
     public function prepareForValidation($data)
@@ -261,5 +273,24 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation, With
 
         return $data;
     }
+
+    public function registerEvents(): array
+    {
+        return [
+            ImportFailed::class => function(ImportFailed $event) {
+                foreach($event->getException() as $exception){
+                    $validation[] = $exception !== null && gettype($exception) == "object" ? $exception->errors()->toArray() : null;
+                }
+                $validation['user_id'] = $this->importedBy->id;
+                event(new \App\Events\MessageSent($validation, 'validation-import'));
+            },
+        ];
+    }
+    
+    public function chunkSize(): int
+    {
+        return 50;
+    }
+
 
 }

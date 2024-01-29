@@ -28,19 +28,30 @@ use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\SplitNameTrait;
 use App\Http\Traits\SyncClientTrait;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Jobs\RawClient\ProcessVerifyClient;
+use App\Jobs\RawClient\ProcessVerifyClientParent;
+use App\Jobs\RawClient\ProcessVerifyClientTeacher;
 use App\Models\ClientEventLogMail;
 use App\Models\Major;
 use App\Models\Tag;
 use App\Models\UserClientAdditionalInfo;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\SkipsErrors;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\ImportFailed;
 use Maatwebsite\Excel\Validators\Failure;
 use Throwable;
+use App\Notifications\ImportHasFailedNotification;
+use Illuminate\Support\Facades\Notification;
+use Maatwebsite\Excel\Events\AfterImport;
+use Maatwebsite\Excel\Validators\ValidationException;
 
-class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
+class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation, WithChunkReading, ShouldQueue, WithEvents
 
 {
     /**
@@ -56,17 +67,19 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
     use SyncClientTrait;
 
     private ClientRepositoryInterface $clientRepository;
+    public $importedBy;
 
-    public function __construct(ClientRepositoryInterface $clientRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, $importedBy)
     {
         $this->clientRepository = $clientRepository;
+        $this->importedBy = $importedBy;
     }
 
 
     public function collection(Collection $rows)
     {
         $data = [];
-        $logDetails = [];
+        $logDetails = $childIds = $parentIds = $teacherIds = [];
 
         DB::beginTransaction();
         try {
@@ -79,8 +92,6 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                 // Check existing school
                 if (!$school = School::where('sch_name', $row['school'])->first())
                     $school = $this->createSchoolIfNotExists($row['school']);
-
-                Log::debug($school->sch_id);
 
                 $roleSub = null;
                 switch ($row['audience']) {
@@ -129,13 +140,24 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                 ];
 
                 # add additional identification
-                if ($row['audience'] == "Parent")
-                    $data['child_id'] = isset($createdSubClient) ? $createdSubClient : null;
-                elseif ($row['audience'] == "Student")
-                    $data['parent_id'] = isset($createdSubClient) ? $createdSubClient : null;
+                if ($row['audience'] == "Parent"){
+                    $parentIds[] = $createdMainClient;
+                    if(isset($createdSubClient))
+                        $data['child_id'] = $createdSubClient;
+                        $childIds[] = $createdSubClient;
+                    
+                }elseif ($row['audience'] == "Student"){
+                    $childIds[] = $createdSubClient;
+                    if(isset($createdSubClient))
+                        $data['parent_id'] = $createdSubClient;
+                        $parentIds[] = $createdMainClient;
+                }else{
+                    $teacherIds[] = $createdMainClient;
+                }
+
 
                 $existClientEvent = ClientEvent::where('event_id', $data['event_id'])
-                    ->where('client_id', $data['client_id'])
+                    ->where('client_id', $createdMainClient)
                     ->where('joined_date', $data['joined_date'])
                     ->first();
 
@@ -158,9 +180,14 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                 ];
             }
 
+            # trigger to verifying client
+            count($childIds) > 0 ? ProcessVerifyClient::dispatch($childIds)->onQueue('verifying-client') : null;
+            count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent') : null;
+            count($teacherIds) > 0 ? ProcessVerifyClientTeacher::dispatch($teacherIds)->onQueue('verifying-client-teacher') : null;
+
             # store Success
             # create log success
-            $this->logSuccess('store', 'Import Client Event', 'Client Event', Auth::user()->first_name . ' '. Auth::user()->last_name, $logDetails);
+            $this->logSuccess('store', 'Import Client Event', 'Client Event', $this->importedBy->first_name . ' ' . $this->importedBy->last_name, $logDetails);
             
 
             DB::commit();
@@ -282,7 +309,6 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                 $existClient = $this->checkExistingClient($phone, $row['email']);
                 $email = $row['email'];
                 $fullname = $row['name'];
-                Log::debug($role . ' Main ' . gettype($fullname));
                 break;
                 
             case 'sub':
@@ -290,7 +316,6 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                 $email = isset($row['child_parent_email']) ? $row['child_parent_email'] : null;
                 $existClient = $this->checkExistingClient($phone, $email);
                 $fullname = $row['child_parent_name'];
-                Log::debug('Sub ' . gettype($fullname));
 
                 break;
         }
@@ -425,8 +450,28 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
             
         }
 
-        Log::debug($clientId);
         return $clientId;
        
     }
+
+    public function registerEvents(): array
+    {
+        return [
+            ImportFailed::class => function(ImportFailed $event) {
+                foreach($event->getException() as $exception){
+                    $validation[] = $exception !== null && gettype($exception) == "object" ? $exception->errors()->toArray() : null;
+                }
+                $validation['user_id'] = $this->importedBy->id;
+                event(new \App\Events\MessageSent($validation, 'validation-import'));
+            },
+        ];
+    }
+
+    public function chunkSize(): int
+    {
+        return 50;
+    }
+
+    
+
 }

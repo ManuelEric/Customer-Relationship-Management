@@ -206,6 +206,21 @@
     </div>
 </div>
 
+{{-- Initial Consultation Details Modal  --}}
+<div class="modal modal-lg fade" id="init_consult_modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fs-5" id="exampleModalLabel">Detail of Initial Consultation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body init_consult_modal_body overflow-auto" style="max-height: 400px">
+
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- Success Program Detail  --}}
 <div class="modal modal-md fade" id="success_program_detail_modal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -739,6 +754,30 @@ $(document).ready(function(){
                         }
                     },
                 }
+            },
+            onClick: (e) => {
+
+                var month = $(".qdate").val();
+                var user = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val()
+                var link = "{{ url('/') }}/api/get/detail/initial-consultation/" + month;
+                if (user !== null)
+                    link += "/" + user;
+
+                showLoading();
+
+                axios.get(link)
+                    .then(function (response) {
+
+                        let obj = response.data;
+                        $("#init_consult_modal").modal('show');
+                        $("#init_consult_modal .init_consult_modal_body").html(obj.data.ctx) 
+                        swal.close();
+                    })
+                    .catch(function (error) {
+                        swal.close();
+                        notification('error', error.message);
+                    })
+
             }
         }
     });

@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="//cdn.datatables.net/fixedcolumns/4.1.0/css/fixedColumns.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="{{asset('css/custom.css')}}">
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
     @yield('css')
 
 
@@ -56,175 +56,71 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="{{ asset('js/generate-number.js') }}"></script>
     <script src="{{ asset('js/currency.js') }}"></script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+
+    {{-- Pusher --}}
+    <script>
+        // Enable pusher logging - don't include this in production
+        @env('local')
+            Pusher.logToConsole = true;
+        @endenv
+
+        var pusher = new Pusher('{{ env("PUSHER_APP_KEY") }}', {
+            cluster: '{{ env("PUSHER_APP_CLUSTER") }}'
+        });
+
+        var channel = pusher.subscribe('validation-import');
+        var html = '';
+
+        channel.bind('my-event', function(data) {
+            // console.log(data.message);
+            if(data.message !== null){
+                Object.entries(data.message).forEach(function([key, messages]){
+                    if(messages !== null && key != 'user_id'){
+                        Object.entries(messages).forEach(([key2, value]) => {
+                            html += `<li class="text-danger">${value}</li>`
+                        });
+                    }
+                });
+
+                if( '{{ Auth::user() != null ? Auth::user()->id : null }}' == data.message.user_id ){
+                    $("#modal-validation-import").modal('show');
+                    $('#list-validation').html(html);
+                }
+            }
+        });
+
+    </script>
     @stack('styles')
-    <style>
-        
-    </style>
 </head>
 
 <body>
     {{-- <div id="overlay"></div> --}}
+    {{-- @env('local')
+        <x-main.loadspeedindicator />
+    @endenv --}}
+
     @yield('body')
 
-    {{-- Delete Item  --}}
-    <div class="modal modal-sm fade" tabindex="-1" id="deleteItem" data-bs-backdrop="static" data-bs-keyboard="false">
+    {{-- Modal validation import --}}
+    <div class="modal modal-md fade" id="modal-validation-import" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <form action="" method="post" id="formAction">
-                    @csrf
-                    @method('delete')
-                    <div class="modal-body text-center">
-                        <h2>
-                            <i class="bi bi-info-circle text-info"></i>
-                        </h2>
-                        <h4>Are you sure?</h4>
-                        <h6>You want to delete this data?</h6>
-                        <hr>
-                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
-                            <i class="bi bi-x-square me-1"></i>
-                            Cancel</button>
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            <i class="bi bi-trash3 me-1"></i>
-                            Yes, Delete</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    {{-- Deactive User Item  --}}
-    <div class="modal modal-sm fade" tabindex="-1" id="deactiveUser" data-bs-backdrop="static"
-        data-bs-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <form action="" method="post" id="formActionDeactive">
-                    @csrf
-                    @method('delete')
-                    <div class="modal-body text-center">
-                        <h2>
-                            <i class="bi bi-info-circle text-info"></i>
-                        </h2>
-                        <h4>Are you sure?</h4>
-                        <h6>You want to deactive this user?</h6>
-                        <hr>
-                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
-                            <i class="bi bi-x-square me-1"></i>
-                            Cancel</button>
-                        <button type="button" id="deactivate-user--app-3103" class="btn btn-primary btn-sm">
-                            <i class="bi bi-trash3 me-1"></i>
-                            Yes!</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    {{-- Restore Client & Instance --}}
-    <div class="modal modal-sm fade" tabindex="-1" id="restoreModal" data-bs-backdrop="static"
-        data-bs-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <form action="" method="post" id="formRestore">
-                    @csrf
-                    @method('put')
-                    <div class="modal-body text-center">
-                        <h2>
-                            <i class="bi bi-info-circle text-info"></i>
-                        </h2>
-                        <h4>Are you sure?</h4>
-                        <h6>You want to restore?</h6>
-                        <hr>
-                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
-                            <i class="bi bi-x-square me-1"></i>
-                            Cancel</button>
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            <i class="bi bi-trash3 me-1"></i>
-                            Yes!</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    {{-- Request Sign  --}}
-    <div class="modal modal-sm fade" tabindex="-1" id="requestSign--modal" data-bs-backdrop="static"
-        data-bs-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <form action="" method="post" id="formActionRequestSign">
-                    @csrf
-                    @method('delete')
-                    <div class="modal-body text-center">
-                        <h2>
-                            <i class="bi bi-info-circle text-info"></i>
-                        </h2>
-                        <h4>Are you sure?</h4>
-                        <h6><!-- warning text here --></h6>
-                        <hr>
-                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
-                            <i class="bi bi-x-square me-1"></i>
-                            Cancel</button>
-                        <button type="button" id="send-request--app-2908" class="btn btn-primary btn-sm">
-                            <i class="bi bi-trash3 me-1"></i>
-                            Yes!</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    {{-- Send Invoice / Receipt to Client  --}}
-    <div class="modal modal-sm fade" tabindex="-1" id="sendToClient--modal" data-bs-backdrop="static"
-        data-bs-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <form action="" method="post" id="formActionSendToClient">
-                    @csrf
-                    @method('delete')
-                    <div class="modal-body text-center">
-                        <h2>
-                            <i class="bi bi-info-circle text-info"></i>
-                        </h2>
-                        <h4>Are you sure?</h4>
-                        <h6><!-- warning text here --></h6>
-                        <hr>
-                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
-                            <i class="bi bi-x-square me-1"></i>
-                            Cancel</button>
-                        <button type="button" id="send-to-client--app-0604" class="btn btn-primary btn-sm">
-                            <i class="bi bi-trash3 me-1"></i>
-                            Yes!</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    {{-- Update Lead Status  --}}
-    <div class="modal modal-sm fade" tabindex="-1" id="updateLeadStatus" data-bs-backdrop="static"
-        data-bs-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-body text-center">
-                    <h2>
-                        <i class="bi bi-info-circle text-info"></i>
-                    </h2>
-                    <h4>Are you sure?</h4>
-                    <h6>You want to update this data?</h6>
-                    <input type="hidden" value="" id="statusLeadOld">
-                    <input type="hidden" value="" id="clientLeadId">
-                    <hr>
-                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="closeModalLeadConfirm()">
-                        <i class="bi bi-x-square me-1"></i>
-                        Cancel</button>
-                    <button type="button" id="btn-update-lead" class="btn btn-primary btn-sm">
-                        <i class="bi bi-box-arrow-in-down me-1"></i>
-                        Yes, Update</button>
+                <div class="modal-header">
+                    <h4 class="m-0 p-0">
+                        Validation Import
+                    </h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                {{-- </form> --}}
+                <div class="modal-body">
+                    <ul id="list-validation">
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
+
+    <x-main.modal />
 
     <script>
         window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -246,7 +142,7 @@
     <script>
         function realtimeData(data) {
             setInterval(() => {
-                
+
                 data.ajax.reload(null, false)
             }, 7000);
         }
@@ -254,7 +150,7 @@
 
         // for redirect to login page after session expired
         $(document).ready(function() {
-            $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
+            $.fn.dataTable.ext.errMode = function(settings, helpPage, message) {
 
                 if (settings && settings.jqXHR && settings.jqXHR.status == 401) {
                     notification('error', 'Your session has expired');
@@ -358,12 +254,12 @@
                     })
             });
         }
-        
+
         function closeModalLeadConfirm() {
             const id = $('#clientLeadId').val();
             const old_status = $('#statusLeadOld').val().toLowerCase();
 
-            $('.leads' + id).val(old_status);           
+            $('.leads' + id).val(old_status);
             $('#updateLeadStatus').modal('hide');
         }
     </script>

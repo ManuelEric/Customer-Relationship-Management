@@ -18,13 +18,18 @@ use App\Models\School;
 use Maatwebsite\Excel\Concerns\Importable;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
+use App\Jobs\RawClient\ProcessVerifyClientTeacher;
 use App\Models\Corporate;
 use App\Models\EdufLead;
 use App\Models\Event;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\ImportFailed;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
-class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
+class TeacherImport implements ToCollection, WithHeadingRow, WithValidation, WithChunkReading, ShouldQueue, WithEvents
 {
     /**
      * @param Collection $collection
@@ -36,9 +41,16 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
     use CheckExistingClientImport;
     use LoggingTrait;
 
+    public $importedBy;
+
+    public function __construct($importedBy)
+    {
+        $this->importedBy = $importedBy;
+    }
+
     public function collection(Collection $rows)
     {
-        $logDetails = [];
+        $logDetails = $teacherIds = [];
 
         DB::beginTransaction();
         try {
@@ -85,14 +97,20 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
                 $logDetails[] = [
                     'client_id' => $teacher['id']
                 ];
+
+                $teacherIds[] = $teacher['id'];
             }
+
+            # trigger to verifying parent
+            count($teacherIds) > 0 ? ProcessVerifyClientTeacher::dispatch($teacherIds)->onQueue('verifying-client-teacher') : null;
+
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Import teacher failed : ' . $e->getMessage());
         }
 
-        $this->logSuccess('store', 'Import Teacher', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $teacher);
+        $this->logSuccess('store', 'Import Teacher', 'Parent', $this->importedBy->first_name . ' ' . $this->importedBy->last_name, $teacher);
 
     }
 
@@ -195,4 +213,23 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
 
         return $newSchool;
     }
+
+    public function registerEvents(): array
+    {
+        return [
+            ImportFailed::class => function(ImportFailed $event) {
+                foreach($event->getException() as $exception){
+                    $validation[] = $exception !== null && gettype($exception) == "object" ? $exception->errors()->toArray() : null;
+                }
+                $validation['user_id'] = $this->importedBy->id;
+                event(new \App\Events\MessageSent($validation, 'validation-import'));
+            },
+        ];
+    }
+    
+    public function chunkSize(): int
+    {
+        return 50;
+    }
+
 }

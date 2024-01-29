@@ -1,0 +1,1 @@
+<div style="margin-top:100px">This page took {{ round(microtime(true) - LARAVEL_START, 3) }} seconds to render</div>
