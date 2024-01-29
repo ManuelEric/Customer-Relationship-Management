@@ -32,12 +32,16 @@ class ClientRepository implements ClientRepositoryInterface
     use FindDestinationCountryScore;
     use StandardizePhoneNumberTrait;
     private RoleRepositoryInterface $roleRepository;
+    private $potentialClients;
+    private $existingMentees;
 
 
     public function __construct(RoleRepositoryInterface $roleRepository)
     {
         $this->roleRepository = $roleRepository;
         $this->ALUMNI_IDS = $this->getAlumnis();
+        $this->potentialClients = $this->getPotentialClients()->pluck('id')->toArray();
+        $this->existingMentees = $this->getExistingMentees()->pluck('id')->toArray();
     }
 
     public function getAllClients()
@@ -371,13 +375,26 @@ class ClientRepository implements ClientRepositoryInterface
             //         });
             //     })->where('status', 1)->where('prog_running_status', '!=', 2); # meaning 1 is he/she has been offered admissions mentoring before 
             // })->
-            whereHas('clientProgram', function ($subQuery) {
-                $subQuery->whereHas('program', function ($subQuery_2) {
-                    $subQuery_2->whereHas('main_prog', function ($subQuery_3) {
-                        $subQuery_3->where('prog_name', 'Admissions Mentoring');
+            where(function ($r) {
+
+                $r->whereHas('clientProgram', function ($subQuery) {
+                    $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
+                        $subQuery_2->where('prog_name', 'Admissions Mentoring');
+                    })->where('status', 1)->where('prog_running_status', '!=', 2);
+                })->
+                orWhere(function ($q) {
+                    $q->
+                    whereHas('clientProgram', function ($subQuery) {
+                        $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
+                            $subQuery_2->where('prog_name', 'Admissions Mentoring');
+                        })->where('status', 1)->where('prog_running_status', 2);
+                    })->
+                    whereHas('clientProgram', function ($subQuery) {
+                        $subQuery->where('status', 0);
                     });
-                })->where('status', 1)->where('prog_running_status', '!=', 2);
+                });
             })->
+            whereNotIn('client.id', $this->potentialClients)->
             when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {
@@ -404,7 +421,8 @@ class ClientRepository implements ClientRepositoryInterface
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            groupBy('client.id');
 
         return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
     }
@@ -420,20 +438,30 @@ class ClientRepository implements ClientRepositoryInterface
             selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
             leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
             leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
-            whereDoesntHave('clientProgram', function ($subQuery) {
-                $subQuery->whereHas('program', function ($subQuery_2) {
-                    $subQuery_2->whereHas('main_prog', function ($subQuery_3) {
-                        $subQuery_3->where('prog_name', 'Admissions Mentoring');
+            where(function ($r) {
+
+                $r->
+                whereHas('clientProgram', function ($subQuery) {
+                    $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
+                        $subQuery_2->where('prog_name', '!=', 'Admissions Mentoring');
+                    })->where(function ($subQuery_2) {
+                        $subQuery_2->where('status', 1)->where('prog_running_status', '!=', 2);
                     });
-                })->where('status', 1)->where('prog_running_status', '!=', 2); # meaning 1 is he/she has been offered admissions mentoring before 
-            })->
-            whereHas('clientProgram', function ($subQuery) {
-                $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
-                    $subQuery_2->where('prog_name', '!=', 'Admissions Mentoring');
-                })->where(function ($subQuery_2) {
-                    $subQuery_2->where('status', 1)->where('prog_running_status', '!=', 2);
+                })->
+                orWhere(function ($q) {
+                    $q->
+                    whereHas('clientProgram', function ($subQuery) {
+                        $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
+                            $subQuery_2->where('prog_name', '!=', 'Admissions Mentoring');
+                        })->where('status', 1)->where('prog_running_status', 2);
+                    })->
+                    whereHas('clientProgram', function ($subQuery) {
+                        $subQuery->where('status', 0);
+                    });
                 });
-            })->when($month, function ($subQuery) use ($month) {
+            })->
+            whereNotIn('client.id', $this->existingMentees)->
+            when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
@@ -459,7 +487,8 @@ class ClientRepository implements ClientRepositoryInterface
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            groupBy('client.id');
 
         return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
     }
@@ -501,7 +530,7 @@ class ClientRepository implements ClientRepositoryInterface
                 })->where('status', 1)->where('prog_running_status', 2);
             })->
             whereDoesntHave('clientProgram', function ($subQuery) {
-                $subQuery->where('status', 1)->whereIn('prog_running_status', [0, 1]);
+                $subQuery->whereIn('status', [0, 1])->whereIn('prog_running_status', [0, 1]);
             })->
             when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
@@ -551,11 +580,16 @@ class ClientRepository implements ClientRepositoryInterface
                     $subQuery_2->where('prog_name', 'Admissions Mentoring');
                 })->whereIn('status', [1]);
             })->
+            // whereHas('clientProgram', function ($subQuery) {
+            //     $subQuery->where('status', 1)->where('prog_running_status', 2);
+            // })->
             whereHas('clientProgram', function ($subQuery) {
-                $subQuery->where('status', 1)->where('prog_running_status', 2);
+                $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
+                    $subQuery_2->where('prog_name', '!=', 'Admissions Mentoring');
+                })->where('status', 1)->where('prog_running_status', 2);
             })->
             whereDoesntHave('clientProgram', function ($subQuery) {
-                $subQuery->where('status', 1)->whereIn('prog_running_status', [0, 1]);
+                $subQuery->whereIn('status', [0, 1])->whereIn('prog_running_status', [0, 1]);
             })->
             when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
