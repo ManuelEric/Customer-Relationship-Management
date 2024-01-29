@@ -66,12 +66,10 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
     use LoggingTrait;
     use SyncClientTrait;
 
-    private ClientRepositoryInterface $clientRepository;
     public $importedBy;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, $importedBy)
+    public function __construct($importedBy)
     {
-        $this->clientRepository = $clientRepository;
         $this->importedBy = $importedBy;
     }
 

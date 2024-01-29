@@ -759,7 +759,9 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             )
             ->where('tbl_sch_prog.status', 1)
             ->whereYear('tbl_sch_prog.success_date', '=', $year)
+            ->orWhereYear('tbl_sch_prog.created_at', '=', $year)
             ->whereMonth('tbl_sch_prog.success_date', '=', $month)
+            ->orWhereMonth('tbl_sch_prog.created_at', '=', $month)
             ->whereNull('tbl_invb2b.schprog_id')
             ->get();
 
@@ -778,7 +780,9 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             )
             ->where('tbl_partner_prog.status', 1)->whereNull('tbl_invb2b.partnerprog_id')
             ->whereYear('tbl_partner_prog.success_date', '=', $year)
+            ->orWhereYear('tbl_partner_prog.created_at', '=', $year)
             ->whereMonth('tbl_partner_prog.success_date', '=', $month)
+            ->orWhereMonth('tbl_partner_prog.created_at', '=', $month)
             ->get();
 
         $referral  = Referral::leftJoin('tbl_invb2b', 'tbl_invb2b.ref_id', '=', 'tbl_referral.id')
@@ -795,7 +799,9 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
 
             )->where('tbl_referral.referral_type', 'Out')->whereNull('tbl_invb2b.ref_id')
             ->whereYear('tbl_referral.ref_date', '=', $year)
+            ->orWhereYear('tbl_referral.created_at', '=', $year)
             ->whereMonth('tbl_referral.ref_date', '=', $month)
+            ->orWhereMonth('tbl_referral.created_at', '=', $year)
             ->get();
 
         $collection = collect($schProg);

@@ -212,7 +212,7 @@
                                             @else
                                                 {{ old('eduf_id') == $edufair->id ? "selected" : null }}
                                             @endif
-                                            >{{ $edufair->title }}</option>
+                                            >{{ $edufair->organizer_name . ' - ' . date('d M Y', strtotime($edufair->event_start)) }}</option>
                                     @endforeach
                                 @endif
                             </select>

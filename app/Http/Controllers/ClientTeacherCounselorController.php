@@ -361,7 +361,7 @@ class ClientTeacherCounselorController extends ClientController
         $file = $request->file('file');
 
         // Excel::queueImport(new TeacherImport(Auth::user()->first_name . ' '. Auth::user()->last_name), $file);
-        (new TeacherImport($this->clientRepository, Auth::user()))->queue($file)->allOnQueue('imports-teacher');
+        (new TeacherImport(Auth::user()))->queue($file)->allOnQueue('imports-teacher');
 
         // $import = new TeacherImport;
         // $import->import($file);
