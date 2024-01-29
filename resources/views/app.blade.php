@@ -201,7 +201,6 @@
                 $isStart = Cache::has("isStartImport") ? Cache::get("isStartImport") : null;
             @endphp
             @if (($authImport != null && $isStart != null && Auth::user() != null) && (Auth::user()->id == $authImport['id']) && ($isStart))
-            console.log('masuk')
                 $('#loading-import').html(htmlLoading);
             @endif
             
