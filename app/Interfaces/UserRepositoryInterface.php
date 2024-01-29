@@ -16,7 +16,9 @@ interface UserRepositoryInterface
     public function getAllUsersEditorContracts();
     public function getAllUsersExternalMentorContracts();
     public function getAllUsersInternshipContracts();
+    public function getPICs();
     public function getUserById($userId);
+    public function getUserByUUID($userUUID);
     public function getUserByfirstName($first_name);
     public function getUserByExtendedId($extendedId);
     public function getUserByFullNameOrEmail($userName, $userEmail);

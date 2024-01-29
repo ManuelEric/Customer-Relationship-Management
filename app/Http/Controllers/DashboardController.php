@@ -171,6 +171,7 @@ class DashboardController extends SalesDashboardController
 
         $data = array_merge($sales, $partnership, $finance, $alarm, $digital);
 
+
         return view('pages.dashboard.index')->with($data);
     }
 

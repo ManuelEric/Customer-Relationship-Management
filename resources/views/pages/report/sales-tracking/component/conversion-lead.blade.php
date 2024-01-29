@@ -9,10 +9,10 @@
                     <strong>Lead Source</strong>
                 </div>
                 <ul class="list-group list-group-flush" style="font-size:11px;">
-                    @foreach ($leadSource as $detail)
+                    @forelse ($leadSource as $detail)
                         <a href="#"
                             class="list-group-item list-group-item-action d-flex justify-content-between align-items-center lead-source-item cursor-pointer"
-                            data-leadname="{{ $detail->lead_source }}" data-lead="{{ $detail->lead_id }}"
+                            data-leadname="{{ $detail->lead_source }}" data-lead="{{ $detail->lead_id }}" data-sublead="{{ $detail->sub_lead_id }}"
                             data-sdate="{{ $dateDetails['startDate'] }}" data-edate="{{ $dateDetails['endDate'] }}">
                             <div class="">
                                 {{ $detail->lead_source }}
@@ -20,7 +20,10 @@
                             <span class="badge bg-primary rounded-pill"
                                 style="font-size:11px;">{{ $detail->lead_source_count }}</span>
                         </a>
-                    @endforeach
+
+                        @empty
+                            <div class="my-2 text-center">No Data</div>
+                    @endforelse
                 </ul>
             </div>
             <div class="col-md-6">
@@ -28,10 +31,10 @@
                     <strong>Conversion Lead</strong>
                 </div>
                 <ul class="list-group list-group-flush" style="font-size:11px;">
-                    @foreach ($conversionLead as $detail)
+                    @forelse ($conversionLead as $detail)
                         <a href="#"
                             class="list-group-item list-group-item-action d-flex justify-content-between align-items-center conversion-lead-item cursor-pointer"
-                            data-leadname="{{ $detail->conversion_lead }}" data-lead="{{ $detail->lead_id }}"
+                            data-leadname="{{ $detail->conversion_lead }}" data-lead="{{ $detail->lead_id }}" data-sublead="{{ $detail->sub_lead_id }}"
                             data-sdate="{{ $dateDetails['startDate'] }}" data-edate="{{ $dateDetails['endDate'] }}">
                             <div class="">
                                 {{ $detail->conversion_lead }}
@@ -39,7 +42,11 @@
                             <span class="badge bg-primary rounded-pill"
                                 style="font-size:11px;">{{ $detail->conversion_lead_count }}</span>
                         </a>
-                    @endforeach
+
+                        @empty
+                            <div class="my-2 text-center">No Data</div>
+
+                    @endforelse
                 </ul>
             </div>
         </div>

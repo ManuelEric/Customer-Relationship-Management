@@ -393,7 +393,7 @@
 
 
                         var obj = response.data;
-                        console.log(obj)
+                        
                         $('#list-detail-client .modal-title').html(obj.title)
                         $('#listClientTable tbody').html(obj.html_ctx)
                         swal.close()

@@ -24,6 +24,7 @@ use App\Interfaces\TagRepositoryInterface;
 use App\Models\Program;
 use App\Models\School;
 use App\Models\UserClient;
+use App\Models\ViewClientProgram;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -92,11 +93,12 @@ class ClientProgramController extends Controller
 
     public function index(Request $request)
     {
-        $data = $status = [];
+
+        $data = $status = $emplUUID = [];
         $status = $userId = $emplId = NULL;
 
         $data['clientId'] = NULL;
-        $data['programName'] = $request->get('program_name') ?? null;
+        $data['programName'] = array_filter($request->get('program_name'), fn ($value) => !is_null($value)) ?? null;
         $data['schoolName'] = $request->get('school_name') ?? null;
         $data['leadId'] = $request->get('conversion_lead') ?? null;
         $data['grade'] = $request->get('grade') ?? null;
@@ -121,10 +123,10 @@ class ClientProgramController extends Controller
 
         if ($request->get('pic')) {
             for ($i = 0; $i < count($request->get('pic')); $i++) {
-                $emplId[] = Crypt::decrypt($request->get('pic')[$i]);
+                $emplUUID[] = $request->get('pic')[$i];
             }
         }
-        $data['emplId'] = $emplId;
+        $data['emplUUID'] = array_filter($emplUUID, fn ($value) => !is_null($value)) ?? null;;
         $data['startDate'] = $request->get('start_date') ?? null;
         $data['endDate'] = $request->get('end_date') ?? null;
 
@@ -149,7 +151,7 @@ class ClientProgramController extends Controller
                 'request' => $request,
                 'status_decrypted' => $status,
                 'mentor_tutor_decrypted' => $userId,
-                'pic_decrypted' => $emplId,
+                'picUUID_arr' => $emplUUID,
             ]
         );
     }

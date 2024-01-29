@@ -187,16 +187,6 @@ class SalesDashboardController extends Controller
             # client event tab
             'events' => $events,
             'conversion_lead_of_event' => $conversion_lead_of_event,
-
-            # alarm
-            // 'salesAlarm' => $salesAlarm,
-            // 'leadSalesTarget' => $leadSalesTarget,
-            // 'leadReferralTarget' => $leadReferralTarget,
-            // 'triggerEvent' => $triggerEvent,
-            // 'actualLeadsSales' => $actualLeadsSales,
-            // 'actualLeadsReferral' => $actualLeadsReferral,
-            // 'dataLeads' => $dataLeads,
-            // 'dataLeadChart' => $dataLeadChart
         ];
     }
 
