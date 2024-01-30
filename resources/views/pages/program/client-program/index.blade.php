@@ -122,8 +122,7 @@
                             <label for="">PIC</label>
                             <select name="pic[]" id="" class="select form-select form-select-sm w-100" multiple>
                                 @foreach ($pics as $pic)
-                                    <option value="{{ Crypt::encrypt($pic->empl_id) }}"
-                                        @if ($pic_decrypted !== null && in_array($pic->empl_id, $pic_decrypted)) {{ 'selected' }} @endif>{{ $pic->pic_name }}
+                                    <option value="{{ $pic->uuid }}" @selected($picUUID_arr !== null && in_array($pic->uuid, $picUUID_arr))>{{ $pic->pic_name }}
                                     </option>
                                 @endforeach
                             </select>

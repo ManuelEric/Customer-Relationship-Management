@@ -193,9 +193,19 @@ class UserRepository implements UserRepositoryInterface
             get();
     }
 
+    public function getPICs()
+    {
+        return User::isPic();
+    }
+
     public function getUserById($userId)
     {
         return User::findOrFail($userId);
+    }
+
+    public function getUserByUUID($userUUID)
+    {
+        return User::where('uuid', $userUUID)->first();
     }
 
     public function getUserByExtendedId($extendedId)

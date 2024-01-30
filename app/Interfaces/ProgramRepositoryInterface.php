@@ -6,6 +6,7 @@ interface ProgramRepositoryInterface
 {
     public function getAllProgramsDataTables();
     public function getAllPrograms();
+    public function getProgramsByMainProg($mainProgId);
     public function getAllProgramByType($type, bool $active = null);
     public function getProgramById($programId);
     public function getProgramByName($programName);
@@ -14,6 +15,9 @@ interface ProgramRepositoryInterface
     public function createProgramFromV1(array $programDetails);
     public function updateProgram($programId, array $newDetails);
     public function cleaningProgram();
+
+    # API
+    public function getProgramNameByMainProgId($mainProgId);
 
     # CRM
     public function getProgramFromV1();

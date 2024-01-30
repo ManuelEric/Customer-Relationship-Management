@@ -27,8 +27,8 @@ trait GetClientStatusTrait {
         $total_parent = $this->clientRepository->getParents($asDatatables)->count();
         $monthly_new_parent = $this->clientRepository->getParents($asDatatables, $month)->count();
 
-        $total_teacher = $this->clientRepository->getAllClientByRole('Teacher/Counselor')->count();
-        $monthly_new_teacher = $this->clientRepository->getAllClientByRole('Teacher/Counselor', $month)->count();
+        $total_teacher = $this->clientRepository->getTeachers($asDatatables)->count();
+        $monthly_new_teacher = $this->clientRepository->getTeachers($asDatatables, $month)->count();
 
         # data at the top of dashboard
         $response['totalClientInformation'] = [
