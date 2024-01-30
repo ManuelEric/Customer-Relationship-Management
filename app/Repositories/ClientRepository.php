@@ -272,6 +272,9 @@ class ClientRepository implements ClientRepositoryInterface
             selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
             leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
             leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
+            where(function ($q) {
+                
+            })->
             doesntHave('clientProgram')->
             when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
@@ -331,7 +334,8 @@ class ClientRepository implements ClientRepositoryInterface
             leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
             leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
             whereHas('clientProgram', function ($subQuery) {
-                $subQuery->whereIn('status', [0, 2, 3]); # because refund and cancel still marked as potential client
+                // $subQuery->whereIn('status', [0, 2, 3]); # because refund and cancel still marked as potential client
+                $subQuery->where('status', 0); # because refund and cancel still marked as potential client
             })->
             whereDoesntHave('clientProgram', function ($subQuery) {
                 $subQuery->where('status', 1);

@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\v1\DigitalDashboardController;
 use App\Http\Controllers\Api\v1\ExtClientController;
+use App\Http\Controllers\Api\v1\ExtLeadController;
+use App\Http\Controllers\Api\v1\ExtProgramController;
 use App\Http\Controllers\Api\v1\ExtSalesTrackingController;
 use App\Http\Controllers\Api\v1\ExtUserController;
 use App\Http\Controllers\Api\v1\SalesDashboardController;
@@ -150,7 +152,12 @@ Route::prefix('v1')->group(function () {
     Route::get('get/detail/lead-source', [ExtSalesTrackingController::class, 'getLeadSourceDetail']);
     Route::get('get/detail/conversion-lead', [ExtSalesTrackingController::class, 'getConversionLeadDetail']);
 
+    # used for spreadsheets syncing data
     Route::get('get/{department}/member', [ExtUserController::class, 'getMemberOfDepartments']);
+    Route::get('get/employees', [ExtUserController::class, 'getEmployees']);
+    Route::get('get/programs', [ExtProgramController::class, 'getPrograms']);
+    Route::get('get/programs/{main_program}', [ExtProgramController::class, 'getProgramsByMainProg']);
+    Route::get('get/leads', [ExtLeadController::class, 'getLeadSources']);
 });
 
 # Client Event Attendance
@@ -175,7 +182,7 @@ Route::get('client/parent/', [ClientParentController::class, 'getDataParents']);
 Route::get('client/suggestion/', [ClientController::class, 'getClientSuggestion']);
 
 # Get Sales Team
-Route::get('user/sales-team/', [UserController::class, 'getSalesTeam']);
+Route::get('user/sales-team/', [UserController::class, 'getSalesTeam']); # basically same with route on line 155
 
 # Get Prog Program based on Main Program Id
 Route::get('get/program/main/{mainProgId}', [APIProgramController::class, 'getProgramNameByMainProgramId']);

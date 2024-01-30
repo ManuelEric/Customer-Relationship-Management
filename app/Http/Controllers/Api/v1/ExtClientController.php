@@ -32,13 +32,32 @@ class ExtClientController extends Controller
 
     public function getMentors()
     {
+        # get the active mentors
         $existingMentors = $this->clientRepository->getExistingMentorsAPI();
+        if ($existingMentors->count() == 0) {
+            return response()->json([
+                'success' => true,
+                'message' => 'No mentor found.'
+            ]);
+        }
+
+        # map the data that being shown to the user
+        $mappedExistingMentors = $existingMentors->map(function ($value) {
+            $trimmedFullname = trim($value->full_name);
+
+            return [
+                'fullname' => $trimmedFullname,
+                'id' => $value->id,
+                'extended_id' => $value->extended_id,
+                'formatted' => $trimmedFullname.' | '.$value->id
+            ];
+        });
 
         return response()->json(
             [
                 'success' => true,
                 'message' => 'Mentors data found.',
-                'data' => $existingMentors
+                'data' => $mappedExistingMentors
             ]
         );
     }
