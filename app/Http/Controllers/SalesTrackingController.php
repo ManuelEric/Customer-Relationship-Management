@@ -9,6 +9,7 @@ use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\LeadTargetRepositoryInterface;
 use App\Interfaces\MainProgRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
+use App\Interfaces\SalesTargetRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -22,14 +23,16 @@ class SalesTrackingController extends Controller
     protected UserRepositoryInterface $userRepository;
     protected ClientRepositoryInterface $clientRepository;
     protected LeadTargetRepositoryInterface $leadTargetRepository;
+    protected SalesTargetRepositoryInterface $salesTargetRepository;
 
-    public function __construct(ClientProgramRepositoryInterface $clientProgramRepository, MainProgRepositoryInterface $mainProgRepository, UserRepositoryInterface $userRepository, ClientRepositoryInterface $clientRepository, LeadTargetRepositoryInterface $leadTargetRepository)
+    public function __construct(ClientProgramRepositoryInterface $clientProgramRepository, MainProgRepositoryInterface $mainProgRepository, UserRepositoryInterface $userRepository, ClientRepositoryInterface $clientRepository, LeadTargetRepositoryInterface $leadTargetRepository, SalesTargetRepositoryInterface $salesTargetRepository)
     {
         $this->clientProgramRepository = $clientProgramRepository;
         $this->mainProgRepository = $mainProgRepository;
         $this->userRepository = $userRepository;
         $this->clientRepository = $clientRepository;
         $this->leadTargetRepository = $leadTargetRepository;
+        $this->salesTargetRepository = $salesTargetRepository;
     }
 
     public function index(Request $request)
@@ -79,6 +82,7 @@ class SalesTrackingController extends Controller
         $averageConversionSuccessful = $this->clientProgramRepository->getConversionTimeSuccessfulPrograms($dateDetails);
         $mainPrograms = $this->mainProgRepository->getAllMainProg();
         $pics = $this->userRepository->getPICs();
+        $salesDetail = $this->salesTargetRepository->getSalesDetailFromClientProgram(null, ['qdate' => date('Y-m')]);
 
         return view('pages.report.sales-tracking.index')->with(
             [
@@ -90,7 +94,8 @@ class SalesTrackingController extends Controller
                 'conversionLead' => $conversionLead,
                 'averageConversionSuccessful' => $averageConversionSuccessful,
                 'mainPrograms' => $mainPrograms,
-                'pics' => $pics
+                'pics' => $pics,
+                'salesDetail' => $salesDetail,
             ]
         );
     }

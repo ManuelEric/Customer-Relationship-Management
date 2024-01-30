@@ -6,6 +6,7 @@ interface ProgramRepositoryInterface
 {
     public function getAllProgramsDataTables();
     public function getAllPrograms();
+    public function getProgramsByMainProg($mainProgId);
     public function getAllProgramByType($type, bool $active = null);
     public function getProgramById($programId);
     public function getProgramByName($programName);
