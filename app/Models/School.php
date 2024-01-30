@@ -17,6 +17,7 @@ class School extends Model
     protected $primaryKey = 'sch_id';
 
     public $incrementing = false;
+    public $timestamps = true;
 
     /**
      * The attributes that should be visible in arrays.
@@ -35,7 +36,9 @@ class School extends Model
         'sch_location',
         'sch_score',
         'status',
-        'is_verified'
+        'is_verified',
+        'created_at',
+        'updated_at'
     ];
 
     public function createdAt(): Attribute

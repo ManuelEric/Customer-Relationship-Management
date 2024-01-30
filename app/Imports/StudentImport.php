@@ -29,33 +29,95 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\RegistersEventListeners;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
+use Maatwebsite\Excel\Concerns\SkipsErrors;
+use Maatwebsite\Excel\Concerns\SkipsFailures;
+use Maatwebsite\Excel\Concerns\SkipsOnError;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Concerns\WithStartRow;
+use Maatwebsite\Excel\Events\AfterImport;
+use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Events\ImportFailed;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 
-class StudentImport implements ToCollection, WithHeadingRow, WithValidation, WithMultipleSheets, WithChunkReading, ShouldQueue, WithEvents
+class StudentImport extends ToCollectionImport implements SkipsOnFailure
+, SkipsOnError
+, SkipsEmptyRows
+, WithValidation
+, WithStartRow
+, WithHeadingRow
+, WithChunkReading
+, WithBatchInserts
+, ShouldQueue
+, WithEvents
+, WithMultipleSheets
 {
     /**
      * @param Collection $collection
      */
 
-    use Importable;
-    use StandardizePhoneNumberTrait;
-    use CheckExistingClientImport;
-    use CreateCustomPrimaryKeyTrait;
-    use LoggingTrait;
-    use SyncClientTrait;
+    use Importable, SkipsErrors, SkipsFailures, RegistersEventListeners, CreateCustomPrimaryKeyTrait, LoggingTrait, SyncClientTrait, StandardizePhoneNumberTrait, CheckExistingClientImport;
 
-    public $importedBy;
-
-    public function __construct($importedBy)
+    public static function beforeImport(BeforeImport $event)
     {
-        $this->importedBy = $importedBy;
+        $totalRow = $event->getReader()->getTotalRows();
+        Cache::put('isStartImport', true);
+        
+        $progress = [
+            'import_id' => Cache::get('import_id'),
+            'import_name' => 'student import',
+            'user_id' => Cache::get('auth')->id,
+            'isStart' => true,
+            'isFinish' => false,
+            'total_row' => reset($totalRow) - 1
+        ];
+
+        event(new \App\Events\MessageSent($progress, 'progress-import'));
+
+    }
+
+    public static function afterImport(AfterImport $event)
+    {
+        $auth = Cache::has('auth') ? Cache::pull('auth')->id : null;
+        $import_id = Cache::has('import_id') ? Cache::pull('import_id') : null;
+        Cache::forget('isStartImport');
+        $totalRow = $event->getReader()->getTotalRows();
+
+        $progress = [
+            'import_id' => $import_id,
+            'import_name' => 'student import',
+            'user_id' => $auth,
+            'isStart' => false,
+            'isFinish' => true,
+            'total_row' => reset($totalRow) - 1,
+            'total_error' => !empty(self::$allFailures) ? count(self::$allFailures) : 0
+        ];
+        
+        $info = [];
+        if (!empty(self::$allFailures)) {
+            foreach (self::$allFailures->toArray() as $row => $error) {
+                foreach ($error as $e) {
+                    Log::warning($e);
+                    $info[] = [
+                        'message' => $e
+                    ];
+                }
+            }
+            $info['user_id'] = $auth;
+        
+        }
+
+        $info['progress'] = $progress; 
+        event(new \App\Events\MessageSent($info, 'validation-import'));
     }
 
     public function sheets(): array
@@ -65,7 +127,16 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
         ];
     }
 
-    public function collection(Collection $rows)
+    /**
+     * skip heading row and start next row.
+     * @return int
+     */
+    public function startRow(): int
+    {
+        return 2;
+    }
+
+    public function processImport(Collection $rows)
     {
 
         $logDetails = $childIds = $parentIds = []; 
@@ -139,7 +210,6 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
                 if (isset($row['parents_name'])) {
                     // $this->createParentsIfNotExists($row['parents_name'], $parentPhone, $student);
                     $checkExistParent = $this->checkExistClientRelation('student', $student, $row['parents_name']);
-                    Log::debug($checkExistParent);
                     if($checkExistParent['isExist'] && $checkExistParent['client'] != null){
                         $parent = $checkExistParent['client'];
                     }else if(!$checkExistParent['isExist']){
@@ -195,7 +265,9 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
             Log::error('Import student failed : ' . $e->getMessage() . $e->getLine());
         }
 
-        $this->logSuccess('store', 'Import Student', 'Student', $this->importedBy->first_name . ' ' . $this->importedBy->last_name, $logDetails);
+        $auth = Cache::has('auth') ? Cache::get('auth')->first_name . ' ' . Cache::get('auth')->last_name : 'unknown';
+
+        $this->logSuccess('store', 'Import Student', 'Student', $auth, $logDetails);
 
     }
 
@@ -345,22 +417,14 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
         return $data;
     }
 
-    public function registerEvents(): array
-    {
-        return [
-            ImportFailed::class => function(ImportFailed $event) {
-                foreach($event->getException() as $exception){
-                    $validation[] = $exception !== null && gettype($exception) == "object" ? $exception->errors()->toArray() : null;
-                }
-                $validation['user_id'] = $this->importedBy->id;
-                event(new \App\Events\MessageSent($validation, 'validation-import'));
-            },
-        ];
-    }
-    
     public function chunkSize(): int
     {
         return 50;
+    }
+
+    public function batchSize(): int
+    {
+        return 1000;
     }
 
 }

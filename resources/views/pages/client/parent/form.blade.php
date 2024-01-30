@@ -141,7 +141,7 @@
                                 @foreach ($leads as $lead)
                                     <option data-lead="{{ $lead->main_lead }}" value="{{ $lead->lead_id }}"
                                             {{ old('lead_id') == $lead->lead_id ? "selected" : null }}
-                                            {{ isset($student->lead) && $student->lead->lead_id == $lead->lead_id ? "selected" : null }}
+                                            {{ isset($parent->lead) && $parent->lead->lead_id == $lead->lead_id ? "selected" : null }}
                                         >{{ $lead->main_lead }}</option>
                                 @endforeach
                                 {{-- <option value="program">ALL-in Event</option>
@@ -207,12 +207,12 @@
                                 @if (isset($ext_edufair) && count($ext_edufair) > 0)
                                     @foreach ($ext_edufair as $edufair)
                                         <option value="{{ $edufair->id }}"
-                                            @if (isset($teacher_counselor->external_edufair->id))
-                                                {{ $teacher_counselor->external_edufair->id == $edufair->id ? "selected" : null }}
+                                            @if (isset($parent->external_edufair->id))
+                                                {{ $parent->external_edufair->id == $edufair->id ? "selected" : null }}
                                             @else
                                                 {{ old('eduf_id') == $edufair->id ? "selected" : null }}
                                             @endif
-                                            >{{ $edufair->title }}</option>
+                                            >{{ $edufair->organizer_name . ' - ' . date('d M Y', strtotime($edufair->event_start)) }}</option>
                                     @endforeach
                                 @endif
                             </select>

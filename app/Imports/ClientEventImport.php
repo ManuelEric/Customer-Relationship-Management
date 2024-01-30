@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Http\Traits\CheckExistingClient;
+use App\Http\Traits\CheckExistingClientImport;
 use App\Models\ClientEvent;
 use App\Models\Corporate;
 use App\Models\EdufLead;
@@ -47,36 +48,105 @@ use Maatwebsite\Excel\Events\ImportFailed;
 use Maatwebsite\Excel\Validators\Failure;
 use Throwable;
 use App\Notifications\ImportHasFailedNotification;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
+use Maatwebsite\Excel\Concerns\RegistersEventListeners;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Events\AfterImport;
+use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Validators\ValidationException;
 
-class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation, WithChunkReading, ShouldQueue, WithEvents
-
+class ClientEventImport extends ToCollectionImport implements SkipsOnFailure
+, SkipsOnError
+, SkipsEmptyRows
+, WithValidation
+, WithStartRow
+, WithHeadingRow
+, WithChunkReading
+, WithBatchInserts
+, ShouldQueue
+, WithEvents
+, WithMultipleSheets
 {
     /**
      * @param Collection $collection
      */
 
-    use Importable, SkipsErrors, SkipsFailures;
-    use StandardizePhoneNumberTrait;
-    use CreateCustomPrimaryKeyTrait;
-    use CheckExistingClient;
-    use SplitNameTrait;
-    use LoggingTrait;
-    use SyncClientTrait;
+    use Importable, SkipsErrors, SkipsFailures, RegistersEventListeners, CreateCustomPrimaryKeyTrait, LoggingTrait, SyncClientTrait, StandardizePhoneNumberTrait, SplitNameTrait, CheckExistingClientImport;
 
-    private ClientRepositoryInterface $clientRepository;
-    public $importedBy;
-
-    public function __construct(ClientRepositoryInterface $clientRepository, $importedBy)
+    public static function beforeImport(BeforeImport $event)
     {
-        $this->clientRepository = $clientRepository;
-        $this->importedBy = $importedBy;
+        $totalRow = $event->getReader()->getTotalRows();
+        Cache::put('isStartImport', true);
+        
+        $progress = [
+            'import_id' => Cache::get('import_id'),
+            'import_name' => 'client event import',
+            'user_id' => Cache::get('auth')->id,
+            'isStart' => true,
+            'isFinish' => false,
+            'total_row' => reset($totalRow) - 1
+        ];
+
+        event(new \App\Events\MessageSent($progress, 'progress-import'));
+
     }
 
+    public static function afterImport(AfterImport $event)
+    {
+        $auth = Cache::has('auth') ? Cache::pull('auth')->id : null;
+        $import_id = Cache::has('import_id') ? Cache::pull('import_id') : null;
+        Cache::forget('isStartImport');
+        $totalRow = $event->getReader()->getTotalRows();
 
-    public function collection(Collection $rows)
+        $progress = [
+            'import_id' => $import_id,
+            'import_name' => 'client event import',
+            'user_id' => $auth,
+            'isStart' => false,
+            'isFinish' => true,
+            'total_row' => reset($totalRow) - 1,
+            'total_error' => !empty(self::$allFailures) ? count(self::$allFailures) : 0
+        ];
+        
+        $info = [];
+        if (!empty(self::$allFailures)) {
+            foreach (self::$allFailures->toArray() as $row => $error) {
+                foreach ($error as $e) {
+                    Log::warning($e);
+                    $info[] = [
+                        'message' => $e
+                    ];
+                }
+            }
+            $info['user_id'] = $auth;
+        
+        }
+
+        $info['progress'] = $progress; 
+        event(new \App\Events\MessageSent($info, 'validation-import'));
+    }
+
+    public function sheets(): array
+    {
+        return [
+            0 => $this,
+        ];
+    }
+
+     /**
+     * skip heading row and start next row.
+     * @return int
+     */
+    public function startRow(): int
+    {
+        return 2;
+    }
+
+    public function processImport(Collection $rows)
     {
         $data = [];
         $logDetails = $childIds = $parentIds = $teacherIds = [];
@@ -185,9 +255,11 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
             count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent') : null;
             count($teacherIds) > 0 ? ProcessVerifyClientTeacher::dispatch($teacherIds)->onQueue('verifying-client-teacher') : null;
 
+            $auth = Cache::has('auth') ? Cache::get('auth')->first_name . ' ' . Cache::get('auth')->last_name : 'unknown';
+
             # store Success
             # create log success
-            $this->logSuccess('store', 'Import Client Event', 'Client Event', $this->importedBy->first_name . ' ' . $this->importedBy->last_name, $logDetails);
+            $this->logSuccess('store', 'Import Client Event', 'Client Event', $auth, $logDetails);
             
 
             DB::commit();
@@ -195,8 +267,6 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
 
             DB::rollBack();
             Log::error('Import client event failed : ' . $e->getMessage().' | Line '.$e->getLine());
-
-            throw new Exception($e->getMessage(), 500);
 
         }
 
@@ -306,7 +376,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
         switch ($type) {
             case 'main':
                 $phone = $this->setPhoneNumber($row['phone_number']);
-                $existClient = $this->checkExistingClient($phone, $row['email']);
+                $existClient = $this->checkExistingClientImport($phone, $row['email']);
                 $email = $row['email'];
                 $fullname = $row['name'];
                 break;
@@ -314,7 +384,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
             case 'sub':
                 $phone = isset($row['child_parent_phone_number']) ? $this->setPhoneNumber($row['phone_number']) : null;
                 $email = isset($row['child_parent_email']) ? $row['child_parent_email'] : null;
-                $existClient = $this->checkExistingClient($phone, $email);
+                $existClient = $this->checkExistingClientImport($phone, $email);
                 $fullname = $row['child_parent_name'];
 
                 break;
@@ -454,24 +524,14 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation,
        
     }
 
-    public function registerEvents(): array
-    {
-        return [
-            ImportFailed::class => function(ImportFailed $event) {
-                foreach($event->getException() as $exception){
-                    $validation[] = $exception !== null && gettype($exception) == "object" ? $exception->errors()->toArray() : null;
-                }
-                $validation['user_id'] = $this->importedBy->id;
-                event(new \App\Events\MessageSent($validation, 'validation-import'));
-            },
-        ];
-    }
-
     public function chunkSize(): int
     {
         return 50;
     }
 
-    
+    public function batchSize(): int
+    {
+        return 1000;
+    }
 
 }

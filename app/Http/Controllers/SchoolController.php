@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Requests\StoreSchoolRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
+use App\Imports\School\UsersImport;
+use App\Imports\SchoolImport;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\SchoolDetailRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
@@ -20,6 +23,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -288,6 +292,25 @@ class SchoolController extends Controller
         $this->logSuccess('delete', null, 'School', Auth::user()->first_name . ' '. Auth::user()->last_name, $school);
 
         return Redirect::to('instance/school')->withSuccess('School successfully deleted');
+    }
+
+    public function import(StoreImportExcelRequest $request)
+    {
+        Cache::put('auth', Auth::user());
+        Cache::put('import_id', Carbon::now()->timestamp . '-import-school');
+
+        $file = $request->file('file');
+
+        // try {
+            (new SchoolImport())->queue($file)->allOnQueue('imports-school-merge');
+            // Excel::queueImport(new StudentImport(Auth::user()->first_name . ' '. Auth::user()->last_name), $file);
+            // $import = new StudentImport();
+            // $import->import($file);
+        // } catch (Exception $e) {
+        //     return back()->withError('Something went wrong while processing the data. Please try again or contact the administrator.');
+        // }
+
+        return back()->withSuccess('Import school start progress');
     }
 
     function getSchoolData()

@@ -20,6 +20,11 @@ Route::prefix('university')->name('university.')->group(function () {
 });
 
 
+Route::get('school/import/merge', function(){
+    return view('pages.instance.school.import');
+})->name('schoo.import.form');
+Route::post('school/import/merge', [SchoolController::class, 'import'])->name('school.import.merge');
+
 Route::resource('school/raw', SchoolRawController::class, [
     'names' => [
         'index' => 'school.raw.index',

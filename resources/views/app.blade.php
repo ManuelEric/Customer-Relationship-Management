@@ -69,27 +69,67 @@
             cluster: '{{ env("PUSHER_APP_CLUSTER") }}'
         });
 
-        var channel = pusher.subscribe('validation-import');
+        var validationImport = pusher.subscribe('validation-import');
+        var progressImport = pusher.subscribe('progress-import');
         var html = '';
+        var htmlLoading = '';
 
-        channel.bind('my-event', function(data) {
-            // console.log(data.message);
+        htmlLoading += '<div>'
+        htmlLoading += '<span class="spinner-border spinner-border-sm text-black" aria-hidden="true"></span>'
+        htmlLoading += '<span class="ms-2 text-black" role="status">Importing...</span>'
+        htmlLoading += '</div>'
+
+        validationImport.bind('my-event', function(data) {
             if(data.message !== null){
-                Object.entries(data.message).forEach(function([key, messages]){
-                    if(messages !== null && key != 'user_id'){
-                        Object.entries(messages).forEach(([key2, value]) => {
-                            html += `<li class="text-danger">${value}</li>`
-                        });
-                    }
-                });
+                html = '';
+                html += `<h5>${data.message.progress.import_name}</h5>`;
+                html += `<ul>`;
+                html += `<li>Total Imported: ${parseInt(data.message.progress.total_row) - data.message.progress.total_error}</li>`
+                html += `<li>Total error: ${data.message.progress.total_error}</li>`
+                html += `</ul>`
+                
+                if(data.message.progress.total_error > 0){
+                    html += `<h5>Validation</h5>`;
+                    html += `<ul>`;
+                    Object.entries(data.message).forEach(function([key, messages]){
+                        if(messages !== null && key != 'user_id' && key != 'progress'){
+                            Object.entries(messages).forEach(([key2, value]) => {
+                                html += `<li class="text-danger">${value}</li>`
+                            });
+                        }
+                    });
+                    html += `</ul>`
+                }
 
-                if( '{{ Auth::user() != null ? Auth::user()->id : null }}' == data.message.user_id ){
+                if( '{{ Auth::user() != null ? Auth::user()->id : null }}' == data.message.progress.user_id ){
                     $("#modal-validation-import").modal('show');
-                    $('#list-validation').html(html);
+                    $('#content-import-information').html(html);
+                    $('#loading-import').html('');
                 }
             }
         });
 
+        progressImport.bind('my-event', function(data) {
+            html = ''
+
+            html += '<h3>Import Done</h3>';
+
+            html += `<li>Total Imported: ${parseInt(data.message.total_row) - data.message.total_error}</li>`
+            html += `<li>Total Error: ${data.message.total_error}</li>`
+
+            if(data.message !== null){
+
+                if( '{{ Auth::user() != null ? Auth::user()->id : null }}' == data.message.user_id ){
+                    if(data.message.isStart == true){
+                        $('#loading-import').html(htmlLoading);
+                    }
+
+                }
+            }
+          
+        });
+
+              
     </script>
     @stack('styles')
 </head>
@@ -107,14 +147,12 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="m-0 p-0">
-                        Validation Import
+                    <h4 class="m-0 p-0" id="title-modal-import">
+                        Import Information
                     </h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <ul id="list-validation">
-                    </ul>
+                <div class="modal-body" id="content-import-information">
                 </div>
             </div>
         </div>
@@ -150,6 +188,22 @@
 
         // for redirect to login page after session expired
         $(document).ready(function() {
+
+            var htmlLoading = '';
+
+            htmlLoading += '<div>'
+            htmlLoading += '<span class="spinner-border spinner-border-sm text-black" aria-hidden="true"></span>'
+            htmlLoading += '<span class="ms-2 text-black" role="status">Importing...</span>'
+            htmlLoading += '</div>'
+
+            @php
+                $authImport = Cache::has("auth") ? Cache::get("auth") : null;
+                $isStart = Cache::has("isStartImport") ? Cache::get("isStartImport") : null;
+            @endphp
+            @if (($authImport != null && $isStart != null && Auth::user() != null) && (Auth::user()->id == $authImport['id']) && ($isStart))
+                $('#loading-import').html(htmlLoading);
+            @endif
+            
             $.fn.dataTable.ext.errMode = function(settings, helpPage, message) {
 
                 if (settings && settings.jqXHR && settings.jqXHR.status == 401) {

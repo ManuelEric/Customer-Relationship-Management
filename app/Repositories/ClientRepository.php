@@ -699,6 +699,8 @@ class ClientRepository implements ClientRepositoryInterface
                     where('clt.status', 1)->
                     groupBy('clt.client_id')
             )->
+            isNotSalesAdmin()->
+            isUsingAPI()->
             isVerified();
 
         return $model;
