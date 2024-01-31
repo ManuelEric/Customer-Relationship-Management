@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Interfaces\ClientProgramRepositoryInterface;
+use App\Interfaces\SalesTargetRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 
@@ -10,10 +11,12 @@ class SalesTrackingController extends Controller
 {
     
     protected ClientProgramRepositoryInterface $clientProgramRepository;
+    protected SalesTargetRepositoryInterface $salesTargetRepository;
 
-    public function __construct(ClientProgramRepositoryInterface $clientProgramRepository)
+    public function __construct(ClientProgramRepositoryInterface $clientProgramRepository, SalesTargetRepositoryInterface $salesTargetRepository)
     {
         $this->clientProgramRepository = $clientProgramRepository;
+        $this->salesTargetRepository = $salesTargetRepository;
     }
 
     public function index(Request $request)
@@ -48,6 +51,8 @@ class SalesTrackingController extends Controller
         $leadSource = $this->clientProgramRepository->getLeadSource($dateDetails);
         $conversionLead = $this->clientProgramRepository->getConversionLead($dateDetails);
         $averageConversionSuccessful = $this->clientProgramRepository->getConversionTimeSuccessfulPrograms($dateDetails);
+        
+        $salesDetail = $this->salesTargetRepository->getSalesDetailFromClientProgram(null, ['qdate' => date('Y-m')]);
 
         return view('pages.report.sales-tracking.index')->with(
             [
@@ -57,7 +62,8 @@ class SalesTrackingController extends Controller
                 'leadSource' => $leadSource,
                 'dateDetails' => $dateDetails,
                 'conversionLead' => $conversionLead,
-                'averageConversionSuccessful' => $averageConversionSuccessful
+                'averageConversionSuccessful' => $averageConversionSuccessful,
+                'salesDetail' => $salesDetail,
             ]
         );
     }

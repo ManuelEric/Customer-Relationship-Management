@@ -165,7 +165,7 @@
                                             @forelse ($external_edufair as $edufair)
                                                 <option value="{{ $edufair->id }}"
                                                     @if (old('eduf_id') == $edufair->id) {{ 'selected' }}
-                                                    @elseif (isset($clientProgram) && $clientProgram->eduf_lead_id)
+                                                    @elseif (isset($clientProgram) && ($clientProgram->eduf_lead_id == $edufair->id))
                                                         {{ 'selected' }} @endif>
                                                     @if ($edufair->title != null)
                                                         {{ $edufair->title }}

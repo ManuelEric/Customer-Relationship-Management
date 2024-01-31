@@ -765,7 +765,8 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             ->whereNull('tbl_invb2b.schprog_id')
             ->get();
 
-        $partnerProg  = PartnerProg::leftJoin('tbl_invb2b', 'tbl_invb2b.partnerprog_id', '=', 'tbl_partner_prog.id')
+        $partnerProg  = PartnerProg::doesnthave('invoiceB2b')
+            ->leftJoin('tbl_invb2b', 'tbl_invb2b.partnerprog_id', '=', 'tbl_partner_prog.id')
             ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')
             ->leftJoin('users', 'users.id', '=', 'tbl_partner_prog.empl_id')
@@ -779,10 +780,12 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
 
             )
             ->where('tbl_partner_prog.status', 1)->whereNull('tbl_invb2b.partnerprog_id')
-            ->whereYear('tbl_partner_prog.success_date', '=', $year)
-            ->orWhereYear('tbl_partner_prog.created_at', '=', $year)
-            ->whereMonth('tbl_partner_prog.success_date', '=', $month)
-            ->orWhereMonth('tbl_partner_prog.created_at', '=', $month)
+            ->when(isset($year), function ($q) use($year, $month){
+                $q->whereYear('tbl_partner_prog.success_date', '=', $year)
+                ->orWhereYear('tbl_partner_prog.created_at', '=', $year)
+                ->whereMonth('tbl_partner_prog.success_date', '=', $month)
+                ->orWhereMonth('tbl_partner_prog.created_at', '=', $month);
+            })
             ->get();
 
         $referral  = Referral::leftJoin('tbl_invb2b', 'tbl_invb2b.ref_id', '=', 'tbl_referral.id')
