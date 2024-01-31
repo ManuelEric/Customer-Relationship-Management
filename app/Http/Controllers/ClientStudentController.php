@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\StoreNewSchoolException;
 use App\Exports\StudentTemplate;
 use App\Http\Controllers\Module\ClientController;
+use App\Http\Requests\AddParentRequest;
 use App\Http\Requests\StoreClientRawRequest;
 use App\Http\Requests\StoreClientRawStudentRequest;
 use App\Http\Requests\StoreClientStudentRequest;
@@ -1965,9 +1966,7 @@ class ClientStudentController extends ClientController
     {
         $studentId = $request->route('student');
 
-        $request->validate([
-            'interest_program' => 'required|exists:tbl_prog,prog_id',
-        ]);
+     
 
         DB::beginTransaction();
         try {
@@ -2011,6 +2010,77 @@ class ClientStudentController extends ClientController
         $this->logSuccess('delete', null, 'Interest Program', Auth::user()->first_name . ' ' . Auth::user()->last_name, ['client_id' => $studentId]);
 
         return Redirect::to('client/student/' . $studentId)->withSuccess('interest program successfully removed.');
+    }
+
+    public function addParent(AddParentRequest $request)
+    {
+        $studentId = $request->route('student');
+
+        $parentDetails = $request->only([
+            'existing_parent',
+            'pr_id',
+            'first_name',
+            'last_name',
+            'mail',
+            'phone'
+        ]);
+
+        $parentDetails['phone'] = $this->setPhoneNumber($request->phone);
+
+        DB::beginTransaction();
+        try {
+
+            # Parent Existing
+            if($parentDetails['existing_parent'] == 1) {
+
+                $this->clientRepository->createManyClientRelation($parentDetails['pr_id'], [$studentId]);
+
+            } else { 
+                unset($parentDetails['existing_parent']);
+                unset($parentDetails['pr_id']);
+
+                $newParent = $this->clientRepository->createClient('Parent', $parentDetails);
+
+                $this->clientRepository->createManyClientRelation($newParent->id, [$studentId]);
+
+            }
+
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Add parent failed : ' . $e->getMessage() . ' ' . $e->getLine());
+            return Redirect::to('client/student/' . $studentId)->withError('Parent failed to be added.');
+        }
+
+        # Add interest program success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Add Parent', Auth::user()->first_name . ' ' . Auth::user()->last_name, $request->all());
+        return Redirect::to('client/student/' . $studentId)->withSuccess('Parent successfully added.');
+    }
+
+    public function disconnectParent(Request $request)
+    {
+        $studentId = $request->route('student');
+        $parentId = $request->route('parent');
+
+        DB::beginTransaction();
+        try {
+
+            $this->clientRepository->removeClientRelation($parentId, $studentId);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Disconnect parent failed : ' . $e->getMessage() . ' ' . $e->getLine());
+            return Redirect::to('client/student/' . $studentId)->withError('failed to be diconnect parent.');
+        }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'relation parent', Auth::user()->first_name . ' ' . Auth::user()->last_name, ['client_id' => $studentId]);
+
+        return Redirect::to('client/student/' . $studentId)->withSuccess('Successfully disconnect parent.');
     }
 
     public function cleaningData(Request $request)

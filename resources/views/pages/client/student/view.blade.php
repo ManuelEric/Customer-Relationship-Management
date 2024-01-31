@@ -279,6 +279,11 @@
                 placeholder: "Select value",
                 allowClear: true
             });
+            $('.modal-select3').select2({
+                dropdownParent: $('#addParent .modal-content'),
+                placeholder: "Select value",
+                allowClear: true
+            });
         });
     </script>
 @endsection
