@@ -1603,6 +1603,7 @@ class ClientStudentController extends ClientController
         $majors = $this->majorRepository->getAllMajors();
 
         $listReferral = $this->clientRepository->getAllClients();
+        return $listReferral;
 
         return view('pages.client.student.form')->with(
             [
