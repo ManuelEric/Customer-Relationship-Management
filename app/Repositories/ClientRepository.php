@@ -40,14 +40,17 @@ class ClientRepository implements ClientRepositoryInterface
     public function __construct(RoleRepositoryInterface $roleRepository)
     {
         $this->roleRepository = $roleRepository;
-        $this->ALUMNI_IDS = $this->getAlumnis();
-        $this->potentialClients = $this->getPotentialClients()->pluck('id')->toArray();
-        $this->existingMentees = $this->getExistingMentees()->pluck('id')->toArray();
+        // $this->ALUMNI_IDS = $this->getAlumnis();
     }
 
-    public function getAllClients()
+    public function getAllClients($selectColumns = [])
     {
-        return UserClient::dependsOnPIC()->get();
+        $query = UserClient::dependsOnPIC();
+        if ($selectColumns)
+            $query->select($selectColumns);
+
+            
+        return $query->get();
     }
 
     public function getAllClientsFromViewTable()
@@ -272,9 +275,6 @@ class ClientRepository implements ClientRepositoryInterface
             selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
             leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
             leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
-            where(function ($q) {
-                
-            })->
             doesntHave('clientProgram')->
             when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
@@ -413,7 +413,7 @@ class ClientRepository implements ClientRepositoryInterface
                     });
                 });
             })->
-            whereNotIn('client.id', $this->potentialClients)->
+            whereNotIn('client.id', $this->getPotentialClients()->pluck('id')->toArray())->
             when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {
@@ -483,7 +483,7 @@ class ClientRepository implements ClientRepositoryInterface
                     });
                 });
             })->
-            whereNotIn('client.id', $this->existingMentees)->
+            whereNotIn('client.id', $this->getExistingMentees()->pluck('id')->toArray())->
             when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {

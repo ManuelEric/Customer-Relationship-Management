@@ -611,7 +611,7 @@
                             <div class="col-md-9">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <select name="empl_id" id="internal-pic" class="select w-100" {{ !$disabled && Session::get('user_role') == 'Employee' ? 'disabled' : '' }}>
+                                        <select name="empl_id" id="internal-pic" class="select w-100" {{ $disabled ?? (!$disabled && Session::get('user_role') == 'Employee' ? 'disabled' : '') }}>
                                             <option data-placeholder="true"></option>
                                             @foreach ($internalPIC as $pic)
                                                 <option value="{{ $pic->id }}"

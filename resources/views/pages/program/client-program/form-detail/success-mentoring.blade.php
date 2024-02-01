@@ -94,7 +94,13 @@
                     <div class="col-md-12">
                         <small>Agreement <sup class="text-danger">*</sup></small>
                         @if (isset($clientProgram->agreement))
-                            <a target="_blank" ="{{ url('/') }}/storage/uploaded_file/agreement/{{ $clientProgram->agreement }}">{{ $clientProgram->agreement }}</a>
+                        <div class="form-control form-control-sm">
+                            <input type="file" name="agreement" class="form-control form-control-sm d-none" id="agreementFile">
+                            <div class="d-flex justify-content-between align-items-center" id="agreementView">
+                                <a target="_blank" href="{{ url('/') }}/storage/uploaded_file/agreement/{{ $clientProgram->agreement }}">{{ $clientProgram->agreement }}</a>
+                                <button type="button" class="btn btn-danger btn-sm" id="showUploadInput" {{ $disabled }}><i class="bi bi-upload"></i></button>
+                            </div>
+                        </div>
                         @else
                             <input type="file" name="agreement" class="form-control form-control-sm" id="agreementFile" {{ $disabled }} />
                             @error('agreement')
@@ -115,4 +121,9 @@
         let tot = tot_usd * kurs
         $('#tot_idr').val(tot)
     }
+
+    $("#showUploadInput").on('click', function () {
+        $("#agreementFile").removeClass('d-none');
+        $("#agreementView").addClass('d-none');
+    })
 </script>

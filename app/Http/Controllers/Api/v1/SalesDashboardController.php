@@ -1024,7 +1024,7 @@ class SalesDashboardController extends Controller
                     <td><b>' . $salesDetail->sum('total_actual_participant') . '</b></td>
                     <td><b>' . number_format($salesDetail->sum('total_actual_amount'), '2', ',', '.') . '</b></td>
                     <td><b>' . ($salesDetail->sum('total_target_participant') != 0 ?  round(($salesDetail->sum('total_actual_participant') / $salesDetail->sum('total_target_participant')) * 100, 2) : 0) . '%</b></td>
-                    <td><b>' . ($salesDetail->sum('total_target_amount') != 0 ? ($salesDetail->sum('total_actual_amount') / $salesDetail->sum('total_target_amount')) * 100 : 0) . '%</b></td>
+                    <td><b>' . ($salesDetail->sum('total_target') != 0 ? ($salesDetail->sum('total_actual_amount') / $salesDetail->sum('total_target')) * 100 : 0) . '%</b></td>
                 </tr>';
 
         return response()->json(

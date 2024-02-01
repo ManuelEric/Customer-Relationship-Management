@@ -29,6 +29,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -189,7 +190,15 @@ class ClientProgramController extends Controller
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
-        $listReferral = $this->clientRepository->getAllClients();
+        if (!Cache::has('list-referral')) {
+            $listReferral = $this->clientRepository->getAllClients(['id', 'first_name', 'last_name']);
+
+            Cache::remember('list_referral', 60, function () use ($listReferral) {
+                return $listReferral;
+            });
+        }
+
+        $listReferral = Cache::get('list-referral');
 
         return view('pages.program.client-program.form')->with(
             [
@@ -275,6 +284,7 @@ class ClientProgramController extends Controller
             return Redirect::back()->withError('The student is no longer active');
 
         $status = $request->status;
+
         $progId = $request->prog_id;
 
         # initialize
@@ -350,7 +360,7 @@ class ClientProgramController extends Controller
                     if ($request->hasFile('agreement')) {
 
                         # setting up the agreement request file
-                        $file_name = "agreement_".$request->success_date;
+                        $file_name = "agreement_".str_replace(' ', '_', trim($student->full_name))."_".$progId;
                         $file_format = $request->file('agreement')->getClientOriginalExtension();
                         
                         # generate the file path
@@ -434,7 +444,6 @@ class ClientProgramController extends Controller
             $newClientProgram = $this->clientProgramRepository->createClientProgram(['client_id' => $studentId] + $clientProgramDetails);
             $newClientProgramId = $newClientProgram->clientprog_id;
             $newClientProgramSuccessDate = $newClientProgram->success_date;
-            $convertNewClientProgramSuccessDate = date('Ymd', strtotime($newClientProgramSuccessDate));
 
             # check the status of the new client program
             switch ($clientProgramDetails['status']) {
@@ -461,12 +470,12 @@ class ClientProgramController extends Controller
 
                         # upload the agreement
                         # storing the file
-                        if (!$request->file('agreement')->storeAs('public/uploaded_file/agreement', $file_name . '.' . $file_format))
+                        if (!$request->file('agreement')->storeAs('public/uploaded_file/agreement', $file_path))
                             throw new Exception('The file cannot be uploaded.');
 
                         
                         # update the path into clientprogram table
-                        $this->clientProgramRepository->updateClientProgram($newClientProgramId, ['agreement' => $file_path]);
+                        $this->clientProgramRepository->updateFewField($newClientProgramId, ['agreement' => $file_path]);
 
                     }
 
@@ -498,7 +507,7 @@ class ClientProgramController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Create a student program failed : ' . $e->getMessage());
+            Log::error('Create a student program failed : ' . $e->getMessage().' on '.$e->getFile().' line '.$e->getLine());
 
 
             # if failed storing the data into the database
@@ -507,7 +516,7 @@ class ClientProgramController extends Controller
                 Storage::delete('public/uploaded_file/agreement/'.$file_path);
             }
 
-            return Redirect::back()->withError($e->getMessage());
+            return Redirect::back()->withError('Failed to store a new program.');
         }
 
         # store Success
@@ -545,8 +554,15 @@ class ClientProgramController extends Controller
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
-        $listReferral = $this->clientRepository->getAllClients();
-        // $listReferral = null;
+        if (!Cache::has('list-referral')) {
+            $listReferral = $this->clientRepository->getAllClients();
+
+            Cache::remember('list_referral', 60, function () use ($listReferral) {
+                return $listReferral;
+            });
+        }
+
+        $listReferral = Cache::get('list-referral');
 
         return view('pages.program.client-program.form')->with(
             [
@@ -684,7 +700,7 @@ class ClientProgramController extends Controller
                      if ($request->hasFile('agreement')) {
 
                         # setting up the agreement request file
-                        $file_name = "agreement_".$request->success_date;
+                        $file_name = "agreement_".str_replace(' ', '_', trim($student->full_name))."_".$progId;
                         $file_format = $request->file('agreement')->getClientOriginalExtension();
                         
                         # generate the file path
@@ -797,9 +813,16 @@ class ClientProgramController extends Controller
                         # upload the agreement
                         # storing the file
                         if ($request->hasFile('agreement')) {
-                            if (!$request->file('agreement')->storeAs('public/uploaded_file/agreement', $file_name . '.' . $file_format))
+                            if (!$request->file('agreement')->storeAs('public/uploaded_file/agreement', $file_path))
                                 throw new Exception('The file cannot be uploaded.');
-    
+                            
+                            if ($old_agreement = $updatedClientProgram->agreement) {
+
+                                if (Storage::exists('public/uploaded_file/agreement/'.$old_agreement) && $file_path !== null) {
+                                    Storage::delete('public/uploaded_file/agreement/'.$old_agreement);
+                                }
+
+                            }
                             
                             # update the path into clientprogram table
                             $this->clientProgramRepository->updateFewField($updatedClientProgramId, ['agreement' => $file_path]);
