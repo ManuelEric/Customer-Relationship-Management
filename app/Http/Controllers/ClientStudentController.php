@@ -1423,11 +1423,11 @@ class ClientStudentController extends ClientController
 
             # case 2
             # create new user client as parents
-            if ($data['studentDetails']['pr_id'] !== NULL) {
+            // if ($data['studentDetails']['pr_id'] !== NULL) {
 
-                if (!$parentId = $this->createParentsIfAddNew($data['parentDetails'], $data['studentDetails']))
-                    throw new Exception('Failed to store new parent', 2);
-            }
+            //     if (!$parentId = $this->createParentsIfAddNew($data['parentDetails'], $data['studentDetails']))
+            //         throw new Exception('Failed to store new parent', 2);
+            // }
 
             # case 3
             # create new user client as student
@@ -1441,11 +1441,11 @@ class ClientStudentController extends ClientController
             # if they didn't insert parents which parentId = NULL
             # then assumed that register for student only
             # so no need to create parent children relation
-            if ($parentId !== NULL && $data['studentDetails']['pr_id'] !== NULL) {
+            // if ($parentId !== NULL && $data['studentDetails']['pr_id'] !== NULL) {
 
-                if (!$this->clientRepository->createClientRelation($parentId, $newStudentId))
-                    throw new Exception('Failed to store relation between student and parent', 4);
-            }
+            //     if (!$this->clientRepository->createClientRelation($parentId, $newStudentId))
+            //         throw new Exception('Failed to store relation between student and parent', 4);
+            // }
 
             # case 5
             # create interested program

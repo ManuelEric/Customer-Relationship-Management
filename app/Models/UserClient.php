@@ -100,6 +100,13 @@ class UserClient extends Authenticatable
         );
     }
 
+    protected function gradeNow(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getGradeNowFromView($this->id)
+        );
+    }
+
     protected function graduationYearReal(): Attribute
     {
         return Attribute::make(
@@ -223,6 +230,11 @@ class UserClient extends Authenticatable
     public function getGraduationYearFromView($id)
     {
         return DB::table('client')->find($id)->graduation_year_real ?? null;
+    }
+
+    public function getGradeNowFromView($id)
+    {
+        return DB::table('client')->find($id)->grade_now ?? null;
     }
 
     public function getParticipatedFromView($id)

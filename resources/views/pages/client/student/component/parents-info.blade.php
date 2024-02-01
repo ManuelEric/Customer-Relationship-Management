@@ -7,7 +7,7 @@
         </div>
     </div>
     <div class="card-body" style="overflow: auto;">
-        @if (isset($student->parents))
+        @if ($student->parents()->count() > 0)
             <table class="table table-bordered" id="list-parent">
                 <thead>
                     <tr class="text-center">

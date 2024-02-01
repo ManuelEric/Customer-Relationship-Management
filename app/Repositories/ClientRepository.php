@@ -40,9 +40,9 @@ class ClientRepository implements ClientRepositoryInterface
     public function __construct(RoleRepositoryInterface $roleRepository)
     {
         $this->roleRepository = $roleRepository;
-        $this->ALUMNI_IDS = $this->getAlumnis();
-        $this->potentialClients = $this->getPotentialClients()->pluck('id')->toArray();
-        $this->existingMentees = $this->getExistingMentees()->pluck('id')->toArray();
+        // $this->ALUMNI_IDS = $this->getAlumnis();
+        // $this->potentialClients = $this->getPotentialClients()->pluck('id')->toArray();
+        // $this->existingMentees = $this->getExistingMentees()->pluck('id')->toArray();
     }
 
     public function getAllClients()
@@ -413,7 +413,7 @@ class ClientRepository implements ClientRepositoryInterface
                     });
                 });
             })->
-            whereNotIn('client.id', $this->potentialClients)->
+            whereNotIn('client.id', $this->getPotentialClients()->pluck('id')->toArray())->
             when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {
@@ -483,7 +483,7 @@ class ClientRepository implements ClientRepositoryInterface
                     });
                 });
             })->
-            whereNotIn('client.id', $this->existingMentees)->
+            whereNotIn('client.id', $this->getExistingMentees()->pluck('id')->toArray())->
             when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {
@@ -875,33 +875,34 @@ class ClientRepository implements ClientRepositoryInterface
             ->make(true);
     }
 
-    public function getAlumnis()
-    {
-        return UserClient::whereHas('clientProgram', function ($q2) {
-            $q2->whereIn('prog_running_status', [2]);
-        })->withCount([
-            'clientProgram as client_program_count' => function ($query) {
-                $query->whereIn('prog_running_status', [0, 1, 2])->whereHas('program', function ($q2) {
-                    $q2->whereHas('main_prog', function ($q3) {
-                        $q3->where('prog_name', 'Admissions Mentoring');
-                    });
-                });
-            },
-            'clientProgram as client_program_finish_count' => function ($query) {
-                $query->where('prog_running_status', 2)->whereHas('program', function ($q2) {
-                    $q2->whereHas('main_prog', function ($q3) {
-                        $q3->where('prog_name', 'Admissions Mentoring');
-                    });
-                });
-            }
-        ])->havingRaw('client_program_count = client_program_finish_count')->pluck('tbl_client.id')->toArray();
-    }
+    // public function getAlumnis()
+    // {
+    //     return UserClient::whereHas('clientProgram', function ($q2) {
+    //         $q2->whereIn('prog_running_status', [2]);
+    //     })->withCount([
+    //         'clientProgram as client_program_count' => function ($query) {
+    //             $query->whereIn('prog_running_status', [0, 1, 2])->whereHas('program', function ($q2) {
+    //                 $q2->whereHas('main_prog', function ($q3) {
+    //                     $q3->where('prog_name', 'Admissions Mentoring');
+    //                 });
+    //             });
+    //         },
+    //         'clientProgram as client_program_finish_count' => function ($query) {
+    //             $query->where('prog_running_status', 2)->whereHas('program', function ($q2) {
+    //                 $q2->whereHas('main_prog', function ($q3) {
+    //                     $q3->where('prog_name', 'Admissions Mentoring');
+    //                 });
+    //             });
+    //         }
+    //     ])->havingRaw('client_program_count = client_program_finish_count')->pluck('tbl_client.id')->toArray();
+    // }
 
     public function getMenteesDataTables()
     {
         $roleName = "mentee";
 
-        $query = Client::whereNotIn('id', $this->ALUMNI_IDS)->whereHas('roles', function ($query2) use ($roleName) {
+        // $query = Client::whereNotIn('id', $this->ALUMNI_IDS)->whereHas('roles', function ($query2) use ($roleName) {
+        $query = Client::whereHas('roles', function ($query2) use ($roleName) {
             $query2->where('role_name', $roleName);
         })->orderBy('created_at', 'desc');
 
