@@ -73,7 +73,7 @@
                         action="{{ isset($clientProgram)
                             ? route('student.program.update', ['student' => $student->id, 'program' => $clientProgram->clientprog_id])
                             : route('student.program.store', ['student' => $student->id]) }}"
-                        method="POST">
+                        method="POST" enctype="multipart/form-data">
                         @csrf
                         @if (isset($clientProgram))
                             @method('PUT')
@@ -224,11 +224,13 @@
                                             <option data-placeholder="true"></option>
                                             @if (isset($listReferral) && count($listReferral) > 0)
                                                 @foreach ($listReferral as $referral)
-                                                    <option value="{{ $referral->viewClientRefCode->ref_code }}"
-                                                        @if (old('referral_code') == $referral->viewClientRefCode->ref_code) {{ 'selected' }}
-                                                        @elseif (isset($clientProgram) && $clientProgram->referral_code == $referral->viewClientRefCode->ref_code)
-                                                            {{ 'selected' }} @endif>
-                                                            {{ $referral->full_name }}</option>
+                                                    @if (isset($referral->viewClientRefCode))
+                                                    <option value="{{ $referral->viewClientRefCode->ref_code }}" @selected([
+                                                        old('referral_code') == $referral->viewClientRefCode->ref_code,
+                                                        isset($clientProgram) && $clientProgram->referral_code == $referral->viewClientRefCode->ref_code
+                                                    ])>
+                                                        {{ $referral->full_name }}</option>
+                                                    @endif
                                                 @endforeach
                                             @endif
                                         </select>
@@ -285,15 +287,10 @@
                                         <select name="status" id="program_status" class="select w-100"
                                             onchange="changeProgramStatus()" {{ $disabled }}>
                                             {{-- <option data-placeholder="true" {{ old('status') ?? 'selected' }}></option> --}}
-                                            <option value="0"
-                                                @if (old('status') !== null && old('status') == 0) {{ 'selected' }} @endif>Pending
+                                            <option value="0">Pending
                                             </option>
-                                            <option value="1"
-                                                {{ old('status') !== null && old('status') == 1 ? 'selected' : null }}>
-                                                Success</option>
-                                            <option value="2"
-                                                {{ old('status') !== null && old('status') == 2 ? 'selected' : null }}>
-                                                Failed</option>
+                                            <option value="1">Success</option>
+                                            <option value="2">Failed</option>
                                             @if (isset($clientProgram->invoice->receipt))
                                                 <option value="3"
                                                     {{ old('status') !== null && old('status') == 3 ? 'selected' : null }}>
@@ -614,7 +611,7 @@
                             <div class="col-md-9">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <select name="empl_id" id="internal-pic" class="select w-100" {{ !$disabled && Session::get('user_role') == 'Employee' ? 'disabled' : '' }}>
+                                        <select name="empl_id" id="internal-pic" class="select w-100" {{ $disabled ?? (!$disabled && Session::get('user_role') == 'Employee' ? 'disabled' : '') }}>
                                             <option data-placeholder="true"></option>
                                             @foreach ($internalPIC as $pic)
                                                 <option value="{{ $pic->id }}"
@@ -676,7 +673,7 @@
     }
 
     $("#main_lead").on('change', function() {
-        console.log("A")
+    
         var program = $("#program_name option:selected")
         var lead = $(this).select2().find(":selected").data('lead')
         let programName = program.text()
@@ -880,6 +877,10 @@
 
         @if (isset($clientProgram) && $clientProgram->status !== false)
             $("#program_status").val("{{ $clientProgram->status }}").trigger('change');
+        @endif
+
+        @if (old('status'))
+            $("#program_status").val("{{ old('status') }}").trigger('change');
         @endif
 
         @error('followup_date')

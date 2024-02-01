@@ -528,6 +528,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         return $clientProgram;
     }
 
+    public function updateFewField(int $clientprog_id, array $newCDetails)
+    {
+        return ClientProgram::whereClientProgramId($clientprog_id)->update($newCDetails);
+    }
+
     public function endedClientProgram(int $clientprog_id, array $newDetails)
     {
         return ClientProgram::whereClientProgramId($clientprog_id)->update($newDetails);
