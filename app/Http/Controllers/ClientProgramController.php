@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 
 class ClientProgramController extends Controller
 {
@@ -263,6 +264,8 @@ class ClientProgramController extends Controller
 
     public function store(StoreClientProgramRequest $request)
     {
+        $file_path = null;
+
         # p means program from interested program
         $query = $request->queryP !== NULL ? "?p=" . $request->queryP : null;
 
@@ -324,6 +327,7 @@ class ClientProgramController extends Controller
             case 1:
                 # declare default variable
                 $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
+                $clientProgramDetails['success_date'] = $request->success_date;
 
                 # and submitted prog_id is admission mentoring
                 if (in_array($progId, $this->admission_prog_list)) {
@@ -338,10 +342,22 @@ class ClientProgramController extends Controller
                     $clientProgramDetails['foreign_currency'] = $request->foreign_currency;
                     $clientProgramDetails['foreign_currency_exchange'] = $request->foreign_currency_exchange;
                     $clientProgramDetails['total_idr'] = $request->total_idr;
-                    // $clientProgramDetails['main_mentor'] = $request->main_mentor;
-                    // $clientProgramDetails['backup_mentor'] = $request->backup_mentor;
                     $clientProgramDetails['installment_notes'] = $request->installment_notes;
                     $clientProgramDetails['prog_running_status'] = (int) $request->prog_running_status;
+
+                    
+                    # declare the variables for agreement
+                    if ($request->hasFile('agreement')) {
+
+                        # setting up the agreement request file
+                        $file_name = "agreement_".$request->success_date;
+                        $file_format = $request->file('agreement')->getClientOriginalExtension();
+                        
+                        # generate the file path
+                        $file_path = $file_name.'.'.$file_format;
+
+                    }
+
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
 
                     # add additional values
@@ -416,11 +432,15 @@ class ClientProgramController extends Controller
         try {
 
             $newClientProgram = $this->clientProgramRepository->createClientProgram(['client_id' => $studentId] + $clientProgramDetails);
+            $newClientProgramId = $newClientProgram->clientprog_id;
+            $newClientProgramSuccessDate = $newClientProgram->success_date;
+            $convertNewClientProgramSuccessDate = date('Ymd', strtotime($newClientProgramSuccessDate));
 
+            # check the status of the new client program
             switch ($clientProgramDetails['status']) {
 
-                    # if client program has been submitted 
-                    # then change status client to potential
+                # if client program has been submitted 
+                # then change status client to potential
                 case 0: # pending
 
                     $this->clientRepository->updateClient($studentId, ['st_statuscli' => 1]);
@@ -431,12 +451,23 @@ class ClientProgramController extends Controller
                     # if he/she join admission mentoring program
                     # add role mentee
                     if (in_array($progId, $this->admission_prog_list)) {
+                        
                         $last_id = UserClient::max('st_id');
                         $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
                         $stId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
                         $this->clientRepository->updateClient($studentId, ['st_id' => $stId]);
 
                         $this->clientRepository->addRole($studentId, 'Mentee');
+
+                        # upload the agreement
+                        # storing the file
+                        if (!$request->file('agreement')->storeAs('public/uploaded_file/agreement', $file_name . '.' . $file_format))
+                            throw new Exception('The file cannot be uploaded.');
+
+                        
+                        # update the path into clientprogram table
+                        $this->clientProgramRepository->updateClientProgram($newClientProgramId, ['agreement' => $file_path]);
+
                     }
 
                     # when program running status was 2 which mean done
@@ -468,6 +499,13 @@ class ClientProgramController extends Controller
 
             DB::rollBack();
             Log::error('Create a student program failed : ' . $e->getMessage());
+
+
+            # if failed storing the data into the database
+            # remove the uploaded file from storage
+            if (Storage::exists('public/uploaded_file/agreement/'.$file_path) && $file_path !== null) {
+                Storage::delete('public/uploaded_file/agreement/'.$file_path);
+            }
 
             return Redirect::back()->withError($e->getMessage());
         }
@@ -508,6 +546,7 @@ class ClientProgramController extends Controller
         // $reasons = $this->reasonRepository->getAllReasons();
 
         $listReferral = $this->clientRepository->getAllClients();
+        // $listReferral = null;
 
         return view('pages.program.client-program.form')->with(
             [
@@ -640,6 +679,19 @@ class ClientProgramController extends Controller
                     // $clientProgramDetails['backup_mentor'] = isset($request->backup_mentor) ? $request->backup_mentor : NULL;
                     $clientProgramDetails['installment_notes'] = $request->installment_notes;
                     $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
+
+                     # declare the variables for agreement
+                     if ($request->hasFile('agreement')) {
+
+                        # setting up the agreement request file
+                        $file_name = "agreement_".$request->success_date;
+                        $file_format = $request->file('agreement')->getClientOriginalExtension();
+                        
+                        # generate the file path
+                        $file_path = $file_name.'.'.$file_format;
+
+                    }
+
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
 
                     # add additional values
@@ -712,7 +764,8 @@ class ClientProgramController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->clientProgramRepository->updateClientProgram($clientProgramId, ['client_id' => $studentId] + $clientProgramDetails);
+            $updatedClientProgram = $this->clientProgramRepository->updateClientProgram($clientProgramId, ['client_id' => $studentId] + $clientProgramDetails);
+            $updatedClientProgramId = $updatedClientProgram->clientprog_id;
 
             switch ($clientProgramDetails['status']) {
 
@@ -740,6 +793,17 @@ class ClientProgramController extends Controller
                         $this->clientRepository->updateClient($studentId, ['st_id' => $stId]);
 
                         $this->clientRepository->addRole($studentId, 'Mentee');
+
+                        # upload the agreement
+                        # storing the file
+                        if ($request->hasFile('agreement')) {
+                            if (!$request->file('agreement')->storeAs('public/uploaded_file/agreement', $file_name . '.' . $file_format))
+                                throw new Exception('The file cannot be uploaded.');
+    
+                            
+                            # update the path into clientprogram table
+                            $this->clientProgramRepository->updateFewField($updatedClientProgramId, ['agreement' => $file_path]);
+                        }
                     }
 
                     # when program running status was 2 which mean done
@@ -784,7 +848,14 @@ class ClientProgramController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update a student program failed : ' . $e->getMessage());
+            Log::error('Update a student program failed : ' . $e->getMessage().' on line '.$e->getLine().' '.$e->getFile());
+
+            # if failed storing the data into the database
+            # remove the uploaded file from storage
+            if (Storage::exists('public/uploaded_file/agreement/'.$file_path) && $file_path !== null) {
+                Storage::delete('public/uploaded_file/agreement/'.$file_path);
+            }
+
             return Redirect::back()->withError($e->getMessage());
         }
 

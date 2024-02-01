@@ -73,7 +73,7 @@
                         action="{{ isset($clientProgram)
                             ? route('student.program.update', ['student' => $student->id, 'program' => $clientProgram->clientprog_id])
                             : route('student.program.store', ['student' => $student->id]) }}"
-                        method="POST">
+                        method="POST" enctype="multipart/form-data">
                         @csrf
                         @if (isset($clientProgram))
                             @method('PUT')
@@ -877,6 +877,10 @@
 
         @if (isset($clientProgram) && $clientProgram->status !== false)
             $("#program_status").val("{{ $clientProgram->status }}").trigger('change');
+        @endif
+
+        @if (old('status'))
+            $("#program_status").val("{{ old('status') }}").trigger('change');
         @endif
 
         @error('followup_date')

@@ -91,11 +91,16 @@
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-12">
                         <small>Agreement <sup class="text-danger">*</sup></small>
-                        <div>
-                            <span class="w-100 border-primary">+</span>
-                        </div>
+                        @if (isset($clientProgram->agreement))
+                            <a target="_blank" ="{{ url('/') }}/storage/uploaded_file/agreement/{{ $clientProgram->agreement }}">{{ $clientProgram->agreement }}</a>
+                        @else
+                            <input type="file" name="agreement" class="form-control form-control-sm" id="agreementFile" {{ $disabled }} />
+                            @error('agreement')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
+                        @endif
                     </div>
                 </div>
             </div>
