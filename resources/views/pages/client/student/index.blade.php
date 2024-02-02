@@ -202,6 +202,8 @@
                         <th>Graduation Year</th>
                         <th>Grade</th>
                         <th>Instagram</th>
+                        <th>State/Region</th>
+                        <th>City</th>
                         <th>Location</th>
                         <th>Lead</th>
                         <th>Referral From</th>
@@ -661,6 +663,14 @@
                     {
                         data: 'insta',
                         className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'state',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'city',
                         defaultContent: '-'
                     },
                     {
