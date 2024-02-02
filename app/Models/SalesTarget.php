@@ -21,6 +21,7 @@ class SalesTarget extends Model
      * @var array
      */
     protected $fillable = [
+        'main_prog_id',
         'prog_id',
         'sub_prog_id',
         'month_year',

@@ -25,26 +25,28 @@ class CorporateRepository implements CorporateRepositoryInterface
         $year = date('Y', strtotime($monthYear));
         $month = date('m', strtotime($monthYear));
 
-        $query = Corporate::query();
+        $query = Corporate::when(!empty($type), function ($q) use ($type)
+                {
+                    if($type != 'list'){
+                        $q->select(DB::raw("count(*) as corp_count"));
+                    }else{
+                        $q->select('*');
+                    }
+                });
 
         if ($type == 'all') {
-            $query->whereYear('created_at', '<=', $year)
-                ->whereMonth('created_at', '<=', $month);
+            $query->where(DB::raw("year(created_at)"), '<=', $year)
+                ->where(DB::raw("month(created_at)"), '<=', $month);
         } else {
-            $query->whereYear('created_at', '=', $year)
-                ->whereMonth('created_at', '=', $month);
+            $query->where(DB::raw("year(created_at)"), '=', $year)
+                ->where(DB::raw("month(created_at)"), '=', $month);
         }
 
-        switch ($type) {
-            case 'all':
-                return $query->count();
-                break;
-            case 'monthly':
-                return $query->count();
-                break;
-            case 'list':
-                return $query->get();
-                break;
+
+        if ($type != 'list'){
+            return $query->pluck('corp_count')->toArray()[0];
+        }else{
+            return $query->get();
         }
     }
 

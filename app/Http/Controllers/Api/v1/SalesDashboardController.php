@@ -981,7 +981,6 @@ class SalesDashboardController extends Controller
 
         $programId = null; # means all programs
         $salesTarget = $this->salesTargetRepository->getMonthlySalesTarget($programId, $cp_filter);
-        Log::debug(json_encode($salesTarget));
 
         $salesActual = $this->salesTargetRepository->getMonthlySalesActual($programId, $cp_filter);
 
@@ -1006,7 +1005,7 @@ class SalesDashboardController extends Controller
 
             $html .= '<tr class="text-center">
                     <td>' . $no++ . '</td>
-                    <td>' . $detail->prog_id . '</td>
+                    <td>' . (isset($detail->prog_id) ? $detail->prog_id : '-') . '</td>
                     <td class="text-start">' . $detail->program_name_sales . '</td>
                     <td>' . $target_student . '</td>
                     <td>' . number_format($detail->total_target, '2', ',', '.') . '</td>
