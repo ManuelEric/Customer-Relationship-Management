@@ -6,7 +6,7 @@ use App\Models\UserClient;
 
 interface ClientRepositoryInterface
 {
-    public function getAllClients();
+    public function getAllClients(array $selectColumns = []);
     public function getAllClientsFromViewTable();
 
     public function getAllClientDataTables();

@@ -67,6 +67,7 @@ class ClientProgram extends Model
         'session_tutor',
         'registration_type',
         'referral_code',
+        'agreement',
         'created_at',
         'updated_at'
     ];
@@ -110,8 +111,8 @@ class ClientProgram extends Model
 
     public function getReferralNameFromRefCodeView($refCode)
     {
-        // return ViewClientRefCode::whereRaw('ref_code COLLATE utf8mb4_unicode_ci = (?)', $refCode)->first()->full_name;
-        return ViewClientRefCode::whereRaw('ref_code = (?)', $refCode)->first()->full_name;
+        return ViewClientRefCode::whereRaw('ref_code COLLATE utf8mb4_unicode_ci = (?)', $refCode)->first()->full_name;
+        // return ViewClientRefCode::whereRaw('ref_code = (?)', $refCode)->first()->full_name;
     }
 
     public function client()
