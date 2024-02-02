@@ -59,7 +59,7 @@
                                     @foreach ($salesDetail as $detail)
                                         <tr class="text-center">
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $detail->prog_id }}</td>
+                                            <td>{{ isset($detail->prog_id) ? $detail->prog_id : '-' }}</td>
                                             <td class="text-start">{{ $detail->program_name_sales }}</td>
                                             <td>{{ $detail->total_target_participant ??= 0 }}</td>
                                             <td>{{ number_format($detail->total_target_amount, '2', ',', '.') }}</td>

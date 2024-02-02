@@ -52,18 +52,31 @@
                         @csrf
                         <div class="put"></div>
                         <div class="row g-2">
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <div class="mb-2">
                                     <label for="">
-                                        Program Name <sup class="text-danger">*</sup>
+                                        Main Program <sup class="text-danger">*</sup>
+                                    </label>
+                                    <select name="main_prog_id" id="main_prog" class="modal-select w-100">
+                                        <option data-placeholder="true"></option>
+                                        @foreach ($mainPrograms as $mainProgram)
+                                            <option value="{{ $mainProgram->id }}"
+                                                {{ $mainProgram->id == old('main_prog_id') ? 'selected' : '' }}>
+                                                {{ $mainProgram->prog_name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('main_prog_id')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2 d-none prog-name-cont">
+                                    <label for="">
+                                        Program Name
                                     </label>
                                     <select name="prog_id" id="prog_id" class="modal-select w-100">
-                                        <option data-placeholder="true"></option>
-                                        @foreach ($programs as $program)
-                                            <option value="{{ $program->prog_id }}"
-                                                {{ $program->prog_id == old('prog_id') ? 'selected' : '' }}>
-                                                {{ $program->program_name }}</option>
-                                        @endforeach
+                                        <option value=""></option>
                                     </select>
                                     @error('prog_id')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -76,7 +89,7 @@
                                         Participants Target <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="number" name="total_participant" id="total_participant"
-                                        class="form-control form-control-sm rounded" required
+                                        class="form-control form-control-sm rounded" 
                                         value="{{ old('total_participant') }}">
                                     @error('total_participant')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -89,7 +102,7 @@
                                         Total Amount Target <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="number" name="total_target" id="total_target"
-                                        class="form-control form-control-sm rounded" required
+                                        class="form-control form-control-sm rounded" 
                                         value="{{ old('total_target') }}">
                                     @error('total_target')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -102,7 +115,7 @@
                                         Month <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="month" name="month_year" id="month_year"
-                                        class="form-control form-control-sm rounded" required
+                                        class="form-control form-control-sm rounded" 
                                         value="{{ old('month_year') }}">
                                     @error('month_year')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -132,10 +145,16 @@
                 placeholder: "Select value",
                 allowClear: true
             });
+            @if(!empty(old('main_prog_id')))
+                $("#main_prog").select2().val("{{ old('main_prog_id') }}").trigger('change')
+            @endif
         });
 
         $(document).ready(function() {
+            var progId = null;
+
             var table = $('#salesTargetTable').DataTable({
+                // order: [[5, 'desc'], [6, 'desc']],
                 dom: 'Bfrtip',
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
@@ -252,12 +271,14 @@
 
                     // handle success
                     let data = response.data
-                    // console.log(data.prog_id)
+                    progId = data.prog_id;
+                    // console.log(data)
 
                     $('#total_participant').val(data.total_participant)
                     $('#total_target').val(data.total_target)
                     $('#month_year').val(data.month_year)
-                    $('#prog_id').val(data.prog_id).trigger('change')
+                    $('#main_prog').val(data.main_prog_id).trigger('change')
+                    // $('#prog_id').val(data.prog_id).trigger('change')
                     let html =
                         '@method('put')' +
                         '<input type="hidden" name="id" value="' + data.id + '">'
@@ -271,12 +292,58 @@
                     console.error(error);
                 })
         }
+        
+
+        $("#main_prog").on('change', function() {
+        showLoading();
+
+        var mainProgId = $(this).val();
+        if (mainProgId == "") {
+            
+            $(".prog-name-cont").addClass('d-none');
+            $("#prog_id").html('<option></option>');
+            swal.close();
+            return;
+        }
+        
+
+        var baseUrl = "{{ url('/') }}/api/get/program/main/" + mainProgId;
+
+        axios.get(baseUrl)
+            .then(function (response) {
+                let obj = response.data;
+                var html = '<option data-placeholder="true"></option>'
+                
+                for (var key in obj.data) {
+                    var selected = '';
+                    if('{{ !empty(old("prog_id")) }}' && '{{ old("prog_id") }}' === obj.data[key].prog_id)
+                        selected = "selected";
+
+                    if(progId !== null && (progId == obj.data[key].prog_id))
+                        selected = "selected";
+                    
+                    html += "<option value='" + obj.data[key].prog_id + "' " + selected +">" + obj.data[key].prog_program + "</option>"
+                    
+                        
+
+                }
+
+                $("#prog_id").html(html)
+                $(".prog-name-cont").removeClass('d-none');
+                swal.close();
+
+            })
+            .catch(function (error) {
+                console.log(error)
+            })
+    });
     </script>
 
     @if (
-        $errors->has('prog_id') |
-            $errors->has('total_target') |
-            $errors->has('total_participant') |
+        $errors->has('prog_id') ||
+            $errors->has('total_target') ||
+            $errors->has('total_participant') ||
+            $errors->has('main_prog_id') ||
             $errors->has('month_year'))
         <script>
             $(document).ready(function() {

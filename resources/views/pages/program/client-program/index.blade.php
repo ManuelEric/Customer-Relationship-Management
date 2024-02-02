@@ -32,6 +32,17 @@
                     </div>
                     <div class="row p-3">
                         <div class="col-md-12 mb-2">
+                            <label for="">Main Program</label>
+                            <select name="main_program[]" class="select form-select form-select-sm w-100" multiple
+                                id="main-program">
+                                @foreach ($mainPrograms as $mainProgram)
+                                    <option value="{{ $mainProgram->main_prog_id }}"
+                                        @if ($request->get('main_program') !== null && in_array($mainProgram->main_prog_name, $request->get('main_program'))) {{ 'selected' }} @endif>
+                                        {{ $mainProgram->main_prog_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-2">
                             <label for="">Program Name</label>
                             <select name="program_name[]" class="select form-select form-select-sm w-100" multiple
                                 id="program-name">
@@ -218,6 +229,14 @@
             table.button(1).disable();
         @endif
 
+        @if ($request->get('main_program') !== null)
+            var main_program = new Array();
+            @foreach ($request->get('main_program') as $key => $val)
+                main_program.push("{{ $val }}")
+            @endforeach
+            $("#main-program").val(main_program).trigger('change')
+        @endif
+        
         @if ($request->get('program_name') !== null)
             var program_name = new Array();
             @foreach ($request->get('program_name') as $key => $val)

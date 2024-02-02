@@ -6,6 +6,7 @@ interface ClientProgramRepositoryInterface
 {
     public function getAllClientProgramDataTables($searchQuery);
     public function getAllProgramOnClientProgram();
+    public function getAllMainProgramOnClientProgram();
     public function getAllConversionLeadOnClientProgram();
     public function getAllMentorTutorOnClientProgram();
     public function getAllPICOnClientProgram();

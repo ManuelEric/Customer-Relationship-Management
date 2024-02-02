@@ -42,6 +42,8 @@ return new class extends Migration
             CONCAT(parent.first_name, " ", COALESCE(parent.last_name, "")) as parent_fullname,
             parent.phone as parent_phone,
             parent.mail as parent_mail,
+            p.main_prog_id,
+            p.main_prog_name,
             p.program_name,
             (CASE WHEN cp.status = 0 THEN "Pending"
                 WHEN cp.status = 1 THEN "Success"

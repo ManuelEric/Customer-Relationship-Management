@@ -99,6 +99,7 @@ class ClientProgramController extends Controller
 
         $data['clientId'] = NULL;
         $data['programName'] = !empty($request->get('program_name')) ? array_filter($request->get('program_name'), fn ($value) => !is_null($value)) ?? null : null;
+        $data['mainProgram'] = !empty($request->get('main_program')) ? array_filter($request->get('main_program'), fn ($value) => !is_null($value)) ?? null : null;
         $data['schoolName'] = $request->get('school_name') ?? null;
         $data['leadId'] = $request->get('conversion_lead') ?? null;
         $data['grade'] = $request->get('grade') ?? null;
@@ -136,6 +137,7 @@ class ClientProgramController extends Controller
 
         # advanced filter data
         $programs = $this->clientProgramRepository->getAllProgramOnClientProgram();
+        $mainPrograms = $this->clientProgramRepository->getAllMainProgramOnClientProgram();
         $schools = $this->schoolRepository->getAllSchools();
         $conversion_leads = $this->clientProgramRepository->getAllConversionLeadOnClientProgram();
         $mentor_tutors = $this->clientProgramRepository->getAllMentorTutorOnClientProgram();
@@ -144,6 +146,7 @@ class ClientProgramController extends Controller
         return view('pages.program.client-program.index')->with(
             [
                 'programs' => $programs,
+                'mainPrograms' => $mainPrograms,
                 'schools' => $schools,
                 'conversion_leads' => $conversion_leads,
                 'mentor_tutors' => $mentor_tutors,
