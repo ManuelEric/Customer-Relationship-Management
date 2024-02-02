@@ -89,7 +89,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9 col-8">
-                            {{ $viewStudent->grade_now <= 12 ? $viewStudent->grade_now : 'Not High School' }}
+                            {{ $student->grade_now <= 12 ? $student->grade_now : 'Not High School' }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
@@ -276,6 +276,11 @@
             });
             $('.modal-select').select2({
                 dropdownParent: $('#modalPICclient .modal-content'),
+                placeholder: "Select value",
+                allowClear: true
+            });
+            $('.modal-select3').select2({
+                dropdownParent: $('#addParent .modal-content'),
                 placeholder: "Select value",
                 allowClear: true
             });

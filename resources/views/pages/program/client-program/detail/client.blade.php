@@ -135,63 +135,33 @@
         <div id="parentInfo" class="accordion-collapse collapse show">
             <div class="accordion-body p-2">
                 <div class="card">
-                    <div class="card-body">
-                        @if ($student->parents()->count() > 0)
-                            <div class="row mb-2 g-1">
-                                <div class="col d-flex justify-content-between">
-                                    <label>
-                                        Parents Name
-                                    </label>
-                                    <label>:</label>
-                                </div>
-                                <div class="col-md-8 col-8">
-                                    {{ $student->parents()->first()->fullname }}
-                                </div>
-                            </div>
-                            <div class="row mb-2 g-1">
-                                <div class="col d-flex justify-content-between">
-                                    <label>
-                                        Parents Email
-                                    </label>
-                                    <label>:</label>
-                                </div>
-                                <div class="col-md-8 col-8">
-                                    {{ $student->parents()->first()->mail }}
-                                </div>
-                            </div>
-                            <div class="row mb-2 g-1">
-                                <div class="col d-flex justify-content-between">
-                                    <label>
-                                        Parents Phone
-                                    </label>
-                                    <label>:</label>
-                                </div>
-                                <div class="col-md-8 col-8">
-                                    {{ $student->parents()->first()->phone }}
-                                </div>
-                            </div>
+                    <div class="card-body" style="overflow: auto;">
+                        @if($student->parents()->count() > 0)
+                            <table class="table table-bordered" id="list-parent">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th>No</th>
+                                        <th>Full Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php
+                                        $no = 1;
+                                    @endphp
+                                    @foreach ($student->parents as $parent)
+                                        <tr align="center">
+                                            <td>{{ $no++ }}</td>
+                                            <td>{{ $parent->fullname }}</td>
+                                            <td>{{ $parent->mail }}</td>
+                                            <td>{{ $parent->phone }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         @else
-                            <div class="row mb-2 g-1">
-                                <div class="col-md justify-content-between">
-                                    <label for="">There's no parent information.</label><br>
-                                    <span>Input parent information <a href="
-                                        @php
-                                            $link = '';
-                                        @endphp
-                                        @if (isset($student))
-                                            @php
-                                                $link = route('parent.create').'?child='.$student->id;
-                                            @endphp
-                                        @endif
-                                        
-                                        @if (isset($clientProgram))
-                                            @php
-                                                $link .= "&client_prog=".$clientProgram->clientprog_id;
-                                            @endphp
-                                        @endif
-                                        {{ $link }}">here</a></span>
-                                </div>
-                            </div>
+                            There's no parent information yet    
                         @endif
                     </div>
                 </div>

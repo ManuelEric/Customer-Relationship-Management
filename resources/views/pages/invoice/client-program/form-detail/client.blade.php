@@ -123,10 +123,34 @@
         <div id="parentInfo" class="accordion-collapse collapse show">
             <div class="accordion-body p-2">
                 <div class="card">
-                    <div class="card-body">
+                    <div class="card-body" style="overflow: auto;">
                         
                         @if ($clientProg->client->parents()->count() > 0)
-                            @foreach($clientProg->client->parents as $parent)
+                            <table class="table table-bordered" id="list-parent">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th>No</th>
+                                        <th>Full Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php
+                                        $no = 1;
+                                    @endphp
+                                    @foreach ($clientProg->client->parents as $parent)
+                                        <tr align="center">
+                                            <td>{{ $no++ }}</td>
+                                            <td>{{ $parent->fullname }}</td>
+                                            <td>{{ $parent->mail }}</td>
+                                            <td>{{ $parent->phone }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+
+                            {{-- @foreach($clientProg->client->parents as $parent)
                             <div class="row mb-2 g-1">
                                 <div class="col-md-4 d-flex justify-content-between">
                                     <label>
@@ -160,7 +184,7 @@
                                     {{ $parent->phone }}
                                 </div>
                             </div>
-                            @endforeach
+                            @endforeach --}}
                         @else
                             No parents data
                         @endif

@@ -59,6 +59,8 @@ Route::prefix('student')->name('student.')->group(function () {
     Route::post('{student}/lead_status', [ClientStudentController::class, 'updateLeadStatus'])->name('update.lead.status');
     Route::post('{student}/interest_program', [ClientStudentController::class, 'addInterestProgram'])->name('add.interest.program');
     Route::delete('{student}/interest_program/{interest_program}/{prog}', [ClientStudentController::class, 'removeInterestProgram'])->name('remove.interest.program');
+    Route::post('{student}/parent', [ClientStudentController::class, 'addParent'])->name('add.parent');
+    Route::delete('{student}/parent/{parent}', [ClientStudentController::class, 'disconnectParent'])->name('disconnect.parent');
 
     Route::resource('{student}/program', ClientProgramController::class);
     Route::prefix('{student}/program')->name('program.')->group(function () {
@@ -99,6 +101,7 @@ Route::get('parent/raw',  [ClientParentController::class, 'indexRaw']);
 Route::get('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'cleaningData']);
 Route::post('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'convertData'])->name('client.convert.parent');
 Route::delete('parent/raw/{rawclient_id}', [ClientParentController::class, 'destroyRaw']);
+Route::delete('parent/{parent}/student/{student}', [ClientParentController::class, 'disconnectStudent'])->name('disconnect.student');
 
 Route::get('parent/inactive', [ClientParentController::class, 'index']);
 
