@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSalesTargetRequest;
 use App\Http\Traits\LoggingTrait;
+use App\Interfaces\MainProgRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SalesTargetRepositoryInterface;
 use Carbon\Carbon;
@@ -15,17 +16,21 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
+use function PHPUnit\Framework\returnSelf;
+
 class SalesTargetController extends Controller
 {
 
     use LoggingTrait;
     protected SalesTargetRepositoryInterface $salesTargetRepository;
     protected ProgramRepositoryInterface $programRepository;
+    protected MainProgRepositoryInterface $mainProgRepository;
 
-    public function __construct(SalesTargetRepositoryInterface $salesTargetRepository, ProgramRepositoryInterface $programRepository)
+    public function __construct(SalesTargetRepositoryInterface $salesTargetRepository, ProgramRepositoryInterface $programRepository, MainProgRepositoryInterface $mainProgRepository)
     {
         $this->salesTargetRepository = $salesTargetRepository;
         $this->programRepository = $programRepository;
+        $this->mainProgRepository = $mainProgRepository;
     }
 
     public function index(Request $request)
@@ -38,9 +43,13 @@ class SalesTargetController extends Controller
         # retrieve program data
         $programs = $this->programRepository->getAllPrograms();
 
+        $mainPrograms = $this->mainProgRepository->getAllMainProg();
+
+
         return view('pages.master.sales-target.index')->with(
             [
                 'programs' => $programs,
+                'mainPrograms' => $mainPrograms,
             ]
         );
     }
@@ -49,6 +58,7 @@ class SalesTargetController extends Controller
     public function store(StoreSalesTargetRequest $request)
     {
         $salesTargets = $request->only([
+            'main_prog_id',
             'prog_id',
             'total_participant',
             'total_target',
@@ -84,6 +94,7 @@ class SalesTargetController extends Controller
     public function update(StoreSalesTargetRequest $request)
     {
         $salesTargets = $request->only([
+            'main_prog_id',
             'prog_id',
             'total_participant',
             'total_target',

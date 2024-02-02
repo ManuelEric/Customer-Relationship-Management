@@ -35,18 +35,18 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
         }
 
         return SalesTarget::
-            leftJoin('tbl_client_prog', 'tbl_sales_target.prog_id', '=', 'tbl_client_prog.prog_id')->
-            leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')->
+            leftJoin('clientprogram', DB::raw('(CASE WHEN tbl_sales_target.prog_id is null THEN tbl_sales_target.main_prog_id ELSE tbl_sales_target.prog_id END)'), '=', DB::raw('(CASE WHEN tbl_sales_target.prog_id is null THEN clientprogram.main_prog_id ELSE clientprogram.prog_id END)'))->
+            leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')->
             when($programId, function ($query) use ($programId) {
             $query->where('prog_id', $programId);
         })->when($userId, function ($query) use ($userId) {
-            $query->where('tbl_client_prog.empl_id', $userId);
+            $query->where('clientprogram.empl_id', $userId);
         })->when($filter['qdate'], function ($query) use ($filter) {
-            $query->whereMonth('tbl_client_prog.success_date', date('m', strtotime($filter['qdate'])))->whereYear('tbl_client_prog.success_date', date('Y', strtotime($filter['qdate'])));
+            $query->whereMonth('clientprogram.success_date', date('m', strtotime($filter['qdate'])))->whereYear('clientprogram.success_date', date('Y', strtotime($filter['qdate'])));
         })->when($filter['qdate'], function ($query) use ($filter) {
             $query->whereMonth('month_year', date('m', strtotime($filter['qdate'])))->whereYear('month_year', date('Y', strtotime($filter['qdate'])));
         })->when(isset($filter['quuid']), function ($q) use ($userId) {
-            $q->where('tbl_client_prog.empl_id', $userId);
+            $q->where('clientprogram.empl_id', $userId);
         })->select([
             DB::raw('COUNT(*) as total_participant'),
             DB::raw('SUM(tbl_inv.inv_totalprice_idr) as total_target')
@@ -66,35 +66,28 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
         $usingUuid = $userId ? true : false;
 
         return SalesTarget::
-        leftJoin('tbl_prog as cp_p', 'cp_p.prog_id', '=', 'tbl_sales_target.prog_id')->
-        leftJoin('tbl_client_prog', 'cp_p.prog_id', '=', 'tbl_client_prog.prog_id')->
-        leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')->
+        leftJoin('tbl_prog as cp_p', DB::raw('(CASE WHEN tbl_sales_target.prog_id is null THEN cp_p.main_prog_id ELSE cp_p.prog_id END)'), '=', DB::raw('(CASE WHEN tbl_sales_target.prog_id is null THEN tbl_sales_target.main_prog_id ELSE tbl_sales_target.prog_id END)'))->
+        leftJoin('clientprogram', DB::raw('(CASE WHEN tbl_sales_target.prog_id is null THEN cp_p.main_prog_id ELSE cp_p.prog_id END)'), '=', DB::raw('(CASE WHEN tbl_sales_target.prog_id is null THEN clientprogram.main_prog_id ELSE clientprogram.prog_id END)'))->
+        leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')->
         leftJoin('tbl_main_prog as cp_mp', 'cp_mp.id', '=', 'cp_p.main_prog_id')->
         when($usingProgramId, function ($query) use ($programId) {
             $query->where('prog_id', $programId);
-        })->
-        when($usingFilterDate, function ($query) use ($filter) {
-            $query->where(function ($q) use ($filter) {
-                $q->whereMonth('tbl_client_prog.success_date', date('m', strtotime($filter['qdate'])))->whereYear('tbl_client_prog.success_date', date('Y', strtotime($filter['qdate'])));
-            })->orWhere(function ($q) use ($filter) {
-                $q->whereMonth('tbl_sales_target.month_year', date('m', strtotime($filter['qdate'])))->whereYear('tbl_sales_target.month_year', date('Y', strtotime($filter['qdate'])));
-            });
-        })->
-        when($usingUuid, function ($q) use ($userId) {
-            $q->where('tbl_client_prog.empl_id', $userId);
-        })->
-        select([
-            'cp_p.prog_id',
-            DB::raw('CONCAT(cp_mp.prog_name, ": ", cp_p.prog_program) as program_name_sales'),
-            DB::raw('(SELECT SUM(total_participant) FROM tbl_sales_target WHERE tbl_sales_target.prog_id = cp_p.prog_id AND MONTH(month_year) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(month_year) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_target_participant'),
-            DB::raw('(SELECT SUM(total_target) FROM tbl_sales_target WHERE tbl_sales_target.prog_id = cp_p.prog_id AND MONTH(month_year) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(month_year) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_target'),
-            DB::raw('(SELECT COUNT(*) FROM tbl_client_prog as q_cp WHERE q_cp.prog_id = cp_p.prog_id AND MONTH(q_cp.success_date) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(q_cp.success_date) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_actual_participant'),
-            DB::raw('(SELECT SUM(q_i.inv_totalprice_idr) FROM tbl_client_prog as q_cp LEFT JOIN tbl_inv q_i ON q_i.clientprog_id = q_cp.clientprog_id WHERE q_cp.prog_id = cp_p.prog_id AND MONTH(q_cp.success_date) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(q_cp.success_date) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_actual_amount'),
-        ])->
-        groupBy('cp_p.prog_id')->
-        get();
-    }
+        })->when($usingFilterDate, function ($query) use ($filter) {
+            $query->whereMonth('tbl_sales_target.month_year', date('m', strtotime($filter['qdate'])))->whereYear('tbl_sales_target.month_year', date('Y', strtotime($filter['qdate'])));
+        })->when($usingUuid, function ($q) use ($userId) {
+            $q->where('clientprogram.empl_id', $userId);
+        })->select([
+            'tbl_sales_target.prog_id',
+            'tbl_sales_target.main_prog_id',
+            DB::raw('(CASE WHEN tbl_sales_target.prog_id is null THEN cp_mp.prog_name ELSE CONCAT(cp_mp.prog_name, ": ", cp_p.prog_program) END) as program_name_sales'),
+            DB::raw('(SELECT SUM(total_participant) FROM tbl_sales_target WHERE (CASE WHEN tbl_sales_target.prog_id is null THEN tbl_sales_target.main_prog_id = cp_p.main_prog_id ELSE tbl_sales_target.prog_id = cp_p.prog_id END) AND MONTH(month_year) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(month_year) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_target_participant'),
+            DB::raw('(SELECT SUM(total_target) FROM tbl_sales_target WHERE (CASE WHEN tbl_sales_target.prog_id is null THEN tbl_sales_target.main_prog_id = cp_p.main_prog_id ELSE tbl_sales_target.prog_id = cp_p.prog_id END) AND MONTH(month_year) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(month_year) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_target'),
+            DB::raw('(SELECT COUNT(*) FROM clientprogram as q_cp WHERE (CASE WHEN tbl_sales_target.prog_id is null THEN q_cp.main_prog_id = tbl_sales_target.main_prog_id ELSE q_cp.prog_id = cp_p.prog_id END) AND MONTH(q_cp.success_date) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(q_cp.success_date) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_actual_participant'),
+            DB::raw('(SELECT SUM(q_i.inv_totalprice_idr) FROM clientprogram as q_cp LEFT JOIN tbl_inv q_i ON q_i.clientprog_id = q_cp.clientprog_id WHERE (CASE WHEN tbl_sales_target.prog_id is null THEN q_cp.main_prog_id = tbl_sales_target.main_prog_id ELSE q_cp.prog_id = cp_p.prog_id END) AND MONTH(q_cp.success_date) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(q_cp.success_date) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_actual_amount'),
+        ])->groupBy(DB::raw('(CASE WHEN tbl_sales_target.prog_id is null THEN tbl_sales_target.main_prog_id ELSE tbl_sales_target.prog_id END)'))->get();
 
+    }
+   
     public function getSalesDetailFromClientProgram($programId, $filter)
     {
         $userId = null;
@@ -131,18 +124,22 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
                 DB::raw('(SELECT SUM(total_target) FROM tbl_sales_target WHERE tbl_sales_target.prog_id = cp_p.prog_id AND MONTH(month_year) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(month_year) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_target'),
                 DB::raw('(SELECT COUNT(*) FROM tbl_client_prog as q_cp WHERE q_cp.prog_id = cp_p.prog_id AND MONTH(q_cp.success_date) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(q_cp.success_date) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_actual_participant'),
                 DB::raw('(SELECT SUM(q_i.inv_totalprice_idr) FROM tbl_client_prog as q_cp LEFT JOIN tbl_inv q_i ON q_i.clientprog_id = q_cp.clientprog_id WHERE q_cp.prog_id = cp_p.prog_id AND MONTH(q_cp.success_date) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(q_cp.success_date) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_actual_amount'),
-            ])->
-            groupBy('cp_p.prog_id', DB::raw('CONCAT(cp_mp.prog_name, ": ", cp_p.prog_program)'))->get();
+            ])->groupBy('cp_p.prog_id', DB::raw('CONCAT(cp_mp.prog_name, ": ", cp_p.prog_program)'))->get();
     }
 
     public function getAllSalesTargetDataTables()
     {
         return datatables::eloquent(
-            SalesTarget::leftJoin('program', 'program.prog_id', '=', 'tbl_sales_target.prog_id')->select(
+            SalesTarget::leftJoin('program', 'program.prog_id', '=', 'tbl_sales_target.prog_id')->
+                    leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_sales_target.main_prog_id')->
+                select(
                 'tbl_sales_target.id',
                 'tbl_sales_target.total_participant',
                 'tbl_sales_target.total_target',
-                'program.program_name',
+                DB::raw('(CASE
+                            WHEN tbl_sales_target.prog_id is null THEN tbl_main_prog.prog_name
+                            ELSE program.program_name
+                        END) AS program_name'),
                 DB::raw('YEAR(tbl_sales_target.month_year) AS year'),
                 DB::raw('MONTHNAME(tbl_sales_target.month_year) AS month'),
             )
@@ -163,12 +160,17 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
                 'program_name',
                 function ($query, $keyword) {
                     $sql = '(CASE
-                        WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(COALESCE(tbl_sub_prog.sub_prog_name COLLATE utf8mb4_unicode_ci, "")," - ",tbl_prog.prog_program COLLATE utf8mb4_unicode_ci)
-                        ELSE tbl_prog.prog_program
+                        WHEN tbl_sales_target.prog_id is null THEN tbl_main_prog.prog_name
+                        ELSE program.program_name
                     END) like ? ';
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 }
             )->make(true);
+    }
+
+    public function getAllSalesTarget()
+    {
+        return SalesTarget::all();
     }
 
     public function getSalesTargetById($salesTargetId)

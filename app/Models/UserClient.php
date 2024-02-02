@@ -100,6 +100,13 @@ class UserClient extends Authenticatable
         );
     }
 
+    protected function gradeNow(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getGradeNowFromView($this->id)
+        );
+    }
+
     protected function graduationYearReal(): Attribute
     {
         return Attribute::make(
@@ -124,22 +131,41 @@ class UserClient extends Authenticatable
     # Scopes
     public function scopeIsVerified($query)
     {
-        return $query->where('is_verified', 'Y');
+        return $query->where('tbl_client.is_verified', 'Y');
     }
 
     public function scopeIsNotVerified($query)
     {
-        return $query->where('is_verified', 'N');
+        return $query->where('tbl_client.is_verified', 'N');
     }
 
     public function scopeIsActive($query)
     {
-        return $query->where('st_statusact', 1);
+        return $query->where('tbl_client.st_statusact', 1);
     }
 
     public function scopeIsNotActive($query)
     {
-        return $query->where('st_statusact', 0);
+        return $query->where('tbl_client.st_statusact', 0);
+    }
+
+    public function scopeIsNotSalesAdmin($query)
+    {
+        return $query->when(Session::get('user_role') == 'Employee', function ($subQuery) {
+            $subQuery->whereHas('handledBy', function ($subQuery_2) {
+                $subQuery_2->where('id', auth()->user()->id);
+            });
+            // $subQuery->where('tbl_client.pic_id', auth()->user()->id);
+        });
+    }
+
+    public function scopeIsUsingAPI($query)
+    {
+        return $query->when(auth()->guard('api')->user(), function ($subQuery) {
+            $subQuery->whereHas('handledBy', function ($subQuery_2) {
+                $subQuery_2->where('users.id', auth()->guard('api')->user()->id);
+            });
+        });
     }
 
     public function scopeIsStudent($query)
@@ -223,6 +249,11 @@ class UserClient extends Authenticatable
     public function getGraduationYearFromView($id)
     {
         return DB::table('client')->find($id)->graduation_year_real ?? null;
+    }
+
+    public function getGradeNowFromView($id)
+    {
+        return DB::table('client')->find($id)->grade_now ?? null;
     }
 
     public function getParticipatedFromView($id)

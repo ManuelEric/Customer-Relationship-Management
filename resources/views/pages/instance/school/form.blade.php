@@ -418,6 +418,9 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @php
+                                    $max = 0;
+                                @endphp
                                 @foreach ($aliases as $alias)
                                     @php
                                         $max = $loop->iteration;
@@ -432,7 +435,7 @@
                                         </td>
                                     </tr>
 
-                                    @if ($aliases->count() == $loop->iteration)
+                                @endforeach
                                     <tr>
                                         <td>{{ $max + 1 }}</td>
                                         <td>
@@ -450,11 +453,9 @@
                                             </button>
                                         </td>
                                     </tr>
-                                    @endif
-                                @endforeach
                             </tbody>
                         </table>
-
+                        
                         <div class="col-md-12 mt-2">
                             <div class="d-flex justify-content-between">
                                 <button type="button" class="btn btn-sm btn-outline-danger rounded-3"

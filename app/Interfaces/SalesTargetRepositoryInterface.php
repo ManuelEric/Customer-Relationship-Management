@@ -9,6 +9,7 @@ interface SalesTargetRepositoryInterface
     public function getSalesDetail($programId, $filter);
     public function getSalesDetailFromClientProgram($programId, $filter);
     public function getAllSalesTargetDataTables();
+    public function getAllSalesTarget();
     public function getSalesTargetById($salesTargetId);
     public function deleteSalesTarget($salesTargetId);
     public function createSalesTarget(array $salesTargets);

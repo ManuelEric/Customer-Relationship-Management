@@ -48,8 +48,7 @@ return new class extends Migration
                     from tbl_client
                     LEFT JOIN tbl_client_roles ON tbl_client_roles.client_id = tbl_client.id  
                     WHERE (tbl_client.is_verified = "Y"
-                        AND tbl_client_roles.role_id = role_id
-                        AND tbl_client.deleted_at is null) 
+                        AND tbl_client_roles.role_id = role_id) 
                         AND (first_name like fname COLLATE utf8mb4_unicode_ci
                         OR first_name like mname COLLATE utf8mb4_unicode_ci
                         OR first_name like lname COLLATE utf8mb4_unicode_ci

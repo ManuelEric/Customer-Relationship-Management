@@ -37,6 +37,11 @@ class ProgramRepository implements ProgramRepositoryInterface
         return Program::all();
     }
 
+    public function getProgramsByMainProg($mainProgId)
+    {
+        return Program::where('main_prog_id', $mainProgId)->get();
+    }
+
     public function getAllProgramByType($type, $active = null)
     {
         return Program::
@@ -151,6 +156,14 @@ class ProgramRepository implements ProgramRepositoryInterface
             # update
             $detail->save();
         }
+    }
+
+    # API
+    public function getProgramNameByMainProgId($mainProgId)
+    {
+        return Program::whereHas('main_prog', function ($query) use ($mainProgId) {
+            $query->where('tbl_main_prog.id', $mainProgId);
+        })->get();
     }
 
     # CRM

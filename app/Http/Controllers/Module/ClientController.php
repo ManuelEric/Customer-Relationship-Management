@@ -147,25 +147,26 @@ class ClientController extends Controller
                 }
 
                 # initiate variable parent details
-                $parentDetails = [
-                    'first_name' => $request->pr_firstname,
-                    'last_name' => $request->pr_lastname,
-                    'mail' => $request->pr_mail,
-                    'phone' => $this->setPhoneNumber($request->pr_phone),
-                    'state' => $studentDetails['state'],
-                    'city' => $studentDetails['city'],
-                    'postal_code' => $studentDetails['postal_code'],
-                    'address' => $studentDetails['address'],
-                    'lead_id' => $studentDetails['lead_id'],
-                    'eduf_id' => $studentDetails['eduf_id'],
-                    'event_id' => $studentDetails['event_id'],
-                    'st_levelinterest' => $studentDetails['st_levelinterest'],
-                    'st_note' => $studentDetails['st_note'],
-                    'is_verified' => 'Y',
-                    'referral_code' => $studentDetails['referral_code'],
-                ];
+                // $parentDetails = [
+                //     'first_name' => $request->pr_firstname,
+                //     'last_name' => $request->pr_lastname,
+                //     'mail' => $request->pr_mail,
+                //     'phone' => $this->setPhoneNumber($request->pr_phone),
+                //     'state' => $studentDetails['state'],
+                //     'city' => $studentDetails['city'],
+                //     'postal_code' => $studentDetails['postal_code'],
+                //     'address' => $studentDetails['address'],
+                //     'lead_id' => $studentDetails['lead_id'],
+                //     'eduf_id' => $studentDetails['eduf_id'],
+                //     'event_id' => $studentDetails['event_id'],
+                //     'st_levelinterest' => $studentDetails['st_levelinterest'],
+                //     'st_note' => $studentDetails['st_note'],
+                //     'is_verified' => 'Y',
+                //     'referral_code' => $studentDetails['referral_code'],
+                // ];
 
-                return compact('studentDetails', 'parentDetails');
+                // return compact('studentDetails', 'parentDetails');
+                return compact('studentDetails');
                 break;
 
             case "teacher":

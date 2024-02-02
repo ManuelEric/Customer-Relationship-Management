@@ -745,7 +745,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
         $year = date('Y', strtotime($monthYear));
         $month = date('m', strtotime($monthYear));
 
-        $schProg  = SchoolProgram::leftJoin('tbl_invb2b', 'tbl_invb2b.schprog_id', '=', 'tbl_sch_prog.id')
+        $schProg  = SchoolProgram::doesntHave('invoiceB2b')
             ->leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_sch_prog.sch_id')
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_sch_prog.prog_id')
             ->leftJoin('users', 'users.id', '=', 'tbl_sch_prog.empl_id')
@@ -758,15 +758,18 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 DB::raw("'sch_prog' as type"),
             )
             ->where('tbl_sch_prog.status', 1)
-            ->whereYear('tbl_sch_prog.success_date', '=', $year)
-            ->orWhereYear('tbl_sch_prog.created_at', '=', $year)
-            ->whereMonth('tbl_sch_prog.success_date', '=', $month)
-            ->orWhereMonth('tbl_sch_prog.created_at', '=', $month)
-            ->whereNull('tbl_invb2b.schprog_id')
+            ->when($monthYear != null, function ($query) use ($month, $year){
+                $query->where(function ($query2) use($month, $year){
+                    $query2->where(function ($q) use($month, $year){
+                        $q->whereYear('tbl_sch_prog.success_date', '=', $year)->whereMonth('tbl_sch_prog.success_date', '=', $month);
+                    })->orWhere(function ($q) use ($month, $year){
+                        $q->whereYear('tbl_sch_prog.created_at', '=', $year)->whereMonth('tbl_sch_prog.created_at', '=', $month);
+                    });
+                });
+            })
             ->get();
 
-        $partnerProg  = PartnerProg::doesnthave('invoiceB2b')
-            ->leftJoin('tbl_invb2b', 'tbl_invb2b.partnerprog_id', '=', 'tbl_partner_prog.id')
+        $partnerProg  = PartnerProg::doesntHave('invoiceB2b')
             ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')
             ->leftJoin('users', 'users.id', '=', 'tbl_partner_prog.empl_id')
@@ -779,16 +782,19 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 DB::raw("'partner_prog' as type"),
 
             )
-            ->where('tbl_partner_prog.status', 1)->whereNull('tbl_invb2b.partnerprog_id')
-            ->when(isset($year), function ($q) use($year, $month){
-                $q->whereYear('tbl_partner_prog.success_date', '=', $year)
-                ->orWhereYear('tbl_partner_prog.created_at', '=', $year)
-                ->whereMonth('tbl_partner_prog.success_date', '=', $month)
-                ->orWhereMonth('tbl_partner_prog.created_at', '=', $month);
+            ->where('tbl_partner_prog.status', 1)
+            ->when($monthYear != null, function ($query) use ($month, $year){
+                $query->where(function ($query2) use($month, $year){
+                    $query2->where(function ($q) use($month, $year){
+                        $q->whereYear('tbl_partner_prog.success_date', '=', $year)->whereMonth('tbl_partner_prog.success_date', '=', $month);
+                    })->orWhere(function ($q) use ($month, $year){
+                        $q->whereYear('tbl_partner_prog.created_at', '=', $year)->whereMonth('tbl_partner_prog.created_at', '=', $month);
+                    });
+                });
             })
             ->get();
 
-        $referral  = Referral::leftJoin('tbl_invb2b', 'tbl_invb2b.ref_id', '=', 'tbl_referral.id')
+        $referral  = Referral::doesntHave('invoice')
             ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
             // ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
             ->leftJoin('users', 'users.id', '=', 'tbl_referral.empl_id')
@@ -800,16 +806,22 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 'tbl_referral.id as client_prog_id',
                 DB::raw("'referral' as type"),
 
-            )->where('tbl_referral.referral_type', 'Out')->whereNull('tbl_invb2b.ref_id')
-            ->whereYear('tbl_referral.ref_date', '=', $year)
-            ->orWhereYear('tbl_referral.created_at', '=', $year)
-            ->whereMonth('tbl_referral.ref_date', '=', $month)
-            ->orWhereMonth('tbl_referral.created_at', '=', $year)
+            )->where('tbl_referral.referral_type', 'Out')
+            ->when($monthYear != null, function ($query) use ($month, $year){
+                $query->where(function ($query2) use($month, $year){
+                    $query2->where(function ($q) use($month, $year){
+                        $q->whereYear('tbl_referral.ref_date', '=', $year)->whereMonth('tbl_referral.ref_date', '=', $month);
+                    })->orWhere(function ($q) use ($month, $year){
+                        $q->whereYear('tbl_referral.created_at', '=', $year)->whereMonth('tbl_referral.created_at', '=', $month);
+                    });
+                });
+            })
             ->get();
 
         $collection = collect($schProg);
         return $collection->merge($partnerProg)->merge($referral);
     }
+
 
     public function getTotalInvoice($monthYear)
     {

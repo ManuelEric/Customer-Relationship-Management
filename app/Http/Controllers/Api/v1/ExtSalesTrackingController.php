@@ -18,7 +18,7 @@ class ExtSalesTrackingController extends Controller
 
     public function getLeadSourceDetail(Request $request)
     {
-        $params = $request->only('leadId', 'leadName', 'startDate', 'endDate');
+        $params = $request->only('leadId', 'leadName', 'startDate', 'endDate', 'subLead', 'mainProgId', 'progId', 'picUUID');
 
         if (!$leadSourceDetail = $this->clientProgramRepository->getLeadSourceDetails($params))
             return response()->json(['success' => false, 'data' => 'No data found.']);
@@ -56,7 +56,7 @@ class ExtSalesTrackingController extends Controller
 
     public function getConversionLeadDetail(Request $request)
     {
-        $params = $request->only('leadId', 'leadName', 'startDate', 'endDate');
+        $params = $request->only('leadId', 'leadName', 'startDate', 'endDate', 'subLead', 'mainProgId', 'progId', 'picUUID');
 
         if (!$conversionLeadDetail = $this->clientProgramRepository->getConversionLeadDetails($params))
             return response()->json(['success' => false, 'data' => 'No data found.']);

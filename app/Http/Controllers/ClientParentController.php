@@ -266,7 +266,7 @@ class ClientParentController extends ClientController
 
         $schools = $this->schoolRepository->getAllSchools();
         $curriculums = $this->curriculumRepository->getAllCurriculums();
-        $childrens = $this->clientRepository->getAllChildrenWithNoParents($parentId);
+        $childrens = $this->clientRepository->getAllClientByRole('Student');
         $leads = $this->leadRepository->getAllMainLead();
         $events = $this->eventRepository->getAllEvents();
         $ext_edufair = $this->edufLeadRepository->getAllEdufairLead();
@@ -536,5 +536,29 @@ class ClientParentController extends ClientController
         $this->logSuccess('delete', null, 'Raw Client', Auth::user()->first_name . ' ' . Auth::user()->last_name, $rawParent);
 
         return Redirect::to('client/parent/raw')->withSuccess('Raw parent successfully deleted');
+    }
+
+    public function disconnectStudent(Request $request)
+    {
+        $studentId = $request->route('student');
+        $parentId = $request->route('parent');
+
+        DB::beginTransaction();
+        try {
+
+            $this->clientRepository->removeClientRelation($parentId, $studentId);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Disconnect children failed : ' . $e->getMessage() . ' ' . $e->getLine());
+            return Redirect::to('client/parent/' . $parentId)->withError('failed to be diconnect children.');
+        }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'relation children', Auth::user()->first_name . ' ' . Auth::user()->last_name, ['client_id' => $studentId]);
+
+        return Redirect::to('client/parent/' . $parentId)->withSuccess('Successfully disconnect children.');
     }
 }

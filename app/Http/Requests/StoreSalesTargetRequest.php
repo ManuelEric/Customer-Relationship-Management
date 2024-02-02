@@ -35,6 +35,7 @@ class StoreSalesTargetRequest extends FormRequest
     {
         return [
             'prog_id' => 'Program Name',
+            'main_prog_id' => 'Main Program',
         ];
     }
 
@@ -44,7 +45,8 @@ class StoreSalesTargetRequest extends FormRequest
         $month_year = $this->input('month_year') . '-01';
 
         return [
-            'prog_id' => 'required|exists:tbl_prog,prog_id',
+            'main_prog_id' => 'required|exists:tbl_main_prog,id',
+            'prog_id' => 'nullable|exists:tbl_prog,prog_id',
             // 'prog_id' => ['required','exists:tbl_prog,prog_id', Rule::unique('tbl_sales_target')->where(function ($query) use ($month_year){
             //     return $query->where('month_year', $month_year);
             // })],

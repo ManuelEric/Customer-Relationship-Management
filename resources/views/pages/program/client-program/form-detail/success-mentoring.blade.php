@@ -78,46 +78,6 @@
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
-                    {{-- <div class="col-md-6 mb-2">
-                        <small>Main Mentor <sup class="text-danger">*</sup></small>
-                        <select name="main_mentor" id="" class="select w-100" {{ $disabled }}>
-                            <option data-placeholder="true"></option>
-                            @foreach ($mentors as $mentor)
-                                <option value="{{ $mentor->id }}"
-                                    @if (old('main_mentor') == $mentor->id)
-                                        {{ "selected" }}
-                                    @elseif (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'asc')->count() > 0)
-                                        @if ($clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'asc')->first()->id == $mentor->id)
-                                            {{ "selected" }}
-                                        @endif
-                                    @endif
-                                    >{{ $mentor->first_name.' '.$mentor->last_name }}</option>
-                            @endforeach
-                        </select>
-                        @error('main_mentor')
-                            <small class="text-danger fw-light">{{ $message }}</small>
-                        @enderror
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <small>Backup Mentor</small>
-                        <select name="backup_mentor" id="" class="select w-100" {{ $disabled }}>
-                            <option data-placeholder="true"></option>
-                            @foreach ($mentors as $mentor)
-                                <option value="{{ $mentor->id }}"
-                                    @if (old('backup_mentor') == $mentor->id)
-                                        {{ "selected" }}
-                                    @elseif (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'desc')->count() > 0)
-                                        @if ($clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'desc')->first()->id == $mentor->id)
-                                            {{ "selected" }}
-                                        @endif
-                                    @endif
-                                    >{{ $mentor->first_name.' '.$mentor->last_name }}</option>
-                            @endforeach
-                        </select>
-                        @error('backup_mentor')
-                            <small class="text-danger fw-light">{{ $message }}</small>
-                        @enderror
-                    </div> --}}
                     <div class="col-md-12 mb-2">
                         <small>Installment Plan</small>
                         <textarea name="installment_notes" {{ $disabled }}>
@@ -130,6 +90,23 @@
                         @error('installment_notes')
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
+                    </div>
+                    <div class="col-md-12">
+                        <small>Agreement <sup class="text-danger">*</sup></small>
+                        @if (isset($clientProgram->agreement))
+                        <div class="form-control form-control-sm">
+                            <input type="file" name="agreement" class="form-control form-control-sm d-none" id="agreementFile">
+                            <div class="d-flex justify-content-between align-items-center" id="agreementView">
+                                <a target="_blank" href="{{ url('/') }}/storage/uploaded_file/agreement/{{ $clientProgram->agreement }}">{{ $clientProgram->agreement }}</a>
+                                <button type="button" class="btn btn-danger btn-sm" id="showUploadInput" {{ $disabled }}><i class="bi bi-upload"></i></button>
+                            </div>
+                        </div>
+                        @else
+                            <input type="file" name="agreement" class="form-control form-control-sm" id="agreementFile" {{ $disabled }} />
+                            @error('agreement')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
+                        @endif
                     </div>
                 </div>
             </div>
@@ -144,4 +121,9 @@
         let tot = tot_usd * kurs
         $('#tot_idr').val(tot)
     }
+
+    $("#showUploadInput").on('click', function () {
+        $("#agreementFile").removeClass('d-none');
+        $("#agreementView").addClass('d-none');
+    })
 </script>

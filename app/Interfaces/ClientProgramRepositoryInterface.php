@@ -6,6 +6,7 @@ interface ClientProgramRepositoryInterface
 {
     public function getAllClientProgramDataTables($searchQuery);
     public function getAllProgramOnClientProgram();
+    public function getAllMainProgramOnClientProgram();
     public function getAllConversionLeadOnClientProgram();
     public function getAllMentorTutorOnClientProgram();
     public function getAllPICOnClientProgram();
@@ -14,14 +15,15 @@ interface ClientProgramRepositoryInterface
     public function getClientProgramByDetail(array $detail);
     public function createClientProgram(array $clientProgramDetails);
     public function updateClientProgram($clientProgramId, array $clientProgramDetails);
+    public function updateFewField(int $clientprog_id, array $newDetails);
     public function endedClientProgram(int $clientprog_id, array $newDetails);
     public function endedClientPrograms(array $clientprog_ids, array $newDetails);
     public function deleteClientProgram($clientProgramId);
 
     # sales tracking
-    public function getCountProgramByStatus($status, array $dateDetails);
-    public function getSummaryProgramByStatus($status, array $dateDetails);
-    public function getInitAssessmentProgress($dateDetails);
+    public function getCountProgramByStatus($status, array $dateDetails, array $additionalFilter = []);
+    public function getSummaryProgramByStatus($status, array $dateDetails, array $additionalFilter);
+    public function getInitAssessmentProgress($dateDetails, array $additionalFilter);
     public function getConversionLead($dateDetails, $cp_filter = null);
     public function getConversionLeadDetails($filter);
     public function getLeadSource($dateDetails, $cp_filter = null);

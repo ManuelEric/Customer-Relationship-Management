@@ -12,24 +12,54 @@
                 </div>
             </div>
         </div>
+    @else
+        <div class="alert alert-primary" role="alert">
+            Report period between <u>{{ date('F, dS Y', strtotime($dateDetails['startDate'])) }}</u> and <u>{{ date('F, dS Y', strtotime($dateDetails['endDate'])) }}</u>
+        </div>
     @endif
+
+
     <div class="row">
         <div class="col-md-3">
             <div class="card mb-3 position-sticky" style="top:15%;">
                 <form action="" id="filterForm">
                     <div class="card-header">
-                        <h6 class="p-0 m-0">Period</h6>
+                        <h6 class="p-0 m-0">Advanced Filter</h6>
                     </div>
                     <div class="card-body">
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label>Start Date</label>
                             <input type="date" name="start" class="form-control form-control-sm rounded"
-                                value="{{ Request::get('start') }}">
+                                value="{{ Request::get('start') ?? $dateDetails['startDate'] }}">
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label>End Date</label>
                             <input type="date" name="end" class="form-control form-control-sm rounded"
-                                value="{{ Request::get('end') }}">
+                                value="{{ Request::get('end') ?? $dateDetails['endDate'] }}">
+                        </div>
+                        <div class="mb-2">
+                            <label>Main Program</label>
+                            <select name="main" id="main_prog" class="select w-100">
+                                <option value=""></option>
+                                @foreach ($mainPrograms as $mainProgram)
+                                    <option value="{{ $mainProgram->id }}">{{ $mainProgram->prog_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-2 d-none prog-name-cont">
+                            <label>Program Name</label>
+                            <select name="program" id="prog_name" class="select w-100">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label>PIC</label>
+                            <select name="pic" id="pic_name" class="select w-100">
+                                <option value=""></option>
+                                @foreach ($pics as $pic)
+                                    <option value="{{ $pic->uuid }}" @selected($pic->uuid == Request::get('pic'))>{{ $pic->full_name }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="text-center">
                             <button type="submit" class="btn btn-sm btn-outline-primary">
@@ -48,68 +78,12 @@
             {{-- Client Program  --}}
             @include('pages.report.sales-tracking.component.client-program')
 
-            @if ( (!request()->get('start')) && (!request()->get('end')))
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h6 class="p-0 m-0">Sales Target</h6>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover" id="sales-target-detail">
-                            <thead>
-                                <tr class="text-center text-white">
-                                    <th rowspan="2" class="bg-secondary border-1 border-white">No</th>
-                                    <th rowspan="2" class="bg-secondary border-1 border-white">ID</th>
-                                    <th rowspan="2" class="bg-secondary border-1 border-white">Program Name</th>
-                                    <th colspan="2" class="bg-secondary border-1 border-white">Target</th>
-                                    <th colspan="2" class="bg-secondary border-1 border-white">Actual Sales</th>
-                                    <th colspan="2" class="bg-secondary border-1 border-white">Sales Percentage</th>
-                                </tr>
-                                <tr class="text-center text-white">
-                                    <td class="bg-secondary border-1 border-white">Students</td>
-                                    <td class="bg-secondary border-1 border-white">Total Amount</td>
-                                    <td class="bg-secondary border-1 border-white">Students</td>
-                                    <td class="bg-secondary border-1 border-white">Total Amount</td>
-                                    <td class="bg-secondary border-1 border-white">Students</td>
-                                    <td class="bg-secondary border-1 border-white">Total Amount</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($salesDetail as $detail)
-                                    <tr class="text-center">
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $detail->prog_id }}</td>
-                                        <td class="text-start">{{ $detail->program_name_sales }}</td>
-                                        <td>{{ $detail->total_target_participant ??= 0 }}</td>
-                                        <td>{{ number_format($detail->total_target, '2', ',', '.') }}</td>
-                                        <td>{{ $detail->total_actual_participant }}</td>
-                                        <td>{{ number_format($detail->total_actual_amount, '2', ',', '.') }}</td>
-                                        <td>{{ $detail->total_target_participant != 0 ? round(($detail->total_actual_participant / $detail->total_target_participant) * 100, 2) : 0 }}%
-                                        </td>
-                                        <td>{{ $detail->total_target != 0 ? ($detail->total_actual_amount / $detail->total_target) * 100 : 0 }}%
-                                        </td>
-                                    </tr>
-                                @endforeach
-                                <tr class="text-center">
-                                    <th colspan="3">Total</th>
-                                    <td><b>{{ $salesDetail->sum('total_target_participant') ?? 0 }}</b></td>
-                                    <td><b>{{ number_format($salesDetail->sum('total_target'), '2', ',', '.') }}</b>
-                                    </td>
-                                    <td><b>{{ $salesDetail->sum('total_actual_participant') ?? 0 }}</b></td>
-                                    <td><b>{{ number_format($salesDetail->sum('total_actual_amount'), '2', ',', '.') }}</b>
-                                    </td>
-                                    <td><b>{{ $salesDetail->sum('total_target_participant') != 0 ? round(($salesDetail->sum('total_actual_participant') / $salesDetail->sum('total_target_participant')) * 100, 2) : 0 }}%</b>
-                                    </td>
-                                    <td><b>{{ $salesDetail->sum('total_target') != 0 ? ($salesDetail->sum('total_actual_amount') / $salesDetail->sum('total_target')) * 100 : 0 }}%</b>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            @endif
-            
+            {{-- Leads Number  --}}
+            {{-- @include('pages.report.sales-tracking.component.hot-leads-number') --}}
+
+            {{-- Sales Target  --}}
+            @includeUnless(request()->get('start') && request()->get('end'), 'pages.report.sales-tracking.component.sales-target')
+
             {{-- Initial Assessment Progress  --}}
             @include('pages.report.sales-tracking.component.initial-assessment')
 
@@ -140,75 +114,146 @@
             </div>
         </div>
     </div>
-
-    <script>
-        @php
-            $privilage = $menus['Report']->where('submenu_name', 'Sales Tracking')->first();
-        @endphp
-        $(document).ready(function() {
-            @if ($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false");
-
-                $('body').bind('cut copy paste', function(event) {
-                    event.preventDefault();
-                });
-            @endif
-        });
-
-        $(document).on('click', '.lead-source-item', function() {
-            var _this = $(this);
-            const requestParam = getParam(_this);
-            var url = '{{ url('/api/v1/get/detail/lead-source') }}';
-            requestParam['url'] = url;
-
-            showDetailLead(requestParam)
-        })
-
-        $(document).on('click', '.conversion-lead-item', function() {
-            var _this = $(this);
-            const requestParam = getParam(_this);
-            var url = '{{ url('/api/v1/get/detail/conversion-lead') }}';
-            requestParam['url'] = url;
-
-            showDetailLead(requestParam)
-        })
-
-        function showDetailLead(param) {
-            showLoading();
-
-            axios.get(param['url'], {
-                    params: param
-                })
-                .then(function(response) {
-
-                    const obj = response.data.data;
-
-                    swal.close();
-                    $("#leadModalDetail").modal('show');
-                    $("#leadModalDetail .modal-title").html(obj.title)
-
-                    $("#leadModalDetail table").html(obj.context);
-
-                })
-                .catch(function(error) {
-                    // handle error
-                    Swal.close()
-                    notification(error.response.data.success, error.response.data.message)
-                })
-        }
-
-        function getParam(_this) {
-            var leadId = _this.data('lead');
-            var leadName = _this.data('leadname');
-            var startDate = _this.data('sdate');
-            var endDate = _this.data('edate');
-            return {
-                leadId: leadId,
-                leadName: leadName,
-                startDate: startDate,
-                endDate: endDate
-            }
-
-        }
-    </script>
+    
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        @if (Request::get('main'))
+            $("#main_prog").select2().val("{{ Request::get('main') }}").trigger('change')
+
+        @endif
+    })
+
+
+    $("#main_prog").on('change', function() {
+        showLoading();
+
+        var mainProgId = $(this).val();
+        if (mainProgId == "") {
+            
+            $(".prog-name-cont").addClass('d-none');
+            $("#prog_name").html('<option></option>');
+            swal.close();
+            return;
+        }
+        
+
+        var baseUrl = "{{ url('/') }}/api/get/program/main/" + mainProgId;
+
+        axios.get(baseUrl)
+            .then(function (response) {
+                let obj = response.data;
+                var html = ""
+
+                let selectedProgram = "{{ Request::get('program') }}"
+                
+                for (var key in obj.data) {
+                    var selected = "";
+                    if (selectedProgram && obj.data[key].prog_id == selectedProgram) 
+                        selected = "selected";
+                    
+                    
+                    html += "<option value='" + obj.data[key].prog_id + "' " + selected +">" + obj.data[key].prog_program + "</option>"
+                    
+                        
+
+                }
+
+                $("#prog_name").html(html)
+                $(".prog-name-cont").removeClass('d-none');
+                swal.close();
+
+            })
+            .catch(function (error) {
+                console.log(error)
+            })
+    });
+</script>
+<script>
+    @php
+        $privilage = $menus['Report']->where('submenu_name', 'Sales Tracking')->first();
+    @endphp
+    $(document).ready(function() {
+        @if ($privilage['copy'] == 0)
+            document.oncontextmenu = new Function("return false");
+
+            $('body').bind('cut copy paste', function(event) {
+                event.preventDefault();
+            });
+        @endif
+    });
+
+    $(document).on('click', '.lead-source-item', function() {
+        var _this = $(this);
+        const requestParam = getParam(_this);
+        var url = '{{ url('/api/v1/get/detail/lead-source') }}';
+        requestParam['url'] = url;
+
+        showDetailLead(requestParam)
+    })
+
+    $(document).on('click', '.conversion-lead-item', function() {
+        var _this = $(this);
+        const requestParam = getParam(_this);
+        console.log(requestParam)
+        var url = '{{ url('/api/v1/get/detail/conversion-lead') }}';
+        requestParam['url'] = url;
+
+        showDetailLead(requestParam)
+    })
+
+    function showDetailLead(param) {
+        showLoading();
+
+        axios.get(param['url'], {
+                params: param
+            })
+            .then(function(response) {
+
+                const obj = response.data.data;
+
+                swal.close();
+                $("#leadModalDetail").modal('show');
+                $("#leadModalDetail .modal-title").html(obj.title)
+
+                $("#leadModalDetail table").html(obj.context);
+
+            })
+            .catch(function(error) {
+                // handle error
+                Swal.close()
+                notification(error.response.data.success, error.response.data.message)
+            })
+    }
+
+    function getParam(_this) {
+        var leadId = _this.data('lead');
+        var leadName = _this.data('leadname');
+        var startDate = _this.data('sdate');
+        var endDate = _this.data('edate');
+        var subLead = _this.data('sublead');
+        
+        // added
+        var url = "{{ url('/') }}"
+        const urlParams = new URLSearchParams(url);
+        var mainProgId = urlParams.get('main');
+        var progId = urlParams.get('program');
+        var picUUID = urlParams.get('pic')
+
+        return {
+            leadId: leadId,
+            leadName: leadName,
+            startDate: startDate,
+            endDate: endDate,
+            subLead: subLead,
+            //
+            mainProgId: mainProgId,
+            progId: progId,
+            picUUID: picUUID
+        }
+
+    }
+</script>
+@endpush

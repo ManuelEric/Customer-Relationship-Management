@@ -410,10 +410,7 @@
             })
     }
     
-    $(function() {
 
-        checkPartnerStatusbyMonth()
-    })
 
 
         

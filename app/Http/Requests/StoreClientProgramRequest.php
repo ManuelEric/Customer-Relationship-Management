@@ -409,6 +409,7 @@ class StoreClientProgramRequest extends FormRequest
                 'different:main_mentor'
             ],
             'installment_notes' => 'nullable',
+            'agreement' => 'required|mimes:pdf', #mimes:pdf
             'prog_running_status' => 'required',
         ];
     }

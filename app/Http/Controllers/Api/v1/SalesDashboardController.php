@@ -112,24 +112,18 @@ class SalesDashboardController extends Controller
                 $clientType = 'alumni';
                 break;
 
+            case "parent":
+                $clients = $this->clientRepository->getParents($asDatatables, $month);
+                $clientType = 'parent';
+                break;
+
+            case "teacher-counselor":
+                $clients = $this->clientRepository->getTeachers($asDatatables, $month);
+                $clientType = 'teacher/counselor';
+                break;
+
             default:
                 $title = $clientType = $type;
-        }
-
-        # when type is teacher/counselor
-        if ($clientType == "teacher-counselor")
-            $clientType = "teacher/counselor";
-
-        # this to make sure the clients that being fetch
-        # is the client filter by [prospective, potential, current, completed] 
-        if (gettype($clientType) == "string" && $clientType != "alumni") {
-
-            # is the client filter for [mentee, alumni, parents, teacher/counselor]
-            $clients = $this->clientRepository->getAllClientByRoleAndDate($clientType, $month);
-            if ($month != null) {
-                $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
-                $clients = $clients->merge($this->clientRepository->getAllClientByRoleAndDate($clientType, $last_month));
-            }
         }
 
         $index = 1;
@@ -152,14 +146,16 @@ class SalesDashboardController extends Controller
                     $now = date('Y-m');
                     $styling = $client_register_date == $now ? 'class="bg-primary text-white popup-modal-detail-client"' : 'class="popup-modal-detail-client"';
 
+                    $pic_name = isset($client->handleBy) ? $client->handledBy()->first()->full_name : null;
+
                     $html .= '<tr ' . $styling . ' data-detail="' . $client->id . '">
                                 <td>' . $index++ . '</td>
                                 <td>' . $client->full_name . '</td>
-                                <td>' . $client->handledBy()->first()->full_name .'</td>
+                                <td>' . $pic_name .'</td>
                                 <td>' . $client->mail . '</td>
                                 <td>' . $client->phone . '</td>
                                 <td>' . $client->graduation_year_real . '</td>
-                                <td>' . $client->created_at . '</td>
+                                <td>' . date('d F Y H:i', strtotime($client->created_at)) . '</td>
                             </tr>';
                 }
             }
@@ -985,7 +981,6 @@ class SalesDashboardController extends Controller
 
         $programId = null; # means all programs
         $salesTarget = $this->salesTargetRepository->getMonthlySalesTarget($programId, $cp_filter);
-        Log::debug(json_encode($salesTarget));
 
         $salesActual = $this->salesTargetRepository->getMonthlySalesActual($programId, $cp_filter);
 
@@ -1010,7 +1005,7 @@ class SalesDashboardController extends Controller
 
             $html .= '<tr class="text-center">
                     <td>' . $no++ . '</td>
-                    <td>' . $detail->prog_id . '</td>
+                    <td>' . (isset($detail->prog_id) ? $detail->prog_id : '-') . '</td>
                     <td class="text-start">' . $detail->program_name_sales . '</td>
                     <td>' . $target_student . '</td>
                     <td>' . number_format($detail->total_target, '2', ',', '.') . '</td>

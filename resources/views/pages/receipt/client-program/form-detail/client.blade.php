@@ -130,44 +130,34 @@
         <div id="parentInfo" class="accordion-collapse collapse show">
             <div class="accordion-body p-2">
                 <div class="card">
-                    <div class="card-body">
-                    @forelse ($client_prog->client->parents as $parent)
-                        <div class="row mb-2 g-1">
-                            <div class="col-md-4 d-flex justify-content-between">
-                                <label>
-                                    Parents Name
-                                </label>
-                                <label>:</label>
-                            </div>
-                            <div class="col-md-8">
-                                {{ $parent->full_name }}
-                            </div>
-                        </div>
-                        <div class="row mb-2 g-1">
-                            <div class="col-md-4 d-flex justify-content-between">
-                                <label> 
-                                    Parents Email
-                                </label>
-                                <label>:</label>
-                            </div>
-                            <div class="col-md-8">
-                                {{ $parent->mail }}
-                            </div>
-                        </div>
-                        <div class="row mb-2 g-1">
-                            <div class="col-md-4 d-flex justify-content-between">
-                                <label>
-                                    Parents Phone
-                                </label>
-                                <label>:</label>
-                            </div>
-                            <div class="col-md-8">
-                                {{ $parent->phone }}
-                            </div>
-                        </div>
-                    @empty
-                        There's no parents information
-                    @endforelse
+                    <div class="card-body" style="overflow: auto;">
+                        @if($client_prog->client->parents()->count() > 0)
+                            <table class="table table-bordered" id="list-parent">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th>No</th>
+                                        <th>Full Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php
+                                        $no = 1;
+                                    @endphp
+                                    @foreach ($client_prog->client->parents as $parent)
+                                        <tr align="center">
+                                            <td>{{ $no++ }}</td>
+                                            <td>{{ $parent->fullname }}</td>
+                                            <td>{{ $parent->mail }}</td>
+                                            <td>{{ $parent->phone }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        @else
+                            There's no parents information
+                        @endif
                     </div>
                 </div>
             </div>
