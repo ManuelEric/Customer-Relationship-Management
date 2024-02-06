@@ -38,6 +38,7 @@ interface ClientRepositoryInterface
     public function getInactiveParent($asDatatables = false, $month = null, array $advanced_filter);
     public function getInactiveTeacher($asDatatables = false, $month = null, array $advanced_filter);
     public function getClientWithNoPicAndHaveProgram();
+    public function getListReferral($selectColumns = [], $filter = []);
 
     public function addInterestProgram($studentId, $interestProgram);
     public function removeInterestProgram($studentId, $interstProgram, $progId);

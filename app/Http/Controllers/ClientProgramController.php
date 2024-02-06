@@ -171,7 +171,7 @@ class ClientProgramController extends Controller
         $clientProgramId = $request->route('program');
 
         $student = $this->clientRepository->getClientById($studentID);
-        $viewStudent = $this->clientRepository->getViewClientById($studentID);
+        // $viewStudent = $this->clientRepository->getViewClientById($studentID);
         $clientProgram = $this->clientProgramRepository->getClientProgramById($clientProgramId);
 
         # programs
@@ -193,21 +193,20 @@ class ClientProgramController extends Controller
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
-        // if (!Cache::has('list-referral')) {
-        //     $listReferral = $this->clientRepository->getAllClients(['id', 'first_name', 'last_name']);
+        if (!Cache::has('list-referral')) {
+            $listReferral = $this->clientRepository->getAllClients(['id', 'first_name', 'last_name']);
 
-        //     Cache::remember('list_referral', 60, function () use ($listReferral) {
-        //         return $listReferral;
-        //     });
-        // }
+            Cache::remember('list_referral', 60, function () use ($listReferral) {
+                return $listReferral;
+            });
+        }
 
-        // $listReferral = Cache::get('list-referral');
-        $listReferral = [];
+        $listReferral = Cache::get('list-referral');
 
         return view('pages.program.client-program.form')->with(
             [
                 'student' => $student,
-                'viewStudent' => $viewStudent,
+                // 'viewStudent' => $viewStudent,
                 'clientProgram' => $clientProgram,
                 'programs' => $programs,
                 'leads' => $leads,
@@ -219,7 +218,7 @@ class ClientProgramController extends Controller
                 'tutors' => $tutors,
                 'mentors' => $mentors,
                 'reasons' => $reasons,
-                'listReferral' => $listReferral
+                // 'listReferral' => $listReferral
             ]
         );
     }
@@ -252,7 +251,7 @@ class ClientProgramController extends Controller
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
-        $listReferral = $this->clientRepository->getAllClients();
+        // $listReferral = $this->clientRepository->getAllClients();
 
         return view('pages.program.client-program.form')->with(
             [
@@ -270,7 +269,7 @@ class ClientProgramController extends Controller
                 'tutors' => $tutors,
                 'mentors' => $mentors,
                 'reasons' => $reasons,
-                'listReferral' => $listReferral
+                // 'listReferral' => $listReferral
             ]
         );
     }
@@ -558,17 +557,16 @@ class ClientProgramController extends Controller
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
-        // if (!Cache::has('list-referral')) {
-        //     $listReferral = $this->clientRepository->getAllClients(['id', 'first_name', 'last_name']);
+        if (!Cache::has('list-referral')) {
+            $listReferral = $this->clientRepository->getAllClients();
 
-        //     Cache::remember('list_referral', 60, function () use ($listReferral) {
-        //         return $listReferral;
-        //     });
-        // }
+            Cache::remember('list_referral', 60, function () use ($listReferral) {
+                return $listReferral;
+            });
+        }
 
-        // $listReferral = Cache::get('list-referral');
-        $listReferral = [];
-
+        $listReferral = Cache::get('list-referral');
+      
         return view('pages.program.client-program.form')->with(
             [
                 'edit' => true,
@@ -585,7 +583,7 @@ class ClientProgramController extends Controller
                 'tutors' => $tutors,
                 'mentors' => $mentors,
                 'reasons' => $reasons,
-                'listReferral' => $listReferral
+                // 'listReferral' => $listReferral
             ]
         );
     }

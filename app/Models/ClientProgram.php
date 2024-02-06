@@ -111,8 +111,8 @@ class ClientProgram extends Model
 
     public function getReferralNameFromRefCodeView($refCode)
     {
-        return ViewClientRefCode::whereRaw('ref_code COLLATE utf8mb4_unicode_ci = (?)', $refCode)->first()->full_name;
-        // return ViewClientRefCode::whereRaw('ref_code = (?)', $refCode)->first()->full_name;
+        // return ViewClientRefCode::whereRaw('ref_code COLLATE utf8mb4_unicode_ci = (?)', $refCode)->first()->full_name;
+        return ViewClientRefCode::whereRaw('ref_code = (?)', $refCode)->first()->full_name;
     }
 
     public function client()
@@ -188,6 +188,11 @@ class ClientProgram extends Model
     public function logMail()
     {
         return $this->hasMany(ClientProgramLogMail::class, 'clientprog_id', 'clientprog_id');
+    }
+
+    public function viewClientRefCode()
+    {
+        return $this->belongsTo(ViewClientRefCode::class, 'referral_code', 'ref_code');
     }
 
     # PIC from sales team

@@ -346,20 +346,17 @@
                             @enderror
                         </div>
                     </div>
+                    
                     <div class="col-md-4 referral d-none">
                         <div class="mb-2">
                             <label>Referral Name <i class="text-danger font-weight-bold">*</i></label>
-                            <select class="select w-100" id="refCode" name="referral_code">
-                                <option data-placeholder="true"></option>
-                                @if (isset($listReferral) && count($listReferral) > 0)
-                                    @foreach ($listReferral as $referral)
-                                        <option value="{{ $referral->viewClientRefCode->ref_code }}"
-                                            @if (old('referral_code') == $referral->viewClientRefCode->ref_code) {{ 'selected' }}
-                                            @elseif (isset($student) && $student->referral_code == $referral->viewClientRefCode->ref_code)
-                                            {{ 'selected' }} @endif>
-                                            {{ $referral->full_name }}</option>
-                                    @endforeach
+                            <input type="hidden" name="old_refname" id="old_refname" value="{{ isset($student->referral_code) ? $student->referral_name : null }}">
+                            <select name="referral_code" id="referral_code" class="select w-100 select-referral">
+                                @if(isset($student->referral_code))
+                                    <option value="{{ $student->referral_code }}" selected="selected">{{ $student->referral_name }}</option>
                                 @endif
+                                {{-- <option data-placeholder="true"></option> --}}
+
                             </select>
                             @error('referral_code')
                                 <small class="text-danger fw-light">{{ $message }}</small>
@@ -645,6 +642,10 @@
         $('#auto_grad_year').val(graduation_year);
     })
 
+    $('#referral_code').on('change', function(){
+        $('#old_refname').val($("option:selected", this).text())
+    })
+
 
     const anotherDocument = () => {
         @if (isset($student->interestUniversities))
@@ -713,7 +714,28 @@
 
     $(document).ready(function() {
 
+        var baseUrl = "{{ url('/') }}/api/get/referral/list";
+
+        $(".select-referral").select2({
+            placeholder: 'Referral Name...',
+            // width: '350px',
+            allowClear: true,
+            ajax: {
+                url: baseUrl,
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return {
+                        term: params.term || '',
+                        page: params.page || 1
+                    }
+                },
+                cache: true
+            }
+        });
+
         const documentReady = () => {
+
 
             @if (old('sch_id') !== null && old('sch_id') == 'add-new')
                 $("#schoolName").select2().val("{{ old('sch_id') }}").trigger('change')
@@ -757,6 +779,18 @@
                 @endforeach
 
                 $("#major").val(st_abrmajor).trigger('change')
+            @endif
+
+            @if (old('referral_code'))
+                // Set the value, creating a new option if necessary
+                if ($('#referral_code').find("option[value= {{ old('referral_code') }} ]").length) {
+                    $('#referral_code').val('{{ old("referral_code") }}').trigger('change');
+                } else { 
+                    // Create a DOM Option and pre-select by default
+                    var newOption = new Option('{{ old("old_refname") }}', '{{ old("referral_code") }}', true, true);
+                    // Append it to the select
+                    $('#referral_code').append(newOption).trigger('change');
+                } 
             @endif
 
             // @if (isset($student->interestPrograms))

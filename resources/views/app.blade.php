@@ -371,6 +371,7 @@
     {{-- TinyMCE  --}}
     <script>
         tinymce.init({
+            strict_loading_mode : true,
             selector: 'textarea',
             height: "250",
             menubar: false,

@@ -421,7 +421,7 @@ class ClientStudentController extends ClientController
         $majors = $this->majorRepository->getAllActiveMajors();
         $regions = $this->countryRepository->getAllRegionByLocale('en');
 
-        $listReferral = $this->clientRepository->getAllClients();
+        // $listReferral = $this->clientRepository->getAllClients();
 
         return view('pages.client.student.form')->with(
             [
@@ -436,7 +436,7 @@ class ClientStudentController extends ClientController
                 'countries' => $countries,
                 'majors' => $majors,
                 'regions' => $regions,
-                'listReferral' => $listReferral
+                // 'listReferral' => $listReferral
             ]
         );
     }
@@ -466,8 +466,8 @@ class ClientStudentController extends ClientController
         $countries = $this->tagRepository->getAllTags();
         $majors = $this->majorRepository->getAllMajors();
 
-        $listReferral = $this->clientRepository->getAllClients();
-        return $listReferral;
+        // $listReferral = $this->clientRepository->getAllClients();
+        // return $listReferral;
 
         return view('pages.client.student.form')->with(
             [
@@ -483,7 +483,7 @@ class ClientStudentController extends ClientController
                 'programs' => $programs,
                 'countries' => $countries,
                 'majors' => $majors,
-                'listReferral' => $listReferral
+                // 'listReferral' => $listReferral
             ]
         );
     }
@@ -523,22 +523,22 @@ class ClientStudentController extends ClientController
             # create new user client as parents
             # when pr_id is "add-new" 
 
-            if ($data['studentDetails']['pr_id'] !== NULL) {
-                if ($data['studentDetails']['lead_id'] != 'LS005'){
-                    $data['parentDetails']['referral_code'] = null;
-                }
-                if (!$parentId = $this->createParentsIfAddNew($data['parentDetails'], $data['studentDetails']))
-                    throw new Exception('Failed to store new parent', 2);
-            }
+            // if ($data['studentDetails']['pr_id'] !== NULL) {
+            //     if ($data['studentDetails']['lead_id'] != 'LS005'){
+            //         $data['parentDetails']['referral_code'] = null;
+            //     }
+            //     if (!$parentId = $this->createParentsIfAddNew($data['parentDetails'], $data['studentDetails']))
+            //         throw new Exception('Failed to store new parent', 2);
+            // }
 
 
             # removing the kol_lead_id & pr_id from studentDetails array
             # if the data still exists it will error because there are no field with kol_lead_id & pr_id
             unset($data['studentDetails']['kol_lead_id']);
-            $newParentId = $data['studentDetails']['pr_id'];
-            $oldParentId = $data['studentDetails']['pr_id_old'];
-            unset($data['studentDetails']['pr_id']);
-            unset($data['studentDetails']['pr_id_old']);
+            // $newParentId = $data['studentDetails']['pr_id'];
+            // $oldParentId = $data['studentDetails']['pr_id_old'];
+            // unset($data['studentDetails']['pr_id']);
+            // unset($data['studentDetails']['pr_id_old']);
 
             # case 3
             # create new user client as student
@@ -551,22 +551,22 @@ class ClientStudentController extends ClientController
             # if they didn't insert parents which parentId = NULL
             # then assumed that register for student only
             # so no need to create parent children relation
-            if ($newParentId !== NULL) {
+            // if ($newParentId !== NULL) {
 
-                if (!in_array($parentId, $this->clientRepository->getParentsByStudentId($studentId))) {
+            //     if (!in_array($parentId, $this->clientRepository->getParentsByStudentId($studentId))) {
 
-                    if (!$this->clientRepository->createClientRelation($parentId, $studentId))
-                        throw new Exception('Failed to store relation between student and parent', 4);
-                }
-            } else {
+            //         if (!$this->clientRepository->createClientRelation($parentId, $studentId))
+            //             throw new Exception('Failed to store relation between student and parent', 4);
+            //     }
+            // } else {
 
-                # when pr_id is null it means they remove the parent from the child
-                if (in_array($oldParentId, $this->clientRepository->getParentsByStudentId($studentId))) {
+            //     # when pr_id is null it means they remove the parent from the child
+            //     if (in_array($oldParentId, $this->clientRepository->getParentsByStudentId($studentId))) {
 
-                    if (!$this->clientRepository->removeClientRelation($oldParentId, $studentId))
-                        throw new Exception('Failed to remove relation between student and parent', 4);
-                }
-            }
+            //         if (!$this->clientRepository->removeClientRelation($oldParentId, $studentId))
+            //             throw new Exception('Failed to remove relation between student and parent', 4);
+            //     }
+            // }
 
             # case 5
             # create interested program

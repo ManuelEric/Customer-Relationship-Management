@@ -97,7 +97,7 @@ class ClientTeacherCounselorController extends ClientController
         $events = $this->eventRepository->getAllEvents();
         $ext_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
-        $listReferral = $this->clientRepository->getAllClients();
+        // $listReferral = $this->clientRepository->getAllClients();
 
         return view('pages.client.teacher.form')->with(
             [
@@ -107,7 +107,7 @@ class ClientTeacherCounselorController extends ClientController
                 'events' => $events,
                 'ext_edufair' => $ext_edufair,
                 'kols' => $kols,
-                'listReferral' => $listReferral
+                // 'listReferral' => $listReferral
             ]
         );
     }
@@ -180,7 +180,7 @@ class ClientTeacherCounselorController extends ClientController
         $events = $this->eventRepository->getAllEvents();
         $ext_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
-        $listReferral = $this->clientRepository->getAllClients();
+        // $listReferral = $this->clientRepository->getAllClients();
 
         return view('pages.client.teacher.form')->with(
             [
@@ -191,7 +191,7 @@ class ClientTeacherCounselorController extends ClientController
                 'events' => $events,
                 'ext_edufair' => $ext_edufair,
                 'kols' => $kols,
-                'listReferral' => $listReferral
+                // 'listReferral' => $listReferral
             ]
         );
     }
