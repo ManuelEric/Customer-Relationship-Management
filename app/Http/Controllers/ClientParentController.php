@@ -135,7 +135,6 @@ class ClientParentController extends ClientController
         $programs = $programsB2BB2C->merge($programsB2C);
         $countries = $this->tagRepository->getAllTags();
         $majors = $this->majorRepository->getAllMajors();
-        // $listReferral = $this->clientRepository->getAllClients();
 
         return view('pages.client.parent.form')->with(
             [
@@ -149,8 +148,7 @@ class ClientParentController extends ClientController
                 'programs' => $programs,
                 'countries' => $countries,
                 'majors' => $majors,
-                'student' => $student,
-                // 'listReferral' => $listReferral
+                'student' => $student
             ]
         );
     }
@@ -276,7 +274,6 @@ class ClientParentController extends ClientController
         $programs = $programsB2BB2C->merge($programsB2C);
         $countries = $this->tagRepository->getAllTags();
         $majors = $this->majorRepository->getAllMajors();
-        // $listReferral = $this->clientRepository->getAllClients();
 
         return view('pages.client.parent.form')->with(
             [
@@ -290,8 +287,7 @@ class ClientParentController extends ClientController
                 'kols' => $kols,
                 'programs' => $programs,
                 'countries' => $countries,
-                'majors' => $majors,
-                // 'listReferral' => $listReferral
+                'majors' => $majors
             ]
         );
     }
