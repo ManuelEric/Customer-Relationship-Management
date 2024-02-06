@@ -157,7 +157,18 @@
                     <div class="col-md-4 referral d-none">
                         <div class="mb-2">
                             <label>Referral Name<i class="text-danger font-weight-bold">*</i></label>
-                            <select class="select w-100" id="refCode" name="referral_code">
+                            <input type="hidden" name="old_refname" id="old_refname" value="{{ isset($parent->referral_code) ? $parent->referral_name : null }}">
+                            <select name="referral_code" id="referral_code" class="select w-100 select-referral">
+                                @if(isset($parent->referral_code))
+                                    <option value="{{ $parent->referral_code }}" selected="selected">{{ $parent->referral_name }}</option>
+                                @endif
+                                {{-- <option data-placeholder="true"></option> --}}
+
+                            </select>
+                            @error('referral_code')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
+                            {{-- <select class="select w-100" id="refCode" name="referral_code">
                                 <option data-placeholder="true"></option>
                                 @if (isset($listReferral) && count($listReferral) > 0)
                                     @foreach ($listReferral as $referral)
@@ -170,7 +181,7 @@
                             </select>
                             @error('referral_code')
                                 <small class="text-danger fw-light">{{ $message }}</small>
-                            @enderror
+                            @enderror --}}
                         </div>
                     </div>
 
@@ -665,6 +676,10 @@
 
     })
 
+    $('#referral_code').on('change', function(){
+        $('#old_refname').val($("option:selected", this).text())
+    })
+
     const anotherDocument = () => {
         @if (isset($parent->childrens) && count($parent->childrens) > 0)
             var st_abruniv = new Array();
@@ -730,6 +745,38 @@
     })
 
     $(document).ready(function() {
+
+        var baseUrl = "{{ url('/') }}/api/get/referral/list";
+
+        $(".select-referral").select2({
+            placeholder: 'Referral Name...',
+            // width: '350px',
+            allowClear: true,
+            ajax: {
+                url: baseUrl,
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return {
+                        term: params.term || '',
+                        page: params.page || 1
+                    }
+                },
+                cache: true
+            }
+        });
+
+        @if (old('referral_code') !== NULL)
+            // Set the value, creating a new option if necessary
+            if ($('#referral_code').find("option[value= {{ old('referral_code') }} ]").length) {
+                $('#referral_code').val('{{ old("referral_code") }}').trigger('change');
+            } else { 
+                // Create a DOM Option and pre-select by default
+            var newOption = new Option('{{ old("old_refname") }}', '{{ old("referral_code") }}', true, true);
+                // Append it to the select
+                $('#referral_code').append(newOption).trigger('change');
+            } 
+        @endif
 
         const documentReady = () => {
 
@@ -857,6 +904,7 @@
             @elseif (old('lead_id') !== NULL)
                 $("#leadSource").select2().val("{{ old('lead_id') }}").trigger('change')
             @endif
+
         }
 
         documentReady()

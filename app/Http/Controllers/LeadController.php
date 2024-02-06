@@ -4,14 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreLeadRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\CreateReferralCodeTrait;
 use App\Http\Traits\GetDepartmentFromLoggedInUser;
 use App\Http\Traits\LoggingTrait;
+use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\DepartmentRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Models\Lead;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -20,14 +25,17 @@ class LeadController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
     use LoggingTrait;
+    use CreateReferralCodeTrait;
 
     private LeadRepositoryInterface $leadRepository;
     private DepartmentRepositoryInterface $departmentRepository;
+    private ClientRepositoryInterface $clientRepository;
 
-    public function __construct(LeadRepositoryInterface $leadRepository, DepartmentRepositoryInterface $departmentRepository)
+    public function __construct(LeadRepositoryInterface $leadRepository, DepartmentRepositoryInterface $departmentRepository, ClientRepositoryInterface $clientRepository)
     {
         $this->leadRepository = $leadRepository;
         $this->departmentRepository = $departmentRepository;
+        $this->clientRepository = $clientRepository;
     }
 
     public function index(Request $request)
@@ -188,5 +196,37 @@ class LeadController extends Controller
         $this->logSuccess('delete', null, 'Curriculum', Auth::user()->first_name . ' '. Auth::user()->last_name, $lead);
 
         return Redirect::to('master/lead')->withSuccess('Lead successfully deleted');
+    }
+
+    public function getListReferral(Request $request)
+    {
+        $grouped =  new Collection();
+
+        if($request->ajax())
+        {
+            $filter['full_name'] = trim($request->term);
+            $listReferral = $this->clientRepository->getListReferral(['id', 'first_name', 'last_name'], $filter);
+    
+            $grouped = $listReferral->mapToGroups(function ($item, $key) {
+                return [
+                    $item['data'] . 'results' => [
+                        'id' => isset($item['id']) ? $this->createReferralCode($item['first_name'], $item['id']) : null,
+                        'text' => isset($item['first_name']) ? $item['first_name'] . ' ' . $item['last_name'] : null
+                    ],
+                ];
+            });
+    
+            $morePages=true;
+               if (empty($listReferral->nextPageUrl())){
+                $morePages=false;
+               }
+    
+            $grouped['pagination'] = [
+                'more' => $morePages
+            ];
+    
+            return $grouped;
+         
+        }
     }
 }

@@ -28,6 +28,7 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\Module\ClientController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\Api\v1\ProgramController as APIProgramController;
+use App\Http\Controllers\LeadController;
 use App\Http\Controllers\ReceiptSchoolController;
 use App\Http\Controllers\ReceiptPartnerController;
 use App\Http\Controllers\ReceiptReferralController;
@@ -186,3 +187,6 @@ Route::get('user/sales-team/', [UserController::class, 'getSalesTeam']); # basic
 
 # Get Prog Program based on Main Program Id
 Route::get('get/program/main/{mainProgId}', [APIProgramController::class, 'getProgramNameByMainProgramId']);
+
+# Get List referral / sub lead referral (All Client)
+Route::get('get/referral/list', [LeadController::class, 'getListReferral']);

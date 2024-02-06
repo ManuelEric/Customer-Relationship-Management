@@ -155,7 +155,7 @@ class DigitalDashboardController extends Controller
 
     }
 
-    public function getDetailDataLead(Request $request,)
+    public function getDetailDataLead(Request $request)
     {
         $month = $request->route('month') ?? date('Y-m');
         $division = $request->route('division');
