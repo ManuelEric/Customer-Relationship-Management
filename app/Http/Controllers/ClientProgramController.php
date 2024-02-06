@@ -193,15 +193,15 @@ class ClientProgramController extends Controller
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
-        // if (!Cache::has('list-referral')) {
-        //     $listReferral = $this->clientRepository->getAllClients(['id', 'first_name', 'last_name']);
+        if (!Cache::has('list-referral')) {
+            $listReferral = $this->clientRepository->getAllClients(['id', 'first_name', 'last_name']);
 
-        //     Cache::remember('list_referral', 60, function () use ($listReferral) {
-        //         return $listReferral;
-        //     });
-        // }
+            Cache::remember('list_referral', 60, function () use ($listReferral) {
+                return $listReferral;
+            });
+        }
 
-        // $listReferral = Cache::get('list-referral');
+        $listReferral = Cache::get('list-referral');
 
         return view('pages.program.client-program.form')->with(
             [
@@ -557,16 +557,16 @@ class ClientProgramController extends Controller
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
-        // if (!Cache::has('list-referral')) {
-        //     $listReferral = $this->clientRepository->getAllClients();
+        if (!Cache::has('list-referral')) {
+            $listReferral = $this->clientRepository->getAllClients();
 
-        //     Cache::remember('list_referral', 60, function () use ($listReferral) {
-        //         return $listReferral;
-        //     });
-        // }
+            Cache::remember('list_referral', 60, function () use ($listReferral) {
+                return $listReferral;
+            });
+        }
 
-        // $listReferral = Cache::get('list-referral');
-
+        $listReferral = Cache::get('list-referral');
+      
         return view('pages.program.client-program.form')->with(
             [
                 'edit' => true,
