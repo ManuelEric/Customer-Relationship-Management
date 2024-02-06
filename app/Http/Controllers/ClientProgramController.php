@@ -193,16 +193,6 @@ class ClientProgramController extends Controller
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
-        if (!Cache::has('list-referral')) {
-            $listReferral = $this->clientRepository->getAllClients(['id', 'first_name', 'last_name']);
-
-            Cache::remember('list_referral', 60, function () use ($listReferral) {
-                return $listReferral;
-            });
-        }
-
-        $listReferral = Cache::get('list-referral');
-
         return view('pages.program.client-program.form')->with(
             [
                 'student' => $student,
@@ -217,8 +207,7 @@ class ClientProgramController extends Controller
                 'internalPIC' => $internalPic,
                 'tutors' => $tutors,
                 'mentors' => $mentors,
-                'reasons' => $reasons,
-                // 'listReferral' => $listReferral
+                'reasons' => $reasons
             ]
         );
     }
@@ -251,7 +240,6 @@ class ClientProgramController extends Controller
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
-        // $listReferral = $this->clientRepository->getAllClients();
 
         return view('pages.program.client-program.form')->with(
             [
@@ -269,7 +257,6 @@ class ClientProgramController extends Controller
                 'tutors' => $tutors,
                 'mentors' => $mentors,
                 'reasons' => $reasons,
-                // 'listReferral' => $listReferral
             ]
         );
     }
@@ -556,16 +543,6 @@ class ClientProgramController extends Controller
 
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
-
-        if (!Cache::has('list-referral')) {
-            $listReferral = $this->clientRepository->getAllClients();
-
-            Cache::remember('list_referral', 60, function () use ($listReferral) {
-                return $listReferral;
-            });
-        }
-
-        $listReferral = Cache::get('list-referral');
       
         return view('pages.program.client-program.form')->with(
             [
@@ -582,8 +559,7 @@ class ClientProgramController extends Controller
                 'internalPIC' => $internalPic,
                 'tutors' => $tutors,
                 'mentors' => $mentors,
-                'reasons' => $reasons,
-                // 'listReferral' => $listReferral
+                'reasons' => $reasons
             ]
         );
     }
