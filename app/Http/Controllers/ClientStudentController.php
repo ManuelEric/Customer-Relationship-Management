@@ -119,34 +119,6 @@ class ClientStudentController extends ClientController
 
     public function index(Request $request)
     {
-        $clients = UserClient::isStudent()->isActive()->isNotVerified()->get();
-        return $clients->pluck('id')->toArray();
-        $updatedClients = [];
-        foreach ($clients as $student) {
-
-            ## Update to verified
-
-            # Case 1: have joined the program with success status
-            $isVerified = false;
-            $model = $student->clientProgram()->whereIn('status', [0, 1])->exists();
-            if ($model)
-                $isVerified = true;
-
-            # Case 2: Email and phone is complete && school verified
-            if($student->mail != null && $student->phone != null && isset($student->school) && !preg_match('/[^\x{80}-\x{F7} a-z0-9@_.\'-]/iu', $student->full_name)){
-                if($student->school->is_verified == 'Y'){
-                    $isVerified = true;
-                }
-            }
-            
-            
-            if ($isVerified === true) {
-                // $this->clientRepository->updateClient($student->id, ['is_verified' => 'Y']);
-                array_push($updatedClients, $student->id);
-            }
-        }
-        return $updatedClients;
-
         if ($request->ajax()) {
 
             $statusClient = $request->get('st');
