@@ -178,51 +178,59 @@
 <script>
     function initiate()
     {
-        var parent = document.querySelector("#prPhone");
         var child = document.querySelector("#chPhone");
-    
-        const phoneInput1 = window.intlTelInput(parent, {
-            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
-            initialCountry: 'id',
-            onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
-        });
-    
-        const phoneInput2 = window.intlTelInput(child, {
-            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
-            initialCountry: 'id',
-            onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
-        });
+        var count_parent = $('#count_parent').val();
+        var parent = number = [];
+        const parentInput = [];
 
-        $("#prPhone").on('keyup', function(e) {
-            var number1 = phoneInput1.getNumber();
-            $("#prPhoneR").val(number1);
-            $("input[name=target_phone]").val(number1);
+        const phoneInput1 = window.intlTelInput(child, {
+            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
+            initialCountry: 'id',
+            onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
         });
 
         $("#chPhone").on('keyup', function(e) {
-            var number2 = phoneInput2.getNumber();
-            $("#chPhoneR").val(number2);
-            $("input[name=target_phone]").val(number2);
+            var number1 = phoneInput1.getNumber();
+            $("#chPhoneR").val(number1);
+            $("input[name=target_phone]").val(number1);
         });
+        
+        for(var i=0; i<count_parent; i++){
+            parent[i] = document.querySelector("#prPhone_"+ i);
+            
+            parentInput[i] = window.intlTelInput(parent[i], {
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
+                initialCountry: 'id',
+                onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
+            });
+
+            $("#prPhone_"+i).on('keyup', function(e) {
+                number[i] = parentInput[i].getNumber();
+                $("#prPhoneR_"+i).val(number[i]);
+                $("input[name=target_phone]").val(number[i]);
+            });
+        }
+
     }
 </script>
 <script>
 
-    $(document).on('click', 'input[id=prPhoneInput]', function () {
-        sendTo('parent');
+    $(document).on('click', '.prPhoneInput', function () {
+        sendTo('parent', $(this).data('index'), $(this).data('parentid'));
     });
 
     $(document).on('click', 'input[id=chPhoneInput]', function () {
-        sendTo('child');
+        sendTo('child', 0, null);
     });
 
-    function sendTo(recipient)
+    function sendTo(recipient, index, parentId)
     {
         var prPhoneStatus = chPhoneStatus = false;
         switch (recipient) {
             case "parent":
-                var phone = $("#prPhoneR").val();
+                var phone = $("#prPhoneR_"+index).val();
                 prPhoneStatus = true;
+                $("#parent_id_checked").val(parentId);
                 break;
 
             case "child":
@@ -231,10 +239,11 @@
                 break;
         }
 
-        $('#prPhoneInput').prop('checked', prPhoneStatus);
+        $('#prPhoneInput_'+index).prop('checked', prPhoneStatus);
         $('#chPhoneInput').prop('checked', chPhoneStatus);
         $("input[name=send_to]").val(recipient);
         $("input[name=target_phone]").val(phone);
+
     }
 
     $(".card-finance").each(function() {
@@ -288,6 +297,7 @@
             axios.get(url)
                 .then(function(response) {
                     var result = response.data;
+
                     $('#list-detail-finance .modal-title').html(result.title)
                     $('#listFinanceTable tbody').html(result.html_ctx)
 
@@ -297,11 +307,14 @@
                             var client_id = null;
                             if($(this).data('clientid') != undefined){
                                 client_id = $(this).data('clientid');
+
+                                var parents = result.reminder[$(this).data('clientid')].parents;
                                 var parent_phone = result.reminder[$(this).data('clientid')].parent_phone;
                                 var child_phone = result.reminder[$(this).data('clientid')].child_phone;
                                 var parent_id = result.reminder[$(this).data('clientid')].parent_id;
-                                $('input[name=target_phone]').val(parent_id == null ? child_phone : parent_phone);
-                                $('input[name=send_to]').val(parent_id == null ? 'child' : 'parent');
+                                // $('#parent_id_checked').val(parents.length > 0 ? parents[0].id : null);
+                                $('input[name=target_phone]').val(parents.length > 0 ? parents[0].phone : child_phone);
+                                $('input[name=send_to]').val(parents.length > 0 ? 'parent' : 'child');
                                 
                                 $('#client_id').val($(this).data('clientid'))
                                 // $('#fullname').val(result.reminder[$(this).data('clientid')].parent_fullname) //no longer in use
@@ -314,20 +327,24 @@
                                 $('#client_id').val(result.reminder[$(this).data('clientid')].client_id)
 
                                 var form_phone = checked = '';
-                                if (parent_id != null) {
+                                if (parents.length > 0) {
 
-                                    
                                     form_phone += '<h5>Select a recipient</h5>' +
-                                        '<div class="form-check form-check-inline ms-4">' +
-                                            '<input type="radio" class="form-check-input" name="recipients" value="parent" checked id="prPhoneInput">' +
-                                            '<label class="class="form-check-label" for="prPhoneInput">' +
-                                                '<div class="form-group">' +
-                                                    '<label for="">Parent</label>' +
-                                                    '<input type="text" name="pr_phone" class="form-control w-100" value="'+ parent_phone +'" id="prPhone">' +
-                                                    '<input type="hidden" id="prPhoneR" name="pr_phone_r" value="'+ parent_phone +'">' +
-                                                '</div>' +
-                                            '</label>' +
-                                        '</div>';
+                                                  '<input type="hidden" value="'+ parents.length +'" id="count_parent">'+
+                                                  '<input type="hidden" id="parent_id_checked" value="' + parents[0].id + '">';                             
+                                    
+                                    parents.forEach(function (item, index) {
+                                        form_phone += '<div class="form-check form-check-inline ms-4">'+
+                                                        '<input type="radio" class="form-check-input prPhoneInput" name="recipients" value="parent'+index+'" '+ (index === 0 ? 'checked="checked"' : null)  +' id="prPhoneInput_'+ index +'" data-index="'+ index +'" data-parentid="'+ item.id +'">' +
+                                                            '<label class="class="form-check-label" for="prPhoneInput[]">' +
+                                                                    '<div class="form-group">' +
+                                                                        '<label for="">(Parent) ' + item.first_name + ' ' + (item.last_name != null ? item.last_name : '') + '</label>' +
+                                                                        '<input type="text" name="pr_phone[]" class="form-control w-100" value="'+ item.phone +'" id="prPhone_'+ index +'">' +
+                                                                        '<input type="hidden" id="prPhoneR_'+index+'" name="pr_phone_r[]" value="'+ item.phone +'">' +
+                                                                    '</div>' +
+                                                            '</label>' +
+                                                    '</div>';
+                                    })                                    
                                 } else {
                                     checked = 'checked';
                                 }
@@ -541,7 +558,7 @@
                 invoice_duedate : $('#invoice_duedate').val(),
                 total_payment : $('#total_payment').val(),
                 payment_method : $('#payment_method').val(),
-                parent_id : $('#parent_id').val(),
+                parent_id : $('#parent_id_checked').val(),
                 client_id : $('#client_id').val(),
                 sendTo : $('input[name=send_to]').val(),
             })
