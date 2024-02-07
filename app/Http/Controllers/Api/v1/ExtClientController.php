@@ -204,7 +204,6 @@ class ExtClientController extends Controller
                     break;
     
                 case "teacher/counsellor":
-                    $validated['role'] = 'Teacher/Counselor';
                     $client = $this->storeTeacher($validated);
                     break;
 
@@ -292,7 +291,7 @@ class ExtClientController extends Controller
     private function storeStudent($incomingRequest)
     {
         # check if the client exists in crm database
-        $existingClient = $this->checkExistingClient($incomingRequest['phone'], $incomingRequest['mail']);
+        $existingClient = $this->checkExistingClient($this->setPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
 
 
         # if the client is exists
@@ -318,7 +317,7 @@ class ExtClientController extends Controller
             'sch_id' => $schoolId
         ];
 
-        $client = $this->clientRepository->createClient(ucfirst($incomingRequest['role']), $newClientDetails);
+        $client = $this->clientRepository->createClient('Student', $newClientDetails);
         $clientId = $client->id;
 
         # trigger to verify student / children
@@ -338,8 +337,7 @@ class ExtClientController extends Controller
     private function storeParent($incomingRequest)
     {
         # check if the client exists in crm database
-        $existingClient = $this->checkExistingClient($incomingRequest['phone'], $incomingRequest['mail']);
-        
+        $existingClient = $this->checkExistingClient($this->setPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
 
         # if the client is exists
         if ($existingClient['isExist']) 
@@ -358,7 +356,7 @@ class ExtClientController extends Controller
             'lead_id' => 'LS001', # lead is hardcoded into website
         ];
 
-        $client = $this->clientRepository->createClient(ucfirst($incomingRequest['role']), $newClientDetails);
+        $client = $this->clientRepository->createClient('Parent', $newClientDetails);
         $clientId = $client->id;
 
         # trigger to verify parent
@@ -375,7 +373,7 @@ class ExtClientController extends Controller
     private function storeTeacher($incomingRequest)
     {
         # check if the client exists in crm database
-        $existingClient = $this->checkExistingClient($incomingRequest['phone'], $incomingRequest['mail']);
+        $existingClient = $this->checkExistingClient($this->setPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
         
         # if the client is exists
         if ($existingClient['isExist']) 
@@ -397,7 +395,7 @@ class ExtClientController extends Controller
             'lead_id' => 'LS001', # lead is hardcoded into website
         ];
 
-        $client = $this->clientRepository->createClient(ucfirst($incomingRequest['role']), $newClientDetails);
+        $client = $this->clientRepository->createClient('Teacher/Counselor', $newClientDetails);
         $clientId = $client->id;
 
         # trigger to verify teacher

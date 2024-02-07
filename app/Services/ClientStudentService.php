@@ -35,7 +35,7 @@ class ClientStudentService
         $this->userRepository = $userRepository;
     }
 
-    public function getClientStudent()
+    public function advancedFilterClient()
     {
         $reasons = $this->reasonRepository->getReasonByType('Hot Lead');
 
