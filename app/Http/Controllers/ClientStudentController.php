@@ -421,8 +421,6 @@ class ClientStudentController extends ClientController
         $majors = $this->majorRepository->getAllActiveMajors();
         $regions = $this->countryRepository->getAllRegionByLocale('en');
 
-        // $listReferral = $this->clientRepository->getAllClients();
-
         return view('pages.client.student.form')->with(
             [
                 'schools' => $schools,
@@ -436,7 +434,6 @@ class ClientStudentController extends ClientController
                 'countries' => $countries,
                 'majors' => $majors,
                 'regions' => $regions,
-                // 'listReferral' => $listReferral
             ]
         );
     }
@@ -466,9 +463,6 @@ class ClientStudentController extends ClientController
         $countries = $this->tagRepository->getAllTags();
         $majors = $this->majorRepository->getAllMajors();
 
-        // $listReferral = $this->clientRepository->getAllClients();
-        // return $listReferral;
-
         return view('pages.client.student.form')->with(
             [
                 'student' => $student,
@@ -483,7 +477,6 @@ class ClientStudentController extends ClientController
                 'programs' => $programs,
                 'countries' => $countries,
                 'majors' => $majors,
-                // 'listReferral' => $listReferral
             ]
         );
     }
