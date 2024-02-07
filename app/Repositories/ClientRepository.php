@@ -47,7 +47,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getAllClients($selectColumns = [])
     {
-        $query = UserClient::dependsOnPIC();
+        $query = UserClient::filterBasedOnPIC();
         if ($selectColumns)
             $query->select($selectColumns);
 
@@ -1098,7 +1098,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function findHandledClient(int $clientId)
     {
-        return UserClient::where('id', $clientId)->DependsOnPIC()->exists();
+        return UserClient::where('id', $clientId)->filterBasedOnPIC()->exists();
     }
 
     public function getClientByMonthCreatedAt(array $month)
