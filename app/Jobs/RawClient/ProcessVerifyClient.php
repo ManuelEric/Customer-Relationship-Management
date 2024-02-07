@@ -38,32 +38,40 @@ class ProcessVerifyClient implements ShouldQueue
     public function handle(ClientRepositoryInterface $clientRepository)
     {
         $clients = $clientRepository->getClientsById($this->clientIds);
+        
         DB::beginTransaction();
         try {
+
+            # declare default variables
+            $updatedClients = [];
 
             foreach ($clients as $student) {
 
                 ## Update to verified
 
-                # Case 1: have joined the program with success status
+                # declare default variables
                 $isVerified = false;
-                if($student->clientProgs->count() > 0){
-                    foreach ($student->clientProgs as $clientProg) {
-                        if($clientProg->status == 1 || $clientProg->status == 0){
-                            $isVerified = true;
-                        }
-                    }
-                }else{
 
-                    # Case 2: Email and phone is complete && school verified
-                    if($student->mail != null && $student->phone != null && isset($student->school) && !preg_match('/[^\x{80}-\x{F7} a-z0-9@_.\'-]/iu', $student->full_name)){
-                        if($student->school->is_verified == 'Y'){
-                            $isVerified = true;
-                        }
+                # Case 1: have joined the program with success status
+                $model = $student->clientProgram()->whereIn('status', [0, 1])->exists();
+                if ($model)
+                    $isVerified = true;
+
+                # Case 2: Email, phone, and fullname are valid && school verified
+                if($student->mail != null && $student->phone != null && isset($student->school) && !preg_match('/[^\x{80}-\x{F7} a-z0-9@_.\'-]/iu', $student->full_name)){
+                    if($student->school->is_verified == 'Y'){
+                        $isVerified = true;
                     }
                 }
                 
-                $isVerified == true ?  $clientRepository->updateClient($student->id, ['is_verified' => 'Y']) : null;
+                
+                if ($isVerified === true) {
+
+                    $clientRepository->updateClient($student->id, ['is_verified' => 'Y']);
+
+                    # push into an array updatedClients
+                    array_push($updatedClients, $student->id);
+                }
 
             }
             DB::commit();
@@ -72,7 +80,10 @@ class ProcessVerifyClient implements ShouldQueue
 
             DB::rollBack();
             Log::info('Failed to verified client from school : ' . $e->getMessage() . ' on line ' . $e->getLine());
+
         }
+
+        Log::notice('Students that have been verified : ('.json_encode($updatedClients).')');
 
     }
 }

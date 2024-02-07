@@ -59,7 +59,7 @@ class RecycleClientController extends Controller
                 }
 
                 $view = 'pages.recycle.client.student';
-                $entries = app('App\Services\ClientStudentService')->getClientStudent();
+                $entries = app('App\Services\ClientStudentService')->advancedFilterClient();
                 break;
 
 
