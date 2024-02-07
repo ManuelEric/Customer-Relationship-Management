@@ -47,7 +47,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getAllClients($selectColumns = [])
     {
-        $query = UserClient::dependsOnPIC();
+        $query = UserClient::filterBasedOnPIC();
         if ($selectColumns)
             $query->select($selectColumns);
 
@@ -277,7 +277,20 @@ class ClientRepository implements ClientRepositoryInterface
             selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
             leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
             leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
-            doesntHave('clientProgram')->
+            where(function ($q) {
+                $q->
+                    doesntHave('clientProgram')->
+                    orWhere(function ($q_2) {
+                        $q_2->
+                            whereHas('clientProgram', function ($subQuery) {
+                                $subQuery->whereIn('status', [2, 3]);
+                            })->
+                            whereDoesntHave('clientProgram', function ($subQuery) {
+                                $subQuery->where('status', 1);
+                            });
+                    });
+            })->
+            // doesntHave('clientProgram')->
             when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->
@@ -1085,7 +1098,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function findHandledClient(int $clientId)
     {
-        return UserClient::where('id', $clientId)->DependsOnPIC()->exists();
+        return UserClient::where('id', $clientId)->filterBasedOnPIC()->exists();
     }
 
     public function getClientByMonthCreatedAt(array $month)
