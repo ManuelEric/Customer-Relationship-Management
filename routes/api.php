@@ -158,6 +158,9 @@ Route::prefix('v1')->group(function () {
     Route::get('get/programs', [ExtProgramController::class, 'getPrograms']);
     Route::get('get/programs/{main_program}', [ExtProgramController::class, 'getProgramsByMainProg']);
     Route::get('get/leads', [ExtLeadController::class, 'getLeadSources']);
+
+    # used for storing user client data
+    Route::post('register/event', [ExtClientController::class, 'store']);
 });
 
 # Client Event Attendance
