@@ -193,15 +193,16 @@ class ClientProgramController extends Controller
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
-        if (!Cache::has('list-referral')) {
-            $listReferral = $this->clientRepository->getAllClients(['id', 'first_name', 'last_name']);
+        // if (!Cache::has('list-referral')) {
+        //     $listReferral = $this->clientRepository->getAllClients(['id', 'first_name', 'last_name']);
 
-            Cache::remember('list_referral', 60, function () use ($listReferral) {
-                return $listReferral;
-            });
-        }
+        //     Cache::remember('list_referral', 60, function () use ($listReferral) {
+        //         return $listReferral;
+        //     });
+        // }
 
-        $listReferral = Cache::get('list-referral');
+        // $listReferral = Cache::get('list-referral');
+        $listReferral = [];
 
         return view('pages.program.client-program.form')->with(
             [
@@ -557,15 +558,16 @@ class ClientProgramController extends Controller
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
 
-        if (!Cache::has('list-referral')) {
-            $listReferral = $this->clientRepository->getAllClients();
+        // if (!Cache::has('list-referral')) {
+        //     $listReferral = $this->clientRepository->getAllClients();
 
-            Cache::remember('list_referral', 60, function () use ($listReferral) {
-                return $listReferral;
-            });
-        }
+        //     Cache::remember('list_referral', 60, function () use ($listReferral) {
+        //         return $listReferral;
+        //     });
+        // }
 
-        $listReferral = Cache::get('list-referral');
+        // $listReferral = Cache::get('list-referral');
+        $listReferral = [];
 
         return view('pages.program.client-program.form')->with(
             [
@@ -726,6 +728,7 @@ class ClientProgramController extends Controller
                     # add additional values
                     $clientProgramDetails['success_date'] = $request->success_date;
                     $clientProgramDetails['test_date'] = $request->test_date;
+                    $clientProgramDetails['first_class'] = $request->first_class;
                     $clientProgramDetails['last_class'] = $request->last_class;
                     $clientProgramDetails['diag_score'] = $request->diag_score;
                     $clientProgramDetails['test_score'] = $request->test_score;

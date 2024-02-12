@@ -222,17 +222,7 @@
                                         <small>Sub Lead <sup class="text-danger">*</sup></small>
                                         <select name="referral_code" id="referral_code" class="select w-100" {{ $disabled }}>
                                             <option data-placeholder="true"></option>
-                                            @if (isset($listReferral) && count($listReferral) > 0)
-                                                @foreach ($listReferral as $referral)
-                                                    @if (isset($referral->viewClientRefCode))
-                                                    <option value="{{ $referral->viewClientRefCode->ref_code }}" @selected([
-                                                        old('referral_code') == $referral->viewClientRefCode->ref_code,
-                                                        isset($clientProgram) && $clientProgram->referral_code == $referral->viewClientRefCode->ref_code
-                                                    ])>
-                                                        {{ $referral->full_name }}</option>
-                                                    @endif
-                                                @endforeach
-                                            @endif
+                                            
                                         </select>
                                         @error('referral_code')
                                             <small class="text-danger fw-light">{{ $message }}</small>
