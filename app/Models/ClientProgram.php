@@ -190,6 +190,11 @@ class ClientProgram extends Model
         return $this->hasMany(ClientProgramLogMail::class, 'clientprog_id', 'clientprog_id');
     }
 
+    public function viewClientRefCode()
+    {
+        return $this->belongsTo(ViewClientRefCode::class, 'referral_code', 'ref_code');
+    }
+
     # PIC from sales team
     public function handledBy()
     {

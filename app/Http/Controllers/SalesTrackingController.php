@@ -82,7 +82,7 @@ class SalesTrackingController extends Controller
         $averageConversionSuccessful = $this->clientProgramRepository->getConversionTimeSuccessfulPrograms($dateDetails);
         $mainPrograms = $this->mainProgRepository->getAllMainProg();
         $pics = $this->userRepository->getPICs();
-        $salesDetail = $this->salesTargetRepository->getSalesDetailFromClientProgram(null, ['qdate' => date('Y-m')]);
+        $salesDetail = $this->salesTargetRepository->getSalesDetailFromClientProgram($dateDetails, $additionalFilter);
 
         return view('pages.report.sales-tracking.index')->with(
             [

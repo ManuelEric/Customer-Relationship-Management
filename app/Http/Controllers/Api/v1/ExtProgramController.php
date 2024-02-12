@@ -34,7 +34,6 @@ class ExtProgramController extends Controller
             return [
                 'prog_id' => $value->prog_id,
                 'program_name' => $value->program_name,
-                'formatted' => $value->program_name.' | '.$value->prog_id
             ];
         });
 
@@ -72,7 +71,6 @@ class ExtProgramController extends Controller
             return [
                 'prog_id' => $value->prog_id,
                 'program_name' => $value->program_name,
-                'formatted' => $value->program_name.' | '.$value->prog_id
             ];
         });
 
@@ -82,5 +80,39 @@ class ExtProgramController extends Controller
             'data' => $mappedPrograms
         ]);
 
+    }
+
+    public function getProgramsByType(Request $request)
+    {
+        $requestedType = strtolower($request->route("type"));
+        if (!in_array($requestedType, ['b2b', 'b2c'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Type is not valid.'
+            ]);
+        }
+
+        $programs = $this->programRepository->getAllProgramByType($requestedType);
+        if (!$programs) {
+            return response()->json([
+                'success' => true,
+                'message' => 'No programs were found.',
+            ]);
+        
+        }
+
+        # map the data that being shown to the user
+        $mappedPrograms = $programs->map(function ($value) {
+            return [
+                'prog_id' => $value->prog_id,
+                'program_name' => $value->program_name,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'There are programs found.',
+            'data' => $mappedPrograms
+        ]);
     }
 }

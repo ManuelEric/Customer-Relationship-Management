@@ -47,7 +47,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getAllClients($selectColumns = [])
     {
-        $query = UserClient::dependsOnPIC();
+        $query = UserClient::filterBasedOnPIC();
         if ($selectColumns)
             $query->select($selectColumns);
 
@@ -283,7 +283,8 @@ class ClientRepository implements ClientRepositoryInterface
                     orWhere(function ($q_2) {
                         $q_2->
                             whereHas('clientProgram', function ($subQuery) {
-                                $subQuery->whereIn('status', [2, 3])->where('status', '!=', 0);
+                                // $subQuery->whereIn('status', [2, 3])->where('status', '!=', 0);
+                                $subQuery->whereIn('status', [2, 3]);
                             })->
                             whereDoesntHave('clientProgram', function ($subQuery) {
                                 $subQuery->whereIn('status', [0, 1]);
@@ -1098,7 +1099,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function findHandledClient(int $clientId)
     {
-        return UserClient::where('id', $clientId)->DependsOnPIC()->exists();
+        return UserClient::where('id', $clientId)->filterBasedOnPIC()->exists();
     }
 
     public function getClientByMonthCreatedAt(array $month)
@@ -1752,5 +1753,19 @@ class ClientRepository implements ClientRepositoryInterface
 
         return $client;
         
+    }
+
+    public function getListReferral($selectColumns = [], $filter = [])
+    {
+        $query = UserClient::query();
+        if ($selectColumns)
+            $query->select($selectColumns);
+
+            
+        return $query->
+            when(!empty($filter['full_name']), function ($querySearch) use ($filter) {
+                $querySearch->whereRaw("RTRIM(CONCAT(first_name, ' ', COALESCE(last_name, ''))) like ?", "%{$filter['full_name']}%");
+            })
+            ->simplePaginate(10);
     }
 }

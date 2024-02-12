@@ -780,7 +780,6 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 'tbl_partner_prog.success_date',
                 'tbl_partner_prog.id as client_prog_id',
                 DB::raw("'partner_prog' as type"),
-
             )
             ->where('tbl_partner_prog.status', 1)
             ->when($monthYear != null, function ($query) use ($month, $year){

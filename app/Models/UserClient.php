@@ -211,7 +211,7 @@ class UserClient extends Authenticatable
             ->with([$relation => $constraint]);
     }
 
-    public function scopeDependsOnPIC($query)
+    public function scopeFilterBasedOnPIC($query)
     {
         return $query->when(Session::get('user_role') == 'Employee', function ($subQuery) {
             $subQuery->whereHas('handledBy', function ($subQuery_2) {
