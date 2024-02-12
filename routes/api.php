@@ -158,6 +158,7 @@ Route::prefix('v1')->group(function () {
     Route::get('get/employees', [ExtUserController::class, 'getEmployees']);
     Route::get('get/programs', [ExtProgramController::class, 'getPrograms']);
     Route::get('get/programs/{main_program}', [ExtProgramController::class, 'getProgramsByMainProg']);
+    Route::get('get/programs/type/{type}', [ExtProgramController::class, 'getProgramsByType']);
     Route::get('get/leads', [ExtLeadController::class, 'getLeadSources']);
 
     # used for storing user client data

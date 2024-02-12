@@ -286,7 +286,7 @@ class ClientRepository implements ClientRepositoryInterface
                                 $subQuery->whereIn('status', [2, 3]);
                             })->
                             whereDoesntHave('clientProgram', function ($subQuery) {
-                                $subQuery->where('status', 1);
+                                $subQuery->whereIn('status', [0, 1]);
                             });
                     });
             })->
