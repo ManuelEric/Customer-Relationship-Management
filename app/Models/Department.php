@@ -63,4 +63,9 @@ class Department extends Model
         // return $this->belongsTo(MenuDetail::class, 'department_id', 'id');
         return $this->belongsToMany(Menu::class, 'tbl_menusdtl', 'department_id', 'menu_id')->using(MenuDetail::class)->withPivot(['copy', 'export'])->withTimestamps();
     }
+
+    public function lead()
+    {
+        return $this->hasMany(Lead::class, 'department_id', 'id');
+    }
 }
