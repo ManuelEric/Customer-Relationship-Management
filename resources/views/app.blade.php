@@ -74,6 +74,8 @@
         var html = '';
         var htmlLoading = '';
 
+        $('#content-import-information').html('');
+
         htmlLoading += '<div>'
         htmlLoading += '<span class="spinner-border spinner-border-sm text-black" aria-hidden="true"></span>'
         htmlLoading += '<span class="ms-2 text-black" role="status">Importing...</span>'
