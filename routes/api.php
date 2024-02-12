@@ -28,6 +28,7 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\Module\ClientController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\Api\v1\ProgramController as APIProgramController;
+use App\Http\Controllers\Api\v1\TagController as APITagController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\ReceiptSchoolController;
 use App\Http\Controllers\ReceiptPartnerController;
@@ -160,6 +161,9 @@ Route::prefix('v1')->group(function () {
     Route::get('get/programs/{main_program}', [ExtProgramController::class, 'getProgramsByMainProg']);
     Route::get('get/programs/type/{type}', [ExtProgramController::class, 'getProgramsByType']);
     Route::get('get/leads', [ExtLeadController::class, 'getLeadSources']);
+
+    # used for creating form registration
+    Route::get('get/destination-country', [APITagController::class, 'getTags']);
 
     # used for storing user client data
     Route::post('register/event', [ExtClientController::class, 'store']);
