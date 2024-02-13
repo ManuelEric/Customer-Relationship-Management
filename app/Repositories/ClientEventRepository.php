@@ -485,7 +485,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
 
     public function createClientEvent(array $clientEvents)
     {
-        return ClientEvent::create($clientEvents);
+        return ClientEvent::create($dclientEvents);
     }
 
     public function updateClientEvent($clientEventId, array $newClientEvents)

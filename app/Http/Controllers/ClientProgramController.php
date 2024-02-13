@@ -702,6 +702,7 @@ class ClientProgramController extends Controller
                     # add additional values
                     $clientProgramDetails['success_date'] = $request->success_date;
                     $clientProgramDetails['test_date'] = $request->test_date;
+                    $clientProgramDetails['first_class'] = $request->first_class;
                     $clientProgramDetails['last_class'] = $request->last_class;
                     $clientProgramDetails['diag_score'] = $request->diag_score;
                     $clientProgramDetails['test_score'] = $request->test_score;

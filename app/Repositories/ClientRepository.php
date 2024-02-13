@@ -283,10 +283,11 @@ class ClientRepository implements ClientRepositoryInterface
                     orWhere(function ($q_2) {
                         $q_2->
                             whereHas('clientProgram', function ($subQuery) {
+                                // $subQuery->whereIn('status', [2, 3])->where('status', '!=', 0);
                                 $subQuery->whereIn('status', [2, 3]);
                             })->
                             whereDoesntHave('clientProgram', function ($subQuery) {
-                                $subQuery->where('status', 1);
+                                $subQuery->whereIn('status', [0, 1]);
                             });
                     });
             })->
