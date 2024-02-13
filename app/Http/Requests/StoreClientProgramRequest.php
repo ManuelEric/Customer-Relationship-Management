@@ -319,6 +319,16 @@ class StoreClientProgramRequest extends FormRequest
             'status' => 'required|in:0,1,2,3',
             'pend_initconsult_date' => 'nullable|date|after_or_equal:first_discuss_date',
             'pend_assessmentsent_date' => 'nullable|date|after_or_equal:pend_initconsult_date',
+            'pend_mentor_ic' => [
+                'nullable',
+                function ($attribute, $value, $fail) {
+                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                        $q->where('role_name', 'Mentor');
+                    })->find($value)) {
+                        $fail('The submitted mentor was invalid mentor');
+                    }
+                },
+            ],
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
@@ -413,6 +423,16 @@ class StoreClientProgramRequest extends FormRequest
                 'nullable',
                 // 'required_if:status,1',
                 'different:main_mentor'
+            ],
+            'mentor_ic' => [
+                function ($attribute, $value, $fail) {
+                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                        $q->where('role_name', 'Mentor');
+                    })->find($value)) {
+                        $fail('The submitted mentor was invalid mentor');
+                    }
+                },
+                'required_if:status,1',
             ],
             'installment_notes' => 'nullable',
             'agreement' => 'required|mimes:pdf', #mimes:pdf

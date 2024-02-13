@@ -273,6 +273,15 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             }
         }
 
+        # when mentor_ic is filled which is not null
+        # then assumed the user want to input "admission mentoring" program
+        # do attach mentor_ic
+        if (array_key_exists('mentor_ic', $clientProgramDetails)){
+            if(isset($clientProgramDetails['mentor_ic'])) {
+                $clientProgram->mentorIC()->attach($clientProgramDetails['mentor_ic']);
+            }
+        }
+
 
         # when tutor id is filled which is not null
         # then assumed the user want to input "tutoring" program
@@ -410,6 +419,15 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             unset($clientProgramDetails['tutor_2']);
             unset($clientProgramDetails['timesheet_1']);
             unset($clientProgramDetails['timesheet_2']);
+        } 
+        
+        if (array_key_exists('mentor_ic', $clientProgramDetails)){
+
+            $additionalDetails = [
+                'mentor_ic' => $clientProgramDetails['mentor_ic']
+            ];
+
+            unset($clientProgramDetails['mentor_ic']);
         }
 
         if (array_key_exists('reason_id', $clientProgramDetails) || array_key_exists('other_reason', $clientProgramDetails)) {
@@ -531,6 +549,15 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
              
             if(count($tutorInfo) > 0)
                 $clientProgram->clientMentor()->sync($tutorInfo, ['status' => $status]);
+        }
+
+        # when mentor_ic is filled which is not null
+        # then assumed the user want to input "admission mentoring" program
+        # do attach mentor_ic
+        if (array_key_exists('mentor_ic', $additionalDetails)){
+            if(isset($additionalDetails['mentor_ic'])) {
+                $clientProgram->mentorIC()->sync($additionalDetails['mentor_ic']);
+            }
         }
 
 
