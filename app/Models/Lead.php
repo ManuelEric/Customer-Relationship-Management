@@ -40,6 +40,13 @@ class Lead extends Model
     {
         return '#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
     }
+    
+    protected function departmentName(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => $this->department_id !== null ? $this->department->dept_name : null
+        );
+    }
 
     public function leadName(): Attribute
     {
@@ -88,5 +95,10 @@ class Lead extends Model
     public function clientProgram()
     {
         return $this->hasMany(ClientProgram::class, 'lead_id', 'lead_id');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id', 'id');
     }
 }

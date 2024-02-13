@@ -31,7 +31,7 @@ class ExtLeadController extends Controller
                 'lead' => $value->lead_name,
                 'id' => $value->id,
                 'lead_id' => $value->lead_id,
-                'formatted' => $value->lead_name.' | '.$value->lead_id
+                'department' => $value->department_name
             ];
         });
 

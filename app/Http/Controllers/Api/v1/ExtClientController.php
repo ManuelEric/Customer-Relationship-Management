@@ -128,7 +128,7 @@ class ExtClientController extends Controller
             'school_id' => 'nullable|required_if:other_school,null|exists:tbl_sch,sch_id',
             'other_school' => 'nullable',
             'graduation_year' => 'nullable|required_if:role,student|gte:'.date('Y'),
-            'destination_country' => 'nullable|required_if:role,student|array|exists:tbl_tag,id', # the ids from tbl_tag
+            'destination_country' => 'nullable|required_unless:role,teacher/counsellor|required_if:have_child,true|array|exists:tbl_tag,id', # the ids from tbl_tag
             'scholarship' => 'required|in:yes,no',
             'lead_source_id' => 'required|exists:tbl_lead,lead_id',
             'event_id' => 'required|exists:tbl_events,event_id',
@@ -144,7 +144,15 @@ class ExtClientController extends Controller
             'role', 'user', 'fullname', 'mail', 'phone', 'secondary_name', 'secondary_email', 'secondary_phone', 'school_id', 'other_school', 'graduation_year', 'destination_country', 'scholarship', 'lead_source_id', 'event_id', 'attend_status', 'attend_party', 'event_type', 'status', 'referral', 'have_child'
         ]);
 
-        $validator = Validator::make($incomingRequest, $rules);
+        $messages = [
+            'school_id.required_if' => 'The school field is required.',
+            'school_id.exists' => 'The school field is not valid.',
+            'lead_source_id.required' => 'The lead field is required.',
+            'lead_source_id.exists' => 'The lead field is not valid.',
+            'event_id.required' => 'The event field is required.'
+        ];
+
+        $validator = Validator::make($incomingRequest, $rules, $messages);
         
 
         # threw error if validation fails
@@ -251,6 +259,7 @@ class ExtClientController extends Controller
             Log::error('Registration Event Failed | ' . $e->getMessage(). ' | '.$e->getFile().' on line '.$e->getLine());
             return response()->json([
                 'success' => false,
+                'code' => 'ERR',
                 'message' => "We encountered an issue completing your registration. Please check for any missing information or errors and try again. If you're still having trouble, feel free to contact our support team for assistance."
             ]);
 
