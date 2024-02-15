@@ -63,7 +63,6 @@
         @php
             $limit = $invoice->receipt->count();
         @endphp
-        {{ "sldkjfkl" }}
             @for ($i = 0; $i < $limit ; $i++)
                 <div class="row g-2 installment mb-3">
                     <div class="col-md-3">

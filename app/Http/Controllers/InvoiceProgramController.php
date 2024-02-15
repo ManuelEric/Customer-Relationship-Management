@@ -730,7 +730,7 @@ class InvoiceProgramController extends Controller
 
         try {
 
-            ProcessEmailToClientJob::dispatch($data, $attachment, $this->invoiceAttachmentRepository)->onQueue('inv-send-to-client');
+            ProcessEmailToClientJob::dispatch($data, $attachment, $this->invoiceAttachmentRepository, $invoice_id)->onQueue('inv-send-to-client');
 
         } catch (Exception $e) {
 

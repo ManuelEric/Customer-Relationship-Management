@@ -31,24 +31,8 @@ class RunWorker extends Command
     {
 
         Artisan::call('queue:work', [
-
-            '--queue' => 'inv-send-to-client,
-            inv-email-request-sign,
-            verifying-client,
-            verifying-client-parent,
-            verifying-client-teacher,
-            imports-student,
-            imports-parent,
-            imports-teacher,
-            imports-client-event,
-            imports-school-merge,
-            default,
-            verifying_client,
-            verifying_client_parent,
-            verifying_client_teacher',
-            
-
-            '--stop-when-empty' => true
+            '--stop-when-empty' => true,
+            '--queue' => 'inv-send-to-client,inv-email-request-sign,verifying-client,verifying-client-parent,verifying-client-teacher,imports-student,imports-parent,imports-teacher,imports-client-event,imports-school-merge,default',
         ]);
         
         Log::debug(json_encode(Artisan::output())); 

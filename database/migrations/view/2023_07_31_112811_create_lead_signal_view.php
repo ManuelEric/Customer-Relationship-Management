@@ -29,7 +29,8 @@ return new class extends Migration
                     FROM tbl_sales_target
                     LEFT JOIN tbl_prog ON tbl_prog.prog_id = tbl_sales_target.prog_id
                     LEFT JOIN tbl_main_prog ON tbl_main_prog.id = tbl_prog.main_prog_id
-                    WHERE MONTH(tbl_sales_target.month_year) = requested_month AND YEAR(tbl_sales_target.month_year) = requested_year AND tbl_main_prog.id = 1;
+                    LEFT JOIN tbl_main_prog mp2 on mp2.id = tbl_sales_target.main_prog_id
+                    WHERE MONTH(tbl_sales_target.month_year) = requested_month AND YEAR(tbl_sales_target.month_year) = requested_year AND (tbl_main_prog.id = 1 OR mp2.id = 1);
             RETURN total;
         END; //
 
@@ -169,7 +170,8 @@ return new class extends Migration
                     FROM tbl_sales_target
                     LEFT JOIN tbl_prog ON tbl_prog.prog_id = tbl_sales_target.prog_id
                     LEFT JOIN tbl_main_prog ON tbl_main_prog.id = tbl_prog.main_prog_id
-                    WHERE MONTH(tbl_sales_target.month_year) = requested_month AND YEAR(tbl_sales_target.month_year) = requested_year AND tbl_main_prog.id = 1;
+                    LEFT JOIN tbl_main_prog mp2 on mp2.id = tbl_sales_target.main_prog_id
+                    WHERE MONTH(tbl_sales_target.month_year) = requested_month AND YEAR(tbl_sales_target.month_year) = requested_year AND (tbl_main_prog.id = 1 OR mp2.id = 1);
             RETURN total;
         END; //
 
