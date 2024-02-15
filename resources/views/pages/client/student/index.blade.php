@@ -550,6 +550,7 @@
                     },
                     {
                         data: 'interest_prog',
+                        searchable: false,
                         className: 'text-start',
                         defaultContent: '-',
                         render: function(data, type, row, meta) {

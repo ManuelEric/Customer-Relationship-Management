@@ -43,7 +43,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 break;
 
             case "reminder":
-                $query = ViewClientProgram::leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')->leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')->leftJoin('tbl_client as child', 'child.id', '=', 'clientprogram.client_id')->leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')->leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')->leftJoin('tbl_receipt as receipt', 'receipt.inv_id', '=', 'tbl_inv.inv_id')->select([
+                $query = ViewClientProgram::with('client.parents')->leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')->leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')->leftJoin('tbl_client as child', 'child.id', '=', 'clientprogram.client_id')->leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')->leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')->leftJoin('tbl_receipt as receipt', 'receipt.inv_id', '=', 'tbl_inv.inv_id')->select([
                     'tbl_inv.clientprog_id',
                     'clientprogram.fullname',
                     'clientprogram.parent_fullname',
@@ -101,7 +101,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                             WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
                             WHEN tbl_inv.inv_paymentmethod = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
                         END)
-                    '), 'desc');
+                    '), 'desc')
+                    ->groupBy('tbl_inv.inv_id');
 
                 return DataTables::eloquent($query)->filterColumn('payment_method', function ($query, $keyword) {
                     $sql = '(CASE
@@ -560,7 +561,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             ->whereRelation('clientprog', 'status', 1);
         // ->groupBy('tbl_inv.inv_id');
 
-        return $queryInv->orderBy('inv_id_year', 'asc')->orderBy('inv_id_month', 'asc')->orderBy('inv_id_num', 'asc')->get();
+        return $queryInv->orderBy('inv_id_year', 'asc')->orderBy('inv_id_month', 'asc')->orderBy('inv_id_num', 'asc')->groupBy('invoice_id')->get();
     }
 
     public function getRevenueByYear($year)
