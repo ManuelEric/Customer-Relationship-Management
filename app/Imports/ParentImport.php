@@ -149,6 +149,9 @@ class ParentImport extends ToCollectionImport implements SkipsOnFailure
 
                 $parent = $this->checkExistingClientImport($phoneNumber, $row['email']);
 
+                $joinedDate = isset($row['joined_date']) ? $row['joined_date'] : null;
+
+
                 if (!$parent['isExist']) {
                     $parentDetails = [
                         'first_name' => $parentName['firstname'],
@@ -210,17 +213,20 @@ class ParentImport extends ToCollectionImport implements SkipsOnFailure
                         $parent->childrens()->attach($children);
                     }
 
-                    if (isset($row['interested_program'])) {
-                        $this->syncInterestProgram($row['interested_program'], $parent);
-                        $children != null ?  $this->syncInterestProgram($row['interested_program'], $children) : null;
-                    }
-
-                    // Sync country of study abroad
-                    if (isset($row['destination_country'])) {
-                        $children != null ?  $this->syncDestinationCountry($row['destination_country'], $children) : null;
-                    }
                     $childrenIds[] = $children['id'];
                 }
+
+                if (isset($row['interested_program'])) {
+                    $this->syncInterestProgram($row['interested_program'], $parent, $joinedDate);
+                    $children != null ?  $this->syncInterestProgram($row['interested_program'], $children, $joinedDate) : null;
+                }
+
+                // Sync country of study abroad
+                if (isset($row['destination_country'])) {
+                    $this->syncDestinationCountry($row['destination_country'], $parent);
+                    $children != null ?  $this->syncDestinationCountry($row['destination_country'], $children) : null;
+                }
+                
 
                
                 $parentIds[] = $parent['id'];

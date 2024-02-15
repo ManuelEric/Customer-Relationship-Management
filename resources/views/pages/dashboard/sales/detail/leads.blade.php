@@ -288,8 +288,19 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="leadTitleModal">Modal title</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="container">
+                    <div class="row justify-content-between">
+                        <div class="col-8">
+                            <h1 class="modal-title fs-5" id="leadTitleModal">Modal title</h1>
+                        </div>
+                        <div class="col-2 ms-auto">
+                            <button class="btn btn-sm btn-outline-info" onclick="ExportToExcel()">
+                                <i class="bi bi-file-earmark-excel me-1"></i> Export
+                            </button>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="margin-left:0 !important"></button>
+                    </div>
+                </div>
             </div>
             <div class="modal-body overflow-auto" style="max-height: 300px" id="leadContentModal">
                 <table class="table table-hover table-striped" id="listDataLeads">
@@ -576,6 +587,28 @@
 
         $('#leadTitleModal').html(depart + ' ' + type)
         $('#leadsModal').modal('show')
+    }
+
+    function ExportToExcel() {
+
+    var title = $('#leadTitleModal').text();
+
+    var sheetName = [title];
+
+    var tableName = ['listDataLeads'];
+
+    var ws = new Array();
+
+    var workbook = XLSX.utils.book_new();
+    tableName.forEach(function(d, i) {
+        ws[i] = XLSX.utils.table_to_sheet(document.getElementById(tableName[i]));
+        XLSX.utils.book_append_sheet(workbook, ws[i], sheetName[i]);
+    })
+
+   
+
+    XLSX.writeFile(workbook, "data-leads.xlsx");
+
     }
 </script>
 @endpush

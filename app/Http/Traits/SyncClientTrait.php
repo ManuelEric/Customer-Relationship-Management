@@ -18,7 +18,7 @@ trait SyncClientTrait
     use SplitNameTrait;
     use CheckExistingClientImport;
 
-    public function syncInterestProgram($interestPrograms, $client)
+    public function syncInterestProgram($interestPrograms, $client, $joinedDate)
     {
         $programDetails = []; # default
         $programs = explode(', ', $interestPrograms);
@@ -39,6 +39,8 @@ trait SyncClientTrait
             if ($existProgram) {
                 $programDetails[] = [
                     'prog_id' => $existProgram['prog_id'],
+                    'created_at' => $joinedDate,
+                    'updated_at' => $joinedDate,
                 ];
             }
         }

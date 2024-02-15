@@ -154,6 +154,9 @@ class StudentImport extends ToCollectionImport implements SkipsOnFailure
                 $studentName = $row['full_name'] != null ? $this->explodeName($row['full_name']) : null;
                 $parentName = $row['parents_name'] != null ? $this->explodeName($row['parents_name']) : null;
 
+                $joinedDate = isset($row['joined_date']) ? $row['joined_date'] : null;
+
+
                 // $last_id = UserClient::max('st_id');
                 // $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
                 // $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
@@ -232,7 +235,7 @@ class StudentImport extends ToCollectionImport implements SkipsOnFailure
 
                 // Sync interest program
                 if (isset($row['interested_program'])) {
-                    $this->syncInterestProgram($row['interested_program'], $student);
+                    $this->syncInterestProgram($row['interested_program'], $student, $joinedDate);
                 }
 
                 // Sync country of study abroad
@@ -340,7 +343,7 @@ class StudentImport extends ToCollectionImport implements SkipsOnFailure
             '*.phone_number' => ['nullable', 'min:5', 'max:15'],
             '*.date_of_birth' => ['nullable', 'date'],
             '*.parents_name' => ['required', 'different:*.full_name'],
-            '*.parents_phone' => ['nullable', 'min:5', 'max:15', 'diffrent:*.phone_number'],
+            '*.parents_phone' => ['nullable', 'min:5', 'max:15', 'different:*.phone_number'],
             '*.school' => ['required'],
             '*.graduation_year' => ['nullable', 'integer'],
             '*.grade' => ['required', 'integer'],
