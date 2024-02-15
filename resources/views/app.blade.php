@@ -1,3 +1,9 @@
+
+@php
+    // $authImport = Cache::has("auth") ? Cache::get("auth") : null;
+    // $isStart = Cache::has("isStartImport") ? Cache::get("isStartImport") : null;
+    // $authImport = $isStart = null;
+@endphp
 <!doctype html>
 <html lang="en">
 
@@ -195,14 +201,6 @@
             htmlLoading += '<span class="spinner-border spinner-border-sm text-black" aria-hidden="true"></span>'
             htmlLoading += '<span class="ms-2 text-black" role="status">Importing...</span>'
             htmlLoading += '</div>'
-
-            @php
-                $authImport = Cache::has("auth") ? Cache::get("auth") : null;
-                $isStart = Cache::has("isStartImport") ? Cache::get("isStartImport") : null;
-            @endphp
-            @if (($authImport != null && $isStart != null && Auth::user() != null) && (Auth::user()->id == $authImport['id']) && ($isStart))
-                $('#loading-import').html(htmlLoading);
-            @endif
             
             $.fn.dataTable.ext.errMode = function(settings, helpPage, message) {
 

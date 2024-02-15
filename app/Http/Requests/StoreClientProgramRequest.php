@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
+use App\Models\ClientProgram;
 use App\Models\Lead;
 use App\Models\Program;
 use App\Models\User;
@@ -82,7 +83,8 @@ class StoreClientProgramRequest extends FormRequest
             return [
                 'prog_id' => 'required|exists:tbl_prog,prog_id',
                 'lead_id' => 'required',
-                'referral_code' => 'required_if:lead_id,LS005',
+                // 'referral_code' => 'required_if:lead_id,LS005',
+                'referral_code' => 'nullable',
                 'first_discuss_date' => 'required|date',
                 'meeting_notes' => 'nullable',
                 'status' => 'required|in:0,1,2,3',
@@ -122,7 +124,8 @@ class StoreClientProgramRequest extends FormRequest
                             }
                         ],
                         'lead_id' => 'required',
-                        'referral_code' => 'required_if:lead_id,LS005',
+                        // 'referral_code' => 'required_if:lead_id,LS005',
+                        'referral_code' => 'nullable',
                         'first_discuss_date' => 'required|date',
                         'meeting_notes' => 'nullable',
                         'status' => 'required|in:0,1,2,3',
@@ -189,7 +192,8 @@ class StoreClientProgramRequest extends FormRequest
                         }
                     ],
                     'lead_id' => 'required',
-                    'referral_code' => 'required_if:lead_id,LS005',
+                    // 'referral_code' => 'required_if:lead_id,LS005',
+                    'referral_code' => 'nullable',
                     'clientevent_id' => 'required_if:lead_id,LS003',
                     'eduf_lead_id' => 'required_if:lead_id,LS018',
                     'kol_lead_id' => [
@@ -234,7 +238,8 @@ class StoreClientProgramRequest extends FormRequest
                         }
                     ],
                     'lead_id' => 'required',
-                    'referral_code' => 'required_if:lead_id,LS005',
+                    // 'referral_code' => 'required_if:lead_id,LS005',
+                    'referral_code' => 'nullable',
                     'clientevent_id' => 'required_if:lead_id,LS003',
                     'eduf_lead_id' => 'required_if:lead_id,LS018',
                     'kol_lead_id' => [
@@ -296,7 +301,8 @@ class StoreClientProgramRequest extends FormRequest
                 }
             ],
             'lead_id' => 'required',
-            'referral_code' => 'required_if:lead_id,LS005',
+            // 'referral_code' => 'required_if:lead_id,LS005',
+            'referral_code' => 'nullable',
             'clientevent_id' => 'required_if:lead_id,LS003',
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
@@ -334,7 +340,7 @@ class StoreClientProgramRequest extends FormRequest
 
     public function store_admission_success($isMentee, $studentId)
     {
-        return [
+        $validate = [
             'prog_id' => [
                 'required', 
                 'exists:tbl_prog,prog_id',
@@ -345,7 +351,8 @@ class StoreClientProgramRequest extends FormRequest
                 }
             ],
             'lead_id' => 'required',
-            'referral_code' => 'required_if:lead_id,LS005',
+            // 'referral_code' => 'required_if:lead_id,LS005',
+            'referral_code' => 'nullable',
             'clientevent_id' => 'required_if:lead_id,LS003',
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
@@ -409,9 +416,25 @@ class StoreClientProgramRequest extends FormRequest
                 'different:main_mentor'
             ],
             'installment_notes' => 'nullable',
-            'agreement' => 'required|mimes:pdf', #mimes:pdf
+            'agreement' => 'nullable', #mimes:pdf
             'prog_running_status' => 'required',
         ];
+
+        # if client program will be created
+        if ($this->isMethod('POST')) {
+            $validate['agreement'] = 'required|mimes:pdf';
+        }
+
+        # if client program will be updated and the agreement still nullable
+        if ($this->isMethod('PUT')) {
+            $clientprog_id = $this->route('program');
+            $clientProg = ClientProgram::whereClientProgramId($clientprog_id);
+            if ($clientProg->agreement == 'NULL')
+                $validate['agreement'] = 'required|mimes:pdf';
+        }
+
+        
+        return $validate;
     }
 
     public function store_tutoring_pending($isMentee)
@@ -427,7 +450,8 @@ class StoreClientProgramRequest extends FormRequest
                 }
             ],
             'lead_id' => 'required',
-            'referral_code' => 'required_if:lead_id,LS005',
+            // 'referral_code' => 'required_if:lead_id,LS005',
+            'referral_code' => 'nullable',
             'clientevent_id' => 'required_if:lead_id,LS003',
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
@@ -472,7 +496,8 @@ class StoreClientProgramRequest extends FormRequest
                 }
             ],
             'lead_id' => 'required',
-            'referral_code' => 'required_if:lead_id,LS005',
+            // 'referral_code' => 'required_if:lead_id,LS005',
+            'referral_code' => 'nullable',
             'clientevent_id' => 'required_if:lead_id,LS003',
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
@@ -543,7 +568,8 @@ class StoreClientProgramRequest extends FormRequest
                 }
             ],
             'lead_id' => 'required',
-            'referral_code' => 'required_if:lead_id,LS005',
+            // 'referral_code' => 'required_if:lead_id,LS005',
+            'referral_code' => 'nullable',
             'clientevent_id' => 'required_if:lead_id,LS003',
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [

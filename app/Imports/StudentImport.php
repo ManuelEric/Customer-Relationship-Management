@@ -340,7 +340,7 @@ class StudentImport extends ToCollectionImport implements SkipsOnFailure
             '*.phone_number' => ['nullable', 'min:5', 'max:15'],
             '*.date_of_birth' => ['nullable', 'date'],
             '*.parents_name' => ['required', 'different:*.full_name'],
-            '*.parents_phone' => ['nullable', 'min:5', 'max:15', 'diffrent:*.phone_number'],
+            '*.parents_phone' => ['nullable', 'min:5', 'max:15', 'different:*.phone_number'],
             '*.school' => ['required'],
             '*.graduation_year' => ['nullable', 'integer'],
             '*.grade' => ['required', 'integer'],

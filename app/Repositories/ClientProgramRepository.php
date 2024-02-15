@@ -46,6 +46,8 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         $fieldKey = ["created_at"];
                 }
             }
+        }else{
+            $fieldKey = ["created_at"];
         }
 
         $model = ViewClientProgram::
