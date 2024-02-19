@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('tbl_client_event', function (Blueprint $table) {
-            $table->string('ticket_id', 6)->comment('can be used as identifier')->after('clientevent_id')->nullable();
+            $table->string('ticket_id', 10)->comment('can be used as identifier')->after('clientevent_id')->nullable();
         });
     }
 
