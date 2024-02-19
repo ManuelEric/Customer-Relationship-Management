@@ -616,7 +616,7 @@ class ExtClientController extends Controller
                 case "student":
                     # initiate variables for client
                     $studentId = $requestUpdateClientEvent->client_id;
-                    $student = $this->updateStudent($studentId, $validated);
+                    $student = $client = $this->updateStudent($studentId, $validated);
 
                     # attach interest programs
                     # get the value of interest programs from event category
@@ -719,7 +719,10 @@ class ExtClientController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Verifying registration event success',
-            'data' => $updatedClientEvent
+            'data' => [
+                'client_event' => $updatedClientEvent,
+                'client' => $client
+            ]
         ]);
     }
 
