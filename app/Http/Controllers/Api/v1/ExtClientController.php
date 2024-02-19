@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class ExtClientController extends Controller
 {
@@ -121,6 +122,7 @@ class ExtClientController extends Controller
 
     public function store(Request $request)
     {
+
         # validation
         $rules = [
             'role' => 'required|in:parent,student,teacher/counsellor',
@@ -258,6 +260,7 @@ class ExtClientController extends Controller
 
             # declare variables for client events
             $clientEventDetails = [
+                'ticket_id' => $this->generateTicketID(),
                 'client_id' => $client->id, # it comes from query to database, so it should be a collection
                 'child_id' => $studentId,
                 'parent_id' => null,
@@ -318,7 +321,8 @@ class ExtClientController extends Controller
                     'email' => $validated['mail']
                 ],
                 'clientevent' => [
-                    'id' => $storedClientEvent->clientevent_id
+                    'id' => $storedClientEvent->clientevent_id,
+                    'ticket_id' => $storedClientEvent->ticket_id,
                 ],
                 'link' => [
                     'scan' => url('/client-event/CE/'.$storedClientEvent->clientevent_id)  
@@ -326,6 +330,11 @@ class ExtClientController extends Controller
             ]
         ]);
 
+    }
+
+    private function generateTicketID()
+    {
+        return Str::random(10);
     }
 
     private function storeStudent($incomingRequest)
@@ -551,7 +560,7 @@ class ExtClientController extends Controller
             # status
             'attend_status' => 'nullable|in:attend',
             # number of attend
-            'attend_party' => 'nullable',
+            'attend_party' => 'nullable|min:1',
             'event_type' => 'nullable|in:offline',
             # registration_type
             'status' => 'required|in:OTS,PR',
@@ -646,21 +655,38 @@ class ExtClientController extends Controller
 
 
                     # when the request says they have a children
-                    # but from the database, they didn't 
+                    # and from the database, they do have a children
                     if ($validated['have_child'] == true && $requestUpdateClientEvent->child_id !== NULL) {
+                        $studentId = $requestUpdateClientEvent->child_id;
+
+                        $validatedStudent = $request->except(['fullname', 'email', 'phone']);
+                        $validatedStudent['fullname'] = $validated['secondary_name'];
+                        $validatedStudent['mail'] = $validated['secondary_email'];
+                        $validatedStudent['phone'] = $validated['secondary_phone'];
+
+                        $student = $this->updateStudent($studentId, $validatedStudent);
+                        $studentId = $student->id;
+
                         
+                        $this->attachDestinationCountry($studentId, $validated['destination_country']);
                     }
 
                     # when the request says they don't have a children
                     # but somehow in the time the parents registered, they had inputted the children data which is input "have_child" as a yes 
                     if ($validated['have_child'] == false && $requestUpdateClientEvent->child_id !== NULL) {
                         
+                        $studentId = $requestUpdateClientEvent->child_id;
+
+                        $this->deleteRelation($parent, $studentId);
+
+                        Log::info('Student ID : '.$studentId.'has been detached from '.$parent->id);
                     }
 
                     break;
     
                 case "teacher/counsellor":
-                    $client = $this->storeTeacher($validated);
+                    $teacherId = $requestUpdateClientEvent->client_id;
+                    $client = $this->updateTeacher($teacherId, $validated);
                     break;
 
                 default:
@@ -669,47 +695,97 @@ class ExtClientController extends Controller
             }
 
 
-            # check if registered client has already join the event
-            if ($existing = $this->clientEventRepository->getClientEventByClientIdAndEventId($client->id, $validated['event_id'])) {
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'They have joined the event.',
-                    'code' => 'EXT', # existing / has joined
-                    'data' => $existing
-                ]);
-            }
-
-            # declare variables for client events
-            $clientEventDetails = [
-                'client_id' => $client->id, # it comes from query to database, so it should be a collection
-                'child_id' => $studentId,
-                'parent_id' => null,
-                'event_id' => $validated['event_id'],
-                'lead_id' => $validated['lead_source_id'],
-                'registration_type' => isset($validated['status']) ? strtoupper($validated['status']) : 'PR', # default is PR means Pra-Reg
-                'number_of_attend' => isset($validated['attend_party']) ? $validated['attend_party'] : 1,
-                'notes' => null, # previously, notes filled with VIP & VVIP
-                'referral_code' => null,
-                'status' => $validated['attend_status'] == 'attend' ? 1 : 0,
-                'joined_date' => Carbon::now(),
-            ];
+            # update client event
+            $updatedClientEvent = $this->clientEventRepository->updateClientEvent($requestUpdateClientEvent->clientevent_id, [
+                            'number_of_attend' => $validated['attend_party'],
+                            'status' => 1 # they came to the event
+                        ]);
 
 
-            # store client event
-            $storedClientEvent = $this->clientEventRepository->createClientEvent($clientEventDetails);
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
+            Log::error('Verifying Registration Event Failed | ' . $e->getMessage(). ' | '.$e->getFile().' on line '.$e->getLine());
+            return response()->json([
+                'success' => false,
+                'code' => 'ERR',
+                'message' => "We encountered an issue completing your verification. Please check for any missing information or errors and try again. If you're still having trouble, feel free to contact our support team for assistance."
+            ]);
 
         }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Verifying registration event success',
+            'data' => $updatedClientEvent
+        ]);
     }
 
-    private function updateParent()
+    private function updateTeacher($teacherId, $incomingRequest)
     {
+        # check if the client exists in crm database
+        $existingClient = $this->checkExistingClient($this->setPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
+        
+        # if the client is exists
+        if ($existingClient['isExist']) 
+            return $this->clientRepository->getClientById($existingClient['id']);
 
+        # declare some variables
+        $splitNames = $this->split($incomingRequest['fullname']);
+        $schoolId = $this->getSchoolId($incomingRequest);
+
+
+        # create a new client > student
+        $newClientDetails = [
+            'first_name' => $splitNames['first_name'],
+            'last_name' => $splitNames['last_name'],
+            'mail' => $incomingRequest['mail'],
+            'phone' => $this->setPhoneNumber($incomingRequest['phone']),
+            'register_as' => $incomingRequest['role'],
+            'sch_id' => $schoolId,
+            'lead_id' => 'LS001', # lead is hardcoded into website
+        ];
+
+        $client = $this->clientRepository->updateClient($teacherId, $newClientDetails);
+
+        return $client;
+    }
+
+    private function updateParent($parentId, $incomingRequest)
+    {
+        # check if the client exists in crm database
+        $existingClient = $this->checkExistingClient($this->setPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
+
+        # if the client is exists
+        if ($existingClient['isExist']) 
+            return $this->clientRepository->getClientById($existingClient['id']);
+
+        # declare some variables
+        $splitNames = $this->split($incomingRequest['fullname']);
+
+        # create a new client > student
+        $newClientDetails = [
+            'first_name' => $splitNames['first_name'],
+            'last_name' => $splitNames['last_name'],
+            'mail' => $incomingRequest['mail'],
+            'phone' => $this->setPhoneNumber($incomingRequest['phone']),
+            'register_as' => $incomingRequest['role'],
+            'scholarship' => $incomingRequest['scholarship'],
+            'lead_id' => 'LS001', # lead is hardcoded into website
+        ];
+
+        $client = $this->clientRepository->updateClient($parentId, $newClientDetails);
+
+        return $client;
+    }
+
+    private function deleteRelation($parent, $studentId)
+    {
+        # check parent relation with the student
+        if ($parent->childrens()->where('id', $studentId)->exists())
+            $parent->childrens()->detach($studentId);
     }
 
     private function updateStudent($clientId, $incomingRequest)

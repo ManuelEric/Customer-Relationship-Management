@@ -176,7 +176,7 @@ Route::prefix('v1')->group(function () {
     Route::post('register/event', [ExtClientController::class, 'store']);
     Route::get('event/{event_id}', [APIEventController::class, 'findEvent']);
     Route::get('client-event/{screening_type}/{identifier}', [APIClientEventController::class, 'findClientEvent']);
-    Route::patch('client-event/{clientevent_id}', [ExtClientController::class, 'update']);
+    Route::patch('registration/verify/{clientevent_id}', [ExtClientController::class, 'update']);
 });
 
 # Client Event Attendance
