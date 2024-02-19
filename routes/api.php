@@ -9,7 +9,6 @@ use App\Http\Controllers\Api\v1\ExtUserController;
 use App\Http\Controllers\Api\v1\SalesDashboardController;
 use App\Http\Controllers\Api\v1\PartnerDashboardController;
 use App\Http\Controllers\Api\v1\FinanceDashboardController;
-use App\Http\Controllers\Api\v1\SchoolController as APISchoolController;
 use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\ClientParentController;
 use App\Http\Controllers\ClientStudentController;
@@ -27,8 +26,13 @@ use App\Http\Controllers\InvoiceReferralController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\Module\ClientController;
 use App\Http\Controllers\ProgramController;
+use App\Http\Controllers\Api\v1\SchoolController as APISchoolController;
 use App\Http\Controllers\Api\v1\ProgramController as APIProgramController;
 use App\Http\Controllers\Api\v1\TagController as APITagController;
+use App\Http\Controllers\Api\v1\ClientEventController as APIClientEventController;
+use App\Http\Controllers\Api\v1\EventController as APIEventController;
+use App\Http\Controllers\Api\v1\ExtPartnerController;
+use App\Http\Controllers\Api\v1\ExtUniversityController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\ReceiptSchoolController;
 use App\Http\Controllers\ReceiptPartnerController;
@@ -38,6 +42,7 @@ use App\Http\Controllers\SchoolEventController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -161,12 +166,17 @@ Route::prefix('v1')->group(function () {
     Route::get('get/programs/{main_program}', [ExtProgramController::class, 'getProgramsByMainProg']);
     Route::get('get/programs/type/{type}', [ExtProgramController::class, 'getProgramsByType']);
     Route::get('get/leads', [ExtLeadController::class, 'getLeadSources']);
+    Route::get('get/partners', [ExtPartnerController::class, 'getPartners']);
+    Route::get('get/universities', [ExtUniversityController::class, 'getUniversities']);
 
     # used for creating form registration
     Route::get('get/destination-country', [APITagController::class, 'getTags']);
 
     # used for storing user client data
     Route::post('register/event', [ExtClientController::class, 'store']);
+    Route::get('event/{event_id}', [APIEventController::class, 'findEvent']);
+    Route::get('client-event/{screening_type}/{identifier}', [APIClientEventController::class, 'findClientEvent']);
+    Route::patch('client-event/{clientevent_id}', [ExtClientController::class, 'update']);
 });
 
 # Client Event Attendance
