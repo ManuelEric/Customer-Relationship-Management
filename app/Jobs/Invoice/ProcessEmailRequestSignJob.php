@@ -3,7 +3,7 @@
 namespace App\Jobs\Invoice;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use PDF;
 
-class ProcessEmailRequestSignJob implements ShouldQueue
+class ProcessEmailRequestSignJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
+// class ProcessEmailRequestSignJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -36,6 +37,16 @@ class ProcessEmailRequestSignJob implements ShouldQueue
         $this->mailDetails = $mailDetails;
         $this->attachmentDetails = $attachmentDetails;
         $this->invoiceId = $invoiceId;
+    }
+
+    /**
+     * The unique ID of the job.
+     *
+     * @return string
+     */
+    public function uniqueId()
+    {
+        return $this->invoiceId;
     }
 
     /**

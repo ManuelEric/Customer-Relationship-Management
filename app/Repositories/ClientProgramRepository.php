@@ -25,7 +25,6 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     {
         # finding fieldKey that being searched
         # depends on status
-        $fieldKey = [];
         if (isset($searchQuery['status'])) {
             foreach ($searchQuery['status'] as $key => $status) {
 
@@ -46,7 +45,10 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         $fieldKey = ["created_at"];
                 }
             }
+        }else{
+            $fieldKey = ["created_at"];
         }
+
 
         $model = ViewClientProgram::
                 when(Session::get('user_role') == 'Employee', function ($subQuery) {
@@ -273,6 +275,15 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             }
         }
 
+        # when mentor_ic is filled which is not null
+        # then assumed the user want to input "admission mentoring" program
+        # do attach mentor_ic
+        if (array_key_exists('mentor_ic', $clientProgramDetails)){
+            if(isset($clientProgramDetails['mentor_ic'])) {
+                $clientProgram->mentorIC()->attach($clientProgramDetails['mentor_ic']);
+            }
+        }
+
 
         # when tutor id is filled which is not null
         # then assumed the user want to input "tutoring" program
@@ -390,26 +401,33 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
             unset($clientProgramDetails['main_mentor']);
             unset($clientProgramDetails['backup_mentor']);
-        } elseif (array_key_exists('tutor_id', $clientProgramDetails)) {
+        }
 
-            $additionalDetails = [
-                'tutor_id' => $clientProgramDetails['tutor_id']
-            ];
+        if (array_key_exists('tutor_id', $clientProgramDetails)) {
+
+            $additionalDetails['tutor_id'] = $clientProgramDetails['tutor_id'];
 
             unset($clientProgramDetails['tutor_id']);
-        } elseif (array_key_exists('tutor_1', $clientProgramDetails) || array_key_exists('tutor_2', $clientProgramDetails)) {
+        } 
+        
+        if (array_key_exists('tutor_1', $clientProgramDetails) || array_key_exists('tutor_2', $clientProgramDetails)) {
 
-            $additionalDetails = [
-                'tutor_1' => $clientProgramDetails['tutor_1'],
-                'tutor_2' => $clientProgramDetails['tutor_2'],
-                'timesheet_1' => $clientProgramDetails['timesheet_1'],
-                'timesheet_2' => $clientProgramDetails['timesheet_2']
-            ];
+            $additionalDetails['tutor_1'] = $clientProgramDetails['tutor_1'];
+            $additionalDetails['tutor_2'] = $clientProgramDetails['tutor_2'];
+            $additionalDetails['timesheet_1'] = $clientProgramDetails['timesheet_1'];
+            $additionalDetails['timesheet_2'] = $clientProgramDetails['timesheet_2'];
 
             unset($clientProgramDetails['tutor_1']);
             unset($clientProgramDetails['tutor_2']);
             unset($clientProgramDetails['timesheet_1']);
             unset($clientProgramDetails['timesheet_2']);
+        } 
+        
+        if (array_key_exists('mentor_ic', $clientProgramDetails)){
+
+            $additionalDetails['mentor_ic'] = $clientProgramDetails['mentor_ic'];
+
+            unset($clientProgramDetails['mentor_ic']);
         }
 
         if (array_key_exists('reason_id', $clientProgramDetails) || array_key_exists('other_reason', $clientProgramDetails)) {
@@ -447,8 +465,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             $mentorsId = $clientProgram->clientMentor()->pluck('users.id')->toArray();
             $clientProgram->clientMentor()->detach($mentorsId);
         }
-
-
+  
         # when main_mentor and backup_mentor is filled which is not null
         # then assumed the user want to input "admission mentoring" program
         # do attach main mentor and backup mentor as client mentor
@@ -456,8 +473,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
             # if program end date was less than today 
             # then put status into 0 else 1
-            $status = (strtotime($clientProgramDetails['prog_end_date']) < strtotime(date('Y-m-d'))) ? 0 : 1; # status mentoring [0: inactive, 1: active]
-
+            $status = (strtotime($clientProgramDetails['prog_end_date']) < strtotime(date('Y-m-d'))) ? 0 : 1; # status mentoring [0: inactive, 1: active]     
             if (array_key_exists('main_mentor', $additionalDetails)) {
                 $mentors[] = $additionalDetails['main_mentor'];
             }
@@ -472,7 +488,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         # when tutor id is filled which is not null
         # then assumed the user want to input "tutoring" program
         # do attach tutor as client mentor
-        elseif (array_key_exists('tutor_id', $additionalDetails)) {
+        if (array_key_exists('tutor_id', $additionalDetails)) {
 
             # if program end date was less than today 
             # then put status into 0 else 1
@@ -503,7 +519,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         # when tutor_1 is filled which is not null
         # then assumed the user want to input "sat / act" program
         # do attach tutor_1 AND or OR tutor_2 as client mentor
-        elseif (array_key_exists('tutor_1', $additionalDetails) || array_key_exists('tutor_2', $additionalDetails)) {
+        if (array_key_exists('tutor_1', $additionalDetails) || array_key_exists('tutor_2', $additionalDetails)) {
 
             # hardcode
             $status = 1;
@@ -531,6 +547,15 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
              
             if(count($tutorInfo) > 0)
                 $clientProgram->clientMentor()->sync($tutorInfo, ['status' => $status]);
+        }
+
+        # when mentor_ic is filled which is not null
+        # then assumed the user want to input "admission mentoring" program
+        # do attach mentor_ic
+        if (array_key_exists('mentor_ic', $additionalDetails)){
+            if(isset($additionalDetails['mentor_ic'])) {
+                $clientProgram->mentorIC()->sync($additionalDetails['mentor_ic']);
+            }
         }
 
 

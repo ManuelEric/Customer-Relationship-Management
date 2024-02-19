@@ -43,19 +43,21 @@
                     {{-- @method('put') --}}
                     <div class="form-phone">
                         <h5>Select a recipient</h5>
-                        <div class="form-check form-check-inline ms-4">
-                            <input type="radio" class="form-check-input" name="recipients" value="parent" checked id="prPhoneInput">
-                            <label class="class="form-check-label" for="prPhoneInput">
-                                <div class="form-group">
-                                    <label for="">Parent</label>
-                                    <input type="text" name="pr_phone" class="form-control w-100" value="" id="prPhone">
-                                    <input type="hidden" id="prPhoneR" name="pr_phone_r" value="">
-                                </div>
-                            </label>
+                        <div id="reminder-parent">
+                            <div class="form-check form-check-inline ms-4">
+                                <input type="radio" class="form-check-input" name="recipients" value="parent" checked id="prPhoneInput">
+                                <label for="prPhoneInput">
+                                    <div class="form-group">
+                                        <label for="">Parent</label>
+                                        <input type="text" name="pr_phone" class="form-control w-100" value="" id="prPhone">
+                                        <input type="hidden" id="prPhoneR" name="pr_phone_r" value="">
+                                    </div>
+                                </label>
+                            </div>
                         </div>
                         <div class="form-check form-check-inline ms-4">
                             <input type="radio" class="form-check-input" name="recipients" value="children" id="chPhoneInput">
-                            <label class="class="form-check-label" for="chPhoneInput">
+                            <label for="chPhoneInput">
                                 <div class="form-group">
                                     <label for="">Child</label>
                                     <input type="text" name="ch_phone" class="form-control w-100" value="" id="chPhone">
@@ -65,6 +67,7 @@
                         </div>
                         {{-- <label for="">Phone Number Parent</label>
                         <input type="text" name="phone" id="phone" class="form-control w-100"> --}}
+                        <input type="hidden" id="parent_id_checked">
                         <input type="hidden" name="client_id" id="client_id">
                         <input type="hidden" name="clientprog_id" id="clientprog_id">
                         <input type="hidden" name="parent_fullname" id="fullname">
@@ -95,49 +98,23 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
 <script>
-    var parent = document.querySelector("#prPhone");
-    var child = document.querySelector("#chPhone");
-
-    const phoneInput1 = window.intlTelInput(parent, {
-        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
-        initialCountry: 'id',
-        onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
+    $(document).on('click', '.prPhoneInput', function () {
+        sendTo('parent', $(this).data('index'), $(this).data('parentid'));
     });
 
-    const phoneInput2 = window.intlTelInput(child, {
-        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
-        initialCountry: 'id',
-        onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
-    });
-
-    $("#prPhone").on('keyup', function(e) {
-        var number1 = phoneInput1.getNumber();
-        $("#prPhoneR").val(number1);
-        $("input[name=target_phone]").val(number1);
-    });
-
-    $("#chPhone").on('keyup', function(e) {
-        var number2 = phoneInput2.getNumber();
-        $("#chPhoneR").val(number2);
-        $("input[name=target_phone]").val(number2);
-    });
-
-    $(document).on('click', 'input[name=pr_phone]', function () {
-        sendTo('parent');
-    });
-
-    $(document).on('click', 'input[name=ch_phone]', function () {
-        sendTo('child');
+    $(document).on('click', '#chPhoneInput', function () {
+        sendTo('child', 0, null);
     });
 </script>
 <script>
-    function sendTo(recipient)
+    function sendTo(recipient, index, parentId)
     {
         var prPhoneStatus = chPhoneStatus = false;
         switch (recipient) {
             case "parent":
-                var phone = $("#prPhoneR").val();
+                var phone = $("#prPhoneR_"+index).val();
                 prPhoneStatus = true;
+                $("#parent_id_checked").val(parentId);
                 break;
 
             case "child":
@@ -160,12 +137,12 @@
 
         var clientprog_id = $('#clientprog_id').val();
         var parent_fullname = $('#fullname').val();
-        var phone = $('#phone').val();
+        var phone = $('input[name=target_phone]').val();
         var program_name = $('#program_name').val();
         var invoice_duedate = $('#invoice_duedate').val();
         var total_payment = $('#total_payment').val();
         var payment_method = $('#payment_method').val();
-        var parent_id = $('#parent_id').val();
+        var parent_id = $('#parent_id_checked').val();
         var client_id = $('#client_id').val();
 
         
@@ -211,6 +188,64 @@
         var parent_id = params[7];
         var client_id = params[8];
         var child_phone = params[9];
+        var parents = params[10];
+        var count_parent = parents !== null ? parents.length : 0;
+
+        $('input[name=send_to').val(count_parent > 0 ? 'parent' : 'child');
+        $('input[name=target_phone]').val(count_parent > 0 ? parents[0].phone : child_phone);
+        var html = '';
+
+        $('#reminder-parent').html('');
+        if(count_parent > 0){
+            $('#parent_id_checked').val(parents[0].id);
+
+            parents.forEach(function (item, index){
+                html += '<div class="form-check form-check-inline ms-4">' +
+                            '<input type="radio" class="form-check-input prPhoneInput" name="recipients" value="parent_'+index+'" '+(index === 0 ? 'checked="checked"' : null) +' id="prPhoneInput_'+ index+ '" data-index="'+ index +'" data-parentid="'+ item.id +'">' +
+                            '<label for="prPhoneInput[]">'+
+                                '<div class="form-group">' +
+                                    '<label for="">(Parent) ' + item.first_name + ' ' + (item.last_name != null ? item.last_name : '') + '</label>' +
+                                    '<input type="text" name="pr_phone[]" class="form-control w-100" value="'+ item.phone +'" id="prPhone_'+index+'">' +
+                                    '<input type="hidden" id="prPhoneR_'+index+'" name="pr_phone_r[]" value="'+item.phone+'">' +
+                                '</div>' +
+                            '</label>' +
+                        '</div>' ;
+            })
+
+            $('#reminder-parent').html(html)
+        }
+
+        var parent = number = [];
+        const parentInput = [];
+        var child = document.querySelector("#chPhone");
+
+        const phoneInput1 = window.intlTelInput(child, {
+            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
+            initialCountry: 'id',
+            onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
+        });
+
+        $("#chPhone").on('keyup', function(e) {
+            var number1 = phoneInput1.getNumber();
+            $("#chPhoneR").val(number1);
+            $("input[name=target_phone]").val(number1);
+        });
+
+        for(var i=0; i<count_parent; i++){
+            parent[i] = document.querySelector("#prPhone_"+ i);
+
+            parentInput[i] = window.intlTelInput(parent[i], {
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
+                initialCountry: 'id',
+                onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
+            });
+
+            $("#prPhone_"+i).on('keyup', function(e) {
+                number[i] = parentInput[i].getNumber();
+                $("#prPhoneR_"+i).val(number[i]);
+                $("input[name=target_phone]").val(number[i]);
+            });
+        }
 
         // $('#phone').val(parent_phone == null ? child_phone : parent_phone)
         $('#fullname').val(parent_fullname)
@@ -345,6 +380,7 @@
                                 row.parent_id,
                                 row.client_id,
                                 row.child_phone,
+                                (row.client !== null ? row.client.parents : null)
                             ];
 
                             var params = JSON.stringify(whatsapp_params);

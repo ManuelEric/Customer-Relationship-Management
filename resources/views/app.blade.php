@@ -1,3 +1,7 @@
+@php
+    $authImport = Cache::has("auth") ? Cache::get("auth") : null;
+    $isStart = Cache::has("isStartImport") ? Cache::get("isStartImport") : null;
+@endphp
 <!doctype html>
 <html lang="en">
 
@@ -73,6 +77,8 @@
         var progressImport = pusher.subscribe('progress-import');
         var html = '';
         var htmlLoading = '';
+
+        $('#content-import-information').html('');
 
         htmlLoading += '<div>'
         htmlLoading += '<span class="spinner-border spinner-border-sm text-black" aria-hidden="true"></span>'
@@ -196,10 +202,6 @@
             htmlLoading += '<span class="ms-2 text-black" role="status">Importing...</span>'
             htmlLoading += '</div>'
 
-            @php
-                $authImport = Cache::has("auth") ? Cache::get("auth") : null;
-                $isStart = Cache::has("isStartImport") ? Cache::get("isStartImport") : null;
-            @endphp
             @if (($authImport != null && $isStart != null && Auth::user() != null) && (Auth::user()->id == $authImport['id']) && ($isStart))
                 $('#loading-import').html(htmlLoading);
             @endif
