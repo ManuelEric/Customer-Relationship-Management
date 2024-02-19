@@ -453,7 +453,6 @@ class StoreClientProgramRequest extends FormRequest
                 $validate['agreement'] = 'required|mimes:pdf';
         }
 
-        
         return $validate;
     }
 
