@@ -46,9 +46,6 @@ class RunWorker extends Command
             verifying_client,
             verifying_client_parent,
             verifying_client_teacher',
-            
-
-            '--stop-when-empty' => true
         ]);
         
         Log::debug(json_encode(Artisan::output())); 

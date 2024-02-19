@@ -315,6 +315,7 @@ class ClientProgramController extends Controller
                     # add additional values
                     $clientProgramDetails['initconsult_date'] = $request->pend_initconsult_date;
                     $clientProgramDetails['assessmentsent_date'] = $request->pend_assessmentsent_date;
+                    $clientProgramDetails['mentor_ic'] = $request->pend_mentor_ic;
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
 
                     # add additional values
@@ -387,6 +388,7 @@ class ClientProgramController extends Controller
 
                     $clientProgramDetails['main_mentor'] = $request->main_mentor;
                     $clientProgramDetails['backup_mentor'] = isset($request->backup_mentor) ? $request->backup_mentor : NULL;
+                    $clientProgramDetails['mentor_ic'] = $request->mentor_ic;
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
 
                     $clientProgramDetails['tutor_id'] = $request->tutor_id;
@@ -644,6 +646,7 @@ class ClientProgramController extends Controller
                     # add additional values
                     $clientProgramDetails['initconsult_date'] = $request->pend_initconsult_date;
                     $clientProgramDetails['assessmentsent_date'] = $request->pend_assessmentsent_date;
+                    $clientProgramDetails['mentor_ic'] = $request->pend_mentor_ic;
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
 
                     # add additional values
@@ -715,6 +718,7 @@ class ClientProgramController extends Controller
 
                     $clientProgramDetails['main_mentor'] = $request->main_mentor;
                     $clientProgramDetails['backup_mentor'] = isset($request->backup_mentor) ? $request->backup_mentor : NULL;
+                    $clientProgramDetails['mentor_ic'] = $request->mentor_ic;
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
 
                     $clientProgramDetails['tutor_id'] = $request->tutor_id;

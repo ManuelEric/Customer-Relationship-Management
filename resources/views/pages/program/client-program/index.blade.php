@@ -457,7 +457,7 @@
                 // }
             })
 
-            realtimeData(table)
+            // realtimeData(table)
 
             $('#programTable tbody').on('click', '.showClientProgram ', function() {
                 var data = table.row($(this).parents('tr')).data();
