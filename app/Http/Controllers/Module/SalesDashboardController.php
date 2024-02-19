@@ -82,6 +82,9 @@ class SalesDashboardController extends Controller
         # sum total initial consultation by summing the data
         $totalInitialConsultation = array_sum($initialConsultation);
 
+        # fetching only already from initial consultation chart data
+        $already = $initialConsultation[1];
+
         # fetching only success program from initial consultation chart data
         $successProgram = $initialConsultation[2];
 
@@ -159,6 +162,7 @@ class SalesDashboardController extends Controller
             'admissionsMentoring' => $admissionsMentoring,
             'initialConsultation' => $initialConsultation,
             'totalInitialConsultation' => $totalInitialConsultation,
+            'already' => $already,
             'successProgram' => $successProgram,
             'initialAssessmentMaking' => $initialAssessmentMaking,
             'conversionTimeProgress' => $conversionTimeProgress,

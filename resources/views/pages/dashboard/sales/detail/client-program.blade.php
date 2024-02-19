@@ -71,6 +71,15 @@
                                                                                 </td>
                                                                             </tr>
                                                                             <tr>
+                                                                                <td>Already</td>
+                                                                                <td class="text-end">
+                                                                                    <span
+                                                                                        class="badge badge-info init-consult-details">
+                                                                                        {{ $already }}
+                                                                                    </span>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
                                                                                 <td>Success Program</td>
                                                                                 <td class="text-end">
                                                                                     <span
