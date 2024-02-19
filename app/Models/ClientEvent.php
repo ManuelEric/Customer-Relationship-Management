@@ -20,6 +20,7 @@ class ClientEvent extends Model
      */
     protected $fillable = [
         'client_id',
+        'ticket_id',
         'child_id',
         'parent_id',
         'event_id',
