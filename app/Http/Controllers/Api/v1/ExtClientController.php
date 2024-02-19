@@ -568,7 +568,7 @@ class ExtClientController extends Controller
             'referral' => 'nullable|exists:tbl_client,id',
             # notes
             'client_type' => 'nullable|in:vip',
-            'have_child' => 'required|in:true,false'
+            'have_child' => 'required|boolean'
         ];
 
         $incomingRequest = $request->only([
