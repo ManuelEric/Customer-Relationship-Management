@@ -1109,8 +1109,11 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getClientByPhoneNumber($phoneNumber)
     {
-        if (substr($phoneNumber, 0, 1) == "+" || substr($phoneNumber, 0, 1) == 0)
+        if (substr($phoneNumber, 0, 1) == "+" || substr($phoneNumber, 0, 1) == 0) 
             $phoneNumber = substr($phoneNumber, 4);
+
+        if (substr($phoneNumber, 0, 2) == 62)
+            $phoneNumber = substr($phoneNumber, 2);
 
         return UserClient::whereRaw('SUBSTR(phone, 4) LIKE ?', ['%' . $phoneNumber . '%'])->first();
     }

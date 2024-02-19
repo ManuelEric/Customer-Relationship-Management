@@ -31,7 +31,7 @@ class RunWorker extends Command
     {
 
         Artisan::call('queue:work', [
-
+            '--stop-when-empty' => true,
             '--queue' => 'inv-send-to-client,
             inv-email-request-sign,
             verifying-client,

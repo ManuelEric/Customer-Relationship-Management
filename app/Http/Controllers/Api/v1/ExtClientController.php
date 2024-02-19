@@ -6,13 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\SplitNameTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Jobs\RawClient\ProcessVerifyClient;
 use App\Jobs\RawClient\ProcessVerifyClientParent;
+use App\Models\Event;
 use App\Models\School;
 use Exception;
 use Illuminate\Http\Request;
@@ -30,15 +33,18 @@ class ExtClientController extends Controller
     use CalculateGradeTrait;
     use StandardizePhoneNumberTrait;
     use CreateCustomPrimaryKeyTrait;
+    use LoggingTrait;
     private ClientRepositoryInterface $clientRepository;
     private SchoolRepositoryInterface $schoolRepository;
     private ClientEventRepositoryInterface $clientEventRepository;
+    private EventRepositoryInterface $eventRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, ClientEventRepositoryInterface $clientEventRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, ClientEventRepositoryInterface $clientEventRepository, EventRepositoryInterface $eventRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->schoolRepository = $schoolRepository;
         $this->clientEventRepository = $clientEventRepository;
+        $this->eventRepository = $eventRepository;
     }
 
     public function getClientFromAdmissionMentoring()
@@ -129,14 +135,20 @@ class ExtClientController extends Controller
             'other_school' => 'nullable',
             'graduation_year' => 'nullable|required_if:role,student|gte:'.date('Y'),
             'destination_country' => 'nullable|required_unless:role,teacher/counsellor|required_if:have_child,true|array|exists:tbl_tag,id', # the ids from tbl_tag
-            'scholarship' => 'required|in:yes,no',
+            'scholarship' => 'required|in:Y,N',
             'lead_source_id' => 'required|exists:tbl_lead,lead_id',
             'event_id' => 'required|exists:tbl_events,event_id',
+            # status
             'attend_status' => 'nullable|in:attend',
+            # number of attend
             'attend_party' => 'nullable',
             'event_type' => 'nullable|in:offline',
-            'status' => 'nullable|in:ots,pr',
+            # registration_type
+            'status' => 'required|in:OTS,PR',
+            # referral code
             'referral' => 'nullable|exists:tbl_client,id',
+            # notes
+            'client_type' => 'nullable|in:vip',
             'have_child' => 'required|in:true,false'
         ];
 
@@ -167,6 +179,15 @@ class ExtClientController extends Controller
         # after validating incoming request data, then retrieve the incoming request data
         $validated = $request->collect();
 
+        # modify the variables inside request array
+        $validated = $validated->merge([
+            'status' => $validated['attend_status'] == "attend" ? 1 : 0,
+            'number_of_attend' => $validated['attend_party'] ?? 1,
+            'registration_type' => strtoupper($validated['status']) ?? "PR",
+            'referral_code' => $validated['referral'] ?? null,
+            'notes' => $validated['client_type'] ?? null
+        ]);
+
 
         # declaration of default variables that will be used 
         $studentId = null;
@@ -182,8 +203,11 @@ class ExtClientController extends Controller
                     $client = $this->storeStudent($validated);
                     $clientId = $client->id;
 
-                    # attach interest programs if any
-                    //? where is the request
+                    # attach interest programs
+                    # get the value of interest programs from event category
+                    $joinedEvent = Event::whereEventId($validated['event_id']);
+                    $eventCategory = $joinedEvent->category;
+                    $this->attachInterestPrograms($clientId, $eventCategory);
 
                     # attach destination countries if any
                     $this->attachDestinationCountry($clientId, $validated['destination_country']);
@@ -266,7 +290,7 @@ class ExtClientController extends Controller
         }
 
 
-        Log::notice('New client has been registered (event) with Id: '.$storedClientEvent->clientevent_id);
+        // Log::notice('New client has been registered (event) with Id: '.$storedClientEvent->clientevent_id);
 
 
         try {
@@ -281,7 +305,8 @@ class ExtClientController extends Controller
 
         }
 
-        
+        # create log success
+        $this->logSuccess('store', 'Form Embed', 'Client Event', 'Guest', $storedClientEvent);
 
         return response()->json([
             'success' => true,
@@ -292,6 +317,12 @@ class ExtClientController extends Controller
                     'name' => $validated['fullname'],
                     'email' => $validated['mail']
                 ],
+                'clientevent' => [
+                    'id' => $storedClientEvent->clientevent_id
+                ],
+                'link' => [
+                    'scan' => url('/client-event/CE/'.$storedClientEvent->clientevent_id)  
+                ]
             ]
         ]);
 
@@ -323,6 +354,7 @@ class ExtClientController extends Controller
             'st_grade' => $this->getGradeByGraduationYear($incomingRequest['graduation_year']),
             'graduation_year' => $incomingRequest['graduation_year'],
             'lead_id' => 'LS001', # lead is hardcoded into website
+            'scholarship' => $incomingRequest['scholarship'],
             'sch_id' => $schoolId
         ];
 
@@ -334,6 +366,13 @@ class ExtClientController extends Controller
 
         return $client;
     
+    }
+
+    private function attachInterestPrograms($clientId, $interestedPrograms)
+    {
+        $selectedClient = $this->clientRepository->getClientById($clientId);
+        if (!$selectedClient->interestPrograms()->where('tbl_interest_prog.prog_id', $interestedPrograms)->exists()) 
+            $this->clientRepository->addInterestProgram($clientId, ['prog_id' => $interestedPrograms]);
     }
 
     private function attachDestinationCountry($clientId, array $destinationCountries)
@@ -362,6 +401,7 @@ class ExtClientController extends Controller
             'mail' => $incomingRequest['mail'],
             'phone' => $this->setPhoneNumber($incomingRequest['phone']),
             'register_as' => $incomingRequest['role'],
+            'scholarship' => $incomingRequest['scholarship'],
             'lead_id' => 'LS001', # lead is hardcoded into website
         ];
 
@@ -476,6 +516,235 @@ class ExtClientController extends Controller
         }
 
         return $schoolId;
+    }
+
+    public function update(Request $request)
+    {
+
+        $requestUpdateClientEventID = $request->route('clientevent_id');
+        # fetch the client information from client event
+        $requestUpdateClientEvent = $this->clientEventRepository->getClientEventById($requestUpdateClientEventID);
+        if (!$requestUpdateClientEvent) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Could not continue the process because invalid identifier.'
+            ]);
+        }
+
+        # validation
+        $rules = [
+            'role' => 'required|in:parent,student,teacher/counsellor',
+            'user' => 'nullable',
+            'fullname' => 'required',
+            'mail' => 'required|email',
+            'phone' => 'required',
+            'secondary_name' => 'required_if:role,parent',
+            'secondary_email' => 'nullable|required_if:role,parent|email',
+            'secondary_phone' => 'required_if:role,parent',
+            'school_id' => 'nullable|required_if:other_school,null|exists:tbl_sch,sch_id',
+            'other_school' => 'nullable',
+            'graduation_year' => 'nullable|required_if:role,student|gte:'.date('Y'),
+            'destination_country' => 'nullable|required_unless:role,teacher/counsellor|required_if:have_child,true|array|exists:tbl_tag,id', # the ids from tbl_tag
+            'scholarship' => 'required|in:Y,N',
+            'lead_source_id' => 'required|exists:tbl_lead,lead_id',
+            'event_id' => 'required|exists:tbl_events,event_id',
+            # status
+            'attend_status' => 'nullable|in:attend',
+            # number of attend
+            'attend_party' => 'nullable',
+            'event_type' => 'nullable|in:offline',
+            # registration_type
+            'status' => 'required|in:OTS,PR',
+            # referral code
+            'referral' => 'nullable|exists:tbl_client,id',
+            # notes
+            'client_type' => 'nullable|in:vip',
+            'have_child' => 'required|in:true,false'
+        ];
+
+        $incomingRequest = $request->only([
+            'role', 'user', 'fullname', 'mail', 'phone', 'secondary_name', 'secondary_email', 'secondary_phone', 'school_id', 'other_school', 'graduation_year', 'destination_country', 'scholarship', 'lead_source_id', 'event_id', 'attend_status', 'attend_party', 'event_type', 'status', 'referral', 'have_child'
+        ]);
+
+        $messages = [
+            'school_id.required_if' => 'The school field is required.',
+            'school_id.exists' => 'The school field is not valid.',
+            'lead_source_id.required' => 'The lead field is required.',
+            'lead_source_id.exists' => 'The lead field is not valid.',
+            'event_id.required' => 'The event field is required.'
+        ];
+
+        $validator = Validator::make($incomingRequest, $rules, $messages);
+        
+
+        # threw error if validation fails
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'error' => $validator->errors()
+            ]);
+        }
+
+
+        # after validating incoming request data, then retrieve the incoming request data
+        $validated = $request->collect();
+
+        # modify the variables inside request array
+        $validated = $validated->merge([
+            'status' => $validated['attend_status'] == "attend" ? 1 : 0,
+            'number_of_attend' => $validated['attend_party'] ?? 1,
+            'registration_type' => strtoupper($validated['status']) ?? "PR",
+            'referral_code' => $validated['referral'] ?? null,
+            'notes' => $validated['client_type'] ?? null,
+        ]);
+
+        DB::beginTransaction();
+        try {
+
+            # update the data which depends on their register_as 
+            switch ($requestUpdateClientEvent->client->register_as) {
+    
+                case "student":
+                    # initiate variables for client
+                    $studentId = $requestUpdateClientEvent->client_id;
+                    $student = $this->updateStudent($studentId, $validated);
+
+                    # attach interest programs
+                    # get the value of interest programs from event category
+                    $joinedEvent = Event::whereEventId($validated['event_id']);
+                    $eventCategory = $joinedEvent->category;
+                    $this->attachInterestPrograms($studentId, $eventCategory);
+
+                    # attach destination countries if any
+                    $this->attachDestinationCountry($studentId, $validated['destination_country']);
+
+                    break;
+    
+                case "parent":
+                    # initiate variables for clients
+                    $parentId = $requestUpdateClientEvent->client_id;
+                    $parent = $client = $this->updateParent($parentId, $validated);
+                    
+                    # when the request says they have a children
+                    # but based on the data we know that the parents don't include a children when they are register
+                    if ($validated['have_child'] == true && $requestUpdateClientEvent->child_id === NULL) {
+                        $studentId = $requestUpdateClientEvent->child_id;
+
+                        $validatedStudent = $request->except(['fullname', 'email', 'phone']);
+                        $validatedStudent['fullname'] = $validated['secondary_name'];
+                        $validatedStudent['mail'] = $validated['secondary_email'];
+                        $validatedStudent['phone'] = $validated['secondary_phone'];
+
+                        $student = $this->storeStudent($validatedStudent);
+                        $studentId = $student->id;
+
+                        $this->storeRelationship($parent, $student);
+                        
+                        $this->attachDestinationCountry($studentId, $validated['destination_country']);
+
+                    }
+
+
+                    # when the request says they have a children
+                    # but from the database, they didn't 
+                    if ($validated['have_child'] == true && $requestUpdateClientEvent->child_id !== NULL) {
+                        
+                    }
+
+                    # when the request says they don't have a children
+                    # but somehow in the time the parents registered, they had inputted the children data which is input "have_child" as a yes 
+                    if ($validated['have_child'] == false && $requestUpdateClientEvent->child_id !== NULL) {
+                        
+                    }
+
+                    break;
+    
+                case "teacher/counsellor":
+                    $client = $this->storeTeacher($validated);
+                    break;
+
+                default:
+                    abort(404);
+    
+            }
+
+
+            # check if registered client has already join the event
+            if ($existing = $this->clientEventRepository->getClientEventByClientIdAndEventId($client->id, $validated['event_id'])) {
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'They have joined the event.',
+                    'code' => 'EXT', # existing / has joined
+                    'data' => $existing
+                ]);
+            }
+
+            # declare variables for client events
+            $clientEventDetails = [
+                'client_id' => $client->id, # it comes from query to database, so it should be a collection
+                'child_id' => $studentId,
+                'parent_id' => null,
+                'event_id' => $validated['event_id'],
+                'lead_id' => $validated['lead_source_id'],
+                'registration_type' => isset($validated['status']) ? strtoupper($validated['status']) : 'PR', # default is PR means Pra-Reg
+                'number_of_attend' => isset($validated['attend_party']) ? $validated['attend_party'] : 1,
+                'notes' => null, # previously, notes filled with VIP & VVIP
+                'referral_code' => null,
+                'status' => $validated['attend_status'] == 'attend' ? 1 : 0,
+                'joined_date' => Carbon::now(),
+            ];
+
+
+            # store client event
+            $storedClientEvent = $this->clientEventRepository->createClientEvent($clientEventDetails);
+            DB::commit();
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+
+        }
+    }
+
+    private function updateParent()
+    {
+
+    }
+
+    private function updateStudent($clientId, $incomingRequest)
+    {
+        # check if the client exists in crm database
+        $existingClient = $this->checkExistingClient($this->setPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
+
+
+        # if the client is exists
+        if ($existingClient['isExist']) 
+            return $this->clientRepository->getClientById($existingClient['id']);
+
+
+        # declare some variables
+        $splitNames = $this->split($incomingRequest['fullname']);
+        $schoolId = $this->getSchoolId($incomingRequest);
+
+
+        # create a new client > student
+        $newClientDetails = [
+            'first_name' => $splitNames['first_name'],
+            'last_name' => $splitNames['last_name'],
+            'mail' => $incomingRequest['mail'],
+            'phone' => $this->setPhoneNumber($incomingRequest['phone']),
+            'register_as' => $incomingRequest['role'],
+            'st_grade' => $this->getGradeByGraduationYear($incomingRequest['graduation_year']),
+            'graduation_year' => $incomingRequest['graduation_year'],
+            'lead_id' => 'LS001', # lead is hardcoded into website
+            'scholarship' => $incomingRequest['scholarship'],
+            'sch_id' => $schoolId
+        ];
+
+        $client = $this->clientRepository->updateClient($clientId, $newClientDetails);
+
+        return $client;
     }
 
 }
