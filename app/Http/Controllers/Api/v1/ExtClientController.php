@@ -181,6 +181,7 @@ class ExtClientController extends Controller
         # after validating incoming request data, then retrieve the incoming request data
         $validated = $request->collect();
 
+
         # modify the variables inside request array
         $validated = $validated->merge([
             'status' => $validated['attend_status'] == "attend" ? 1 : 0,
@@ -208,8 +209,8 @@ class ExtClientController extends Controller
                     # attach interest programs
                     # get the value of interest programs from event category
                     $joinedEvent = Event::whereEventId($validated['event_id']);
-                    $eventCategory = $joinedEvent->category;
-                    $this->attachInterestPrograms($clientId, $eventCategory);
+                    if ($eventCategory = $joinedEvent->category)
+                        $this->attachInterestPrograms($clientId, $eventCategory);
 
                     # attach destination countries if any
                     $this->attachDestinationCountry($clientId, $validated['destination_country']);
