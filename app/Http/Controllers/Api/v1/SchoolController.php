@@ -50,6 +50,59 @@ class SchoolController extends Controller
         return response()->json($formatted);
     }
 
+    # alternative function dynamic search 
+    # being used from registration form vue
+    public function alt_search(Request $request)
+    {
+        $terms = $request->get('search');
+
+        # if it doesn't bring the search param
+        # meaning that display all schools by default
+        if (empty($terms)) {
+            $schools = $this->schoolRepository->getAllSchools();
+            
+            # mapping the school data
+            $mappedSchools = $schools->map(function ($value) {
+                return [
+                    'sch_id' => $value->sch_id,
+                    'sch_name' => $value->sch_name
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Schools have been fetched successfully.',
+                'data' => $mappedSchools
+            ]);
+        }
+
+        # find school using terms that had written by user
+        $schools_found = $this->schoolRepository->findSchoolByTerms($terms);
+        if ($schools_found->count() == 0) {
+            return response()->json([
+                'success' => true,
+                'message' => 'It looks like the school name you entered might be misspelled or not in our database. Would you like to try another spelling or use broader keywords?',
+                'data' => [
+                    'other_school' => $terms
+                ]
+            ]);
+        }
+
+        
+        $mappedSchools = $schools_found->map(function ($value) {
+            return [
+                'sch_id' => $value->sch_id,
+                'sch_name' => $value->sch_name
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => "Here are some options that share some similarities with your keyword.",
+            'data' => $mappedSchools
+        ]);
+    }
+
     private function levenshtein_distance($input, $arrays)
     {
         // no shortest distance found, yet

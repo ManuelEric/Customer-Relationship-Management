@@ -10,10 +10,12 @@ use App\Repositories\AlarmRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\FollowupRepository;
 use Barryvdh\Debugbar\Facades\Debugbar;
+use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
@@ -43,6 +45,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
+        Queue::after(function (JobProcessed $event) {
+            Log::debug('Queue has ran');
+        });
 
         view()->composer('*', function ($view) {
 
