@@ -133,7 +133,7 @@ class ExtClientController extends Controller
             'secondary_name' => 'required_if:have_child,true',
             'secondary_email' => 'nullable|email',
             'secondary_phone' => 'nullable',
-            'school_id' => 'nullable|exists:tbl_sch,sch_id',
+            'school_id' => 'nullable',
             'other_school' => 'nullable',
             'graduation_year' => 'nullable|required_if:role,student|gte:'.date('Y'),
             'destination_country' => 'nullable|required_unless:role,teacher/counsellor|required_if:have_child,true|array|exists:tbl_tag,id', # the ids from tbl_tag
@@ -564,7 +564,7 @@ class ExtClientController extends Controller
             'secondary_name' => 'required_if:have_child,true',
             'secondary_email' => 'nullable|email',
             'secondary_phone' => 'nullable',
-            'school_id' => 'nullable|exists:tbl_sch,sch_id',
+            'school_id' => 'nullable',
             'other_school' => 'nullable',
             'graduation_year' => 'nullable|required_if:role,student|gte:'.date('Y'),
             'destination_country' => 'nullable|required_unless:role,teacher/counsellor|required_if:have_child,true|array|exists:tbl_tag,id', # the ids from tbl_tag
