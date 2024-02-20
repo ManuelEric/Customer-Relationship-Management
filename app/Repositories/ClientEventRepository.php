@@ -350,6 +350,11 @@ class ClientEventRepository implements ClientEventRepositoryInterface
         return ClientEvent::where('client_id', $clientId)->first();
     }
 
+    public function getClientEventByTicketId($ticketId)
+    {
+        return ClientEvent::where('ticket_id', $ticketId)->first();
+    }
+
     public function getClientEventByClientIdAndEventId($clientId, $eventId)
     {
         return ClientEvent::where('client_id', $clientId)->where('event_id', $eventId)->first();
@@ -490,7 +495,11 @@ class ClientEventRepository implements ClientEventRepositoryInterface
 
     public function updateClientEvent($clientEventId, array $newClientEvents)
     {
-        return ClientEvent::find($clientEventId)->update($newClientEvents);
+        $clientEvent = ClientEvent::find($clientEventId);
+        $clientEvent->update($newClientEvents);
+
+        return $clientEvent;
+
     }
 
     # 
