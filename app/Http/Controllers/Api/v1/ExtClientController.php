@@ -254,7 +254,19 @@ class ExtClientController extends Controller
                     'success' => true,
                     'message' => 'They have joined the event.',
                     'code' => 'EXT', # existing / has joined
-                    'data' => $existing
+                    'data' => [
+                        'client' => [
+                            'name' => $existing->client->full_name,
+                            'email' => $existing->client->email
+                        ],
+                        'clientevent' => [
+                            'id' => $existing->clientevent_id,
+                            'ticket_id' => $existing->ticket_id,
+                        ],
+                        'link' => [
+                            'scan' => url('/client-event/CE/'.$existing->clientevent_id)  
+                        ]
+                    ]
                 ]);
             }
 
