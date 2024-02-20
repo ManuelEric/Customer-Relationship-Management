@@ -22,8 +22,8 @@ class ClientEventController extends Controller
     {
         # initiate base variables
         $requestedScreeningType = strtoupper($request->route('screening_type'));
-        $allowableScreeningType = ['CE', 'PH'];
-        $requestedIdentifier = $request->route('identifier'); # can be clientevent_id or phone_number
+        $allowableScreeningType = ['CE', 'PH', 'TKT'];
+        $requestedIdentifier = $request->route('identifier'); # can be clientevent_id or phone_number or ticket id
 
 
         # validation based on identifier
@@ -59,6 +59,14 @@ class ClientEventController extends Controller
                 $foundClientevent = $foundClient->clientEvent()->where('event_id', $requestedEventId)->first();
                 if (!$foundClientevent)
                     return response()->json(['success' => false, 'message' => "It seems we don't have your information on record yet. To provide you with the best possible service, could you please register first? It's quick and easy!"]);
+
+                break;
+
+            # find a client event data using ticket ID
+            case 'TKT':
+                $foundClientevent = $this->clientEventRepository->getClientEventByTicketId($requestedIdentifier);
+                if (!$foundClientevent)
+                    return response()->json(['success' => false, 'message' => "The system isn't recognizing the ticket ID you entered. Would you like to try again?"]);
 
                 break;
 
