@@ -47,6 +47,20 @@ class ExtClientController extends Controller
         $this->eventRepository = $eventRepository;
     }
 
+    public function getParentMentee()
+    {
+        $existingMentees = $this->clientRepository->getExistingMentees(false, null, []);
+        
+        return response()->json(
+            [
+                'success' => true,
+                'message' => 'Parent Mentee data found.',
+                'data' => $existingMentees
+            ]
+        );
+
+    }
+
     public function getClientFromAdmissionMentoring()
     {
         $existingMentees = $this->clientRepository->getExistingMenteesAPI();
