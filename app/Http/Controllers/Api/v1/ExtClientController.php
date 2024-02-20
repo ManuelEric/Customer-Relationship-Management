@@ -133,7 +133,10 @@ class ExtClientController extends Controller
             'secondary_name' => 'required_if:have_child,true',
             'secondary_email' => 'nullable|email',
             'secondary_phone' => 'nullable',
-            'school_id' => 'nullable',
+            'school_id' => [
+                'nullable',
+                $request->school_id != 'new' ? 'exists:tbl_sch,sch_id' : null
+            ],
             'other_school' => 'nullable',
             'graduation_year' => 'nullable|required_if:role,student|gte:'.date('Y'),
             'destination_country' => 'nullable|required_unless:role,teacher/counsellor|required_if:have_child,true|array|exists:tbl_tag,id', # the ids from tbl_tag
@@ -153,6 +156,8 @@ class ExtClientController extends Controller
             'client_type' => 'nullable|in:vip',
             'have_child' => 'required|boolean'
         ];
+
+
 
         $incomingRequest = $request->only([
             'role', 'user', 'fullname', 'mail', 'phone', 'secondary_name', 'secondary_email', 'secondary_phone', 'school_id', 'other_school', 'graduation_year', 'destination_country', 'scholarship', 'lead_source_id', 'event_id', 'attend_status', 'attend_party', 'event_type', 'status', 'referral', 'have_child'
@@ -518,9 +523,8 @@ class ExtClientController extends Controller
                 # if user did write down the school name outside our school collection
                 # and the school name does not exist in our database then store it to CRM database
     
-                $last_id = School::max('sch_id');
-                $school_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 4) : '0000';
-                $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
+                $last_id = School::max(DB::raw('SUBSTR(sch_id, 5)'));
+                $school_id_with_label = 'SCH-' . $this->add_digit((int)$last_id + 1, 4);
     
                 $school = [
                     'sch_id' => $school_id_with_label,
@@ -564,7 +568,10 @@ class ExtClientController extends Controller
             'secondary_name' => 'required_if:have_child,true',
             'secondary_email' => 'nullable|email',
             'secondary_phone' => 'nullable',
-            'school_id' => 'nullable',
+            'school_id' => [
+                'nullable',
+                $request->school_id != 'new' ? 'exists:tbl_sch,sch_id' : null
+            ],
             'other_school' => 'nullable',
             'graduation_year' => 'nullable|required_if:role,student|gte:'.date('Y'),
             'destination_country' => 'nullable|required_unless:role,teacher/counsellor|required_if:have_child,true|array|exists:tbl_tag,id', # the ids from tbl_tag
