@@ -257,7 +257,7 @@ class ExtClientController extends Controller
                     'data' => [
                         'client' => [
                             'name' => $existing->client->full_name,
-                            'email' => $existing->client->email
+                            'email' => $existing->client->mail
                         ],
                         'clientevent' => [
                             'id' => $existing->clientevent_id,
