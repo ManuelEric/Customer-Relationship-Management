@@ -511,7 +511,7 @@ class ExtClientController extends Controller
         $schoolId = $incomingRequest['school_id'];
 
 
-        if ($incomingRequest['school_id'] === NULL) {
+        if ($incomingRequest['school_id'] == "new") {
             # store a new school or get the existing one
 
             if (!$schoolExistOnDB = $this->schoolRepository->getSchoolByName($incomingRequest['other_school'])) {
@@ -635,8 +635,8 @@ class ExtClientController extends Controller
                     # attach interest programs
                     # get the value of interest programs from event category
                     $joinedEvent = Event::whereEventId($validated['event_id']);
-                    $eventCategory = $joinedEvent->category;
-                    $this->attachInterestPrograms($studentId, $eventCategory);
+                    if ($eventCategory = $joinedEvent->category)
+                        $this->attachInterestPrograms($studentId, $eventCategory);
 
                     # attach destination countries if any
                     $this->attachDestinationCountry($studentId, $validated['destination_country']);
