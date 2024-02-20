@@ -312,11 +312,11 @@ class ExtClientController extends Controller
 
             # send an registration success email
             $this->sendEmailRegistrationSuccess($validated);
-            Log::notice('Email registration sent sucessfully to '. $incomingRequest['mail']);
+            Log::notice('Email registration sent sucessfully to '. $incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id);
 
         } catch (Exception $e) {
 
-            Log::error('Failed to send email registration to '.$incomingRequest['mail'].' | ' . $e->getMessage());
+            Log::error('Failed to send email registration to '.$incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id.' | ' . $e->getMessage());
 
         }
 
@@ -486,8 +486,9 @@ class ExtClientController extends Controller
                 $template = 'mail-template/registration/event/ots-mail-registration';
                 break;
 
+            
             default:
-                # thanks mail with a ticket only
+                # thanks mail with a ticket only or QR code
                 $template = 'mail-template/registration/event/pra-reg-mail-registration';
 
         }

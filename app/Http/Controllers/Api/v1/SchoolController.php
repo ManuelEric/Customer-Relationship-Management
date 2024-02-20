@@ -82,9 +82,7 @@ class SchoolController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'It looks like the school name you entered might be misspelled or not in our database. Would you like to try another spelling or use broader keywords?',
-                'data' => [
-                    'other_school' => $terms
-                ]
+                'data' => []
             ]);
         }
 
