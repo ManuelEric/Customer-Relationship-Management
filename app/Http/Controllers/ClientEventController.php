@@ -970,6 +970,10 @@ class ClientEventController extends Controller
             'clientevent' => $clientEventId
         ]);
 
+        # for eduall 2024 the system has changed
+        # because of that, the url has changed as well into the api route
+        $url = url("/api/v1/client-event/CE/{$clientEventId}");
+
 
         $event = [
             'eventDate_start' => date('l, d M Y', strtotime($clientEvent->event->event_startdate)),
@@ -980,7 +984,7 @@ class ClientEventController extends Controller
         ];
 
         try {
-            Mail::send($mail_resources, ['qr_page' => $url, 'client' => $client['clientDetails'], 'event' => $event], function ($message) use ($subject, $recipientDetails) {
+            Mail::send($mail_resources, ['qr' => $url, 'client' => $client['clientDetails'], 'event' => $event], function ($message) use ($subject, $recipientDetails) {
                 $message->to($recipientDetails['mail'], $recipientDetails['name'])
                     ->subject($subject);
             });

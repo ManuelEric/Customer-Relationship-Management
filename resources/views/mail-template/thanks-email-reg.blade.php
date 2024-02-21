@@ -26,20 +26,9 @@
                                 Show this QR at the registration table at the event
                             </p>
 
-                                <p style="text-align: center;margin: 2.5em auto;">
-                                    <a class="button" href="{{ $qr_page }}"
-                                        style="background: #3b6cde; 
-                                        text-decoration: none; 
-                                        padding: .5em 1.5em;
-                                        color: #ffffff; 
-                                        border-radius: 2px;
-                                        mso-padding-alt:0;
-                                        text-underline-color:#156ab3">
-                                        <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%;mso-text-raise:20pt">&nbsp;</i><![endif]-->
-                                        <span style="mso-text-raise:10pt;font-weight:bold;">Your QR Confirmation</span>
-                                        <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%">&nbsp;</i><![endif]-->
-                                    </a>
-                                </p>
+                            <p style="text-align: center">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ $qr }}" alt="">
+                            </p>
                                 
                             <p class="text-align: center">
                                 <b>See you there</b>.
