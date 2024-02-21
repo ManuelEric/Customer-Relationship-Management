@@ -988,7 +988,7 @@ class ClientEventController extends Controller
         } catch (Exception $e) {
 
             $sent_mail = 0;
-            Log::error('Failed send email qr code to participant of Event ' . $eventName . ' | error : ' . $e->getMessage() . ' | Line ' . $e->getLine());
+            Log::error('Failed send email qr code to participant of Event ' . $eventName . ' | error : ' . $e->getMessage() . ' on file '.$e->getFile().' | Line ' . $e->getLine());
         }
 
         # if update is true
