@@ -1097,7 +1097,7 @@
                     })
                     .catch(function(error) {
                         swal.close();
-                        notification('error', error.message);
+                        notification('error', error.response.data.message);
                         $('#assignForm').modal('hide');
                     })
             });
