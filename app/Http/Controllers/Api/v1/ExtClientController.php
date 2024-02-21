@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
@@ -15,6 +16,7 @@ use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Jobs\RawClient\ProcessVerifyClient;
 use App\Jobs\RawClient\ProcessVerifyClientParent;
+use App\Models\ClientEvent;
 use App\Models\Event;
 use App\Models\School;
 use Exception;
@@ -157,7 +159,7 @@ class ExtClientController extends Controller
             'have_child' => 'required|boolean'
         ];
 
-
+    
 
         $incomingRequest = $request->only([
             'role', 'user', 'fullname', 'mail', 'phone', 'secondary_name', 'secondary_email', 'secondary_phone', 'school_id', 'other_school', 'graduation_year', 'destination_country', 'scholarship', 'lead_source_id', 'event_id', 'attend_status', 'attend_party', 'event_type', 'status', 'referral', 'have_child'
@@ -263,7 +265,7 @@ class ExtClientController extends Controller
                     'data' => [
                         'client' => [
                             'name' => $existing->client->full_name,
-                            'email' => $existing->client->mail
+                            'email' => $existing->client->mail,
                         ],
                         'clientevent' => [
                             'id' => $existing->clientevent_id,
@@ -276,6 +278,7 @@ class ExtClientController extends Controller
                 ]);
             }
 
+
             # declare variables for client events
             $clientEventDetails = [
                 'ticket_id' => $this->generateTicketID(),
@@ -284,9 +287,9 @@ class ExtClientController extends Controller
                 'parent_id' => null,
                 'event_id' => $validated['event_id'],
                 'lead_id' => $validated['lead_source_id'],
-                'registration_type' => isset($validated['status']) ? strtoupper($validated['status']) : 'PR', # default is PR means Pra-Reg
+                'registration_type' => $validated['registration_type'], # default is PR means Pra-Reg
                 'number_of_attend' => isset($validated['attend_party']) ? $validated['attend_party'] : 1,
-                'notes' => null, # previously, notes filled with VIP & VVIP
+                'notes' => $validated['client_type'], # previously, notes filled with VIP & VVIP
                 'referral_code' => null,
                 'status' => $validated['attend_status'] == 'attend' ? 1 : 0,
                 'joined_date' => Carbon::now(),
@@ -317,7 +320,7 @@ class ExtClientController extends Controller
         try {
 
             # send an registration success email
-            $this->sendEmailRegistrationSuccess($validated);
+            $this->sendEmailRegistrationSuccess($validated, $storedClientEvent);
             Log::notice('Email registration sent sucessfully to '. $incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id);
 
         } catch (Exception $e) {
@@ -335,8 +338,9 @@ class ExtClientController extends Controller
             'code' => 'SCS',
             'data' => [
                 'client' => [
-                    'name' => $validated['fullname'],
-                    'email' => $validated['mail']
+                    'name' => $storedClientEvent->client->full_name,
+                    'email' => $storedClientEvent->client->mail,
+                    'is_vip' => $storedClientEvent->notes == 'vip' ? true : false
                 ],
                 'clientevent' => [
                     'id' => $storedClientEvent->clientevent_id,
@@ -481,34 +485,47 @@ class ExtClientController extends Controller
 
     }
 
-    private function sendEmailRegistrationSuccess($incomingRequest)
+    private function sendEmailRegistrationSuccess($incomingRequest, ClientEvent $clientevent)
     {
         # there are two ways of procedure depends on where the user registered (ots, pra-reg)
 
-        switch ($incomingRequest['status']) 
+        # initiate the variables
+        $clientEventId = $clientevent->clientevent_id;
+        $eventName = $clientevent->event->event_title;
+        $clientInformation = [
+            'clientDetails' => [
+                'mail' => $clientevent->client->mail, 
+                'name' => $clientevent->client->full_name
+                ]
+            ];
+
+        switch (strtolower($incomingRequest['status'])) 
         {
             case "ots":
                 # thanks mail with a ticket and link to access EduApp
                 $template = 'mail-template/registration/event/ots-mail-registration';
                 break;
 
-            
+
             default:
                 # thanks mail with a ticket only or QR code
                 $template = 'mail-template/registration/event/pra-reg-mail-registration';
+                
+                # calling send email QR method from client event controller
+                app('App\Http\Controllers\ClientEventController')->sendMailQrCode($clientEventId, $eventName, $clientInformation);
 
         }
 
-        $subject = 'Lorem ipsum dolor sit amet';
-        $recipient = $incomingRequest['mail'];
-        $passingParameter = [
-            'name' => $incomingRequest['fullname']
-        ];
+        // $subject = 'Lorem ipsum dolor sit amet';
+        // $recipient = $incomingRequest['mail'];
+        // $passingParameter = [
+        //     'name' => $incomingRequest['fullname']
+        // ];
 
-        Mail::send($template, $passingParameter, function ($message) use ($subject, $recipient) {
-            $message->to($recipient)
-                ->subject($subject);
-        });
+        // Mail::send($template, $passingParameter, function ($message) use ($subject, $recipient) {
+        //     $message->to($recipient)
+        //         ->subject($subject);
+        // });
     }
 
     private function getSchoolId($incomingRequest) 
@@ -534,6 +551,9 @@ class ExtClientController extends Controller
                 # create a new school
                 $school = $this->schoolRepository->createSchool($school);
                 $schoolId = $school->sch_id;
+
+                # manipulate the variable schoolExistOnDB
+                $schoolExistOnDB = $school;
             } 
     
             # if user did write down the school name outside our school collection
@@ -736,6 +756,9 @@ class ExtClientController extends Controller
             ]);
 
         }
+
+        # create log success
+        $this->logSuccess('update', 'Form Embed', 'Client Event', 'Guest', $updatedClientEvent);
 
         return response()->json([
             'success' => true,
