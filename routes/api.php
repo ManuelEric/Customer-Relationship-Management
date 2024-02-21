@@ -175,6 +175,7 @@ Route::prefix('v1')->group(function () {
 
     # used for storing user client data / from registation form
     Route::post('register/event', [ExtClientController::class, 'store']);
+    Route::post('register/event/express', [ExtClientController::class, 'store_express']);
     Route::get('event/{event_id}', [APIEventController::class, 'findEvent']);
     Route::get('client-event/{screening_type}/{identifier}', [APIClientEventController::class, 'findClientEvent']);
     Route::patch('registration/verify/{clientevent_id}', [ExtClientController::class, 'update']);

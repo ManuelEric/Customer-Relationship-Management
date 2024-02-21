@@ -122,6 +122,11 @@ class ExtClientController extends Controller
         );
     }
 
+    public function store_express(Request $request)
+    {
+
+    }
+
     public function store(Request $request)
     {
 
@@ -266,6 +271,8 @@ class ExtClientController extends Controller
                         'client' => [
                             'name' => $existing->client->full_name,
                             'email' => $existing->client->mail,
+                            'is_vip' => $existing->notes == 'vip' ? true : false,
+                            'register_as' => $existing->client->register_as
                         ],
                         'clientevent' => [
                             'id' => $existing->clientevent_id,
@@ -340,7 +347,8 @@ class ExtClientController extends Controller
                 'client' => [
                     'name' => $storedClientEvent->client->full_name,
                     'email' => $storedClientEvent->client->mail,
-                    'is_vip' => $storedClientEvent->notes == 'vip' ? true : false
+                    'is_vip' => $storedClientEvent->notes == 'vip' ? true : false,
+                    'register_as' => $storedClientEvent->client->register_as
                 ],
                 'clientevent' => [
                     'id' => $storedClientEvent->clientevent_id,
