@@ -296,7 +296,7 @@ class ExtClientController extends Controller
                 'lead_id' => $validated['lead_source_id'],
                 'registration_type' => $validated['registration_type'], # default is PR means Pra-Reg
                 'number_of_attend' => isset($validated['attend_party']) ? $validated['attend_party'] : 1,
-                'notes' => $validated['client_type'], # previously, notes filled with VIP & VVIP
+                'notes' => $validated['notes'], # previously, notes filled with VIP & VVIP
                 'referral_code' => null,
                 'status' => $validated['attend_status'] == 'attend' ? 1 : 0,
                 'joined_date' => Carbon::now(),

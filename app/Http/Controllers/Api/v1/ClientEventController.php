@@ -90,12 +90,14 @@ class ClientEventController extends Controller
         # first we need to create the general information
         $informations = [
             'role' => $foundClientevent->client->register_as,
+            'is_vip' => $foundClientevent->notes == 'vip' ? true : false,
             'scholarship' => $foundClientevent->client->scholarship,
             'lead' => [
                 'lead_id' => $foundClientevent->client->lead_id,
                 'lead_name' => $foundClientevent->client->lead->lead_name
             ],
             'joined_event' => [
+                'clientevent_id' => $foundClientevent->clientevent_id,
                 'event_id' => $foundClientevent->event_id,
                 'event_name' => $foundClientevent->event->event_title,
                 'attend_status' => $foundClientevent->status,
