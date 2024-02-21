@@ -26,13 +26,15 @@ class EventController extends Controller
             ]);
         }
 
-        # select necessary column only
-        $mappedEvent = $foundEvent->select(['event_id', 'event_title', 'event_banner'])->first();
 
         return response()->json([
             'success' => true,
             'message' => 'Event was found.',
-            'data' => $mappedEvent
+            'data' => [
+                'event_id' => $foundEvent->event_id,
+                'event_name' => $foundEvent->event_title,
+                'event_banner' => $foundEvent->event_banner
+            ]
         ]);
     }
 }
