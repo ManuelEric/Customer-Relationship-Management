@@ -142,6 +142,7 @@ class ExtClientController extends Controller
 
     public function store_express(Request $request)
     {
+        
         $main_client = $request->main_client;
 
         # Second Client digunakan untuk menampung id anak jika ada parent
@@ -782,7 +783,7 @@ class ExtClientController extends Controller
                 $template = 'mail-template/registration/event/ots-mail-registration';
 
                 # calling send email without QR method from client event controller
-                app('App\Http\Controllers\ClientEventController')->sendMailThanks($storedClientEventId, $eventName, $clientInformation);
+                app('App\Http\Controllers\ClientEventController')->sendMailThanks($storedClientEventId, $eventName, ['clientDetails' => $clientInformation]);
                 break;
 
 
@@ -1092,7 +1093,9 @@ class ExtClientController extends Controller
             'data' => [
                 'client' => [
                     'name' => $updatedClientEvent->client->full_name,
-                    'email' => $updatedClientEvent->client->mail
+                    'email' => $updatedClientEvent->client->mail,
+                    'is_vip' => $updatedClientEvent->notes == 'vip' ? true : false,
+                    'register_as' => $updatedClientEvent->client->register_as
                 ],
                 'clientevent' => [
                     'id' => $updatedClientEvent->clientevent_id,
