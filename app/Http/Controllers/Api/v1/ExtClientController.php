@@ -10,6 +10,7 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\SplitNameTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
@@ -41,13 +42,15 @@ class ExtClientController extends Controller
     private SchoolRepositoryInterface $schoolRepository;
     private ClientEventRepositoryInterface $clientEventRepository;
     private EventRepositoryInterface $eventRepository;
+    private ClientEventLogMailRepositoryInterface $clientEventLogMailRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, ClientEventRepositoryInterface $clientEventRepository, EventRepositoryInterface $eventRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, ClientEventRepositoryInterface $clientEventRepository, EventRepositoryInterface $eventRepository, ClientEventLogMailRepositoryInterface $clientEventLogMailRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->schoolRepository = $schoolRepository;
         $this->clientEventRepository = $clientEventRepository;
         $this->eventRepository = $eventRepository;
+        $this->clientEventLogMailRepository = $clientEventLogMailRepository;
     }
 
     public function getClientFromAdmissionMentoring()
@@ -321,20 +324,19 @@ class ExtClientController extends Controller
         }
 
 
-        // Log::notice('New client has been registered (event) with Id: '.$storedClientEvent->clientevent_id);
-
-
         try {
 
             # send an registration success email
             $this->sendEmailRegistrationSuccess($validated, $storedClientEvent);
-            Log::notice('Email registration sent sucessfully to '. $incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id);
+            
 
         } catch (Exception $e) {
 
             Log::error('Failed to send email registration to '.$incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id.' | ' . $e->getMessage());
 
         }
+
+        Log::notice('Email registration sent sucessfully to '. $incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id);
 
         # create log success
         $this->logSuccess('store', 'Form Embed', 'Client Event', 'Guest', $storedClientEvent);
@@ -497,15 +499,13 @@ class ExtClientController extends Controller
     {
         # there are two ways of procedure depends on where the user registered (ots, pra-reg)
 
-        # initiate the variables
+        # initiate global variables for emails
         $storedClientEventId = $clientevent->clientevent_id;
         $eventName = $clientevent->event->event_title;
         $clientInformation = [
-            'clientDetails' => [
-                'mail' => $clientevent->client->mail, 
-                'name' => $clientevent->client->full_name
-                ]
-            ];
+            'name' => $clientevent->client->full_name,
+            'mail' => $clientevent->client->mail
+        ];
 
         switch (strtolower($incomingRequest['status'])) 
         {
@@ -520,23 +520,67 @@ class ExtClientController extends Controller
 
             default:
                 # thanks mail with a ticket only or QR code
-                $template = 'mail-template/registration/event/pra-reg-mail-registration';
                 
-                # calling send email QR method from client event controller
-                app('App\Http\Controllers\ClientEventController')->sendMailQrCode($storedClientEventId, $eventName, $clientInformation);
+                # initiate variables
+                # variable for sending email
+                $template = 'mail-template/registration/event/pra-reg-mail-registration';
+                $email = [
+                    'subject' => "Welcome to the {$eventName}!",
+                    'recipient' => [
+                        'name' => $incomingRequest['fullname'],
+                        'mail' => $incomingRequest['mail']
+                    ]
+                ];
+
+                # this url will be converted into QR code
+                $url = url("/api/v1/client-event/CE/{$storedClientEventId}");
+
+
+                $event = [
+                    'ticket' => $clientevent->ticket_id,
+                    'eventName' => $eventName,
+                    'eventDate_start' => date('l, d M Y', strtotime($clientevent->event->event_startdate)),
+                    'eventDate_end' => date('M d, Y', strtotime($clientevent->event->event_enddate)),
+                    'eventTime_start' => date('g A', strtotime($clientevent->event->event_startdate)),
+                    'eventTime_end' => date('H:i', strtotime($clientevent->event->event_enddate)),
+                    'eventLocation' => $clientevent->event->event_location,
+                ];
+
+                # passing parameter into template
+                $passedData = [
+                    'qr' => $url, 
+                    'client' => $clientInformation, 
+                    'event' => $event
+                ];
 
         }
 
-        // $subject = 'Lorem ipsum dolor sit amet';
-        // $recipient = $incomingRequest['mail'];
-        // $passingParameter = [
-        //     'name' => $incomingRequest['fullname']
-        // ];
+        # send the email function
+        try {
 
-        // Mail::send($template, $passingParameter, function ($message) use ($subject, $recipient) {
-        //     $message->to($recipient)
-        //         ->subject($subject);
-        // });
+            Mail::send($template, $passedData,
+                    function ($message) use ($email) {
+                        $message->to($email['recipient']['mail'], $email['recipient']['name'])
+                            ->subject($email['subject']);
+                    }
+            );
+            $sent_mail = 1;
+
+        } catch (Exception $e) {
+
+            $sent_mail = 0;
+            Log::error('Failed send email with qr code to participant of Event ' . $eventName . ' | error : ' . $e->getMessage() . ' on file '.$e->getFile().' | Line ' . $e->getLine());
+
+        }
+
+        # store to log so that we can track the sending status of each email
+        $logDetails = [
+            'clientevent_id' => $storedClientEventId,
+            'sent_status' => $sent_mail,
+            'category' => 'qrcode-mail'
+        ];
+
+        return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
     }
 
     private function getSchoolId($incomingRequest) 
@@ -768,8 +812,10 @@ class ExtClientController extends Controller
 
         }
 
+
         # create log success
-        $this->logSuccess('update', 'Form Embed', 'Client Event', 'Guest', $updatedClientEvent);
+        $this->logSuccess('update', 'Form Embed', 'Client Event', 'Guest', $updatedClientEvent, $requestUpdateClientEvent);
+        
 
         return response()->json([
             'success' => true,
@@ -880,5 +926,4 @@ class ExtClientController extends Controller
 
         return $client;
     }
-
 }
