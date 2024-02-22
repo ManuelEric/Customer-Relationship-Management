@@ -1088,9 +1088,16 @@ class ExtClientController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Verifying registration event success',
+            'code' => 'SCS',
             'data' => [
-                'client_event' => $updatedClientEvent,
-                'client' => $client
+                'client' => [
+                    'name' => $updatedClientEvent->client->full_name,
+                    'email' => $updatedClientEvent->client->mail
+                ],
+                'clientevent' => [
+                    'id' => $updatedClientEvent->clientevent_id,
+                    'ticket_id' => $updatedClientEvent->ticket_id
+                ],
             ]
         ]);
     }
