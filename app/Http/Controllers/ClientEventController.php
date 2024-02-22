@@ -955,6 +955,8 @@ class ClientEventController extends Controller
 
     public function sendMailQrCode($clientEventId, $eventName, $client, $update = false)
     {
+        # initiate variables
+        
         $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
 
         $clientEvent->event_id == 'EVT-0008' ? $eventName = "STEM+ Wonderlab" : null;
@@ -970,8 +972,13 @@ class ClientEventController extends Controller
             'clientevent' => $clientEventId
         ]);
 
+        # for eduall 2024 the system has changed
+        # because of that, the url has changed as well into the api route
+        $url = url("/api/v1/client-event/CE/{$clientEventId}");
+
 
         $event = [
+            
             'eventDate_start' => date('l, d M Y', strtotime($clientEvent->event->event_startdate)),
             'eventDate_end' => date('M d, Y', strtotime($clientEvent->event->event_enddate)),
             'eventTime_start' => date('g A', strtotime($clientEvent->event->event_startdate)),
@@ -980,10 +987,17 @@ class ClientEventController extends Controller
         ];
 
         try {
-            Mail::send($mail_resources, ['qr_page' => $url, 'client' => $client['clientDetails'], 'event' => $event], function ($message) use ($subject, $recipientDetails) {
-                $message->to($recipientDetails['mail'], $recipientDetails['name'])
-                    ->subject($subject);
-            });
+            Mail::send($mail_resources, 
+                    [
+                        'qr' => $url, 
+                        'client' => $client['clientDetails'], 
+                        'event' => $event
+                    ],
+                    function ($message) use ($subject, $recipientDetails) {
+                        $message->to($recipientDetails['mail'], $recipientDetails['name'])
+                            ->subject($subject);
+                    }
+            );
             $sent_mail = 1;
         } catch (Exception $e) {
 

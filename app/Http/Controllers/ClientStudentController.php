@@ -1202,6 +1202,12 @@ class ClientStudentController extends ClientController
         # raw client id that being choose from list raw data client
         $clientIds = $request->choosen;
         $pic = $request->pic_id;
+
+        # if pic was null 
+        # we don't want to show message "requested failed with status 500" but more to formal
+        if (!$pic)
+            return response()->json(['success' => false, 'message' => 'We require a selection to proceed. Please review the available options and choose one.'], 500);
+
         $picDetails = [];
 
         DB::beginTransaction();
