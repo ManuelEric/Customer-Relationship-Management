@@ -153,6 +153,7 @@ Route::get('current/rate/{base_currency}/{to_currency}', [CurrencyRateController
 
 # external API
 Route::prefix('v1')->group(function () {
+    Route::get('get/parent-mentees', [ExtClientController::class, 'getParentMentee']);
     Route::get('get/mentees', [ExtClientController::class, 'getClientFromAdmissionMentoring']);
     Route::get('get/mentors', [ExtClientController::class, 'getMentors']);
     Route::get('get/alumnis', [ExtClientController::class, 'getAlumnis']);
@@ -175,7 +176,7 @@ Route::prefix('v1')->group(function () {
 
     # used for storing user client data / from registation form
     Route::post('register/event', [ExtClientController::class, 'store']);
-    Route::post('register/event/express', [ExtClientController::class, 'store_express']);
+    Route::get('register/event/express/{main_client}/{notes}/{second_client?}', [ExtClientController::class, 'store_express']);
     Route::get('event/{event_id}', [APIEventController::class, 'findEvent']);
     Route::get('client-event/{screening_type}/{identifier}', [APIClientEventController::class, 'findClientEvent']);
     Route::patch('registration/verify/{clientevent_id}', [ExtClientController::class, 'update']);
