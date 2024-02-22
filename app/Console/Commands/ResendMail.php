@@ -142,6 +142,22 @@ class ResendMail extends Command
                             $this->sendMailReminderAttend($detail->clientEvent, 'automate');
                         }
                         break;
+
+                    case 'invitation-info':
+                        if($detail->event->event_enddate > Carbon::now()){
+                            $data = [
+                                'client' => [
+                                    'client_id' => $detail->client_id,
+                                    'email' => $detail->client->mail,
+                                    'recipient' => $detail->client->full_name,
+                                ],
+                                'event_id' => $detail->event_id,
+                                'notes' => 'WxSFs0LGh',
+                            ];
+
+                            $this->sendMailInvitationInfo($data, 'automate');
+                        }
+                        break;
                 }
                     
 

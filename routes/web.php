@@ -88,7 +88,7 @@ Route::get('scan', function () {
 Route::get('client-detail/{identifier}/{screening_type}', [ClientEventController::class, 'previewClientInformation']);
 
 Route::get('mailing', function () {
-    return view('mailing.stem-wonderlab');
+    return view('mailing.mailing-event');
 });
 
 Route::get('sample/form', function () {

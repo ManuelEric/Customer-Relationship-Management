@@ -2,6 +2,7 @@
 
 namespace App\Http\Traits;
 
+use App\Jobs\Event\EduAll\ProcessEmailInvitationInfo;
 use App\Jobs\Event\Stem\ProcessEmailFeedback;
 use App\Jobs\Event\Stem\ProcessEmailQuestCompleter;
 use App\Models\ClientEvent;
@@ -437,5 +438,21 @@ trait MailingEventOfflineTrait
         }
 
         // Log::debug('Send quest completer mail fullname: ' . $fullname . ' status: ' . $sent_mail, ['fullname' => $fullname, 'email' => $email, 'level' => $level, 'sent_status' => $sent_mail]);
+    }
+
+    # Just send mail invitation information only not include register express
+    public function sendMailInvitationInfo($details, $for) 
+    {
+        try {
+
+            $details['event'] = Event::whereEventId($details['event_id']);
+            $details['for'] = $for;
+
+            ProcessEmailInvitationInfo::dispatch($details)->onQueue('invitation-info');
+
+        } catch (Exception $e) {
+
+            Log::info('Failed to add queue mail invitation info : ' . $e->getMessage());
+        }
     }
 }
