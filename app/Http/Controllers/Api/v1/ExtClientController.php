@@ -261,7 +261,7 @@ class ExtClientController extends Controller
                             'event_type' => 'offline',
                             'status' => "",
                             'referral' => null,
-                            // 'client_type' => $existing->notes,
+                            'client_type' => $existing->notes,
                         ],
                         'education' => [
                             'school_id' => $second_client != null ? $existing->children->school->sch_id : $existing->client->school->sch_id,
@@ -392,7 +392,7 @@ class ExtClientController extends Controller
                     'event_type' => 'offline',
                     'status' => "",
                     'referral' => null,
-                    // 'client_type' => 'VIP',
+                    'client_type' => 'VIP',
                 ],
         ]]);
 
