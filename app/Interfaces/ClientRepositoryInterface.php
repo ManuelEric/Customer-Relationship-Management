@@ -54,6 +54,8 @@ interface ClientRepositoryInterface
     public function getExistingMenteesAPI();
     public function getExistingMentorsAPI();
     public function getExistingAlumnisAPI();
+    public function getParentMenteesAPI();
+
     /* ~ API External End */
 
     public function getAlumnisDataTables();

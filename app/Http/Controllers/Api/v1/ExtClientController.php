@@ -151,14 +151,14 @@ class ExtClientController extends Controller
         if (!$event = Event::whereEventId($event_id)){
             return response()->json([
                 'success' => false,
-                'error' => 'Event not found'
+                'error' => 'Could not find the event.'
             ]);
         }
 
         if (!$client = UserClient::find($main_client)){
             return response()->json([
                 'success' => false,
-                'error' => 'Client not found'
+                'error' => 'Could not find the client.'
             ]);
         }
 
@@ -176,13 +176,13 @@ class ExtClientController extends Controller
                 break;
         }
 
-        // if (Carbon::now() < $event->event_startdate)
-        // {
-        //     return response()->json([
-        //         'success' => false,
-        //         'error' => 'Event has not started yet'
-        //     ]);
-        // }
+        if (Carbon::now() < $event->event_startdate)
+        {
+            return response()->json([
+                'success' => false,
+                'error' => 'Event has not started yet'
+            ]);
+        }
 
         DB::beginTransaction();
         try {
@@ -341,7 +341,7 @@ class ExtClientController extends Controller
                 ],
             ];
 
-            $destinationCountries = $existing->children->destinationCountries;
+            $destinationCountries = $storedClientEvent->children->destinationCountries;
 
         }else{
 
@@ -355,7 +355,7 @@ class ExtClientController extends Controller
                 ],
             ];
 
-            $destinationCountries = $existing->client->destinationCountries;
+            $destinationCountries = $storedClientEvent->client->destinationCountries;
         }
 
         if( count($destinationCountries) > 0 ){
@@ -373,10 +373,10 @@ class ExtClientController extends Controller
         return response()->json([
             'success' => true,
             'message' => "Welcome aboard! Your registration is complete. Don't forget to check your email for exciting updates and next steps.",
-            'code' => 'SCS',
             'data' => $dataResponseClient +
             [
                 'role' => $second_client != null ? 'parent' : 'student',
+                'is_vip' => true,
                 'lead' => [
                     'lead_id' => 'LS040',
                     'lead_name' => 'Invited Mentee'
@@ -389,7 +389,7 @@ class ExtClientController extends Controller
                     'event_type' => 'offline',
                     'status' => "",
                     'referral' => null,
-                    'client_type' => 'VIP',
+                    // 'client_type' => 'VIP',
                 ],
         ]]);
 
