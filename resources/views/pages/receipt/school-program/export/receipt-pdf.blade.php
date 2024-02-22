@@ -82,7 +82,7 @@
 
             {{-- Description --}}
             <td valign="top" style="padding-bottom:10px;">
-                <div style="height:80px;">
+                <div style="min-height:80px;">
                     <p>
                         <strong> {{ $invoiceSch->sch_prog->program->program_name }} </strong>
                     </p>
@@ -121,7 +121,7 @@
 
             {{-- Price --}}
             <td valign="top" align="center">
-                <div style="height:80px;">
+                <div style="min-height:80px;">
                     <p>
                         <strong>
                             @if ($invoiceSch->invb2b_pm == 'Installment')
@@ -146,7 +146,7 @@
 
             {{-- Total --}}
             <td valign="top" align="center">
-                <div style="height:80px;">
+                <div style="min-height:80px;">
                     <p>
                         <strong>
                             @if ($invoiceSch->invb2b_pm == 'Installment')

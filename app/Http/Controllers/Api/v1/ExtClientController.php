@@ -152,17 +152,34 @@ class ExtClientController extends Controller
         $event_id = $request->EVT;
         $notes = $request->notes;
 
-        if (!$event = Event::whereEventId($event_id)){
+        if (!$event = $this->eventRepository->getEventById($event_id)){
             return response()->json([
                 'success' => false,
                 'error' => 'Could not find the event.'
             ]);
         }
 
-        if (!$client = UserClient::find($main_client)){
+        if (!$client = $this->clientRepository->getClientById($main_client)){
             return response()->json([
                 'success' => false,
                 'error' => 'Could not find the client.'
+            ]);
+        }
+
+        $allowable_role = ['parent', 'student'];
+        if (!$client->roles()->whereIn('role_name', $allowable_role)->exists()){
+
+            return response()->json([
+                'success' => false,
+                'error' => 'This Client has not student or parent.'
+            ]);
+        }
+
+        $student_id = $second_client != null ? $second_client : $main_client;
+        if (!$this->clientRepository->checkIfClientIsMentee($student_id)){
+            return response()->json([
+                'success' => false,
+                'error' => 'This client has not mentee.'
             ]);
         }
 
@@ -175,7 +192,7 @@ class ExtClientController extends Controller
             default:
                 return response()->json([
                     'success' => false,
-                    'error' => 'This client not VIP'
+                    'error' => 'This client has not VIP.'
                 ]);
                 break;
         }
@@ -192,7 +209,7 @@ class ExtClientController extends Controller
         try {
 
             # check if registered client has already join the event
-            if ($existing = $this->clientEventRepository->getClientEventByClientIdAndEventId($main_client, $event_id)) {
+            if ($existing = $this->clientEventRepository->getClientEventByMultipleIdAndEventId($main_client, $event_id, $second_client)) {
 
                     if ($second_client != null)
                     {
@@ -260,8 +277,8 @@ class ExtClientController extends Controller
                             'attend_status' => $existing->status,
                             'attend_party' => $existing->number_of_attend,
                             'event_type' => 'offline',
-                            'status' => "",
-                            'referral' => null,
+                            'status' => $existing->registration_type,
+                            'referral' => $existing->referral_code,
                             'client_type' => $existing->notes,
                         ],
                         'education' => [
@@ -388,12 +405,12 @@ class ExtClientController extends Controller
                 'joined_event' => [
                     'event_id' => $storedClientEvent->event->event_id,
                     'event_name' => $storedClientEvent->event->event_title,
-                    'attend_status' => 1,
-                    'attend_party' => 0,
+                    'attend_status' => $storedClientEvent->status,
+                    'attend_party' => $storedClientEvent->number_of_attend,
                     'event_type' => 'offline',
-                    'status' => "",
-                    'referral' => null,
-                    'client_type' => 'VIP',
+                    'status' => $storedClientEvent->registration_type,
+                    'referral' => $storedClientEvent->referral_code,
+                    'client_type' => $storedClientEvent->notes,
                 ],
         ]]);
 
