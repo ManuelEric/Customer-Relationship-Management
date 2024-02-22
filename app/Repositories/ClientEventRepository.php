@@ -360,6 +360,15 @@ class ClientEventRepository implements ClientEventRepositoryInterface
         return ClientEvent::where('client_id', $clientId)->where('event_id', $eventId)->first();
     }
 
+    public function getClientEventByMultipleIdAndEventId($clientId, $eventId, $secondClient=null)
+    {
+        return ClientEvent::when($secondClient !== NULL, function($query) use($clientId, $secondClient) {
+            $query->where('client_id', $clientId)->where('child_id', $secondClient);
+        }, function ($query) use ($clientId) {
+            $query->where('client_id', $clientId);
+        })->where('event_id', $eventId)->first();  
+    }
+
     public function getClientEventById($clientEventId)
     {
         return ClientEvent::find($clientEventId);
