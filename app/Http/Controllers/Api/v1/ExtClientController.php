@@ -19,6 +19,7 @@ use App\Jobs\RawClient\ProcessVerifyClientParent;
 use App\Models\ClientEvent;
 use App\Models\Event;
 use App\Models\School;
+use App\Models\UserClient;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -138,6 +139,259 @@ class ExtClientController extends Controller
 
     public function store_express(Request $request)
     {
+        $main_client = $request->main_client;
+
+        # Second Client digunakan untuk menampung id anak jika ada parent
+        # jika tidak ada parent maka second id nya null
+        $second_client = $request->second_client ?? null;
+
+        $event_id = $request->EVT;
+        $notes = $request->notes;
+
+        if (!$event = Event::whereEventId($event_id)){
+            return response()->json([
+                'success' => false,
+                'error' => 'Event not found'
+            ]);
+        }
+
+        if (!$client = UserClient::find($main_client)){
+            return response()->json([
+                'success' => false,
+                'error' => 'Client not found'
+            ]);
+        }
+
+        switch ($notes) {
+            case 'VIP':
+            case 'WxSFs0LGh': # Mean VIP
+                $notes = 'VIP';
+                break;
+
+            default:
+                return response()->json([
+                    'success' => false,
+                    'error' => 'This client not VIP'
+                ]);
+                break;
+        }
+
+        // if (Carbon::now() < $event->event_startdate)
+        // {
+        //     return response()->json([
+        //         'success' => false,
+        //         'error' => 'Event has not started yet'
+        //     ]);
+        // }
+
+        DB::beginTransaction();
+        try {
+
+            # check if registered client has already join the event
+            if ($existing = $this->clientEventRepository->getClientEventByClientIdAndEventId($main_client, $event_id)) {
+
+                    if ($second_client != null)
+                    {
+
+                        $dataResponseClient['parent'] = [
+                            'name' => $existing->client->full_name,
+                            'first_name' => $existing->client->first_name,
+                            'last_name' => $existing->client->last_name,
+                            'mail' => $existing->client->mail,
+                            'phone' => $existing->client->phone,
+                        ];
+
+                        $dataResponseClient['student'] = [
+                            'name' => $existing->children->full_name,
+                            'first_name' => $existing->children->first_name,
+                            'last_name' => $existing->children->last_name,
+                            'mail' => $existing->children->mail,
+                            'phone' => $existing->children->phone,
+                        ];
+
+                        $destinationCountries = $existing->children->destinationCountries;
+                        
+
+                    }else{
+
+                        $dataResponseClient['student'] = [
+                            'name' => $existing->client->full_name,
+                            'first_name' => $existing->client->first_name,
+                            'last_name' => $existing->client->last_name,
+                            'mail' => $existing->client->mail,
+                            'phone' => $existing->client->phone,   
+                        ];
+
+                        $destinationCountries = $existing->client->destinationCountries;
+
+                    }
+
+                    if( count($destinationCountries) > 0 ){
+                        foreach ($destinationCountries as $key => $country) {
+                            $dataDestinationCountries[$key] = [
+                                
+                                'country_id' => $country->id,
+                                'country_name' => $country->name
+                            ];
+                        }
+                        $dataResponseClient['dream_countries'] = $dataDestinationCountries;
+                        unset($dataDestinationCountries);
+                    }
+
+                    
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Client event was found.',
+                    'data' => $dataResponseClient +
+                    [
+                        'role' => $second_client != null ? 'parent' : 'student',
+                        'is_vip' => true,
+                        'lead' => [
+                            'lead_id' => $existing->lead_id,
+                            'lead_name' => $existing->lead->main_lead,
+                        ],
+                        'joined_event' => [
+                            'event_id' => $existing->event->event_id,
+                            'event_name' => $existing->event->event_title,
+                            'attend_status' => $existing->status,
+                            'attend_party' => $existing->number_of_attend,
+                            'event_type' => 'offline',
+                            'status' => "",
+                            'referral' => null,
+                            // 'client_type' => $existing->notes,
+                        ],
+                        'education' => [
+                            'school_id' => $second_client != null ? $existing->children->school->sch_id : $existing->client->school->sch_id,
+                            'school_name' => $second_client != null ? $existing->children->school->sch_name : $existing->client->school->sch_name,
+                            'graduation_year' => $second_client != null ? $existing->children->graduation_year : $existing->client->graduation_year,
+                            'grade' => $second_client != null ? $existing->children->grade : $existing->client->grade,
+                        ],
+                        
+                     
+                    ]
+                ]);
+            }
+
+            $clientEventDetails = [
+                'ticket_id' => $this->generateTicketID(),
+                'client_id' => $main_client, # it comes from query to database, so it should be a collection
+                'child_id' => $second_client,
+                'parent_id' => null,
+                'event_id' => $event_id,
+                'lead_id' => 'LS040',
+                'registration_type' => 'OTS',
+                'notes' => $notes, # previously, notes filled with VIP & VVIP
+                'status' => 1,
+                'joined_date' => Carbon::now(),
+            ];
+
+            # store client event
+            $storedClientEvent = $this->clientEventRepository->createClientEvent($clientEventDetails);
+
+            $dataMail = [
+                'status' => 'ots',                
+            ];
+        DB::commit();
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Registration Event Failed | ' . $e->getMessage(). ' | '.$e->getFile().' on line '.$e->getLine());
+            return response()->json([
+                'success' => false,
+                'code' => 'ERR',
+                'message' => "We encountered an issue completing your registration. Please check for any missing information or errors and try again. If you're still having trouble, feel free to contact our support team for assistance."
+            ]);
+
+        }
+
+        try {
+
+            # send an registration success email
+            $this->sendEmailRegistrationSuccess($dataMail, $storedClientEvent);
+            Log::notice('Email registration sent sucessfully to '. $storedClientEvent->client->mail.' refer to ticket ID : '.$storedClientEvent->ticket_id);
+
+        } catch (Exception $e) {
+
+            Log::error('Failed to send email registration to '.$storedClientEvent->client->mail.' refer to ticket ID : '.$storedClientEvent->ticket_id.' | ' . $e->getMessage());
+
+        }
+
+        # create log success
+        $this->logSuccess('store', 'Form Embed', 'Client Event', 'Guest', $storedClientEvent);
+
+        
+        if ($second_client != null)
+        {
+
+            $dataResponseClient = [
+                'parent' => [
+                    'name' => $storedClientEvent->client->full_name,
+                    'first_name' => $storedClientEvent->client->first_name,
+                    'last_name' => $storedClientEvent->client->last_name,
+                    'mail' => $storedClientEvent->client->mail,
+                    'phone' => $storedClientEvent->client->phone,
+                ],
+                'student' => [
+                    'name' => $storedClientEvent->children->full_name,
+                    'first_name' => $storedClientEvent->children->first_name,
+                    'last_name' => $storedClientEvent->children->last_name,
+                    'mail' => $storedClientEvent->children->mail,
+                    'phone' => $storedClientEvent->children->phone,
+                ],
+            ];
+
+            $destinationCountries = $existing->children->destinationCountries;
+
+        }else{
+
+            $dataResponseClient = [
+                'student' => [
+                    'name' => $storedClientEvent->client->full_name,
+                    'first_name' => $storedClientEvent->client->first_name,
+                    'last_name' => $storedClientEvent->client->last_name,
+                    'mail' => $storedClientEvent->client->mail,
+                    'phone' => $storedClientEvent->client->phone,
+                ],
+            ];
+
+            $destinationCountries = $existing->client->destinationCountries;
+        }
+
+        if( count($destinationCountries) > 0 ){
+            foreach ($destinationCountries as $key => $country) {
+                $dataDestinationCountries[$key] = [
+                    
+                    'country_id' => $country->id,
+                    'country_name' => $country->name
+                ];
+            }
+            $dataResponseClient['dream_countries'] = $dataDestinationCountries;
+            unset($dataDestinationCountries);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Welcome aboard! Your registration is complete. Don't forget to check your email for exciting updates and next steps.",
+            'code' => 'SCS',
+            'data' => $dataResponseClient +
+            [
+                'role' => $second_client != null ? 'parent' : 'student',
+                'lead' => [
+                    'lead_id' => 'LS040',
+                    'lead_name' => 'Invited Mentee'
+                ],
+                'joined_event' => [
+                    'event_id' => $storedClientEvent->event->event_id,
+                    'event_name' => $storedClientEvent->event->event_title,
+                    'attend_status' => 1,
+                    'attend_party' => 0,
+                    'event_type' => 'offline',
+                    'status' => "",
+                    'referral' => null,
+                    'client_type' => 'VIP',
+                ],
+        ]]);
 
     }
 
