@@ -46,7 +46,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 }
             }
         }else{
-            $fieldKey = ["created_at"];
+            $fieldKey = ["success_date", "failed_date", "refund_date", "created_at"];
         }
 
 
@@ -96,15 +96,18 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 # search by date
                 # when start date && end date filled
                 ->when(isset($searchQuery['startDate']) && isset($searchQuery['endDate']), function ($query) use ($searchQuery, $fieldKey) {
-                    $no = 0;
-                    foreach ($fieldKey as $key => $val) {
-                        if ($no == 0)
-                            $query->whereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
-                        else
-                            $query->orWhereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
+                    $query->where(function ($subQuery) use ($searchQuery, $fieldKey) {
 
-                        $no++;
-                    }
+                        $no = 0;
+                        foreach ($fieldKey as $key => $val) {
+                            if ($no == 0)
+                                $subQuery->whereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
+                            else
+                                $subQuery->orWhereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
+    
+                            $no++;
+                        }
+                    });
                 })
                 # when start date filled && end date null
                 ->when(isset($searchQuery['startDate']) && !isset($searchQuery['endDate']), function ($query) use ($searchQuery, $fieldKey) {

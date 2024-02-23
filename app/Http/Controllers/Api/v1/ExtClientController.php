@@ -417,7 +417,7 @@ class ExtClientController extends Controller
                 $request->school_id != 'new' ? 'exists:tbl_sch,sch_id' : null
             ],
             'other_school' => 'nullable',
-            'graduation_year' => 'nullable|required_if:role,student|gte:'.date('Y'),
+            'graduation_year' => 'nullable|required_if:role,student', # not validated gte because there are chances that registered user has already graduated like since 2020
             'destination_country' => 'nullable|required_unless:role,teacher/counsellor|required_if:have_child,true|array|exists:tbl_tag,id', # the ids from tbl_tag
             'scholarship' => 'required|in:Y,N',
             'lead_source_id' => 'required|exists:tbl_lead,lead_id',
@@ -556,6 +556,7 @@ class ExtClientController extends Controller
                     ]
                 ]);
             }
+
 
 
             # declare variables for client events
@@ -776,7 +777,7 @@ class ExtClientController extends Controller
             'mail' => $clientevent->client->mail
         ];
 
-        switch (strtolower($incomingRequest['status'])) 
+        switch (strtolower($incomingRequest['registration_type'])) 
         {
             case "ots":
                 # thanks mail with a ticket and link to access EduApp
@@ -801,8 +802,8 @@ class ExtClientController extends Controller
                     ]
                 ];
 
-                # this url will be converted into QR code
-                $url = url("/api/v1/client-event/CE/{$storedClientEventId}");
+                # this ticket id will be converted into QR code
+                $ticket_id = $clientevent->ticket_id;
 
 
                 $event = [
@@ -817,7 +818,7 @@ class ExtClientController extends Controller
 
                 # passing parameter into template
                 $passedData = [
-                    'qr' => $url, 
+                    'qr' => $ticket_id, 
                     'client' => $clientInformation, 
                     'event' => $event
                 ];
@@ -917,7 +918,7 @@ class ExtClientController extends Controller
                 $request->school_id != 'new' ? 'exists:tbl_sch,sch_id' : null
             ],
             'other_school' => 'nullable',
-            'graduation_year' => 'nullable|required_if:role,student|gte:'.date('Y'),
+            'graduation_year' => 'nullable|required_if:role,student',
             'destination_country' => 'nullable|required_unless:role,teacher/counsellor|required_if:have_child,true|array|exists:tbl_tag,id', # the ids from tbl_tag
             'scholarship' => 'required|in:Y,N',
             'lead_source_id' => 'required|exists:tbl_lead,lead_id',
