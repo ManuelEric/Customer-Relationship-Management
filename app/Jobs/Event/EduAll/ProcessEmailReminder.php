@@ -14,7 +14,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
-class ProcessEmailInvitationInfo implements ShouldQueue
+class ProcessEmailReminder implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -47,23 +47,25 @@ class ProcessEmailInvitationInfo implements ShouldQueue
 
         try {
 
-            Mail::send('mail-template.invitation.event.invitation-mail', $this->mailDetails, function ($message) {
-                $message->to($this->mailDetails['client']['email'], $this->mailDetails['client']['recipient'])
-                    ->subject('Invitation VIP ');
+            Mail::send('mail-template.reminder.event.reminder-mail', $this->mailDetails, function ($message) {
+                $message->to($this->mailDetails['email'], $this->mailDetails['recipient'])
+                    ->subject($this->mailDetails['title']);
             });
             $sent_status = 1;
 
         } catch (Exception $e) {
             
             $sent_status = 0;
-            Log::error('Failed to send mail invitation info: ' . $e->getMessage());
+            Log::error('Failed to send mail reminder: ' . $e->getMessage());
 
         }
 
         $keyLog = [
-            'client_id' => $this->mailDetails['client']['client_id'],
-            'event_id' => $this->mailDetails['event_id'],
-            'category' => 'invitation-info'
+            'client_id' => $this->mailDetails['client_id'],
+            'event_id' => $this->mailDetails['event']['eventId'],
+            'category' => 'reminder-registration',
+            'notes' => $this->mailDetails['notes'],
+            'child_id' => $this->mailDetails['child_id']
         ];
 
         $valueLog = [
@@ -72,7 +74,7 @@ class ProcessEmailInvitationInfo implements ShouldQueue
 
         ClientEventLogMail::updateOrCreate($keyLog, $valueLog);
 
-        Log::debug('Send mail invitation info fullname: ' . $this->mailDetails['client']['recipient'] . ' status: ' . $sent_status, ['fullname' => $this->mailDetails['client']['recipient'], 'email' => $this->mailDetails['client']['email'], 'sent_status' => $sent_status]);
+        Log::debug('Send mail reminder fullname: ' . $this->mailDetails['recipient'] . ' status: ' . $sent_status, ['fullname' => $this->mailDetails['recipient'], 'email' => $this->mailDetails['email'], 'sent_status' => $sent_status]);
 
 
         

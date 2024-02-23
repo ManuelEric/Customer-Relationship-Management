@@ -127,7 +127,7 @@ class ResendMail extends Command
 
                     case 'reminder-registration':
                         if($detail->event->event_enddate > Carbon::now()){
-                            $this->sendMailReminder($detail->client->mail, $detail->event->event_id, 'automate', 'registration', $detail->index_child, $detail->notes);
+                            $this->sendMailReminder($detail->client_id, $detail->event->event_id, 'automate', 'registration', $detail->child_id, $detail->notes);
                         }
                         break;
 
