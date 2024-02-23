@@ -2,6 +2,8 @@
 
 namespace App\Http\Traits;
 
+use App\Jobs\Event\EduAll\ProcessEmailInvitationInfo;
+use App\Jobs\Event\EduAll\ProcessEmailReminder;
 use App\Jobs\Event\Stem\ProcessEmailFeedback;
 use App\Jobs\Event\Stem\ProcessEmailQuestCompleter;
 use App\Models\ClientEvent;
@@ -273,7 +275,7 @@ trait MailingEventOfflineTrait
         }
     }
 
-    public function sendMailReminder($email, $event_id, $for, $type, $indexChild, $notes)
+    public function sendMailReminder($client_id, $event_id, $for, $type, $child_id, $notes)
     {
 
         try {
@@ -293,24 +295,23 @@ trait MailingEventOfflineTrait
                     break;
             }
 
-            $client = UserClient::where('mail', $email)->first();
+            $client = UserClient::where('id', $client_id)->first();
 
             $event = Event::where('event_id', $event_id)->first();
 
             $data = [
-                'email' => $email,
+                'for' => $for,
+                'client_id' => $client->id,
+                'child_id' => $child_id,
+                'email' => $client->mail,
                 'notes' => $notes,
                 'recipient' => $client->full_name,
                 'title' => $type == 'registration' ? 'Enjoy special privileges as our ' . $notes . ' guest at STEM+ Wonderlab!' : '🔔 Reminder to our ' . $notes . ' guests of STEM+ Wonderlab',
                 'param' => [
-                    'referral_page' => route('program.event.referral-page', [
-                        'event_slug' => str_replace(' ', '-', $event->event_title),
-                        'refcode' => $this->createReferralCode($client->first_name, $client->id),
-                        'notes' => $noteEncrypt
-                    ]),
-                    'link' => url('program/event/reg-exp/' . $client['id'] . '/' . $event_id . '/' . $noteEncrypt . '/' . $indexChild)
+                    'link' => route('register-express-event', ['main_client' => $client->id, 'notes' => $noteEncrypt, 'second_client' => $child_id, 'EVT' => $event_id]),
                 ],
                 'event' => [
+                    'eventId' => $event_id,
                     'eventName' => $event->event_title,
                     'eventDate' => date('M d, Y', strtotime($event->event_startdate)),
                     'eventDate_start' => date('l, d M Y', strtotime($event->event_startdate)),
@@ -322,34 +323,13 @@ trait MailingEventOfflineTrait
 
             ];
 
+            ProcessEmailReminder::dispatch($data)->onQueue('reminder-mail');
 
-            Mail::send('mail-template.reminder-' . $type, $data, function ($message) use ($data) {
-                $message->to($data['email'], $data['recipient'])
-                    ->subject($data['title']);
-            });
-            $sent_mail = 1;
         } catch (Exception $e) {
 
-            $sent_mail = 0;
-            Log::info('Failed to send reminder registration mail : ' . $e->getMessage());
+            Log::info('Failed to add queue mail reminder : ' . $e->getMessage());
         }
 
-        if ($for == 'first-send') {
-            $keyLog = [
-                'client_id' => $client['id'],
-                'event_id' => $event_id,
-                'sent_status' => $sent_mail,
-                'index_child' => $indexChild,
-                'notes' => $notes,
-                'category' => 'reminder-' . $type
-            ];
-
-            $valueLog = [
-                'sent_status' => $sent_mail,
-            ];
-
-            ClientEventLogMail::updateOrCreate($keyLog, $valueLog);
-        }
     }
 
     public function sendMailReminderAttend($clientEvent, $for)
@@ -437,5 +417,21 @@ trait MailingEventOfflineTrait
         }
 
         // Log::debug('Send quest completer mail fullname: ' . $fullname . ' status: ' . $sent_mail, ['fullname' => $fullname, 'email' => $email, 'level' => $level, 'sent_status' => $sent_mail]);
+    }
+
+    # Just send mail invitation information only not include register express
+    public function sendMailInvitationInfo($details, $for) 
+    {
+        try {
+
+            $details['event'] = Event::whereEventId($details['event_id']);
+            $details['for'] = $for;
+
+            ProcessEmailInvitationInfo::dispatch($details)->onQueue('invitation-info');
+
+        } catch (Exception $e) {
+
+            Log::info('Failed to add queue mail invitation info : ' . $e->getMessage());
+        }
     }
 }

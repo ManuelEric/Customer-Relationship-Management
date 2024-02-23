@@ -1,5 +1,5 @@
 @extends('app')
-@section('title', 'Mailing - STEM + Wonderlab')
+@section('title', 'Mailing - Event')
 @section('style')
 @endsection
 @section('body')
@@ -8,7 +8,7 @@
             <div class="row justify-content-center align-items-center" style="height: 100vh">
                 <div class="col-md-8">
                     <div class="text-center">
-                        <h2>STEM Wonderlab - Mailing</h2>
+                        <h2>Mailing - Event</h2>
                     </div>
                     <div class="card mb-3">
                         <div class="card-body">
@@ -36,6 +36,7 @@
                                             <option value="reminder_registration">Reminder Registration</option>
                                             <option value="reminder_referral">Reminder Referral</option>
                                             <option value="quest_completer">Quest Completer</option>
+                                            <option value="invitation_info">Invitation Info</option>
                                         </select>
                                     </div>
                                     <div class="col-2">

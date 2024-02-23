@@ -27,6 +27,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -151,19 +152,38 @@ class ExtClientController extends Controller
 
         $event_id = $request->EVT;
         $notes = $request->notes;
+        $is_site = $request->is_site ?? null;
 
-        if (!$event = Event::whereEventId($event_id)){
-            return response()->json([
-                'success' => false,
-                'error' => 'Could not find the event.'
-            ]);
+        if (!$event = $this->eventRepository->getEventById($event_id)){
+            return Redirect::to('http://localhost:5173/error/event-not-found');
         }
 
-        if (!$client = UserClient::find($main_client)){
-            return response()->json([
-                'success' => false,
-                'error' => 'Could not find the client.'
-            ]);
+        if (Carbon::now() < $event->event_startdate){
+            return Redirect::to('http://localhost:5173/error/event-has-not-started');
+        }
+
+        if ($is_site == null || $is_site == false){
+            return Redirect::to('http://localhost:5173/error/access-denied');
+        }
+
+        if (Carbon::now() == $event->event_startdate && ($is_site == null || !$is_site)){
+            return Redirect::to('http://localhost:5173/error/access-denied');
+        }
+
+        if (!$client = $this->clientRepository->getClientById($main_client)){
+            return Redirect::to('http://localhost:5173/error/client-not-found');
+        }
+
+        $allowable_role = ['parent', 'student'];
+        if (!$client->roles()->whereIn('role_name', $allowable_role)->exists()){
+            # Role main client is not parent or student
+            return Redirect::to('http://localhost:5173/error/this-client-has-not-vip');
+        }
+
+        $student_id = $second_client != null ? $second_client : $main_client;
+        if (!$this->clientRepository->checkIfClientIsMentee($student_id)){
+            # Client has not mentee
+            return Redirect::to('http://localhost:5173/error/this-client-has-not-vip');
         }
 
         switch ($notes) {
@@ -173,26 +193,15 @@ class ExtClientController extends Controller
                 break;
 
             default:
-                return response()->json([
-                    'success' => false,
-                    'error' => 'This client not VIP'
-                ]);
+                return Redirect::to('http://localhost:5173/error/this-client-has-not-vip');
                 break;
-        }
-
-        if (Carbon::now() < $event->event_startdate)
-        {
-            return response()->json([
-                'success' => false,
-                'error' => 'Event has not started yet'
-            ]);
         }
 
         DB::beginTransaction();
         try {
 
             # check if registered client has already join the event
-            if ($existing = $this->clientEventRepository->getClientEventByClientIdAndEventId($main_client, $event_id)) {
+            if ($existing = $this->clientEventRepository->getClientEventByMultipleIdAndEventId($main_client, $event_id, $second_client)) {
 
                     if ($second_client != null)
                     {
@@ -260,8 +269,8 @@ class ExtClientController extends Controller
                             'attend_status' => $existing->status,
                             'attend_party' => $existing->number_of_attend,
                             'event_type' => 'offline',
-                            'status' => "",
-                            'referral' => null,
+                            'status' => $existing->registration_type,
+                            'referral' => $existing->referral_code,
                             'client_type' => $existing->notes,
                         ],
                         'education' => [
@@ -301,11 +310,7 @@ class ExtClientController extends Controller
 
             DB::rollBack();
             Log::error('Registration Event Failed | ' . $e->getMessage(). ' | '.$e->getFile().' on line '.$e->getLine());
-            return response()->json([
-                'success' => false,
-                'code' => 'ERR',
-                'message' => "We encountered an issue completing your registration. Please check for any missing information or errors and try again. If you're still having trouble, feel free to contact our support team for assistance."
-            ]);
+            return Redirect::to('http://localhost:5173/error/registration-failed');
 
         }
 
@@ -388,12 +393,12 @@ class ExtClientController extends Controller
                 'joined_event' => [
                     'event_id' => $storedClientEvent->event->event_id,
                     'event_name' => $storedClientEvent->event->event_title,
-                    'attend_status' => 1,
-                    'attend_party' => 0,
+                    'attend_status' => $storedClientEvent->status,
+                    'attend_party' => $storedClientEvent->number_of_attend,
                     'event_type' => 'offline',
-                    'status' => "",
-                    'referral' => null,
-                    'client_type' => 'VIP',
+                    'status' => $storedClientEvent->registration_type,
+                    'referral' => $storedClientEvent->referral_code,
+                    'client_type' => $storedClientEvent->notes,
                 ],
         ]]);
 
