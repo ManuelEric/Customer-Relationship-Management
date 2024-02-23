@@ -27,6 +27,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -151,36 +152,38 @@ class ExtClientController extends Controller
 
         $event_id = $request->EVT;
         $notes = $request->notes;
+        $is_site = $request->is_site ?? null;
 
         if (!$event = $this->eventRepository->getEventById($event_id)){
-            return response()->json([
-                'success' => false,
-                'error' => 'Could not find the event.'
-            ]);
+            return Redirect::to('http://localhost:5173/error/event-not-found');
+        }
+
+        if (Carbon::now() < $event->event_startdate){
+            return Redirect::to('http://localhost:5173/error/event-has-not-started');
+        }
+
+        if ($is_site == null || $is_site == false){
+            return Redirect::to('http://localhost:5173/error/access-denied');
+        }
+
+        if (Carbon::now() == $event->event_startdate && ($is_site == null || !$is_site)){
+            return Redirect::to('http://localhost:5173/error/access-denied');
         }
 
         if (!$client = $this->clientRepository->getClientById($main_client)){
-            return response()->json([
-                'success' => false,
-                'error' => 'Could not find the client.'
-            ]);
+            return Redirect::to('http://localhost:5173/error/client-not-found');
         }
 
         $allowable_role = ['parent', 'student'];
         if (!$client->roles()->whereIn('role_name', $allowable_role)->exists()){
-
-            return response()->json([
-                'success' => false,
-                'error' => 'This Client has not student or parent.'
-            ]);
+            # Role main client is not parent or student
+            return Redirect::to('http://localhost:5173/error/this-client-has-not-vip');
         }
 
         $student_id = $second_client != null ? $second_client : $main_client;
         if (!$this->clientRepository->checkIfClientIsMentee($student_id)){
-            return response()->json([
-                'success' => false,
-                'error' => 'This client has not mentee.'
-            ]);
+            # Client has not mentee
+            return Redirect::to('http://localhost:5173/error/this-client-has-not-vip');
         }
 
         switch ($notes) {
@@ -190,19 +193,8 @@ class ExtClientController extends Controller
                 break;
 
             default:
-                return response()->json([
-                    'success' => false,
-                    'error' => 'This client has not VIP.'
-                ]);
+                return Redirect::to('http://localhost:5173/error/this-client-has-not-vip');
                 break;
-        }
-
-        if (Carbon::now() < $event->event_startdate)
-        {
-            return response()->json([
-                'success' => false,
-                'error' => 'Event has not started yet'
-            ]);
         }
 
         DB::beginTransaction();
@@ -318,11 +310,7 @@ class ExtClientController extends Controller
 
             DB::rollBack();
             Log::error('Registration Event Failed | ' . $e->getMessage(). ' | '.$e->getFile().' on line '.$e->getLine());
-            return response()->json([
-                'success' => false,
-                'code' => 'ERR',
-                'message' => "We encountered an issue completing your registration. Please check for any missing information or errors and try again. If you're still having trouble, feel free to contact our support team for assistance."
-            ]);
+            return Redirect::to('http://localhost:5173/error/registration-failed');
 
         }
 

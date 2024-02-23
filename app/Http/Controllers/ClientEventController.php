@@ -17,6 +17,7 @@ use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\SyncClientTrait;
 use App\Imports\CheckListInvitation;
 use App\Imports\ClientEventImport;
+use App\Imports\InvitationMailInfoImport;
 use App\Imports\InvitationMailVIPImport;
 use App\Imports\InvitationMailVVIPImport;
 use App\Imports\QuestCompleterMailImport;
@@ -572,6 +573,10 @@ class ClientEventController extends Controller
 
             case 'quest_completer':
                 $import = new QuestCompleterMailImport;
+                break;
+
+            case 'invitation_info':
+                $import = new InvitationMailInfoImport;
                 break;
         }
         $import->import($file);
