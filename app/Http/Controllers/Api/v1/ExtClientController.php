@@ -584,8 +584,6 @@ class ExtClientController extends Controller
             # store client event
             $storedClientEvent = $this->clientEventRepository->createClientEvent($clientEventDetails);
 
-            DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -606,10 +604,12 @@ class ExtClientController extends Controller
             
 
         } catch (Exception $e) {
-
+            DB::rollBack();
             Log::error('Failed to send email registration to '.$incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id.' | ' . $e->getMessage());
 
         }
+        
+        DB::commit();
 
         Log::notice('Email registration sent sucessfully to '. $incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id);
 
@@ -781,15 +781,52 @@ class ExtClientController extends Controller
             'name' => $clientevent->client->full_name,
             'mail' => $clientevent->client->mail
         ];
+        
 
         switch (strtolower($incomingRequest['registration_type'])) 
         {
             case "ots":
                 # thanks mail with a ticket and link to access EduApp
+                
+                # initiate variables
                 $template = 'mail-template/registration/event/ots-mail-registration';
+                $client = $clientevent->client;
+                $email = [
+                    'subject' => "Welcome to the {$eventName}!",
+                    'recipient' => [
+                        'name' => $incomingRequest['fullname'],
+                        'mail' => $incomingRequest['mail']
+                    ]
+                ];
+                
 
-                # calling send email without QR method from client event controller
-                app('App\Http\Controllers\ClientEventController')->sendMailThanks($storedClientEventId, $eventName, ['clientDetails' => $clientInformation]);
+                # populate client variables
+                # when they are student or parents
+                # and when they are parents but have a child
+                if ($client->roles()->whereIn('role_name', ['student', 'parent'])->exists() 
+                    || (($client->roles()->where('role_name', 'parent')->exists()) && $client->childrens->count() > 0)
+                    && strtolower($incomingRequest['notes']) != 'vip'
+                ) {
+                    # populate the client array
+                    $clientInformation['assessment_link'] = env('EDUALL_ASSESSMENT_URL', null);
+                }
+
+                $event = [
+                    'eventName' => $eventName,
+                    'eventDate_start' => date('l, d M Y', strtotime($clientevent->event->event_startdate)),
+                    'eventDate_end' => date('M d, Y', strtotime($clientevent->event->event_enddate)),
+                    'eventTime_start' => date('g A', strtotime($clientevent->event->event_startdate)),
+                    'eventTime_end' => date('H:i', strtotime($clientevent->event->event_enddate)),
+                    'eventLocation' => $clientevent->event->event_location,
+                ];
+
+                # passing parameter into template
+                $passedData = [
+                    'client' => $clientInformation, 
+                    'event' => $event
+                ];
+                
+                
                 break;
 
 
@@ -844,7 +881,8 @@ class ExtClientController extends Controller
         } catch (Exception $e) {
 
             $sent_mail = 0;
-            Log::error('Failed send email with qr code to participant of Event ' . $eventName . ' | error : ' . $e->getMessage() . ' on file '.$e->getFile().' | Line ' . $e->getLine());
+            throw new Exception($e->getMessage());
+            Log::error('Failed send email to participant of Event ' . $eventName . ' | error : ' . $e->getMessage() . ' on file '.$e->getFile().' | Line ' . $e->getLine());
 
         }
 

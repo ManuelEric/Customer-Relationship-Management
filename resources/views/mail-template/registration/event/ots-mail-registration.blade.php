@@ -11,19 +11,27 @@
                 <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                     <tr>
                         <td>
-                            <p>Dear Mr./Mrs. {{ $name }},</p>
-                            <p>
-                                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-                            </p>
+                            <p>Dear {{ $client['name'] }},</p>
+                        <p>
+                            We wanted to extend our gratitude for joining us at {{ $event['eventName'] }} on {{ $event['eventDate_start'] }}. Your presence made a difference, and we're thrilled you could be there with us!
+                        </p>
 
-                            <p>
-                                Link to eduapp 
-                            </p>
-                        
-                            <p>
-                                Warm regards, <br>
-                                ALL-in Eduspace
-                            </p>
+                        @if (array_key_exists('assessment_link', $client))
+                        <p>
+                            here's the link that you should access at the day of event {{ $event['eventName'] }}
+                            <br>
+                            <a href="{{ $client['assessment_link'] }}">{{ $client['assessment_link'] }}</a>
+                        </p>
+                        @endif
+
+                        <p>
+                            Once again, thank you for being a part of our community. We can't wait
+                            to meet you on the event day!
+                        </p>
+                        <p>
+                            Warm regards, <br>
+                            ALL-in Eduspace
+                        </p>
                         </td>
                     </tr>
                 </table>
