@@ -154,36 +154,38 @@ class ExtClientController extends Controller
         $notes = $request->notes;
         $is_site = $request->is_site ?? null;
 
+        $urlRegistration = 'http://localhost:5173';
+
         if (!$event = $this->eventRepository->getEventById($event_id)){
-            return Redirect::to('http://localhost:5173/error/event-not-found');
+            return Redirect::to($urlRegistration . '/error/404');
         }
 
         if (Carbon::now() < $event->event_startdate){
-            return Redirect::to('http://localhost:5173/error/event-has-not-started');
+            return Redirect::to($urlRegistration . '/error/not-started');
         }
 
         if ($is_site == null || $is_site == false){
-            return Redirect::to('http://localhost:5173/error/access-denied');
+            return Redirect::to($urlRegistration . '/error/access-denied');
         }
 
         if (Carbon::now() == $event->event_startdate && ($is_site == null || !$is_site)){
-            return Redirect::to('http://localhost:5173/error/access-denied');
+            return Redirect::to($urlRegistration . '/error/access-denied');
         }
 
         if (!$client = $this->clientRepository->getClientById($main_client)){
-            return Redirect::to('http://localhost:5173/error/client-not-found');
+            return Redirect::to($urlRegistration . '/error/not-register');
         }
 
         $allowable_role = ['parent', 'student'];
         if (!$client->roles()->whereIn('role_name', $allowable_role)->exists()){
             # Role main client is not parent or student
-            return Redirect::to('http://localhost:5173/error/this-client-has-not-vip');
+            return Redirect::to($urlRegistration . '/error/not-vip');
         }
 
         $student_id = $second_client != null ? $second_client : $main_client;
         if (!$this->clientRepository->checkIfClientIsMentee($student_id)){
             # Client has not mentee
-            return Redirect::to('http://localhost:5173/error/this-client-has-not-vip');
+            return Redirect::to($urlRegistration . '/error/not-vip');
         }
 
         switch ($notes) {
@@ -193,7 +195,7 @@ class ExtClientController extends Controller
                 break;
 
             default:
-                return Redirect::to('http://localhost:5173/error/this-client-has-not-vip');
+                return Redirect::to($urlRegistration . '/error/not-vip');
                 break;
         }
 
