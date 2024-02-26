@@ -266,6 +266,7 @@ class ExtClientController extends Controller
                             'lead_name' => $existing->lead->main_lead,
                         ],
                         'joined_event' => [
+                            'clientevent_id' => $existing->clientevent_id,
                             'event_id' => $existing->event->event_id,
                             'event_name' => $existing->event->event_title,
                             'attend_status' => $existing->status,
@@ -393,6 +394,7 @@ class ExtClientController extends Controller
                     'lead_name' => 'Invited Mentee'
                 ],
                 'joined_event' => [
+                    'clientevent_id' => $storedClientEvent->clientevent_id,
                     'event_id' => $storedClientEvent->event->event_id,
                     'event_name' => $storedClientEvent->event->event_title,
                     'attend_status' => $storedClientEvent->status,
