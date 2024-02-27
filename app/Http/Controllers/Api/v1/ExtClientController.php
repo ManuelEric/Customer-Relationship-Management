@@ -793,7 +793,7 @@ class ExtClientController extends Controller
                 # thanks mail with a ticket and link to access EduApp
                 
                 # initiate variables
-                $template = 'mail-template/registration/event/ots-mail-registration';
+                $template = 'mail-template.registration.event.ots-mail-registration';
                 $client = $clientevent->client;
                 $email = [
                     'subject' => "Welcome to the {$eventName}!",
@@ -839,7 +839,7 @@ class ExtClientController extends Controller
                 
                 # initiate variables
                 # variable for sending email
-                $template = 'mail-template/registration/event/pra-reg-mail-registration';
+                $template = 'mail-template.registration.event.pra-reg-mail-registration';
                 $email = [
                     'subject' => "Welcome to the {$eventName}!",
                     'recipient' => [

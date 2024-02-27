@@ -25,6 +25,8 @@ class ProfileController extends Controller
     public function index()
     {
         $logged_in_user = Auth::user();
+        if (!$logged_in_user)
+            return Redirect::to('/');
 
         return view('pages.profile.index')->with(
             [

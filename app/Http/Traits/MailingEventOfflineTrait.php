@@ -3,7 +3,7 @@
 namespace App\Http\Traits;
 
 use App\Jobs\Event\EduAll\ProcessEmailInvitationInfo;
-use App\Jobs\Event\EduAll\ProcessEmailReminder;
+use App\Jobs\Event\EduAll\ProcessEmailReminderVIP;
 use App\Jobs\Event\Stem\ProcessEmailFeedback;
 use App\Jobs\Event\Stem\ProcessEmailQuestCompleter;
 use App\Models\ClientEvent;
@@ -323,7 +323,7 @@ trait MailingEventOfflineTrait
 
             ];
 
-            ProcessEmailReminder::dispatch($data)->onQueue('reminder-mail');
+            ProcessEmailReminderVIP::dispatch($data)->onQueue('reminder-mail');
 
         } catch (Exception $e) {
 
