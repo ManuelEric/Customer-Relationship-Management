@@ -587,6 +587,7 @@ class ExtClientController extends Controller
 
             # store client event
             $storedClientEvent = $this->clientEventRepository->createClientEvent($clientEventDetails);
+            DB::commit();
 
         } catch (Exception $e) {
 
@@ -605,17 +606,14 @@ class ExtClientController extends Controller
 
             # send an registration success email
             $this->sendEmailRegistrationSuccess($validated, $storedClientEvent);
+            Log::notice('Email registration sent sucessfully to '. $incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id);
             
-
         } catch (Exception $e) {
-            DB::rollBack();
+
             Log::error('Failed to send email registration to '.$incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id.' | ' . $e->getMessage());
 
         }
-        
-        DB::commit();
 
-        Log::notice('Email registration sent sucessfully to '. $incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id);
 
         # create log success
         $this->logSuccess('store', 'Form Embed', 'Client Event', 'Guest', $storedClientEvent);
@@ -774,6 +772,84 @@ class ExtClientController extends Controller
 
     }
 
+    private function sendEmailVerificationSuccess($incomingRequest, ClientEvent $clientevent)
+    {
+        # initiate variables 
+        $storedClientEventId = $clientevent->clientevent_id;
+        $eventName = $clientevent->event->event_title;
+        $client = $clientevent->client;
+        $clientInformation = [
+            'name' => $client->full_name,
+            'mail' => $client->mail
+        ];
+
+        # why use ots-mail-registration template
+        # because it has the same mail content
+        $template = 'mail-template.registration.event.ots-mail-registration';
+        $email = [
+            'subject' => "Welcome to the {$eventName}!",
+            'recipient' => [
+                'name' => $incomingRequest['fullname'],
+                'mail' => $incomingRequest['mail']
+            ]
+        ];
+        
+
+        # populate client variables
+        # when they are student or parents
+        # and when they are parents but have a child
+        if ($client->roles()->whereIn('role_name', ['student', 'parent'])->exists() 
+            || (($client->roles()->where('role_name', 'parent')->exists()) && $client->childrens->count() > 0)
+            && strtolower($incomingRequest['notes']) != 'vip'
+        ) {
+            # populate the client array
+            $clientInformation['assessment_link'] = env('EDUALL_ASSESSMENT_URL', null);
+        }
+
+        $event = [
+            'eventName' => $eventName,
+            'eventDate_start' => date('l, d M Y', strtotime($clientevent->event->event_startdate)),
+            'eventDate_end' => date('M d, Y', strtotime($clientevent->event->event_enddate)),
+            'eventTime_start' => date('g A', strtotime($clientevent->event->event_startdate)),
+            'eventTime_end' => date('H:i', strtotime($clientevent->event->event_enddate)),
+            'eventLocation' => $clientevent->event->event_location,
+        ];
+
+        # passing parameter into template
+        $passedData = [
+            'client' => $clientInformation, 
+            'event' => $event
+        ];
+
+        # send the email function
+        try {
+
+            Mail::send($template, $passedData,
+                    function ($message) use ($email) {
+                        $message->to($email['recipient']['mail'], $email['recipient']['name'])
+                            ->subject($email['subject']);
+                    }
+            );
+            $sent_mail = 1;
+
+        } catch (Exception $e) {
+
+            $sent_mail = 0;
+            throw new Exception($e->getMessage());
+            Log::error('Failed send email to participant of Event ' . $eventName . ' | error : ' . $e->getMessage() . ' on file '.$e->getFile().' | Line ' . $e->getLine());
+
+        }
+
+        # store to log so that we can track the sending status of each email
+        $logDetails = [
+            'clientevent_id' => $storedClientEventId,
+            'sent_status' => $sent_mail,
+            'category' => 'verification-registration-event-mail'
+        ];
+
+        return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
+    }
+
     private function sendEmailRegistrationSuccess($incomingRequest, ClientEvent $clientevent)
     {
         # there are two ways of procedure depends on where the user registered (ots, pra-reg)
@@ -894,7 +970,7 @@ class ExtClientController extends Controller
         $logDetails = [
             'clientevent_id' => $storedClientEventId,
             'sent_status' => $sent_mail,
-            'category' => 'qrcode-mail'
+            'category' => 'registration-event-mail'
         ];
 
         return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
@@ -912,7 +988,8 @@ class ExtClientController extends Controller
                 # if user did write down the school name outside our school collection
                 # and the school name does not exist in our database then store it to CRM database
     
-                $last_id = School::max(DB::raw('SUBSTR(sch_id, 5)'))->withTrashed();
+                // $last_id = School::max(DB::raw('SUBSTR(sch_id, 5)'));
+                $last_id = School::withTrashed()->selectRaw('MAX(SUBSTR(sch_id,5)) as max')->first()->max;
                 $school_id_with_label = 'SCH-' . $this->add_digit((int)$last_id + 1, 4);
     
                 $school = [
@@ -1129,7 +1206,19 @@ class ExtClientController extends Controller
 
         }
 
+        try {
 
+            # send an registration success email
+            $this->sendEmailVerificationSuccess($validated, $updatedClientEvent);
+            Log::notice('Email verifying sucessfully send to '. $incomingRequest['mail'].' refer to ticket ID : '.$updatedClientEvent->ticket_id);
+            
+        } catch (Exception $e) {
+
+            Log::error('Failed to send email verifying to '.$incomingRequest['mail'].' refer to ticket ID : '.$updatedClientEvent->ticket_id.' | ' . $e->getMessage());
+
+        }
+
+        
         # create log success
         $this->logSuccess('update', 'Form Embed', 'Client Event', 'Guest', $updatedClientEvent, $requestUpdateClientEvent);
         
