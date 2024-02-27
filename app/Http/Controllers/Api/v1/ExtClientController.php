@@ -992,6 +992,11 @@ class ExtClientController extends Controller
                 // $last_id = School::max(DB::raw('SUBSTR(sch_id, 5)'));
                 $last_id = School::withTrashed()->selectRaw('MAX(SUBSTR(sch_id,5)) as max')->first()->max;
                 $school_id_with_label = 'SCH-' . $this->add_digit((int)$last_id + 1, 4);
+
+                if ($school_id_with_label == NULL && $incomingRequest['other_school'] == NULL)
+                {
+                    throw new Exception('There is an issue preventing the school from being created.');
+                }
     
                 $school = [
                     'sch_id' => $school_id_with_label,

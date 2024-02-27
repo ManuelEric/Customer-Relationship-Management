@@ -18,7 +18,7 @@
 
                         @if (array_key_exists('assessment_link', $client))
                         <p>
-                            here's the link that you should access at the day of event {{ $event['eventName'] }}
+                              that you should access at the day of event {{ $event['eventName'] }}
                             <br>
                             <a href="{{ $client['assessment_link'] }}">{{ $client['assessment_link'] }}</a>
                         </p>

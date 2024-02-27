@@ -33,7 +33,7 @@ class EventController extends Controller
             'data' => [
                 'event_id' => $foundEvent->event_id,
                 'event_name' => $foundEvent->event_title,
-                'event_banner' => $foundEvent->event_banner
+                'event_banner' => $foundEvent->event_banner !== null ? storage_path("uploaded_file/events/{$foundEvent->event_banner}") : null
             ]
         ]);
     }
