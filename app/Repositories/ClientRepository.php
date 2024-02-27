@@ -1259,6 +1259,17 @@ class ClientRepository implements ClientRepositoryInterface
         return $student;
     }
 
+    public function syncDestinationCountry($studentId, $destinationCountryDetails)
+    {
+        # this function similar to function above
+        # the differences is that this function does not fetch the existing destination country from the database
+        # just using the new destination country from incoming request
+        $student = UserClient::find($studentId);
+        $student->destinationCountries()->sync($destinationCountryDetails);
+
+        return $student->destinationCountries;
+    }
+
     public function getInterestedProgram($studentId)
     {
         $student = UserClient::find($studentId);

@@ -698,7 +698,7 @@ class ExtClientController extends Controller
     private function attachDestinationCountry($clientId, array $destinationCountries)
     {
         if (count($destinationCountries) > 0)
-            $this->clientRepository->createDestinationCountry($clientId, $destinationCountries);
+            $this->clientRepository->syncDestinationCountry($clientId, $destinationCountries);
 
     }
 
@@ -912,7 +912,7 @@ class ExtClientController extends Controller
                 # if user did write down the school name outside our school collection
                 # and the school name does not exist in our database then store it to CRM database
     
-                $last_id = School::max(DB::raw('SUBSTR(sch_id, 5)'));
+                $last_id = School::max(DB::raw('SUBSTR(sch_id, 5)'))->withTrashed();
                 $school_id_with_label = 'SCH-' . $this->add_digit((int)$last_id + 1, 4);
     
                 $school = [
