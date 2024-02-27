@@ -512,6 +512,7 @@ class ExtClientController extends Controller
     
                 case "parent":
                     $parent = $client = $this->storeParent($validated);
+                    return response()->json($parent);
                     
                     if ($validated['have_child'] == true) {
 
@@ -541,7 +542,7 @@ class ExtClientController extends Controller
             }
 
 
-            # check if registered client has already join the event
+            # check if registered client has already joined the event
             if ($existing = $this->clientEventRepository->getClientEventByClientIdAndEventId($client->id, $validated['event_id'])) {
 
                 return response()->json([

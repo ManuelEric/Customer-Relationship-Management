@@ -740,7 +740,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 });
             })
             ->where('status', 1)
-            ->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']])->
+            ->whereBetween('tbl_client_prog.success_date', [$dateDetails['startDate'], $dateDetails['endDate']])->
             
             # added new features
             # filter by main prog 

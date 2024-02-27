@@ -13,10 +13,15 @@ trait CheckExistingClient {
         $clientExistPhone = $phone ? $this->clientRepository->checkExistingByPhoneNumber($phone) : false;
         $clientExistEmail = $this->clientRepository->checkExistingByEmail($email);
 
+        # if both instruments are exists 
         if ($clientExistPhone && $clientExistEmail) {
+
             $existClient['isExist'] = true;
+            # get the existing client from query that check existing using phone number
             $existClient['id'] = $clientExistPhone['id'];
+
         } else if ($clientExistPhone && !$clientExistEmail && isset($email)) {
+
             $existClient['isExist'] = true;
             $existClient['id'] = $clientExistPhone['id'];
 
