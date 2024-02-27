@@ -512,7 +512,6 @@ class ExtClientController extends Controller
     
                 case "parent":
                     $parent = $client = $this->storeParent($validated);
-                    return response()->json($parent);
                     
                     if ($validated['have_child'] == true) {
 
@@ -1107,9 +1106,9 @@ class ExtClientController extends Controller
         try {
 
             # update the data which depends on their register_as 
-            switch ($requestUpdateClientEvent->client->register_as) {
+            switch ($requestUpdateClientEvent->client->roles->count() > 0) {
     
-                case "student":
+                case $requestUpdateClientEvent->client->roles()->where('role_name', 'student')->exists():
                     # initiate variables for client
                     $studentId = $requestUpdateClientEvent->client_id;
                     $student = $client = $this->updateStudent($studentId, $validated);
@@ -1125,7 +1124,7 @@ class ExtClientController extends Controller
 
                     break;
     
-                case "parent":
+                case $requestUpdateClientEvent->client->roles()->where('role_name', 'parent')->exists():
                     # initiate variables for clients
                     $parentId = $requestUpdateClientEvent->client_id;
                     $parent = $client = $this->updateParent($parentId, $validated);
@@ -1180,7 +1179,7 @@ class ExtClientController extends Controller
 
                     break;
     
-                case "teacher/counsellor":
+                case $requestUpdateClientEvent->client->roles()->where('role_name', 'teacher/counselor')->exists():
                     $teacherId = $requestUpdateClientEvent->client_id;
                     $client = $this->updateTeacher($teacherId, $validated);
                     break;

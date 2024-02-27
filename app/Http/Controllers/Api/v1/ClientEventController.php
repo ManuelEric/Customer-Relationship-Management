@@ -75,7 +75,6 @@ class ClientEventController extends Controller
 
         # create an array of information that need to be brought up to front-end
         $informations = $this->createResponse($foundClientevent);
-        
 
         return response()->json([
             'success' => true,
@@ -88,8 +87,17 @@ class ClientEventController extends Controller
     private function createResponse(object $foundClientevent)
     {
         # first we need to create the general information
+        $role = null;
+        if($foundClientevent->client->roles()->where('role_name', 'student')->exists() == 1){
+            $role = 'student';
+        }else if($foundClientevent->client->roles()->where('role_name', 'parent')->exists() == 1){
+            $role = 'parent';
+        }else if($foundClientevent->client->roles()->where('role_name', 'teacher/counselor')->exists() == 1){
+            $role = 'teacher/counselor';
+        }
+
         $informations = [
-            'role' => $foundClientevent->client->register_as,
+            'role' => $role,
             'is_vip' => $foundClientevent->notes == 'vip' ? true : false,
             'scholarship' => $foundClientevent->client->scholarship,
             'lead' => [
@@ -112,9 +120,9 @@ class ClientEventController extends Controller
         # secondly we need to add client information but it depends on their register_as
         # for example, if they are student then we will add student object, 
         # but when they are parent we will add the parent as well as the student.
-        switch ($foundClientevent->client->register_as) {
+        switch ($foundClientevent->client->roles->count() > 0) {
 
-            case "student":
+            case $foundClientevent->client->roles()->where('role_name', 'student')->exists():
                 $clientInformation = [
                     'student' => [
                         'name' => $foundClientevent->client->full_name,
@@ -139,7 +147,7 @@ class ClientEventController extends Controller
                 
                 break;
 
-            case "parent":
+            case $foundClientevent->client->roles()->where('role_name', 'parent')->exists():
                 $clientInformation = [
                     'parent' => [
                         'name' => $foundClientevent->client->full_name,
@@ -170,7 +178,7 @@ class ClientEventController extends Controller
                 ];
                 break;
 
-            case "teacher/counsellor":
+            case $foundClientevent->client->roles()->where('role_name', 'Teacher/Counselor')->exists():
                 $clientInformation = [
                     'teacher' => [
                         'name' => $foundClientevent->client->full_name,
