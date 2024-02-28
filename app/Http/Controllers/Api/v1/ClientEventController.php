@@ -117,7 +117,7 @@ class ClientEventController extends Controller
             ]
         ];
 
-        # secondly we need to add client information but it depends on their register_as
+        # secondly we need to add client information but it depends on their role (previously was register_as) 
         # for example, if they are student then we will add student object, 
         # but when they are parent we will add the parent as well as the student.
         switch ($foundClientevent->client->roles->count() > 0) {
@@ -148,6 +148,11 @@ class ClientEventController extends Controller
                 break;
 
             case $foundClientevent->client->roles()->where('role_name', 'parent')->exists():
+                
+                # the point of make student information separated from parent
+                # because of not all parents have a children which we're not gonna show the student information while the parent doesn't have a child
+
+                # general parent information
                 $clientInformation = [
                     'parent' => [
                         'name' => $foundClientevent->client->full_name,
@@ -155,27 +160,40 @@ class ClientEventController extends Controller
                         'last_name' => $foundClientevent->client->last_name,
                         'mail' => $foundClientevent->client->mail,
                         'phone' => $foundClientevent->client->phone,
-                    ],
-                    'student' => [
-                        'name' => $foundClientevent->children->full_name,
-                        'first_name' => $foundClientevent->children->first_name,
-                        'last_name' => $foundClientevent->children->last_name,
-                        'mail' => $foundClientevent->children->mail,
-                        'phone' => $foundClientevent->children->phone,
-                    ],
-                    'education' => [
-                        'school_id' => $foundClientevent->children->sch_id,
-                        'school_name' => $foundClientevent->children->school->sch_name,
-                        'graduation_year' => $foundClientevent->children->graduation_year,
-                        'grade' => $foundClientevent->children->st_grade,
-                    ],
-                    'dreams_countries' => $foundClientevent->children->destinationCountries->map(function ($country) {
-                            return [
-                                'country_id' => $country->id,
-                                'country_name' => $country->name
-                            ];
-                        }),
+                    ]
                 ];
+                
+
+
+                # if the parent has children that attached to the client event
+                if ($foundClientevent->children) {
+
+                    $studentInformation = [
+                        'student' => [
+                            'name' => $foundClientevent->children->full_name,
+                            'first_name' => $foundClientevent->children->first_name,
+                            'last_name' => $foundClientevent->children->last_name,
+                            'mail' => $foundClientevent->children->mail,
+                            'phone' => $foundClientevent->children->phone,
+                        ],
+                        'education' => [
+                            'school_id' => $foundClientevent->children->sch_id,
+                            'school_name' => $foundClientevent->children->school->sch_name,
+                            'graduation_year' => $foundClientevent->children->graduation_year,
+                            'grade' => $foundClientevent->children->st_grade,
+                        ],
+                        'dreams_countries' => $foundClientevent->children->destinationCountries->map(function ($country) {
+                                return [
+                                    'country_id' => $country->id,
+                                    'country_name' => $country->name
+                                ];
+                            }),
+                    ];
+
+                    $clientInformation = array_merge($clientInformation, $studentInformation);
+
+                }
+
                 break;
 
             case $foundClientevent->client->roles()->where('role_name', 'Teacher/Counselor')->exists():

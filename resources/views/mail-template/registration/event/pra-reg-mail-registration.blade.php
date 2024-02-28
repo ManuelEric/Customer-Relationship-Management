@@ -11,11 +11,16 @@
                 <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                     <tr>
                         <td>
-                            <p>Dear Mr./Mrs. {{ $client['name'] }},</p>
+                            <p>Hello Mr./Mrs. {{ ucwords($client['name']) }},</p>
                             <p>
-                                Thank you for registering to <b>{{ $event['eventName'] }}</b>, the FIRST Student Makerspace Expo in
-                                Indonesia! In this event, you will gain <b>access</b> to advanced tools, <b>connect</b> with fellow young
-                                innovators, <b>collaborate</b> on exciting projects, and <b>contribute</b> to real impact on global issues!
+                                Thank you for registering to EduALL Launchpad: Where Your Future Takes Off. We are thrilled that you will be able to join us!
+                            </p>
+                            <p>
+                                This event combines academic excellence with real-world experience. You will enjoy talks, gain inspiration, and engage in hands-on activities, exploring interests, building portfolios, and strengthening skills for university application and beyond.
+                            </p>
+
+                            <p>
+                                The event details are as follows:
                             </p>
 
                             <p style="text-align: center;">
@@ -44,8 +49,8 @@
                                                             </td>
                                                             <td valign="top">
                                                                 <p style="text-align: left">
-                                                                    {{ $event['eventDate_start'] . ' - ' . $event['eventDate_end'] }}<br>
-                                                                    {{ $event['eventTime_start'] . ' - ' . $event['eventTime_end'] }}
+                                                                    {{ $event['eventDate_start'] }} at
+                                                                    {{ date('g A', strtotime($event['eventTime_start'])) }} WIB
                                                                 </p>
                                                             </td>
                                                             <td>
@@ -66,7 +71,7 @@
                                                             </td>
                                                             <td valign="top">{{ strip_tags($event['eventLocation']) }}</td>
                                                             <td valign="top" colspan="2">
-                                                                <p style="text-align: center">
+                                                                <p style="text-align: center; visibility:hidden">
                                                                     Check-in with this QR Code when you arrived at the event.
                                                                 </p>
                                                             </td>
@@ -81,6 +86,24 @@
 
                             </p>
 
+                            <p style="text-align: center">
+                                Save this email & show the QR Code later for a swift entry!
+                            </p>
+
+                            <p style="text-align: center">
+                                We look forward to seeing you!
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+
+                    </tr>
+                    <tr>
+                        <td>
+                            <p style="padding-top:20px;">
+                                Best Regards,<br>
+                                EduALL Team
+                            </p>
                         </td>
                     </tr>
                 </table>
