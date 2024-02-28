@@ -189,7 +189,7 @@ class ClientEventController extends Controller
 
             case $foundClientevent->client->roles()->where('role_name', 'Teacher/Counselor')->exists():
                 $clientInformation = [
-                    'teacher' => [
+                    'teacher/counsellor' => [
                         'name' => $foundClientevent->client->full_name,
                         'first_name' => $foundClientevent->client->first_name,
                         'last_name' => $foundClientevent->client->last_name,
