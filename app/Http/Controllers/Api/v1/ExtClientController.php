@@ -427,7 +427,12 @@ class ExtClientController extends Controller
             ],
             'other_school' => 'nullable',
             'graduation_year' => 'nullable|required_if:role,student', # not validated gte because there are chances that registered user has already graduated like since 2020
-            'destination_country' => 'nullable|required_unless:role,teacher/counsellor|required_if:have_child,true|array|exists:tbl_tag,id', # the ids from tbl_tag
+            // 'destination_country' => 'nullable|required_unless:role,teacher/counsellor|required_if:have_child,true|array|exists:tbl_tag,id', 
+            'destination_country.*' => [
+                ($request->role == 'parent' && $request->have_child == true) || $request->role == 'student' ? 'required' : 'nullable',
+                'array',
+                'exists:tbl_tag,id', # the ids from tbl_tag
+            ],
             'scholarship' => 'required|in:Y,N',
             'lead_source_id' => 'required|exists:tbl_lead,lead_id',
             'event_id' => 'required|exists:tbl_events,event_id',
