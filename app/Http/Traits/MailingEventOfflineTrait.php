@@ -296,6 +296,8 @@ trait MailingEventOfflineTrait
             }
 
             $client = UserClient::where('id', $client_id)->first();
+            if ($child_id != null)
+                $child = UserClient::where('id', $child_id)->first();
 
             $event = Event::where('event_id', $event_id)->first();
 
@@ -306,7 +308,8 @@ trait MailingEventOfflineTrait
                 'email' => $client->mail,
                 'notes' => $notes,
                 'recipient' => $client->full_name,
-                'title' => $type == 'registration' ? 'Enjoy special privileges as our ' . $notes . ' guest at STEM+ Wonderlab!' : '🔔 Reminder to our ' . $notes . ' guests of STEM+ Wonderlab',
+                'child_name' => $child_id != null ? $child->full_name : null,
+                'title' => '[Reminder] Let’s come to EduALL Launchpad TOMORROW!',
                 'param' => [
                     'link' => route('register-express-event', ['main_client' => $client->id, 'notes' => $noteEncrypt, 'second_client' => $child_id, 'EVT' => $event_id]),
                 ],
@@ -424,8 +427,19 @@ trait MailingEventOfflineTrait
     {
         try {
 
-            $details['event'] = Event::whereEventId($details['event_id']);
+            $event = Event::whereEventId($details['event_id']);
+
+            $date = Carbon::parse($event->event_startdate)->locale('id');
+            
+            $details['event'] = [
+                'eventName' => $event->event_title,
+                'eventDate_start' => $date->format('l, d M Y'),
+                'eventTime_start' => $date->format('g A'),
+                'eventLocation' => $event->event_location,
+            ];
             $details['for'] = $for;
+            $details['title'] = 'You’re Invited: EduALL Launchpad: Where Your Future Takes Off!';
+            $details['cta'] = 'https://launchpad.edu-all.com';
 
             ProcessEmailInvitationInfo::dispatch($details)->onQueue('invitation-info');
 
