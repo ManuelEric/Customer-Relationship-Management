@@ -636,6 +636,7 @@ class ExtClientController extends Controller
                     'name' => $storedClientEvent->client->full_name,
                     'email' => $storedClientEvent->client->mail,
                     'is_vip' => $storedClientEvent->notes == 'vip' ? true : false,
+                    'have_child' => $validated['have_child'],
                     'register_as' => $this->getRole($storedClientEvent)['role']
                 ],
                 'clientevent' => [
@@ -1150,6 +1151,7 @@ class ExtClientController extends Controller
             'notes' => $validated['client_type'] ?? null,
         ]);
 
+
         DB::beginTransaction();
         try {
 
@@ -1285,6 +1287,7 @@ class ExtClientController extends Controller
                     'name' => $updatedClientEvent->client->full_name,
                     'email' => $updatedClientEvent->client->mail,
                     'is_vip' => $updatedClientEvent->notes == 'vip' ? true : false,
+                    'have_child' => $validated['have_child'],
                     'register_as' => $updatedClientEvent->client->register_as
                 ],
                 'clientevent' => [
@@ -1297,13 +1300,6 @@ class ExtClientController extends Controller
 
     private function updateTeacher($teacherId, $incomingRequest)
     {
-        # check if the client exists in crm database
-        $existingClient = $this->checkExistingClient($this->setPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
-        
-        # if the client is exists
-        if ($existingClient['isExist']) 
-            return $this->clientRepository->getClientById($existingClient['id']);
-
         # declare some variables
         $splitNames = $this->split($incomingRequest['fullname']);
         $schoolId = $this->getSchoolId($incomingRequest);
@@ -1327,13 +1323,6 @@ class ExtClientController extends Controller
 
     private function updateParent($parentId, $incomingRequest)
     {
-        # check if the client exists in crm database
-        $existingClient = $this->checkExistingClient($this->setPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
-
-        # if the client is exists
-        if ($existingClient['isExist']) 
-            return $this->clientRepository->getClientById($existingClient['id']);
-
         # declare some variables
         $splitNames = $this->split($incomingRequest['fullname']);
 
@@ -1362,15 +1351,6 @@ class ExtClientController extends Controller
 
     private function updateStudent($clientId, $incomingRequest)
     {
-        # check if the client exists in crm database
-        $existingClient = $this->checkExistingClient($this->setPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
-
-
-        # if the client is exists
-        if ($existingClient['isExist']) 
-            return $this->clientRepository->getClientById($existingClient['id']);
-
-
         # declare some variables
         $splitNames = $this->split($incomingRequest['fullname']);
         $schoolId = $this->getSchoolId($incomingRequest);
