@@ -1092,7 +1092,11 @@ class ExtClientController extends Controller
             ],
             'other_school' => 'nullable',
             'graduation_year' => 'nullable|required_if:role,student',
-            'destination_country' => 'nullable|required_unless:role,teacher/counsellor|required_if:have_child,true|array|exists:tbl_tag,id', # the ids from tbl_tag
+            'destination_country' => [
+                'array',
+                $request->role == 'student' ? 'required' : 'required_if_accepted:have_child',
+            ],
+            'destination_country.*' => 'exists:tbl_tag,id',
             'scholarship' => 'required|in:Y,N',
             'lead_source_id' => 'required|exists:tbl_lead,lead_id',
             'event_id' => 'required|exists:tbl_events,event_id',
