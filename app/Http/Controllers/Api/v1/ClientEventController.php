@@ -102,7 +102,7 @@ class ClientEventController extends Controller
             'scholarship' => $foundClientevent->client->scholarship,
             'lead' => [
                 'lead_id' => $foundClientevent->client->lead_id,
-                'lead_name' => $foundClientevent->client->lead->lead_name
+                'lead_name' => isset($foundClientevent->client->lead->lead_name) ? $foundClientevent->client->lead->lead_name : null,
             ],
             'joined_event' => [
                 'clientevent_id' => $foundClientevent->clientevent_id,
@@ -133,7 +133,7 @@ class ClientEventController extends Controller
                     ],
                     'education' => [
                         'school_id' => $foundClientevent->client->sch_id,
-                        'school_name' => $foundClientevent->client->school->sch_name,
+                        'school_name' => isset($foundClientevent->client->school->sch_name) ? $foundClientevent->client->school->sch_name : null,
                         'graduation_year' => $foundClientevent->client->graduation_year,
                         'grade' => $foundClientevent->client->st_grade,
                     ],
@@ -165,7 +165,7 @@ class ClientEventController extends Controller
                     ],
                     'education' => [
                         'school_id' => $foundClientevent->children->sch_id,
-                        'school_name' => $foundClientevent->children->school->sch_name,
+                        'school_name' => isset($foundClientevent->children->school->sch_name) ? $foundClientevent->children->school->sch_name : null,
                         'graduation_year' => $foundClientevent->children->graduation_year,
                         'grade' => $foundClientevent->children->st_grade,
                     ],
@@ -189,7 +189,7 @@ class ClientEventController extends Controller
                     ],
                     'education' => [
                         'school_id' => $foundClientevent->client->sch_id,
-                        'school_name' => $foundClientevent->client->school->sch_name,
+                        'school_name' => isset($foundClientevent->client->school->sch_name) ? $foundClientevent->client->school->sch_name : null,
                     ],
                 ];
                 break;
