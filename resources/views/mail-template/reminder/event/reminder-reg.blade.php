@@ -1,6 +1,6 @@
-@extends('layout.email-stem')
+@extends('layout.email-event')
 @section('banner')
-    <img src="{{asset('img/makerspace/header_thank_email.jpg')}}" alt="STEM+ Wonderlab" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
+    <img src="{{asset('img/event/EduAll/banner_email_eduall_2024.webp')}}" alt="Edu All Launchpad" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
 @endsection
 @section('content')
     <table role="presentation" class="main">
