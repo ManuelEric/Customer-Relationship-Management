@@ -49,7 +49,7 @@ class ProcessEmailInvitationInfo implements ShouldQueue
 
             Mail::send('mail-template.invitation.event.invitation-mail', $this->mailDetails, function ($message) {
                 $message->to($this->mailDetails['client']['email'], $this->mailDetails['client']['recipient'])
-                    ->subject('Invitation VIP ');
+                    ->subject($this->mailDetails['title']);
             });
             $sent_status = 1;
 
