@@ -87,19 +87,12 @@ class ClientEventController extends Controller
     private function createResponse(object $foundClientevent)
     {
         # first we need to create the general information
-        $role = null;
-        if($foundClientevent->client->roles()->where('role_name', 'student')->exists() == 1){
-            $role = 'student';
-        }else if($foundClientevent->client->roles()->where('role_name', 'parent')->exists() == 1){
-            $role = 'parent';
-        }else if($foundClientevent->client->roles()->where('role_name', 'teacher/counselor')->exists() == 1){
-            $role = 'teacher/counselor';
-        }
-
+        $roleAndHaveChild = app('App\Http\Controllers\Api\v1\ExtClientController')->getRole($foundClientevent);
         $informations = [
-            'role' => $role,
+            'role' => $roleAndHaveChild['role'],
             'is_vip' => $foundClientevent->notes == 'vip' ? true : false,
             'scholarship' => $foundClientevent->client->scholarship,
+            'is_have_child' => $roleAndHaveChild['have_child'] ?? false,
             'lead' => [
                 'lead_id' => $foundClientevent->client->lead_id,
                 'lead_name' => isset($foundClientevent->client->lead->lead_name) ? $foundClientevent->client->lead->lead_name : null,

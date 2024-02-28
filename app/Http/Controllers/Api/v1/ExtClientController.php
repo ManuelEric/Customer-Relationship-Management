@@ -21,6 +21,9 @@ use App\Models\ClientEvent;
 use App\Models\Event;
 use App\Models\School;
 use App\Models\UserClient;
+use App\Rules\Event\DestinationCountryRequiredRule;
+use App\Rules\Event\DestinationCountryRule;
+use App\Rules\Event\DestinationCountryValidityRule;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -427,12 +430,11 @@ class ExtClientController extends Controller
             ],
             'other_school' => 'nullable',
             'graduation_year' => 'nullable|required_if:role,student', # not validated gte because there are chances that registered user has already graduated like since 2020
-            // 'destination_country' => 'nullable|required_unless:role,teacher/counsellor|required_if:have_child,true|array|exists:tbl_tag,id', 
             'destination_country' => [
-                ($request->role == 'parent' && $request->have_child == true) || $request->role == 'student' ? 'required' : 'nullable',
                 'array',
-                'exists:tbl_tag,id', # the ids from tbl_tag
+                $request->role == 'student' ? 'required' : 'required_if_accepted:have_child',
             ],
+            'destination_country.*' => 'exists:tbl_tag,id',
             'scholarship' => 'required|in:Y,N',
             'lead_source_id' => 'required|exists:tbl_lead,lead_id',
             'event_id' => 'required|exists:tbl_events,event_id',
@@ -461,7 +463,8 @@ class ExtClientController extends Controller
             'school_id.exists' => 'The school field is not valid.',
             'lead_source_id.required' => 'The lead field is required.',
             'lead_source_id.exists' => 'The lead field is not valid.',
-            'event_id.required' => 'The event field is required.'
+            'event_id.required' => 'The event field is required.',
+            'destination_country.*.exists' => 'The destination country must be one of the following values.'
         ];
 
         $validator = Validator::make($incomingRequest, $rules, $messages);
@@ -549,6 +552,7 @@ class ExtClientController extends Controller
             # check if registered client has already joined the event
             if ($existing = $this->clientEventRepository->getClientEventByClientIdAndEventId($client->id, $validated['event_id'])) {
 
+
                 return response()->json([
                     'success' => true,
                     'message' => 'They have joined the event.',
@@ -558,7 +562,7 @@ class ExtClientController extends Controller
                             'name' => $existing->client->full_name,
                             'email' => $existing->client->mail,
                             'is_vip' => $existing->notes == 'vip' ? true : false,
-                            'register_as' => $existing->client->register_as
+                            'register_as' => $this->getRole($existing)['role']
                         ],
                         'clientevent' => [
                             'id' => $existing->clientevent_id,
@@ -632,7 +636,7 @@ class ExtClientController extends Controller
                     'name' => $storedClientEvent->client->full_name,
                     'email' => $storedClientEvent->client->mail,
                     'is_vip' => $storedClientEvent->notes == 'vip' ? true : false,
-                    'register_as' => $storedClientEvent->client->register_as
+                    'register_as' => $this->getRole($storedClientEvent)['role']
                 ],
                 'clientevent' => [
                     'id' => $storedClientEvent->clientevent_id,
@@ -644,6 +648,41 @@ class ExtClientController extends Controller
             ]
         ]);
 
+    }
+
+    public function getRole(ClientEvent $clientevent)
+    {
+        # initiate variables
+        $role = null;
+        $have_child = false;
+        $client = $clientevent->client;
+
+        switch ($client->roles) {
+
+            case $client->roles()->where('role_name', 'parent')->exists():
+                $role = 'Parent';
+
+                # turn have_child into true when the parent has children
+                # but check the children from clientevent not from the parent
+                if ($client->childrens->count() > 0) 
+                    $have_child = true;
+
+                break;
+
+            case $client->roles()->where('role_name', 'student')->exists():
+                $role = 'Student';
+
+                break;
+
+            case $client->roles()->where('role_name', 'Teacher/Counselor')->exists():
+                $role = 'Teacher/Counsellor';
+                break;
+        }
+
+        return [
+            'role' => strtolower($role),
+            'have_child' => $have_child
+        ];
     }
 
     private function generateTicketID()
