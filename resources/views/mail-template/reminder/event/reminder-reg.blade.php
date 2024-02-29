@@ -50,5 +50,5 @@
     </table>
 @endsection
 @section('footer')
-    <img src="{{asset('img/makerspace/email_footer.jpg')}}" alt="STEM+ Wonderlab" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
+    <img src="{{asset('img/event/EduAll/banner-email-footer.jpg')}}" alt="STEM+ Wonderlab" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
 @endsection
