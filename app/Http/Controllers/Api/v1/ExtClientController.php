@@ -569,6 +569,7 @@ class ExtClientController extends Controller
                         'clientevent' => [
                             'id' => $existing->clientevent_id,
                             'ticket_id' => $existing->ticket_id,
+                            'is_offline' => (isset($validated['event_type']) || $validated['event_type']) == "offline" ? true : false,
                         ],
                         'link' => [
                             'scan' => url('/client-event/CE/'.$existing->clientevent_id)  
@@ -650,6 +651,7 @@ class ExtClientController extends Controller
                 'clientevent' => [
                     'id' => $storedClientEvent->clientevent_id,
                     'ticket_id' => $storedClientEvent->ticket_id,
+                    'is_offline' => (isset($validated['event_type']) || $validated['event_type']) == "offline" ? true : false,
                 ],
                 'link' => [
                     'scan' => url('/client-event/CE/'.$storedClientEvent->clientevent_id)  
