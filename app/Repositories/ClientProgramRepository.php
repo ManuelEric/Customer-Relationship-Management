@@ -46,7 +46,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 }
             }
         }else{
-            $fieldKey = ["created_at"];
+            $fieldKey = ["success_date", "failed_date", "refund_date", "created_at"];
         }
 
 
@@ -96,15 +96,18 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 # search by date
                 # when start date && end date filled
                 ->when(isset($searchQuery['startDate']) && isset($searchQuery['endDate']), function ($query) use ($searchQuery, $fieldKey) {
-                    $no = 0;
-                    foreach ($fieldKey as $key => $val) {
-                        if ($no == 0)
-                            $query->whereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
-                        else
-                            $query->orWhereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
+                    $query->where(function ($subQuery) use ($searchQuery, $fieldKey) {
 
-                        $no++;
-                    }
+                        $no = 0;
+                        foreach ($fieldKey as $key => $val) {
+                            if ($no == 0)
+                                $subQuery->whereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
+                            else
+                                $subQuery->orWhereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
+    
+                            $no++;
+                        }
+                    });
                 })
                 # when start date filled && end date null
                 ->when(isset($searchQuery['startDate']) && !isset($searchQuery['endDate']), function ($query) use ($searchQuery, $fieldKey) {
@@ -737,7 +740,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 });
             })
             ->where('status', 1)
-            ->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']])->
+            ->whereBetween('tbl_client_prog.success_date', [$dateDetails['startDate'], $dateDetails['endDate']])->
             
             # added new features
             # filter by main prog 
@@ -1248,17 +1251,17 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         // $data[0] = $query->where('status', 0)->where('initconsult_date', '>', Carbon::now())->count(); # soon
         $already = ClientProgram::when($cp_filter['qdate'], function ($q) use ($cp_filter) {
             // $q->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])));
-            $q->whereMonth('initconsult_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('initconsult_date', date('Y', strtotime($cp_filter['qdate'])));
+            $q->whereMonth('initconsult_date', '<=', date('m', strtotime($cp_filter['qdate'])))->whereYear('initconsult_date', '<=', date('Y', strtotime($cp_filter['qdate'])));
         })->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
             $q->where('empl_id', $userId);
         })->where('status', 0)->where('initconsult_date', '<', Carbon::now())->get(); # already
         
         $success = ClientProgram::when($cp_filter['qdate'], function ($q) use ($cp_filter) {
             // $q->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])));
-            $q->whereMonth('initconsult_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('initconsult_date', date('Y', strtotime($cp_filter['qdate'])));
+            $q->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])));
         })->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
             $q->where('empl_id', $userId);
-        })->where('status', 1)->whereNotNull('success_date')->get(); # success
+        })->where('status', 1)->whereNotNull('success_date')->whereNotNull('initconsult_date')->get(); # success
 
         $data = [$soon, $already, $success];
 

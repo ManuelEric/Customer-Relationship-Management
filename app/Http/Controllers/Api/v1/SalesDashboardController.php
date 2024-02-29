@@ -586,6 +586,7 @@ class SalesDashboardController extends Controller
             $initialConsultation = $this->clientProgramRepository->getInitialConsultationInformation($cp_filter);
             $totalInitialConsultation = array_sum($initialConsultation);
             $successProgram = $admissionsMentoring[2];
+            $already = $initialConsultation[1];
 
             $initialAssessmentMaking = $this->clientProgramRepository->getInitialMaking($dateDetails, $cp_filter);
             $conversionTimeProgress = $this->clientProgramRepository->getConversionTimeProgress($dateDetails, $cp_filter);
@@ -612,6 +613,7 @@ class SalesDashboardController extends Controller
                     'ctx' => $initialConsultation,
                     'details' => [
                         $totalInitialConsultation,
+                        $already,
                         $successProgram,
                         $initial_assessment_making . ' Days',
                         $conversion_time . ' Days',

@@ -112,7 +112,8 @@ class Kernel extends ConsoleKernel
         // $schedule->command('send:thanks_mail_event')->everyFifteenMinutes();
         
         # queue worker
-        $schedule->command('run:worker')->everyMinute()->runInBackground();
+        $schedule->command('run:worker')->everyMinute()->withoutOverlapping()->runInBackground();
+        // $schedule->command('queue:restart')->everyFiveMinutes();
 
         # run verifying raw data
         $schedule->command('verified:parent')->everyMinute()->runInBackground();

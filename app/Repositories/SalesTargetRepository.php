@@ -50,7 +50,7 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
         })->select([
             DB::raw('COUNT(*) as total_participant'),
             DB::raw('SUM(tbl_inv.inv_totalprice_idr) as total_target')
-        ])->first();
+        ])->where('clientprogram.status', 1)->first();
     }
 
     public function getSalesDetail($programId, $filter)
@@ -82,8 +82,8 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
             DB::raw('(CASE WHEN tbl_sales_target.prog_id is null THEN cp_mp.prog_name ELSE CONCAT(cp_mp.prog_name, ": ", cp_p.prog_program) END) as program_name_sales'),
             DB::raw('(SELECT SUM(total_participant) FROM tbl_sales_target WHERE (CASE WHEN tbl_sales_target.prog_id is null THEN tbl_sales_target.main_prog_id = cp_p.main_prog_id ELSE tbl_sales_target.prog_id = cp_p.prog_id END) AND MONTH(month_year) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(month_year) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_target_participant'),
             DB::raw('(SELECT SUM(total_target) FROM tbl_sales_target WHERE (CASE WHEN tbl_sales_target.prog_id is null THEN tbl_sales_target.main_prog_id = cp_p.main_prog_id ELSE tbl_sales_target.prog_id = cp_p.prog_id END) AND MONTH(month_year) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(month_year) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_target'),
-            DB::raw('(SELECT COUNT(*) FROM clientprogram as q_cp WHERE (CASE WHEN tbl_sales_target.prog_id is null THEN q_cp.main_prog_id = tbl_sales_target.main_prog_id ELSE q_cp.prog_id = cp_p.prog_id END) AND MONTH(q_cp.success_date) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(q_cp.success_date) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_actual_participant'),
-            DB::raw('(SELECT SUM(q_i.inv_totalprice_idr) FROM clientprogram as q_cp LEFT JOIN tbl_inv q_i ON q_i.clientprog_id = q_cp.clientprog_id WHERE (CASE WHEN tbl_sales_target.prog_id is null THEN q_cp.main_prog_id = tbl_sales_target.main_prog_id ELSE q_cp.prog_id = cp_p.prog_id END) AND MONTH(q_cp.success_date) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(q_cp.success_date) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_actual_amount'),
+            DB::raw('(SELECT COUNT(*) FROM clientprogram as q_cp WHERE (CASE WHEN tbl_sales_target.prog_id is null THEN q_cp.main_prog_id = tbl_sales_target.main_prog_id ELSE q_cp.prog_id = cp_p.prog_id END) AND q_cp.status = 1 AND MONTH(q_cp.success_date) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(q_cp.success_date) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_actual_participant'),
+            DB::raw('(SELECT SUM(q_i.inv_totalprice_idr) FROM clientprogram as q_cp LEFT JOIN tbl_inv q_i ON q_i.clientprog_id = q_cp.clientprog_id WHERE (CASE WHEN tbl_sales_target.prog_id is null THEN q_cp.main_prog_id = tbl_sales_target.main_prog_id ELSE q_cp.prog_id = cp_p.prog_id END) AND q_cp.status = 1 AND MONTH(q_cp.success_date) = ' . date('m', strtotime($filter['qdate'])) . ' AND YEAR(q_cp.success_date) = ' . date('Y', strtotime($filter['qdate'])) . ') as total_actual_amount'),
         ])->groupBy(DB::raw('(CASE WHEN tbl_sales_target.prog_id is null THEN tbl_sales_target.main_prog_id ELSE tbl_sales_target.prog_id END)'))->get();
 
     }
@@ -135,8 +135,8 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
             select([
                 'cp_p.prog_id',
                 DB::raw('CONCAT(cp_mp.prog_name COLLATE utf8mb4_unicode_ci, ": ", cp_p.prog_program COLLATE utf8mb4_unicode_ci) as program_name_sales'),
-                DB::raw('(SELECT COUNT(*) FROM tbl_client_prog as q_cp WHERE q_cp.prog_id = cp_p.prog_id AND q_cp.success_date between \'' .$dateDetails['startDate']. '\' AND \'' . $dateDetails['endDate'] . '\') as total_actual_participant'),
-                DB::raw('(SELECT SUM(q_i.inv_totalprice_idr) FROM tbl_client_prog as q_cp LEFT JOIN tbl_inv q_i ON q_i.clientprog_id = q_cp.clientprog_id WHERE q_cp.prog_id = cp_p.prog_id AND q_cp.success_date between \'' . $dateDetails['startDate'] . '\' AND  \'' . $dateDetails['endDate'] . '\') as total_actual_amount'),
+                DB::raw('(SELECT COUNT(*) FROM tbl_client_prog as q_cp WHERE q_cp.prog_id = cp_p.prog_id AND q_cp.status = 1 AND q_cp.success_date between \'' .$dateDetails['startDate']. '\' AND \'' . $dateDetails['endDate'] . '\') as total_actual_participant'),
+                DB::raw('(SELECT SUM(q_i.inv_totalprice_idr) FROM tbl_client_prog as q_cp LEFT JOIN tbl_inv q_i ON q_i.clientprog_id = q_cp.clientprog_id WHERE q_cp.prog_id = cp_p.prog_id AND q_cp.status = 1 AND q_cp.success_date between \'' . $dateDetails['startDate'] . '\' AND  \'' . $dateDetails['endDate'] . '\') as total_actual_amount'),
             ])->groupBy('cp_p.prog_id', DB::raw('CONCAT(cp_mp.prog_name, ": ", cp_p.prog_program)'))->get();
     }
 

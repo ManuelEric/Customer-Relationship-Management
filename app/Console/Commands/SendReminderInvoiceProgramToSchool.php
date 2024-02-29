@@ -70,6 +70,11 @@ class SendReminderInvoiceProgramToSchool extends Command
                 }
                 $school_pic_name = $school_pics[0]->schdetail_fullname;
                 $school_pic_mail = $school_pics[0]->schdetail_email;
+
+                if (!$school_pic_mail) {
+                    Log::info('Failed to send reminder to school refer to invoice : '.$invoiceB2bId.' because there is no pic email');
+                    continue;
+                }
     
                 $school_pic_phone = $school_pics[0]->schdetail_phone;
     

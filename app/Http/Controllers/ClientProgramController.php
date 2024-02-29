@@ -114,6 +114,7 @@ class ClientProgramController extends Controller
             }
             
         }
+
         $data['status'] = $status;
 
         if ($request->get('mentor_tutor')) {
