@@ -160,35 +160,48 @@ class ExtClientController extends Controller
 
         $urlRegistration = 'http://localhost:5173';
 
+        $logDetails = [
+            'main_client' => $main_client,
+            'second_client' => $second_client,
+            'notes' => $notes
+        ];
+
         if (!$event = $this->eventRepository->getEventById($event_id)){
+            Log::warning("Register express: Event not found!", $logDetails);
             return Redirect::to($urlRegistration . '/error/404');
         }
 
         if (Carbon::now() < $event->event_startdate){
+            Log::warning("Register express: Event not started!", $logDetails);
             return Redirect::to($urlRegistration . '/error/not-started');
         }
 
         if ($is_site == null || $is_site == false){
+            Log::warning("Register express: Access denied!", $logDetails);
             return Redirect::to($urlRegistration . '/error/access-denied');
         }
 
         if (Carbon::now() == $event->event_startdate && ($is_site == null || !$is_site)){
+            Log::warning("Register express: Access denied!", $logDetails);
             return Redirect::to($urlRegistration . '/error/access-denied');
         }
 
         if (!$client = $this->clientRepository->getClientById($main_client)){
+            Log::warning("Register express: Main client not register!", $logDetails);
             return Redirect::to($urlRegistration . '/error/not-register');
         }
 
         $allowable_role = ['parent', 'student'];
         if (!$client->roles()->whereIn('role_name', $allowable_role)->exists()){
             # Role main client is not parent or student
+            Log::warning("Register express: Client not parent or student!", $logDetails);
             return Redirect::to($urlRegistration . '/error/not-vip');
         }
 
         $student_id = $second_client != null ? $second_client : $main_client;
         if (!$this->clientRepository->checkIfClientIsMentee($student_id)){
             # Client has not mentee
+            Log::warning("Register express: Client is not mentee!", $logDetails);
             return Redirect::to($urlRegistration . '/error/not-vip');
         }
 
@@ -199,6 +212,7 @@ class ExtClientController extends Controller
                 break;
 
             default:
+                Log::warning("Register express: not vip!", $logDetails);
                 return Redirect::to($urlRegistration . '/error/not-vip');
                 break;
         }
@@ -344,20 +358,8 @@ class ExtClientController extends Controller
 
         }
 
-        try {
-
-            # send an registration success email
-            // $this->sendEmailRegistrationSuccess($dataMail, $storedClientEvent);
-            Log::notice('Email registration sent sucessfully to '. $storedClientEvent->client->mail.' refer to ticket ID : '.$storedClientEvent->ticket_id);
-
-        } catch (Exception $e) {
-
-            Log::error('Failed to send email registration to '.$storedClientEvent->client->mail.' refer to ticket ID : '.$storedClientEvent->ticket_id.' | ' . $e->getMessage());
-
-        }
-
         # create log success
-        $this->logSuccess('store', 'Form Embed', 'Client Event', 'Guest', $storedClientEvent);
+        $this->logSuccess('store', 'Form Embed', 'Client Event Register Express', 'Guest', $storedClientEvent);
 
         
         if ($second_client != null)
@@ -1067,6 +1069,8 @@ class ExtClientController extends Controller
             'category' => 'registration-event-mail'
         ];
 
+        Log::success("Form Embed: Successfully send thank mail registration", $passedData);
+
         return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
     }
 
@@ -1120,6 +1124,7 @@ class ExtClientController extends Controller
         # fetch the client information from client event
         $requestUpdateClientEvent = $this->clientEventRepository->getClientEventById($requestUpdateClientEventID);
         if (!$requestUpdateClientEvent) {
+            Log::warning("Client Event Verify: Could not continue the process because invalid identifier.", $requestUpdateClientEventID);
             return response()->json([
                 'success' => false,
                 'message' => 'Could not continue the process because invalid identifier.'
