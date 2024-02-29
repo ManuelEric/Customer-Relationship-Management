@@ -24,7 +24,7 @@
                                 Don't forget to take <b>Initial Assessment Test</b> to start your journey.
                             </p>
                             <p style="text-align: center">
-                                <a href="{{ $client['assessment_link'] }}">
+                                <a href="{{ $client['assessment_link'] }}" style="cursor:pointer;">
                                     <button style="border-radius: 3px; border: 1px solid #0100D4; color: #FFFFFF; background-color: #0168FF; padding: 15px 25px;">Take the Test</button>
                                 </a>
                             </p>
