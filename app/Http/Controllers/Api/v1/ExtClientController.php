@@ -614,7 +614,7 @@ class ExtClientController extends Controller
                         'client' => [
                             'name' => $existing->client->full_name,
                             'email' => $existing->client->mail,
-                            'is_vip' => $existing->notes == 'vip' ? true : false,
+                            'is_vip' => $existing->notes == 'VIP' ? true : false,
                             'register_as' => $this->getRole($existing)['role']
                         ],
                         'clientevent' => [
@@ -694,7 +694,7 @@ class ExtClientController extends Controller
                 'client' => [
                     'name' => $storedClientEvent->client->full_name,
                     'email' => $storedClientEvent->client->mail,
-                    'is_vip' => $storedClientEvent->notes == 'vip' ? true : false,
+                    'is_vip' => $storedClientEvent->notes == 'VIP' ? true : false,
                     'have_child' => $validated['have_child'],
                     'register_as' => $this->getRole($storedClientEvent)['role']
                 ],
@@ -1360,7 +1360,7 @@ class ExtClientController extends Controller
                 'client' => [
                     'name' => $updatedClientEvent->client->full_name,
                     'email' => $updatedClientEvent->client->mail,
-                    'is_vip' => $updatedClientEvent->notes == 'vip' ? true : false,
+                    'is_vip' => $updatedClientEvent->notes == 'VIP' ? true : false,
                     'have_child' => $validated['have_child'],
                     'register_as' => $updatedClientEvent->client->register_as
                 ],
