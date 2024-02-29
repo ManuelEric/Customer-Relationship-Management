@@ -92,7 +92,7 @@ class ClientEventController extends Controller
             'role' => $roleAndHaveChild['role'],
             'is_vip' => $foundClientevent->notes == 'vip' ? true : false,
             'scholarship' => $foundClientevent->client->scholarship,
-            'is_have_child' => $roleAndHaveChild['have_child'] ?? false,
+            'have_child' => $roleAndHaveChild['have_child'] ?? false,
             'lead' => [
                 'lead_id' => $foundClientevent->client->lead_id,
                 'lead_name' => isset($foundClientevent->client->lead->lead_name) ? $foundClientevent->client->lead->lead_name : null,
