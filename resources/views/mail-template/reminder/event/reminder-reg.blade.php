@@ -11,27 +11,34 @@
                 <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                     <tr>
                         <td>
-                            <p>Dear Mr./Mrs. {{ $recipient }},</p>
+                            <p>Hi {{ ucwords($recipient) }},</p>
                             <p>
-                                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+                                This email is a reminder for you to attend EduALL Launchpad TOMORROW!
+                            </p>
+
+                            <p>
+                                As a reminder, the event details are as follows: <br>
+                                Event: EduALL Launchpad: Where Your Future Takes Off! <br>
+                                Start Date/Time: {{ $event['eventDate_start'] }}, at {{ $event['eventTime_start'] }} WIB
                             </p>
 
                             <p style="text-align:center; ">
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ $ticket_id }}"
-                                    alt="">
-                                <br>
                                 <b>
-                                    <br>HARAP DIPERHATIKAN
-                                    <br>Simpan QR code yang telah tertera & verifikasi di meja registrasi STEM+ Wonderlab
+                                    <br>Save this email & show the QR Code later for express registration!
                                 </b>
                                 <br>
                                 <br>
-                                SEE YOU THERE!
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ $ticket_id }}"
+                                    alt="">
                             </p>
                         
                             <p>
-                                Warm regards, <br>
-                                ALL-in Eduspace
+                                We hope you will enjoy the talk sessions, gain inspiration, and support your child to engage in hands-on activities, exploring interests, building portfolios, and strengthening skills for university application and beyond.
+                            </p>
+
+                            <p>
+                                Best regards, <br>
+                                EduALL Team 
                             </p>
                         </td>
                     </tr>

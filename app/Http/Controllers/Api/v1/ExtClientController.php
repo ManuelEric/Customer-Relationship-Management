@@ -592,7 +592,6 @@ class ExtClientController extends Controller
     
                 case "teacher/counsellor":
                     $client = $this->storeTeacher($validated);
-                    return response()->json($client);
                     break;
 
                 default:

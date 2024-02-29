@@ -71,7 +71,7 @@ class Reminder extends Command
                 'email' => $client->mail,
                 'notes' => $clientEvent->notes,
                 'recipient' => $client->full_name,
-                'subject' => 'Lorem ipsum dolor sit amet',
+                'subject' => "[Reminder] Let's come to EduALL Launchpad TOMORROW!",
                 'event' => [
                     'eventId' => $event->event_id,
                     'eventName' => $event->event_title,
