@@ -114,12 +114,5 @@
     </table>
 @endsection
 @section('footer')
-    <div style="background-color: blue; color: white; padding: 50px;" >
-        <p style="text-align: center;">
-            This is a service email that is automatically generated when you do an event registration. If you do not wish to be registered for the event, please contact marketing.indonesia@eduall.com
-            <br>
-            <br>
-            © 2024 Edu ALL, All rights reserved
-        </p>
-    </div>
+    <img src="{{asset('img/event/EduAll/banner-email-footer.jpg')}}" alt="STEM+ Wonderlab" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
 @endsection
