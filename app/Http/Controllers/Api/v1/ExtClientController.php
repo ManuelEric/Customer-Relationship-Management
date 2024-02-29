@@ -155,39 +155,53 @@ class ExtClientController extends Controller
 
         $event_id = $request->EVT;
         $notes = $request->notes;
+
         $is_site = $request->is_site ?? null;
 
         $urlRegistration = 'http://localhost:5173';
 
+        $logDetails = [
+            'main_client' => $main_client,
+            'second_client' => $second_client,
+            'notes' => $notes
+        ];
+
         if (!$event = $this->eventRepository->getEventById($event_id)){
+            Log::warning("Register express: Event not found!", $logDetails);
             return Redirect::to($urlRegistration . '/error/404');
         }
 
         if (Carbon::now() < $event->event_startdate){
+            Log::warning("Register express: Event not started!", $logDetails);
             return Redirect::to($urlRegistration . '/error/not-started');
         }
 
         if ($is_site == null || $is_site == false){
+            Log::warning("Register express: Access denied!", $logDetails);
             return Redirect::to($urlRegistration . '/error/access-denied');
         }
 
         if (Carbon::now() == $event->event_startdate && ($is_site == null || !$is_site)){
+            Log::warning("Register express: Access denied!", $logDetails);
             return Redirect::to($urlRegistration . '/error/access-denied');
         }
 
         if (!$client = $this->clientRepository->getClientById($main_client)){
+            Log::warning("Register express: Main client not register!", $logDetails);
             return Redirect::to($urlRegistration . '/error/not-register');
         }
 
         $allowable_role = ['parent', 'student'];
         if (!$client->roles()->whereIn('role_name', $allowable_role)->exists()){
             # Role main client is not parent or student
+            Log::warning("Register express: Client not parent or student!", $logDetails);
             return Redirect::to($urlRegistration . '/error/not-vip');
         }
 
         $student_id = $second_client != null ? $second_client : $main_client;
         if (!$this->clientRepository->checkIfClientIsMentee($student_id)){
             # Client has not mentee
+            Log::warning("Register express: Client is not mentee!", $logDetails);
             return Redirect::to($urlRegistration . '/error/not-vip');
         }
 
@@ -198,6 +212,7 @@ class ExtClientController extends Controller
                 break;
 
             default:
+                Log::warning("Register express: not vip!", $logDetails);
                 return Redirect::to($urlRegistration . '/error/not-vip');
                 break;
         }
@@ -207,6 +222,11 @@ class ExtClientController extends Controller
 
             # check if registered client has already join the event
             if ($existing = $this->clientEventRepository->getClientEventByMultipleIdAndEventId($main_client, $event_id, $second_client)) {
+
+                $dataMail = [
+                    'fullname' => $existing->client->full_name,
+                    'mail' => $existing->client->mail
+                ];
 
                     if ($second_client != null)
                     {
@@ -252,9 +272,28 @@ class ExtClientController extends Controller
                                 'country_name' => $country->name
                             ];
                         }
-                        $dataResponseClient['dream_countries'] = $dataDestinationCountries;
+                        $dataResponseClient['dreams_countries'] = $dataDestinationCountries;
                         unset($dataDestinationCountries);
+                    }else{
+                        $dataResponseClient['dreams_countries'] = [];
                     }
+
+                    if ($second_client != null) {
+                        $dataResponseClient['education'] = [
+                            'school_id' => $existing->children->sch_id,
+                            'school_name' => isset($existing->children->school->sch_name) ? $existing->children->school->sch_name : null,
+                            'graduation_year' => $existing->children->graduation_year,
+                            'grade' => $existing->children->st_grade,
+                        ];
+                    }else{
+                        $dataResponseClient['education'] = [
+                            'school_id' => $existing->client->sch_id,
+                            'school_name' => isset($existing->client->school->sch_name) ? $existing->client->school->sch_name : null,
+                            'graduation_year' => $existing->client->graduation_year,
+                            'grade' => $existing->client->st_grade,
+                        ];
+                    }
+            
 
                     
                 return response()->json([
@@ -279,12 +318,6 @@ class ExtClientController extends Controller
                             'referral' => $existing->referral_code,
                             'client_type' => $existing->notes,
                         ],
-                        'education' => [
-                            'school_id' => $second_client != null ? $existing->children->school->sch_id : $existing->client->school->sch_id,
-                            'school_name' => $second_client != null ? $existing->children->school->sch_name : $existing->client->school->sch_name,
-                            'graduation_year' => $second_client != null ? $existing->children->graduation_year : $existing->client->graduation_year,
-                            'grade' => $second_client != null ? $existing->children->grade : $existing->client->grade,
-                        ],
                         
                      
                     ]
@@ -300,7 +333,7 @@ class ExtClientController extends Controller
                 'lead_id' => 'LS040',
                 'registration_type' => 'OTS',
                 'notes' => $notes, # previously, notes filled with VIP & VVIP
-                'status' => 1,
+                'status' => 0,
                 'joined_date' => Carbon::now(),
             ];
 
@@ -308,8 +341,13 @@ class ExtClientController extends Controller
             $storedClientEvent = $this->clientEventRepository->createClientEvent($clientEventDetails);
 
             $dataMail = [
-                'status' => 'ots',                
+                'fullname' => $storedClientEvent->client->full_name,
+                'mail' => $storedClientEvent->client->mail
             ];
+
+            $dataMail['registration_type'] = 'ots';
+            $dataMail['notes'] = $notes;
+
         DB::commit();
 
         } catch (Exception $e) {
@@ -320,20 +358,8 @@ class ExtClientController extends Controller
 
         }
 
-        try {
-
-            # send an registration success email
-            $this->sendEmailRegistrationSuccess($dataMail, $storedClientEvent);
-            Log::notice('Email registration sent sucessfully to '. $storedClientEvent->client->mail.' refer to ticket ID : '.$storedClientEvent->ticket_id);
-
-        } catch (Exception $e) {
-
-            Log::error('Failed to send email registration to '.$storedClientEvent->client->mail.' refer to ticket ID : '.$storedClientEvent->ticket_id.' | ' . $e->getMessage());
-
-        }
-
         # create log success
-        $this->logSuccess('store', 'Form Embed', 'Client Event', 'Guest', $storedClientEvent);
+        $this->logSuccess('store', 'Form Embed', 'Client Event Register Express', 'Guest', $storedClientEvent);
 
         
         if ($second_client != null)
@@ -381,8 +407,26 @@ class ExtClientController extends Controller
                     'country_name' => $country->name
                 ];
             }
-            $dataResponseClient['dream_countries'] = $dataDestinationCountries;
+            $dataResponseClient['dreams_countries'] = $dataDestinationCountries;
             unset($dataDestinationCountries);
+        }else{
+            $dataResponseClient['dreams_countries'] = [];
+        }
+
+        if ($second_client != null) {
+            $dataResponseClient['education'] = [
+                'school_id' => $storedClientEvent->children->sch_id,
+                'school_name' => isset($storedClientEvent->children->school->sch_name) ? $storedClientEvent->children->school->sch_name : null,
+                'graduation_year' => $storedClientEvent->children->graduation_year,
+                'grade' => $storedClientEvent->children->st_grade,
+            ];
+        }else{
+            $dataResponseClient['education'] = [
+                'school_id' => $storedClientEvent->client->sch_id,
+                'school_name' => isset($storedClientEvent->client->school->sch_name) ? $storedClientEvent->client->school->sch_name : null,
+                'graduation_year' => $storedClientEvent->client->graduation_year,
+                'grade' => $storedClientEvent->client->st_grade,
+            ];
         }
 
         return response()->json([
@@ -401,7 +445,7 @@ class ExtClientController extends Controller
                     'event_id' => $storedClientEvent->event->event_id,
                     'event_name' => $storedClientEvent->event->event_title,
                     'attend_status' => $storedClientEvent->status,
-                    'attend_party' => $storedClientEvent->number_of_attend,
+                    'attend_party' => 1,
                     'event_type' => 'offline',
                     'status' => $storedClientEvent->registration_type,
                     'referral' => $storedClientEvent->referral_code,
@@ -1033,6 +1077,8 @@ class ExtClientController extends Controller
             'category' => 'registration-event-mail'
         ];
 
+        Log::success("Form Embed: Successfully send thank mail registration", $passedData);
+
         return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
     }
 
@@ -1086,6 +1132,7 @@ class ExtClientController extends Controller
         # fetch the client information from client event
         $requestUpdateClientEvent = $this->clientEventRepository->getClientEventById($requestUpdateClientEventID);
         if (!$requestUpdateClientEvent) {
+            Log::warning("Client Event Verify: Could not continue the process because invalid identifier.", $requestUpdateClientEventID);
             return response()->json([
                 'success' => false,
                 'message' => 'Could not continue the process because invalid identifier.'
