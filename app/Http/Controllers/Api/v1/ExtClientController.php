@@ -592,12 +592,14 @@ class ExtClientController extends Controller
     
                 case "teacher/counsellor":
                     $client = $this->storeTeacher($validated);
+                    return response()->json($client);
                     break;
 
                 default:
                     abort(404);
     
             }
+
 
 
             # check if registered client has already joined the event
@@ -626,7 +628,6 @@ class ExtClientController extends Controller
                     ]
                 ]);
             }
-
 
 
             # declare variables for client events
@@ -858,7 +859,6 @@ class ExtClientController extends Controller
         # declare some variables
         $splitNames = $this->split($incomingRequest['fullname']);
         $schoolId = $this->getSchoolId($incomingRequest);
-
 
         # create a new client > student
         $newClientDetails = [
