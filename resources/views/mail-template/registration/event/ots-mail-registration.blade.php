@@ -25,7 +25,7 @@
                             </p>
                             <p style="text-align: center">
                                 <a href="{{ $client['assessment_link'] }}">
-                                    <button style="border: 1px solid #0100D4; background-color: #0168FF; margin: 10px 18px;">Take the Test</button>
+                                    <button style="border: 1px solid #0100D4; background-color: #0168FF; padding: 15px 25px;">Take the Test</button>
                                 </a>
                             </p>
                             @endif
