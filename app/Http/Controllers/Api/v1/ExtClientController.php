@@ -613,17 +613,23 @@ class ExtClientController extends Controller
         }
 
 
-        try {
+        # if the event is online then 
+        # system will not send the email
+        if ($validated['event_type'] == 'offline') {
 
-            # send an registration success email
-            $this->sendEmailRegistrationSuccess($validated, $storedClientEvent);
-            Log::notice('Email registration sent sucessfully to '. $incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id);
-            
-        } catch (Exception $e) {
-
-            Log::error('Failed to send email registration to '.$incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id.' | ' . $e->getMessage());
-
+            try {
+    
+                # send an registration success email
+                $this->sendEmailRegistrationSuccess($validated, $storedClientEvent);
+                Log::notice('Email registration sent sucessfully to '. $incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id);
+                
+            } catch (Exception $e) {
+    
+                Log::error('Failed to send email registration to '.$incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id.' | ' . $e->getMessage());
+    
+            }
         }
+
 
 
         # create log success
