@@ -319,7 +319,7 @@ class ExtClientController extends Controller
                 'lead_id' => 'LS040',
                 'registration_type' => 'OTS',
                 'notes' => $notes, # previously, notes filled with VIP & VVIP
-                'status' => 1,
+                'status' => 0,
                 'joined_date' => Carbon::now(),
             ];
 
@@ -347,7 +347,7 @@ class ExtClientController extends Controller
         try {
 
             # send an registration success email
-            $this->sendEmailRegistrationSuccess($dataMail, $storedClientEvent);
+            // $this->sendEmailRegistrationSuccess($dataMail, $storedClientEvent);
             Log::notice('Email registration sent sucessfully to '. $storedClientEvent->client->mail.' refer to ticket ID : '.$storedClientEvent->ticket_id);
 
         } catch (Exception $e) {
