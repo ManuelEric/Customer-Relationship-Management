@@ -155,6 +155,7 @@ class ExtClientController extends Controller
 
         $event_id = $request->EVT;
         $notes = $request->notes;
+
         $is_site = $request->is_site ?? null;
 
         $urlRegistration = 'http://localhost:5173';
@@ -208,6 +209,11 @@ class ExtClientController extends Controller
             # check if registered client has already join the event
             if ($existing = $this->clientEventRepository->getClientEventByMultipleIdAndEventId($main_client, $event_id, $second_client)) {
 
+                $dataMail = [
+                    'fullname' => $existing->client->full_name,
+                    'mail' => $existing->client->mail
+                ];
+
                     if ($second_client != null)
                     {
 
@@ -252,9 +258,28 @@ class ExtClientController extends Controller
                                 'country_name' => $country->name
                             ];
                         }
-                        $dataResponseClient['dream_countries'] = $dataDestinationCountries;
+                        $dataResponseClient['dreams_countries'] = $dataDestinationCountries;
                         unset($dataDestinationCountries);
+                    }else{
+                        $dataResponseClient['dreams_countries'] = [];
                     }
+
+                    if ($second_client != null) {
+                        $dataResponseClient['education'] = [
+                            'school_id' => $existing->children->sch_id,
+                            'school_name' => isset($existing->children->school->sch_name) ? $existing->children->school->sch_name : null,
+                            'graduation_year' => $existing->children->graduation_year,
+                            'grade' => $existing->children->st_grade,
+                        ];
+                    }else{
+                        $dataResponseClient['education'] = [
+                            'school_id' => $existing->client->sch_id,
+                            'school_name' => isset($existing->client->school->sch_name) ? $existing->client->school->sch_name : null,
+                            'graduation_year' => $existing->client->graduation_year,
+                            'grade' => $existing->client->st_grade,
+                        ];
+                    }
+            
 
                     
                 return response()->json([
@@ -279,12 +304,6 @@ class ExtClientController extends Controller
                             'referral' => $existing->referral_code,
                             'client_type' => $existing->notes,
                         ],
-                        'education' => [
-                            'school_id' => $second_client != null ? $existing->children->school->sch_id : $existing->client->school->sch_id,
-                            'school_name' => $second_client != null ? $existing->children->school->sch_name : $existing->client->school->sch_name,
-                            'graduation_year' => $second_client != null ? $existing->children->graduation_year : $existing->client->graduation_year,
-                            'grade' => $second_client != null ? $existing->children->grade : $existing->client->grade,
-                        ],
                         
                      
                     ]
@@ -308,8 +327,13 @@ class ExtClientController extends Controller
             $storedClientEvent = $this->clientEventRepository->createClientEvent($clientEventDetails);
 
             $dataMail = [
-                'status' => 'ots',                
+                'fullname' => $storedClientEvent->client->full_name,
+                'mail' => $storedClientEvent->client->mail
             ];
+
+            $dataMail['registration_type'] = 'ots';
+            $dataMail['notes'] = $notes;
+
         DB::commit();
 
         } catch (Exception $e) {
@@ -381,8 +405,26 @@ class ExtClientController extends Controller
                     'country_name' => $country->name
                 ];
             }
-            $dataResponseClient['dream_countries'] = $dataDestinationCountries;
+            $dataResponseClient['dreams_countries'] = $dataDestinationCountries;
             unset($dataDestinationCountries);
+        }else{
+            $dataResponseClient['dreams_countries'] = [];
+        }
+
+        if ($second_client != null) {
+            $dataResponseClient['education'] = [
+                'school_id' => $storedClientEvent->children->sch_id,
+                'school_name' => isset($storedClientEvent->children->school->sch_name) ? $storedClientEvent->children->school->sch_name : null,
+                'graduation_year' => $storedClientEvent->children->graduation_year,
+                'grade' => $storedClientEvent->children->st_grade,
+            ];
+        }else{
+            $dataResponseClient['education'] = [
+                'school_id' => $storedClientEvent->client->sch_id,
+                'school_name' => isset($storedClientEvent->client->school->sch_name) ? $storedClientEvent->client->school->sch_name : null,
+                'graduation_year' => $storedClientEvent->client->graduation_year,
+                'grade' => $storedClientEvent->client->st_grade,
+            ];
         }
 
         return response()->json([
@@ -401,7 +443,7 @@ class ExtClientController extends Controller
                     'event_id' => $storedClientEvent->event->event_id,
                     'event_name' => $storedClientEvent->event->event_title,
                     'attend_status' => $storedClientEvent->status,
-                    'attend_party' => $storedClientEvent->number_of_attend,
+                    'attend_party' => 1,
                     'event_type' => 'offline',
                     'status' => $storedClientEvent->registration_type,
                     'referral' => $storedClientEvent->referral_code,
