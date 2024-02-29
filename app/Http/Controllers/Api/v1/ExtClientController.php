@@ -856,9 +856,9 @@ class ExtClientController extends Controller
         # populate client variables
         # when they are student or parents
         # and when they are parents but have a child
-        if ($client->roles()->whereIn('role_name', ['student', 'parent'])->exists() 
-            || (($client->roles()->where('role_name', 'parent')->exists()) && $client->childrens->count() > 0)
-            && strtolower($incomingRequest['notes']) != 'vip'
+        if ( ($client->roles()->whereIn('role_name', ['student', 'parent'])->exists() 
+            || (($client->roles()->where('role_name', 'parent')->exists()) && $client->childrens->count() > 0))
+            && strtolower($clientevent->notes) != 'vip'
         ) {
             # populate the client array
             $clientInformation['assessment_link'] = env('EDUALL_ASSESSMENT_URL', null);
@@ -941,8 +941,8 @@ class ExtClientController extends Controller
                 # populate client variables
                 # when they are student or parents
                 # and when they are parents but have a child
-                if ($client->roles()->whereIn('role_name', ['student', 'parent'])->exists() 
-                    || (($client->roles()->where('role_name', 'parent')->exists()) && $client->childrens->count() > 0)
+                if ( ($client->roles()->whereIn('role_name', ['student', 'parent'])->exists() 
+                    || (($client->roles()->where('role_name', 'parent')->exists()) && $client->childrens->count() > 0))
                     && strtolower($incomingRequest['notes']) != 'vip'
                 ) {
                     # populate the client array
