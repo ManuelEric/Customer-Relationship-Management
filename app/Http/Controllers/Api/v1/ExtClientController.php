@@ -359,7 +359,7 @@ class ExtClientController extends Controller
         }
 
         # create log success
-        $this->logSuccess('store', 'Form Embed', 'Client Event Register Express', 'Guest', $storedClientEvent);
+        $this->logSuccess('store', 'Form Embed', 'Client Event Register Express', 'Guest', $clientEventDetails);
 
         
         if ($second_client != null)
@@ -678,7 +678,7 @@ class ExtClientController extends Controller
 
 
         # create log success
-        $this->logSuccess('store', 'Form Embed', 'Client Event', 'Guest', $storedClientEvent);
+        $this->logSuccess('store', 'Form Embed', 'Client Event', 'Guest', $clientEventDetails, null);
 
         return response()->json([
             'success' => true,
@@ -1077,7 +1077,7 @@ class ExtClientController extends Controller
             'category' => 'registration-event-mail'
         ];
 
-        Log::success("Form Embed: Successfully send thank mail registration", $passedData);
+        Log::notice("Form Embed: Successfully send thank mail registration", $passedData);
 
         return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
     }
