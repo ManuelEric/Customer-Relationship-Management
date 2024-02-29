@@ -1360,7 +1360,7 @@ class ExtClientController extends Controller
                 'client' => [
                     'name' => $updatedClientEvent->client->full_name,
                     'email' => $updatedClientEvent->client->mail,
-                    'is_vip' => $updatedClientEvent->notes == 'vip' ? true : false,
+                    'is_vip' => $updatedClientEvent->notes == 'VIP' ? true : false,
                     'have_child' => $validated['have_child'],
                     'register_as' => $updatedClientEvent->client->register_as
                 ],
