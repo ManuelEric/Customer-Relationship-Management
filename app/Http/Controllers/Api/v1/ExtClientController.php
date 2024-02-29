@@ -510,8 +510,10 @@ class ExtClientController extends Controller
                     # attach interest programs
                     # get the value of interest programs from event category
                     $joinedEvent = Event::whereEventId($validated['event_id']);
-                    if ($eventCategory = $joinedEvent->category)
-                        $this->attachInterestPrograms($clientId, $eventCategory);
+                    if ($eventCategory = $joinedEvent->category) {
+                        # keep insert the interest program eventhough she/he has already had the program as interested program before
+                        $this->reAttachInterestPrograms($clientId, $eventCategory); 
+                    }
 
                     # attach destination countries if any
                     $this->attachDestinationCountry($clientId, $validated['destination_country']);
@@ -738,6 +740,11 @@ class ExtClientController extends Controller
             $this->clientRepository->addInterestProgram($clientId, ['prog_id' => $interestedPrograms]);
     }
 
+    private function reAttachInterestPrograms($clientId, $interestedPrograms)
+    {
+        return $this->clientRepository->addInterestProgram($clientId, ['prog_id' => $interestedPrograms]);
+    }
+
     private function attachDestinationCountry($clientId, array $destinationCountries)
     {
         if (count($destinationCountries) > 0)
@@ -962,7 +969,7 @@ class ExtClientController extends Controller
                 # variable for sending email
                 $template = 'mail-template.registration.event.pra-reg-mail-registration';
                 $email = [
-                    'subject' => "Welcome to the {$eventName}!",
+                    'subject' => "Thank you for registering to {$eventName}!",
                     'recipient' => [
                         'name' => $incomingRequest['fullname'],
                         'mail' => $incomingRequest['mail']
@@ -1166,8 +1173,11 @@ class ExtClientController extends Controller
                     # attach interest programs
                     # get the value of interest programs from event category
                     $joinedEvent = Event::whereEventId($validated['event_id']);
-                    if ($eventCategory = $joinedEvent->category)
+                    if ($eventCategory = $joinedEvent->category) {
+                        # it will not store the interest program from event
+                        # when it comes to update function
                         $this->attachInterestPrograms($studentId, $eventCategory);
+                    }
 
                     # attach destination countries if any
                     $this->attachDestinationCountry($studentId, $validated['destination_country']);
