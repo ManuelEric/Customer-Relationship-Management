@@ -613,6 +613,7 @@ class ExtClientController extends Controller
                         'clientevent' => [
                             'id' => $existing->clientevent_id,
                             'ticket_id' => $existing->ticket_id,
+                            'is_offline' => (isset($validated['event_type']) || $validated['event_type']) == "offline" ? true : false,
                         ],
                         'link' => [
                             'scan' => url('/client-event/CE/'.$existing->clientevent_id)  
@@ -657,17 +658,23 @@ class ExtClientController extends Controller
         }
 
 
-        try {
+        # if the event is online then 
+        # system will not send the email
+        if ($validated['event_type'] == 'offline') {
 
-            # send an registration success email
-            $this->sendEmailRegistrationSuccess($validated, $storedClientEvent);
-            Log::notice('Email registration sent sucessfully to '. $incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id);
-            
-        } catch (Exception $e) {
-
-            Log::error('Failed to send email registration to '.$incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id.' | ' . $e->getMessage());
-
+            try {
+    
+                # send an registration success email
+                $this->sendEmailRegistrationSuccess($validated, $storedClientEvent);
+                Log::notice('Email registration sent sucessfully to '. $incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id);
+                
+            } catch (Exception $e) {
+    
+                Log::error('Failed to send email registration to '.$incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id.' | ' . $e->getMessage());
+    
+            }
         }
+
 
 
         # create log success
@@ -688,6 +695,7 @@ class ExtClientController extends Controller
                 'clientevent' => [
                     'id' => $storedClientEvent->clientevent_id,
                     'ticket_id' => $storedClientEvent->ticket_id,
+                    'is_offline' => (isset($validated['event_type']) || $validated['event_type']) == "offline" ? true : false,
                 ],
                 'link' => [
                     'scan' => url('/client-event/CE/'.$storedClientEvent->clientevent_id)  
@@ -894,9 +902,9 @@ class ExtClientController extends Controller
         # populate client variables
         # when they are student or parents
         # and when they are parents but have a child
-        if ($client->roles()->whereIn('role_name', ['student', 'parent'])->exists() 
-            || (($client->roles()->where('role_name', 'parent')->exists()) && $client->childrens->count() > 0)
-            && strtolower($incomingRequest['notes']) != 'vip'
+        if ( ($client->roles()->whereIn('role_name', ['student', 'parent'])->exists() 
+            || (($client->roles()->where('role_name', 'parent')->exists()) && $client->childrens->count() > 0))
+            && strtolower($clientevent->notes) != 'vip'
         ) {
             # populate the client array
             $clientInformation['assessment_link'] = env('EDUALL_ASSESSMENT_URL', null);
@@ -979,8 +987,8 @@ class ExtClientController extends Controller
                 # populate client variables
                 # when they are student or parents
                 # and when they are parents but have a child
-                if ($client->roles()->whereIn('role_name', ['student', 'parent'])->exists() 
-                    || (($client->roles()->where('role_name', 'parent')->exists()) && $client->childrens->count() > 0)
+                if ( ($client->roles()->whereIn('role_name', ['student', 'parent'])->exists() 
+                    || (($client->roles()->where('role_name', 'parent')->exists()) && $client->childrens->count() > 0))
                     && strtolower($incomingRequest['notes']) != 'vip'
                 ) {
                     # populate the client array

@@ -17,7 +17,8 @@ class ExtLeadController extends Controller
 
     public function getLeadSources(Request $request)
     {
-        $leads = $this->leadRepository->getAllLead();
+        // $leads = $this->leadRepository->getAllLead();
+        $leads = $this->leadRepository->getActiveLead();
         if (!$leads) {
             return response()->json([
                 'success' => true,
