@@ -473,7 +473,12 @@ class ExtClientController extends Controller
                 $request->school_id != 'new' ? 'exists:tbl_sch,sch_id' : null
             ],
             'other_school' => 'nullable',
-            'graduation_year' => 'nullable|required_if:role,student', # not validated gte because there are chances that registered user has already graduated like since 2020
+            # not validated gte because there are chances that registered user has already graduated like since 2020
+            'graduation_year' => [
+                'nullable',
+                $request->role == 'student' ? 'required' : null,
+                $request->role == 'parent' ? 'required_if_accepted:have_child' : null,
+            ],
             'destination_country' => [
                 'array',
                 $request->role == 'student' ? 'required' : 'required_if_accepted:have_child',
@@ -1154,7 +1159,11 @@ class ExtClientController extends Controller
                 $request->school_id != 'new' ? 'exists:tbl_sch,sch_id' : null
             ],
             'other_school' => 'nullable',
-            'graduation_year' => 'nullable|required_if:role,student',
+            'graduation_year' => [
+                'nullable',
+                $request->role == 'student' ? 'required' : null,
+                $request->role == 'parent' ? 'required_if_accepted:have_child' : null,
+            ],
             'destination_country' => [
                 'array',
                 $request->role == 'student' ? 'required' : 'required_if_accepted:have_child',
