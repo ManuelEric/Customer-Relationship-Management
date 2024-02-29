@@ -113,7 +113,6 @@ class Kernel extends ConsoleKernel
         
         # queue worker
         $schedule->command('run:worker')->everyMinute()->withoutOverlapping()->runInBackground();
-        // $schedule->command('queue:restart')->everyFiveMinutes();
 
         # run verifying raw data
         $schedule->command('verified:parent')->everyMinute()->runInBackground();

@@ -396,6 +396,7 @@ class ClientRepository implements ClientRepositoryInterface
         # join program admission mentoring & prog running status hasnt done
         $query = Client::select([
                 'client.*',
+                'parent.id as parent_id', 
                 'parent.mail as parent_mail',
                 'parent.phone as parent_phone'
             ])->selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
@@ -1258,6 +1259,17 @@ class ClientRepository implements ClientRepositoryInterface
         return $student;
     }
 
+    public function syncDestinationCountry($studentId, $destinationCountryDetails)
+    {
+        # this function similar to function above
+        # the differences is that this function does not fetch the existing destination country from the database
+        # just using the new destination country from incoming request
+        $student = UserClient::find($studentId);
+        $student->destinationCountries()->sync($destinationCountryDetails);
+
+        return $student->destinationCountries;
+    }
+
     public function getInterestedProgram($studentId)
     {
         $student = UserClient::find($studentId);
@@ -1770,5 +1782,29 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereRaw("RTRIM(CONCAT(first_name, ' ', COALESCE(last_name, ''))) like ?", "%{$filter['full_name']}%");
             })
             ->simplePaginate(10);
+    }
+
+    public function getParentMenteesAPI()
+    {
+        return UserClient::isParent()
+            ->with('childrens')
+            ->whereHas('childrens', function ($query) {
+                $query->whereHas('clientProgram', function ($subQuery) {
+                    $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
+                        $subQuery_2->where('prog_name', 'Admissions Mentoring');
+                    })->where('status', 1)->where('prog_running_status', '!=', 2);
+                })->
+                orWhere(function ($q) {
+                    $q->
+                    whereHas('clientProgram', function ($subQuery) {
+                        $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
+                            $subQuery_2->where('prog_name', 'Admissions Mentoring');
+                        })->where('status', 1)->where('prog_running_status', 2);
+                    })->
+                    whereHas('clientProgram', function ($subQuery) {
+                        $subQuery->where('status', 0);
+                    });
+                });
+            })->get();
     }
 }

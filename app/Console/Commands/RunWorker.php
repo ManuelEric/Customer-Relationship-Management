@@ -46,6 +46,23 @@ class RunWorker extends Command
             'verifying_client_teacher'
         ];
 
+        $resources = [
+            'inv-send-to-client',
+            'inv-email-request-sign',
+            'verifying-client',
+            'verifying-client-parent',
+            'verifying-client-teacher',
+            'imports-student',
+            'imports-parent',
+            'imports-teacher',
+            'imports-client-event',
+            'imports-school-merge',
+            'default',
+            'verifying_client',
+            'verifying_client_parent',
+            'verifying_client_teacher'
+        ];
+
         Artisan::call('queue:work', [
             '--stop-when-empty' => 1,
             '--queue' => implode(',', $resources)

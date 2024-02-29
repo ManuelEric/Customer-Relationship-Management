@@ -153,6 +153,7 @@ Route::get('current/rate/{base_currency}/{to_currency}', [CurrencyRateController
 
 # external API
 Route::prefix('v1')->group(function () {
+    Route::get('get/parent-mentees', [ExtClientController::class, 'getParentMentee']);
     Route::get('get/mentees', [ExtClientController::class, 'getClientFromAdmissionMentoring']);
     Route::get('get/mentors', [ExtClientController::class, 'getMentors']);
     Route::get('get/alumnis', [ExtClientController::class, 'getAlumnis']);
@@ -172,11 +173,15 @@ Route::prefix('v1')->group(function () {
     # used for creating form registration
     Route::get('get/destination-country', [APITagController::class, 'getTags']);
 
-    # used for storing user client data
+
+    # used for storing user client data / from registation form
     Route::post('register/event', [ExtClientController::class, 'store']);
+    Route::get('register/event/express/{main_client}/{notes}/{second_client?}', [ExtClientController::class, 'store_express'])->name('register-express-event');
     Route::get('event/{event_id}', [APIEventController::class, 'findEvent']);
     Route::get('client-event/{screening_type}/{identifier}', [APIClientEventController::class, 'findClientEvent']);
     Route::patch('registration/verify/{clientevent_id}', [ExtClientController::class, 'update']);
+    Route::get('school', [APISchoolController::class, 'alt_search']);
+
 });
 
 # Client Event Attendance
@@ -189,6 +194,8 @@ Route::get('event/party/{id}/{party}', [ClientEventController::class, 'updateNum
 Route::get('track/referral/{referral}', [ClientEventController::class, 'trackReferralURL']);
 
 # Instance School API
+# being called from CRM store/update school
+# why it's different from api/v1/school? -> because api/v1/school being called from vue frontend meaning they have javascript to automatically create new
 Route::get('school', [APISchoolController::class, 'search']);
 
 # Get Active School Data

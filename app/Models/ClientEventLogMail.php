@@ -23,7 +23,8 @@ class ClientEventLogMail extends Model
         'index_child',
         'notes',
         'sent_status',
-        'category'
+        'category',
+        'child_id',
     ];
 
     public function clientEvent()

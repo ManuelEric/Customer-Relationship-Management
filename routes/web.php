@@ -10,6 +10,7 @@ use App\Http\Controllers\ClientProgramController;
 use App\Http\Controllers\ClientStudentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VolunteerController;
+use App\Jobs\testQueue;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
@@ -87,7 +88,7 @@ Route::get('scan', function () {
 Route::get('client-detail/{identifier}/{screening_type}', [ClientEventController::class, 'previewClientInformation']);
 
 Route::get('mailing', function () {
-    return view('mailing.stem-wonderlab');
+    return view('mailing.mailing-event');
 });
 
 Route::get('sample/form', function () {

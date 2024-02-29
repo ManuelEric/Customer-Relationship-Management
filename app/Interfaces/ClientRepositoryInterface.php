@@ -54,6 +54,8 @@ interface ClientRepositoryInterface
     public function getExistingMenteesAPI();
     public function getExistingMentorsAPI();
     public function getExistingAlumnisAPI();
+    public function getParentMenteesAPI();
+
     /* ~ API External End */
 
     public function getAlumnisDataTables();
@@ -83,6 +85,7 @@ interface ClientRepositoryInterface
     public function removeClientRelation($parentId, $studentId);
     public function createManyClientRelation($parentId, array $studentId);
     public function createDestinationCountry($studentId, $destinationCountryDetails);
+    public function syncDestinationCountry($studentId, array $destinationCountryDetails);
     public function getInterestedProgram($studentId);
     public function createInterestProgram($studentId, array $interestProgramDetails);
     public function createInterestUniversities($studentId, array $interestUnivDetails);

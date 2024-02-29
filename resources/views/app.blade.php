@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 
@@ -199,6 +198,11 @@
             htmlLoading += '<span class="ms-2 text-black" role="status">Importing...</span>'
             htmlLoading += '</div>'
             
+            @php
+                $authImport = Cache::has("auth") ? Cache::get("auth") : null;
+                $isStart = Cache::has("isStartImport") ? Cache::get("isStartImport") : null;
+            @endphp
+
             @php
                 $authImport = Cache::has("auth") ? Cache::get("auth") : null;
                 $isStart = Cache::has("isStartImport") ? Cache::get("isStartImport") : null;

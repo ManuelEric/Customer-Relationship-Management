@@ -73,7 +73,7 @@
         <tr>
             <td valign="top" align="center">1</td>
             <td valign="top" style="padding-bottom:10px;">
-                <div style="height:80px;">
+                <div style="min-height:80px;">
                     <p>
                         <strong> {{ $receiptRef->invoiceB2b->referral->additional_prog_name }} </strong>
                     </p>
@@ -86,7 +86,7 @@
                 @endif
             </td>
             <td valign="top" align="center">
-                <div style="height:80px;">
+                <div style="min-height:80px;">
                     <p>
                         <strong>
                             @if ($receiptRef->invoiceB2b->invb2b_pm == 'Installment')
@@ -99,7 +99,7 @@
                 </div>
             </td>
             <td valign="top" align="center">
-                <div style="height:80px;">
+                <div style="min-height:80px;">
                     <p>
                         <strong>
                             @if ($receiptRef->invoiceB2b->invb2b_pm == 'Installment')

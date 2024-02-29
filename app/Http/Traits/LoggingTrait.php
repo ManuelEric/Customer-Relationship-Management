@@ -2,6 +2,7 @@
 
 namespace App\Http\Traits;
 
+use Exception;
 use Illuminate\Support\Facades\Log;
 
 trait LoggingTrait
@@ -23,6 +24,12 @@ trait LoggingTrait
                 break;
 
             case 'update':
+
+                # when it comes to updating
+                # oldData is necessary to track between the old data and updated data
+                if ($oldData === null)
+                    throw new Exception('You should include the old data');
+
                 $message = $inputFrom . ': Successfully Updated ' . $modul . ' By ' . $user;
                 $context = ['From' => $this->checkType($oldData), 'Into' => $this->checkType($data)];
                 break;

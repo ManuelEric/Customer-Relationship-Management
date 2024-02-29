@@ -85,6 +85,9 @@ class SalesDashboardController extends Controller
         # fetching only already from initial consultation chart data
         $already = $initialConsultation[1];
 
+        # fetching only already from initial consultation chart data
+        $already = $initialConsultation[1];
+
         # fetching only success program from initial consultation chart data
         $successProgram = $initialConsultation[2];
 
