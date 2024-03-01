@@ -28,7 +28,11 @@
                         <td>
                             {{ $receiptRef->invoiceB2b->referral->partner->corp_name }}
                             <br>
-                            {{ $receiptRef->invoiceB2b->referral->partner->corp_region }}
+                            @if (isset($receiptRef->invoiceB2b->referral->partner->corp_address))
+                                {{ html_entity_decode(strip_tags($receiptRef->invoiceB2b->referral->partner->corp_address)) }}
+                            @else
+                                {{ $receiptRef->invoiceB2b->referral->partner->corp_region }}
+                            @endif
                         </td>
                     </tr>
                 </table>
