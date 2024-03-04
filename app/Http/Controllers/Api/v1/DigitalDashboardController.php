@@ -72,6 +72,7 @@ class DigitalDashboardController extends Controller
         # sales
         $actualLeadsSales = $this->alarmRepository->setDataActual($dataSalesTarget);
         $leadSalesTarget = $this->alarmRepository->setDataTarget($dataSalesTarget, $actualLeadsSales);
+        
 
         # referral
         $actualLeadsReferral = $this->alarmRepository->setDataActual($dataReferralTarget);

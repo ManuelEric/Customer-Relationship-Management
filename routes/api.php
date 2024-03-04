@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\v1\ProgramController as APIProgramController;
 use App\Http\Controllers\Api\v1\TagController as APITagController;
 use App\Http\Controllers\Api\v1\ClientEventController as APIClientEventController;
 use App\Http\Controllers\Api\v1\EventController as APIEventController;
+use App\Http\Controllers\Api\v1\ExtEventController;
 use App\Http\Controllers\Api\v1\ExtPartnerController;
 use App\Http\Controllers\Api\v1\ExtUniversityController;
 use App\Http\Controllers\LeadController;
@@ -169,6 +170,7 @@ Route::prefix('v1')->group(function () {
     Route::get('get/leads', [ExtLeadController::class, 'getLeadSources']);
     Route::get('get/partners', [ExtPartnerController::class, 'getPartners']);
     Route::get('get/universities', [ExtUniversityController::class, 'getUniversities']);
+    Route::get('get/events', [ExtEventController::class, 'getEvents']);
 
     # used for creating form registration
     Route::get('get/destination-country', [APITagController::class, 'getTags']);
