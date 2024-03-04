@@ -34,16 +34,16 @@
     {{-- End Alert --}}
 
     {{-- Sales --}}
-    @includeWhen($isSuperAdmin || $isSalesAdmin || $isSales, 'pages.dashboard.sales.index')
+    {{-- @includeWhen($isSuperAdmin || $isSalesAdmin || $isSales, 'pages.dashboard.sales.index') --}}
 
     {{-- Partnership --}}
-    @includeWhen($isSuperAdmin || $isPartnership, 'pages.dashboard.partnership.index')
+    {{-- @includeWhen($isSuperAdmin || $isPartnership, 'pages.dashboard.partnership.index') --}}
 
     {{-- Digital  --}}
     @includeWhen($isSuperAdmin || $isSalesAdmin || $isDigital, 'pages.dashboard.digital.index')
 
     {{-- Finance  --}}
-    @includeWhen($isSuperAdmin || $isFinance, 'pages.dashboard.finance.index')
+    {{-- @includeWhen($isSuperAdmin || $isFinance, 'pages.dashboard.finance.index') --}}
 
 @endsection
 

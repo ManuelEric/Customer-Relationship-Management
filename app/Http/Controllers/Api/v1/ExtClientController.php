@@ -607,7 +607,7 @@ class ExtClientController extends Controller
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'They have joined the event.',
+                    'message' => 'You have joined the event.',
                     'code' => 'EXT', # existing / has joined
                     'data' => [
                         'client' => [

@@ -43,7 +43,8 @@ class UpdateTargetTracking extends Command
 
         Log::info('Cron update tracking works fine.');
 
-        $now = date('Y-m-d');
+        // $now = date('Y-m-d');
+        $now = '2024-02-29';
         $division = ['Sales', 'Referral', 'Digital'];
         $progressBar = $this->output->createProgressBar(count($division));
         $progressBar->start();

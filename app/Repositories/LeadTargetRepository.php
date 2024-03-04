@@ -12,6 +12,7 @@ use App\Models\Receipt;
 use App\Models\UserClient;
 use App\Models\ViewClientProgram;
 use App\Models\ViewTargetSignal;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 
 class LeadTargetRepository implements LeadTargetRepositoryInterface
@@ -114,8 +115,8 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                     })->
                     whereHas('leadStatus', function ($query) use ($month, $year) {
                         $query->
-                            whereMonth('tbl_client_lead_tracking.updated_at', $month)->
-                            whereYear('tbl_client_lead_tracking.updated_at', $year)->
+                            // whereMonth('tbl_client_lead_tracking.updated_at', $month)->
+                            // whereYear('tbl_client_lead_tracking.updated_at', $year)->
                             where('tbl_initial_program_lead.name', 'Admissions Mentoring')->
                             where('tbl_client_lead_tracking.type', 'Lead')->
                             where('tbl_client_lead_tracking.total_result', '>=', 0.65); # >= 0.65 means HOT
@@ -276,6 +277,22 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                     })->
                     groupBy('tbl_client.id')->
                     get();
+
+        # this was used to get hot leads 
+        # from leads including recalculate data
+        // return UserClient::
+        //             whereHas('lead', function ($query) {
+        //                 $query->where('note', 'Sales')->where('main_lead', '!=', 'Referral');    
+        //             })->
+        //             whereHas('leadStatus', function ($query) use ($month, $year) {
+        //                 $query->
+        //                     whereMonth('tbl_client_lead_tracking.updated_at', $month)->
+        //                     whereYear('tbl_client_lead_tracking.updated_at', $year)->
+        //                     where('tbl_initial_program_lead.name', 'Admissions Mentoring')->
+        //                     where('tbl_client_lead_tracking.type', 'Lead')->
+        //                     where('tbl_client_lead_tracking.total_result', '>=', 0.65); # >= 0.65 means HOT
+        //             })->
+        //             get();
     }
 
     public function getAchievedInitConsultReferralByMonth($now)
