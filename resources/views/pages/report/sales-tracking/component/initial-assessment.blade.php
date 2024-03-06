@@ -27,7 +27,7 @@
                                 $converted = (int) $detail->converted == 0 ? "less than a day" : (int) $detail->converted . " day";
                                 $IC = $detail->IC;
                                 $success = $detail->success;
-                                $conversion = round(($success / $IC) * 100);
+                                $conversion = $success == 0 ? 0 : round(($success / $IC) * 100);
 
                                 $IC_total += $IC;
                                 $success_total += $success;

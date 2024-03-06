@@ -72,6 +72,19 @@ class ExtClientController extends Controller
 
     }
 
+    public function getAlumniMentees()
+    {
+        $alumniMentees = $this->clientRepository->getAlumniMentees(false, false, null);
+
+        return response()->json(
+            [
+                'success' => true,
+                'message' => 'Alumni mentees data found.',
+                'data' => $alumniMentees
+            ]
+        );
+    }
+
     public function getClientFromAdmissionMentoring()
     {
         $existingMentees = $this->clientRepository->getExistingMenteesAPI();
