@@ -189,10 +189,10 @@ class ExtClientController extends Controller
             return Redirect::to($urlRegistration . '/error/not-started');
         }
 
-        if ($is_site == null || $is_site == false){
-            Log::warning("Register express: Access denied!", $logDetails);
-            return Redirect::to($urlRegistration . '/error/access-denied');
-        }
+        // if ($is_site == null || $is_site == false){
+        //     Log::warning("Register express: Access denied!", $logDetails);
+        //     return Redirect::to($urlRegistration . '/error/access-denied');
+        // }
 
         if (Carbon::now() == $event->event_startdate && ($is_site == null || !$is_site)){
             Log::warning("Register express: Access denied!", $logDetails);
@@ -232,7 +232,7 @@ class ExtClientController extends Controller
 
         DB::beginTransaction();
         try {
-
+            
             # check if registered client has already join the event
             if ($existing = $this->clientEventRepository->getClientEventByMultipleIdAndEventId($main_client, $event_id, $second_client)) {
 
@@ -308,6 +308,9 @@ class ExtClientController extends Controller
                     }
             
 
+                if ($is_site == null || $is_site == false){
+                    return Redirect::to($urlRegistration . '/thanks/event/vip');
+                }
                     
                 return response()->json([
                     'success' => true,
@@ -440,6 +443,10 @@ class ExtClientController extends Controller
                 'graduation_year' => $storedClientEvent->client->graduation_year,
                 'grade' => $storedClientEvent->client->st_grade,
             ];
+        }
+
+        if ($is_site == null || $is_site == false){
+            return Redirect::to($urlRegistration . '/thanks/event/vip');
         }
 
         return response()->json([

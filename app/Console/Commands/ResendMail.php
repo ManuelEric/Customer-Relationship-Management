@@ -121,7 +121,7 @@ class ResendMail extends Command
                     
                     case 'invitation-mail':
                         if($detail->event->event_enddate > Carbon::now()){
-                            $this->sendMailInvitation($detail->client->mail, $detail->event->event_id, 'automate', $detail->index_child, $detail->notes);
+                            $this->sendMailInvitation($detail->client_id, $detail->event_id, $detail->child_id, $detail->notes);
                         }
                         break;
 

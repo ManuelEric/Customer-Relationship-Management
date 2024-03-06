@@ -3,6 +3,7 @@
 namespace App\Http\Traits;
 
 use App\Jobs\Event\EduAll\ProcessEmailInvitationInfo;
+use App\Jobs\Event\EduAll\ProcessEmailInvitationVIP;
 use App\Jobs\Event\EduAll\ProcessEmailReminderVIP;
 use App\Jobs\Event\Stem\ProcessEmailFeedback;
 use App\Jobs\Event\Stem\ProcessEmailQuestCompleter;
@@ -194,7 +195,7 @@ trait MailingEventOfflineTrait
         }
     }
 
-    public function sendMailInvitation($email, $event_id, $for, $indexChild, $notes)
+    public function sendMailInvitation($client_id, $event_id, $child_id, $notes)
     {
 
         DB::beginTransaction();
@@ -216,22 +217,28 @@ trait MailingEventOfflineTrait
                     break;
             }
 
-            $client = UserClient::where('mail', $email)->first();
+            $client = UserClient::where('id', $client_id)->first();
             $event = Event::where('event_id', $event_id)->first();
+            if ($child_id != null)
+                $child = UserClient::where('id', $child_id)->first();
 
-            $data['email'] = $email;
+            $data['client_id'] = $client_id;
+            $data['email'] = $client->mail;
+            $data['child_id'] = $child_id;
+            $data['child_name'] = $child_id != null ? $child->full_name : null;
             $data['event_id'] = $event_id;
             $data['recipient'] = $client->full_name;
-            $data['title'] = "[" . $notes . " Special Invitation] STEM+ Wonderlab, Indonesia's FIRST Student Makerspace Expo";
+            $data['title'] = 'You’re Invited: EduALL Launchpad: Where Your Future Takes Off!';
             $data['param'] = [
-                'referral_page' => route('program.event.referral-page', [
-                    'event_slug' => str_replace(' ', '-', $event->event_title),
-                    'refcode' => $this->createReferralCode($client->first_name, $client->id),
-                    'notes' => $noteEncrypt
-                ]),
-                'link' => url('program/event/reg-exp/' . $client['id'] . '/' . $event_id . '/' . $noteEncrypt . '/' . $indexChild),
+                // 'referral_page' => route('program.event.referral-page', [
+                //     'event_slug' => str_replace(' ', '-', $event->event_title),
+                //     'refcode' => $this->createReferralCode($client->first_name, $client->id),
+                //     'notes' => $noteEncrypt
+                // ]),
+                'link' => route('register-express-event', ['main_client' => $client->id, 'notes' => $noteEncrypt, 'second_client' => $child_id, 'EVT' => $event_id]),
             ];
             $data['event'] = [
+                'eventId' => $event->event_id, 
                 'eventName' => $event->event_title,
                 'eventDate' => date('M d, Y', strtotime($event->event_startdate)),
                 'eventDate_start' => date('l, d M Y', strtotime($event->event_startdate)),
@@ -242,37 +249,23 @@ trait MailingEventOfflineTrait
             ];
             $data['notes'] = $notes;
 
+            ProcessEmailInvitationVIP::dispatch($data)->onQueue('invitation-vip');
 
-            Mail::send('mail-template.invitation-email', $data, function ($message) use ($data) {
-                $message->to($data['email'], $data['recipient'])
-                    ->subject($data['title']);
-            });
-            $sent_mail = 1;
+            // Mail::send('mail-template.invitation-email', $data, function ($message) use ($data) {
+            //     $message->to($data['email'], $data['recipient'])
+            //         ->subject($data['title']);
+            // });
+            // $sent_mail = 1;
 
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
 
-            $sent_mail = 0;
+            // $sent_mail = 0;
             Log::error('Failed to send invitation mail : ' . $e->getMessage());
         }
 
-        if ($for == 'first-send') {
-            $keyLog = [
-                'client_id' => $client['id'],
-                'event_id' => $data['event_id'],
-                'index_child' => $indexChild,
-                'notes' => $notes,
-                'sent_status' => $sent_mail,
-                'category' => 'invitation-mail'
-            ];
 
-            $valueLog = [
-                'sent_status' => $sent_mail,
-            ];
-
-            ClientEventLogMail::updateOrCreate($keyLog, $valueLog);
-        }
     }
 
     public function sendMailReminder($client_id, $event_id, $for, $type, $child_id, $notes)

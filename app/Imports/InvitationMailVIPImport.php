@@ -38,7 +38,7 @@ class InvitationMailVIPImport implements ToCollection, WithHeadingRow, WithValid
         
         foreach ($rows as $row) {
                 
-            $this->sendMailInvitation($row['email'], $row['event_id'], 'first-send', $row['index_child'], 'WxSFs0LGh');
+            $this->sendMailInvitation($row['client_id'], $row['event_id'], $row['child_id'], 'WxSFs0LGh');
                
         }
     }
@@ -52,8 +52,8 @@ class InvitationMailVIPImport implements ToCollection, WithHeadingRow, WithValid
         $data = [
             'event_id' => $data['event_id'],
             'full_name' => $data['full_name'],
-            'email' => $data['email'],
-            'index_child' => $data['index_child'],
+            'client_id' => $data['client_id'],
+            'child_id' => $data['child_id'],
         ];
 
         return $data;
@@ -64,8 +64,8 @@ class InvitationMailVIPImport implements ToCollection, WithHeadingRow, WithValid
         return [
             '*.event_id' => ['required'],
             '*.full_name' => ['required'],
-            '*.email' => ['required', 'exists:tbl_client,mail'],
-            '*.index_child' => ['required'],
+            '*.client_id' => ['required', 'exists:tbl_client,id'],
+            '*.child_id' => ['required', 'exists:tbl_client,id'],
         ];
     }
 
