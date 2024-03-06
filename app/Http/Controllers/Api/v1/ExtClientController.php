@@ -339,6 +339,7 @@ class ExtClientController extends Controller
                     ]
                 ]);
             }
+            
 
             $clientEventDetails = [
                 'ticket_id' => $this->generateTicketID(),
@@ -627,7 +628,7 @@ class ExtClientController extends Controller
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'They have joined the event.',
+                    'message' => 'You have joined the event.',
                     'code' => 'EXT', # existing / has joined
                     'data' => [
                         'client' => [
@@ -767,7 +768,15 @@ class ExtClientController extends Controller
 
     private function generateTicketID()
     {
-        return Str::random(10);
+        do {
+            
+            $ticket_id = Str::random(4);
+            $isUnique = $this->clientEventRepository->isTicketIDUnique($ticket_id);
+            
+        }
+        while ($isUnique === false);
+
+        return $ticket_id;
     }
 
     private function storeStudent($incomingRequest)

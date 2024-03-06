@@ -529,4 +529,9 @@ class ClientEventRepository implements ClientEventRepositoryInterface
     {
         return ClientEvent::all();
     }
+
+    public function isTicketIDUnique($ticketId)
+    {
+        return ClientEvent::where('ticket_id', $ticketId)->exists() ? false : true;
+    }
 }
