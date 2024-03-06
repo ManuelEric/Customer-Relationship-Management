@@ -338,6 +338,7 @@ class ClientRepository implements ClientRepositoryInterface
         return $asDatatables === false ? $query->get() : $query;
     }
 
+
     public function getPotentialClients($asDatatables = false, $month = null, $advanced_filter = [])
     {
         # new client that have been offered our program but hasnt deal yet
@@ -1806,5 +1807,88 @@ class ClientRepository implements ClientRepositoryInterface
                     });
                 });
             })->get();
+    }
+
+    /** Followup */
+    public function getClientWithoutScheduledFollowup()
+    {
+        $query = UserClient::select([
+                'tbl_client.id',
+                'tbl_client.first_name',
+                'tbl_client.last_name',
+                'tbl_client.phone',
+                'tbl_client.mail',
+                'parent.mail as parent_mail',
+                'parent.phone as parent_phone',
+            ])->
+            selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
+            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'tbl_client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
+            where(function ($q) {
+                $q->
+                    doesntHave('clientProgram')->
+                    orWhere(function ($q_2) {
+                        $q_2->
+                            whereHas('clientProgram', function ($subQuery) {
+                                // $subQuery->whereIn('status', [2, 3])->where('status', '!=', 0);
+                                $subQuery->whereIn('status', [2, 3]);
+                            })->
+                            whereDoesntHave('clientProgram', function ($subQuery) {
+                                $subQuery->whereIn('status', [0, 1]);
+                            });
+                    });
+            })->
+            whereDoesntHave('followupSchedule')->
+            whereHas('roles', function ($subQuery) {
+                $subQuery->where('role_name', 'student');
+            })->
+            isNotSalesAdmin()->
+            isUsingAPI()->
+            isActive()->
+            isVerified();
+            
+        return $query->get();
+    }
+
+    public function getClientWithScheduledFollowup($status)
+    {
+        $query = UserClient::with('followupSchedule')->select([
+                'tbl_client.id',
+                'tbl_client.first_name',
+                'tbl_client.last_name',
+                'tbl_client.phone',
+                'tbl_client.mail',
+                'parent.mail as parent_mail',
+                'parent.phone as parent_phone',
+            ])->
+            selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
+            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'tbl_client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
+            where(function ($q) {
+                $q->
+                    doesntHave('clientProgram')->
+                    orWhere(function ($q_2) {
+                        $q_2->
+                            whereHas('clientProgram', function ($subQuery) {
+                                // $subQuery->whereIn('status', [2, 3])->where('status', '!=', 0);
+                                $subQuery->whereIn('status', [2, 3]);
+                            })->
+                            whereDoesntHave('clientProgram', function ($subQuery) {
+                                $subQuery->whereIn('status', [0, 1]);
+                            });
+                    });
+            })->
+            whereHas('followupSchedule', function ($q) use ($status) {
+                $q->where('status', $status);
+            })->
+            whereHas('roles', function ($subQuery) {
+                $subQuery->where('role_name', 'student');
+            })->
+            isNotSalesAdmin()->
+            isUsingAPI()->
+            isActive()->
+            isVerified();
+            
+        return $query->get();
     }
 }

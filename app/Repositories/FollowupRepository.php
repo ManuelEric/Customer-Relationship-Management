@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\FollowupRepositoryInterface;
 use App\Models\FollowUp;
+use App\Models\FollowupClient;
 use DateTime;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Session;
@@ -89,5 +90,10 @@ class FollowupRepository implements FollowupRepositoryInterface
         return $data;
         
 
+    }
+
+    public function create(array $followupDetails)
+    {
+        return FollowupClient::create($followupDetails);
     }
 }

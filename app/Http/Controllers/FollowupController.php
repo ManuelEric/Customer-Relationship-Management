@@ -20,32 +20,41 @@ class FollowupController extends Controller
         $this->followupRepository = $followupRepository;
     }
 
-    public function store(StoreFollowupRequest $request)
+    public function store(Request $request)
     {
-        $studentId = $request->route('student');
-        $clientProgramId = $request->route('program');
+        if (!$studentId = $request->route('student'))
+            abort(404);
 
-        $followupDetails = $request->only([
-            'followup_date',
-            'notes',
-        ]);
-
-        DB::beginTransaction();
-        try {
-
-            $this->followupRepository->createFollowup(['clientprog_id' => $clientProgramId] + $followupDetails);
-            DB::commit();           
-
-        } catch (Exception $e) {
-
-            DB::rollBack();
-            Log::error('Store followup plan failed : ' . $e->getMessage());
-            return Redirect::to('client/student/' . $studentId . '/program/' . $clientProgramId)->withError('Failed to add followup plan');
-
-        }
-
-        return Redirect::to('client/student/' . $studentId . '/program/' . $clientProgramId)->withSuccess('Follow Up plan has been created');
+        
     }
+
+    # follow up plan for client program
+    // public function store(StoreFollowupRequest $request)
+    // {
+    //     $studentId = $request->route('student');
+    //     $clientProgramId = $request->route('program');
+
+    //     $followupDetails = $request->only([
+    //         'followup_date',
+    //         'notes',
+    //     ]);
+
+    //     DB::beginTransaction();
+    //     try {
+
+    //         $this->followupRepository->createFollowup(['clientprog_id' => $clientProgramId] + $followupDetails);
+    //         DB::commit();           
+
+    //     } catch (Exception $e) {
+
+    //         DB::rollBack();
+    //         Log::error('Store followup plan failed : ' . $e->getMessage());
+    //         return Redirect::to('client/student/' . $studentId . '/program/' . $clientProgramId)->withError('Failed to add followup plan');
+
+    //     }
+
+    //     return Redirect::to('client/student/' . $studentId . '/program/' . $clientProgramId)->withSuccess('Follow Up plan has been created');
+    // }
 
     public function update(Request $request)
     {

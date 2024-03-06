@@ -12,4 +12,5 @@ interface FollowupRepositoryInterface
 
     # dashboard
     public function getAllFollowupWithin($days, $month = null);
+    public function create(array $followupDetails);
 }
