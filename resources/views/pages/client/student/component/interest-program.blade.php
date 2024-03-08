@@ -1,7 +1,7 @@
 <div class="card rounded mb-2">
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
-            <h5 class="m-0 p-0">Interest Program</h5>
+            <h5 class="m-0 p-0">Interest Programs</h5>
             <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#addInterestProgram"><i
                     class="bi bi-plus"></i></button>
         </div>
@@ -17,9 +17,11 @@
                         {{ $program->program_name }}
                     </div>
                 </a>
-                <div class="">
+                <div class="d-flex align-items-start">
                     <i class="bi bi-clock-history"></i>
-                    {{ date('d/m/Y H:i:s', strtotime($program->pivot->created_at)) }}
+                    <span class="ps-2">
+                        {{ date('M d, Y H:i', strtotime($program->pivot->created_at)) }}
+                    </span>
                     <button class="btn btn-sm btn-light text-danger ms-2 p-1"
                         onclick="confirmDelete('client/student/{{$student->id}}/interest_program/{{$program->pivot->id}}', '{{ $program->prog_id }}')">
                         <i class="bi bi-trash2"></i>

@@ -1,4 +1,5 @@
 @extends('layout.main')
+@push('styles')
 <style>
     .lcs_wrap {
         scale: 0.7;
@@ -6,6 +7,7 @@
         margin-left: -10px;
     }
 </style>
+@endpush
 
 @section('title', 'Students Detail')
 @section('breadcrumb')

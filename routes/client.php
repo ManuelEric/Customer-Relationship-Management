@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AcceptanceController;
 use App\Http\Controllers\AlumniController;
+use App\Http\Controllers\BoardController;
 use App\Http\Controllers\ClientHotLeadsController;
 use App\Http\Controllers\ClientMenteeController;
 use App\Http\Controllers\ClientParentController;
@@ -54,6 +55,9 @@ Route::post('update/pic', [ClientStudentController::class ,'updatePic'])->name('
 
 Route::resource('student', ClientStudentController::class);
 Route::prefix('student')->name('student.')->group(function () {
+
+    Route::resource('{student}/followup', FollowupController::class);
+
     Route::post('import', [ClientStudentController::class, 'import'])->name('import');
     Route::get('{student}/status/{status}', [ClientStudentController::class, 'updateStatus'])->name('update.status');
     Route::post('{student}/lead_status', [ClientStudentController::class, 'updateLeadStatus'])->name('update.lead.status');
@@ -112,3 +116,6 @@ Route::post('parent/import', [ClientParentController::class, 'import'])->name('p
 Route::resource('acceptance', AcceptanceController::class)->parameters(['acceptance' => 'client']);
 
 Route::get('hot-leads', [ClientHotLeadsController::class, 'index']);
+
+# new for board
+Route::get('board', [BoardController::class, 'index']);
