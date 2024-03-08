@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreign('client_id')->references('id')->on('tbl_client')->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamp('followup_date');
             $table->text('notes')->nullable();
+            $table->text('minutes_of_meeting')->nullable();
             $table->integer('status')->default(0)->comment('0: Not yet, 1: Done, 2: Pause, 3: Negotiation');
             $table->boolean('reminder_is_sent')->default(false);
             $table->timestamps();

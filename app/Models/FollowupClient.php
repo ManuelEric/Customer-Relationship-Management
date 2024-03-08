@@ -12,17 +12,21 @@ class FollowupClient extends Model
     protected $table = 'tbl_followup_client';
 
     protected $fillable = [
+        'client_id',
+        'user_id',
         'notes',
+        'minutes_of_meeting',
         'status',
-        'reminder_is_sent'
+        'reminder_is_sent',
+        'followup_date',
     ];
 
-    public function clientFollowedUpSchedule()
+    public function client()
     {
         return $this->belongsTo(UserClient::class, 'client_id', 'id');
     }
 
-    public function picFollowedUpSchedule()
+    public function pic()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
