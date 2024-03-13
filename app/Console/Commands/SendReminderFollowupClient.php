@@ -3,37 +3,34 @@
 namespace App\Console\Commands;
 
 use App\Interfaces\FollowupRepositoryInterface;
-use App\Interfaces\UserRepositoryInterface;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
-class SendReminderFollowup extends Command
+class SendReminderFollowupClient extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'send:reminder_followup';
+    protected $signature = 'send:reminder_followup_client';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Send reminder to Sales Team regarding the followup schedule';
+    protected $description = 'Send reminder to Sales Team regarding the followup schedule per client';
 
     private FollowupRepositoryInterface $followupRepository;
-    private UserRepositoryInterface $userRepository;
 
-    public function __construct(FollowupRepositoryInterface $followupRepository, UserRepositoryInterface $userRepository)
+    public function __construct(FollowupRepositoryInterface $followupRepository)
     {
         parent::__construct();
         $this->followupRepository = $followupRepository;
-        $this->userRepository = $userRepository;
     }
 
     /**
@@ -43,30 +40,31 @@ class SendReminderFollowup extends Command
      */
     public function handle()
     {
-        Log::info('Cron reminder followup working properly');
+        Log::info('Cron reminder followup client working properly');
         
         $requested_date = date('Y-m-d');
-        $list_followup_schedule = $this->followupRepository->getAllFollowupScheduleByDate($requested_date);
+        $list_followup_schedule = $this->followupRepository->getAllFollowupClientScheduleByDate($requested_date);
         $progressBar = $this->output->createProgressBar($list_followup_schedule->count());
-        $progressBar->start();
+        
         $params = [];
-
+        
         if ($list_followup_schedule->count() == 0) {
-            Log::info('No followup schedules were found.');
+            $this->info('No followup schedules were found.');
             return Command::SUCCESS;
         }
-
+        
+        $progressBar->start();
         DB::beginTransaction();
+        
         foreach ($list_followup_schedule as $data) {
             
-            $pic_email = $data->clientProgram->internalPic->email;
-            $pic_name = $data->clientProgram->internalPic->full_name;
+            $pic_email = $data->pic->email;
+            $pic_name = $data->pic->full_name;
 
             $params[$pic_name]['email'] = $pic_email;
             $params[$pic_name]['name'] = $pic_name;
             $params[$pic_name]['schedules'][] = [
-                'client' => $data->clientProgram->client,
-                'program' => $data->clientProgram,
+                'client' => $data->client,
                 'followup' => $data
             ];
 
@@ -75,7 +73,7 @@ class SendReminderFollowup extends Command
 
         $subject = 'Client Follow-up Reminder';
             
-        $mail_resources = 'mail-template.followup-reminder';
+        $mail_resources = 'mail-template.followup-client-reminder';
 
         foreach ($params as $key => $value) {
 
@@ -88,9 +86,10 @@ class SendReminderFollowup extends Command
                 foreach ($value['schedules'] as $info) {
 
                     $followup_id = $info['followup']->id;
+
                     # update status reminder to 1 
                     # if mail successfully sent
-                    $this->followupRepository->updateFollowup($followup_id, ['reminder' => 1]);
+                    $this->followupRepository->update($followup_id, ['reminder_is_sent' => 1]);
                 }
 
                 DB::commit();
@@ -104,6 +103,7 @@ class SendReminderFollowup extends Command
         }
 
         $progressBar->finish();
+
 
         return Command::SUCCESS;
     }

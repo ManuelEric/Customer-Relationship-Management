@@ -36,7 +36,7 @@
                                             <option value="reminder_registration">Reminder Registration</option>
                                             <option value="reminder_referral">Reminder Referral</option>
                                             <option value="quest_completer">Quest Completer</option>
-                                            <option value="invitation_info">Invitation Info</option>
+                                            {{-- <option value="invitation_info">Invitation Info</option> --}}
                                         </select>
                                     </div>
                                     <div class="col-2">

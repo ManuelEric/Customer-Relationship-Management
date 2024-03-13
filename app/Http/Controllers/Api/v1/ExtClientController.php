@@ -72,6 +72,19 @@ class ExtClientController extends Controller
 
     }
 
+    public function getAlumniMentees()
+    {
+        $alumniMentees = $this->clientRepository->getAlumniMentees(false, false, null);
+
+        return response()->json(
+            [
+                'success' => true,
+                'message' => 'Alumni mentees data found.',
+                'data' => $alumniMentees
+            ]
+        );
+    }
+
     public function getClientFromAdmissionMentoring()
     {
         $existingMentees = $this->clientRepository->getExistingMenteesAPI();
@@ -176,10 +189,10 @@ class ExtClientController extends Controller
             return Redirect::to($urlRegistration . '/error/not-started');
         }
 
-        if ($is_site == null || $is_site == false){
-            Log::warning("Register express: Access denied!", $logDetails);
-            return Redirect::to($urlRegistration . '/error/access-denied');
-        }
+        // if ($is_site == null || $is_site == false){
+        //     Log::warning("Register express: Access denied!", $logDetails);
+        //     return Redirect::to($urlRegistration . '/error/access-denied');
+        // }
 
         if (Carbon::now() == $event->event_startdate && ($is_site == null || !$is_site)){
             Log::warning("Register express: Access denied!", $logDetails);
@@ -219,7 +232,7 @@ class ExtClientController extends Controller
 
         DB::beginTransaction();
         try {
-
+            
             # check if registered client has already join the event
             if ($existing = $this->clientEventRepository->getClientEventByMultipleIdAndEventId($main_client, $event_id, $second_client)) {
 
@@ -295,6 +308,9 @@ class ExtClientController extends Controller
                     }
             
 
+                if ($is_site == null || $is_site == false){
+                    return Redirect::to($urlRegistration . '/thanks/event/vip');
+                }
                     
                 return response()->json([
                     'success' => true,
@@ -323,6 +339,7 @@ class ExtClientController extends Controller
                     ]
                 ]);
             }
+            
 
             $clientEventDetails = [
                 'ticket_id' => $this->generateTicketID(),
@@ -427,6 +444,10 @@ class ExtClientController extends Controller
                 'graduation_year' => $storedClientEvent->client->graduation_year,
                 'grade' => $storedClientEvent->client->st_grade,
             ];
+        }
+
+        if ($is_site == null || $is_site == false){
+            return Redirect::to($urlRegistration . '/thanks/event/vip');
         }
 
         return response()->json([
@@ -747,7 +768,15 @@ class ExtClientController extends Controller
 
     private function generateTicketID()
     {
-        return Str::random(10);
+        do {
+            
+            $ticket_id = Str::random(4);
+            $isUnique = $this->clientEventRepository->isTicketIDUnique($ticket_id);
+            
+        }
+        while ($isUnique === false);
+
+        return $ticket_id;
     }
 
     private function storeStudent($incomingRequest)

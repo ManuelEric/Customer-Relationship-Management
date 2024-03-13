@@ -374,4 +374,9 @@ class UserClient extends Authenticatable
     {
         return $this->belongsToMany(User::class, 'tbl_pic_client', 'client_id', 'user_id')->withPivot('id', 'status');
     }
+
+    public function followupSchedule()
+    {
+        return $this->hasMany(FollowupClient::class, 'client_id', 'id');
+    }
 }

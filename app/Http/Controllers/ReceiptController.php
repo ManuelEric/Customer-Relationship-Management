@@ -193,11 +193,12 @@ class ReceiptController extends Controller
                 $this->receiptAttachmentRepository->createReceiptAttachment($attachmentDetails);
     
             } catch (Exception $e) {
-                DB::rollBack();
                 Log::error('Error to store receipt attachment : '.$e->getMessage().' | Line '.$e->getLine());
+                DB::rollBack();
                 return response()->json(['message' => $e->getMessage()], 500);
             }
         }
+        
 
         # generate file 
         try {
@@ -217,18 +218,19 @@ class ReceiptController extends Controller
                 'city' => env('ALLIN_CITY')
             ];
             $pdf = PDF::loadView($view, ['receipt' => $receipt, 'companyDetail' => $companyDetail, 'director' => $name]);
-            return $pdf->download($file_name . ".pdf");
 
         } catch (Exception $e) {
 
-            DB::rollBack();
             Log::info('Export receipt failed: ' . $e->getMessage());
+            DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);
         }
 
         # Download success
         # create log success
         $this->logSuccess('download', null, 'Receipt Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receiptId]);
+        
+        return $pdf->download($file_name);
 
     }
 
@@ -415,6 +417,7 @@ class ReceiptController extends Controller
             DB::commit();
         } catch (Exception $e) {
 
+            DB::rollBack();
             Log::error('Failed to update status after being signed : ' . $e->getMessage() . ' | Line ' . $e->getLine());
             return response()->json(['status' => 'success', 'message' => 'Failed to update'], 500);
         }

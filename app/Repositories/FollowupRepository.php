@@ -4,8 +4,10 @@ namespace App\Repositories;
 
 use App\Interfaces\FollowupRepositoryInterface;
 use App\Models\FollowUp;
+use App\Models\FollowupClient;
 use DateTime;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
 class FollowupRepository implements FollowupRepositoryInterface 
@@ -81,13 +83,103 @@ class FollowupRepository implements FollowupRepositoryInterface
 
             foreach ($followup as $detail) 
             {
-                $data[$detail->followup_date][] = $detail;
+                $data[$detail->followup_date][] = [
+                    'type' => 'followup-client-program',
+                    'id' => $detail->id,
+                    'clientprog_id' => $detail->clientprog_id,
+                    'clientProgram' => $detail->clientProgram,
+                    'status' => $detail->status,
+                    'notes' => $detail->notes,
+                    'reminder' => $detail->reminder
+                ];
             }
 
         }
 
+        if ($followup_client = $this->getAllFollowupClientWithin($days)) {
+
+            foreach ($followup_client as $detail)
+            {
+                $convert_to_date = date('Y-m-d', strtotime($detail->followup_date));
+                $data[$convert_to_date][] = [
+                    'type' => 'followup-client',
+                    'id' => $detail->id,
+                    'client' => $detail->client,
+                    'notes' => $detail->notes,
+                    'status' => $detail->status
+                ];
+
+            }
+
+        }
+
+        ksort($data);
         return $data;
         
 
     }
+
+    public function getScheduledAppointmentsByUser()
+    {
+        return FollowupClient::with('client')->whereHas('client', function ($q) {
+            $q->isNotSalesAdmin();
+        })->where('status', 0)->get();
+    }
+
+    public function getFollowedUpAppointmentsByUser()
+    {
+        return FollowupClient::with('client')->whereHas('client', function ($q) {
+            $q->isNotSalesAdmin();
+        })->
+        where('status', 1)->
+        // whereNotIn('client_id', $this->getScheduledAppointmentsByUser()->pluck('client_id')->toArray())->
+        get();
+    }
+
+    #
+    # followup client
+    #
+
+    public function getAllFollowupClientScheduleByDate($requested_date)
+    {   
+        return FollowupClient::whereRaw('followup_date like ?', ['%'.$requested_date.'%'])->where('reminder_is_sent', 0)->get();
+    }
+
+    public function findFollowupClient($followupId)
+    {
+        return FollowupClient::find($followupId);
+    }
+
+    public function create(array $followupDetails)
+    {
+        $created = FollowupClient::create($followupDetails);
+        
+        # get the client from created followup
+        $the_client = $created->client_id;
+
+        # turned the status of previous followup into done
+        # because there are 2 process that using this function
+        # 1 when storing
+        # 2 when user set another appointments
+        FollowupClient::where('client_id', $the_client)->whereNot('id', $created->id)->update(['status' => 1]);
+
+        # return the created followup
+        return $created;
+    }
+
+    public function update($followupId, array $followupDetails)
+    {
+        $followup = FollowupClient::find($followupId);
+        $followup->update($followupDetails);
+        return $followup;
+    }
+
+    public function getAllFollowupClientWithin(int $days)
+    {
+        $from = date('Y-m-d');
+        $to = date('Y-m-d', strtotime('+'.$days.' days'));
+
+        return FollowupClient::with('client')->whereBetween('followup_date', [$from, $to])->get();
+    }
+
 }

@@ -73,6 +73,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:reminder_invoicereferral_program')->everyFiveMinutes()->runInBackground();
 
         $schedule->command('send:reminder_followup')->daily()->runInBackground(); # daily needed!
+        $schedule->command('send:reminder_followup_client')->everyFiveMinutes()->runInBackground(); # daily needed!
         
         // $schedule->command('send:reminder_expiration_contracts_probation')->daily(); # daily needed!
         // $schedule->command('send:reminder_expiration_contracts_tutor')->daily(); # daily needed!

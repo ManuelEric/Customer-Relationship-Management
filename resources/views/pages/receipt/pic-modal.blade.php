@@ -3,7 +3,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <span>
-                    Request Sign
+                    Exporting the document
                 </span>
                 <i class="bi bi-pencil-square"></i>
             </div>
@@ -28,7 +28,7 @@
                         Cancel</button>
                     <button type="submit" id="download" class="btn btn-primary btn-sm">
                         <i class="bi bi-save2 me-1"></i>
-                        Send</button>
+                        Download</button>
                 </div>
             </div>
         </div>

@@ -455,32 +455,41 @@
                                 @endswitch
                                 {{ $opener . date('D, d M Y', strtotime($key)) . $closer }}
                             </h6>
-                            <div class="overflow-auto mb-3" style="height: 150px">
+                            <div class="overflow-auto mb-3">
                                 <ul class="list-group">
                                     @foreach ($detail as $info)
+                                    @if ($info['type'] == 'followup-client-program')
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <a href="{{ url('client/student/' . $info->clientProgram->client->id . '/program/' . $info->clientProgram->clientprog_id) }}"
+                                            <a href="{{ url('client/student/' . $info['clientProgram']->client->id . '/program/' . $info['clientProgram']->clientprog_id) }}"
                                                 class="text-decoration-none" target="_blank">
-                                                <p class="m-0 p-0 lh-1">{{ $info->clientProgram->client->full_name }}</p>
+                                                <p class="m-0 p-0 lh-1">{{ $info['clientProgram']->client->full_name }}</p>
                                                 <small
-                                                    class="m-0">{{ $info->clientProgram->program->program_name }}</small>
+                                                    class="m-0">{{ $info['clientProgram']->program->program_name }}</small>
                                             </a>
                                             <div class="">
                                                 <input class="form-check-input me-1" type="checkbox" value="1"
-                                                    @checked($info->status == 1) id="mark_{{ $loop->index }}"
-                                                    data-student="{{ $info->clientProgram->client->id }}"
-                                                    data-program="{{ $info->clientProgram->clientprog_id }}"
-                                                    data-followup="{{ $info->id }}"
+                                                    @checked($info['status'] == 1) id="mark_{{ $loop->index }}"
+                                                    data-student="{{ $info['clientProgram']->client->id }}"
+                                                    data-program="{{ $info['clientProgram']->clientprog_id }}"
+                                                    data-followup="{{ $info['id'] }}"
                                                     onchange="marked({{ $loop->index }})">
                                                 <label class="form-check-label"
                                                     for="mark_{{ $loop->index }}">Done</label>
                                             </div>
                                         </li>
+                                    @else
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <a href="{{ url('client/student/'.$info['client']->id.'/') }}" class="text-decoration-none" target="_blank">
+                                                <p class="m-0 p-0 lh-1">{{ ucwords($info['client']->full_name) }}</p>
+                                            </a>
+                                        </li>
+                                    @endif
                                     @endforeach
                                 </ul>
                             </div>
                             <hr>
                         @endforeach
+
                     </div>
                 </div>
             </div>

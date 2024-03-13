@@ -71,9 +71,9 @@
         }
 
         .table-detail th {
-            background: #EEA953;
+            background: #0000ff;
             color: #fff;
-            border: 1px solid #ce8e40;
+            border: 1px solid #0000ff;
         }
 
         .table-detail td,
@@ -89,14 +89,14 @@
 
 <body style="padding: 0; margin:0;">
     <header style="z-index:-999;">
-        <img src="{{ public_path('img/pdf/header.webp') }}" width="100%">
+        <img src="{{ public_path('img/pdf/edu-all-header.webp') }}" width="auto" height="50px" style="margin-left: 50px; margin-top: 50px;">
         <img src="{{ public_path('img/pdf/confidential.webp') }}" width="85%"
         style="position:absolute; left:8%; top:25%; opacity:0.04;">
 
     </header>
 
     <footer>
-        <img src="{{ public_path('img/pdf/footer.webp') }}" width="100%">
+        <img src="{{ public_path('img/pdf/edu-all-footer.webp') }}" width="100%">
     </footer>
     
     <main>
