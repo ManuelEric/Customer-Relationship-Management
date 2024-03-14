@@ -12,6 +12,7 @@ use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Jobs\Receipt\ProcessUploadReceiptJob;
 use App\Models\Receipt;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -22,7 +23,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
-use PDF;
 
 class ReceiptController extends Controller
 {
@@ -159,6 +159,7 @@ class ReceiptController extends Controller
 
     public function export(Request $request) # print / download function
     {
+        
         $receiptId = $request->route('receipt');
         $receipt = $this->receiptRepository->getReceiptById($receiptId);    
         
@@ -217,7 +218,11 @@ class ReceiptController extends Controller
                 'address_dtl' => env('ALLIN_ADDRESS_DTL'),
                 'city' => env('ALLIN_CITY')
             ];
-            $pdf = PDF::loadView($view, ['receipt' => $receipt, 'companyDetail' => $companyDetail, 'director' => $name]);
+            $pdf = PDF::loadView($view, [
+                'receipt' => $receipt, 
+                'companyDetail' => $companyDetail, 
+                'director' => $name
+            ]);
 
         } catch (Exception $e) {
 
