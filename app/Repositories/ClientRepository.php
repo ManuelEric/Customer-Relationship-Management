@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Models\ClientAcceptance;
+use App\Models\ClientEvent;
 use App\Models\ClientLeadTracking;
 use App\Models\PicClient;
 use App\Models\University;
@@ -1890,5 +1891,35 @@ class ClientRepository implements ClientRepositoryInterface
             isVerified();
             
         return $query->get();
+    }
+
+    # API
+    public function getUserByTicket($ticket_no)
+    {
+        $clientevent = ClientEvent::with(['client', 'client.school', 'client.destinationCountries'])->where('ticket_id', $ticket_no)->first();
+
+        return [
+            'client' => [
+                'is_vip' => $clientevent->notes == null ? false : true,
+                'full_name' => $clientevent->client->full_name,
+                'email' => $clientevent->client->mail,
+                'phone' => $clientevent->client->phone,
+                'address' => [
+                    'state' => $clientevent->client->state,
+                    'city' => $clientevent->client->city,
+                    'address' => $clientevent->client->address
+                ],
+                'education' => [
+                    'school' => $clientevent->client->school->sch_name,
+                    'grade' => $clientevent->client->st_grade,
+                ],
+                'country' => $clientevent->client->destinationCountries->pluck('name')->toArray()
+            ],
+            'clientevent' => [
+                'id' => $clientevent->clientevent_id,
+                'ticket_id' => $clientevent->ticket_id,
+            ]
+        ];
+
     }
 }

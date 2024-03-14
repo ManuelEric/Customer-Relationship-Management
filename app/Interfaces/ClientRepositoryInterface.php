@@ -129,5 +129,8 @@ interface ClientRepositoryInterface
     # CRM
     public function getStudentFromV1();
     public function getParentFromV1();
+
+    # API
+    public function getUserByTicket($ticket_no);
     
 }

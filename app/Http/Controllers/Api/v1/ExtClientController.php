@@ -1476,4 +1476,12 @@ class ExtClientController extends Controller
 
         return $client;
     }
+
+    public function getUserByTicket($ticket_no)
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $this->clientRepository->getUserByTicket($ticket_no)
+        ]);
+    }
 }
