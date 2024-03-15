@@ -131,6 +131,6 @@ interface ClientRepositoryInterface
     public function getParentFromV1();
 
     # API
-    public function getUserByTicket($ticket_no);
+    public function getClientByTicket($ticket_no);
     
 }
