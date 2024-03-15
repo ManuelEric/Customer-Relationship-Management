@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Models\ClientEvent;
 use App\Models\ClientProgram;
 use App\Models\PicClient;
 use App\Models\pivot\UserRole;

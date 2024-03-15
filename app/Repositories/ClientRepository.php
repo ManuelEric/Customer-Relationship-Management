@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Models\ClientAcceptance;
+use App\Models\ClientEvent;
 use App\Models\ClientLeadTracking;
 use App\Models\PicClient;
 use App\Models\University;
@@ -1890,5 +1891,57 @@ class ClientRepository implements ClientRepositoryInterface
             isVerified();
             
         return $query->get();
+    }
+
+    # API
+    public function getClientByTicket($ticket_no)
+    {
+        # get clientevent info
+        $clientevent = ClientEvent::with([
+                    'client', 'client.school', 'client.destinationCountries', 'client.roles', 'children', 'children.school', 'children.destinationCountries'
+                ])->where('ticket_id', $ticket_no)->first();
+        
+        # when client that registered is actually a parent
+        # then return false. why?
+        # because this function is called from initial assessment app which should be student can have access to it
+        if ($clientevent->child_id === NULL && !$clientevent->client->roles()->whereIn('role_name', ['student'])->exists())
+            return false;
+        
+
+        # when the client that joined clientevent, registering a children as well
+        # then get the children info
+        if ($clientevent->child_id !== NULL)
+            $child = $clientevent->children;
+
+
+        # when the client that joined clientevent, is already a student
+        if ($clientevent->client->roles()->whereIn('role_name', ['student'])->exists())
+            $child = $clientevent->client;
+
+
+        return [
+            'client' => [
+                'is_vip' => $clientevent->notes == null ? false : true,
+                'took_initial_assessment' => 0,
+                'full_name' => $child->full_name,
+                'email' => $child->mail,
+                'phone' => $child->phone,
+                'address' => [
+                    'state' => $child->state,
+                    'city' => $child->city,
+                    'address' => $child->address
+                ],
+                'education' => [
+                    'school' => $child->school->sch_name,
+                    'grade' => $child->st_grade,
+                ],
+                'country' => $child->destinationCountries->pluck('name')->toArray()
+            ],
+            'clientevent' => [
+                'id' => $clientevent->clientevent_id,
+                'ticket_id' => $clientevent->ticket_id,
+            ]
+        ];
+
     }
 }

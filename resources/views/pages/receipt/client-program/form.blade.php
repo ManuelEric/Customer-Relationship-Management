@@ -796,7 +796,6 @@
                     location.reload();
                 })
                 .catch(error => {
-                    console.log(error)
                     notification('error', 'Something went wrong while exporting the receipt')
                 })  
         }

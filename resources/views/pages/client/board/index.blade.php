@@ -57,7 +57,17 @@
                         <a href="{{ route('student.show', ['student' => $lead->id]) }}" class="text-decoration-none" target="_blank">
                             <h5 class="card-title" data-name="{{ $lead->full_name }}">{{ $lead->full_name }}</h5>
                         </a>
-                        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                        <label for="">Parent Details:</label>
+                        @foreach ($lead->parents as $parent)
+                        <div class="d-flex flex-column">
+                            <div class="text-success">
+                                <b>{{ $parent->full_name }}</b>
+                            </div>
+                            <div>
+                                <a href="tel:{{ $parent->phone }}">{{ $parent->phone }}</a>
+                            </div>
+                        </div>
+                        @endforeach
                         <div class="d-flex justify-content-end">
                             <a href="#" data-column="new-opportunity" data-id="{{ $lead->id }}" class="fs-6 act-btn" title="Set Up Appointment" data-bs-toggle="modal" data-bs-target="#followup-modal">
                                 <i class="bi bi-calendar"></i>
@@ -88,7 +98,7 @@
                     </a>
                     <div class="d-flex justify-content-between align-items-end">
                         <span class="pe-2 text-left">
-                            Appointment : <b class="text-success">{{ date('d M Y, H:i', strtotime($lead->followup_date)) }}</b>
+                            Appointment: <b class="text-success">{{ date('d M Y, H:i', strtotime($lead->followup_date)) }}</b>
                             
                             <p>
                                 Topic: <a href="javascript:void(0)" class="read-btn" data-bs-toggle="modal" data-bs-target="#followup-modal" data-notes="{{ $lead->notes }}" data-name="{{ $lead->client->full_name }}">Read here</a>
@@ -121,6 +131,14 @@
                     <a href="{{ route('student.show', ['student' => $lead->client->id]) }}" class="text-decoration-none" target="_blank">
                         <h5 class="card-title">{{ $lead->client->full_name }}</h5>
                     </a>
+                    
+                    <div class="d-flex">
+                        <i class="bi bi-calendar"></i>
+                        <div class="ms-2">
+                            Last meet:
+                            {{ date('d M Y, H:i', strtotime($lead->followup_date)) }}
+                        </div>
+                    </div>
                     <div class="d-flex">
                         <i class="bi bi-file-earmark-text"></i>
                         <div class="ms-2">
