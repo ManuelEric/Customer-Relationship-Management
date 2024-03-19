@@ -67,13 +67,13 @@ class Kernel extends ConsoleKernel
 
         // $schedule->command('set:graduation_year')->everyMinute();
 
-        $schedule->command('send:reminder_invoiceprogram')->everyFiveMinutes()->runInBackground();
-        $schedule->command('send:reminder_invoiceschool_program')->everyFiveMinutes()->runInBackground();
-        $schedule->command('send:reminder_invoicepartner_program')->everyFiveMinutes()->runInBackground();
-        $schedule->command('send:reminder_invoicereferral_program')->everyFiveMinutes()->runInBackground();
+        $schedule->command('send:reminder_invoiceprogram')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
+        $schedule->command('send:reminder_invoiceschool_program')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
+        $schedule->command('send:reminder_invoicepartner_program')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
+        $schedule->command('send:reminder_invoicereferral_program')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
 
-        $schedule->command('send:reminder_followup')->daily()->runInBackground(); # daily needed!
-        $schedule->command('send:reminder_followup_client')->everyFiveMinutes()->runInBackground(); # daily needed!
+        $schedule->command('send:reminder_followup')->withoutOverlapping()->daily(); # daily needed!
+        $schedule->command('send:reminder_followup_client')->withoutOverlapping()->everyFiveMinutes()->onOneServer(); # daily needed!
         
         // $schedule->command('send:reminder_expiration_contracts_probation')->daily(); # daily needed!
         // $schedule->command('send:reminder_expiration_contracts_tutor')->daily(); # daily needed!
@@ -89,17 +89,17 @@ class Kernel extends ConsoleKernel
         // $schedule->command('automate:resend_qrcode_mail')->everyMinute();
 
         # cron for hot leads
-        $schedule->command('automate:determine_hot_leads')->everyMinute()->runInBackground();
+        $schedule->command('automate:determine_hot_leads')->withoutOverlapping()->everyMinute()->onOneServer();
 
         # cron for target tracking
         $schedule->command('insert:target_tracking_monthly')->when(function() {
             return Carbon::now()->firstOfMonth()->isToday();
         }); # should be run on cron every new month
-        $schedule->command('update:target_tracking')->everyMinute()->runInBackground(); # run every minute because target tracking should be real-time update
+        $schedule->command('update:target_tracking')->withoutOverlapping()->everyMinute()->onOneServer(); # run every minute because target tracking should be real-time update
 
         # cron for form event
         // $schedule->command('automate:resend_qrcode_mail')->everyMinute();
-        $schedule->command('automate:resend_thanks_mail_program')->everyMinute()->runInBackground();
+        $schedule->command('automate:resend_thanks_mail_program')->withoutOverlapping()->everyMinute()->onOneServer();
         // $schedule->command('automate:send_mail_reminder_attend')->cron('0 17 10 11 *');
         // $schedule->command('automate:send_mail_reminder_attend')->cron('0 9 11 11 *');
         
@@ -113,13 +113,13 @@ class Kernel extends ConsoleKernel
         // $schedule->command('send:thanks_mail_event')->everyFifteenMinutes();
         
         # queue worker
-        $schedule->command('run:worker')->everyMinute()->runInBackground()->withoutOverlapping();
+        $schedule->command('run:worker')->withoutOverlapping()->everyMinute()->onOneServer();
 
         # run verifying raw data
-        $schedule->command('verified:parent')->everyMinute()->runInBackground();
-        $schedule->command('verified:school')->everyMinute()->runInBackground();
-        $schedule->command('verified:student')->everyMinute()->runInBackground();
-        $schedule->command('verified:teacher')->everyMinute()->runInBackground();
+        $schedule->command('verified:parent')->withoutOverlapping()->everyMinute()->onOneServer();
+        $schedule->command('verified:school')->withoutOverlapping()->everyMinute()->onOneServer();
+        $schedule->command('verified:student')->withoutOverlapping()->everyMinute()->onOneServer();
+        $schedule->command('verified:teacher')->withoutOverlapping()->everyMinute()->onOneServer();
     }
 
     /**
