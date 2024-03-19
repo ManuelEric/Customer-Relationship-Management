@@ -1476,4 +1476,22 @@ class ExtClientController extends Controller
 
         return $client;
     }
+
+    public function getUserByTicket($ticket_no)
+    {
+        # get student info
+        $student = $this->clientRepository->getClientByTicket($ticket_no);
+        
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => "I apologize, but it appears you don't currently have access to the initial assessment app."
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $student
+        ]);
+    }
 }

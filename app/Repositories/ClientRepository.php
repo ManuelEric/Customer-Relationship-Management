@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Models\ClientAcceptance;
+use App\Models\ClientEvent;
 use App\Models\ClientLeadTracking;
 use App\Models\PicClient;
 use App\Models\University;
@@ -337,6 +338,7 @@ class ClientRepository implements ClientRepositoryInterface
             
         return $asDatatables === false ? $query->get() : $query;
     }
+
 
     public function getPotentialClients($asDatatables = false, $month = null, $advanced_filter = [])
     {
@@ -1806,5 +1808,140 @@ class ClientRepository implements ClientRepositoryInterface
                     });
                 });
             })->get();
+    }
+
+    /** Followup */
+    public function getClientWithoutScheduledFollowup()
+    {
+        $query = UserClient::select([
+                'tbl_client.id',
+                'tbl_client.first_name',
+                'tbl_client.last_name',
+                'tbl_client.phone',
+                'tbl_client.mail',
+                'parent.mail as parent_mail',
+                'parent.phone as parent_phone',
+            ])->
+            selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
+            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'tbl_client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
+            where(function ($q) {
+                $q->
+                    doesntHave('clientProgram')->
+                    orWhere(function ($q_2) {
+                        $q_2->
+                            whereHas('clientProgram', function ($subQuery) {
+                                // $subQuery->whereIn('status', [2, 3])->where('status', '!=', 0);
+                                $subQuery->whereIn('status', [2, 3]);
+                            })->
+                            whereDoesntHave('clientProgram', function ($subQuery) {
+                                $subQuery->whereIn('status', [0, 1]);
+                            });
+                    });
+            })->
+            whereDoesntHave('followupSchedule')->
+            whereHas('roles', function ($subQuery) {
+                $subQuery->where('role_name', 'student');
+            })->
+            isNotSalesAdmin()->
+            isUsingAPI()->
+            isActive()->
+            isVerified();
+            
+        return $query->get();
+    }
+
+    public function getClientWithScheduledFollowup($status)
+    {
+        $query = UserClient::with('followupSchedule')->select([
+                'tbl_client.id',
+                'tbl_client.first_name',
+                'tbl_client.last_name',
+                'tbl_client.phone',
+                'tbl_client.mail',
+                'parent.mail as parent_mail',
+                'parent.phone as parent_phone',
+            ])->
+            selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
+            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'tbl_client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
+            where(function ($q) {
+                $q->
+                    doesntHave('clientProgram')->
+                    orWhere(function ($q_2) {
+                        $q_2->
+                            whereHas('clientProgram', function ($subQuery) {
+                                // $subQuery->whereIn('status', [2, 3])->where('status', '!=', 0);
+                                $subQuery->whereIn('status', [2, 3]);
+                            })->
+                            whereDoesntHave('clientProgram', function ($subQuery) {
+                                $subQuery->whereIn('status', [0, 1]);
+                            });
+                    });
+            })->
+            whereHas('followupSchedule', function ($q) use ($status) {
+                $q->where('status', $status);
+            })->
+            whereHas('roles', function ($subQuery) {
+                $subQuery->where('role_name', 'student');
+            })->
+            isNotSalesAdmin()->
+            isUsingAPI()->
+            isActive()->
+            isVerified();
+            
+        return $query->get();
+    }
+
+    # API
+    public function getClientByTicket($ticket_no)
+    {
+        # get clientevent info
+        $clientevent = ClientEvent::with([
+                    'client', 'client.school', 'client.destinationCountries', 'client.roles', 'children', 'children.school', 'children.destinationCountries'
+                ])->where('ticket_id', $ticket_no)->first();
+        
+        # when client that registered is actually a parent
+        # then return false. why?
+        # because this function is called from initial assessment app which should be student can have access to it
+        if ($clientevent->child_id === NULL && !$clientevent->client->roles()->whereIn('role_name', ['student'])->exists())
+            return false;
+        
+
+        # when the client that joined clientevent, registering a children as well
+        # then get the children info
+        if ($clientevent->child_id !== NULL)
+            $child = $clientevent->children;
+
+
+        # when the client that joined clientevent, is already a student
+        if ($clientevent->client->roles()->whereIn('role_name', ['student'])->exists())
+            $child = $clientevent->client;
+
+
+        return [
+            'client' => [
+                'is_vip' => $clientevent->notes == null ? false : true,
+                'took_initial_assessment' => 0,
+                'full_name' => $child->full_name,
+                'email' => $child->mail,
+                'phone' => $child->phone,
+                'address' => [
+                    'state' => $child->state,
+                    'city' => $child->city,
+                    'address' => $child->address
+                ],
+                'education' => [
+                    'school' => $child->school->sch_name,
+                    'grade' => $child->st_grade,
+                ],
+                'country' => $child->destinationCountries->pluck('name')->toArray()
+            ],
+            'clientevent' => [
+                'id' => $clientevent->clientevent_id,
+                'ticket_id' => $clientevent->ticket_id,
+            ]
+        ];
+
     }
 }

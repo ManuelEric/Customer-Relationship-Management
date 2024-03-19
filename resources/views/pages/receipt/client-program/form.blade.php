@@ -748,6 +748,10 @@
         function downloadFile(url, type) {
 
             var selectedDirector = $("input[name=pic_sign]:checked").val();
+            if (selectedDirector == null) {
+                alert('Please choose the director');
+                return false;
+            }
 
             showLoading()
             axios
@@ -783,7 +787,10 @@
                         url
                     ) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
                     swal.close()
-                    notification('success', 'Receipt in Rupiah has been exported')
+
+                    let currency = type === 'idr' ? 'Rupiah' : 'Other Currency';
+
+                    notification('success', `Receipt in ${currency} has been exported`)
                     $(".step-one").addClass('active');
 
                     location.reload();

@@ -185,6 +185,11 @@ Route::prefix('v1')->group(function () {
     Route::patch('registration/verify/{clientevent_id}', [ExtClientController::class, 'update']);
     Route::get('school', [APISchoolController::class, 'alt_search']);
 
+    # 
+    # used in other platform
+    #
+    Route::get('get/user/by/TKT/{ticket_no}', [ExtClientController::class, 'getUserByTicket']);
+
 });
 
 # Client Event Attendance

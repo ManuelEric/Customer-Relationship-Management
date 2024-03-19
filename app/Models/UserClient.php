@@ -153,7 +153,7 @@ class UserClient extends Authenticatable
     {
         return $query->when(Session::get('user_role') == 'Employee', function ($subQuery) {
             $subQuery->whereHas('handledBy', function ($subQuery_2) {
-                $subQuery_2->where('id', auth()->user()->id);
+                $subQuery_2->where('users.id', auth()->user()->id);
             });
             // $subQuery->where('tbl_client.pic_id', auth()->user()->id);
         });
@@ -373,5 +373,10 @@ class UserClient extends Authenticatable
     public function handledBy()
     {
         return $this->belongsToMany(User::class, 'tbl_pic_client', 'client_id', 'user_id')->withPivot('id', 'status');
+    }
+
+    public function followupSchedule()
+    {
+        return $this->hasMany(FollowupClient::class, 'client_id', 'id');
     }
 }

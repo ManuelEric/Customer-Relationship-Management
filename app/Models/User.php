@@ -262,4 +262,9 @@ class User extends Authenticatable
         return $this->belongsToMany(Client::class, 'tbl_pic_client', 'user_id', 'client_id');
     }
 
+    public function followupSchedule()
+    {
+        return $this->hasMany(FollowupClient::class, 'user_id', 'id');   
+    }
+
 }

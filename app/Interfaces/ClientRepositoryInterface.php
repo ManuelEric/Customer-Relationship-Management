@@ -19,6 +19,10 @@ interface ClientRepositoryInterface
     public function findDeletedClientById($clientId);
     public function restoreClient($clientId);
 
+    /* followup */
+    public function getClientWithoutScheduledFollowup();
+    public function getClientWithScheduledFollowup(int $status);
+
     /* new */
     public function getNewLeads($asDatatables = false, $month = NULL, array $advanced_filter); # month nullable
     public function getPotentialClients($asDatatables = false, $month = NULL,  array $advanced_filter); # month nullable
@@ -125,5 +129,8 @@ interface ClientRepositoryInterface
     # CRM
     public function getStudentFromV1();
     public function getParentFromV1();
+
+    # API
+    public function getClientByTicket($ticket_no);
     
 }
