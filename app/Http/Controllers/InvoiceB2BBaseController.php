@@ -33,7 +33,9 @@ class InvoiceB2BBaseController extends Controller
                     'name' => 'partner_prog',
                     'subject' => [
                         'class' => 'corp',
-                        'attribute' => 'corp_name'
+                        'attribute' => 'corp_name',
+                        'sub_class' => 'pic',
+                        'sub_attribute' => 'pic_name',
                     ],
                     'program' => [
                         'class' => 'program',
@@ -51,6 +53,8 @@ class InvoiceB2BBaseController extends Controller
                     'subject' => [
                         'class' => 'partner',
                         'attribute' => 'corp_name',
+                        'sub_class' => 'pic',
+                        'sub_attribute' => 'pic_name'
                     ],
                     'program' => [
                         'class' => null,
@@ -68,6 +72,8 @@ class InvoiceB2BBaseController extends Controller
                     'subject' => [
                         'class' => 'school',
                         'attribute' => 'sch_name',
+                        'sub_class' => 'detail',
+                        'sub_attribute' => 'schdetail_fullname'
                     ],
                     'program' => [
                         'class' => 'program',

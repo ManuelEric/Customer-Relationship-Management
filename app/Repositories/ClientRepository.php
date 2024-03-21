@@ -1921,6 +1921,7 @@ class ClientRepository implements ClientRepositoryInterface
 
         return [
             'client' => [
+                'id' => $child->id,
                 'is_vip' => $clientevent->notes == null ? false : true,
                 'took_initial_assessment' => 0,
                 'full_name' => $child->full_name,
