@@ -184,20 +184,20 @@ class ExtClientController extends Controller
             return Redirect::to($urlRegistration . '/error/404');
         }
 
-        if (Carbon::now() < $event->event_startdate){
-            Log::warning("Register express: Event not started!", $logDetails);
-            return Redirect::to($urlRegistration . '/error/not-started');
-        }
+        // if (Carbon::now() < $event->event_startdate){
+        //     Log::warning("Register express: Event not started!", $logDetails);
+        //     return Redirect::to($urlRegistration . '/error/not-started');
+        // }
 
         // if ($is_site == null || $is_site == false){
         //     Log::warning("Register express: Access denied!", $logDetails);
         //     return Redirect::to($urlRegistration . '/error/access-denied');
         // }
 
-        if (Carbon::now() == $event->event_startdate && ($is_site == null || !$is_site)){
-            Log::warning("Register express: Access denied!", $logDetails);
-            return Redirect::to($urlRegistration . '/error/access-denied');
-        }
+        // if (Carbon::now() == $event->event_startdate && ($is_site == null || !$is_site)){
+        //     Log::warning("Register express: Access denied!", $logDetails);
+        //     return Redirect::to($urlRegistration . '/error/access-denied');
+        // }
 
         if (!$client = $this->clientRepository->getClientById($main_client)){
             Log::warning("Register express: Main client not register!", $logDetails);
@@ -348,7 +348,7 @@ class ExtClientController extends Controller
                 'parent_id' => null,
                 'event_id' => $event_id,
                 'lead_id' => 'LS040',
-                'registration_type' => 'OTS',
+                'registration_type' => Carbon::now() < $event->event_startdate ? 'PR' : 'OTS',
                 'notes' => $notes, # previously, notes filled with VIP & VVIP
                 'status' => 0,
                 'joined_date' => Carbon::now(),

@@ -65,7 +65,7 @@ class InvitationMailVIPImport implements ToCollection, WithHeadingRow, WithValid
             '*.event_id' => ['required'],
             '*.full_name' => ['required'],
             '*.client_id' => ['required', 'exists:tbl_client,id'],
-            '*.child_id' => ['required', 'exists:tbl_client,id'],
+            '*.child_id' => ['nullable', 'exists:tbl_client,id'],
         ];
     }
 
