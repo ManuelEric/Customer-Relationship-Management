@@ -158,11 +158,14 @@
                     <tr>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Client Name</th>
+                        <th>Student Mail</th>
+                        <th>Student Phone</th>
                         <th>School</th>
                         <th>Grade</th>
                         <th>Program Name</th>
                         <th>Register As</th>
                         <th>Parent Name</th>
+                        <th>Parent Mail</th>
                         <th>Parent Phone</th>
                         <th>Mentor/Tutor Name</th>
                         <th>End Program Date</th>
@@ -301,6 +304,12 @@
                         data: 'fullname',
                     },
                     {
+                        data: 'student_mail',
+                    },
+                    {
+                        data: 'student_phone',
+                    },
+                    {
                         data: 'school_name',
                     },
                     {
@@ -325,6 +334,9 @@
                     },
                     {
                         data: 'parent_fullname',
+                    },
+                    {
+                        data: 'parent_mail',
                     },
                     {
                         data: 'parent_phone',

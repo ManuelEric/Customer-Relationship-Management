@@ -173,6 +173,8 @@
                         <th>Email</th>
                         <th>Phone Number</th>
                         <th>Child Name</th>
+                        <th>Child Mail</th>
+                        <th>Child Phone</th>
                         <th>Have you ever participated in ALL-in Event/program before</th>
                         <th>School Name</th>
                         <th>Graduation Year</th>
@@ -371,6 +373,14 @@
                     },
                     {
                         data: 'child_name',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'child_mail',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'child_phone',
                         defaultContent: '-'
                     },
                     // {
