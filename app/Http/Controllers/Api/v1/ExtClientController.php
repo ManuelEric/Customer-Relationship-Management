@@ -310,14 +310,7 @@ class ExtClientController extends Controller
             
 
                 if ($is_site == null || $is_site == false){
-                    if($is_confirm == null || $is_confirm == false){
-                        $linkRegist = route('register-express-event', ['main_client' => $main_client, 'notes' => 'WxSFs0LGh', 'second_client' => $second_client, 'EVT' => 'EVT-0014']);
-                        return Redirect::to($urlRegistration . '/confirmation/VIP?url=' . $linkRegist);
-                    }
-
-                    if(isset($is_confirm) && $is_confirm == true){
-                        return Redirect::to($urlRegistration . '/thanks/event/vip');
-                    }
+                    return Redirect::to($urlRegistration . '/thanks/event/vip');
                 }
 
                     
