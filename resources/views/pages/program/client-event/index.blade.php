@@ -373,14 +373,17 @@
                     },
                     {
                         data: 'child_name',
+                        name: 'child.full_name',
                         defaultContent: '-'
                     },
                     {
                         data: 'child_mail',
+                        name: 'child.mail',
                         defaultContent: '-'
                     },
                     {
                         data: 'child_phone',
+                        name: 'child.phone',
                         defaultContent: '-'
                     },
                     // {
