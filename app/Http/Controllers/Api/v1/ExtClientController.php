@@ -171,7 +171,7 @@ class ExtClientController extends Controller
 
         $is_site = $request->is_site ?? null;
 
-        $urlRegistration = 'http://localhost:5173';
+        $urlRegistration = 'https://registration.edu-all.com';
 
         $logDetails = [
             'main_client' => $main_client,

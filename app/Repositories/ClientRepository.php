@@ -1144,7 +1144,7 @@ class ClientRepository implements ClientRepositoryInterface
     public function checkIfClientIsMentee($clientId)
     {
         return UserClient::whereHas('roles', function ($query) {
-            $query->where('role_name', 'mentee');
+            $query->where('role_name', 'Mentee');
         })->where('id', $clientId)->first();
     }
 
