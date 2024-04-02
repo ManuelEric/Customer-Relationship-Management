@@ -54,6 +54,14 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                         WHEN tbl_roles.role_name != "Parent" THEN "-"
                     END) AS child_name'),
                     DB::raw('(CASE
+                        WHEN tbl_roles.role_name = "Parent" THEN child.mail 
+                        WHEN tbl_roles.role_name != "Parent" THEN "-"
+                    END) AS child_mail'),
+                    DB::raw('(CASE
+                        WHEN tbl_roles.role_name = "Parent" THEN child.phone 
+                        WHEN tbl_roles.role_name != "Parent" THEN "-"
+                    END) AS child_phone'),
+                    DB::raw('(CASE
                         WHEN tbl_roles.role_name = "Parent" THEN child.participated
                         WHEN tbl_roles.role_name != "Parent" THEN client.participated
                     END) AS participated'),

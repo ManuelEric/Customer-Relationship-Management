@@ -173,6 +173,8 @@
                         <th>Email</th>
                         <th>Phone Number</th>
                         <th>Child Name</th>
+                        <th>Child Mail</th>
+                        <th>Child Phone</th>
                         <th>Have you ever participated in ALL-in Event/program before</th>
                         <th>School Name</th>
                         <th>Graduation Year</th>
@@ -245,7 +247,7 @@
                         extend: 'excel',
                         text: 'Export to Excel',
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
                             format: {
                                 body: function(data, row, column, node) {
 
@@ -268,11 +270,11 @@
                                                     /(&nbsp;|<([^>]+)>)/ig, "");
                                             break;
 
-                                        case 15:
+                                        case 17:
                                             return $(data).is("input") ? $(data).val() : data;
                                             break;
 
-                                        case 16:
+                                        case 18:
                                             return $(data).is("input") && $(data).attr('checked') ?
                                                 "✓" : "-";
                                             break;
@@ -371,6 +373,17 @@
                     },
                     {
                         data: 'child_name',
+                        name: 'child.full_name',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'child_mail',
+                        name: 'child.mail',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'child_phone',
+                        name: 'child.phone',
                         defaultContent: '-'
                     },
                     // {

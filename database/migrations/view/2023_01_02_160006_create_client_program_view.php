@@ -37,6 +37,8 @@ return new class extends Migration
             ) AS grade_now,
             r.reason_name as reason,
             CONCAT(c.first_name, " ", COALESCE(c.last_name, "")) as fullname,
+            c.phone as student_phone,
+            c.mail as student_mail,
             sch.sch_name as school_name,
             sch.sch_id,
             CONCAT(parent.first_name, " ", COALESCE(parent.last_name, "")) as parent_fullname,
