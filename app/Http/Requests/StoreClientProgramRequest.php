@@ -396,7 +396,7 @@ class StoreClientProgramRequest extends FormRequest
             'total_foreign_currency' => 'required|numeric',
             'foreign_currency_exchange' => 'required|numeric',
             'total_idr' => 'required|numeric',
-            'main_mentor' => [
+            'supervising_mentor' => [
                 function ($attribute, $value, $fail) {
                     if (!User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Mentor');
@@ -405,9 +405,27 @@ class StoreClientProgramRequest extends FormRequest
                     }
                 },
                 'required_if:status,1',
-                'different:backup_mentor',
+                // 'different:profile_building_mentor,aplication_strategy_mentor,writing_mentor',
             ],
-            'backup_mentor' => [
+            'profile_building_mentor' => [
+                function ($attribute, $value, $fail) use ($studentId) {
+                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                        $q->where('role_name', 'Mentor');
+                    })->find($value)) {
+                        $fail('The submitted mentor was invalid mentor');
+                    }
+
+                    if (UserClient::whereHas('clientMentor', function($query) use ($value) {
+                        $query->where('users.id', $value);
+                    })->where('id', $studentId)->count() > 0) {
+                        $fail('The choosen backup mentor has already exist');
+                    }
+                },
+                'required',
+                // 'required_if:status,1',
+                // 'different:supervising_mentor,aplication_strategy_mentor,writing_mentor'
+            ],
+            'aplication_strategy_mentor' => [
                 function ($attribute, $value, $fail) use ($studentId) {
                     if (!User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Mentor');
@@ -423,7 +441,25 @@ class StoreClientProgramRequest extends FormRequest
                 },
                 'nullable',
                 // 'required_if:status,1',
-                'different:main_mentor'
+                // 'different:supervising_mentor,profile_building_mentor,writing_mentor'
+            ],
+            'writing_mentor' => [
+                function ($attribute, $value, $fail) use ($studentId) {
+                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                        $q->where('role_name', 'Mentor');
+                    })->find($value)) {
+                        $fail('The submitted mentor was invalid mentor');
+                    }
+
+                    if (UserClient::whereHas('clientMentor', function($query) use ($value) {
+                        $query->where('users.id', $value);
+                    })->where('id', $studentId)->count() > 0) {
+                        $fail('The choosen backup mentor has already exist');
+                    }
+                },
+                'nullable',
+                // 'required_if:status,1',
+                // 'different:supervising_mentor,profile_building_mentor,aplication_strategy_mentor'
             ],
             'mentor_ic' => [
                 function ($attribute, $value, $fail) {

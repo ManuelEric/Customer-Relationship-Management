@@ -429,27 +429,27 @@
                             <div class="row mb-3">
                                 <div class="col-md-3">
                                     <label for="">
-                                        Main Mentor <sup class="text-danger">*</sup>
+                                        Supervising Mentor <sup class="text-danger">*</sup>
                                     </label>
                                 </div>
                                 <div class="col-md-9">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <select name="main_mentor" id="" class="select w-100"
+                                            <select name="supervising_mentor" id="" class="select w-100"
                                                 {{ $disabled }}>
                                                 <option data-placeholder="true"></option>
                                                 @foreach ($mentors as $mentor)
                                                     <option value="{{ $mentor->id }}"
-                                                        @if (old('main_mentor') == $mentor->id) {{ 'selected' }}
+                                                        @if (old('supervising_mentor') == $mentor->id) {{ 'selected' }}
                                                         @elseif (isset($clientProgram->clientMentor) &&
-                                                                $clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'asc')->count() > 0)
-                                                            @if ($clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'asc')->first()->id == $mentor->id)
+                                                                $clientProgram->clientMentor()->where('type', 1)->count() > 0)
+                                                            @if ($clientProgram->clientMentor()->where('type', 1)->first()->id == $mentor->id)
                                                                 {{ 'selected' }} @endif
                                                         @endif
                                                         >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
                                                 @endforeach
                                             </select>
-                                            @error('main_mentor')
+                                            @error('supervising_mentor')
                                                 <small class="text-danger fw-light">{{ $message }}</small>
                                             @enderror
                                         </div>
@@ -459,27 +459,87 @@
                             <div class="row mb-3">
                                 <div class="col-md-3">
                                     <label for="">
-                                        Backup Mentor
+                                        Profile Building Mentor <sup class="text-danger">*</sup>
                                     </label>
                                 </div>
                                 <div class="col-md-9">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <select name="backup_mentor" id="" class="select w-100"
+                                            <select name="profile_building_mentor" id="" class="select w-100"
                                                 {{ $disabled }}>
                                                 <option data-placeholder="true"></option>
                                                 @foreach ($mentors as $mentor)
                                                     <option value="{{ $mentor->id }}"
-                                                        @if (old('backup_mentor') == $mentor->id) {{ 'selected' }}
+                                                        @if (old('profile_building_mentor') == $mentor->id) {{ 'selected' }}
                                                         @elseif (isset($clientProgram->clientMentor) &&
-                                                                $clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'desc')->count() > 1)
-                                                            @if ($clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'desc')->first()->id == $mentor->id)
+                                                                $clientProgram->clientMentor()->where('type', 2)->count() > 0)
+                                                            @if ($clientProgram->clientMentor()->where('type', 2)->first()->id == $mentor->id)
                                                                 {{ 'selected' }} @endif
                                                         @endif
                                                         >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
                                                 @endforeach
                                             </select>
-                                            @error('backup_mentor')
+                                            @error('profile_building_mentor')
+                                                <small class="text-danger fw-light">{{ $message }}</small>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <label for="">
+                                        Aplication Strategy Mentor
+                                    </label>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <select name="aplication_strategy_mentor" id="" class="select w-100"
+                                                {{ $disabled }}>
+                                                <option data-placeholder="true"></option>
+                                                @foreach ($mentors as $mentor)
+                                                    <option value="{{ $mentor->id }}"
+                                                        @if (old('aplication_strategy_mentor') == $mentor->id) {{ 'selected' }}
+                                                        @elseif (isset($clientProgram->clientMentor) &&
+                                                                $clientProgram->clientMentor()->where('type', 3)->count() > 0)
+                                                            @if ($clientProgram->clientMentor()->where('type', 3)->first()->id == $mentor->id)
+                                                                {{ 'selected' }} @endif
+                                                        @endif
+                                                        >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('aplication_strategy_mentor')
+                                                <small class="text-danger fw-light">{{ $message }}</small>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <label for="">
+                                        Writing Mentor
+                                    </label>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <select name="writing_mentor" id="" class="select w-100"
+                                                {{ $disabled }}>
+                                                <option data-placeholder="true"></option>
+                                                @foreach ($mentors as $mentor)
+                                                    <option value="{{ $mentor->id }}"
+                                                        @if (old('writing_mentor') == $mentor->id) {{ 'selected' }}
+                                                        @elseif (isset($clientProgram->clientMentor) &&
+                                                                $clientProgram->clientMentor()->where('type', 4)->count() > 0)
+                                                            @if ($clientProgram->clientMentor()->where('type', 4)->first()->id == $mentor->id)
+                                                                {{ 'selected' }} @endif
+                                                        @endif
+                                                        >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('writing_mentor')
                                                 <small class="text-danger fw-light">{{ $message }}</small>
                                             @enderror
                                         </div>
@@ -533,7 +593,7 @@
                                                     <option data-placeholder="true"></option>
                                                     @foreach ($tutors as $tutor)
                                                         <option value="{{ $tutor->id }}"
-                                                            @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->count() > 0) @if ($clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'asc')->first()->id == $tutor->id)
+                                                            @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->where('type', 5)->count() > 0) @if ($clientProgram->clientMentor()->where('type', 5)->orderBy('tbl_client_mentor.id', 'asc')->first()->id == $tutor->id)
                                                                     {{ 'selected' }} @endif
                                                         @elseif (old('tutor_1') == $tutor->id) {{ 'selected' }}
                                                             @endif
@@ -570,7 +630,7 @@
                                                     <option data-placeholder="true"></option>
                                                     @foreach ($tutors as $tutor)
                                                         <option value="{{ $tutor->id }}"
-                                                            @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->count() > 1) @if ($clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'desc')->first()->id == $tutor->id)
+                                                            @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->where('type', 5)->count() > 1) @if ($clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'desc')->first()->id == $tutor->id)
                                                                     {{ 'selected' }} @endif
                                                         @elseif (old('tutor_2') == $tutor->id) {{ 'selected' }}
                                                             @endif
