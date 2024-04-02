@@ -179,7 +179,10 @@
                         <th>PIC</th>
                         <th>Initial Consult</th>
                         <th>Initial Assessment Sent</th>
+                        <th>First Discuss Date</th>
+                        <th>Failed Program Date</th>
                         <th>Success Program Date</th>
+                        <th>Created At</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
@@ -445,7 +448,40 @@
                         }
                     },
                     {
+                        data: 'first_discuss_date',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            if (data) {
+                                return moment(data).format("MMM Do YY");
+                            } else {
+                                return "-";
+                            }
+                        }
+                    },
+                    {
+                        data: 'failed_date',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            if (data) {
+                                return moment(data).format("MMM Do YY");
+                            } else {
+                                return "-";
+                            }
+                        }
+                    },
+                    {
                         data: 'success_date',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            if (data) {
+                                return moment(data).format("MMM Do YY");
+                            } else {
+                                return "-";
+                            }
+                        }
+                    },
+                    {
+                        data: 'created_at',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
                             if (data) {
