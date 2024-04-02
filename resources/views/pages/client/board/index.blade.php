@@ -40,7 +40,7 @@
     {{ implode('', $errors->all('<div>:message</div>')) }}
 @endif
 
-<div class="card bg-secondary mb-1 p-2">
+<div class="rounded bg-secondary mb-1 p-2">
     <div class="row align-items-center justify-content-between">
         <div class="col-md-6">
             <h5 class="text-white m-0">
