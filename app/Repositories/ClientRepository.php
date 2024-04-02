@@ -1814,7 +1814,7 @@ class ClientRepository implements ClientRepositoryInterface
     }
 
     /** Followup */
-    public function getClientWithoutScheduledFollowup()
+    public function getClientWithoutScheduledFollowup($advanced_filter = [])
     {
         $query = UserClient::select([
                 'tbl_client.id',
@@ -1850,7 +1850,10 @@ class ClientRepository implements ClientRepositoryInterface
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            when(!empty($advanced_filter['client_name']), function ($q) use ($advanced_filter) {
+                $q->whereRaw("CONCAT(tbl_client.first_name, ' ', tbl_client.last_name) LIKE ?", ["%{$advanced_filter['client_name']}%"]);
+            });
             
         return $query->get();
     }
