@@ -930,13 +930,13 @@
                 .then(response => {
                     swal.close()
                     notification('success', 'Invoice has been send to client')
-                    setTimeout(location.reload.bind(location), 3000);
+                    // setTimeout(location.reload.bind(location), 3000);
 
                     $("#sendToClient--modal").modal('hide');
                 })
                 .catch(error => {
-                    notification('error', 'Something went wrong when sending invoice to client. Please try again');
                     swal.close()
+                    notification('error', "We encountered an issue processing the email address. Please double-check the recipient's email address and try again.");
                 })
         }
         

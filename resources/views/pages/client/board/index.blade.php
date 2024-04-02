@@ -40,6 +40,7 @@
     {{ implode('', $errors->all('<div>:message</div>')) }}
 @endif
 
+
 <div class="d-flex overflow-scroll">
     <div>
         <label for="" class="pb-2">
@@ -54,9 +55,22 @@
                     'mt-2' => $loop->index > 0
                 ]) style="width: 18rem;">
                     <div class="card-body">
+
                         <a href="{{ route('student.show', ['student' => $lead->id]) }}" class="text-decoration-none" target="_blank">
                             <h5 class="card-title" data-name="{{ $lead->full_name }}">{{ $lead->full_name }}</h5>
                         </a>
+                        <label for="">Details:</label>
+                        <div class="d-flex flex-column">
+                            <div>
+                                <a href="tel:{{ $lead->phone }}">{{ $lead->phone }}</a>
+                            </div>
+                            <div>
+                                Register as: {{ $lead->register_as ?? 'unknown' }}
+                            </div>
+                        </div>
+                    
+                        <hr>
+
                         <label for="">Parent Details:</label>
                         @foreach ($lead->parents as $parent)
                         <div class="d-flex flex-column">
