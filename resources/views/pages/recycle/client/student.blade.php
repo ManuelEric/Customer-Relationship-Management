@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Student')
+@section('title', ' Recycle - Student')
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('library/dashboard/css/vertical-layout-light/style.css') }}">
@@ -73,6 +73,18 @@
                                     @endforeach
                                 </select>
                             </div>
+
+                            @if (Session::get('user_role') != 'Employee')
+                                <div class="col-md-12 mb-2">
+                                    <label for="">PIC</label>
+                                    <select name="pic[]" class="select form-select form-select-sm w-100" multiple
+                                        id="pic">
+                                        @foreach ($advanced_filter['pics'] as $pic)
+                                            <option value="{{ $pic->id }}">{{ $pic->full_name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
 
                             <div class="col-md-12 mb-2">
                                 <div class="row g-2">
@@ -276,6 +288,7 @@
                         params.school_name = $("#school-name").val()
                         params.graduation_year = $("#graduation-year").val()
                         params.lead_source = $("#lead-sources").val()
+                        params.pic = $("#pic").val()
                         params.start_joined_date = $("#start_joined_date").val()
                         params.end_joined_date = $("#end_joined_date").val()
                         params.start_deleted_date = $("#start_deleted_date").val()
@@ -509,6 +522,11 @@
             })
 
             $("#lead-sources").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#pic").on('change', function (e) {
                 var value = $(e.currentTarget).find("option:selected").val();
                 table.draw();
             })
