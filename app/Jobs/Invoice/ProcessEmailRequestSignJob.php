@@ -69,9 +69,9 @@ class ProcessEmailRequestSignJob implements ShouldQueue, ShouldBeUniqueUntilProc
 
         # send email to related person that has authority to give a signature
         Mail::send('pages.invoice.client-program.mail.view', $this->mailDetails, function ($message) use ($pdf) {
-
+                
             Log::notice('Email request sign has been sent with invoice ID : '.$this->invoiceId);
-
+            
             $message->to($this->mailDetails['email'], $this->mailDetails['recipient'])
                 ->subject($this->mailDetails['title'])
                 ->attachData($pdf->output(), $this->invoiceId . '.pdf');

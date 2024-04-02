@@ -593,6 +593,7 @@ class ClientEventController extends Controller
         $schools = $this->schoolRepository->getAllSchools();
 
         $requested_event_name = str_replace('&quot;', '"', $request->event_name);
+        $requested_event_name = str_replace('&amp;', '&', $requested_event_name);
         if (!$event = $this->eventRepository->getEventByName(urldecode($requested_event_name)))
             abort(404);
 
@@ -618,6 +619,7 @@ class ClientEventController extends Controller
         $childId = null;
 
         $requested_event_name = urldecode(str_replace('&quot;', '"', $request->event_name));
+        $requested_event_name = str_replace('&amp;', '&', $requested_event_name);
 
         $event = $this->eventRepository->getEventByName($requested_event_name);
 

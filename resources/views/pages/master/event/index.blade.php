@@ -235,7 +235,8 @@
 
             $('#eventTable tbody').on('click', '.generateLinkEmbed ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                $('#link').val("{{ url('form/event') }}?event_name=" + encodeURIComponent(data.event_title))
+                var event_title = data.event_title;
+                $('#link').val("{{ url('form/event') }}?event_name=" + encodeURIComponent(event_title))
                 $('#firstLink').val("{{ url('form/event') }}?event_name=" + encodeURIComponent(data
                     .event_title))
                 $('#linkEmbed').modal('show')

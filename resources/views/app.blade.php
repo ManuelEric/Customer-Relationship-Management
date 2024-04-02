@@ -197,6 +197,11 @@
             htmlLoading += '<span class="spinner-border spinner-border-sm text-black" aria-hidden="true"></span>'
             htmlLoading += '<span class="ms-2 text-black" role="status">Importing...</span>'
             htmlLoading += '</div>'
+            
+            @php
+                $authImport = Cache::has("auth") ? Cache::get("auth") : null;
+                $isStart = Cache::has("isStartImport") ? Cache::get("isStartImport") : null;
+            @endphp
 
             @php
                 $authImport = Cache::has("auth") ? Cache::get("auth") : null;
