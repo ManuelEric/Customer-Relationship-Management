@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Schools ')
+@section('title', 'Recycle - Schools')
 
 @section('content')
     

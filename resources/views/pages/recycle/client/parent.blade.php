@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Parent ')
+@section('title', 'Recycle - Parent ')
 @push('styles')
     <style>
         .btn-download span,

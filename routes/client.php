@@ -9,6 +9,7 @@ use App\Http\Controllers\ClientParentController;
 use App\Http\Controllers\ClientProgramController;
 use App\Http\Controllers\ClientStudentController;
 use App\Http\Controllers\ClientTeacherCounselorController;
+use App\Http\Controllers\FollowupClientController;
 use App\Http\Controllers\FollowupController;
 use App\Models\Axis;
 use Illuminate\Support\Facades\Route;
@@ -56,7 +57,7 @@ Route::post('update/pic', [ClientStudentController::class ,'updatePic'])->name('
 Route::resource('student', ClientStudentController::class);
 Route::prefix('student')->name('student.')->group(function () {
 
-    Route::resource('{student}/followup', FollowupController::class);
+    Route::resource('{student}/followup', FollowupClientController::class);
 
     Route::post('import', [ClientStudentController::class, 'import'])->name('import');
     Route::get('{student}/status/{status}', [ClientStudentController::class, 'updateStatus'])->name('update.status');

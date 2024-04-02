@@ -35,7 +35,10 @@ class InvoiceB2BBaseController extends Controller
                         'class' => 'corp',
                         'attribute' => 'corp_name',
                         'sub_class' => 'pic',
-                        'sub_attribute' => 'pic_name',
+                        'pic' => [
+                            'name' => 'pic_name',
+                            'email' => 'pic_mail'
+                        ]
                     ],
                     'program' => [
                         'class' => 'program',
@@ -54,7 +57,10 @@ class InvoiceB2BBaseController extends Controller
                         'class' => 'partner',
                         'attribute' => 'corp_name',
                         'sub_class' => 'pic',
-                        'sub_attribute' => 'pic_name'
+                        'pic' => [
+                            'name' => 'pic_name',
+                            'email' => 'pic_mail',
+                        ]
                     ],
                     'program' => [
                         'class' => null,
@@ -73,7 +79,10 @@ class InvoiceB2BBaseController extends Controller
                         'class' => 'school',
                         'attribute' => 'sch_name',
                         'sub_class' => 'detail',
-                        'sub_attribute' => 'schdetail_fullname'
+                        'pic' => [
+                            'name' => 'schdetail_fullname',
+                            'email' => 'schdetail_email'
+                        ]
                     ],
                     'program' => [
                         'class' => 'program',
@@ -339,9 +348,13 @@ class InvoiceB2BBaseController extends Controller
         #$data['email'] = $pic->pic_mail;
         #$data['recipient'] = $pic->pic_name;
 
+        # validate the their pic email
+        if (!isset($invoiceB2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['email']}))
+            return response()->json(['message' => "Please complete their email in order to send the invoice mail"], 500);
+        
 
-        $data['email'] = $invoiceB2b->{$this->module['name']}->user->email; # email to pic of the partner program
-        $data['recipient'] = $invoiceB2b->{$this->module['name']}->user->full_name; # name of the pic of the partner program
+        $data['email'] = $invoiceB2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['email']}; # email to pic of the partner program
+        $data['recipient'] = $invoiceB2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['name']}; # name of the pic of the partner program
         $data['cc'] = [env('CEO_CC'), env('FINANCE_CC')];
         $data['title'] = "Invoice of program " . $program_name;
         $data['param'] = [

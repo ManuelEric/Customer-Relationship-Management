@@ -1574,6 +1574,9 @@ class ClientRepository implements ClientRepositoryInterface
                 when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                     $querySearch->whereIn('lead_source', $advanced_filter['leads']);
                 })->
+                when(!empty($advanced_filter['pic']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereIn('client.pic_id', $advanced_filter['pic']);
+                })->
                 when(!empty($advanced_filter['start_joined_date']) && empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
                     $querySearch->whereDate('client.created_at', '>=', $advanced_filter['start_joined_date']);
                 })->
@@ -1819,6 +1822,7 @@ class ClientRepository implements ClientRepositoryInterface
                 'tbl_client.last_name',
                 'tbl_client.phone',
                 'tbl_client.mail',
+                'tbl_client.register_as',
                 'parent.mail as parent_mail',
                 'parent.phone as parent_phone',
             ])->
