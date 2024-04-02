@@ -386,8 +386,10 @@ class ClientProgramController extends Controller
 
                 if (in_array($progId, $this->admission_prog_list)) {
 
-                    $clientProgramDetails['main_mentor'] = $request->main_mentor;
-                    $clientProgramDetails['backup_mentor'] = isset($request->backup_mentor) ? $request->backup_mentor : NULL;
+                    $clientProgramDetails['supervising_mentor'] = $request->supervising_mentor;
+                    $clientProgramDetails['profile_building_mentor'] = isset($request->profile_building_mentor) ? $request->profile_building_mentor : NULL;
+                    $clientProgramDetails['aplication_strategy_mentor'] = isset($request->aplication_strategy_mentor) ? $request->aplication_strategy_mentor : NULL;
+                    $clientProgramDetails['writing_mentor'] = isset($request->writing_mentor) ? $request->aplication_strategy_mentor : NULL;
                     $clientProgramDetails['mentor_ic'] = $request->mentor_ic;
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
 
@@ -675,6 +677,10 @@ class ClientProgramController extends Controller
                     $clientProgramDetails['total_idr'] = $request->total_idr;
                     // $clientProgramDetails['main_mentor'] = $request->main_mentor;
                     // $clientProgramDetails['backup_mentor'] = isset($request->backup_mentor) ? $request->backup_mentor : NULL;
+                    $clientProgramDetails['supervising_mentor'] = $request->supervising_mentor;
+                    $clientProgramDetails['profile_building_mentor'] = isset($request->profile_building_mentor) ? $request->profile_building_mentor : NULL;
+                    $clientProgramDetails['aplication_strategy_mentor'] = isset($request->aplication_strategy_mentor) ? $request->aplication_strategy_mentor : NULL;
+                    $clientProgramDetails['writing_mentor'] = isset($request->writing_mentor) ? $request->writing_mentor : NULL;                    
                     $clientProgramDetails['installment_notes'] = $request->installment_notes;
                     $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
 
@@ -716,8 +722,12 @@ class ClientProgramController extends Controller
 
                 if (in_array($progId, $this->admission_prog_list)) {
 
-                    $clientProgramDetails['main_mentor'] = $request->main_mentor;
-                    $clientProgramDetails['backup_mentor'] = isset($request->backup_mentor) ? $request->backup_mentor : NULL;
+                    // $clientProgramDetails['main_mentor'] = $request->main_mentor;
+                    // $clientProgramDetails['backup_mentor'] = isset($request->backup_mentor) ? $request->backup_mentor : NULL;
+                    $clientProgramDetails['supervising_mentor'] = $request->supervising_mentor;
+                    $clientProgramDetails['profile_building_mentor'] = isset($request->profile_building_mentor) ? $request->profile_building_mentor : NULL;
+                    $clientProgramDetails['aplication_strategy_mentor'] = isset($request->aplication_strategy_mentor) ? $request->aplication_strategy_mentor : NULL;
+                    $clientProgramDetails['writing_mentor'] = isset($request->writing_mentor) ? $request->writing_mentor : NULL;                    
                     $clientProgramDetails['mentor_ic'] = $request->mentor_ic;
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
 
