@@ -362,12 +362,12 @@ class ParentImport extends ToCollectionImport implements SkipsOnFailure
      */
     public function chunkSize(): int
     {
-        return 50;
+        return 10;
     }
 
     public function batchSize(): int
     {
-        return 1000;
+        return 10;
     }
 
 }

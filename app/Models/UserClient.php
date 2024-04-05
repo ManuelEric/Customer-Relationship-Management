@@ -281,7 +281,7 @@ class UserClient extends Authenticatable
 
     public function childrens()
     {
-        return $this->belongsToMany(UserClient::class, 'tbl_client_relation', 'parent_id', 'child_id')->withTimestamps();
+        return $this->belongsToMany(UserClient::class, 'tbl_client_relation', 'parent_id', 'child_id')->withTimestamps()->withTrashed();
     }
 
     public function roles()

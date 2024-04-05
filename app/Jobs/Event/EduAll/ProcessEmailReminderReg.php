@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Event\EduAll;
 
+use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use App\Models\ClientEventLogMail;
 use Exception;
 use Illuminate\Bus\Queueable;
@@ -55,7 +56,17 @@ class ProcessEmailReminderReg implements ShouldQueue
 
         }
 
-        # put store to client event log mail here
+        # create log for reminder H-1
+        # in order to reminder cron able to get the data what and how many client event will be reminded 
+        $logReminderDetails = [
+            'clientevent_id' => $this->mailDetails['clientevent_id'],
+            'sent_status' => $sent_status,
+            'category' => 'reminder-mail'
+        ];
+
+        Log::notice("Form Embed: Successfully add reminder to client event : {$this->mailDetails['clientevent_id']}", $this->mailDetails);
+        if ($sent_status == 1)
+            ClientEventLogMail::create($logReminderDetails);
 
         Log::debug('Send mail reminder fullname: ' . $this->mailDetails['recipient'] . ' status: ' . $sent_status, ['fullname' => $this->mailDetails['recipient'], 'email' => $this->mailDetails['email'], 'sent_status' => $sent_status]);
 

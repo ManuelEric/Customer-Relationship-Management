@@ -22,7 +22,7 @@ class ResendMail extends Command
 
     use MailingEventOfflineTrait;
 
-    protected $signature = 'automate:resend_qrcode_mail';
+    protected $signature = 'mailing:resend_unsend_mail';
 
     /**
      * The console command description.
@@ -57,20 +57,22 @@ class ResendMail extends Command
 
         foreach ($unsend_mail as $detail) {
 
-            echo json_encode($detail->event);
+            // echo json_encode($detail->event);
             try {
 
                 $logId = $detail->id;
                 $category = $detail->category;
 
+                # basic info
+                $clientEventId = $detail->clientevent_id;
+                $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
+                $eventName = $clientEvent->event->event_title;
+                $client = $clientEvent->client;
+                $full_name = $client->full_name;
+
                 
                 switch ($category) {
                     case 'qrcode-mail':
-                        $clientEventId = $detail->clientevent_id;
-                        $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
-                        $eventName = $clientEvent->event->event_title;
-                        $client = $clientEvent->client;
-                        $full_name = $client->full_name;
 
                         if($clientEvent->event->event_enddate > Carbon::now()){
                             $clientDetails = ['clientDetails' => 
@@ -105,6 +107,7 @@ class ResendMail extends Command
                         }
                         break;
 
+                    # not used for edu ALL  
                     case 'thanks-mail-referral':
                         $clientEventId = $detail->clientevent_id;
                         $eventName = $detail->clientEvent->event->event_title;
@@ -112,6 +115,7 @@ class ResendMail extends Command
                         $this->sendMailReferral($detail->clientEvent, 'VVIP', 'automate');
                         break;
 
+                    # not used for edu ALL
                     case 'qrcode-mail-referral':
                         $clientEventId = $detail->clientevent_id;
                         $eventName = $detail->clientEvent->event->event_title;
@@ -119,30 +123,36 @@ class ResendMail extends Command
                         $this->sendMailReferral($detail->clientEvent, $detail->clientEvent->notes, 'automate');
                         break;
                     
+                    # VIP
                     case 'invitation-mail':
                         if($detail->event->event_enddate > Carbon::now()){
                             $this->sendMailInvitation($detail->client_id, $detail->event_id, $detail->child_id, $detail->notes);
                         }
                         break;
 
+                    # VIP
                     case 'reminder-registration':
                         if($detail->event->event_enddate > Carbon::now()){
                             $this->sendMailReminder($detail->client_id, $detail->event->event_id, 'automate', 'registration', $detail->child_id, $detail->notes);
                         }
                         break;
 
+                    # not used for edu ALL
                     case 'reminder-referral':
                         if($detail->event->event_enddate > Carbon::now()){
                             $this->sendMailReminder($detail->client->mail, $detail->event->event_id, 'automate', 'referral', $detail->index_child, $detail->notes);
                         }
                         break;
 
+                    # not used for edu ALL
                     case 'reminder-attend':
                         if($detail->clientEvent->event->event_enddate > Carbon::now()){
                             $this->sendMailReminderAttend($detail->clientEvent, 'automate');
                         }
                         break;
 
+                    # not used
+                    # utk VIP yg general
                     case 'invitation-info':
                         if($detail->event->event_enddate > Carbon::now()){
                             $data = [
@@ -158,6 +168,37 @@ class ResendMail extends Command
                             $this->sendMailInvitationInfo($data, 'automate');
                         }
                         break;
+
+                    case 'registration-event-mail':
+
+                        # create the request that being used in send email registration
+                        $request = [
+                            'registration_type' => $clientEvent->registration_type,
+                            'fullname' => $clientEvent->client->full_name,
+                            'mail' => $clientEvent->client->mail,
+                            'notes' => $clientEvent->notes
+                        ];
+
+                        # repeat the function to send the email 
+                        # the purpose is to re-send the email that failed to sent
+                        app('App\Http\Controllers\Api\v1\ExtClientController')->sendEmailRegistrationSuccess($request, $clientEvent);
+
+                        break;
+
+                    case 'verification-registration-event-mail':
+
+                        # create the request that being used in send email registration
+                        $request = [
+                            'registration_type' => $clientEvent->registration_type,
+                            'fullname' => $clientEvent->client->full_name,
+                            'mail' => $clientEvent->client->mail,
+                            'notes' => $clientEvent->notes
+                        ];
+
+                        # repeat the function to send the email 
+                        # the purpose is to re-send the email that failed to sent
+                        app('App\Http\Controllers\Api\v1\ExtClientController')->sendEmailVerificationSuccess($request, $clientEvent);
+                        break;
                 }
                     
 
@@ -169,7 +210,7 @@ class ResendMail extends Command
 
             } catch (Exception $e) {
                 
-                Log::error('Failed to send mail QrCode for : '.$full_name.' on the event : '.$eventName.' | Error '.$e->getMessage().' Line '.$e->getLine());
+                Log::error("Failed to send mail {$category} for : {$full_name} on the event : {$eventName} | Error {$e->getMessage()} Line {$e->getLine()}");
                 $sent_mail = 0;
                 
             }

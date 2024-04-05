@@ -23,9 +23,16 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 {
     public function getAllClientProgramDataTables($searchQuery = NULL)
     {
+        # default 
+        $fieldKey = ["success_date", "failed_date", "refund_date", "created_at"];
+
         # finding fieldKey that being searched
         # depends on status
         if (isset($searchQuery['status'])) {
+            
+            # reset fieldKey
+            $fieldKey = [];
+            
             foreach ($searchQuery['status'] as $key => $status) {
 
                 switch ((int)$status) {
@@ -45,10 +52,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         $fieldKey = ["created_at"];
                 }
             }
-        }else{
-            $fieldKey = ["success_date", "failed_date", "refund_date", "created_at"];
         }
-
 
         $model = ViewClientProgram::
                 when(Session::get('user_role') == 'Employee', function ($subQuery) {

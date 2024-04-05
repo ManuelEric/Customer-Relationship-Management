@@ -379,7 +379,7 @@ class ExtClientController extends Controller
 
             DB::rollBack();
             Log::error('Registration Event Failed | ' . $e->getMessage(). ' | '.$e->getFile().' on line '.$e->getLine());
-            return Redirect::to('http://localhost:5173/error/registration-failed');
+            return Redirect::to($urlRegistration . '/error/registration-failed');
 
         }
 
@@ -920,7 +920,7 @@ class ExtClientController extends Controller
 
     }
 
-    private function sendEmailVerificationSuccess($incomingRequest, ClientEvent $clientevent)
+    public function sendEmailVerificationSuccess($incomingRequest, ClientEvent $clientevent)
     {
         # initiate variables 
         $storedClientEventId = $clientevent->clientevent_id;
@@ -989,18 +989,28 @@ class ExtClientController extends Controller
         }
 
         # store to log so that we can track the sending status of each email
-        $logDetails = [
-            'clientevent_id' => $storedClientEventId,
-            'sent_status' => $sent_mail,
-            'category' => 'verification-registration-event-mail'
-        ];
+        # but check if the log was there, then just update it
+        # otherwise, we will create the new log of registration-event-mail
+        if (!$existingLogMail = $this->clientEventLogMailRepository->getClientEventLogMailByClientEventIdAndCategory($storedClientEventId, 'verification-registration-event-mail')) {
+            # when the log does not exist
 
-        return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
+            $logDetails = [
+                'clientevent_id' => $storedClientEventId,
+                'sent_status' => $sent_mail,
+                'category' => 'verification-registration-event-mail'
+            ];
+    
+            Log::notice("Form Embed: Successfully send thank mail registration", $passedData);
+            
+            return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
+        }
+
+        return true;
     }
 
-    private function sendEmailRegistrationSuccess($incomingRequest, ClientEvent $clientevent)
+    public function sendEmailRegistrationSuccess($incomingRequest, ClientEvent $clientevent)
     {
-        # there are two ways of procedure depends on where the user registered (ots, pra-reg)
+        # there are two ways procedure of how to send the email depends on where the user registered (ots, pra-reg)
 
         # initiate global variables for emails
         $storedClientEventId = $clientevent->clientevent_id;
@@ -1114,16 +1124,36 @@ class ExtClientController extends Controller
 
         }
 
+
         # store to log so that we can track the sending status of each email
-        $logDetails = [
-            'clientevent_id' => $storedClientEventId,
-            'sent_status' => $sent_mail,
-            'category' => 'registration-event-mail'
-        ];
+        # but check if the log was there, then just update it
+        # otherwise, we will create the new log of registration-event-mail
+        if (!$existingLogMail = $this->clientEventLogMailRepository->getClientEventLogMailByClientEventIdAndCategory($storedClientEventId, 'registration-event-mail')) {
+            # when the log does exist
 
-        Log::notice("Form Embed: Successfully send thank mail registration", $passedData);
+            // $logMailId = $existingLogMail->id;
+            // $newLogDetails = [
+            //     'sent_status' => $sent_mail
+            // ];
 
-        return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
+            // Log::notice("Form Embed: Successfully re-send thank mail registration", $passedData);
+
+            // return $this->clientEventLogMailRepository->updateClientEventLogMail($logMailId, $newLogDetails);
+
+        // } else {
+            # when the log does not exist
+
+            $logDetails = [
+                'clientevent_id' => $storedClientEventId,
+                'sent_status' => $sent_mail,
+                'category' => 'registration-event-mail'
+            ];
+    
+            Log::notice("Form Embed: Successfully send thank mail registration", $passedData);
+            
+            return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
+        }
+
     }
 
     private function getSchoolId($incomingRequest) 
@@ -1188,8 +1218,8 @@ class ExtClientController extends Controller
             'role' => 'required|in:parent,student,teacher/counsellor',
             'user' => 'nullable',
             'fullname' => 'required',
-            'mail' => 'required|email',
-            'phone' => 'required',
+            'mail' => 'required|email|exists:tbl_client,mail',
+            'phone' => 'required|exists:tbl_client,phone',
             'secondary_name' => 'required_if:have_child,true',
             'secondary_email' => 'nullable|email',
             'secondary_phone' => 'nullable',

@@ -33,6 +33,7 @@ use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\SyncClientTrait;
 use App\Imports\MasterParentImport;
 use App\Imports\ParentImport;
+use App\Imports\ParentsImport;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Jobs\RawClient\ProcessVerifyClient;
 use Illuminate\Support\Facades\Auth;
@@ -82,6 +83,14 @@ class ClientParentController extends ClientController
             $asDatatables = true;
             $statusClient = $request->get('st');
 
+            # advanced filter purpose
+            $have_siblings = $request->get('have_siblings');
+
+            # array for advanced filter request
+            $advanced_filter = [
+                'have_siblings' => $have_siblings,
+            ];
+
             switch ($statusClient) {
 
                 case "inactive":
@@ -89,11 +98,12 @@ class ClientParentController extends ClientController
                     break;
 
                 default:
-                    $model = $this->clientRepository->getParents($asDatatables);
+                    $model = $this->clientRepository->getParents($asDatatables, null, $advanced_filter);
             }
 
             return $this->clientRepository->getDataTables($model);
         }
+
 
         return view('pages.client.parent.index');
     }
@@ -261,6 +271,8 @@ class ClientParentController extends ClientController
 
         $parentId = $request->route('parent');
         $parent = $this->clientRepository->getClientById($parentId);
+        $deleted_kids = $parent->childrens()->onlyTrashed()->pluck('tbl_client.id')->toArray();
+        $kids = $parent->childrens()->pluck('tbl_client.id')->toArray();
 
         $schools = $this->schoolRepository->getAllSchools();
         $curriculums = $this->curriculumRepository->getAllCurriculums();
@@ -278,6 +290,8 @@ class ClientParentController extends ClientController
         return view('pages.client.parent.form')->with(
             [
                 'parent' => $parent,
+                'deleted_kids' => $deleted_kids,
+                'kids' => $kids,
                 'schools' => $schools,
                 'curriculums' => $curriculums,
                 'childrens' => $childrens,
@@ -380,16 +394,29 @@ class ClientParentController extends ClientController
 
         $file = $request->file('file');
 
-        // try {
+        try {
             // Excel::queueImport(new ParentImport(Auth::user()->first_name . ' '. Auth::user()->last_name), $file);
+            // Excel::queueImport(new ParentsImport, $file);
             (new ParentImport())->queue($file)->allOnQueue('imports-parent');
 
-            // $import = new ParentImport();
+
+            // $import = new ParentsImport();
             // $import->import($file);
 
-        // } catch (Exception $e) {
-        //     return back()->withError('Something went wrong while processing the data. Please try again or contact the administrator.');
-        // }
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            
+            $failures = $e->failures();
+     
+            foreach ($failures as $failure) {
+                $failure->row(); // row that went wrong
+                $failure->attribute(); // either heading key (if using heading row concern) or column index
+                $failure->errors(); // Actual error messages from Laravel validator
+                $failure->values(); // The values of the row that has failed.
+            }
+
+            Log::error('Failed to import Parent. Error : '. json_encode($e->failures()));
+
+        }
 
         return back()->withSuccess('Import parent start progress');
     }

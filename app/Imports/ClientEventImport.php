@@ -236,12 +236,12 @@ class ClientEventImport extends ToCollectionImport implements SkipsOnFailure
 
                     # add to log client event 
                     # to trigger the cron for send the qr email
-                    ClientEventLogMail::create([
-                        'clientevent_id' => $insertedClientEvent->clientevent_id,
-                        'event_id' => $row['event_name'],
-                        'sent_status' => 0,
-                        'category' => 'qrcode-mail'
-                    ]);
+                    // ClientEventLogMail::create([
+                    //     'clientevent_id' => $insertedClientEvent->clientevent_id,
+                    //     'event_id' => $row['event_name'],
+                    //     'sent_status' => 0,
+                    //     'category' => 'qrcode-mail'
+                    // ]);
 
                 }
 
