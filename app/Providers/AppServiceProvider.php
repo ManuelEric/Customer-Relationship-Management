@@ -125,12 +125,16 @@ class AppServiceProvider extends ServiceProvider
                         'followUp' => app('follow-up')->getAllFollowupWithin(7),
                         'birthDay' => app('birthday')->getMenteesBirthdayMonthly(date('m')),
                         'invRecPics' => $invRecPics,
+                        'registrationUrl' => env('REGISTRATION_URL')
                     ]
                 );
             }
         });
     }
 
+
+
+    
     private function checkRoles($user, $collection)
     {
 
@@ -189,6 +193,8 @@ class AppServiceProvider extends ServiceProvider
 
         return $response;
     }
+
+
 
     private function checkUserDepartment($user)
     {
