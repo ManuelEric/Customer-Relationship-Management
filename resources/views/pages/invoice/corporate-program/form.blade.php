@@ -334,12 +334,17 @@
                                         <option value="gbp" {{ $invoicePartner->currency == 'gbp' ? 'selected' : '' }}>
                                             GBP
                                         </option>
+                                        <option value="aud" {{ $invoicePartner->currency == 'aud' ? 'selected' : '' }}>
+                                            AUD
+                                        </option>
                                     @elseif(empty($invoicePartner))
                                         <option value="usd" {{ old('currency') == 'usd' ? 'selected' : '' }}>USD
                                         </option>
                                         <option value="sgd" {{ old('currency') == 'sgd' ? 'selected' : '' }}>SGD
                                         </option>
                                         <option value="gbp" {{ old('currency') == 'gbp' ? 'selected' : '' }}>GBP
+                                        </option>
+                                        <option value="aud" {{ old('currency') == 'aud' ? 'selected' : '' }}>AUD
                                         </option>
                                     @endif
                                 </select>
@@ -719,6 +724,9 @@
                     case 'gbp':
                         currency = ' British Pounds';
                         break;
+                    case 'aud':
+                        currency = ' Australian Dollars';
+                        break;
                     default:
                         currency = '';
                         totprice = '-'
@@ -768,6 +776,9 @@
                         break;
                     case 'gbp':
                         currency = ' British Pounds';
+                        break;
+                    case 'aud':
+                        currency = ' Australian Dollars';
                         break;
                     default:
                         currency = '';
@@ -1049,6 +1060,9 @@
                         break;
                     case 'gbp':
                         currency = ' Pound';
+                        break;
+                    case 'aud':
+                        currency = ' Australian Dollar';
                         break;
                     default:
                         currency = '';

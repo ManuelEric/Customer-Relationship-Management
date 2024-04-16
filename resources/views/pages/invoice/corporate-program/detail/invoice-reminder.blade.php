@@ -101,6 +101,9 @@
                             case 'gbp':
                                 currency = '£. ';
                                 break;
+                            case 'aud':
+                                currency = 'A$. ';
+                                break;
                             default:
                                 currency = '';
                                 totprice = '-'

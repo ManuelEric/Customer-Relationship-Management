@@ -71,6 +71,10 @@ class InvoiceProgram extends Model
             case "gbp":
                 $unit = '£';
                 break;
+
+            case "aud":
+                $unit = 'A$';
+                break;
         }
 
         return $unit;
