@@ -40,8 +40,78 @@
     {{ implode('', $errors->all('<div>:message</div>')) }}
 @endif
 
+<div class="rounded bg-secondary mb-1 p-2">
+    <div class="row align-items-center justify-content-between">
+        <div class="col-md-6">
+            <h5 class="text-white m-0">
+                <i class="bi bi-tag me-1"></i>
+                Sales Board - Follow Up
+            </h5>
+        </div>
 
-<div class="d-flex overflow-scroll">
+        <div class="col-md-2">
+            <div class="dropdown">
+                <button href="#" class="btn btn-sm btn-light text-dark dropdown-toggle w-100"
+                    data-bs-toggle="dropdown" data-bs-auto-close="false" id="filter">
+                    <i class="bi bi-funnel me-2"></i> Filter
+                </button>
+                <form action="{{ url('client/board') }}" method="GET" class="dropdown-menu dropdown-menu-end pt-0 advance-filter shadow" style="width: 400px;">
+                    <div class="dropdown-header bg-info text-dark py-2 d-flex justify-content-between">
+                        Advanced Filter
+                        <i class="bi bi-search"></i>
+                    </div>
+                    <div class="row p-3">
+                        <div class="col-md-12 mb-2">
+                            <label for="">Client Name</label>
+                            <input type="text" name="name" class="form-control form-control-sm">
+                        </div>
+
+                        <div class="col-md-12 mb-2">
+                            <div class="row g-2">
+                                <label>Follow-up Date</label>
+                                <div class="col-md-6 mb-2">
+                                    <input type="date" name="start_followup_date" id="start_followup_date"
+                                        class="form-control form-control-sm rounded">
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <input type="date" name="end_followup_date" id="end_followup_date"
+                                        class="form-control form-control-sm rounded">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12 mb-2">
+                            <div class="row g-2">
+                                <label>Followed-up Date</label>
+                                <div class="col-md-6 mb-2">
+                                    <input type="date" name="start_followedup_date" id="start_followedup_date"
+                                        class="form-control form-control-sm rounded">
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <input type="date" name="end_followedup_date" id="end_followedup_date"
+                                        class="form-control form-control-sm rounded">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12 mt-3">
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                    id="cancel">Cancel</button>
+                                <button type="submit" class="btn btn-sm btn-outline-success">Submit</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div class="d-flex overflow-scroll mt-4">
     <div>
         <label for="" class="pb-2">
             <h4>Fresh Lead</h4>

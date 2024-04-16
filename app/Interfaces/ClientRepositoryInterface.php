@@ -20,7 +20,7 @@ interface ClientRepositoryInterface
     public function restoreClient($clientId);
 
     /* followup */
-    public function getClientWithoutScheduledFollowup();
+    public function getClientWithoutScheduledFollowup(array $advanced_filter);
     public function getClientWithScheduledFollowup(int $status);
 
     /* new */

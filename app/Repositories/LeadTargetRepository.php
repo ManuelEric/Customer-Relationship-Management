@@ -124,6 +124,8 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                     groupBy('tbl_client.id')->
                     get();
 
+        # this was used to get hot leads 
+        # from leads including recalculate data
         // return UserClient::
         //             whereHas('lead', function ($query) {
         //                 $query->where('note', 'Sales')->where('main_lead', '!=', 'Referral');    

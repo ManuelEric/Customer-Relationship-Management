@@ -53,7 +53,8 @@ class RunWorker extends Command
             '--queue' => implode(',', $resources)
         ]);
         
-        Log::debug(json_encode(Artisan::output())); 
+        
+        // Log::debug('Workers has been ran : '.json_encode(Artisan::output()));
 
         
 

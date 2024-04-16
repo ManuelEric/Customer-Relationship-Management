@@ -13,8 +13,8 @@ interface FollowupRepositoryInterface
     # dashboard
     public function getAllFollowupWithin($days, $month = null);
 
-    public function getScheduledAppointmentsByUser();
-    public function getFollowedUpAppointmentsByUser();
+    public function getScheduledAppointmentsByUser(array $advanced_filter);
+    public function getFollowedUpAppointmentsByUser(array $advanced_filter);
 
     # followup client
     public function getAllFollowupClientScheduleByDate($requested_date);

@@ -47,7 +47,7 @@ class AppServiceProvider extends ServiceProvider
     {
 
         Queue::after(function (JobProcessed $event) {
-            Log::debug('Queue has ran');
+            Log::debug('Queue : '.json_encode($event).' has ran');
         });
 
         view()->composer('*', function ($view) {

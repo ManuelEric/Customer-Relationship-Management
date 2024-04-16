@@ -81,6 +81,9 @@ class SalesDashboardController extends Controller
 
         # sum total initial consultation by summing the data
         $totalInitialConsultation = array_sum($initialConsultation);
+        
+        # fetching only already from initial consultation chart data
+        $already = $initialConsultation[1];
 
         # fetching only already from initial consultation chart data
         $already = $initialConsultation[1];

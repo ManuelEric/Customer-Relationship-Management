@@ -119,20 +119,43 @@ class FollowupRepository implements FollowupRepositoryInterface
 
     }
 
-    public function getScheduledAppointmentsByUser()
+    public function getScheduledAppointmentsByUser($advanced_filter = [])
     {
         return FollowupClient::with('client')->whereHas('client', function ($q) {
             $q->isNotSalesAdmin();
-        })->where('status', 0)->get();
+        })->where('status', 0)->
+        when(!empty($advanced_filter['client_name']), function ($q) use ($advanced_filter) {
+            $q->whereHas('client', function ($q2) use ($advanced_filter) {
+                $q2->whereRaw("CONCAT(first_name, ' ', COALESCE(last_name, '')) LIKE ?", ["%{$advanced_filter['client_name']}%"]);
+            });
+        })->
+        when(!empty($advanced_filter['followup_date']), function ($q) use ($advanced_filter) {
+            $q->whereRaw("followup_date BETWEEN ? AND ?", [
+                $advanced_filter['followup_date']['start'].' 00:00:00',
+                $advanced_filter['followup_date']['end'].' 23:59:59'
+            ]);            
+        })->
+        get();
     }
 
-    public function getFollowedUpAppointmentsByUser()
+    public function getFollowedUpAppointmentsByUser($advanced_filter = [])
     {
         return FollowupClient::with('client')->whereHas('client', function ($q) {
             $q->isNotSalesAdmin();
         })->
         where('status', 1)->
         // whereNotIn('client_id', $this->getScheduledAppointmentsByUser()->pluck('client_id')->toArray())->
+        when(!empty($advanced_filter['client_name']), function ($q) use ($advanced_filter) {
+            $q->whereHas('client', function ($q2) use ($advanced_filter) {
+                $q2->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$advanced_filter['client_name']}%"]);
+            });
+        })->
+        when(!empty($advanced_filter['followedup_date']), function ($q) use ($advanced_filter) {
+            $q->whereRaw("followup_date BETWEEN ? AND ?", [
+                $advanced_filter['followedup_date']['start'].' 00:00:00',
+                $advanced_filter['followedup_date']['end'].' 23:59:59'
+            ]);            
+        })->
         get();
     }
 
