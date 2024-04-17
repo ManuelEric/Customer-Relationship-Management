@@ -138,7 +138,6 @@ class ParentImport extends ToCollectionImport implements SkipsOnFailure
 
         $logDetails = $parentIds = $childrenIds = [];
 
-        DB::beginTransaction();
         try {
 
             foreach ($rows as $row) {
@@ -241,9 +240,7 @@ class ParentImport extends ToCollectionImport implements SkipsOnFailure
             # trigger to verifying children
             count($childrenIds) > 0 ? ProcessVerifyClient::dispatch($childrenIds)->onQueue('verifying-client') : null;
 
-            DB::commit();
         } catch (Exception $e) {
-            DB::rollBack();
             Log::error('Import parent failed : ' . $e->getMessage() . ' ' . $e->getLine());
         }
 
@@ -255,7 +252,6 @@ class ParentImport extends ToCollectionImport implements SkipsOnFailure
     public function prepareForValidation($data)
     {
 
-        DB::beginTransaction();
         try {
 
             if ($data['lead'] == 'School' || $data['lead'] == 'Counselor') {
@@ -274,10 +270,8 @@ class ParentImport extends ToCollectionImport implements SkipsOnFailure
             $partner = Corporate::where('corp_name', $data['partner'])->get()->pluck('corp_id')->first();
             $kol = Lead::where('main_lead', 'KOL')->where('sub_lead', $data['kol'])->get()->pluck('lead_id')->first();
 
-            DB::commit();
         } catch (Exception $e) {
 
-            DB::rollBack();
             Log::error('Import parent failed : ' . $e->getMessage());
         }
 
@@ -362,12 +356,12 @@ class ParentImport extends ToCollectionImport implements SkipsOnFailure
      */
     public function chunkSize(): int
     {
-        return 10;
+        return 50;
     }
 
     public function batchSize(): int
     {
-        return 10;
+        return 50;
     }
 
 }

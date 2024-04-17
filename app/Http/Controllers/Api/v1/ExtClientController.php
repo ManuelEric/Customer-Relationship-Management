@@ -1076,10 +1076,7 @@ class ExtClientController extends Controller
                 $template = 'mail-template.registration.event.pra-reg-mail-registration';
                 $email = [
                     'subject' => "Thank you for registering to {$eventName}!",
-                    'recipient' => [
-                        'name' => $incomingRequest['fullname'],
-                        'mail' => $incomingRequest['mail']
-                    ]
+                    'recipient' => $clientInformation
                 ];
 
                 # this ticket id will be converted into QR code
