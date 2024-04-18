@@ -605,8 +605,8 @@ class ExtClientController extends Controller
                     break;
     
                 case "parent":
-                    $parent = $client = $this->storeParent($validated);
                     
+                    $parent = $client = $this->storeParent($validated);
                     if ($validated['have_child'] == true) {
 
                         $validatedStudent = $request->except(['fullname', 'email', 'phone']);
@@ -847,6 +847,7 @@ class ExtClientController extends Controller
 
     private function storeStudent($incomingRequest)
     {
+
         # check if the client exists in crm database
         $existingClient = $this->checkExistingClient($this->setPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
 

@@ -5,12 +5,12 @@ use App\Models\UserClientAdditionalInfo;
 
 trait CheckExistingClient {
 
-    public function checkExistingClient($phone, $email)
+    public function checkExistingClient($phone = null, $email = null)
     {
         $existClient = [];
 
         // Check existing client by phone number and email
-        $clientExistPhone = $phone ? $this->clientRepository->checkExistingByPhoneNumber($phone) : false;
+        $clientExistPhone = $this->clientRepository->checkExistingByPhoneNumber($phone);
         $clientExistEmail = $this->clientRepository->checkExistingByEmail($email);
 
         # if both instruments are exists 
@@ -20,31 +20,40 @@ trait CheckExistingClient {
             # get the existing client from query that check existing using phone number
             $existClient['id'] = $clientExistPhone['id'];
 
-        } else if ($clientExistPhone && !$clientExistEmail && isset($email)) {
+        } else if ( $clientExistPhone && !$clientExistEmail ) {
 
             $existClient['isExist'] = true;
             $existClient['id'] = $clientExistPhone['id'];
 
-            // Add email to client addtional info
-            $additionalInfo = [
-                'client_id' => $clientExistPhone['id'],
-                'category' => 'mail',
-                'value' => $email,
-            ];
-            UserClientAdditionalInfo::create($additionalInfo);
-        } else if (!$clientExistPhone && $clientExistEmail && isset($phone)) {
+            if (isset($email)) {
+                // Add email to client addtional info
+                $additionalInfo = [
+                    'client_id' => $clientExistPhone['id'],
+                    'category' => 'mail',
+                    'value' => $email,
+                ];
+                UserClientAdditionalInfo::create($additionalInfo);
+            }
+
+        } else if ( !$clientExistPhone && $clientExistEmail ) {
+
             $existClient['isExist'] = true;
             $existClient['id'] = $clientExistEmail['id'];
 
-            // Add phone to client addtional info
-            $additionalInfo = [
-                'client_id' => $clientExistEmail['id'],
-                'category' => 'phone',
-                'value' => $phone,
-            ];
-            UserClientAdditionalInfo::create($additionalInfo);
+            if (isset($phone)) {
+                // Add phone to client addtional info
+                $additionalInfo = [
+                    'client_id' => $clientExistEmail['id'],
+                    'category' => 'phone',
+                    'value' => $phone,
+                ];
+                UserClientAdditionalInfo::create($additionalInfo);
+            }
+
         } else {
+
             $existClient['isExist'] = false;
+
         }
 
         return $existClient;
