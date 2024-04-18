@@ -9,11 +9,11 @@ trait DirectorListTrait
     protected $directors = [
         [
             'name' => 'Devi Kasih',
-            'email' => 'devi.kasih@all-inedu.com'
+            'email' => 'devi.kasih@edu-all.com'
         ],
         [
             'name' => 'Nicholas Hendra Soepriatna',
-            'email' => 'n.hendra@all-inedu.com'
+            'email' => 'n.hendra@edu-all.com'
         ]
     ];
 
