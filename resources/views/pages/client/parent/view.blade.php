@@ -214,6 +214,7 @@
     var widthView = $(window).width();
     $(document).ready(function() {
         var table_event = $('#eventTable').DataTable({
+            searchDelay: 500,
             dom: 'Bfrtip',
             lengthMenu: [
                 [10, 25, 50, 100, -1],

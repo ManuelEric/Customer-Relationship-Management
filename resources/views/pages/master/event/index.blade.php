@@ -115,10 +115,10 @@
     {{-- Need Changing --}}
     <script>
         function linkOption(param) {
-            var cta = $('#ctaForm').is(':checked') ? '&form_type=cta' : ''
-            var attend = $('#attendForm').is(':checked') ? '&attend_status=attend' : ''
-            var offline = $('#offlineForm').is(':checked') ? '&event_type=offline' : ''
-            var ots = $('#otsForm').is(':checked') ? '&status=ots' : ''
+            var cta = $('#ctaForm').is(':checked') ? '&ft=cta' : '' // form type
+            var attend = $('#attendForm').is(':checked') ? '&as=attend' : '' // attend status
+            var offline = $('#offlineForm').is(':checked') ? '&et=offline' : '' // event type
+            var ots = $('#otsForm').is(':checked') ? '&s=ots' : '' // status
             var link = $('#firstLink').val() + cta + attend + offline + ots
             $('#link').val(link)
         };
@@ -235,10 +235,14 @@
 
             $('#eventTable tbody').on('click', '.generateLinkEmbed ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                var event_title = data.event_title;
-                $('#link').val("{{ url('form/event') }}?event_name=" + encodeURIComponent(event_title))
-                $('#firstLink').val("{{ url('form/event') }}?event_name=" + encodeURIComponent(data
-                    .event_title))
+                let event_title = data.event_title;
+                let event_id = data.event_id;
+
+                // populate
+                let embed_link = "{{ $registrationUrl }}?event_name=" + encodeURIComponent(event_title) + "&ev=" + event_id
+
+                $('#link').val(embed_link)
+                $('#firstLink').val(embed_link)
                 $('#linkEmbed').modal('show')
                 // window.location.href = "{{ url('master/event') }}/" + data.event_id;
             });

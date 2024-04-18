@@ -18,25 +18,59 @@
 @section('content')
     <div class="card bg-secondary mb-1 p-2">
         <div class="row align-items-center g-3">
-            <div class="col-md-8">
+            <div class="col-md-5">
                 <h5 class="text-white m-0">
                     <i class="bi bi-tag me-1"></i>
                     Parents
                 </h5>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-7">
                 <div class="row g-1">
-                    <div class="col-md-4 col-8">
+                    <div class="col-md-3 col-8">
                         <a href="{{ url('api/download/excel-template/parent') }}"
                             class="btn btn-sm btn-light text-info btn-download w-100"><i class="bi bi-download"></i> <span
                                 class="ms-1">Template</span></a>
                     </div>
-                    <div class="col-md-4 col-4">
+                    <div class="col-md-3 col-4">
                         <a href="javascript:void(0)" class="btn btn-sm btn-light text-info btn-import w-100"
                             data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span
                                 class="ms-1">Import</span></a>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
+                        <div class="dropdown">
+                            <button href="#" class="btn btn-sm btn-light text-dark dropdown-toggle w-100"
+                                data-bs-toggle="dropdown" data-bs-auto-close="false" id="filter">
+                                <i class="bi bi-funnel me-2"></i> Filter
+                            </button>
+                            <form action="" class="dropdown-menu dropdown-menu-end pt-0 advance-filter shadow"
+                                style="width: 400px;" id="advanced-filter">
+                                <div class="dropdown-header bg-info text-dark py-2 d-flex justify-content-between">
+                                    Advanced Filter
+                                    <i class="bi bi-search"></i>
+                                </div>
+                                <div class="row p-3">
+                                    <div class="col-md-12 mb-2">
+                                        <div class="ms-4 form-check">
+                                            <input class="form-check-input" type="checkbox" id="have-siblings">
+                                            <label class="form-check-label" for="have-siblings">
+                                              Children have siblings
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12 mt-3 d-none">
+                                        <div class="d-flex justify-content-between">
+                                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                                id="cancel">Cancel</button>
+                                            <button type="button" id="submit"
+                                                class="btn btn-sm btn-outline-success">Submit</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
                         <a href="{{ url('client/parent/create') }}" class="btn btn-sm btn-info w-100"><i
                                 class="bi bi-plus-square me-1"></i> Add
                             Parent</a>
@@ -71,12 +105,13 @@
                         <th>Parents Number</th>
                         <th>Birthday</th>
                         <th>Childs Name</th>
+                        <th>Have Siblings</th>
                         <th class="bg-info text-white">#</th>
                     </tr>
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="7"></td>
+                        <td colspan="8"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -124,6 +159,7 @@
         var widthView = $(window).width();
         $(document).ready(function() {
             var table = $('#clientTable').DataTable({
+                searchDelay: 500,
                 dom: 'Bfrtip',
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
@@ -142,7 +178,12 @@
                 },
                 processing: true,
                 serverSide: true,
-                ajax: '',
+                ajax: {
+                    url: '',
+                    data: function (params) {
+                        params.have_siblings = $("#have-siblings").is(":checked") === true ? 1 : 0
+                    }
+                },
                 columns: [{
                         data: 'id',
                         className: 'text-center',
@@ -174,6 +215,11 @@
                         defaultContent: '-',
                         orderable: true,
                         searchable: true,
+                    },
+                    {
+                        data: 'have_siblings',
+                        searchable: false,
+                        visible: false
                     },
                     {
                         data: '',
@@ -216,6 +262,12 @@
                 var data = table.row($(this).parents('tr')).data();
                 confirmDelete('asset', data.asset_id)
             });
+
+            /* for advanced filter */
+            $("#have-siblings").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:checked").val();
+                table.draw();
+            })
         });
     </script>
 @endpush

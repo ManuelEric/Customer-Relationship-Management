@@ -326,6 +326,10 @@
                     <div class="card-body">
                         {{-- Childs  --}}
                         <div class="row mt-3">
+                            <p class="text-info">
+                                <sup>*</sup>You have {{ count($deleted_kids) }} deleted children that are not shown in the box below.
+                            </p>
+
                             <div class="col-md-12">
                                 <div class="mb-2">
                                     <label>Children's Name</label>
@@ -335,8 +339,9 @@
                                         @if (isset($childrens))
                                             @foreach ($childrens as $children)
                                                 <option value="{{ $children->id }}"
-                                                        {{ isset($student) && $student->id == $children->id ? "selected" : null }}
-                                                        {{ old('child_id') == $children->id ? "selected" : null }}
+                                                        @selected(in_array($children->id, $kids))
+                                                        @selected(isset($student) && $student->id == $children->id)
+                                                        @selected(old('child_id') == $children->id)
                                                     >{{ $children->first_name.' '.$children->last_name }}</option>
                                             @endforeach
                                         @endif
@@ -588,6 +593,17 @@
 
 @push('scripts')
 <script>
+    $(document).ready(function() {
+        let kids = [];
+        @foreach ($kids as $kid) 
+            kids.push("{{ $kid }}")
+        @endforeach
+
+
+        $("#chName").val(kids)
+        $("#chName").trigger('change')
+    })
+
     function addChildren() {
         var p = $('#chName').val();
 

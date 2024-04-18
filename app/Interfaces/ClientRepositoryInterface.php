@@ -32,7 +32,7 @@ interface ClientRepositoryInterface
     public function getAlumniMentees($groupBy = false, $asDatatables = false, $month = NULL); # month nullable
     public function getAlumniMenteesSiblings();
     public function getAlumniNonMentees($groupBy = false, $asDatatables = false, $month = NULL); # month nullable
-    public function getParents($asDatatables = false, $month = NULL);
+    public function getParents($asDatatables = false, $month = NULL, array $advanced_filter);
     public function getTeachers($asDatatables = false, $month = NULL);
     public function getClientHotLeads($initialProgram);
     public function getUnverifiedStudent($asDatatables = false, $month = NULL, array $advanced_filter);

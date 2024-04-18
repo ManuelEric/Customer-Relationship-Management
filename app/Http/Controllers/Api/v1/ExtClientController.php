@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class ExtClientController extends Controller
 {
@@ -379,7 +380,7 @@ class ExtClientController extends Controller
 
             DB::rollBack();
             Log::error('Registration Event Failed | ' . $e->getMessage(). ' | '.$e->getFile().' on line '.$e->getLine());
-            return Redirect::to('http://localhost:5173/error/registration-failed');
+            return Redirect::to($urlRegistration . '/error/registration-failed');
 
         }
 
@@ -599,6 +600,8 @@ class ExtClientController extends Controller
                     # attach destination countries if any
                     $this->attachDestinationCountry($clientId, $validated['destination_country']);
 
+                    $this->checkClientIsExistsOnClientEvent($client, $validated);
+
                     break;
     
                 case "parent":
@@ -618,12 +621,24 @@ class ExtClientController extends Controller
                         
                         $this->attachDestinationCountry($studentId, $validated['destination_country']);
 
+                        // check if both parent and student have already joined the event
+                        $familyIds = [
+                            'parentId' => $parent->id,
+                            'childId' => $studentId,
+                        ];
+
+                        $this->checkFamilyAreExistsOnClientEvent($familyIds, $validated);
+                        
                     }
+
+                    $this->checkClientIsExistsOnClientEvent($client, $validated);
 
                     break;
     
                 case "teacher/counsellor":
                     $client = $this->storeTeacher($validated);
+
+                    $this->checkClientIsExistsOnClientEvent($client, $validated);
                     break;
 
                 default:
@@ -633,32 +648,7 @@ class ExtClientController extends Controller
 
 
 
-            # check if registered client has already joined the event
-            if ($existing = $this->clientEventRepository->getClientEventByClientIdAndEventId($client->id, $validated['event_id'])) {
-
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'You have joined the event.',
-                    'code' => 'EXT', # existing / has joined
-                    'data' => [
-                        'client' => [
-                            'name' => $existing->client->full_name,
-                            'email' => $existing->client->mail,
-                            'is_vip' => $existing->notes == 'VIP' ? true : false,
-                            'register_as' => $this->getRole($existing)['role']
-                        ],
-                        'clientevent' => [
-                            'id' => $existing->clientevent_id,
-                            'ticket_id' => $existing->ticket_id,
-                            'is_offline' => (isset($validated['event_type']) || $validated['event_type']) == "offline" ? true : false,
-                        ],
-                        'link' => [
-                            'scan' => url('/client-event/CE/'.$existing->clientevent_id)  
-                        ]
-                    ]
-                ]);
-            }
+            
 
 
             # declare variables for client events
@@ -788,6 +778,69 @@ class ExtClientController extends Controller
         while ($isUnique === false);
 
         return $ticket_id;
+    }
+
+    private function checkClientIsExistsOnClientEvent($client, $incomingRequest)
+    {
+        # check if registered client has already joined the event
+        if ($existing = $this->clientEventRepository->getClientEventByClientIdAndEventId($client->id, $incomingRequest['event_id'])) {
+
+
+            return response()->json([
+                'success' => true,
+                'message' => 'You have joined the event.',
+                'code' => 'EXT', # existing / has joined
+                'data' => [
+                    'client' => [
+                        'name' => $existing->client->full_name,
+                        'email' => $existing->client->mail,
+                        'is_vip' => $existing->notes == 'VIP' ? true : false,
+                        'register_as' => $this->getRole($existing)['role']
+                    ],
+                    'clientevent' => [
+                        'id' => $existing->clientevent_id,
+                        'ticket_id' => $existing->ticket_id,
+                        'is_offline' => (isset($incomingRequest['event_type']) || $incomingRequest['event_type']) == "offline" ? true : false,
+                    ],
+                    'link' => [
+                        'scan' => url('/client-event/CE/'.$existing->clientevent_id)  
+                    ]
+                ]
+            ]);
+        }
+
+        return true;
+    }
+
+    private function checkFamilyAreExistsOnClientEvent(array $familyIds, $incomingRequest)
+    {
+        if ($existing = $this->clientEventRepository->getClientEventByMultipleIdAndEventId($familyIds['parentId'], $incomingRequest['event_id'], $familyIds['childId'])) {
+
+            return response()->json([
+                'success' => true,
+                'message' => 'You and your child have joined the event.',
+                'code' => 'EXT', # existing / has joined
+                'data' => [
+                    'client' => [
+                        'name' => $existing->client->full_name,
+                        'email' => $existing->client->mail,
+                        'is_vip' => $existing->notes == 'VIP' ? true : false,
+                        'register_as' => $this->getRole($existing)['role']
+                    ],
+                    'clientevent' => [
+                        'id' => $existing->clientevent_id,
+                        'ticket_id' => $existing->ticket_id,
+                        'is_offline' => (isset($incomingRequest['event_type']) || $incomingRequest['event_type']) == "offline" ? true : false,
+                    ],
+                    'link' => [
+                        'scan' => url('/client-event/CE/'.$existing->clientevent_id)  
+                    ]
+                ]
+            ]);
+
+        }
+
+        return true;
     }
 
     private function storeStudent($incomingRequest)
@@ -920,7 +973,7 @@ class ExtClientController extends Controller
 
     }
 
-    private function sendEmailVerificationSuccess($incomingRequest, ClientEvent $clientevent)
+    public function sendEmailVerificationSuccess($incomingRequest, ClientEvent $clientevent)
     {
         # initiate variables 
         $storedClientEventId = $clientevent->clientevent_id;
@@ -989,18 +1042,28 @@ class ExtClientController extends Controller
         }
 
         # store to log so that we can track the sending status of each email
-        $logDetails = [
-            'clientevent_id' => $storedClientEventId,
-            'sent_status' => $sent_mail,
-            'category' => 'verification-registration-event-mail'
-        ];
+        # but check if the log was there, then just update it
+        # otherwise, we will create the new log of registration-event-mail
+        if (!$existingLogMail = $this->clientEventLogMailRepository->getClientEventLogMailByClientEventIdAndCategory($storedClientEventId, 'verification-registration-event-mail')) {
+            # when the log does not exist
 
-        return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
+            $logDetails = [
+                'clientevent_id' => $storedClientEventId,
+                'sent_status' => $sent_mail,
+                'category' => 'verification-registration-event-mail'
+            ];
+    
+            Log::notice("Form Embed: Successfully send thank mail registration", $passedData);
+            
+            return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
+        }
+
+        return true;
     }
 
-    private function sendEmailRegistrationSuccess($incomingRequest, ClientEvent $clientevent)
+    public function sendEmailRegistrationSuccess($incomingRequest, ClientEvent $clientevent)
     {
-        # there are two ways of procedure depends on where the user registered (ots, pra-reg)
+        # there are two ways procedure of how to send the email depends on where the user registered (ots, pra-reg)
 
         # initiate global variables for emails
         $storedClientEventId = $clientevent->clientevent_id;
@@ -1066,10 +1129,7 @@ class ExtClientController extends Controller
                 $template = 'mail-template.registration.event.pra-reg-mail-registration';
                 $email = [
                     'subject' => "Thank you for registering to {$eventName}!",
-                    'recipient' => [
-                        'name' => $incomingRequest['fullname'],
-                        'mail' => $incomingRequest['mail']
-                    ]
+                    'recipient' => $clientInformation
                 ];
 
                 # this ticket id will be converted into QR code
@@ -1114,16 +1174,36 @@ class ExtClientController extends Controller
 
         }
 
+
         # store to log so that we can track the sending status of each email
-        $logDetails = [
-            'clientevent_id' => $storedClientEventId,
-            'sent_status' => $sent_mail,
-            'category' => 'registration-event-mail'
-        ];
+        # but check if the log was there, then just update it
+        # otherwise, we will create the new log of registration-event-mail
+        if (!$existingLogMail = $this->clientEventLogMailRepository->getClientEventLogMailByClientEventIdAndCategory($storedClientEventId, 'registration-event-mail')) {
+            # when the log does exist
 
-        Log::notice("Form Embed: Successfully send thank mail registration", $passedData);
+            // $logMailId = $existingLogMail->id;
+            // $newLogDetails = [
+            //     'sent_status' => $sent_mail
+            // ];
 
-        return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
+            // Log::notice("Form Embed: Successfully re-send thank mail registration", $passedData);
+
+            // return $this->clientEventLogMailRepository->updateClientEventLogMail($logMailId, $newLogDetails);
+
+        // } else {
+            # when the log does not exist
+
+            $logDetails = [
+                'clientevent_id' => $storedClientEventId,
+                'sent_status' => $sent_mail,
+                'category' => 'registration-event-mail'
+            ];
+    
+            Log::notice("Form Embed: Successfully send thank mail registration", $passedData);
+            
+            return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
+        }
+
     }
 
     private function getSchoolId($incomingRequest) 
@@ -1188,8 +1268,11 @@ class ExtClientController extends Controller
             'role' => 'required|in:parent,student,teacher/counsellor',
             'user' => 'nullable',
             'fullname' => 'required',
-            'mail' => 'required|email',
-            'phone' => 'required',
+            'mail' => 'required|email|exists:tbl_client,mail',
+            'phone' => [
+                'required',
+                Rule::unique('tbl_client')->ignore($requestUpdateClientEvent->client->id),
+            ],
             'secondary_name' => 'required_if:have_child,true',
             'secondary_email' => 'nullable|email',
             'secondary_phone' => 'nullable',
@@ -1209,7 +1292,6 @@ class ExtClientController extends Controller
             ],
             'destination_country.*' => 'exists:tbl_tag,id',
             'scholarship' => 'required|in:Y,N',
-            'lead_source_id' => 'required|exists:tbl_lead,lead_id',
             'event_id' => 'required|exists:tbl_events,event_id',
             # status
             'attend_status' => 'nullable|in:attend',

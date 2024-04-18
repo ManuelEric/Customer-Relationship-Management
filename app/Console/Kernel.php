@@ -83,10 +83,6 @@ class Kernel extends ConsoleKernel
 
         // $schedule->command('send:reminder_tutor_h1')->daily();
         // $schedule->command('send:reminder_tutor_t3')->daily();
-        
-        # cron for resend mail qrcode
-        # registration event
-        // $schedule->command('automate:resend_qrcode_mail')->everyMinute();
 
         # cron for hot leads
         $schedule->command('automate:determine_hot_leads')->withoutOverlapping()->everyMinute()->onOneServer();
@@ -98,7 +94,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('update:target_tracking')->withoutOverlapping()->everyMinute()->onOneServer(); # run every minute because target tracking should be real-time update
 
         # cron for form event
-        // $schedule->command('automate:resend_qrcode_mail')->everyMinute();
+        $schedule->command('mailing:resend_unsend_mail')->withoutOverlapping()->everyMinute();
         $schedule->command('automate:resend_thanks_mail_program')->withoutOverlapping()->everyMinute()->onOneServer();
         // $schedule->command('automate:send_mail_reminder_attend')->cron('0 17 10 11 *');
         // $schedule->command('automate:send_mail_reminder_attend')->cron('0 9 11 11 *');
@@ -120,6 +116,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('verified:school')->withoutOverlapping()->everyMinute()->onOneServer();
         $schedule->command('verified:student')->withoutOverlapping()->everyMinute()->onOneServer();
         $schedule->command('verified:teacher')->withoutOverlapping()->everyMinute()->onOneServer();
+
+        # run reminder H-1 EduALL Launchpad
+        $schedule->command('reminder:event evt-0014')->withoutOverlapping()->everyMinute()->onOneServer();
     }
 
     /**

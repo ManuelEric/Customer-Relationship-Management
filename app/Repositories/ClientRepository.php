@@ -657,14 +657,15 @@ class ClientRepository implements ClientRepositoryInterface
             : $query->orderBy('first_name', 'asc');
     }
 
-    public function getParents($asDatatables = false, $month = null)
+    public function getParents($asDatatables = false, $month = null, $advanced_filter = [])
     {
         $query = Client::select([
                 'client.*',
                 'children.mail as children_mail',
                 'children.phone as children_phone'
             ])->
-            selectRaw('RTRIM(CONCAT(children.first_name, " ", COALESCE(children.last_name, ""))) as children_name')->
+            selectRaw('GROUP_CONCAT(RTRIM(CONCAT(children.first_name, " ", COALESCE(children.last_name, ""))) SEPARATOR ", ") as children_name')->
+            selectRaw("IF((SELECT COUNT(*) FROM tbl_client_relation WHERE parent_id = client.id) > 1,true,false) as have_siblings")->
             leftJoin('tbl_client_relation as relation', 'relation.parent_id', '=', 'client.id')->
             leftJoin('tbl_client as children', 'children.id', '=', 'relation.child_id')->
             whereHas('roles', function ($subQuery) {
@@ -673,15 +674,19 @@ class ClientRepository implements ClientRepositoryInterface
             when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->
+            when(!empty($advanced_filter['have_siblings']), function ($subQuery) use ($advanced_filter) {
+                $subQuery->where(DB::raw('IF((SELECT COUNT(*) FROM tbl_client_relation WHERE parent_id = client.id) > 1,true,false)'), $advanced_filter['have_siblings']);
+            })->
             isActive()->
             isVerified();
+
 
         if ($asDatatables === false) {
             // $query->groupBy('relation.parent_id');
             $query->groupBy('client.id');
         }
 
-        return $asDatatables === false ? $query->get() : $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->get() : $query->groupBy('client.id')->orderBy('client.updated_at', 'desc');
     }
 
     public function getTeachers($asDatatables = false, $month = null)
@@ -1087,7 +1092,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getClientById($clientId)
     {
-        return UserClient::withTrashed()->find($clientId);
+        return UserClient::with(['childrens'])->withTrashed()->find($clientId);
     }
 
     public function getClientByUUID($clientUUID)

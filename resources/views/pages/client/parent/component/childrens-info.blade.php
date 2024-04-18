@@ -15,6 +15,8 @@
                         <th>Full Name</th>
                         <th>School Name</th>
                         <th>Graduation Year</th>
+                        <th>Grade</th>
+                        <th>Age</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -23,11 +25,15 @@
                         $no = 1;
                     @endphp
                     @foreach ($parent->childrens as $children)
-                        <tr align="center">
+                        <tr align="center" @class([
+                            'text-danger' => $children->deleted_at !== NULL ? true : false
+                        ])>
                             <td>{{ $no++ }}</td>    
                             <td>{{ $children->fullname }}</td>
                             <td>{{ isset($children->school) ? $children->school->sch_name : '-' }}</td>
                             <td>{{ $children->graduation_year }}</td>
+                            <td>{{ $children->st_grade ?? '-' }}</td>
+                            <td>{{ $children->dob !== null ? date('Y') - date('Y', strtotime($children->dob)) : '-' }}</td>
                             <td>
                                 <button class="btn btn-outline-light btn-sm rounded text-danger ms-2" data-bs-toggle="tooltip"
                                     data-bs-title="Disconnect Children"
