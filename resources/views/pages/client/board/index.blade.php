@@ -160,7 +160,7 @@
                     </div>
                 </div>
                 @empty
-                <div class="card mt-2 hidden" style="width: 18rem;"></div>
+                <div class="mt-2 hidden" style="width: 18rem !important;"></div>
 
             @endforelse
         </div>
@@ -195,7 +195,7 @@
                 </div>
             </div>
             @empty
-            <div class="card mt-2 hidden" style="width: 18rem;"></div>
+            <div class="mt-2 hidden" style="width: 18rem !important;"></div>
 
             @endforelse
         </div>
@@ -237,7 +237,7 @@
                 </div>
             </div>
             @empty
-            <div class="card mt-2 hidden" style="width: 18rem;"></div>
+            <div class="mt-2 hidden" style="width: 18rem !important;"></div>
 
             @endforelse
         </div>
