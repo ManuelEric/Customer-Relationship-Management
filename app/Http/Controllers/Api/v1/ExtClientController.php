@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class ExtClientController extends Controller
 {
@@ -1268,7 +1269,10 @@ class ExtClientController extends Controller
             'user' => 'nullable',
             'fullname' => 'required',
             'mail' => 'required|email|exists:tbl_client,mail',
-            'phone' => 'required|exists:tbl_client,phone',
+            'phone' => [
+                'required',
+                Rule::unique('tbl_client')->ignore($requestUpdateClientEvent->client->id),
+            ],
             'secondary_name' => 'required_if:have_child,true',
             'secondary_email' => 'nullable|email',
             'secondary_phone' => 'nullable',
@@ -1288,7 +1292,6 @@ class ExtClientController extends Controller
             ],
             'destination_country.*' => 'exists:tbl_tag,id',
             'scholarship' => 'required|in:Y,N',
-            'lead_source_id' => 'required|exists:tbl_lead,lead_id',
             'event_id' => 'required|exists:tbl_events,event_id',
             # status
             'attend_status' => 'nullable|in:attend',
