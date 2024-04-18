@@ -133,6 +133,9 @@ class ClientParentController extends ClientController
         if ($childId = $request->get('child'))
             $student = $this->clientRepository->getClientById($childId);
 
+    
+        $deleted_kids = $kids = [];
+
         $schools = $this->schoolRepository->getAllSchools();
         $curriculums = $this->curriculumRepository->getAllCurriculums();
         $childrens = $this->clientRepository->getAllClientByRole('Student');
@@ -148,6 +151,8 @@ class ClientParentController extends ClientController
 
         return view('pages.client.parent.form')->with(
             [
+                'deleted_kids' => $deleted_kids,
+                'kids' => $kids,
                 'schools' => $schools,
                 'curriculums' => $curriculums,
                 'childrens' => $childrens,
