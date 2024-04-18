@@ -617,6 +617,12 @@ class ExtClientController extends Controller
                         $student = $this->storeStudent($validatedStudent);
                         $studentId = $student->id;
 
+                        # prevent client_id and child_id on client event has the same value
+                        if ($parent->id == $studentId) {
+
+                            throw new Exception('Client ID and Child ID has the same value');
+                        }
+
                         $this->storeRelationship($parent, $student);
                         
                         $this->attachDestinationCountry($studentId, $validated['destination_country']);
@@ -645,10 +651,6 @@ class ExtClientController extends Controller
                     abort(404);
     
             }
-
-
-
-            
 
 
             # declare variables for client events
