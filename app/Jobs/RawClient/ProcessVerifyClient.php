@@ -83,7 +83,7 @@ class ProcessVerifyClient implements ShouldQueue
 
         }
 
-        Log::notice('Students that have been verified : ('.json_encode($updatedClients).')');
+        Log::notice('Client that have been verified (either student or teacher)  : ('.json_encode($updatedClients).')');
 
     }
 }
