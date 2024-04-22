@@ -600,13 +600,16 @@ class ExtClientController extends Controller
                     # attach destination countries if any
                     $this->attachDestinationCountry($clientId, $validated['destination_country']);
 
-                    $this->checkClientIsExistsOnClientEvent($client, $validated);
+                    $result = $this->checkClientIsExistsOnClientEvent($client, $validated);
+                    if (gettype($result) != "boolean") {
+                        return response()->json($result);
+                    }
 
                     break;
     
                 case "parent":
-                    $parent = $client = $this->storeParent($validated);
                     
+                    $parent = $client = $this->storeParent($validated);
                     if ($validated['have_child'] == true) {
 
                         $validatedStudent = $request->except(['fullname', 'email', 'phone']);
@@ -616,6 +619,12 @@ class ExtClientController extends Controller
 
                         $student = $this->storeStudent($validatedStudent);
                         $studentId = $student->id;
+
+                        # prevent client_id and child_id on client event has the same value
+                        if ($parent->id == $studentId) {
+
+                            throw new Exception('Client ID and Child ID has the same value');
+                        }
 
                         $this->storeRelationship($parent, $student);
                         
@@ -627,28 +636,34 @@ class ExtClientController extends Controller
                             'childId' => $studentId,
                         ];
 
-                        $this->checkFamilyAreExistsOnClientEvent($familyIds, $validated);
+                        $result = $this->checkFamilyAreExistsOnClientEvent($familyIds, $validated);
+                        if (gettype($result) != "boolean") {
+                            return response()->json($result);
+                        }
                         
                     }
 
-                    $this->checkClientIsExistsOnClientEvent($client, $validated);
+                    $result = $this->checkClientIsExistsOnClientEvent($client, $validated);
+                    if (gettype($result) != "boolean") {
+                        return response()->json($result);
+                    }
 
                     break;
     
                 case "teacher/counsellor":
                     $client = $this->storeTeacher($validated);
 
-                    $this->checkClientIsExistsOnClientEvent($client, $validated);
+                    $result = $this->checkClientIsExistsOnClientEvent($client, $validated);
+                    if (gettype($result) != "boolean") {
+                        return response()->json($result);
+                    }
+
                     break;
 
                 default:
                     abort(404);
     
             }
-
-
-
-            
 
 
             # declare variables for client events
@@ -786,7 +801,7 @@ class ExtClientController extends Controller
         if ($existing = $this->clientEventRepository->getClientEventByClientIdAndEventId($client->id, $incomingRequest['event_id'])) {
 
 
-            return response()->json([
+            return [
                 'success' => true,
                 'message' => 'You have joined the event.',
                 'code' => 'EXT', # existing / has joined
@@ -806,7 +821,7 @@ class ExtClientController extends Controller
                         'scan' => url('/client-event/CE/'.$existing->clientevent_id)  
                     ]
                 ]
-            ]);
+            ];
         }
 
         return true;
@@ -816,7 +831,7 @@ class ExtClientController extends Controller
     {
         if ($existing = $this->clientEventRepository->getClientEventByMultipleIdAndEventId($familyIds['parentId'], $incomingRequest['event_id'], $familyIds['childId'])) {
 
-            return response()->json([
+            return [
                 'success' => true,
                 'message' => 'You and your child have joined the event.',
                 'code' => 'EXT', # existing / has joined
@@ -836,7 +851,7 @@ class ExtClientController extends Controller
                         'scan' => url('/client-event/CE/'.$existing->clientevent_id)  
                     ]
                 ]
-            ]);
+            ];
 
         }
 
@@ -845,6 +860,7 @@ class ExtClientController extends Controller
 
     private function storeStudent($incomingRequest)
     {
+
         # check if the client exists in crm database
         $existingClient = $this->checkExistingClient($this->setPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
 
