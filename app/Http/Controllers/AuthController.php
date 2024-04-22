@@ -96,7 +96,7 @@ class AuthController extends Controller
                 ]);
             }
             
-            return redirect()->intended('/dashboard');
+            return redirect()->intended('/dashboard2');
             
         }
 

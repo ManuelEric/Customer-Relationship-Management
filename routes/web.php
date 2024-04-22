@@ -8,10 +8,12 @@ use App\Http\Controllers\Embed\PublicRegistrationController;
 use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\ClientProgramController;
 use App\Http\Controllers\ClientStudentController;
+use App\Http\Controllers\GoogleSheetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VolunteerController;
 use App\Jobs\testQueue;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,6 +33,9 @@ Route::get('/', function () {
     return view('auth.login');
 })->middleware('guest');
 
+// Route::get('google-sheet', [GoogleSheetController::class, 'store']);
+
+
 Route::get('404', function () {
     return view('auth.404');
 })->name('auth.404');
@@ -46,6 +51,25 @@ Route::group(['middleware' => ['auth', 'auth.department']], function () {
     Route::get('auth/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('dashboard', [DashboardController::class, 'index'])->name('index');
+    Route::get('dashboard2', function () {
+        $endpoint = "https://zenquotes.io/api/quotes";
+
+        # create 
+        $response = Http::get($endpoint);
+ 
+        $data = null;
+        if(count(json_decode($response))> 0)
+        {
+            $decode = json_decode($response);
+            $data = $decode[0];
+        }
+    
+        return view('pages.dashboard.blank-page')->with('data', $data);
+    });
+
+    Route::get('import', function () {
+        return view('pages.import.index');
+    });
 });
 
 # AUTH END ------------------------------------
@@ -106,3 +130,4 @@ Route::resource('user/volunteer', VolunteerController::class);
 Route::resource('profile', ProfileController::class);
 
 # PROFILE END -----------------------------------------
+
