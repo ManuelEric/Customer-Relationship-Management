@@ -34,6 +34,7 @@ use App\Http\Controllers\Api\v1\EventController as APIEventController;
 use App\Http\Controllers\Api\v1\ExtEventController;
 use App\Http\Controllers\Api\v1\ExtPartnerController;
 use App\Http\Controllers\Api\v1\ExtUniversityController;
+use App\Http\Controllers\GoogleSheetController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\ReceiptSchoolController;
 use App\Http\Controllers\ReceiptPartnerController;
@@ -223,3 +224,6 @@ Route::get('get/program/main/{mainProgId}', [APIProgramController::class, 'getPr
 
 # Get List referral / sub lead referral (All Client)
 Route::get('get/referral/list', [LeadController::class, 'getListReferral']);
+
+# Import From google sheet
+Route::get('import/parent', [GoogleSheetController::class, 'storeParent']);
