@@ -25,11 +25,11 @@
 <figure class="quote">
     <blockquote>
         <h5>
-            {{ $data->q }}
+            {{ $data->content }}
         </h5>
     </blockquote>
     <figcaption>
-      &mdash; {{$data->a}}  </figcaption>
+      &mdash; {{$data->author}}  </figcaption>
 </figure>
 @endif
 

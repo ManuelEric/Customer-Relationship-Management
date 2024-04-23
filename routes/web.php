@@ -52,7 +52,7 @@ Route::group(['middleware' => ['auth', 'auth.department']], function () {
 
     Route::get('dashboard', [DashboardController::class, 'index'])->name('index');
     Route::get('dashboard2', function () {
-        $endpoint = "https://zenquotes.io/api/quotes";
+        $endpoint = "https://api.quotable.io/quotes/random";
 
         # create 
         $response = Http::get($endpoint);
