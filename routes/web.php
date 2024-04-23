@@ -56,12 +56,16 @@ Route::group(['middleware' => ['auth', 'auth.department']], function () {
 
         # create 
         $response = Http::get($endpoint);
- 
+        
         $data = null;
-        if(count(json_decode($response))> 0)
-        {
-            $decode = json_decode($response);
-            $data = $decode[0];
+
+        # check status
+        if ($response->successful()) {
+            if(count(json_decode($response))> 0)
+            {
+                $decode = json_decode($response);
+                $data = $decode[0];
+            }
         }
     
         return view('pages.dashboard.blank-page')->with('data', $data);

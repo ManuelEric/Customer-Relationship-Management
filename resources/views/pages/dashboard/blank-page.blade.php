@@ -21,6 +21,7 @@
     margin: 1em;
     }
 </style>
+@if (isset($data))
 <figure class="quote">
     <blockquote>
         <h5>
@@ -30,6 +31,7 @@
     <figcaption>
       &mdash; {{$data->author}}  </figcaption>
 </figure>
+@endif
 
 <div class="alert alert-primary text-black mt-3" role="alert">
     Create your <a href="#" id="liveToastBtn" class="alert-link">own dashboard</a> or go to <a href="{{ url('/dashboard') }}" class="alert-link">general dashboard</a> 
