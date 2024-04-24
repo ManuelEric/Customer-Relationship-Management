@@ -123,7 +123,7 @@ class AppServiceProvider extends ServiceProvider
                         'countAlarm' => app('alarm-repository-services')->countAlarm(),
                         'notification' => app('alarm-repository-services')->notification(),
                         'followUp' => app('follow-up')->getAllFollowupWithin(7),
-                        'birthDay' => app('birthday')->getMenteesBirthdayMonthly(date('m')),
+                        'birthDay' => app('birthday')->getMenteesBirthdayMonthly(date('Y-m')),
                         'invRecPics' => $invRecPics,
                         'registrationUrl' => env('REGISTRATION_URL')
                     ]
