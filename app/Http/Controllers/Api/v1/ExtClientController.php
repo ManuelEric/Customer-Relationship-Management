@@ -1020,7 +1020,12 @@ class ExtClientController extends Controller
             && strtolower($clientevent->notes) != 'vip'
         ) {
             # populate the client array
-            $clientInformation['assessment_link'] = env('EDUALL_ASSESSMENT_URL', null);
+            $assessment_link = env('EDUALL_ASSESSMENT_URL', null);
+            if ($assessment_link !== null) 
+                $assessment_link .= '?ticket='.$clientevent->ticket_id;
+
+            $clientInformation['assessment_link'] = $assessment_link;
+            
         }
 
         $event = [
@@ -1115,7 +1120,11 @@ class ExtClientController extends Controller
                     && strtolower($incomingRequest['notes']) != 'vip'
                 ) {
                     # populate the client array
-                    $clientInformation['assessment_link'] = env('EDUALL_ASSESSMENT_URL', null);
+                    $assessment_link = env('EDUALL_ASSESSMENT_URL', null);
+                    if ($assessment_link !== null) 
+                        $assessment_link .= '?ticket='.$clientevent->ticket_id;
+
+                    $clientInformation['assessment_link'] = $assessment_link;
                 }
 
                 $event = [
