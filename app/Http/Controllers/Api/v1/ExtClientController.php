@@ -782,7 +782,7 @@ class ExtClientController extends Controller
         ];
     }
 
-    private function generateTicketID()
+    public function generateTicketID()
     {
         do {
             
