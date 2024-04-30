@@ -71,17 +71,30 @@ class AuthController extends Controller
             if ($user->roles()->where('role_name', 'Super Admin')->exists()) {
                 $scopes = ['super-admin'];
                 $request->session()->put('user_role', 'SuperAdmin');
+<<<<<<< HEAD
                 
                 # create access token 
                 # in order to access api with data session
                 if (!$token = $user->createToken('Grant User Access', $scopes)->accessToken) 
                     Log::error('Failed to generate token');
+=======
+
+
+                if (!$token = $user->createToken('Grant User Access', $scopes)->accessToken) 
+                    Log::error('Failed to generate token');
+
+                Log::info($token);
+>>>>>>> 6928f32d (feat: added validation for different phone)
                 
                 # store the access token
                 $request->session()->put([
                     'access_token' => $token,
                     'scopes' => $scopes
                 ]);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6928f32d (feat: added validation for different phone)
             } else {
 
                 if ($user->roles()->where('role_name', 'Admin')->exists() && $user->department()->where('dept_name', 'Client Management')->exists()) {
