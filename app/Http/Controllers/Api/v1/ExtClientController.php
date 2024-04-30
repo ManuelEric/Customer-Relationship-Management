@@ -626,6 +626,12 @@ class ExtClientController extends Controller
                             throw new Exception('Client ID and Child ID has the same value');
                         }
 
+                        # catch if studentId is not from a valid student but from client with role parent
+                        if ($student->roles()->where('role_name', 'Parent')->exists()) {
+
+                            throw new Exception('We cannot continue the process because the studentId was filled with Client that has parent role.');
+                        }
+
                         $this->storeRelationship($parent, $student);
                         
                         $this->attachDestinationCountry($studentId, $validated['destination_country']);
@@ -1412,6 +1418,18 @@ class ExtClientController extends Controller
 
                         $student = $this->storeStudent($validatedStudent);
                         $studentId = $student->id;
+
+                        # prevent client_id and child_id on client event has the same value
+                        if ($parent->id == $studentId) {
+
+                            throw new Exception('Client ID and Child ID has the same value');
+                        }
+
+                        # catch if studentId is not from a valid student but from client with role parent
+                        if ($student->roles()->where('role_name', 'Parent')->exists()) {
+
+                            throw new Exception('We cannot continue the process because the studentId was filled with Client that has parent role.');
+                        }
 
                         $this->storeRelationship($parent, $student);
                         
