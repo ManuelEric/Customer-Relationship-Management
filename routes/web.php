@@ -14,7 +14,9 @@ use App\Http\Controllers\VolunteerController;
 use App\Jobs\testQueue;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Session;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,7 +53,8 @@ Route::group(['middleware' => ['auth', 'auth.department']], function () {
     Route::get('auth/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('dashboard', [DashboardController::class, 'index'])->name('index');
-    Route::get('dashboard2', function () {
+    Route::get('dashboard2', function (Request $request) {
+
         $endpoint = "https://api.quotable.io/quotes/random";
 
         # create 
@@ -77,6 +80,7 @@ Route::group(['middleware' => ['auth', 'auth.department']], function () {
 });
 
 # AUTH END ------------------------------------
+
 
 
 # FORM EVENT EMBED START ------------------------
