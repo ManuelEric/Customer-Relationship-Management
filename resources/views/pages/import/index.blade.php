@@ -7,16 +7,81 @@
 @endsection --}}
 @section('content')
 
+<div class="card bg-secondary mb-3 p-2">
+    <div class="d-flex align-items-center justify-content-between">
+        <h5 class="text-white m-0">
+            <i class="bi bi-tag me-1"></i>
+            Import Data
+        </h5>
+        <a href="https://docs.google.com/spreadsheets/d/1xam159C7dirHCH9txq1g9xp98mDbktCBvg_clc4hgxI/edit?usp=sharing" target="_blank" class="btn btn-sm btn-info"><i
+            class="bi bi-box-arrow-up-right me-1"></i>
+        Spreadsheet</a>
+    </div>
+</div>
+
 <div class="row align-items-center">
     <div class="col">
-        <a class="btn btn-secondary" href="#" role="button" id="parent">Parents</a>
+        <div class="card mb-3" style="width: 15rem;">
+            <img src="{{ asset('img/form-embed/parent.webp') }}" width="200" height="200" class="card-img-top" alt="...">
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a class="btn btn-primary" href="#" role="button" id="parent">Parents</a>
+                </div>
+            </div>
+          </div>
     </div>
     <div class="col">
-        <a class="btn btn-secondary" href="#" role="button">Link</a>
+        <div class="card mb-3" style="width: 15rem;">
+            <img src="{{ asset('img/form-embed/student.webp') }}" width="200" height="200" class="card-img-top" alt="...">
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a class="btn btn-primary" href="#" role="button" id="student">Students</a>
+                </div>
+            </div>
+          </div>
     </div>
     <div class="col">
-        <a class="btn btn-secondary" href="#" role="button">Link</a>
+        <div class="card mb-3" style="width: 15rem;">
+            <img src="{{ asset('img/form-embed/teacher.webp') }}" width="200" height="200" class="card-img-top" alt="...">
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a class="btn btn-primary" href="#" role="button" id="teacher">Teachers</a>
+                </div>
+            </div>
+          </div>
     </div>
+    <div class="col">
+        <div class="card mb-3" style="width: 15rem;">
+            <img src="{{ asset('img/profile.jpg') }}" width="200" height="200" class="card-img-top" alt="...">
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a class="btn btn-primary" href="#" role="button" id="client-event">Client Events</a>
+                </div>
+            </div>
+          </div>
+    </div>
+    <div class="col">
+        <div class="card mb-3" style="width: 15rem;">
+            <img src="{{ asset('img/program.webp') }}" width="200" height="200" class="card-img-top" alt="...">
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a class="btn btn-primary" href="#" role="button" id="client-program">Client Programs</a>
+                </div>
+            </div>
+          </div>
+    </div>
+    {{-- <div class="col">
+        <a class="btn btn-secondary" href="#" role="button" id="student">Student</a>
+    </div>
+    <div class="col">
+        <a class="btn btn-secondary" href="#" role="button" id="teacher">Teacher</a>
+    </div>
+    <div class="col">
+        <a class="btn btn-secondary" href="#" role="button" id="client-event">Client Event</a>
+    </div>
+    <div class="col">
+        <a class="btn btn-secondary" href="#" role="button" id="client-program">Client Program</a>
+    </div> --}}
   </div>
 
 
@@ -83,6 +148,26 @@
         $("#category").val('parent')
     });
 
+    $('#client-event').click(function(e){
+        $("#inputRange").modal('show');
+        $("#category").val('client-event')
+    });
+
+    $('#client-program').click(function(e){
+        $("#inputRange").modal('show');
+        $("#category").val('client-program')
+    });
+
+    $('#student').click(function(e){
+        $("#inputRange").modal('show');
+        $("#category").val('student')
+    });
+
+    $('#teacher').click(function(e){
+        $("#inputRange").modal('show');
+        $("#category").val('teacher')
+    });
+
     $('#import').click(function(e){
         $('#content-import-information').html('');
         var category = $("#category").val();
@@ -91,7 +176,11 @@
 
         showLoading()
         axios
-            .get("{{ url('api/import') }}/" + category + "?start=" + start + "&end=" + end)
+            .get("{{ url('api/import') }}/" + category + "?start=" + start + "&end=" + end, {
+                headers:{
+                    'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
+                }
+            })
             .then(function(response){
                 console.log(response);
                 html = '';
@@ -103,7 +192,6 @@
                     var error = response.data.error
                     if(Object.keys(error).length){
                         Object.keys(error).forEach(key => {
-                            console.log(key, error[key]);
                             html += `<li class="text-danger">${key + ': ' + error[key]}</li>`
                         });
                     }

@@ -121,12 +121,12 @@ class SyncDataSchool extends Command
                     $index += 200;
                 }
 
-                Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet($query['sheetName'])->range('A'. $index)->update($data);
+                Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_SYNC_DATA'))->sheet($query['sheetName'])->range('A'. $index)->update($data);
                 $i++;
 
             });
 
-            Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet($query['sheetName'])->range($query['colUpdatedAt'] . '2')->update([[Carbon::now()->format('d-m-Y H:i:s')]]);
+            Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_SYNC_DATA'))->sheet($query['sheetName'])->range($query['colUpdatedAt'] . '2')->update([[Carbon::now()->format('d-m-Y H:i:s')]]);
             
 
         } catch (Exception $e) {

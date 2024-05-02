@@ -226,4 +226,11 @@ Route::get('get/program/main/{mainProgId}', [APIProgramController::class, 'getPr
 Route::get('get/referral/list', [LeadController::class, 'getListReferral']);
 
 # Import From google sheet
-Route::get('import/parent', [GoogleSheetController::class, 'storeParent']);
+Route::group(['middleware' => 'auth:api', 'prefix' => 'import'], function () {
+
+    Route::get('parent', [GoogleSheetController::class, 'storeParent']);
+    Route::get('client-event', [GoogleSheetController::class, 'storeClientEvent']);
+    Route::get('student', [GoogleSheetController::class, 'storeStudent']);
+    Route::get('teacher', [GoogleSheetController::class, 'storeTeacher']);
+    Route::get('client-program', [GoogleSheetController::class, 'storeClientProgram']);
+});
