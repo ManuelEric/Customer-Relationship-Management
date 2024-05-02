@@ -72,7 +72,7 @@
 </div> --}}
 @endsection
 @section('script')
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://fastly.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
 
         @if (isset($attachment) && gettype($attachment) != "string")

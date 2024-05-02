@@ -145,7 +145,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Upload Signed Attachment</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js" integrity="sha512-STof4xm1wgkfm7heWqFJVn58Hm3EtS31XFaagaa8VMReCXAkQnJZ+jEy8PCC/iT18dFy95WcExNHFTqLyp72eQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="//fastly.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <form enctype="multipart/form-data" action="{{ route('invoice.program.upload_signed_document', ['client_program' => $clientProg->clientprog_id]) }}" method="POST" id="form-upload-attachment">

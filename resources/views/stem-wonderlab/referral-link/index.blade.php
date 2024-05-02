@@ -1,10 +1,10 @@
 @extends('app')
 @section('title', 'STEM + Wonderlab - Referral Page')
 @section('css')
-    <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.jssocials/1.4.0/jssocials.css" />
+    <link type="text/css" rel="stylesheet" href="https://fastly.jsdelivr.net/jquery.jssocials/1.4.0/jssocials.css" />
 
     <link type="text/css" rel="stylesheet"
-        href="https://cdn.jsdelivr.net/jquery.jssocials/1.4.0/jssocials-theme-classic.css" />
+        href="https://fastly.jsdelivr.net/jquery.jssocials/1.4.0/jssocials-theme-classic.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css"
         integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />

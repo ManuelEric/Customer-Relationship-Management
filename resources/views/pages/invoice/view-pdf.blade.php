@@ -36,7 +36,7 @@
 @endsection
 @section('script')
  {{-- var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/invoice/'.$invoiceAttachment->attachment) }}", { --}}
- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+ <script src="https://fastly.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         @if (isset($attachment) && $attachment->inv_id != NULL)
             var file = "{{ asset('storage/uploaded_file/invoice/client/'.$attachment->attachment) }}"
