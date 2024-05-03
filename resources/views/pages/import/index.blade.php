@@ -20,68 +20,57 @@
 </div>
 
 <div class="row align-items-center">
-    <div class="col">
-        <div class="card mb-3" style="width: 15rem;">
-            <img src="{{ asset('img/form-embed/parent.webp') }}" width="200" height="200" class="card-img-top" alt="...">
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a class="btn btn-primary" href="#" role="button" id="parent">Parents</a>
-                </div>
+    <div class="col-3 mb-3">
+        <div class="card">
+            <a href="#" role="button" id="parent">
+                <h4 class="card-header text-bg-primary text-center" style="padding: 12px; border-radius:5px 5px 55px 55px;">Parents</h4>
+            </a>
+            <div class="text-center">
+                <img src="{{ asset('img/form-embed/parent.webp') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
             </div>
-          </div>
+        </div>
     </div>
-    <div class="col">
-        <div class="card mb-3" style="width: 15rem;">
-            <img src="{{ asset('img/form-embed/student.webp') }}" width="200" height="200" class="card-img-top" alt="...">
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a class="btn btn-primary" href="#" role="button" id="student">Students</a>
-                </div>
+    <div class="col-3 mb-3">
+        <div class="card">
+            <a href="#" role="button" id="student">
+                <h4 class="card-header text-bg-primary text-center" style="padding: 12px; border-radius:5px 5px 55px 55px;">Students</h4>
+            </a>
+            <div class="text-center">
+                <img src="{{ asset('img/form-embed/student.webp') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
             </div>
-          </div>
+        </div>
     </div>
-    <div class="col">
-        <div class="card mb-3" style="width: 15rem;">
-            <img src="{{ asset('img/form-embed/teacher.webp') }}" width="200" height="200" class="card-img-top" alt="...">
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a class="btn btn-primary" href="#" role="button" id="teacher">Teachers</a>
-                </div>
+    <div class="col-3 mb-3">
+        <div class="card">
+            <a href="#" role="button" id="teacher">
+                <h4 class="card-header text-bg-primary text-center" style="padding: 12px; border-radius:5px 5px 55px 55px;">Teachers</h4>
+            </a>
+            <div class="text-center">
+                <img src="{{ asset('img/form-embed/teacher.webp') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
             </div>
-          </div>
+        </div>
     </div>
-    <div class="col">
-        <div class="card mb-3" style="width: 15rem;">
-            <img src="{{ asset('img/profile.jpg') }}" width="200" height="200" class="card-img-top" alt="...">
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a class="btn btn-primary" href="#" role="button" id="client-event">Client Events</a>
-                </div>
+    <div class="col-3 mb-3">
+        <div class="card">
+            <a href="#" role="button" id="client-event">
+                <h4 class="card-header text-bg-primary text-center" style="padding: 12px; border-radius:5px 5px 55px 55px;">Client Events</h4>
+            </a>
+            <div class="text-center">
+                <img src="{{ asset('img/profile.jpg') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
             </div>
-          </div>
+        </div>
     </div>
-    <div class="col">
-        <div class="card mb-3" style="width: 15rem;">
-            <img src="{{ asset('img/program.webp') }}" width="200" height="200" class="card-img-top" alt="...">
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a class="btn btn-primary" href="#" role="button" id="client-program">Client Programs</a>
-                </div>
+    <div class="col-3 mb-3">
+        <div class="card">
+            <a href="#" role="button" id="client-program">
+                <h4 class="card-header text-bg-primary text-center" style="padding: 12px; border-radius:5px 5px 55px 55px;">Client Programs</h4>
+            </a>
+            <div class="text-center">
+                <img src="{{ asset('img/program.webp') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
             </div>
-          </div>
+        </div>
     </div>
-    {{-- <div class="col">
-        <a class="btn btn-secondary" href="#" role="button" id="student">Student</a>
-    </div>
-    <div class="col">
-        <a class="btn btn-secondary" href="#" role="button" id="teacher">Teacher</a>
-    </div>
-    <div class="col">
-        <a class="btn btn-secondary" href="#" role="button" id="client-event">Client Event</a>
-    </div>
-    <div class="col">
-        <a class="btn btn-secondary" href="#" role="button" id="client-program">Client Program</a>
-    </div> --}}
+
   </div>
 
 
@@ -169,6 +158,7 @@
     });
 
     $('#import').click(function(e){
+        $("#inputRange").modal('hide');
         $('#content-import-information').html('');
         var category = $("#category").val();
         var start = $("#start").val();
@@ -182,7 +172,6 @@
                 }
             })
             .then(function(response){
-                console.log(response);
                 html = '';
                 html += `<h5>Import ${category}</h5>`;
                 html += `<ul>`;

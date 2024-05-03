@@ -216,8 +216,6 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
             DB::rollBack();
             Log::error('Create invoice failed : ' . $e->getMessage());
 
-            return $e->getMessage();
-            exit;
             return Redirect::to('invoice/school-program/' . $schProgId . '/detail/create')->withError('Failed to create a new invoice');
         }
 

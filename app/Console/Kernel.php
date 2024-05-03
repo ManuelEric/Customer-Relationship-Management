@@ -135,6 +135,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('sync:data major')->withoutOverlapping()->hourly()->onOneServer();
         $schedule->command('sync:data edufair')->withoutOverlapping()->hourly()->onOneServer();
         $schedule->command('sync:data kol')->withoutOverlapping()->hourly()->onOneServer();
+        $schedule->command('sync:data university')->withoutOverlapping()->hourly()->onOneServer();
     }
 
     /**

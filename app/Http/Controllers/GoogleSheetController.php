@@ -257,49 +257,13 @@ class GoogleSheetController extends Controller
                 ]);
             }
 
-            // $header = Sheets::getService()->spreadsheets_values->get(env('GOOGLE_SHEET_KEY_IMPORT'), 'Students!A1:Z1')->getValues();
-            // $sheet = Sheets::getService()->spreadsheets_values->get(env('GOOGLE_SHEET_KEY_IMPORT'), 'Students!A'.$start.':Z'.$end, ['valueRenderOption' => 'FORMATTED_VALUE'])->getValues();
-
-            // $values = Sheets::collection($header[0], $sheet);
-        
-            // $rawData = $values->where('Imported Date', null);
             $rawData = $this->setRawData('Z', $start, $end, 'Students');
-            Log::debug(json_encode($rawData));
         
             $response = [];
            
             if(count($rawData) > 0){
 
                 $arrInputData = $this->setDataForValidation($rawData, 'student');
-
-
-                // foreach ($rawData as $data) {
-                //     if ($data['Lead'] == 'School' || $data['Lead'] == 'Counselor') {
-                //         $data['Lead'] = 'School/Counselor';
-                //     }else if($data['Lead'] == 'KOL'){
-                //         $data['Lead'] = 'KOL';
-                //     }else{
-                //         $lead = Lead::where('main_lead', $data['Lead'])->get()->pluck('lead_id')->first();
-                //         isset($lead) ? $data['Lead'] = $lead : null;
-                //     }
-
-                //     $event = Event::where('event_title', $data['Event'])->get()->pluck('event_id')->first();
-                //     $getAllEduf = EdufLead::all();
-                //     $edufair = $getAllEduf->where('organizerName', $data['Edufair'])->pluck('id')->first();
-                //     $partner = Corporate::where('corp_name', $data['Partner'])->get()->pluck('corp_id')->first();
-                //     $kol = Lead::where('main_lead', 'KOL')->where('sub_lead', $data['KOL'])->get()->pluck('lead_id')->first();
-                    
-                //     isset($event) ? $data['Event'] = $event : null;
-                //     isset($edufair) ? $data['Edufair'] = $edufair : null;
-                //     isset($partner) ? $data['Partner'] = $partner : null;
-                //     isset($kol) ? $data['KOL'] = $kol : null;
-        
-                //     $data['Joined Date'] = str_replace('/', '-', $data['Joined Date']);
-                //     $data['Joined Date'] = Carbon::parse($data['Joined Date'])->format('Y-m-d');
-
-                //     $arrInputData[$data['No']] = array_map(fn($v) => $v == '' ? null : $v, $data->toArray()); # Replace value "" to null
-                // }
-
 
                 # validation
                 $rules = [
@@ -537,12 +501,6 @@ class GoogleSheetController extends Controller
                 ]);
             }
 
-            // $header = Sheets::getService()->spreadsheets_values->get(env('GOOGLE_SHEET_KEY_IMPORT'), 'Teachers!A1:R1')->getValues();
-            // $sheet = Sheets::getService()->spreadsheets_values->get(env('GOOGLE_SHEET_KEY_IMPORT'), 'Teachers!A'.$start.':R'.$end, ['valueRenderOption' => 'FORMATTED_VALUE'])->getValues();
-
-            // $values = Sheets::collection($header[0], $sheet);
-        
-            // $rawData = $values->where('Imported Date', null);
             $rawData = $this->setRawData('R', $start, $end, 'Teachers');
         
             $response = [];
@@ -550,34 +508,6 @@ class GoogleSheetController extends Controller
             if(count($rawData) > 0){
 
                 $arrInputData = $this->setDataForValidation($rawData, 'parent');
-
-                // foreach ($rawData as $data) {
-                //     if ($data['Lead'] == 'School' || $data['Lead'] == 'Counselor') {
-                //         $data['Lead'] = 'School/Counselor';
-                //     }else if($data['Lead'] == 'KOL'){
-                //         $data['Lead'] = 'KOL';
-                //     }else{
-                //         $lead = Lead::where('main_lead', $data['Lead'])->get()->pluck('lead_id')->first();
-                //         isset($lead) ? $data['Lead'] = $lead : null;
-                //     }
-
-                //     $event = Event::where('event_title', $data['Event'])->get()->pluck('event_id')->first();
-                //     $getAllEduf = EdufLead::all();
-                //     $edufair = $getAllEduf->where('organizerName', $data['Edufair'])->pluck('id')->first();
-                //     $partner = Corporate::where('corp_name', $data['Partner'])->get()->pluck('corp_id')->first();
-                //     $kol = Lead::where('main_lead', 'KOL')->where('sub_lead', $data['KOL'])->get()->pluck('lead_id')->first();
-                    
-                //     isset($event) ? $data['Event'] = $event : null;
-                //     isset($edufair) ? $data['Edufair'] = $edufair : null;
-                //     isset($partner) ? $data['Partner'] = $partner : null;
-                //     isset($kol) ? $data['KOL'] = $kol : null;
-        
-                //     $data['Joined Date'] = str_replace('/', '-', $data['Joined Date']);
-                //     $data['Joined Date'] = Carbon::parse($data['Joined Date'])->format('Y-m-d');
-
-                //     $arrInputData[$data['No']] = array_map(fn($v) => $v == '' ? null : $v, $data->toArray()); # Replace value "" to null
-                // }
-
 
                 # validation
                 $rules = [
@@ -720,12 +650,6 @@ class GoogleSheetController extends Controller
                 ]);
             }
 
-            // $header = Sheets::getService()->spreadsheets_values->get(env('GOOGLE_SHEET_KEY_IMPORT'), 'Client Events!A1:Z1')->getValues();
-            // $sheet = Sheets::getService()->spreadsheets_values->get(env('GOOGLE_SHEET_KEY_IMPORT'), 'Client Events!A'.$start.':Z'.$end, ['valueRenderOption' => 'FORMATTED_VALUE'])->getValues();
-
-            // $values = Sheets::collection($header[0], $sheet);
-        
-            // $rawData = $values->where('Imported Date', null);
             $rawData = $this->setRawData('Z', $start, $end, 'Client Events');
         
             $response = [];
@@ -733,34 +657,6 @@ class GoogleSheetController extends Controller
             if(count($rawData) > 0){
 
                 $arrInputData = $this->setDataForValidation($rawData, 'client-event');
-
-                // foreach ($rawData as $data) {
-                //     $event_name = Event::where('event_title', $data['Event Name'])->get()->pluck('event_id')->first();
-
-                //     if ($data['Lead'] == 'School' || $data['Lead'] == 'Counselor') {
-                //         $data['Lead'] = 'School/Counselor';
-                //     }else if($data['Lead'] == 'KOL'){
-                //         $data['Lead'] = 'KOL';
-                //     }else{
-                //         $lead = Lead::where('main_lead', $data['Lead'])->get()->pluck('lead_id')->first();
-                //         isset($lead) ? $data['Lead'] = $lead : null;
-                //     }
-
-                //     $getAllEduf = EdufLead::all();
-                //     $edufair = $getAllEduf->where('organizerName', $data['Edufair'])->pluck('id')->first();
-                //     $partner = Corporate::where('corp_name', $data['Partner'])->get()->pluck('corp_id')->first();
-                //     $kol = Lead::where('main_lead', 'KOL')->where('sub_lead', $data['KOL'])->get()->pluck('lead_id')->first();
-                    
-                //     isset($event_name) ? $data['Event Name'] = $event_name : null;
-                //     isset($edufair) ? $data['Edufair'] = $edufair : null;
-                //     isset($partner) ? $data['Partner'] = $partner : null;
-                //     isset($kol) ? $data['KOL'] = $kol : null;
-        
-                //     $data['Date'] = str_replace('/', '-', $data['Date']);
-                //     $data['Date'] = Carbon::parse($data['Date'])->format('Y-m-d');
-
-                //     $arrInputData[$data['No']] = array_map(fn($v) => $v == '' ? null : $v, $data->toArray());
-                // }
 
                 # validation
                 $rules = [
@@ -969,53 +865,13 @@ class GoogleSheetController extends Controller
                 ]);
             }
 
-
-            // $header = Sheets::getService()->spreadsheets_values->get(env('GOOGLE_SHEET_KEY_IMPORT'), 'Client Programs!A1:W1')->getValues();
-            // $sheet = Sheets::getService()->spreadsheets_values->get(env('GOOGLE_SHEET_KEY_IMPORT'), 'Client Programs!A'.$start.':W'.$end, ['valueRenderOption' => 'FORMATTED_VALUE'])->getValues();
-
-            // $values = Sheets::collection($header[0], $sheet);
-        
-            // $rawData = $values->where('Imported Date', null);
             $rawData = $this->setRawData('W', $start, $end, 'Client Programs');
         
             $response = [];
            
-            // return $rawData;
-            // exit;
             if(count($rawData) > 0){
 
                 $arrInputData = $this->setDataForValidation($rawData, 'client-program');
-
-                // foreach ($rawData as $data) {
-                //     $programs = Program::all();
-                //     $program_name = $programs->where('program_name', $data['Program Name'])->pluck('prog_id')->first(); 
-
-                //     if ($data['Lead'] == 'School' || $data['Lead'] == 'Counselor') {
-                //         $data['Lead'] = 'School/Counselor';
-                //     }else if($data['Lead'] == 'KOL'){
-                //         $data['Lead'] = 'KOL';
-                //     }else{
-                //         $lead = Lead::where('main_lead', $data['Lead'])->get()->pluck('lead_id')->first();
-                //         isset($lead) ? $data['Lead'] = $lead : null;
-                //     }
-
-                //     $event = Event::where('event_title', $data['Event'])->get()->pluck('event_id')->first();
-                //     $getAllEduf = EdufLead::all();
-                //     $edufair = $getAllEduf->where('organizerName', $data['Edufair'])->pluck('id')->first();
-                //     $partner = Corporate::where('corp_name', $data['Partner'])->get()->pluck('corp_id')->first();
-                //     $kol = Lead::where('main_lead', 'KOL')->where('sub_lead', $data['KOL'])->get()->pluck('lead_id')->first();
-                    
-                //     isset($program_name) ? $data['Program Name'] = $program_name : null;
-                //     isset($event) ? $data['Event'] = $event : null;
-                //     isset($edufair) ? $data['Edufair'] = $edufair : null;
-                //     isset($partner) ? $data['Partner'] = $partner : null;
-                //     isset($kol) ? $data['KOL'] = $kol : null;
-        
-                //     $data['Date'] = str_replace('/', '-', $data['Date']);
-                //     $data['Date'] = Carbon::parse($data['Date'])->format('Y-m-d');
-
-                //     $arrInputData[$data['No']] = array_map(fn($v) => $v == '' ? null : $v, $data->toArray());
-                // }
 
 
                 # validation
@@ -1393,7 +1249,7 @@ class GoogleSheetController extends Controller
                     $event_name = Event::where('event_title', $data['Event Name'])->get()->pluck('event_id')->first();
                     isset($event_name) ? $data['Event Name'] = $event_name : null;
                     
-                    $data['Date'] = str_replace('/', '-', $data['Date']);
+                    // $data['Date'] = str_replace('/', '-', $data['Date']);
                     $data['Date'] = Carbon::parse($data['Date'])->format('Y-m-d');
 
                     break;
@@ -1406,7 +1262,7 @@ class GoogleSheetController extends Controller
                     $event = Event::where('event_title', $data['Event'])->get()->pluck('event_id')->first();
                     isset($event) ? $data['Event'] = $event : null;
 
-                    $data['Date'] = str_replace('/', '-', $data['Date']);
+                    // $data['Date'] = str_replace('/', '-', $data['Date']);
                     $data['Date'] = Carbon::parse($data['Date'])->format('Y-m-d');
 
                     break;
@@ -1415,7 +1271,7 @@ class GoogleSheetController extends Controller
                     $event = Event::where('event_title', $data['Event'])->get()->pluck('event_id')->first();
                     isset($event) ? $data['Event'] = $event : null;
 
-                    $data['Joined Date'] = str_replace('/', '-', $data['Joined Date']);
+                    // $data['Joined Date'] = str_replace('/', '-', $data['Joined Date']);
                     $data['Joined Date'] = Carbon::parse($data['Joined Date'])->format('Y-m-d');        
                     break;
             }

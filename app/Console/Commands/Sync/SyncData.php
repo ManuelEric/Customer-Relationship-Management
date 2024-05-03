@@ -10,6 +10,7 @@ use App\Models\Lead;
 use App\Models\Major;
 use App\Models\Program;
 use App\Models\School;
+use App\Models\University;
 use App\Models\User;
 use App\Repositories\SchoolRepository;
 use Carbon\Carbon;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Revolution\Google\Sheets\Facades\Sheets;
 
-class SyncDataSchool extends Command
+class SyncData extends Command
 {
     /**
      * The name and signature of the console command.
@@ -53,6 +54,8 @@ class SyncDataSchool extends Command
     {
         $type = $this->argument('type');
         
+        Log::info('Cron sync data '.$type.' to google sheet works fine.');
+
         try {
             
             $i = 0;
@@ -92,9 +95,12 @@ class SyncDataSchool extends Command
                             break;
 
                         case 'sales':
-                        case 'mentor':
                         case 'employee':
                             $data[$key] = [$val->fullname, $val->id, $val->extended_id, $val->fullname . ' | ' . $val->id];
+                            break;
+
+                        case 'mentor':
+                            $data[$key] = [$val->id, $val->fullname, $val->extended_id, $val->fullname . ' | ' . $val->id];
                             break;
 
                         case 'lead':
@@ -108,6 +114,10 @@ class SyncDataSchool extends Command
 
                         case 'edufair':
                             $data[$key] = [$val->id, $val->organizerName];
+                            break;
+
+                        case 'university':
+                            $data[$key] = [$val->univ_id, $val->univ_name, $val->univ_country];
                             break;
                  
                     }
@@ -253,6 +263,13 @@ class SyncDataSchool extends Command
 
                 $sheetName = 'KOL';
                 $colUpdatedAt = 'E';
+                break;
+
+            case 'university':
+                $query = University::query();
+
+                $sheetName = 'Universities';
+                $colUpdatedAt = 'D';
                 break;
 
         }
