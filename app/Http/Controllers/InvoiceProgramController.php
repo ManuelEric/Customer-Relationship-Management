@@ -713,7 +713,7 @@ class InvoiceProgramController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Invoice signed successfully']);
     }
 
-    private function previewFromDashboard($currency, $clientProg)
+    private function previewFromDashboard($currency, $clientProg, $director)
     {
         if ($currency == "idr")
             $view = 'pages.invoice.client-program.export.invoice-pdf';
@@ -727,7 +727,7 @@ class InvoiceProgramController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
+        $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail, 'director' => $director]);
         return $pdf->stream();
     }
 
@@ -735,13 +735,16 @@ class InvoiceProgramController extends Controller
     {
         $clientprog_id = $request->route('client_program');
         $currency = $request->route('currency');
+
+        # query
         $preview = $request->get('key');
+        $director = $request->get('dir');
 
         if (!$clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id))
             abort(404);
 
         if ($preview == 'dashboard') {
-            return $this->previewFromDashboard($currency, $clientProg);
+            return $this->previewFromDashboard($currency, $clientProg, $director);
         }
 
 

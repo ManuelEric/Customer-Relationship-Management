@@ -73,10 +73,13 @@
                         <div class="d-flex gap-1 justify-content-center">
                             <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                 data-bs-title="Preview Invoice">
-                                <a href="{{ route('invoice.program.preview', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}?key=dashboard"
-                                    class="text-info" target="blank">
+                                <a href="#" data-curr="idr" data-bs-toggle="modal" data-bs-target="#previewSignModal" class="openModalPreviewSign text-info">
                                     <i class="bi bi-eye-fill"></i>
                                 </a>
+                                {{-- <a href="{{ route('invoice.program.preview', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}?key=dashboard"
+                                    class="text-info" target="blank">
+                                    <i class="bi bi-eye-fill"></i>
+                                </a> --}}
                             </div>
                             @if (isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first())
                                 {{-- <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
@@ -123,8 +126,7 @@
                             <div class="d-flex gap-1 justify-content-center">
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Preview Invoice">
-                                    <a href="{{ route('invoice.program.preview', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}?key=dashboard"
-                                        class="text-info" target="blank">
+                                    <a href="#" data-curr="other" data-bs-toggle="modal" data-bs-target="#previewSignModal" class="openModalPreviewSign text-info" target="blank">
                                         <i class="bi bi-eye-fill"></i>
                                     </a>
                                 </div>
@@ -1100,6 +1102,49 @@
             } else {
                 $('#receipt_cheque').attr('disabled', 'disabled')
             }
+        }
+
+        $(document).on("click", ".openModalPreviewSign", function() {
+            var curr = $(this).data('curr');
+            cur = "'" + curr + "'";
+
+            const url = "{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/preview/" + curr
+            
+            $("#previewForm").attr('action', url)
+        });
+
+        $(document).on('change', '#previewForm input[name=preview_pic_sign]', function() {
+            const pickedDir = $(this).val();
+            
+            var form_action = $("#previewForm").attr('action');
+            
+            var action = new URL(form_action);
+            const find = new URLSearchParams(action.search);
+            if (find.has('dir')) {
+
+                action.searchParams.set('dir', pickedDir);
+                action = action.toString();
+                
+            } else {
+                
+                const queryParams = new URLSearchParams({
+                    key: 'dashboard',
+                    dir: pickedDir
+                });
+    
+                action += `?${queryParams.toString()}`;
+            }
+
+            $(".download-preview").attr('onclick', `downloadFilePreview('${action}')`);
+
+            $("#previewForm").attr('action', action);
+            
+
+        })
+
+        function downloadFilePreview(action)
+        {
+            window.open(action, '_blank');
         }
 
         $(document).on("click", "#openModalRequestSignIdr", function() {
