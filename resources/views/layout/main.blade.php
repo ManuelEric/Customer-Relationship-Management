@@ -324,6 +324,16 @@
                         </li>
                     @endforeach
 
+                    @if($isSalesAdmin || $isSuperAdmin)
+                        <li class="nav-item">
+                            <a href="{{ url('import') }}"
+                                class="nav-link {{ Request::is('import') ? 'bg-secondary text-white' : '' }}">
+                                <i class="bi bi-upload mx-2"></i>
+                                <span class="menu-title">Import</span>
+                            </a>
+                        </li>
+                    @endif
+                    
                     @if ($isSuperAdmin)
                         <li class="nav-item">
                             <a href="{{ url('request-sign?type=invoice') }}"

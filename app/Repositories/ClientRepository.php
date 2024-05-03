@@ -1694,7 +1694,7 @@ class ClientRepository implements ClientRepositoryInterface
 
         // return Datatables::eloquent($model)->make(true);
         
-        return $asDatatables === false ? $query->get() : $query;
+        return $asDatatables === false ? $query->orderBy('updated_at', 'desc')->get() : $query->orderBy('updated_at', 'desc');
     }
 
     public function getViewRawClientById($rawClientId)
