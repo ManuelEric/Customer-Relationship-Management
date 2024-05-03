@@ -45,10 +45,6 @@
                                     <button style="border-radius: 3px; border: 1px solid #0100D4; color: #FFFFFF; background-color: #0168FF; padding: 15px 25px;">Yes, I'm Attending!</button>
                                 </a>
                             </p>
-
-                            <p style="font-size: 10px; text-align:center;">
-                                (by clicking this button, you are automatically registered to EduALL Launchpad)
-                            </p>
                         
                             <p>
                                 In EduALL Launchpad, we invite you and your child to gain insights and experience hands-on activities in university application preparation to enter the world’s best universities.
