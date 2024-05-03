@@ -169,7 +169,7 @@ class InvoiceProgramController extends Controller
                 'inv_totalprice_idr' => $request->inv_totalprice_idr__so,
                 'inv_words_idr' => $request->inv_words_idr__so,
                 'inv_paymentmethod' => $request->inv_paymentmethod,
-                'invoice_date' => $request->invoice_date,
+                'created_at' => $request->invoice_date,
                 'inv_duedate' => $request->inv_duedate,
                 'inv_notes' => $request->inv_notes,
                 'inv_tnc' => $request->inv_tnc
@@ -184,13 +184,15 @@ class InvoiceProgramController extends Controller
 
         $invoiceDetails['inv_paymentmethod'] = $invoiceDetails['inv_paymentmethod'] == "full" ? 'Full Payment' : 'Installment';
 
+        $invoiceDetails['created_at'] = $invoiceDetails['invoice_date'];
+
         DB::beginTransaction();
         try {
 
             $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
 
             # Use Trait Create Invoice Id
-            $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id);
+            $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id, $invoiceDetails['created_at']);
 
             $invoiceProgramCreated = $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 1] + $invoiceDetails);
             // $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 0] + $invoiceDetails);
@@ -371,113 +373,29 @@ class InvoiceProgramController extends Controller
 
                 break;
         }
+        
 
-        # old code
-        // foreach ($request->currency as $key => $val) {
-        //     if ($val != NULL)
-        //         $currency = $val != "other" ? $val : null;
-        // }
-
-        // if (in_array('idr', $request->currency) && $request->is_session == "no") {
-
-        //     $invoiceDetails = $request->only([
-        //         'clientprog_id',
-        //         'currency',
-        //         'is_session',
-        //         'inv_price_idr',
-        //         'inv_earlybird_idr',
-        //         'inv_discount_idr',
-        //         'inv_totalprice_idr',
-        //         'inv_words_idr',
-        //         'inv_paymentmethod',
-        //         'invoice_date',
-        //         'inv_duedate',
-        //         'inv_notes',
-        //         'inv_tnc'
-        //     ]);
-        //     $param = "idr";
-        // } elseif (in_array('idr', $request->currency) && $request->is_session == "yes") {
-
-        //     $invoiceDetails = [
-        //         'clientprog_id' => $request->clientprog_id,
-        //         'currency' => $request->currency,
-        //         'is_session' => $request->is_session,
-        //         'session' => $request->session__si,
-        //         'duration' => $request->duration__si,
-        //         'inv_price_idr' => $request->inv_price_idr__si,
-        //         'inv_earlybird_idr' => $request->inv_earlybird_idr__si,
-        //         'inv_discount_idr' => $request->inv_discount_idr__si,
-        //         'inv_totalprice_idr' => $request->inv_totalprice_idr__si,
-        //         'inv_words_idr' => $request->inv_words_idr__si,
-        //         'inv_paymentmethod' => $request->inv_paymentmethod,
-        //         'invoice_date' => $request->invoice_date,
-        //         'inv_duedate' => $request->inv_duedate,
-        //         'inv_notes' => $request->inv_notes,
-        //         'inv_tnc' => $request->inv_tnc
-        //     ];
-        //     $param = "idr";
-        // } elseif (in_array('other', $request->currency) && $request->is_session == "no") {
-
-        //     $invoiceDetails = [
-        //         'clientprog_id' => $request->clientprog_id,
-        //         'currency' => $request->currency,
-        //         'curs_rate' => $request->curs_rate,
-        //         'is_session' => $request->is_session,
-        //         'inv_price' => $request->inv_price__nso,
-        //         'inv_earlybird' => $request->inv_earlybird__nso,
-        //         'inv_discount' => $request->inv_discount__nso,
-        //         'inv_totalprice' => $request->inv_totalprice__nso,
-        //         'inv_words' => $request->inv_words__nso,
-        //         'inv_price_idr' => $request->inv_price_idr__nso,
-        //         'inv_earlybird_idr' => $request->inv_earlybird_idr__nso,
-        //         'inv_discount_idr' => $request->inv_discount_idr__nso,
-        //         'inv_totalprice_idr' => $request->inv_totalprice_idr__nso,
-        //         'inv_words_idr' => $request->inv_words_idr__nso,
-        //         'inv_paymentmethod' => $request->inv_paymentmethod,
-        //         'invoice_date' => $request->invoice_date,
-        //         'inv_duedate' => $request->inv_duedate,
-        //         'inv_notes' => $request->inv_notes,
-        //         'inv_tnc' => $request->inv_tnc
-        //     ];
-        //     $param = "other";
-        // } elseif (in_array('other', $request->currency) && $request->is_session == "yes") {
-
-        //     $invoiceDetails = [
-        //         'clientprog_id' => $request->clientprog_id,
-        //         'currency' => $request->currency,
-        //         'curs_rate' => $request->curs_rate,
-        //         'is_session' => $request->is_session,
-        //         'session' => $request->session__so,
-        //         'duration' => $request->duration__so,
-        //         'inv_price' => $request->inv_price__so,
-        //         'inv_earlybird' => $request->inv_earlybird__so,
-        //         'inv_discount' => $request->inv_discount__so,
-        //         'inv_totalprice' => $request->inv_totalprice__so,
-        //         'inv_words' => $request->inv_words__so,
-        //         'inv_price_idr' => $request->inv_price_idr__so,
-        //         'inv_earlybird_idr' => $request->inv_earlybird_idr__so,
-        //         'inv_discount_idr' => $request->inv_discount_idr__so,
-        //         'inv_totalprice_idr' => $request->inv_totalprice_idr__so,
-        //         'inv_words_idr' => $request->inv_words_idr__so,
-        //         'inv_paymentmethod' => $request->inv_paymentmethod,
-        //         'invoice_date' => $request->invoice_date,
-        //         'inv_duedate' => $request->inv_duedate,
-        //         'inv_notes' => $request->inv_notes,
-        //         'inv_tnc' => $request->inv_tnc
-        //     ];
-        //     $param = "other";
-        // }
-        # end of old code
-
-        // $invoiceDetails['inv_category'] = $invoiceDetails['is_session'] == "yes" ? "session" : $invoiceDetails['currency'][0];
         $invoiceDetails['inv_category'] = $invoiceDetails['is_session'] == "yes" ? "session" : $invoiceDetails['currency'];
         $invoiceDetails['session'] = isset($invoiceDetails['session']) && $invoiceDetails['session'] != 0 ? $invoiceDetails['session'] : 0;
         $invoiceDetails['currency'] = $currency == "other" ? $invoiceDetails['currency_detail'] : $currency;
         $invoiceDetails['inv_paymentmethod'] = $invoiceDetails['inv_paymentmethod'] == "full" ? 'Full Payment' : 'Installment';
         unset($invoiceDetails['currency_detail']);
 
+        $invoiceDetails['created_at'] = $invoiceDetails['invoice_date'];
+
         DB::beginTransaction();
         try {
+
+            # when created date / invoice date has changed 
+            # then check if old invoice_id same or not with the new invoice id using created at
+            if ( $invoice->created_at != $invoiceDetails['created_at']) {
+                
+                $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
+    
+                # Use Trait Create Invoice Id
+                $new_inv_id = $this->getInvoiceId($last_id, $invoice->clientprog->prog_id, $invoiceDetails['created_at']);
+                $invoiceDetails['inv_id'] = $new_inv_id;
+            }
 
             $this->invoiceProgramRepository->updateInvoice($inv_id, $invoiceDetails);
 

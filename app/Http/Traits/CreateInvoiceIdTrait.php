@@ -2,19 +2,20 @@
 namespace App\Http\Traits;
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Date;
 
 trait CreateInvoiceIdTrait {
 
-    public function getInvoiceId($last_id, $prog_id) {
+    public function getInvoiceId($last_id, $prog_id, $requestDate = NULL) {
 
         if($last_id == null){
             $last_id = 0;
         }
 
-        $now = Carbon::now();
-        $thisMonth = $now->month;
+        $dateForInvoice = $requestDate !== NULL ? Carbon::createFromFormat('Y-m-d', $requestDate) : Carbon::now();
+        $thisMonth = $dateForInvoice->month;
         $monthOfRoman = $this->numberToRoman($thisMonth);
-        $thisYear = substr($now->year, 2, 3);
+        $thisYear = substr($dateForInvoice->year, 2, 3);
 
         $increment = str_pad($last_id+1,4, "0" , STR_PAD_LEFT);
         

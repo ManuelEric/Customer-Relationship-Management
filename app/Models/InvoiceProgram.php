@@ -36,6 +36,7 @@ class InvoiceProgram extends Model
         'session',
         'duration',
         'inv_paymentmethod',
+        'invoice_date',
         'inv_duedate',
         'inv_notes',
         'inv_tnc',
