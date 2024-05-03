@@ -2,7 +2,7 @@
 @section('title', 'Confirmation')
 @push('styles')
 
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <link href="https://fastly.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <style>
 
         @font-face {
@@ -49,7 +49,7 @@
         }
         
     </style>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
+    <link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
 @endpush
 @section('body')
     @php
@@ -251,20 +251,20 @@
 
 @push('scripts')
 
-    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <script src="https://fastly.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
+    <script src="https://fastly.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <script>
         var user1 = document.querySelector("#phoneUser1");
         var user2 = document.querySelector("#phoneUser2");
 
         const phoneInput1 = window.intlTelInput(user1, {
-            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
+            utilsScript: "https://fastly.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
             initialCountry: 'id',
             onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
         });
 
         const phoneInput2 = window.intlTelInput(user2, {
-            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
+            utilsScript: "https://fastly.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
             initialCountry: 'id',
             onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
         });
