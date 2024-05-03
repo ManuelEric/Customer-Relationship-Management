@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Log;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Artisan;
 
 class DigitalDashboardController extends Controller
 {
@@ -56,6 +57,10 @@ class DigitalDashboardController extends Controller
     public function getDataLead(Request $request)
     {
         $monthYear = $request->route('month') ?? date('Y-m');
+
+        // digital dashboard
+        Artisan::call('update:target_tracking', ['date' => $monthYear . '-01']);
+
         $currMonth = date('m', strtotime($monthYear));
         $currYear = date('Y', strtotime($monthYear));
         $date = CarbonImmutable::create($currYear, $currMonth);

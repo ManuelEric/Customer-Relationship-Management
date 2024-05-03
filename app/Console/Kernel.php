@@ -91,7 +91,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('insert:target_tracking_monthly')->when(function() {
             return Carbon::now()->firstOfMonth()->isToday();
         }); # should be run on cron every new month
-        $schedule->command('update:target_tracking')->withoutOverlapping()->everyMinute()->onOneServer(); # run every minute because target tracking should be real-time update
+        $schedule->command('update:target_tracking ' . date('Y-m-d'))->withoutOverlapping()->everyMinute()->onOneServer(); # run every minute because target tracking should be real-time update
 
         # cron for form event
         $schedule->command('mailing:resend_unsend_mail')->withoutOverlapping()->everyMinute();
