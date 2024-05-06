@@ -11,7 +11,7 @@ function currencySymbol(code) {
             return '£'
             break;
         case 'aud':
-            return 'AU$'
+            return 'A$'
             break;
         case 'vnd':
             return '₫'
@@ -43,7 +43,7 @@ function currencyText(code) {
             return 'British Pounds'
             break;
         case 'aud':
-            return 'Australlian Dollars'
+            return 'Australian Dollars'
             break;
         case 'vnd':
             return 'Vietnamese Dong'

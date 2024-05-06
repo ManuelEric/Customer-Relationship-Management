@@ -16,7 +16,7 @@ class UpdateTargetTracking extends Command
      *
      * @var string
      */
-    protected $signature = 'update:target_tracking';
+    protected $signature = 'update:target_tracking {date}';
 
     /**
      * The console command description.
@@ -43,7 +43,9 @@ class UpdateTargetTracking extends Command
 
         Log::info('Cron update tracking works fine.');
 
-        $now = date('Y-m-d');
+        $date = $this->argument('date');
+
+        $now = $date;
         $division = ['Sales', 'Referral', 'Digital'];
         $progressBar = $this->output->createProgressBar(count($division));
         $progressBar->start();

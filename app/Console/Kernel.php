@@ -91,7 +91,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('insert:target_tracking_monthly')->when(function() {
             return Carbon::now()->firstOfMonth()->isToday();
         }); # should be run on cron every new month
-        $schedule->command('update:target_tracking')->withoutOverlapping()->everyMinute()->onOneServer(); # run every minute because target tracking should be real-time update
+        $schedule->command('update:target_tracking ' . date('Y-m-d'))->withoutOverlapping()->everyMinute()->onOneServer(); # run every minute because target tracking should be real-time update
 
         # cron for form event
         $schedule->command('mailing:resend_unsend_mail')->withoutOverlapping()->everyMinute();
@@ -119,6 +119,23 @@ class Kernel extends ConsoleKernel
 
         # run reminder H-1 EduALL Launchpad
         $schedule->command('reminder:event evt-0014')->withoutOverlapping()->everyMinute()->onOneServer();
+        
+        # run sync data crm to google sheet
+        $schedule->command('sync:data school')->withoutOverlapping()->hourly()->onOneServer();
+        $schedule->command('sync:data partner')->withoutOverlapping()->hourly()->onOneServer();
+        $schedule->command('sync:data event')->withoutOverlapping()->hourly()->onOneServer();
+        $schedule->command('sync:data program_b2b')->withoutOverlapping()->hourly()->onOneServer();
+        $schedule->command('sync:data program_b2c')->withoutOverlapping()->hourly()->onOneServer();
+        $schedule->command('sync:data program')->withoutOverlapping()->hourly()->onOneServer();
+        $schedule->command('sync:data admission')->withoutOverlapping()->hourly()->onOneServer();
+        $schedule->command('sync:data sales')->withoutOverlapping()->hourly()->onOneServer();
+        $schedule->command('sync:data mentor')->withoutOverlapping()->hourly()->onOneServer();
+        $schedule->command('sync:data employee')->withoutOverlapping()->hourly()->onOneServer();
+        $schedule->command('sync:data lead')->withoutOverlapping()->hourly()->onOneServer();
+        $schedule->command('sync:data major')->withoutOverlapping()->hourly()->onOneServer();
+        $schedule->command('sync:data edufair')->withoutOverlapping()->hourly()->onOneServer();
+        $schedule->command('sync:data kol')->withoutOverlapping()->hourly()->onOneServer();
+        $schedule->command('sync:data university')->withoutOverlapping()->hourly()->onOneServer();
     }
 
     /**
