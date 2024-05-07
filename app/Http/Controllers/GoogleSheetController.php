@@ -80,7 +80,7 @@ class GoogleSheetController extends Controller
                     '*.KOL' => ['required_if:lead,KOL', 'nullable', 'exists:tbl_lead,lead_id'],
                     '*.Level of Interest' => ['nullable', 'in:High,Medium,Low'],
                     '*.Interested Program' => ['nullable'],
-                    '*.Children Name' => ['nullable'],
+                    '*.Children Name' => ['required'],
                     '*.School' => ['nullable'],
                     '*.Graduation Year' => ['nullable'],
                     '*.Destination Country' => ['nullable'],
