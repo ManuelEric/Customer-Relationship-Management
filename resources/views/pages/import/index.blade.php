@@ -9,13 +9,20 @@
 
 <div class="card bg-secondary mb-3 p-2">
     <div class="d-flex align-items-center justify-content-between">
-        <h5 class="text-white m-0">
-            <i class="bi bi-tag me-1"></i>
-            Import Data
-        </h5>
-        <a href="https://docs.google.com/spreadsheets/d/1xam159C7dirHCH9txq1g9xp98mDbktCBvg_clc4hgxI/edit?usp=sharing" target="_blank" class="btn btn-sm btn-info"><i
-            class="bi bi-box-arrow-up-right me-1"></i>
-        Spreadsheet</a>
+        <div>
+            <h5 class="text-white m-0">
+                <i class="bi bi-tag me-1"></i>
+                Import Data
+            </h5>
+        </div>
+        <div>
+            <a href="#" role="button" id="sync-btn" class="btn btn-sm btn-info"><i
+                class="bi bi-arrow-clockwise me-1"></i>
+            Sync Data</a>
+            <a href="https://docs.google.com/spreadsheets/d/1xam159C7dirHCH9txq1g9xp98mDbktCBvg_clc4hgxI/edit?usp=sharing" target="_blank" class="btn btn-sm btn-info"><i
+                class="bi bi-box-arrow-up-right me-1"></i>
+            Spreadsheet</a>
+        </div>
     </div>
 </div>
 
@@ -115,6 +122,50 @@
  </div>
 </div>
 
+{{-- Modal sync data --}}
+<div class="modal fade" id="syncModal" data-bs-backdrop="static" data-bs-keyboard="false"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>
+                    Sync Data
+                </span>
+                <i class="bi bi-pencil-square"></i>
+            </div>
+            <div class="modal-body w-100 text-start">
+                    <div class="row g-2">
+                        <div class="col-md-12">
+                            <div class="mb-2">
+                                <select name="type" id="type-sync" class="modal-select-sync w-100">
+                                    <option data-placeholder="true"></option>
+                                    <option value="edufair">Edufair</option>
+                                    <option value="event">Event</option>
+                                    <option value="kol">KOL</option>
+                                    <option value="lead">Lead</option>
+                                    <option value="major">Major</option>
+                                    <option value="partner">Partner</option>
+                                    <option value="program">Program</option>
+                                    <option value="school">School</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <a href="#" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
+                            <i class="bi bi-x-square me-1"></i>
+                            Cancel</a>
+                        <button type="button" id="submit-sync" class="btn btn-primary btn-sm">
+                            <i class="bi bi-arrow-clockwise me-1"></i>
+                            Sync</button>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
  {{-- Modal notif import --}}
  <div class="modal modal-md fade" id="modal-notif-import" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -132,6 +183,22 @@
 </div>
 
 <script>
+
+    $(document).ready(function() {
+
+        $('#type-sync').select2({
+            dropdownParent: $('#syncModal .modal-body'),
+            placeholder: "Select value",
+            allowClear: true
+        });
+
+    });
+
+    $('#sync-btn').click(function(e){
+        $("#syncModal").modal('show');
+        // $("#category").val('parent')
+    });
+
     $('#parent').click(function(e){
         $("#inputRange").modal('show');
         $("#category").val('parent')
@@ -204,6 +271,30 @@
                 if(error.response.status == 429){
                     msg = 'Please wait 1 minute!'
                 }
+                swal.close()
+                notification('error', msg);
+
+            })
+    })
+
+    $('#submit-sync').click(function(e){
+        $("#syncModal").modal('hide');
+        var type = $("#type-sync").val();
+
+        showLoading()
+        axios
+            .get("{{ url('api/sync') }}/" + type, {
+                headers:{
+                    'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
+                }
+            })
+            .then(function(response){
+                
+                swal.close()
+                notification('success', 'Successfully syncronized data')
+            }).catch(function(error, response) {
+                var msg = 'Something went wrong. Please try again';
+        
                 swal.close()
                 notification('error', msg);
 

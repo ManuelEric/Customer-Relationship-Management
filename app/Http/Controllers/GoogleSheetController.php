@@ -1300,4 +1300,24 @@ class GoogleSheetController extends Controller
         return $arrInputData;
     }
 
+    public function sync(Request $request)
+    {
+        $type = $request->route('type');
+
+        try {
+            Artisan::call('sync:data', ['type' => $type]);
+        }catch (Exception $e) {
+            Log::error($e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Something went wrong. Please try again'
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+        ]);
+    }
+
 }
