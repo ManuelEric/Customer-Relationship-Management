@@ -102,7 +102,7 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-4 mb-2">
                                 <label>Start Date <sup class="text-warning">*</sup></label>
                                 <input type="datetime-local" name="event_startdate"
                                     value="{{ isset($event->event_startdate) ? $event->event_startdate : old('event_startdate') }}"
@@ -111,7 +111,7 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-4 mb-2">
                                 <label>End Date <sup class="text-warning">*</sup></label>
                                 <input type="datetime-local" name="event_enddate"
                                     value="{{ isset($event->event_enddate) ? $event->event_enddate : old('event_enddate') }}"
@@ -120,7 +120,7 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-4 mb-2">
                                 <label>Target <sup class="text-warning">*</sup></label>
                                 <input type="number" name="event_target"
                                     value="{{ isset($event->event_target) ? $event->event_target : old('event_target') }}"
@@ -129,7 +129,25 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-4 mb-2">
+                                <label>Event Type <sup class="text-warning">*</sup></label>
+                                <div class="form-control form-control-sm border-0">
+
+                                    <div class="form-check-inline">
+                                        <input class="form-check-input" type="radio" name="type" id="onlineOptions" value="online" @checked($event->type == 'online')>
+                                        <label class="form-check-label" for="onlineOptions">Online</label>
+                                    </div>
+                                    <div class="form-check-inline">
+                                        <input class="form-check-input" type="radio" name="type" id="offlineOptions" value="offline" @checked($event->type == 'offline')>
+                                        <label class="form-check-label" for="offlineOptions">Offline</label>
+                                    </div>
+                                    <div class="form-check-inline">
+                                        <input class="form-check-input" type="radio" name="type" id="hybridOptions" value="hybrid" @checked($event->type == 'hybrid')>
+                                        <label class="form-check-label" for="hybridOptions">Hybrid</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-8 mb-2">
                                 <label>Banner </label>
                                 <div class="banner-control">
                                     @if (isset($event->event_banner))

@@ -112,7 +112,8 @@ class EventController extends Controller
             'event_startdate',
             'event_enddate',
             'event_target',
-            'category'
+            'category',
+            'type'
         ]);
 
         $employee_id = $request->user_id;
@@ -181,7 +182,8 @@ class EventController extends Controller
             'event_startdate',
             'event_enddate',
             'event_target',
-            'category'
+            'category',
+            'type'
         ]);
 
         $eventId = $request->route('event');
