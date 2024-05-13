@@ -12,6 +12,9 @@
         <table class="table table-bordered table-hover nowrap align-middle w-100" id="programTable">
             <thead class="bg-secondary text-white">
                 <tr class="text-center" role="row">
+                    <th class="bg-info text-white">
+                        <i class="bi bi-check"></i>
+                    </th>
                     <th class="bg-info text-white">No</th>
                     <th class="bg-info text-white">Program Name</th>
                     <th>Conversion Lead</th>
@@ -53,7 +56,13 @@
                     'pageLength', {
                         extend: 'excel',
                         text: 'Export to Excel',
-                    }
+                    },
+                    {
+                        text: '<i class="bi bi-basket"></i> Bundle',
+                        action: function(e, dt, node, config) {
+                            addBundle();
+                        }
+                    },
                 ],
                 scrollX: true,
                 fixedColumns: {
@@ -64,6 +73,15 @@
                 serverSide: true,
                 ajax: '{{ url('api/client/' . $student->id . '/programs') }}',
                 columns: [{
+                        orderable: false,
+                        data: 'clientprog_id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return '<input type="checkbox" class="editor-active cursor-pointer" data-id="' +
+                                data + '" data-no="' + (meta.row + meta.settings._iDisplayStart + 1) +'">'
+                        }
+                    },
+                    {
                         data: 'prog_id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
@@ -72,6 +90,10 @@
                     },
                     {
                         data: 'program_name',
+                        render: function(data, type, row, meta) {
+                            
+                            return row.is_bundle > 0 ? data + ' <span class="badge text-bg-success" style="font-size:8px";>Bundle</span>' : data;
+                        }
                     },
                     {
                         data: 'conversion_lead',
@@ -224,6 +246,78 @@
                     html: true
                 });
             });
+
+            function addBundle() {
+                var selected = [];
+                var no = [];
+                var html = '';
+                $('input.editor-active').each(function() {
+                    if ($(this).prop('checked')) {
+                        selected.push($(this).data('id'));
+                        no.push($(this).data('no'));
+                    }
+                });
+
+                if (selected.length > 1) {
+                    Swal.fire({
+                        title: "Confirmation!",
+                        text: 'Are you sure to create bundle this program?',
+                        showCancelButton: true,
+                        confirmButtonText: "Yes",
+                    }).then((result) => {
+                        /* Read more about isConfirmed, isDenied below */
+                        if (result.isConfirmed) {
+                            showLoading();
+                            var link = '{{ route('program.client.bundle') }}';
+                            axios.post(link, {
+                                    choosen: selected,
+                                    number: no
+                                })
+                                .then(function(response) {
+                                    html = '';
+                                    html += `<ul>`;
+
+                                    if(response.data.success == false){
+                                        var error = response.data.error
+                                        if(Object.keys(error).length){
+                                            Object.keys(error).forEach(key => {
+                                                html += `<li class="text-danger">${key + ': ' + error[key]}</li>`
+                                            });
+                                        }
+                                        html += `</ul>`;
+                                        Swal.fire({
+                                            icon: "error",
+                                            title: "Oops...",
+                                            html: html,
+                                        });
+                                    }else{
+                                        swal.close();
+                                        notification('success', 'Successfully created a bundle program');
+                                    }
+
+                                    $("#rawTable").DataTable().ajax.reload()
+                                })
+                                .catch(function(error) {
+                                    swal.close();
+                                    notification('error', error.message);
+                                })
+                        }
+                    });
+
+                } else if(selected.length === 1){
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Please select at least 2 client program!",
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Please select the client program data first!",
+                    });
+                }
+            }
                 
         });
     </script>

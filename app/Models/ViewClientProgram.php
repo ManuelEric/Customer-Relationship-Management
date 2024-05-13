@@ -99,4 +99,9 @@ class ViewClientProgram extends Model
     {
         return $this->hasMany(InvoiceProgram::class, 'clientprog_id', 'clientprog_id');
     }
+
+    public function bundlingDetail()
+    {
+        return $this->hasMany(BundlingDetail::class, 'clientprog_id', 'clientprog_id');
+    }
 }
