@@ -100,8 +100,9 @@ class Reminder extends Command
                 ]
             ];
 
-            ProcessEmailReminderReg::dispatch($passedData)->onQueue('reminder-mail');
-
+            if($client->mail != null){
+                ProcessEmailReminderReg::dispatch($passedData)->onQueue('reminder-mail');
+            }
 
             $progressBar->advance();
             

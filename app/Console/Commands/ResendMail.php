@@ -63,12 +63,14 @@ class ResendMail extends Command
                 $logId = $detail->id;
                 $category = $detail->category;
 
-                # basic info
-                $clientEventId = $detail->clientevent_id;
-                $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
-                $eventName = $clientEvent->event->event_title;
-                $client = $clientEvent->client;
-                $full_name = $client->full_name;
+                if($detail->clientevent_id != null){
+                    # basic info
+                    $clientEventId = $detail->clientevent_id;
+                    $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
+                    $eventName = $clientEvent->event->event_title;
+                    $client = $clientEvent->client;
+                    $full_name = $client->full_name;
+                }
 
                 
                 switch ($category) {
@@ -133,7 +135,7 @@ class ResendMail extends Command
                     # VIP
                     case 'reminder-registration':
                         if($detail->event->event_enddate > Carbon::now()){
-                            $this->sendMailReminder($detail->client_id, $detail->event->event_id, 'automate', 'registration', $detail->child_id, $detail->notes);
+                            $this->sendMailReminder($detail->client_id, $detail->event_id, 'automate', 'registration', $detail->child_id, $detail->notes);
                         }
                         break;
 
