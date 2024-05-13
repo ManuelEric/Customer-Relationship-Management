@@ -134,15 +134,15 @@
                                 <div class="form-control form-control-sm border-0">
 
                                     <div class="form-check-inline">
-                                        <input class="form-check-input" type="radio" name="type" id="onlineOptions" value="online" @checked($event->type == 'online')>
+                                        <input class="form-check-input" type="radio" name="type" id="onlineOptions" value="online" @checked(isset($event) ? $event->type == 'online': true)>
                                         <label class="form-check-label" for="onlineOptions">Online</label>
                                     </div>
                                     <div class="form-check-inline">
-                                        <input class="form-check-input" type="radio" name="type" id="offlineOptions" value="offline" @checked($event->type == 'offline')>
+                                        <input class="form-check-input" type="radio" name="type" id="offlineOptions" value="offline" @checked(isset($event) ? $event->type == 'offline' : false)>
                                         <label class="form-check-label" for="offlineOptions">Offline</label>
                                     </div>
                                     <div class="form-check-inline">
-                                        <input class="form-check-input" type="radio" name="type" id="hybridOptions" value="hybrid" @checked($event->type == 'hybrid')>
+                                        <input class="form-check-input" type="radio" name="type" id="hybridOptions" value="hybrid" @checked(isset($event) ? $event->type == 'hybrid' : false)>
                                         <label class="form-check-label" for="hybridOptions">Hybrid</label>
                                     </div>
                                 </div>

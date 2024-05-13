@@ -1323,9 +1323,16 @@
                         tot_percent += parseInt($(this).val())
                     })
 
-                    if (tot_percent < 100) {
+                    var tot_amount = 0;
+                    $('.amount').each(function() {
+                        tot_amount += parseInt($(this).val())
+                    })
+
+                    var real_total_amount = $("#not_session_idr_total").val();
+
+                    if ( (tot_percent < 100) && (tot_amount != real_total_amount)) {
                         notification('error',
-                            'Installment amount is not right. Please double check before create invoice')
+                            'Installment amount is not right. Please double check before create an invoice')
                         return;
                     }
 
@@ -1336,9 +1343,9 @@
                         tot_percent += parseInt($(this).val())
                     })
 
-                    if (tot_percent < 100) {
+                    if ( (tot_percent < 100) && (tot_amount != real_total_amount)) {
                         notification('error',
-                            'Installment amount is not right. Please double check before create invoice')
+                            'Installment amount is not right. Please double check before create an invoice')
                         return;
                     }
 
