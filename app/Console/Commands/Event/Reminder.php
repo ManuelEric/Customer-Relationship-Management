@@ -61,6 +61,10 @@ class Reminder extends Command
             return;
         }
 
+        if (Carbon::now()->format('H:i') <= '07:00') {
+            return;
+        }
+
         foreach ($clientEvents as $clientEvent)
         {
             # if the client event previously has a log mail
@@ -100,8 +104,9 @@ class Reminder extends Command
                 ]
             ];
 
-            ProcessEmailReminderReg::dispatch($passedData)->onQueue('reminder-mail');
-
+            if($client->mail != null){
+                ProcessEmailReminderReg::dispatch($passedData)->onQueue('reminder-mail');
+            }
 
             $progressBar->advance();
             

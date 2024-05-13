@@ -80,7 +80,7 @@ class GoogleSheetController extends Controller
                     '*.KOL' => ['required_if:lead,KOL', 'nullable', 'exists:tbl_lead,lead_id'],
                     '*.Level of Interest' => ['nullable', 'in:High,Medium,Low'],
                     '*.Interested Program' => ['nullable'],
-                    '*.Children Name' => ['nullable'],
+                    '*.Children Name' => ['required'],
                     '*.School' => ['nullable'],
                     '*.Graduation Year' => ['nullable'],
                     '*.Destination Country' => ['nullable'],
@@ -1298,6 +1298,26 @@ class GoogleSheetController extends Controller
             $arrInputData[$data['No']] = array_map(fn($v) => $v == '' ? null : $v, $data->toArray()); # Replace value "" to null
         }
         return $arrInputData;
+    }
+
+    public function sync(Request $request)
+    {
+        $type = $request->route('type');
+
+        try {
+            Artisan::call('sync:data', ['type' => $type]);
+        }catch (Exception $e) {
+            Log::error($e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Something went wrong. Please try again'
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+        ]);
     }
 
 }

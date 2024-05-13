@@ -312,7 +312,7 @@ trait MailingEventOfflineTrait
                     'eventDate' => date('M d, Y', strtotime($event->event_startdate)),
                     'eventDate_start' => date('l, d M Y', strtotime($event->event_startdate)),
                     'eventDate_end' => date('M d, Y', strtotime($event->event_enddate)),
-                    'eventTime_start' => date('g A', strtotime($event->event_startdate)),
+                    'eventTime_start' => date('g:i A', strtotime($event->event_startdate)),
                     'eventTime_end' => date('H:i', strtotime($event->event_enddate)),
                     'eventLocation' => $event->event_location,
                 ]

@@ -205,4 +205,9 @@ class ClientProgram extends Model
     {
         return $this->belongsToMany(User::class, 'tbl_pic_client', 'client_id', 'user_id');
     }
+
+    public function bundling()
+    {
+        return $this->hasMany(BundlingDetail::class, 'clientprog_id', 'clientprog_id');
+    }
 }

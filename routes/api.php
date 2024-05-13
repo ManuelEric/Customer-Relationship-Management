@@ -234,3 +234,5 @@ Route::group(['middleware' => 'auth:api', 'prefix' => 'import'], function () {
     Route::get('teacher', [GoogleSheetController::class, 'storeTeacher']);
     Route::get('client-program', [GoogleSheetController::class, 'storeClientProgram']);
 });
+
+Route::middleware('auth:api')->get('sync/{type}', [GoogleSheetController::class, 'sync']);
