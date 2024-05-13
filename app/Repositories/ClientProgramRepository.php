@@ -157,6 +157,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         addColumn('is_bundle', function ($query) {
             return $query->bundlingDetail()->count();
         })->
+        addColumn('bundling_id', function ($query) {
+            return $query->bundlingDetail()->count() > 0 ? $query->bundlingDetail->first()->bundling_id : null;
+        })->
         filterColumn(
             'status',
             function ($query, $keyword) {
@@ -1519,6 +1522,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         Bundling::create(['uuid' => $uuid]);
         return BundlingDetail::insert($clientProgramDetails);
 
+    }
+
+    public function deleteBundleProgram($bundling_id)
+    {
+        return Bundling::where('uuid', $bundling_id)->delete();
     }
 
     # 

@@ -51,6 +51,7 @@ Route::get('event/create', function () {
 
 Route::resource('client', ClientProgramController::class);
 Route::post('client/bundle', [ClientProgramController::class ,'addBundleProgram'])->name('program.client.bundle');
+Route::post('client/deleteBundle', [ClientProgramController::class ,'cancelBundleProgram'])->name('program.client.bundle.destroy');
 
 
 Route::get('corporate', function () {

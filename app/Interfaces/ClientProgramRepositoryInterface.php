@@ -20,6 +20,7 @@ interface ClientProgramRepositoryInterface
     public function endedClientPrograms(array $clientprog_ids, array $newDetails);
     public function deleteClientProgram($clientProgramId);
     public function createBundleProgram($uuid, $clientProgramDetails);
+    public function deleteBundleProgram($bundling_id);
 
     # sales tracking
     public function getCountProgramByStatus($status, array $dateDetails, array $additionalFilter = []);

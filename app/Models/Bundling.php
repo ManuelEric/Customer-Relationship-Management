@@ -24,5 +24,9 @@ class Bundling extends Model
         'uuid',
     ];
 
+    public function invoice()
+    {
+        return $this->hasOne(InvoiceProgram::class, 'clientprog_id', 'clientprog_id');
+    }
 
 }

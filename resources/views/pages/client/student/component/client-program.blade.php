@@ -58,9 +58,15 @@
                         text: 'Export to Excel',
                     },
                     {
-                        text: '<i class="bi bi-basket"></i> Bundle',
+                        text: '<i class="bi bi-bag-plus"></i> Bundle',
                         action: function(e, dt, node, config) {
                             addBundle();
+                        }
+                    },
+                    {
+                        text: '<i class="bi bi-bag-x"></i> Cancel Bundle',
+                        action: function(e, dt, node, config) {
+                            cancelBundle();
                         }
                     },
                 ],
@@ -77,8 +83,12 @@
                         data: 'clientprog_id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
+                            var bundling_id = null;
+                            if(row.bundling_id !== null){
+                                bundling_id = row.bundling_id;
+                            }
                             return '<input type="checkbox" class="editor-active cursor-pointer" data-id="' +
-                                data + '" data-no="' + (meta.row + meta.settings._iDisplayStart + 1) +'">'
+                                data + '" data-no="' + (meta.row + meta.settings._iDisplayStart + 1) +'" data-bundlingid="'+ bundling_id +'">'
                         }
                     },
                     {
@@ -91,8 +101,11 @@
                     {
                         data: 'program_name',
                         render: function(data, type, row, meta) {
-                            
-                            return row.is_bundle > 0 ? data + ' <span class="badge text-bg-success" style="font-size:8px";>Bundle</span>' : data;
+                            var bundling_id = null;
+                            if(row.bundling_id !== null){
+                                bundling_id = row.bundling_id.substring(0, 3).toUpperCase();
+                            }
+                            return row.is_bundle > 0 ? data + ' <span class="badge text-bg-success" style="font-size:8px";>Bundle '+ bundling_id +'</span>' : data;
                         }
                     },
                     {
@@ -271,7 +284,7 @@
                             var link = '{{ route('program.client.bundle') }}';
                             axios.post(link, {
                                     choosen: selected,
-                                    number: no
+                                    number: no,
                                 })
                                 .then(function(response) {
                                     html = '';
@@ -293,6 +306,81 @@
                                     }else{
                                         swal.close();
                                         notification('success', 'Successfully created a bundle program');
+                                    }
+
+                                    $("#rawTable").DataTable().ajax.reload()
+                                })
+                                .catch(function(error) {
+                                    swal.close();
+                                    notification('error', error.message);
+                                })
+                        }
+                    });
+
+                } else if(selected.length === 1){
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Please select at least 2 client program!",
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Please select the client program data first!",
+                    });
+                }
+            }
+
+            function cancelBundle() {
+                var selected = [];
+                var no = [];
+                var bundlingId = null;
+                var html = '';
+                $('input.editor-active').each(function() {
+                    if ($(this).prop('checked')) {
+                        selected.push($(this).data('id'));
+                        no.push($(this).data('no'));
+                        bundlingId = $(this).data('bundlingid');
+                    }
+                });
+                
+                if (selected.length > 1) {
+                    Swal.fire({
+                        title: "Confirmation!",
+                        text: 'Are you sure to cancel bundle this program?',
+                        showCancelButton: true,
+                        confirmButtonText: "Yes",
+                    }).then((result) => {
+                        /* Read more about isConfirmed, isDenied below */
+                        if (result.isConfirmed) {
+                            showLoading();
+                            var link = '{{ route('program.client.bundle.destroy') }}';
+                            axios.post(link, {
+                                    choosen: selected,
+                                    number: no,
+                                    bundlingId: bundlingId
+                                })
+                                .then(function(response) {
+                                    html = '';
+                                    html += `<ul>`;
+
+                                    if(response.data.success == false){
+                                        var error = response.data.error
+                                        if(Object.keys(error).length){
+                                            Object.keys(error).forEach(key => {
+                                                html += `<li class="text-danger">${key + ': ' + error[key]}</li>`
+                                            });
+                                        }
+                                        html += `</ul>`;
+                                        Swal.fire({
+                                            icon: "error",
+                                            title: "Oops...",
+                                            html: html,
+                                        });
+                                    }else{
+                                        swal.close();
+                                        notification('success', 'Successfully canceled a bundle program');
                                     }
 
                                     $("#rawTable").DataTable().ajax.reload()
