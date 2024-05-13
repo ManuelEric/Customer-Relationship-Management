@@ -683,4 +683,14 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 
         return CRMInvoice::whereNotIn('inv_id', $invoice_v2)->get();
     }
+
+
+    ###############################################################
+    ######################### BUNDLING ############################
+    ###############################################################
+
+    public function getProgramBundle_InvoiceProgram()
+    {
+        
+    }
 }
