@@ -4,6 +4,8 @@ namespace App\Repositories;
 
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Models\AcadTutorDetail;
+use App\Models\Bundling;
+use App\Models\BundlingDetail;
 use App\Models\ClientProgram;
 use App\Models\InvoiceProgram;
 use App\Models\pivot\ClientMentor;
@@ -152,6 +154,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
         return Datatables::eloquent($model)->
         // rawColumns(['strip_tag_notes'])->
+        addColumn('is_bundle', function ($query) {
+            return $query->bundlingDetail()->count();
+        })->
         filterColumn(
             'status',
             function ($query, $keyword) {
@@ -1507,6 +1512,13 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     public function getActiveClientProgramAfterProgramEnd()
     {
         return ClientProgram::where('prog_running_status', 1)->where('prog_end_date', '<', now())->whereNotNull('prog_end_date')->get();
+    }
+
+    public function createBundleProgram($uuid, $clientProgramDetails)
+    {
+        Bundling::create(['uuid' => $uuid]);
+        return BundlingDetail::insert($clientProgramDetails);
+
     }
 
     # 

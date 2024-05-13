@@ -50,6 +50,8 @@ Route::get('event/create', function () {
 // });
 
 Route::resource('client', ClientProgramController::class);
+Route::post('client/bundle', [ClientProgramController::class ,'addBundleProgram'])->name('program.client.bundle');
+
 
 Route::get('corporate', function () {
     return view('pages.program.corporate-program.index');

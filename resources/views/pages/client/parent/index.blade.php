@@ -26,7 +26,7 @@
             </div>
             <div class="col-md-7">
                 <div class="row g-1">
-                    <div class="col-md-3 col-8">
+                    {{-- <div class="col-md-3 col-8">
                         <a href="{{ url('api/download/excel-template/parent') }}"
                             class="btn btn-sm btn-light text-info btn-download w-100"><i class="bi bi-download"></i> <span
                                 class="ms-1">Template</span></a>
@@ -35,8 +35,8 @@
                         <a href="javascript:void(0)" class="btn btn-sm btn-light text-info btn-import w-100"
                             data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span
                                 class="ms-1">Import</span></a>
-                    </div>
-                    <div class="col-md-3">
+                    </div> --}}
+                    <div class="col-md-3 offset-6">
                         <div class="dropdown">
                             <button href="#" class="btn btn-sm btn-light text-dark dropdown-toggle w-100"
                                 data-bs-toggle="dropdown" data-bs-auto-close="false" id="filter">
