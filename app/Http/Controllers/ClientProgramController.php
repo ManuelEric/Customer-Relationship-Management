@@ -1160,54 +1160,56 @@ class ClientProgramController extends Controller
     {
         DB::beginTransaction();
 
-        try {
-            $clientProgram = $clientProgramDetails = [];
-            $uuid = (string) Str::uuid();
-    
-            foreach ($request->choosen as $key => $clientprog_id) {
-                // fetch data client program
-                $clientprog_db = $this->clientProgramRepository->getClientProgramById($clientprog_id);
-                
-                // check there is an invoice 
-                $hasInvoiceStd = isset($clientprog_db->invoice) ? $clientprog_db->invoice()->count() : 0;
-                $hasBundling = isset($clientprog_db->bundling) ? $clientprog_db->bundling()->count() : 0;
-    
-                $clientProgram[$request->number[$key]] = [
-                    'clientprog_id' => $clientprog_id,
-                    'status' => $clientprog_db->status
-                ];
-                
-                $clientProgramDetails[] = [
-                    'clientprog_id' => $clientprog_id,
-                    'bundling_id' => $uuid,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                ];
-            }
-    
-            $rules = [
-                '*.clientprog_id' => ['required', 'exists:tbl_client_prog,clientprog_id'],
-                '*.status' => ['required', 'in:1', function($attribute, $value, $fail) use($hasInvoiceStd, $hasBundling){
-                    if((int)$hasInvoiceStd > 0){
-                        $fail('This program already has an invoice');
-                    }else if((int)$hasBundling > 0){
-                        $fail('This program is already in the bundle package');
-                    }
-                }]
+        $clientProgram = $clientProgramDetails = [];
+        $uuid = (string) Str::uuid();
+
+        foreach ($request->choosen as $key => $clientprog_id) {
+            // fetch data client program
+            $clientprog_db = $this->clientProgramRepository->getClientProgramById($clientprog_id);
+            
+            // check there is an invoice 
+            $hasInvoiceStd = isset($clientprog_db->invoice) ? $clientprog_db->invoice()->count() : 0;
+            $hasBundling = isset($clientprog_db->bundling) ? $clientprog_db->bundling()->count() : 0;
+
+            $clientProgram[$request->number[$key]] = [
+                'clientprog_id' => $clientprog_id,
+                'status' => $clientprog_db->status
             ];
-    
-            $validator = Validator::make($clientProgram, $rules);
-    
-            # threw error if validation fails
-            if ($validator->fails()) {
-                Log::warning($validator->errors());
-    
-                return response()->json([
-                    'success' => false,
-                    'error' => $validator->errors()
-                ]);
-            }
-    
+            
+            $clientProgramDetails[] = [
+                'clientprog_id' => $clientprog_id,
+                'bundling_id' => $uuid,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ];
+        }
+
+        $rules = [
+            '*.clientprog_id' => ['required', 'exists:tbl_client_prog,clientprog_id'],
+            '*.status' => ['required', 'in:1', function($attribute, $value, $fail) use($hasInvoiceStd, $hasBundling){
+                if((int)$hasInvoiceStd > 0){
+                    $fail('This program already has an invoice');
+                }else if((int)$hasBundling > 0){
+                    $fail('This program is already in the bundle package');
+                }
+            }]
+        ];
+
+        $validator = Validator::make($clientProgram, $rules);
+
+        # threw error if validation fails
+        if ($validator->fails()) {
+            Log::warning($validator->errors());
+
+            return response()->json([
+                'success' => false,
+                'error' => $validator->errors()
+            ]);
+        }
+
+        
+        try {
+
             $bundleProgram = $this->clientProgramRepository->createBundleProgram($uuid, $clientProgramDetails);
     
             DB::commit();
@@ -1223,7 +1225,7 @@ class ClientProgramController extends Controller
      
         
         return response()->json([
-            'success' => false,
+            'success' => true, //? sebelumnya false
             'data' => $bundleProgram
         ]);
 
