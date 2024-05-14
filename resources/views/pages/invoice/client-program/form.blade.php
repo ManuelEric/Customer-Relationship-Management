@@ -30,13 +30,6 @@
                             <label for="" class="text-muted m-0 mb-2">Program Name:</label>
                             <h6 class="mb-1">
                                 {{ $clientProg->program->program_name }}
-
-                                {{-- @php
-                                    $programName = explode('-', $clientProg->program_name);
-                                @endphp
-                                @for ($i = 0; $i < count($programName); $i++)
-                                    {{ $programName[$i] }}  <br>
-                                @endfor --}}
                             </h6>
                         </div>
                     </a>
@@ -76,18 +69,8 @@
                                 <a href="#" data-curr="idr" data-bs-toggle="modal" data-bs-target="#previewSignModal" class="openModalPreviewSign text-info">
                                     <i class="bi bi-eye-fill"></i>
                                 </a>
-                                {{-- <a href="{{ route('invoice.program.preview', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}?key=dashboard"
-                                    class="text-info" target="blank">
-                                    <i class="bi bi-eye-fill"></i>
-                                </a> --}}
                             </div>
                             @if (isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first())
-                                {{-- <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                    data-bs-title="Request Sign" id="request-acc">
-                                    <a href="" class="text-info">
-                                        <i class="bi bi-pen-fill"></i>
-                                    </a>
-                                </div> --}}
                                 <div class="btn btn-sm py-1 border btn-light" id="openModalRequestSignIdr" data-curr="idr"
                                     data-bs-toggle="modal" data-bs-target="#requestSignModal">
                                     <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
@@ -102,13 +85,6 @@
                                         <i class="bi bi-printer"></i>
                                     </a>
                                 </div>
-                                {{-- <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                    data-bs-title="Send to Client" id="send-inv-client-idr" 
-                                    onclick="confirmSendToClient('{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/send', 'idr', 'invoice')">
-                                    <a href="#" class="text-info">
-                                        <i class="bi bi-send"></i>
-                                    </a>
-                                </div> --}}
                                 <div class="btn btn-sm py-1 border btn-light" id="openModalSendToClientIdr" data-curr="idr"
                                     data-bs-toggle="modal" data-bs-target="#sendToClientModal">
                                     <a href="#" class="text-info">
@@ -131,12 +107,6 @@
                                     </a>
                                 </div>
                                 @if ( !isset($invoice->refund) && isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
-                                    {{-- <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                        data-bs-title="Request Sign" id="request-acc-other">
-                                        <a href="" class="text-info">
-                                            <i class="bi bi-pen-fill"></i>
-                                        </a>
-                                    </div> --}}
                                     <div class="btn btn-sm py-1 border btn-light" id="openModalRequestSignIdr" data-curr="other"
                                         data-bs-toggle="modal" data-bs-target="#requestSignModal">
                                         <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
@@ -151,13 +121,6 @@
                                             <i class="bi bi-printer"></i>
                                         </a>
                                     </div>
-                                    {{-- <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                        data-bs-title="Send to Client" id="send-inv-client-other"
-                                        onclick="confirmSendToClient('{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/send', 'other', 'invoice')">
-                                        <a href="#" class="text-info">
-                                            <i class="bi bi-send"></i>
-                                        </a>
-                                    </div> --}}
                                     <div class="btn btn-sm py-1 border btn-light" id="openModalSendToClientOther"
                                         data-curr="other" data-bs-toggle="modal" data-bs-target="#sendToClientModal">
                                         <a href="#" class="text-info">
@@ -1323,9 +1286,16 @@
                         tot_percent += parseInt($(this).val())
                     })
 
-                    if (tot_percent < 100) {
+                    var tot_amount = 0;
+                    $('.amount').each(function() {
+                        tot_amount += parseInt($(this).val())
+                    })
+
+                    var real_total_amount = $("#not_session_idr_total").val();
+
+                    if ( (tot_percent < 100) && (tot_amount != real_total_amount)) {
                         notification('error',
-                            'Installment amount is not right. Please double check before create invoice')
+                            'Installment amount is not right. Please double check before create an invoice')
                         return;
                     }
 
@@ -1336,9 +1306,9 @@
                         tot_percent += parseInt($(this).val())
                     })
 
-                    if (tot_percent < 100) {
+                    if ( (tot_percent < 100) && (tot_amount != real_total_amount)) {
                         notification('error',
-                            'Installment amount is not right. Please double check before create invoice')
+                            'Installment amount is not right. Please double check before create an invoice')
                         return;
                     }
 

@@ -170,6 +170,7 @@
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Client Name</th>
                         <th>Event Name</th>
+                        <th>Ticket No</th>
                         <th>Audience</th>
                         <th>Email</th>
                         <th>Phone Number</th>
@@ -350,6 +351,11 @@
                     {
                         data: 'event_name',
                         name: 'tbl_events.event_title'
+                    },
+                    {
+                        data: 'ticket_id',
+                        name: 'tbl_client_event.ticket_id',
+                        className: 'text-center'
                     },
                     {
                         data: 'register_as',

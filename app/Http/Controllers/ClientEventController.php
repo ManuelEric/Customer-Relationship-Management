@@ -339,8 +339,18 @@ class ClientEventController extends Controller
             // Case 3
             // Create client event
             # insert into client event
-            if (!$this->clientEventRepository->createClientEvent($clientEvents))
+            if (!$storedClientEvent = $this->clientEventRepository->createClientEvent($clientEvents))
                 throw new Exception('Failed to store new client event', 3);
+
+
+            // Case 4
+            // Generate ticket ID when the event is offline or hybrid
+            if (in_array($storedClientEvent->event->type, ['offline', 'hybrid'])) {
+
+                $ticketID = app('App\Http\Controllers\Api\v1\ExtClientController')->generateTicketID();
+                $this->clientEventRepository->updateClientEvent($storedClientEvent->clientevent_id, ['ticket_id' => $ticketID]);
+            }
+            
 
             DB::commit();
         } catch (Exception $e) {
@@ -476,7 +486,16 @@ class ClientEventController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->clientEventRepository->updateClientEvent($clientevent_id, $clientEvent);
+            $newClientEvent = $this->clientEventRepository->updateClientEvent($clientevent_id, $clientEvent);
+
+            // Generate ticket ID when the event is offline or hybrid
+            if (in_array($newClientEvent->event->type, ['offline', 'hybrid'])) {
+
+                $ticketID = app('App\Http\Controllers\Api\v1\ExtClientController')->generateTicketID();
+                $this->clientEventRepository->updateClientEvent($newClientEvent->clientevent_id, ['ticket_id' => $ticketID]);
+            }
+            
+            //! it supposed to be a function to remove the ticket ID when the event was changed into online (yet to be developed)
 
             DB::commit();
         } catch (Exception $e) {

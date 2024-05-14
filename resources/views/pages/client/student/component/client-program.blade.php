@@ -287,6 +287,7 @@
                                     number: no,
                                 })
                                 .then(function(response) {
+                                    
                                     html = '';
                                     html += `<ul>`;
 
@@ -306,11 +307,13 @@
                                     }else{
                                         swal.close();
                                         notification('success', 'Successfully created a bundle program');
+                                        location.reload();
                                     }
 
                                     $("#rawTable").DataTable().ajax.reload()
                                 })
                                 .catch(function(error) {
+                                    
                                     swal.close();
                                     notification('error', error.message);
                                 })

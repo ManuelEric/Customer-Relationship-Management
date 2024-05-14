@@ -30,6 +30,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 ->leftJoin('client_ref_code_view', 'client_ref_code_view.id', '=', DB::raw('SUBSTR(tbl_client_event.referral_code, 4)'))
                 ->select(
                     'tbl_client_event.clientevent_id',
+                    'tbl_client_event.ticket_id',
                     // 'tbl_client_event.event_id',
                     // 'tbl_client_event.eduf_id',
                     'client.id as client_id',
@@ -40,7 +41,6 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     'client.mail as client_mail',
                     'client.phone as client_phone',
                     'tbl_events.event_id',
-
                     DB::raw('(CASE
                         WHEN tbl_roles.role_name = "Parent" THEN child.abr_country 
                         WHEN tbl_roles.role_name != "Parent" THEN client.abr_country

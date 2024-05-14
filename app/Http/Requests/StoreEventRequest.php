@@ -55,7 +55,8 @@ class StoreEventRequest extends FormRequest
             ],
             'event_target' => 'required|min:1',
             'event_banner' => 'nullable|mimes:jpg|max:5000|image',
-            'category' => 'nullable'
+            'category' => 'nullable',
+            'type' => 'required|in:online,offline,hybrid'
         ];
     }
 
@@ -82,7 +83,8 @@ class StoreEventRequest extends FormRequest
                 },
             ],
             'event_target' => 'required|min:1',
-            'category' => 'nullable'
+            'category' => 'nullable',
+            'type' => 'required|in:online,offline,hybrid'
         ];
 
         if (!$uploadedBanner && !$newUploadedBanner) {

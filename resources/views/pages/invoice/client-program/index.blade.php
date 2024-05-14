@@ -36,28 +36,16 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs flex-nowrap w-100 overflow-auto mb-3" style="overflow-y: hidden !important;">
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap {{ isset($status) && $status == 'needed' ? 'active' : null }}" aria-current="page"
-                        href="{{ url('invoice/client-program?s=needed') }}">Invoice
-                        Needed</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap {{ isset($status) && $status == 'list' ? 'active' : null }}"
-                        href="{{ url('invoice/client-program?s=list') }}">Invoice List</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-nowrap {{ isset($status) && $status == 'reminder' ? 'active' : null }}"
-                        href="{{ url('invoice/client-program?s=reminder') }}">Due Date Reminder</a>
-                </li>
-            </ul>
-            @if ($status == 'needed')
-                @include('pages.invoice.client-program.detail.invoice-needed')
-            @elseif ($status == 'list')
-                @include('pages.invoice.client-program.detail.invoice-list')
-            @elseif ($status == 'reminder')
-                @include('pages.invoice.client-program.detail.invoice-reminder')
-            @endif
+            <x-invoice.program.nav :activeMenu="$status" />
+
+            @includeWhen($status == 'needed' && !$isBundle, 'pages.invoice.client-program.detail.invoice-needed')
+            @includeWhen($status == 'needed' && $isBundle, 'pages.invoice.client-program.detail.invoice-bundle-needed')
+
+            @includeWhen($status == 'list', 'pages.invoice.client-program.detail.invoice-list')
+
+            @includeWhen($status == 'reminder', 'pages.invoice.client-program.detail.invoice-reminder')
+
+            
 
         </div>
     </div>

@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Interfaces\InvoiceProgramRepositoryInterface;
+use App\Models\Bundling;
 use App\Models\ClientProgram;
 use App\Models\InvoiceProgram;
 use App\Models\v1\Invoice as CRMInvoice;
@@ -682,5 +683,30 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
         $invoice_v2 = InvoiceProgram::pluck('inv_id')->toArray();
 
         return CRMInvoice::whereNotIn('inv_id', $invoice_v2)->get();
+    }
+
+
+    ###############################################################
+    ######################### BUNDLING ############################
+    ###############################################################
+
+    public function getProgramBundle_InvoiceProgram($status)
+    {
+        switch ($status) {
+
+            case "needed":
+                $query = Bundling::whereDoesntHave('invoice_b2c');
+                break;
+
+        }   
+        
+        return DataTables::eloquent($query)->
+            addColumn('client_name', function (Bundling $bundle) {
+                return $bundle->details()->first()->client_program->client->full_name;
+            })->
+            addColumn('program_bundle', function (Bundling $bundle) {
+                return 'Bundling';
+            })->
+            toJson();
     }
 }
