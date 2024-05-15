@@ -19,6 +19,7 @@ use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Models\ClientAcceptance;
 use App\Models\ClientEvent;
 use App\Models\ClientLeadTracking;
+use App\Models\FollowupClient;
 use App\Models\PicClient;
 use App\Models\University;
 use App\Models\User;
@@ -219,7 +220,7 @@ class ClientRepository implements ClientRepositoryInterface
         if ($raw === true) 
             return DataTables::of($model)->make(true);
 
-        return DataTables::of($model)->
+        return DataTables::eloquent($model)->
             // // addColumn('parent_name', function ($data) {
             // //     return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
             // // })->
@@ -241,8 +242,24 @@ class ClientRepository implements ClientRepositoryInterface
             // // addColumn('children_name', function ($data) {
             // //     return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name . ' ' . $data->childrens()->first()->last_name : null;
             // // })->
+            addColumn('followup_status', function (Client $client) {
+                if (!$latestId = $client->followupSchedule()->max('id'))
+                    return '-';
+                
+                $status = $client->followupSchedule()->where('id', $latestId)->first()->status;
 
-            rawColumns(['address'])->filterColumn('parent_name', function ($query, $keyword) {
+                switch ($status) {
+                    case 0:
+                        $message = 'Currently following up';
+                        break;
+                    case 1:
+                        $message = 'Awaiting response';
+                        break;
+                }
+                return '<a href="'. url('client/board?name='.$client->full_name) .'" target="_blank">'.$message.'</a>';
+            })->
+            rawColumns(['followup_status', 'address'])->
+            filterColumn('parent_name', function ($query, $keyword) {
                 $query->whereRaw("RTRIM(CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, ''))) like ?", "%{$keyword}%");
             })->
             filterColumn('parent_mail', function ($query, $keyword) {
@@ -263,7 +280,7 @@ class ClientRepository implements ClientRepositoryInterface
             order(function ($query) {
                 $query->orderBy('status_lead_score', 'desc');
             })->
-            make(true);
+            toJson();
     }
 
     public function getNewLeads($asDatatables = false, $month = null, $advanced_filter = [])
