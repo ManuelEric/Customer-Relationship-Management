@@ -1208,28 +1208,30 @@ class ClientStudentController extends ClientController
         if (!$pic)
             return response()->json(['success' => false, 'message' => 'We require a selection to proceed. Please review the available options and choose one.'], 500);
 
-        $picDetails = [];
+        $picDetails = new Collection();
 
         DB::beginTransaction();
         try {
 
             foreach ($clientIds as $clientId) {
 
-                if (array_search($clientId, $picDetails))
+                if ($picDetails->where('client_id', $clientId)->first())
                     continue;
-
-                $picDetails[] = [
+                
+                $picDetails->push([
                     'client_id' => $clientId,
                     'user_id' => $pic,
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
-                ];
+                ]);
 
                 if ($client = $this->clientRepository->checkActivePICByClient($clientId)) 
                     $this->clientRepository->inactivePreviousPIC($client);
             }
 
-            $this->clientRepository->insertPicClient($picDetails);
+            # because insert sql need data type as array
+            # meaning: collection has to be converted into array
+            $this->clientRepository->insertPicClient($picDetails->toArray());
             
             DB::commit();
 

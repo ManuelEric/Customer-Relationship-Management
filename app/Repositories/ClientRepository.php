@@ -1761,7 +1761,7 @@ class ClientRepository implements ClientRepositoryInterface
         return UserClient::with($relation)->whereIn('id', $clientIds)->get();
     }
 
-    public function insertPicClient(array $picDetails)
+    public function insertPicClient($picDetails)
     {
         return PicClient::insert($picDetails);
     }

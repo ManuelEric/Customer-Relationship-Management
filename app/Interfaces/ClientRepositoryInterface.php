@@ -122,7 +122,7 @@ interface ClientRepositoryInterface
 
     # Pic Client
     public function checkActivePICByClient($clientId);
-    public function insertPicClient(array $picDetails);
+    public function insertPicClient($picDetails);
     public function updatePicClient($picClientId, array $picDetails);
     public function inactivePreviousPIC(UserClient $picDetails);
 
