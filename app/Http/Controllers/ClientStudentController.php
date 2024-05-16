@@ -119,9 +119,9 @@ class ClientStudentController extends ClientController
 
     public function index(Request $request)
     {
+        $statusClient = $request->get('st');
         if ($request->ajax()) {
 
-            $statusClient = $request->get('st');
             $asDatatables = true;
 
             # advanced filter purpose
@@ -180,7 +180,7 @@ class ClientStudentController extends ClientController
 
         $entries = app('App\Services\ClientStudentService')->advancedFilterClient();
 
-        return view('pages.client.student.index')->with($entries);
+        return view('pages.client.student.index')->with($entries + ['st' => $statusClient]);
     }
 
     public function indexRaw(Request $request)
@@ -224,7 +224,7 @@ class ClientStudentController extends ClientController
 
     public function show(Request $request)
     {
-        
+                
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
 

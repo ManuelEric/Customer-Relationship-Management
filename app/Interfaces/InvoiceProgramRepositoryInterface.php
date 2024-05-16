@@ -25,7 +25,7 @@ interface InvoiceProgramRepositoryInterface
     public function getInvoiceDifferences();
 
     //! collection of invoice bundle functions
-    public function getProgramBundle_InvoiceProgram();
+    public function getProgramBundle_InvoiceProgram($status);
 
 
     # POST

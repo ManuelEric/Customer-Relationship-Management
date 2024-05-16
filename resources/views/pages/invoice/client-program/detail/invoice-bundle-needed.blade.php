@@ -4,13 +4,13 @@
             <th class="bg-info text-white">#</th>
             <th class="bg-info text-white">Client Name</th>
             <th>Bundle</th>
-            <th>PIC</th>
+            {{-- <th>PIC</th> --}}
             <th class="bg-info text-white">Action</th>
         </tr>
     </thead>
     <tfoot class="bg-light text-white">
         <tr>
-            <td colspan="5"></td>
+            <td colspan="4"></td>
         </tr>
     </tfoot>
 </table>
@@ -20,7 +20,7 @@
 <script>
     var widthView = $(window).width();
     $(document).ready(function() {
-        var table = $('#programTable').DataTable({
+        var table = $('#listOfBundleProgram').DataTable({
             dom: 'Bfrtip',
             lengthMenu: [
                 [10, 25, 50, 100, -1],
@@ -41,39 +41,23 @@
             serverSide: true,
             ajax: '',
             columns: [{
-                    data: 'clientprog_id',
+                    data: 'uuid',
                     className: 'text-center',
                     render: function(data, type, row, meta) {
                         return meta.row + meta.settings._iDisplayStart + 1;
                     }
                 },
                 {
-                    data: 'fullname',
+                    data: 'client_name',
                 },
                 {
-                    data: 'program_name',
+                    data: 'program_bundle',
                 },
-                {
-                    data: 'success_date',
-                    className:'text-center',
-                    render: function(data, type, row) {
-                        let success_date = data ? moment(data).format("MMMM Do YYYY") : '-'
-                        return success_date
-                    }
-                },
-                {
-                    data: 'conversion_lead',
-                    className:'text-center',
-                },
-                {
-                    data: 'pic_name',
-                    className:'text-center',
-                },
-                {
-                    data: 'clientprog_id',
+                {   
+                    data: 'uuid',
                     className: 'text-center',
                     render: function(data, type, row) {
-                        var link = "{{ url('invoice/client-program/create') }}?prog=" + row.clientprog_id
+                        var link = "{{ url('invoice/client-program/create') }}?bundle=" + row.uuid
 
                         return '<a href="' + link + '" class="btn btn-sm btn-outline-warning">' +
                         '<i class="bi bi-plus"></i> Invoice</a>'

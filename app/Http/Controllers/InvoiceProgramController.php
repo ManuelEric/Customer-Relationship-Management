@@ -49,12 +49,21 @@ class InvoiceProgramController extends Controller
 
     public function index(Request $request)
     {
+
         # s is stand for status
         # and going to be used as a parameter that going to be shown
         $status = $request->get('s') !== NULL ? $request->get('s') : null;
         $isBundle = $request->get('b') !== NULL ? true : false;
-        if ($request->ajax())
+        if ($request->ajax()) {
+
+            # when is bundle is set to true
+            # meaning, view will be shown bundling programs
+            if ($isBundle)
+                return $this->invoiceProgramRepository->getProgramBundle_InvoiceProgram($status);
+
+            # else
             return $this->invoiceProgramRepository->getAllInvoiceProgramDataTables($status);
+        }
 
         return view('pages.invoice.client-program.index', [
             'status' => $status,
@@ -249,10 +258,12 @@ class InvoiceProgramController extends Controller
 
     public function create(Request $request)
     {
+        # call GET parameters
+        $incomingRequestProg = $request->prog;
         
-        if (!isset($request->prog) or !$clientProg = $this->clientProgramRepository->getClientProgramById($request->prog)) {
-            return Redirect::to('invoice/client-program?s=needed');
-        }
+        if (!isset($incomingRequestProg) or !$clientProg = $this->clientProgramRepository->getClientProgramById($incomingRequestProg))
+            return Redirect::to('invoice/client-program?s=needed')->withError('We cannot continue the process at this time. Please try again later.');
+        
 
         return view('pages.invoice.client-program.form')->with(
             [
@@ -881,7 +892,7 @@ class InvoiceProgramController extends Controller
         $text = $parent != null ? "Dear Mr/Mrs " . $target_fullname . "," : "Dear " . $client->first_name . " " . $client->last_name . ",";
         $text .= "%0A";
         $text .= "%0A";
-        $text .= "Thank you for trusting ALL-in Eduspace as your independent university consultant to help your child reach their dream to top universities.";
+        $text .= "Thank you for trusting EduALL as your independent university consultant to help your child reach their dream to top universities.";
         $text .= "%0A";
         $text .= "%0A";
         $text .= "Through this message, we would like to remind you that the payment deadline for " . $joined_program_name . " " . $payment_method . " is due on " . $invoice_duedate . " or in " . $date_diff . " days.";

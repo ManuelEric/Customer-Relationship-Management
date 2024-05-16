@@ -189,6 +189,9 @@
                         <th class="d-none">Score</th>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Name</th>
+                        @if ($st == 'new-leads')
+                        <th>Followup Status</th>
+                        @endif
                         <th>Interested Program</th>
                         <th>Program Suggest</th>
                         <th>Status Lead</th>
@@ -225,7 +228,7 @@
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="21"></td>
+                        <td colspan="{{ $st == "new-leads" ? '22' : '21' }}"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -548,6 +551,11 @@
                             return data
                         }
                     },
+                    @if ($st == 'new-leads')
+                    {
+                        data: 'followup_status',
+                    },
+                    @endif
                     {
                         data: 'interest_prog',
                         searchable: false,

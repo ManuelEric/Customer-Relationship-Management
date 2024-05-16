@@ -25,5 +25,20 @@ class BundlingDetail extends Model
         'clientprog_id',
     ];
 
+    /**
+     * 
+     * Get the bundling of the details
+     * 
+     */
+    public function bundling()
+    {
+        return $this->belongsTo(Bundling::class, 'bundling_id', 'uuid');
+    }
+
+    public function client_program()
+    {
+        return $this->belongsTo(ClientProgram::class, 'clientprog_id', 'clientprog_id');
+    }
+
 
 }

@@ -189,4 +189,14 @@ class InvoiceProgram extends Model
     {
         return $this->hasMany(InvoiceAttachment::class, 'inv_id', 'inv_id');
     }
+
+    /**
+     * 
+     * Get the bundling for the invoice
+     * 
+     */
+    public function bundling()
+    {
+        return $this->belongsTo(Bundling::class, 'bundling_id', 'uuid');
+    }
 }

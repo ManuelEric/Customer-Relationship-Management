@@ -38,7 +38,7 @@
         <div class="card-body">
             <x-invoice.program.nav :activeMenu="$status" />
 
-            @includeWhen($status == 'needed', 'pages.invoice.client-program.detail.invoice-needed')
+            @includeWhen($status == 'needed' && !$isBundle, 'pages.invoice.client-program.detail.invoice-needed')
             @includeWhen($status == 'needed' && $isBundle, 'pages.invoice.client-program.detail.invoice-bundle-needed')
 
             @includeWhen($status == 'list', 'pages.invoice.client-program.detail.invoice-list')
