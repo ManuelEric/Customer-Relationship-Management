@@ -1214,6 +1214,10 @@ class ClientStudentController extends ClientController
         try {
 
             foreach ($clientIds as $clientId) {
+
+                if (array_search($clientId, $picDetails))
+                    continue;
+
                 $picDetails[] = [
                     'client_id' => $clientId,
                     'user_id' => $pic,
