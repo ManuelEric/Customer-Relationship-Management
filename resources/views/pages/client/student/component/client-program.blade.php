@@ -35,7 +35,7 @@
             </thead>
             <tfoot class="bg-light text-white">
                 <tr>
-                    <td colspan="15"></td>
+                    <td colspan="17"></td>
                 </tr>
             </tfoot>
         </table>
@@ -137,17 +137,23 @@
                     {
                         data: 'initconsult_date',
                         className: 'text-center',
-                        defaultContent: '-'
+                        render: function(data, type, row) {
+                            return data ? moment(data).format("MMMM Do YYYY") : '-'
+                        }
                     },
                     {
                         data: 'assessmentsent_date',
                         className: 'text-center',
-                        defaultContent: '-'
+                        render: function(data, type, row) {
+                            return data ? moment(data).format("MMMM Do YYYY") : '-'
+                        }
                     },
                     {
                         data: 'prog_end_date',
                         className: 'text-center',
-                        defaultContent: '-'
+                        render: function(data, type, row) {
+                            return data ? moment(data).format("MMMM Do YYYY") : '-'
+                        }
                     },
                     {
                         data: 'strip_tag_notes',

@@ -13,7 +13,7 @@ class ClientProgram extends Model
 
     protected $table = 'tbl_client_prog';
     protected $primaryKey = 'clientprog_id';
-    protected $appends = ['referral_name'];
+    protected $appends = ['strip_tag_notes', 'referral_name'];
 
     /**
      * The attributes that should be visible in arrays.
@@ -76,6 +76,13 @@ class ClientProgram extends Model
     {
         return Attribute::make(
             get: fn ($value) => $this->referral_code != NULL ? $this->getReferralNameFromRefCodeView($this->referral_code) : NULL
+        );
+    }
+
+    protected function stripTagNotes(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => substr(strip_tags($this->meeting_notes), 0, 50)
         );
     }
 

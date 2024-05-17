@@ -107,7 +107,7 @@ class ClientStudentController extends ClientController
     public function getClientProgramByStudentId(Request $request)
     {
         $studentId = $request->route('client');
-        return $this->clientProgramRepository->getAllClientProgramDataTables(['clientId' => $studentId]);
+        return $this->clientProgramRepository->getAllClientProgramDataTables_DetailUser(['clientId' => $studentId]);
     }
 
     public function getClientEventByStudentId(Request $request)

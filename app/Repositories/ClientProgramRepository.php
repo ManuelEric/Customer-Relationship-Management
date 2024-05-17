@@ -8,6 +8,7 @@ use App\Models\Bundling;
 use App\Models\BundlingDetail;
 use App\Models\ClientProgram;
 use App\Models\InvoiceProgram;
+use App\Models\Lead;
 use App\Models\pivot\ClientMentor;
 use App\Models\Reason;
 use App\Models\Receipt;
@@ -23,6 +24,255 @@ use Illuminate\Support\Facades\Session;
 
 class ClientProgramRepository implements ClientProgramRepositoryInterface
 {
+    public function getAllClientProgramDataTables_DetailUser($searchQuery = NULL)
+    {
+        # default 
+        $fieldKey = ["success_date", "failed_date", "refund_date", "created_at"];
+
+        # finding fieldKey that being searched
+        # depends on status
+        if (isset($searchQuery['status'])) {
+            
+            # reset fieldKey
+            $fieldKey = [];
+            
+            foreach ($searchQuery['status'] as $key => $status) {
+
+                switch ((int)$status) {
+                    case 1: # success
+                        $fieldKey[] = "success_date";
+                        break;
+
+                    case 2: # failed
+                        $fieldKey[] = "failed_date";
+                        break;
+
+                    case 3: # refund
+                        $fieldKey[] = "refund_date";
+                        break;
+
+                    default: # pending
+                        $fieldKey = ["created_at"];
+                }
+            }
+        }
+
+        $model = ClientProgram::
+                    leftJoin('program as p', 'p.prog_id', '=', 'tbl_client_prog.prog_id')->
+                    leftJoin('tbl_lead as cpl', 'cpl.lead_id', '=', 'tbl_client_prog.lead_id')->
+                    leftJoin('tbl_eduf_lead as edl', 'edl.id', '=', 'tbl_client_prog.eduf_lead_id')->
+                    leftJoin('tbl_client_event as ce', 'ce.clientevent_id', '=', 'tbl_client_prog.clientevent_id')->
+                    leftJoin('tbl_events as e', 'e.event_id', '=', 'ce.event_id')->
+                    leftJoin('tbl_corp as corp', 'corp.corp_id', '=', 'tbl_client_prog.partner_id')->
+                    leftJoin('users as u', 'u.id', '=', 'tbl_client_prog.empl_id')->
+                when(Session::get('user_role') == 'Employee', function ($subQuery) {
+                    $subQuery->
+                        whereHas('internalPic', function ($query2) {
+                            $query2->where('users.id', auth()->user()->id);
+                        })->
+                        orWhere('pic_client', auth()->user()->id);
+                })->
+                when($searchQuery['clientId'], function ($query) use ($searchQuery) {
+                    $query->where('tbl_client_prog.client_id', $searchQuery['clientId']);
+                })
+                # search by main program 
+                ->when(isset($searchQuery['mainProgram']) && count($searchQuery['mainProgram']) > 0, function ($query) use ($searchQuery) {
+                    $query->whereIn('main_prog_id', $searchQuery['mainProgram']);
+                })
+                # search by program name 
+                ->when(isset($searchQuery['programName']) && count($searchQuery['programName']) > 0, function ($query) use ($searchQuery) {
+                    $query->whereIn('prog_id', $searchQuery['programName']);
+                })
+                # search by school name 
+                ->when(isset($searchQuery['schoolName']), function ($query) use ($searchQuery) {
+                    $query->whereIn('sch_id', $searchQuery['schoolName']);
+                })
+                # search by conversion lead
+                ->when(isset($searchQuery['leadId']), function ($query) use ($searchQuery) {
+                    $query->whereIn('lead_id', $searchQuery['leadId']);
+                })
+                # search by grade
+                ->when(isset($searchQuery['grade']), function ($query) use ($searchQuery) {
+                    if(in_array('not_high_school', $searchQuery['grade'])){
+                        $key = array_search('not_high_school', $searchQuery['grade']);
+                        unset($searchQuery["grade"][$key]);
+                        count($searchQuery['grade']) > 0
+                            ?
+                                $query->where('grade_now', '>', 12)->orWhereIn('grade_now', $searchQuery['grade'])
+                                    :
+                                        $query->where('grade_now', '>', 12);
+                    }else{
+                        $query->whereIn('grade_now', $searchQuery['grade']);
+                    }
+                })
+                # search by status
+                ->when(isset($searchQuery['status']) && $searchQuery['status'] != null, function ($query) use ($searchQuery) {
+                    $query->whereIn('status', $searchQuery['status']);
+                })
+                # search by date
+                # when start date && end date filled
+                ->when(isset($searchQuery['startDate']) && isset($searchQuery['endDate']), function ($query) use ($searchQuery, $fieldKey) {
+                    $query->where(function ($subQuery) use ($searchQuery, $fieldKey) {
+
+                        $no = 0;
+                        foreach ($fieldKey as $key => $val) {
+                            if ($no == 0)
+                                $subQuery->whereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
+                            else
+                                $subQuery->orWhereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
+    
+                            $no++;
+                        }
+                    });
+                })
+                # when start date filled && end date null
+                ->when(isset($searchQuery['startDate']) && !isset($searchQuery['endDate']), function ($query) use ($searchQuery, $fieldKey) {
+                    $no = 0;
+                    foreach ($fieldKey as $key => $val) {
+                        if ($no == 0)
+                            $query->whereBetween($val, [$searchQuery['startDate'], $searchQuery['startDate']]);
+                        else
+                            $query->orWhereBetween($val, [$searchQuery['startDate'], $searchQuery['startDate']]);
+
+                        $no++;
+                    }
+                })
+                # when start date null && end date filled
+                ->when(isset($searchQuery['endDate']) && !isset($searchQuery['startDate']), function ($query) use ($searchQuery, $fieldKey) {
+                    $no = 0;
+                    foreach ($fieldKey as $key => $val) {
+                        if ($no == 0)
+                            $query->whereBetween($val, [$searchQuery['endDate'], $searchQuery['endDate']]);
+                        else
+                            $query->orWhereBetween($val, [$searchQuery['endDate'], $searchQuery['endDate']]);
+
+                        $no++;
+                    }
+                })
+                # search by mentor / tutor id
+                ->when(isset($searchQuery['userId']), function ($query) use ($searchQuery) {
+                    $query->whereHas('clientMentor', function ($query2) use ($searchQuery) {
+                        $query2->whereIn('users.id', $searchQuery['userId']);
+                    });
+                })
+                # search by pic uuid
+                ->when(isset($searchQuery['emplUUID']) && count($searchQuery['emplUUID']) > 0, function ($query) use ($searchQuery) {
+                    $query->whereHas('internalPic', function ($query2) use ($searchQuery) {
+                        $query2->whereIn('users.uuid', $searchQuery['emplUUID']);
+                    });
+                })
+                ->select([
+                    "tbl_client_prog.*",
+                    "p.program_name",
+                    "tbl_client_prog.first_discuss_date",
+                    DB::raw("CONCAT(u.first_name, ' ', COALESCE(u.last_name, '')) AS pic_name"),
+                    DB::raw("(CASE WHEN tbl_client_prog.status = 0 THEN 'Pending'
+                        WHEN tbl_client_prog.status = 1 THEN 'Success'
+                        WHEN tbl_client_prog.status = 2 THEN 'Failed'
+                        WHEN tbl_client_prog.status = 3 THEN 'Refund'
+                    END) AS program_status"),
+                ]);
+
+        return Datatables::eloquent($model)->
+            // addColumn('is_bundle', function ($query) {
+            //     return $query->bundlingDetail()->count();
+            // })->
+            addColumn('program_name', function (ClientProgram $clientProgram) {
+                return $clientProgram->program->program_name;
+            })->
+            filterColumn('program_name', function ($query, $keyword) {
+                $sql = "p.program_name like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->
+            addColumn('conversion_lead', function (ClientProgram $clientProgram) {
+
+                $main_lead = $clientProgram->lead->main_lead;
+                $sub_lead = $clientProgram->lead->sub_lead;
+                switch ($main_lead) {
+
+                    case "KOL":
+                        $conv_lead = "KOL - {$sub_lead}";
+                        break;
+
+                    case "External Edufair":
+                        $eduf_lead = $clientProgram->external_edufair->title;
+                        $conv_lead = "External Edufair - {$eduf_lead}";
+                        break;
+
+                    case "All-In Event":
+                        $event_title = $clientProgram->clientEvent->event->title;
+                        $conv_lead = "EduALL Event - {$event_title}";
+                        break;
+
+                    case "All-In Partners":
+                        $partner_name = $clientProgram->partner->corp_name;
+                        $conv_lead = "EduALL Partners - {$partner_name}";
+                        break;
+
+                    default:
+                        $conv_lead = $main_lead;
+
+                }
+
+                return $conv_lead;
+            })->
+            filterColumn('conversion_lead', function ($query, $keyword) {
+                $sql = "(CASE 
+                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'KOL' THEN CONCAT('KOL - ', cpl.sub_lead COLLATE utf8mb4_unicode_ci)
+                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'External Edufair' THEN CONCAT('External Edufair - ', edl.title COLLATE utf8mb4_unicode_ci)
+                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'EduALL Event' THEN CONCAT('All-In Event - ', e.event_title COLLATE utf8mb4_unicode_ci)
+                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'EduALL Partners' THEN CONCAT('All-In Partner - ', corp.corp_name COLLATE utf8mb4_unicode_ci)
+                            ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
+                        END) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->
+            filterColumn('first_discuss_date', function ($query, $keyword) {
+                $sql = "DATE_FORMAT(first_discuss_date, '%M %D %Y') like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->
+            filterColumn('pic_name', function ($query, $keyword) {
+                $sql = "CONCAT(u.first_name, ' ', COALESCE(u.last_name, '')) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->
+            filterColumn('initconsult_date', function ($query, $keyword) {
+                $sql = "DATE_FORMAT(initconsult_date, '%M %D %Y') like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->
+            filterColumn('assessmentsent_date', function ($query, $keyword) {
+                $sql = "DATE_FORMAT(assessmentsent_date, '%M %D %Y') like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->
+            filterColumn(
+                'status',
+                function ($query, $keyword) {
+                    $sql = '(CASE 
+                        WHEN status = 0 THEN "pending"
+                        WHEN status = 1 THEN "success"
+                        WHEN status = 2 THEN "failed"
+                        WHEN status = 3 THEN "refund"
+                    END) like ?';
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                }
+            )->
+            filterColumn('program_status', function ($query, $keyword) {
+                $sql = "(CASE WHEN tbl_client_prog.status = 0 THEN 'Pending'
+                    WHEN tbl_client_prog.status = 1 THEN 'Success'
+                    WHEN tbl_client_prog.status = 2 THEN 'Failed'
+                    WHEN tbl_client_prog.status = 3 THEN 'Refund'
+                END) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->
+            filterColumn('prog_running_status', function ($query, $keyword) {
+                $sql = "(CASE WHEN tbl_client_prog.prog_running_status = 0 THEN 'Not Yet'
+                    WHEN tbl_client_prog.status = 1 THEN 'Ongoing'
+                    WHEN tbl_client_prog.status = 2 THEN 'Done'
+                END) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->
+            make(true);
+    
+    }
+    
     public function getAllClientProgramDataTables($searchQuery = NULL)
     {
         # default 
@@ -153,32 +403,32 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 });
 
         return Datatables::eloquent($model)->
-        // rawColumns(['strip_tag_notes'])->
-        addColumn('is_bundle', function ($query) {
-            return $query->bundlingDetail()->count();
-        })->
-        filterColumn(
-            'status',
-            function ($query, $keyword) {
-                $sql = '(CASE 
-                    WHEN status = 0 THEN "pending"
-                    WHEN status = 1 THEN "success"
-                    WHEN status = 2 THEN "failed"
-                    WHEN status = 3 THEN "refund"
-                END) like ?';
-                $query->whereRaw($sql, ["%{$keyword}%"]);
-            }
-        )->filterColumn(
-            'prog_running_status',
-            function ($query, $keyword) {
-                $sql = '(CASE 
-                    WHEN prog_running_status = 0 THEN "not yet"
-                    WHEN prog_running_status = 1 THEN "ongoing"
-                    WHEN prog_running_status = 2 THEN "done"
-                END) like ?';
-                $query->whereRaw($sql, ["%{$keyword}%"]);
-            }
-        )->make(true);
+            // rawColumns(['strip_tag_notes'])->
+            // addColumn('is_bundle', function ($query) {
+            //     return $query->bundlingDetail()->count();
+            // })->
+            filterColumn(
+                'status',
+                function ($query, $keyword) {
+                    $sql = '(CASE 
+                        WHEN status = 0 THEN "pending"
+                        WHEN status = 1 THEN "success"
+                        WHEN status = 2 THEN "failed"
+                        WHEN status = 3 THEN "refund"
+                    END) like ?';
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                }
+            )->filterColumn(
+                'prog_running_status',
+                function ($query, $keyword) {
+                    $sql = '(CASE 
+                        WHEN prog_running_status = 0 THEN "not yet"
+                        WHEN prog_running_status = 1 THEN "ongoing"
+                        WHEN prog_running_status = 2 THEN "done"
+                    END) like ?';
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                }
+            )->make(true);
     }
 
     public function getAllProgramOnClientProgram()
