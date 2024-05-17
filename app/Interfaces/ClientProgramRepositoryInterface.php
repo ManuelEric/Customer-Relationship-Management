@@ -19,6 +19,9 @@ interface ClientProgramRepositoryInterface
     public function endedClientProgram(int $clientprog_id, array $newDetails);
     public function endedClientPrograms(array $clientprog_ids, array $newDetails);
     public function deleteClientProgram($clientProgramId);
+
+    # bundling
+    public function getBundleProgramByUUID($uuid);
     public function createBundleProgram($uuid, $clientProgramDetails);
     public function deleteBundleProgram($bundling_id);
 

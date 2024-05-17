@@ -53,6 +53,10 @@ Route::prefix('client-program')->name('receipt.client-program.')->group(function
     Route::post('{receipt}/preview/{currency}', [ReceiptController::class, 'uploadSigned'])->name('upload-signed');
     Route::get('{receipt}/send/{currency}/{type_recipient}', [ReceiptController::class, 'sendToClient'])->name('send_to_client'); # new
     Route::post('{receipt}/update/mail', [ReceiptController::class, 'updateMail']);
+
+    // ======== Bundling ========== 
+    Route::post('storeBundle', [ReceiptController::class, 'storeBundle'])->name('store_bundle');
+
 });
 
 // CORPORATE 

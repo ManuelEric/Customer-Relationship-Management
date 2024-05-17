@@ -20,6 +20,7 @@ class InvoiceProgram extends Model
      */
     protected $fillable = [
         'inv_id',
+        'bundling_id',
         'clientprog_id',
         'ref_id',
         'inv_category',

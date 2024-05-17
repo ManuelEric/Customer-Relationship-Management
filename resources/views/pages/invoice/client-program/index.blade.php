@@ -41,7 +41,8 @@
             @includeWhen($status == 'needed' && !$isBundle, 'pages.invoice.client-program.detail.invoice-needed')
             @includeWhen($status == 'needed' && $isBundle, 'pages.invoice.client-program.detail.invoice-bundle-needed')
 
-            @includeWhen($status == 'list', 'pages.invoice.client-program.detail.invoice-list')
+            @includeWhen($status == 'list' && !$isBundle, 'pages.invoice.client-program.detail.invoice-list')
+            @includeWhen($status == 'list' && $isBundle, 'pages.invoice.client-program.detail.invoice-bundle-list')
 
             @includeWhen($status == 'reminder', 'pages.invoice.client-program.detail.invoice-reminder')
 

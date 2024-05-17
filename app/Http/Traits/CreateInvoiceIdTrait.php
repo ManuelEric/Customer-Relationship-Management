@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Date;
 
 trait CreateInvoiceIdTrait {
 
-    public function getInvoiceId($last_id, $prog_id, $requestDate = NULL) {
+    public function getInvoiceId($last_id, $prog_id, $requestDate = NULL, $is_bundle = NULL) {
 
         if($last_id == null){
             $last_id = 0;
@@ -20,6 +20,10 @@ trait CreateInvoiceIdTrait {
         $increment = str_pad($last_id+1,4, "0" , STR_PAD_LEFT);
         
         $inv_id = $increment . '/INV-JEI/' . $prog_id . '/' . $monthOfRoman . '/' . $thisYear;
+        
+        if($is_bundle != NULL && $is_bundle > 0){
+            $inv_id = $last_id . '/INV-JEI/BDL/' . $monthOfRoman . '/' . $thisYear . '/' . $prog_id;
+        }
 
         return $inv_id;
     }

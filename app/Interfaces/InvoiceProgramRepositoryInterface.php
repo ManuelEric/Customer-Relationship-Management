@@ -25,6 +25,8 @@ interface InvoiceProgramRepositoryInterface
     public function getInvoiceDifferences();
 
     //! collection of invoice bundle functions
+    public function getInvoiceByBundlingId($bundlingId);
+    public function deleteInvoiceByBundlingId($bundlingId);
     public function getProgramBundle_InvoiceProgram($status);
 
 

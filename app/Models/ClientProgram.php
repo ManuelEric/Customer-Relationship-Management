@@ -208,6 +208,6 @@ class ClientProgram extends Model
 
     public function bundlingDetail()
     {
-        return $this->hasMany(BundlingDetail::class, 'clientprog_id', 'clientprog_id');
+        return $this->hasOne(BundlingDetail::class, 'clientprog_id', 'clientprog_id');
     }
 }

@@ -158,7 +158,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             return $query->bundlingDetail()->count();
         })->
         addColumn('bundling_id', function ($query) {
-            return $query->bundlingDetail()->count() > 0 ? $query->bundlingDetail->first()->bundling_id : null;
+            return $query->bundlingDetail()->count() > 0 ? $query->bundlingDetail->bundling_id : null;
         })->
         filterColumn(
             'status',
@@ -1517,6 +1517,12 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         return ClientProgram::where('prog_running_status', 1)->where('prog_end_date', '<', now())->whereNotNull('prog_end_date')->get();
     }
 
+    // ==================== Bundling ========================
+    public function getBundleProgramByUUID($uuid)
+    {
+        return Bundling::where('uuid', $uuid)->first();
+    }
+
     public function createBundleProgram($uuid, $clientProgramDetails)
     {
         Bundling::create(['uuid' => $uuid]);
@@ -1528,6 +1534,8 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     {
         return Bundling::where('uuid', $bundling_id)->delete();
     }
+
+    // ===================== End Bundling ====================
 
     # 
 

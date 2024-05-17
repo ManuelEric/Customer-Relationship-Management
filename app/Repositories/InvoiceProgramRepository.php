@@ -19,13 +19,35 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
         switch ($status) {
 
             case "needed":
-                $query = ViewClientProgram::when($status == "needed", function ($q) {
+                $bundling = ViewClientProgram::when($status == "needed", function ($q) {
+                    # select all client program with relation bundling
+                    # where status already success which mean they(client) already paid the program
+                    $q->whereHas('bundlingDetail', function ($query) {
+                        $query->whereHas('bundling', function ($query2){
+                            $query2->doesntHave('invoice_b2c');
+                        });
+                    });
+                    })->where('status', 1);
+
+                $regular = ViewClientProgram::when($status == "needed", function ($q) {
                     # select all client program
                     # where status already success which mean they(client) already paid the program
                     $q->doesntHave('invoice')->where('status', 1);
-                })
-                    ->orderBy('updated_at', 'desc')
-                    ->orderBy('statusprog_date', 'desc');
+                    });
+                   
+
+                $query = $bundling->union($regular);
+                return DataTables::eloquent($query)->addColumn('is_bundle', function ($query) {
+                        return count($query->bundlingDetail);
+                    })->
+                    addColumn('bundling_id', function ($query) {
+                        return count($query->bundlingDetail) > 0 ? $query->bundlingDetail->first()->bundling_id : null;
+                    })->            
+                    addColumn('count_invoice', function ($query) {
+                        return count($query->bundlingDetail) > 0 ? $query->bundlingDetail->first()->bundling->invoice_b2c()->count() : 0;
+                    })
+                    ->make(true);
+
                 break;
 
             case "list":
@@ -41,6 +63,14 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                         'program_name',
                         'clientprogram.status'
                     ])->orderBy('tbl_inv.updated_at', 'desc')->groupBy('tbl_inv.inv_id');
+
+                return DataTables::eloquent($query)->addColumn('is_bundle', function ($query) {
+                        return count($query->bundlingDetail);
+                    })->
+                    addColumn('bundling_id', function ($query) {
+                        return count($query->bundlingDetail) > 0 ? $query->bundlingDetail->first()->bundling_id : null;
+                    })
+                    ->make(true);
                 break;
 
             case "reminder":
@@ -105,7 +135,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     '), 'desc')
                     ->groupBy('tbl_inv.inv_id');
 
-                return DataTables::eloquent($query)->filterColumn('payment_method', function ($query, $keyword) {
+                return DataTables::eloquent($query)->
+                filterColumn('payment_method', function ($query, $keyword) {
                     $sql = '(CASE
                                             WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_paymentmethod
                                             WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_installment
@@ -690,22 +721,50 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
     ######################### BUNDLING ############################
     ###############################################################
 
+    public function getInvoiceByBundlingId($bundlingId)
+    {
+        return InvoiceProgram::where('bundling_id', $bundlingId)->first();
+    }
+
+    public function deleteInvoiceByBundlingId($bundlingId)
+    {
+        return InvoiceProgram::where('bundling_id', $bundlingId)->delete();
+    }
+
     public function getProgramBundle_InvoiceProgram($status)
     {
         switch ($status) {
 
             case "needed":
                 $query = Bundling::whereDoesntHave('invoice_b2c');
+                
+                break;
+
+            case "list":
+                $query = Bundling::leftJoin('tbl_inv', 'tbl_inv.bundling_id', 'tbl_bundling.uuid')
+                        ->select([
+                            'tbl_bundling.uuid',
+                            'tbl_inv.inv_id',
+                            'tbl_inv.inv_paymentmethod',
+                            'tbl_inv.created_at',
+                            'tbl_inv.inv_duedate',
+                            'tbl_inv.inv_totalprice_idr',
+                        ])
+                        ->where('tbl_inv.bundling_id', '!=', null);
                 break;
 
         }   
         
         return DataTables::eloquent($query)->
-            addColumn('client_name', function (Bundling $bundle) {
+            addColumn('fullname', function (Bundling $bundle) {
                 return $bundle->details()->first()->client_program->client->full_name;
             })->
-            addColumn('program_bundle', function (Bundling $bundle) {
-                return 'Bundling';
+            addColumn('program_name', function (Bundling $bundle) {
+                $program_names = [];
+                foreach ($bundle->details as $detail) {
+                    $program_names[] =  $detail->client_program->program->program_name;
+                }
+                return implode(', ', $program_names);
             })->
             toJson();
     }

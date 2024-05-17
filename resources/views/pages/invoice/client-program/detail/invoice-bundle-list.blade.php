@@ -45,7 +45,7 @@
                         serverSide: true,
                         ajax: '',
                         columns: [{
-                                data: 'clientprog_id',
+                                data: 'uuid',
                                 className: 'text-center',
                                 render: function(data, type, row, meta) {
                                     return meta.row + meta.settings._iDisplayStart + 1;
@@ -56,37 +56,6 @@
                             },
                             {
                                 data: 'program_name',
-                                render: function(data, type, row, meta) {
-                                    var status;
-                                    switch (parseInt(row.status)) {
-                                        case 0:
-                                            status = 'Pending';
-                                            break;
-
-                                        case 1:
-                                            status = 'Success';
-                                            break;
-
-                                        case 2:
-                                            status = 'Failed';
-                                            break;
-
-                                        case 3:
-                                            status = 'Refund';
-                                            break;
-                                    }
-
-                                    var bundling_id = invoice_alert = null;
-                                    if(row.bundling_id !== null){
-                                        bundling_id = row.bundling_id.substring(0, 3).toUpperCase();
-                                    }
-
-                                    if(parseInt(row.status) === 1){
-                                        return row.is_bundle > 0 ? data + ' <span class="badge text-bg-success" style="font-size:8px";>Bundle '+ bundling_id +'</span>' : data;
-                                    }else{
-                                        return row.is_bundle > 0 ? data + ' <div class="badge badge-danger py-1 px-2 ms-2">'+ status +'</div>' + ' <span class="badge text-bg-success" style="font-size:8px";>Bundle '+ bundling_id +'</span>' : data + ' <div class="badge badge-danger py-1 px-2 ms-2">'+ status +'</div>';  
-                                    }
-                                }
                             },
                             {
                                 data: 'inv_id',
@@ -131,10 +100,10 @@
                                 }
                             },
                             {
-                                data: 'clientprog_id',
+                                data: 'uuid',
                                 className: 'text-center',
                                 render: function(data, type, row) {
-                                    var link = "{{ url('invoice/client-program') }}/" + row.clientprog_id
+                                    var link = "{{ url('invoice/client-program/bundle') }}/" + row.uuid
 
                                     return '<a href="' + link + '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
                                 }

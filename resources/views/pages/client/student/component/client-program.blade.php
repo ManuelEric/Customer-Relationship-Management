@@ -58,7 +58,7 @@
                         text: 'Export to Excel',
                     },
                     {
-                        text: '<i class="bi bi-bag-plus"></i> Bundle',
+                        text: '<i class="bi bi-bag-plus"></i> Create Bundle',
                         action: function(e, dt, node, config) {
                             addBundle();
                         }
@@ -307,10 +307,10 @@
                                     }else{
                                         swal.close();
                                         notification('success', 'Successfully created a bundle program');
-                                        location.reload();
+                                        // location.reload();
                                     }
-
-                                    $("#rawTable").DataTable().ajax.reload()
+                                    
+                                    $("#programTable").DataTable().ajax.reload()
                                 })
                                 .catch(function(error) {
                                     
@@ -384,9 +384,11 @@
                                     }else{
                                         swal.close();
                                         notification('success', 'Successfully canceled a bundle program');
+                                        // location.reload();
                                     }
 
-                                    $("#rawTable").DataTable().ajax.reload()
+                                    $("#programTable").DataTable().ajax.reload()
+
                                 })
                                 .catch(function(error) {
                                     swal.close();

@@ -4,6 +4,7 @@
             <th class="bg-info text-white">#</th>
             <th class="bg-info text-white">Client Name</th>
             <th>Bundle</th>
+            <th>Bundle Id</th>
             {{-- <th>PIC</th> --}}
             <th class="bg-info text-white">Action</th>
         </tr>
@@ -48,10 +49,16 @@
                     }
                 },
                 {
-                    data: 'client_name',
+                    data: 'fullname',
                 },
                 {
-                    data: 'program_bundle',
+                    data: 'program_name',
+                },
+                {
+                    data: 'uuid',
+                    render: function(data, type, row, meta) {
+                        return data.substring(0, 3).toUpperCase();
+                    }
                 },
                 {   
                     data: 'uuid',

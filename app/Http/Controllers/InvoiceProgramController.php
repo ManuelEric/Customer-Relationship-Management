@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAttachmentRequest;
+use App\Http\Requests\StoreInvoiceProgramBundleRequest;
+use App\Http\Requests\StoreInvoiceProgramBundlingRequest;
 use App\Http\Requests\StoreInvoiceProgramRequest;
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Http\Traits\LoggingTrait;
@@ -90,6 +92,12 @@ class InvoiceProgramController extends Controller
     {
         $clientProgId = $request->clientprog_id;
         $clientProg = $this->clientProgramRepository->getClientProgramById($clientProgId);
+
+        # validation invoice bundle
+        # master invoice bundle must be created first
+        if($request->is_bundle > 0 && !isset($clientProg->bundlingDetail->bundling->invoice_b2c)){
+            return Redirect::to('invoice/client-program/create?prog=' . $request->clientprog_id)->withError('Create master invoice bundle first!');
+        }
 
         $raw_currency = [];
         $raw_currency[0] = $request->currency;
@@ -204,9 +212,14 @@ class InvoiceProgramController extends Controller
         try {
 
             $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
-
             # Use Trait Create Invoice Id
             $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id, $invoiceDetails['created_at']);
+            
+            if($request->is_bundle > 0){
+                $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->where('bundling_id', $clientProg->bundlingDetail->first()->bundling_id)->max(DB::raw('substr(inv_id, 1, 4)'));
+                # Use Trait Create Invoice Id
+                $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id, $invoiceDetails['created_at'], $request->is_bundle);
+            }
 
             $invoiceProgramCreated = $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 1] + $invoiceDetails);
             // $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 0] + $invoiceDetails);
@@ -259,10 +272,15 @@ class InvoiceProgramController extends Controller
     public function create(Request $request)
     {
         # call GET parameters
+        
+        if(isset($request->bundle) && $request->bundle)
+            return $this->createBundle($request->bundle);
+
         $incomingRequestProg = $request->prog;
         
-        if (!isset($incomingRequestProg) or !$clientProg = $this->clientProgramRepository->getClientProgramById($incomingRequestProg))
+        if (!isset($incomingRequestProg) or !$clientProg = $this->clientProgramRepository->getClientProgramById($incomingRequestProg)){
             return Redirect::to('invoice/client-program?s=needed')->withError('We cannot continue the process at this time. Please try again later.');
+        }
         
 
         return view('pages.invoice.client-program.form')->with(
@@ -940,4 +958,5 @@ class InvoiceProgramController extends Controller
 
         return response()->json(['status' => 'success', 'message' => 'Success Update Email Client'], 200);
     }
+
 }

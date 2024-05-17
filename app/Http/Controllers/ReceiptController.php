@@ -535,4 +535,79 @@ class ReceiptController extends Controller
 
         return response()->json(['status' => 'success', 'message' => 'Success Update Email'], 200);
     }
+
+
+    // ============ Bundling ==============
+
+    public function storeBundle(StoreReceiptRequest $request)
+    {
+        // return $request->all();
+        // exit;
+        #initialize
+        $identifier = $request->identifier; #invdtl_id
+        $paymethod = $request->paymethod;
+
+        $receiptDetails = $request->only([
+            'rec_currency',
+            'receipt_amount',
+            'receipt_amount_idr',
+            'receipt_date',
+            'receipt_words',
+            'receipt_words_idr',
+            'receipt_method',
+            'receipt_cheque'
+        ]);
+        $receiptDetails['receipt_cat'] = 'student';
+
+        $receiptDetails['created_at'] = $receiptDetails['receipt_date'];
+        // $receiptDetails['updated_at'] = Carbon::now();
+
+        $bundle = $this->clientProgramRepository->getBundleProgramByUUID($request->bundling_id);
+        $invoice = $bundle->invoice_b2c()->first();
+
+        # generate receipt id
+        $last_id = Receipt::whereMonth('created_at', isset($request->receipt_date) ? date('m', strtotime($request->receipt_date)) : date('m'))->whereYear('created_at', isset($request->receipt_date) ? date('Y', strtotime($request->receipt_date)) : date('Y'))->max(DB::raw('substr(receipt_id, 1, 4)'));
+
+        # Use Trait Create Invoice Id
+        $receiptDetails['receipt_id'] = $this->getLatestReceiptId($last_id, 'BDL', $receiptDetails);
+
+        $receiptDetails['inv_id'] = $invoice->inv_id;
+        $invoice_payment_method = $invoice->inv_paymentmethod;
+        if ($invoice_payment_method == "Installment")
+            $receiptDetails['invdtl_id'] = $identifier;
+
+        # validation nominal
+        # to catch if total invoice not equal to total receipt 
+        if ($invoice_payment_method == "Full Payment") {
+
+            $total_invoice = $invoice->inv_totalprice_idr;
+            $total_receipt = $request->receipt_amount_idr;
+        } elseif ($invoice_payment_method == "Installment") {
+
+            $total_invoice = $invoice->invoiceDetail()->where('invdtl_id', $identifier)->first()->invdtl_amountidr;
+            $total_receipt = $request->receipt_amount_idr;
+        }
+
+        if ($total_receipt < $total_invoice)
+            return Redirect::back()->withError('Do double check the amount. Make sure the amount on invoice and the amount on receipt is equal');
+
+        // return $receiptDetails;
+        DB::beginTransaction();
+        try {
+
+            $receiptCreated = $this->receiptRepository->createReceipt($receiptDetails);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Store receipt failed : ' . $e->getMessage());
+            return Redirect::back()->withError('Failed to create receipt');
+        }
+
+        # store Success
+        # create log success
+        $this->logSuccess('store', 'Form Input', 'Receipt Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $receiptCreated);
+
+        return Redirect::to('invoice/client-program/bundle' . $request->bundling_id)->withSuccess('A receipt has been made');
+    }
 }

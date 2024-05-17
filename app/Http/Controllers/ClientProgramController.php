@@ -1195,7 +1195,7 @@ class ClientProgramController extends Controller
                         $fail('This program is already in the bundle package');
                     }
                 }],
-                '*.program' => ['required', 'distinct']
+                // '*.program' => ['required', 'distinct']
 
             ];
     

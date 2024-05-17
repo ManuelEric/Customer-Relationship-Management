@@ -5,6 +5,7 @@ use App\Http\Controllers\InvoiceSchoolController;
 use App\Http\Controllers\RefundSchoolController;
 use App\Http\Controllers\RefundPartnerController;
 use App\Http\Controllers\InvoicePartnerController;
+use App\Http\Controllers\InvoiceProgramBundleController;
 use App\Http\Controllers\InvoiceReferralController;
 use App\Http\Controllers\RefundController;
 use Illuminate\Support\Facades\Route;
@@ -77,6 +78,19 @@ Route::prefix('client-program')->name('invoice.program.')->group(function () {
     Route::get('{client_program}/send/{currency}/{type_recipient}', [InvoiceProgramController::class, 'sendToClient'])->name('send_to_client');
     Route::get('{client_program}/attachment/download', [InvoiceProgramController::class, 'download'])->name('download');
     Route::post('{client_program}/update/mail', [InvoiceProgramController::class, 'updateMail']);
+
+    // ========== Bundling =============
+    Route::post('bundle/{bundle}', [InvoiceProgramBundleController::class, 'storeBundle'])->name('store_bundle');
+    Route::put('bundle/{bundle}', [InvoiceProgramBundleController::class, 'updateBundle'])->name('update_bundle');
+    Route::delete('bundle/{bundle}', [InvoiceProgramBundleController::class, 'destroyBundle'])->name('destroy_bundle');
+    Route::get('bundle/{bundle}', [InvoiceProgramBundleController::class, 'showBundle'])->name('show_bundle');
+    Route::get('bundle/{bundle}/edit', [InvoiceProgramBundleController::class, 'editBundle'])->name('edit_bundle');
+    Route::get('bundle/{bundle}/preview/{currency}', [InvoiceProgramBundleController::class, 'previewBundle'])->name('preview_bundle'); # new 
+    Route::get('bundle/{bundle}/request_sign', [InvoiceProgramBundleController::class, 'requestSignBundle'])->name('request_sign_bundle'); 
+    Route::post('bundle/{bundle}/preview/{currency}', [InvoiceProgramBundleController::class, 'upload'])->name('upload-signed-bundle'); # new
+    Route::get('bundle/{bundle}/print/{currency}', [InvoiceProgramBundleController::class, 'printBundle'])->name('print_bundle');
+    Route::get('bundle/{bundle}/send/{currency}/{type_recipient}', [InvoiceProgramBundleController::class, 'sendToClientBundle'])->name('send_to_client_bundle');
+
 });
 
 

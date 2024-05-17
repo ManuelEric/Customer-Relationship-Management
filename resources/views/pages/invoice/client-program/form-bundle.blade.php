@@ -11,6 +11,7 @@
 
     @php
         $disabled = isset($status) && $status == 'view' ? 'disabled' : null;
+        $clientProg = $bundle->details->first()->client_program;
     @endphp
 
     {{-- @if($errors->any())
@@ -21,15 +22,16 @@
         <div class="col-md-4">
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
+                  
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $clientProg->client->full_name }}</h4>
 
-                    <a href="{{ route('student.program.show', ['student' => $clientProg->client->id, 'program' => $clientProg->clientprog_id]) }}"
+                    <a href="{{ url('client/student/' . $clientProg->client->id) }}"
                         class="text-primary text-decoration-none cursor-pointer" target="_blank">
                         <div class="card p-2 cursor-pointer">
                             <label for="" class="text-muted m-0 mb-2">Program Name:</label>
                             <h6 class="mb-1">
-                                {{ $clientProg->program->program_name }}
+                                Bundling Program
                             </h6>
                         </div>
                     </a>
@@ -45,14 +47,14 @@
                             <div class="d-flex gap-1 justify-content-center">
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="{{ $status == 'edit' ? 'Back' : 'Edit' }}">
-                                    <a href="{{ $status == 'edit' ? url('invoice/client-program/' . $clientProg->clientprog_id) : url('invoice/client-program/' . $clientProg->clientprog_id . '/edit') }}"
+                                    <a href="{{ $status == 'edit' ? url('invoice/client-program/bundle/' . $bundle->uuid) : url('invoice/client-program/bundle/' . $bundle->uuid . '/edit') }}"
                                         class="text-warning">
                                         <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}"></i>
                                     </a>
                                 </div>
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Cancel"
-                                    onclick="confirmDelete('invoice/client-program', {{ $clientProg->clientprog_id }})">
+                                    onclick="confirmDelete('invoice/client-program/bundle', '{{ $bundle->uuid }}')">
                                     <a href="#" class="text-danger">
                                         <i class="bi bi-trash2"></i>
                                     </a>
@@ -80,7 +82,7 @@
                             @else
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Print Invoice">
-                                    <a href="{{ route('invoice.program.print', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}"
+                                    <a href="{{ route('invoice.program.print_bundle', ['bundle' => $bundle->uuid, 'currency' => 'idr']) }}"
                                         class="text-info">
                                         <i class="bi bi-printer"></i>
                                     </a>
@@ -315,6 +317,7 @@
                 @include('pages.invoice.client-program.detail.refund')
             @endif
 
+            @include('pages.invoice.client-program.form-detail.list-program')
             @include('pages.invoice.client-program.form-detail.client')
 
             @if ($status == 'view' && isset($invoice->invoiceDetail))
@@ -355,14 +358,13 @@
 
                 <div class="card-body">
                     <form
-                        action="{{ isset($invoice) ? route('invoice.program.update', ['client_program' => $clientProg->clientprog_id]) : route('invoice.program.store') }}"
+                        action="{{ isset($invoice) ? route('invoice.program.update_bundle', ['bundle' => $bundle->uuid]) : route('invoice.program.store_bundle', ['bundle' => $bundle->uuid]) }}"
                         method="POST" id="invoice-form">
                         @csrf
                         @if (isset($invoice))
                             @method('PUT')
                         @endif
-                        <input type="hidden" name="clientprog_id" value="{{ $clientProg->clientprog_id }}">
-                        <input type="hidden" name="is_bundle" value="{{ $clientProg->bundlingDetail()->count() }}">
+                        <input type="hidden" name="bundling_id" value="{{ $bundle->uuid }}">
                         <div class="row">
                             <div class="col-md-3 mb-3">
                                 <label for="">Currency <sup class="text-danger">*</sup></label>
@@ -421,37 +423,11 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-3 mb-3">
-                                <label for="">Is Session? <sup class="text-danger">*</sup></label>
-                                <select name="is_session" id="session" class="select w-100" onchange="checkSession()"
-                                    {{ $disabled }}>
-                                    <option data-placeholder="true"></option>
-                                    <option value="yes">Yes</option>
-                                    <option value="no">No</option>
-                                </select>
-                                {{-- @error('is_session')
-                                    <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror --}}
-                            </div>
-
-                            {{-- SESSION  --}}
-                            <div class="col-md-12 session-detail d-none session mb-3">
-                                {{-- IDR  --}}
-                                <div class="session-currency d-none session-idr">
-                                    @include('pages.invoice.client-program.form-detail.session-idr')
-                                </div>
-
-                                {{-- OTHER  --}}
-                                <div class="session-currency d-none session-other">
-                                    @include('pages.invoice.client-program.form-detail.session-other')
-                                </div>
-
-                            </div>
-
+                            
                             {{-- NOT SESSION  --}}
-                            <div class="col-md-12 session-detail d-none not-session mb-3">
+                            <div class="col-md-12 session-detail not-session mb-3">
                                 {{-- IDR  --}}
-                                <div class="not-session-currency d-none not-session-idr">
+                                <div class="not-session-currency not-session-idr">
                                     @include('pages.invoice.client-program.form-detail.not-session-idr')
                                 </div>
 
@@ -565,9 +541,9 @@
                     <i class="bi bi-pencil-square"></i>
                 </div>
                 <div class="modal-body w-100">
-                    <form action="{{ route('receipt.client-program.store') }}" method="POST" id="receipt">
+                    <form action="{{ route('receipt.client-program.store_bundle') }}" method="POST" id="receipt">
                         @csrf
-                        <input type="hidden" name="clientprog_id" value="{{ $clientProg->clientprog_id }}">
+                        <input type="hidden" name="bundling_id" value="{{ $bundle->uuid }}">
                         <input type="hidden" name="identifier" id="identifier">
                         <input type="hidden" name="paymethod" id="paymethod">
                         <input type="hidden" name="rec_currency"
@@ -979,7 +955,7 @@
         function checkCurrency() {
             checkPayment()
             let cur = $('#currency').val()
-            let session = $('#session').val()
+      
 
             if (cur == 'other') {
                 $('.currency-detail').removeClass('d-none')
@@ -987,10 +963,8 @@
                 $('.currency-detail').addClass('d-none')
             }
 
-            // check seesion 
-            if (session) {
                 checkSession()
-            }
+            
         }
 
         // $("#current_rate").on('keyup', function() {
@@ -1005,6 +979,7 @@
             }
         }
 
+        
         function checkSession() {
             let session = $('#session').val()
             let cur = $('#currency').val()
@@ -1012,15 +987,7 @@
             $('.invoice').removeClass('d-none')
             $('.session-detail').addClass('d-none')
 
-            if (session == 'yes') {
-                $('.session').removeClass('d-none')
-                $('.session-currency').addClass('d-none')
-                if (cur == 'idr') {
-                    $('.session-idr').removeClass('d-none')
-                } else {
-                    $('.session-other').removeClass('d-none')
-                }
-            } else {
+           
                 $('.not-session').removeClass('d-none')
                 $('.not-session-currency').addClass('d-none')
                 if (cur == 'idr') {
@@ -1028,7 +995,7 @@
                 } else {
                     $('.not-session-other').removeClass('d-none')
                 }
-            }
+            
         }
 
         function checkPayment() {
@@ -1072,7 +1039,7 @@
             var curr = $(this).data('curr');
             cur = "'" + curr + "'";
 
-            const url = "{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/preview/" + curr
+            const url = "{{ url('/') }}/invoice/client-program/bundle/{{ $bundle->uuid }}/preview/" + curr
             
             $("#previewForm").attr('action', url)
         });
@@ -1115,7 +1082,7 @@
             var curr = $(this).data('curr');
             curr = "'" + curr + "'";
             $('#sendToChoosenPic').attr("onclick",
-            "confirmRequestSign('{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', " +
+            "confirmRequestSign('{{ route('invoice.program.request_sign_bundle', ['bundle' => $bundle->uuid]) }}', " +
                 curr + ")");
         });
 
@@ -1124,7 +1091,7 @@
             curr = "'" + curr + "'";
 
             $('#ConfirmSendToClient').attr("onclick",
-                "confirmSendToClient('{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/send', " +
+                "confirmSendToClient('{{ url('/') }}/invoice/client-program/bundle/{{ $bundle->uuid }}/send', " +
                 curr + ", 'invoice')");
         });
 
@@ -1133,7 +1100,7 @@
             curr = "'" + curr + "'";
 
             $('#ConfirmSendToClient').attr("onclick",
-                "confirmSendToClient('{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/send', " +
+                "confirmSendToClient('{{ url('/') }}/invoice/client-program/bundle/{{ $bundle->uuid }}/send', " +
                 curr + ", 'invoice')");
         });
 
@@ -1204,6 +1171,8 @@
         }
 
         $(document).ready(function() {
+            $('.invoice').removeClass('d-none')
+
             @if (old('inv_paymentmethod'))
                 $("#payment_method").val("{{ old('inv_paymentmethod') }}").trigger('change');
             @endif
