@@ -42,4 +42,8 @@ class Bundling extends Model
         return $this->hasMany(BundlingDetail::class, 'bundling_id', 'uuid');
     }
 
+    public function first_detail() {
+        return $this->hasOne(BundlingDetail::class, 'bundling_id', 'uuid')->oldestOfMany();
+    }
+
 }

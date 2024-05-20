@@ -7,7 +7,7 @@ interface ReceiptRepositoryInterface
     public function getAllReceiptSchDataTables();
     public function getAllReceiptCorpDataTables();
     public function getAllReceiptReferralDataTables();
-    public function getAllReceiptByStatusDataTables();
+    public function getAllReceiptByStatusDataTables($status = null);
     public function getReceiptByInvoiceIdentifier($invoiceType, $identifier);
     public function getReceiptByReceiptId($receiptId);
     public function getReceiptById($receiptId);

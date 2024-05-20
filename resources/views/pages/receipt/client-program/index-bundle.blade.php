@@ -98,7 +98,6 @@
                 },
                 {
                     data: 'program_name',
-                    name: 'program.program_name'
                 },
                 {
                     data: 'receipt_id',
@@ -130,7 +129,7 @@
                     render: function(data, type, row) {
 
                         return '<a href="{{ url('receipt/client-program/') }}/' + data +
-                            '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
+                            '?b=true" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
                     }
                 }
             ]

@@ -101,8 +101,50 @@ class ReceiptRepository implements ReceiptRepositoryInterface
     }
 
 
-    public function getAllReceiptByStatusDataTables() # client program
+    public function getAllReceiptByStatusDataTables($status = null) # client program
     {
+        if($status){
+            $fColumns = [
+                'relation' => ['invoiceProgram', 'invoiceProgram.bundling.first_detail.client_program.client', 'invoiceProgram.bundling.first_detail.client_program.program'],
+                'columns' => ['created_at', 'client_fullname', 'program_name'],
+                'realColumns' => ['created_at', DB::raw('CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, ""))'), 'prog_program']
+            ];
+            $query = Receipt::where('receipt_status', 1)
+                            ->whereNotNull('inv_id')
+                            ->whereRelation('invoiceProgram', 'bundling_id', '!=', null)
+                            ->select([
+                                'id',
+                                'receipt_id',
+                                'inv_id',
+                                'receipt_method',
+                                'receipt_amount_idr',
+                            ]);
+            
+            $datatable = DataTables::eloquent($query)
+            ->addColumn('created_at', function($query){
+                return $query->invoiceProgram->created_at;
+            })
+            ->addColumn('bundling_id', function($query){
+                return $query->invoiceProgram->bundling_id;
+            })
+            ->addColumn('client_fullname', function($query){
+                return $query->invoiceProgram->bundling->details->first()->client_program->client->full_name;
+            })
+            ->addColumn('program_name', function($query){
+                return $query->invoiceProgram->bundling->details->first()->client_program->program->program_name;
+            });
+
+            foreach ($fColumns['columns'] as $key => $column) {
+                $datatable->filterColumn($column, function ($query, $keyword) use($fColumns, $key) {
+                    $query->whereRelation($fColumns['relation'][$key], $fColumns['realColumns'][$key], 'like', "%{$keyword}%");
+                });
+               
+            }
+
+            return $datatable->make(true);;
+
+        }
+
         $query = Receipt::leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_receipt.inv_id')
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
@@ -111,6 +153,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
             ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
             ->where('receipt_status', 1)
             ->whereNotNull('tbl_receipt.inv_id')
+            ->whereRelation('invoiceProgram', 'bundling_id', null)
             ->select([
                 'tbl_client_prog.clientprog_id',
                 // 'tbl_inv.clientprog_id',
@@ -127,6 +170,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 'tbl_receipt.receipt_amount_idr',
                 DB::raw('DATEDIFF(inv_duedate, now()) as date_difference')
             ]);
+            
             // ->orderBy('tbl_receipt.created_at', 'DESC');
 
         return DataTables::eloquent($query)
