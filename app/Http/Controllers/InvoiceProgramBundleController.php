@@ -390,7 +390,7 @@ class InvoiceProgramBundleController extends Controller
         if ($currency == "idr")
             $view = 'pages.invoice.client-program.export.invoice-bundle-pdf';
         else
-            $view = 'pages.invoice.client-program.export.invoice-pdf-foreign';
+            $view = 'pages.invoice.client-program.export.invoice-bundle-pdf-foreign';
 
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),
@@ -445,7 +445,7 @@ class InvoiceProgramBundleController extends Controller
         if ($type == "idr")
             $view = 'pages.invoice.client-program.export.invoice-bundle-pdf';
         else
-            $view = 'pages.invoice.client-program.export.invoice-pdf-foreign';
+            $view = 'pages.invoice.client-program.export.invoice-bundle-pdf-foreign';
 
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),

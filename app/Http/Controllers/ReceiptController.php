@@ -199,7 +199,9 @@ class ReceiptController extends Controller
             }
         else
             $view = 'pages.receipt.client-program.export.receipt-pdf-foreign';
-
+            if($isBundle){
+                $view = 'pages.receipt.client-program.export.receipt-bundle-pdf-foreign';
+            }
             
         # store to receipt attachment
         DB::beginTransaction();
@@ -327,7 +329,7 @@ class ReceiptController extends Controller
         if ($type == "idr")
             $view = 'pages.receipt.client-program.export.receipt-pdf';
         else
-            $view = 'pages.receipt.client-program.export.receipt-pdf-foreign';
+            $view = 'pages.receipt.client-program.export.receipt-bundle-pdf-foreign';
 
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),
