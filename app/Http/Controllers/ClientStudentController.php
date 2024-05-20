@@ -107,7 +107,7 @@ class ClientStudentController extends ClientController
     public function getClientProgramByStudentId(Request $request)
     {
         $studentId = $request->route('client');
-        return $this->clientProgramRepository->getAllClientProgramDataTables(['clientId' => $studentId]);
+        return $this->clientProgramRepository->getAllClientProgramDataTables_DetailUser(['clientId' => $studentId]);
     }
 
     public function getClientEventByStudentId(Request $request)
@@ -119,9 +119,9 @@ class ClientStudentController extends ClientController
 
     public function index(Request $request)
     {
+        $statusClient = $request->get('st');
         if ($request->ajax()) {
 
-            $statusClient = $request->get('st');
             $asDatatables = true;
 
             # advanced filter purpose
@@ -180,7 +180,7 @@ class ClientStudentController extends ClientController
 
         $entries = app('App\Services\ClientStudentService')->advancedFilterClient();
 
-        return view('pages.client.student.index')->with($entries);
+        return view('pages.client.student.index')->with($entries + ['st' => $statusClient]);
     }
 
     public function indexRaw(Request $request)
@@ -1208,24 +1208,30 @@ class ClientStudentController extends ClientController
         if (!$pic)
             return response()->json(['success' => false, 'message' => 'We require a selection to proceed. Please review the available options and choose one.'], 500);
 
-        $picDetails = [];
+        $picDetails = new Collection();
 
         DB::beginTransaction();
         try {
 
             foreach ($clientIds as $clientId) {
-                $picDetails[] = [
+
+                if ($picDetails->where('client_id', $clientId)->first())
+                    continue;
+                
+                $picDetails->push([
                     'client_id' => $clientId,
                     'user_id' => $pic,
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
-                ];
+                ]);
 
                 if ($client = $this->clientRepository->checkActivePICByClient($clientId)) 
                     $this->clientRepository->inactivePreviousPIC($client);
             }
 
-            $this->clientRepository->insertPicClient($picDetails);
+            # because insert sql need data type as array
+            # meaning: collection has to be converted into array
+            $this->clientRepository->insertPicClient($picDetails->toArray());
             
             DB::commit();
 

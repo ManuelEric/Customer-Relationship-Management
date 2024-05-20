@@ -143,12 +143,12 @@ return new class extends Migration
             (SELECT pic.user_id 
                         FROM tbl_pic_client pic
                     LEFT JOIN users u on u.id = pic.user_id
-                    WHERE pic.client_id = c.id AND pic.status = 1)
+                    WHERE pic.client_id = c.id AND pic.status = 1 LIMIT 1)
              as pic_id,
             (SELECT CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) 
                         FROM tbl_pic_client pic
                     LEFT JOIN users u on u.id = pic.user_id
-                    WHERE pic.client_id = c.id AND pic.status = 1)
+                    WHERE pic.client_id = c.id AND pic.status = 1 LIMIT 1)
              as pic_name
             
         
