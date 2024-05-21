@@ -450,7 +450,7 @@ class InvoiceProgramController extends Controller
                 for ($i = 0; $i < $limit; $i++) {
 
                     $installmentDetails[$i] = [
-                        'inv_id' => $inv_id,
+                        'inv_id' => $new_inv_id,
                         'invdtl_installment' => $param == "idr" ? $request->invdtl_installment[$i] : $request->invdtl_installment__other[$i],
                         'invdtl_duedate' => $param == "idr" ? $request->invdtl_duedate[$i] : $request->invdtl_duedate__other[$i],
                         'invdtl_percentage' => $param == "idr" ? $request->invdtl_percentage[$i] : $request->invdtl_percentage__other[$i],

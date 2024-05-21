@@ -753,6 +753,113 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                         ->where('tbl_inv.bundling_id', '!=', null);
                 break;
 
+            case "reminder":
+                $query = Bundling::leftJoin('tbl_inv', 'tbl_inv.bundling_id', 'tbl_bundling.uuid')
+                        ->leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')
+                        ->select([
+                            'uuid',
+                            'tbl_inv.inv_id',
+                            DB::raw('
+                                    (CASE
+                                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_paymentmethod
+                                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_installment
+                                    END) as payment_method
+                                '),
+                            // 'tbl_inv.inv_paymentmethod',
+                            DB::raw('
+                                    (CASE
+                                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.created_at
+                                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.created_at
+                                    END) as show_created_at
+                                '),
+                            // 'tbl_inv.created_at',
+                            DB::raw('
+                                    (CASE
+                                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_duedate
+                                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_duedate
+                                    END) as due_date
+                                '),
+                            // 'tbl_inv.inv_duedate',
+                            DB::raw('
+                                    (CASE
+                                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_totalprice_idr
+                                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_amountidr
+                                    END) as total_price_idr
+                                '),
+                            // 'tbl_inv.inv_totalprice_idr',
+                            DB::raw('
+                                    (CASE
+                                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
+                                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
+                                    END) as date_difference
+                                '),
+                            // DB::raw('DATEDIFF(tbl_inv.inv_duedate, now()) as date_difference')
+                        ])
+                        ->where('tbl_inv.bundling_id', '!=', null)
+                        ->whereDoesntHave('invoice_b2c.receipt')
+                        // ->where(DB::raw('
+                        //     (CASE
+                        //         WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
+                        //         WHEN tbl_inv.inv_paymentmethod = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
+                        //     END)
+                        // '), '<=', 7)
+                        ->orderBy(DB::raw('
+                            (CASE
+                                WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
+                                WHEN tbl_inv.inv_paymentmethod = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
+                            END)
+                        '), 'desc')
+                        ->groupBy('tbl_inv.inv_id');
+
+                     return DataTables::eloquent($query)->
+                        addColumn('fullname', function (Bundling $bundle) {
+                            return $bundle->details()->first()->client_program->client->full_name;
+                        })->
+                        addColumn('program_name', function (Bundling $bundle) {
+                            return $bundle->details()->first()->client_program->program->program_name . ' (Bundle Package)';
+                        })->
+                        addColumn('parent_fullname', function (Bundling $bundle) {
+                            return $bundle->details()->first()->client_program->client->parents()->first()->full_name;
+                        })->
+                        addColumn('parent_phone', function (Bundling $bundle) {
+                            return $bundle->details()->first()->client_program->client->parents()->first()->phone;
+                        })->
+                        addColumn('parent_id', function (Bundling $bundle) {
+                            return $bundle->details()->first()->client_program->client->parents()->first()->id;
+                        })->
+                        addColumn('client_id', function (Bundling $bundle) {
+                            return $bundle->details()->first()->client_program->client->id;
+                        })->
+                        addColumn('client_phone', function (Bundling $bundle) {
+                            return $bundle->details()->first()->client_program->client->phone;
+                        })->
+                        filterColumn('payment_method', function ($query, $keyword) {
+                            $sql = '(CASE
+                                                    WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_paymentmethod
+                                                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_installment
+                                                END) like ?';
+                            $query->whereRaw($sql, ["%{$keyword}%"]);
+                        })->filterColumn('show_created_at', function ($query, $keyword) {
+                            $sql = '(CASE
+                                                    WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.created_at
+                                                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.created_at
+                                                END) like ?';
+                            $query->whereRaw($sql, ["%{$keyword}%"]);
+                        })->filterColumn('due_date', function ($query, $keyword) {
+                            $sql = '(CASE
+                                                    WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_duedate
+                                                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_duedate
+                                                END) like ?';
+                            $query->whereRaw($sql, ["%{$keyword}%"]);
+                        })->filterColumn('total_price_idr', function ($query, $keyword) {
+                            $sql = '(CASE
+                                                    WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_totalprice_idr
+                                                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_amountidr
+                                                END) like ?';
+                            $query->whereRaw($sql, ["%{$keyword}%"]);
+                        })->toJson();
+                break;
+
         }   
         
         return DataTables::eloquent($query)->

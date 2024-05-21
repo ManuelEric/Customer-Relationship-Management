@@ -90,6 +90,7 @@ Route::prefix('client-program')->name('invoice.program.')->group(function () {
     Route::post('bundle/{bundle}/preview/{currency}', [InvoiceProgramBundleController::class, 'upload'])->name('upload-signed-bundle'); # new
     Route::get('bundle/{bundle}/print/{currency}', [InvoiceProgramBundleController::class, 'printBundle'])->name('print_bundle');
     Route::get('bundle/{bundle}/send/{currency}/{type_recipient}', [InvoiceProgramBundleController::class, 'sendToClientBundle'])->name('send_to_client_bundle');
+    Route::post('bundle/{bundle}/remind/by/whatsapp', [InvoiceProgramBundleController::class, 'remindParentsByWhatsapp']);
 
 });
 

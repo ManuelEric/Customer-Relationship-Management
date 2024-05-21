@@ -1974,4 +1974,11 @@ class ClientRepository implements ClientRepositoryInterface
         ];
 
     }
+
+    # use for modal reminder invoice bundle
+    public function getDataParentsByChildId($childId)
+    {
+        $child = UserClient::find($childId);
+        return $child->parents()->get();
+    }
 }

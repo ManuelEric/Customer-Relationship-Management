@@ -426,9 +426,18 @@ class ClientParentController extends ClientController
         return back()->withSuccess('Import parent start progress');
     }
 
-    public function getDataParents()
+    public function getDataParents(Request $request)
     {
-        $parents = $this->clientRepository->getAllClientByRole('Parent');
+        # use for modal reminder invoice bundle
+        # get data parents from child id
+        $child_id = $request->get('child_id');
+
+        if($child_id !== null){
+            $parents = $this->clientRepository->getDataParentsByChildId($child_id);
+        }else{
+            $parents = $this->clientRepository->getAllClientByRole('Parent');
+        }
+
         return response()->json(
             [
                 'success' => true,

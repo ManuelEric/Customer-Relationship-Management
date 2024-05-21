@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use PDF;
+use DateTime;
 
 class InvoiceProgramBundleController extends Controller
 {
@@ -635,6 +636,80 @@ class InvoiceProgramBundleController extends Controller
         $this->logSuccess('send-to-client', null, 'Invoice Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['invoice_id' => $invoice_id, 'recipient' => $type_recipient]);
 
         return response()->json(['message' => 'Successfully sent invoice to client.']);
+    }
+
+    public function remindParentsByWhatsapp(Request $request)
+    {
+        # sendTo is determined when clicking the recipient modal
+        # whether parent or children
+        $sendTo = $request->sendTo;
+
+        $parent = $request->parent_id != null ? $this->clientRepository->getClientById($request->parent_id) : null;
+
+        switch ($sendTo) {
+
+            case "parent":
+                $client = $this->clientRepository->getClientById($parent != null ? $request->parent_id : $request->client_id);
+                break;
+
+            case "child":
+                $client = $this->clientRepository->getClientById($request->client_id); # client id means child id
+                break;
+
+        }
+        
+        # get the data from blade
+        $target_fullname = $client->full_name;
+        $phone = $request->phone; # this value is from input name target_phone in blade view, will be changed depends on sendTo
+
+        # check if the phone number has changed or not
+        # if the phone number changed then update the client data on database
+        if ($client->phone != $phone) {
+
+            Log::debug('Phone number changed from : '.$client->phone.' to : '.$phone);
+            $this->clientRepository->updateClient($client->id, ['phone' => $phone]);
+        }
+
+        $joined_program_name = ucwords(strtolower($request->program_name));
+        $joined_program_name = str_replace('&', '%26', $joined_program_name);
+        $invoice_duedate = date('d/m/Y', strtotime($request->invoice_duedate));
+        $total_payment = "Rp. " . number_format($request->total_payment, '2', ',', '.');
+
+        $datetime_1 = new DateTime($request->invoice_duedate);
+        $datetime_2 = new DateTime(date('Y-m-d'));
+        $interval = $datetime_1->diff($datetime_2);
+        $date_diff = $interval->format('%a'); # format for the interval : days
+
+        $payment_method = '';
+        if ($request->payment_method != 'Full Payment') {
+            $payment_method = $request->payment_method;
+        }
+        // $payment_method = $request->payment_method != 'Full Payment' ? ' (' . $request->payment_method . ')' : '';
+
+        $text = $parent != null ? "Dear Mr/Mrs " . $target_fullname . "," : "Dear " . $client->first_name . " " . $client->last_name . ",";
+        $text .= "%0A";
+        $text .= "%0A";
+        $text .= "Thank you for trusting EduALL as your independent university consultant to help your child reach their dream to top universities.";
+        $text .= "%0A";
+        $text .= "%0A";
+        $text .= "Through this message, we would like to remind you that the payment deadline for " . $joined_program_name . " " . $payment_method . " is due on " . $invoice_duedate . " or in " . $date_diff . " days.";
+        $text .= "%0A";
+        $text .= "%0A";
+        $text .= "Amount: " . $total_payment;
+        $text .= "%0A";
+        $text .= "%0A";
+        $text .= "Payment could be done through bank transfer to: BCA 2483016611 a/n PT Jawara Edukasih Indonesia.";
+        $text .= "%0A";
+        $text .= "%0A";
+        $text .= "Thank you. Please ignore this message if payment has been made.";
+        $text .= "%0A";
+        $text .= "%0A";
+        $text .= "Regards";
+
+        $link = "https://api.whatsapp.com/send?phone=" . $phone . "&text=" . $text;
+        // echo "<script>window.open('" . $link . "', '_blank')</script>";
+        // return redirect()->to($link);
+        return response()->json(['link' => $link]);
     }
     // ================== End Bundle =================
 }
