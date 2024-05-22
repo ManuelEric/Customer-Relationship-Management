@@ -104,6 +104,13 @@ class ReceiptController extends Controller
         // $receiptDetails['updated_at'] = Carbon::now();
 
         $client_prog = $this->clientProgramRepository->getClientProgramById($request->clientprog_id);
+        
+        # validation child receipt bundle
+        # master receipt bundle must be created first
+        if($request->is_child_program_bundle > 0 && !isset($client_prog->bundlingDetail->bundling->invoice_b2c->receipt)){
+            return Redirect::to('invoice/client-program/' . $request->clientprog_id)->withError('Create master receipt bundle first!');
+        }
+
         $invoice = $client_prog->invoice()->first();
 
         # generate receipt id
@@ -111,6 +118,12 @@ class ReceiptController extends Controller
 
         # Use Trait Create Invoice Id
         $receiptDetails['receipt_id'] = $this->getLatestReceiptId($last_id, $client_prog->prog_id, $receiptDetails);
+
+        if($request->is_child_program_bundle > 0){
+            $last_id = Receipt::whereMonth('created_at', isset($request->receipt_date) ? date('m', strtotime($request->receipt_date)) : date('m'))->whereYear('created_at', isset($request->receipt_date) ? date('Y', strtotime($request->receipt_date)) : date('Y'))->whereRelation('invoiceProgram', 'bundling_id', $client_prog->bundlingDetail->first()->bundling_id)->max(DB::raw('substr(receipt_id, 1, 4)'));
+            # Use Trait Create Invoice Id
+            $receiptDetails['receipt_id'] = $this->getLatestReceiptId($last_id, $client_prog->prog_id, $receiptDetails, $request->is_child_program_bundle);
+        }
 
         $receiptDetails['inv_id'] = $invoice->inv_id;
         $invoice_payment_method = $invoice->inv_paymentmethod;

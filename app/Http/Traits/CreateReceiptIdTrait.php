@@ -7,7 +7,7 @@ use Carbon\Carbon;
 trait CreateReceiptIdTrait
 {
 
-    public function getLatestReceiptId($last_id, $prog_id, $receiptDetails)
+    public function getLatestReceiptId($last_id, $prog_id, $receiptDetails, $is_bundle = NULL)
     {
 
         if ($last_id == null) {
@@ -21,9 +21,13 @@ trait CreateReceiptIdTrait
 
         $increment = str_pad($last_id + 1, 4, "0", STR_PAD_LEFT);
 
-        $inv_id = $increment . '/REC-JEI/' . $prog_id . '/' . $monthOfRoman . '/' . $thisYear;
+        $receipt_id = $increment . '/REC-JEI/' . $prog_id . '/' . $monthOfRoman . '/' . $thisYear;
+        
+        if($is_bundle != NULL && $is_bundle > 0){
+            $receipt_id = $last_id . '/REC-JEI/BDL/' . $monthOfRoman . '/' . $thisYear . '/' . $prog_id;
+        }
 
-        return $inv_id;
+        return $receipt_id;
     }
 
     protected function numberToRoman($number)
