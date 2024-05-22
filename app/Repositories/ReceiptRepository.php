@@ -250,6 +250,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
             ->leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
             ->select(
+                'tbl_inv.bundling_id',
                 'tbl_receipt.id',
                 'tbl_receipt.receipt_id',
                 'tbl_receipt.invdtl_id',
@@ -299,6 +300,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                     END) as referral_type'),
             );
 
+        $queryReceipt->whereNull('tbl_inv.bundling_id');
 
         if (isset($start_date) && isset($end_date)) {
             $queryReceipt->whereDate('tbl_receipt.created_at', '>=', $start_date)
@@ -355,6 +357,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                                 ELSE 1
                             END)')
             )
+            ->whereNull('tbl_inv.bundling_id')
             ->groupBy(DB::raw('(CASE
                                     WHEN tbl_receipt.invb2b_id is not null THEN tbl_invb2b.invb2b_id
                                     WHEN tbl_receipt.inv_id is not null THEN tbl_inv.inv_id

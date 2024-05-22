@@ -308,6 +308,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 
         $queryInv = InvoiceProgram::whereRelation('clientprog', 'status', 1);
 
+        $queryInv->whereNull('bundling_id');
+
         if (isset($start_date) && isset($end_date)) {
             $queryInv->whereDate('tbl_inv.created_at', '>=', $start_date)
                 ->whereDate('tbl_inv.created_at', '<=', $end_date);
@@ -462,6 +464,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             )->whereYear($whereBy, '=', $year)
             ->whereMonth($whereBy, '=', $month)
             ->where('clientprogram.status', 1)
+            ->whereNull('tbl_inv.bundling_id')
             ->get();
     }
 
@@ -578,7 +581,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                                 WHEN tbl_inv.inv_paymentmethod = "Installment" THEN 
                                     tbl_invdtl.invdtl_duedate
                             END) as invoice_duedate')
-                ])->whereNull('tbl_receipt.id');
+                ])
+                ->whereNull('tbl_receipt.id');
 
                 if (isset($monthYear)) {
                     $queryInv->whereYear($whereBy, '=', $year)
@@ -590,7 +594,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
         }
 
         $queryInv
-            ->whereRelation('clientprog', 'status', 1);
+            ->whereRelation('clientprog', 'status', 1)
+            ->whereNull('tbl_inv.bundling_id');
         // ->groupBy('tbl_inv.inv_id');
 
         return $queryInv->orderBy('inv_id_year', 'asc')->orderBy('inv_id_month', 'asc')->orderBy('inv_id_num', 'asc')->groupBy('invoice_id')->get();
@@ -620,6 +625,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             ->whereYear('tbl_receipt.created_at', '=', $year)
             ->whereRelation('clientprog', 'status', 1)
             ->whereNotNull('tbl_receipt.id')
+            ->whereNull('tbl_inv.bundling_id')
             ->groupBy(DB::raw('MONTH(tbl_receipt.created_at)'))
             ->get();
     }
