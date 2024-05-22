@@ -17,6 +17,7 @@
                                 <tr class="text-center">
                                     <th>No</th>
                                     <th>Program Name</th>
+                                    <th>Client Name</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -28,8 +29,9 @@
                                     <tr>
                                         <td>{{ $no++ }}</td>
                                         <td>{{ $bundlingDetail->client_program->program->program_name }}</td>
+                                        <td>{{ $bundlingDetail->client_program->client->full_name }}</td>
                                         {{-- <td class="text-center"><a href="{{ route('invoice.program.create') . '?prog=' . $bundlingDetail->client_program->clientprog_id }}" target="_blank"><h5><i
-                                            class="bi bi-plus-square me-1"></i></h5></a></td> --}}
+                                            class="bi bi-eye me-1"></i></h5></a></td> --}}
                                     </tr>
                                 @endforeach
                             </tbody>

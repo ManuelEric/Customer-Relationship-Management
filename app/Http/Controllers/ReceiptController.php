@@ -349,7 +349,7 @@ class ReceiptController extends Controller
 
         if($isBundle){
             $data['param']['fullname'] = $receipt->invoiceProgram->bundling->first_detail->client_program->client->full_name;
-            $data['param']['program_name'] = $receipt->invoiceProgram->bundling->first_detail->client_program->program->program_name;
+            $data['param']['program_name'] = $receipt->invoiceProgram->bundling->first_detail->client_program->program->program_name . ' (Bundle Package)';
         }else{
             $data['param']['fullname'] = $receipt->invoiceProgram->clientprog->client->full_name;
             $data['param']['program_name'] = $receipt->invoiceProgram->clientprog->program->program_name;
@@ -481,7 +481,7 @@ class ReceiptController extends Controller
         $isBundle = $request->get('b') !== NULL ? true : false;
 
         if($isBundle){
-            $data['program_name'] = $receipt->invoiceProgram->bundling->first_detail->client_program->program->program_name;
+            $data['program_name'] = $receipt->invoiceProgram->bundling->first_detail->client_program->program->program_name . ' (Bundle Package)';
             $pic_mail = $receipt->invoiceProgram->bundling->first_detail->client_program->internalPic->email;
         }else{
             $data['program_name'] = $receipt->invoiceProgram->clientprog->program->program_name;

@@ -318,7 +318,7 @@
             @endif
 
             @include('pages.invoice.client-program.form-detail.list-program')
-            @include('pages.invoice.client-program.form-detail.client')
+            @include('pages.invoice.client-program.form-detail.client-bundle')
 
             @if ($status == 'view' && isset($invoice->invoiceDetail))
                 @include('pages.invoice.client-program.form-detail.installment-list')
@@ -347,7 +347,7 @@
                             </button>
                         @endif
                         @if (isset($invoice->receipt) && $invoice->inv_paymentmethod == 'Full Payment')
-                            <a href="{{ route('receipt.client-program.show', ['receipt' => $invoice->receipt->id]) }}">
+                            <a href="{{ route('receipt.client-program.show', ['receipt' => $invoice->receipt->id, 'b' => true]) }}">
                                 <button class="btn btn-sm btn-outline-warning py-1">
                                     <i class="bi bi-eye"></i> View Receipt
                                 </button>

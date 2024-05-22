@@ -408,7 +408,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 return $query->bundlingDetail()->count();
             })->
             addColumn('bundling_id', function ($query) {
-                return $query->bundlingDetail()->count() > 0 ? $query->bundlingDetail->bundling_id : null;
+                return $query->bundlingDetail()->count() > 0 ? $query->bundlingDetail()->first()->bundling_id : null;
             })->
             filterColumn(
                 'status',

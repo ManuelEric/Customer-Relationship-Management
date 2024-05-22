@@ -36,7 +36,7 @@
             {{-- @include('pages.receipt.client-program.form-detail.refund') --}}
 
             @include('pages.receipt.client-program.form-detail.list-program')
-            @include('pages.receipt.client-program.form-detail.client')
+            @include('pages.receipt.client-program.form-detail.client-bundle')
 
         </div>
 

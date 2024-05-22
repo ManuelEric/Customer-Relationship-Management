@@ -462,7 +462,7 @@ class InvoiceProgramBundleController extends Controller
             'bundling_id' => $bundling_id,
             'currency' => $type,
             'fullname' => $bundle->details[0]->client_program->client->full_name,
-            'program_name' => $bundle->details[0]->client_program->program->program_name,
+            'program_name' => $bundle->details[0]->client_program->program->program_name . ' (Bundle Package)',
             'invoice_date' => date('d F Y', strtotime($bundle->invoice_b2c->created_at)),
             'invoice_duedate' => date('d F Y', strtotime($bundle->invoice_b2c->inv_duedate))
         ];
@@ -617,7 +617,7 @@ class InvoiceProgramBundleController extends Controller
         ];
         $data['param'] = [
             'bundling_id' => $bundling_id,
-            'program_name' => $bundle->details[0]->client_program->program->program_name
+            'program_name' => $bundle->details[0]->client_program->program->program_name . ' (Bundle Package)'
         ];
         $data['title'] = "Invoice of program " . $bundle->details[0]->client_program->program->program_name;
 

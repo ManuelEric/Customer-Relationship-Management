@@ -278,6 +278,26 @@
 
             var table = $('#programTable').DataTable({
                 dom: 'Bfrtip',
+                order: [
+                    26, 'desc'
+                ],
+                exportOptions: {
+                    format: {
+                        body: function (data, column, row){
+                            var clearHtml = '';
+                            var result = '';
+                            if(column == 1){
+                                clearHtml = data.replace(/<[^>]*>?/gm, '');
+                                if (clearHtml.indexOf('{}') === -1) {
+                                    result = clearHtml.replace(/{.*}/, '');
+                                }
+                            }else{
+                                result = data;
+                            }
+                            return result;
+                        }
+                    }
+                },
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
                     ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
@@ -318,6 +338,13 @@
                     },
                     {
                         data: 'fullname',
+                        render: function(data, type, row, meta) {
+                            var bundling_id = null;
+                            if(row.bundling_id !== null){
+                                bundling_id = row.bundling_id.substring(0, 3).toUpperCase();
+                            }
+                            return row.is_bundle > 0 ? data + ' <span class="badge badge-bundle text-bg-success" style="font-size:8px";>{Bundle '+ bundling_id +'}</span>' : data;
+                        }
                     },
                     {
                         data: 'student_mail',
