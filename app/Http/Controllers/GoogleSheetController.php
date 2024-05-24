@@ -272,11 +272,11 @@ class GoogleSheetController extends Controller
                     '*.Email' => ['required', 'email'],
                     '*.Phone Number' => ['nullable', 'min:5', 'max:15'],
                     '*.Date of Birth' => ['nullable', 'date'],
-                    '*.Parents Name' => ['required', 'different:*.Full Name'],
+                    '*.Parents Name' => ['nullable', 'different:*.Full Name'],
                     '*.Parents Phone' => ['nullable', 'min:5', 'max:15', 'different:*.Phone_number'],
                     '*.School' => ['required'],
                     '*.Graduation Year' => ['nullable', 'integer'],
-                    '*.Grade' => ['required', 'integer'],
+                    '*.Grade' => ['nullable', 'integer'],
                     '*.Instagram' => ['nullable'],
                     '*.State' => ['nullable'],
                     '*.City' => ['nullable'],
@@ -347,7 +347,7 @@ class GoogleSheetController extends Controller
                             'city' => isset($val['City']) ? $val['City'] : null,
                             'address' => isset($val['Address']) ? $val['Address'] : null,
                             'sch_id' => isset($school) ? $school : $newSchool->sch_id,
-                            'st_grade' => $val['Grade'],
+                            'st_grade' => isset($val['Grade']) ? $val['Grade'] : null,
                             'lead_id' => $val['Lead'] == 'KOL' ? $val['kol'] : $val['Lead'],
                             'event_id' => isset($val['Event']) && $val['Lead'] == 'LS003' ? $val['Event'] : null,
                             // 'partner_id' => isset($val['partner']) && $val['Lead'] == 'LS015' ? $val['partner'] : null,
@@ -373,6 +373,7 @@ class GoogleSheetController extends Controller
                     // Connecting student with parent
                     $checkExistParent = null;
                     $parent = null;
+                    $parentIds = [];
                     if (isset($val['Parents Name'])) {
                         // $this->createParentsIfNotExists($val['Parents Name'], $parentPhone, $student);
                         $checkExistParent = $this->checkExistClientRelation('student', $student, $val['Parents Name']);
