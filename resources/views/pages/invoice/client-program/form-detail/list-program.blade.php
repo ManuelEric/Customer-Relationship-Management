@@ -18,7 +18,8 @@
                                     <th>No</th>
                                     <th>Program Name</th>
                                     <th>Client Name</th>
-                                    <th>Action</th>
+                                    <th>INV</th>
+                                    <th>REC</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -32,10 +33,22 @@
                                         <td>{{ $bundlingDetail->client_program->client->full_name }}</td>
                                         @if(isset($bundlingDetail->client_program->invoice))
                                             <td class="text-center"><a href="{{ url('invoice/client-program') . '/' . $bundlingDetail->client_program->clientprog_id }}" target="_blank"><h5><i
-                                                class="bi bi-eye me-1"></i></h5></a></td>
+                                                class="bi bi-eye"></i></h5></a></td>
                                         @else
                                             <td class="text-center"><a href="{{ route('invoice.program.create') . '?prog=' . $bundlingDetail->client_program->clientprog_id }}" target="_blank"><h5><i
-                                                class="bi bi-plus-square me-1"></i></h5></a></td>
+                                                class="bi bi-plus-square"></i></h5></a></td>
+                                        @endif
+                                        @if(isset($bundlingDetail->client_program->invoice))
+                                            @if(isset($bundlingDetail->client_program->invoice->receipt))
+                                                <td class="text-center"><a href="{{ url('receipt/client-program') . '/' . $bundlingDetail->client_program->invoice->receipt->id }}" target="_blank"><h5><i
+                                                    class="bi bi-eye"></i></h5></a></td>
+                                            @else
+                                                <td class="text-center"><h5><i
+                                                    class="bi bi-dash-lg"></i></h5></a></td>
+                                            @endif
+                                        @else
+                                            <td class="text-center"><h5><i
+                                                class="bi bi-dash-lg"></i></h5></a></td>
                                         @endif
                                     </tr>
                                 @endforeach

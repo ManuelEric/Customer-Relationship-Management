@@ -984,8 +984,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
         }   
         
         return DataTables::eloquent($query)->
-            addColumn('fullname', function (Bundling $bundle) {
-                return $bundle->details()->first()->client_program->client->full_name;
+            addColumn('fullname', function ($query) {
+                return $query->first_detail->client_program->client->full_name;
             })->
             addColumn('program_name', function (Bundling $bundle) {
                 $program_names = [];
