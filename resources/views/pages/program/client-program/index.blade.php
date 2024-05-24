@@ -157,6 +157,7 @@
                 <thead class="bg-secondary text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
+                        <th class="bg-info text-white">Client Program ID</th>
                         <th class="bg-info text-white">Client Name</th>
                         <th>Student Mail</th>
                         <th>Student Phone</th>
@@ -188,7 +189,7 @@
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="16"></td>
+                        <td colspan="17"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -286,7 +287,7 @@
                         body: function (data, column, row){
                             var clearHtml = '';
                             var result = '';
-                            if(column == 1){
+                            if(column == 2){
                                 clearHtml = data.replace(/<[^>]*>?/gm, '');
                                 if (clearHtml.indexOf('{}') === -1) {
                                     result = clearHtml.replace(/{.*}/, '');
@@ -322,19 +323,24 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
+                    left: window.matchMedia('(max-width: 767px)').matches ? 0 : 3,
                     right: 1
                 },
                 processing: true,
                 serverSide: true,
                 ajax: '',
                 pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
-                columns: [{
+                columns: [
+                    {
                         data: 'clientprog_id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
                             return meta.row + meta.settings._iDisplayStart + 1;
                         }
+                    },
+                    {
+                        data: 'custom_clientprog_id',
+                        className: 'text-center',
                     },
                     {
                         data: 'fullname',
@@ -546,7 +552,7 @@
             })
 
             var selectedRows = [];
-            var names = [];
+            var customClientProgId = [];
             var bundlingIds = [];
 
             function updateRowSelection() {
@@ -557,6 +563,7 @@
                         this.nodes().to$().addClass('selected');
                     } else {
                         this.nodes().to$().removeClass('selected');
+
                     }
                 });
             }
@@ -569,11 +576,13 @@
                 if(index === -1){
                     
                     selectedRows.push(rowData.clientprog_id);
-                    names.push(rowData.fullname);
+                    customClientProgId.push(rowData.custom_clientprog_id);
                     bundlingIds.push(rowData.bundling_id);
                     // e.currentTarget.classList.add('selected');
                 }else{
                     selectedRows.splice(index, 1);
+                    customClientProgId.splice(index, 1);
+                    bundlingIds.splice(index, 1);
                     // e.currentTarget.classList.remove('selected');
                 }
 
@@ -599,7 +608,7 @@
                             var link = '{{ route('program.client.bundle') }}';
                             axios.post(link, {
                                     choosen: selectedRows,
-                                    number: names,
+                                    number: customClientProgId,
                                 })
                                 .then(function(response) {
                                     
@@ -667,7 +676,7 @@
                             var link = '{{ route('program.client.bundle.destroy') }}';
                             axios.post(link, {
                                     choosen: selectedRows,
-                                    number: names,
+                                    number: customClientProgId,
                                     bundlingId: bundlingIds
                                 })
                                 .then(function(response) {

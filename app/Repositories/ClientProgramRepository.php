@@ -174,9 +174,6 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 ]);
 
         return Datatables::eloquent($model)->
-            // addColumn('is_bundle', function ($query) {
-            //     return $query->bundlingDetail()->count();
-            // })->
             addColumn('program_name', function (ClientProgram $clientProgram) {
                 return $clientProgram->program->program_name;
             })->
@@ -215,6 +212,12 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 }
 
                 return $conv_lead;
+            })->
+            addColumn('is_bundle', function ($query) {
+                return $query->bundlingDetail()->count();
+            })->
+            addColumn('bundling_id', function ($query) {
+                return $query->bundlingDetail()->count() > 0 ? $query->bundlingDetail->bundling_id : null;
             })->
             filterColumn('conversion_lead', function ($query, $keyword) {
                 $sql = "(CASE 
@@ -404,11 +407,14 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
         return Datatables::eloquent($model)->
             // rawColumns(['strip_tag_notes'])->
+            addColumn('custom_clientprog_id', function ($query) {
+                return 'CP-' . $query->clientprog_id;
+            })->
             addColumn('is_bundle', function ($query) {
                 return $query->bundlingDetail()->count();
             })->
             addColumn('bundling_id', function ($query) {
-                return $query->bundlingDetail()->count() > 0 ? $query->bundlingDetail()->first()->bundling_id : null;
+                return $query->bundlingDetail()->count() > 0 ? $query->bundlingDetail->first()->bundling_id : null;
             })->
             filterColumn(
                 'status',
@@ -431,7 +437,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     END) like ?';
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 }
-            )->make(true);
+            )->filterColumn('custom_clientprog_id', function ($query, $keyword) {
+                $sql = "tbl_client_prog.clientprog_id like ?";
+                $query->whereRaw($sql, ["%CP-{$keyword}%"]);
+            })
+            ->make(true);
     }
 
     public function getAllProgramOnClientProgram()

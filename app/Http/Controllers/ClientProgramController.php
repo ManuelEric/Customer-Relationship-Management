@@ -1170,12 +1170,14 @@ class ClientProgramController extends Controller
                 
                 // check there is an invoice 
                 $hasInvoiceStd = isset($clientprog_db->invoice) ? $clientprog_db->invoice()->count() : 0;
-                $hasBundling = isset($clientprog_db->bundling) ? $clientprog_db->bundlingDetail()->count() : 0;
+                $hasBundling = isset($clientprog_db->bundlingDetail) ? $clientprog_db->bundlingDetail()->count() : 0;
     
                 $clientProgram[$request->number[$key]] = [
                     'clientprog_id' => $clientprog_id,
                     'status' => $clientprog_db->status,
-                    'program' => $clientprog_db->prog_id
+                    'program' => $clientprog_db->prog_id,
+                    'HasInvoice' => $hasInvoiceStd,
+                    'HasBundling' => $hasBundling,
                 ];
                 
                 $clientProgramDetails[] = [
@@ -1188,13 +1190,17 @@ class ClientProgramController extends Controller
     
             $rules = [
                 '*.clientprog_id' => ['required', 'exists:tbl_client_prog,clientprog_id'],
-                '*.status' => ['required', 'in:1', function($attribute, $value, $fail) use($hasInvoiceStd, $hasBundling){
-                    if((int)$hasInvoiceStd > 0){
+                '*.status' => ['required', 'in:1'],
+                '*.HasInvoice' => function($attribute, $value, $fail) {
+                    if((int)$value > 0){
                         $fail('This program already has an invoice');
-                    }else if((int)$hasBundling > 0){
+                    }
+                },
+                '*.HasBundling' => function($attribute, $value, $fail) {
+                    if((int)$value > 0){
                         $fail('This program is already in the bundle package');
                     }
-                }],
+                },
                 // '*.program' => ['required', 'distinct']
 
             ];
@@ -1252,19 +1258,25 @@ class ClientProgramController extends Controller
                 $clientProgram[$request->number[$key]] = [
                     'clientprog_id' => $clientprog_id,
                     'status' => $clientprog_db->status,
+                    'HasInvoice' => $hasInvoiceStd,
+                    'HasBundling' => $hasBundling,
                 ];
                 
             }
     
             $rules = [
                 '*.clientprog_id' => ['required', 'exists:tbl_client_prog,clientprog_id'],
-                '*.status' => ['required', 'in:1', function($attribute, $value, $fail) use($hasInvoiceStd, $hasBundling){
-                    if((int)$hasInvoiceStd > 0){
+                '*.status' => ['required', 'in:1'],
+                '*.HasInvoice' => function($attribute, $value, $fail) {
+                    if((int)$value > 0){
                         $fail('This program already has an invoice');
-                    }else if((int)$hasBundling  == 0){
+                    }
+                },
+                '*.HasBundling' => function($attribute, $value, $fail) {
+                    if((int)$value == 0){
                         $fail('This is not a bundle program');
                     }
-                }],
+                },
             ];
     
             $validator = Validator::make($clientProgram, $rules);
