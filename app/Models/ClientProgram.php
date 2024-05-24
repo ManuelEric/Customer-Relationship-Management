@@ -142,6 +142,11 @@ class ClientProgram extends Model
         return $this->belongsTo(Program::class, 'prog_id', 'prog_id');
     }
 
+    public function viewProgram()
+    {
+        return $this->belongsTo(ViewProgram::class, 'prog_id', 'prog_id');
+    }
+
     public function lead()
     {
         return $this->belongsTo(Lead::class, 'lead_id', 'lead_id');

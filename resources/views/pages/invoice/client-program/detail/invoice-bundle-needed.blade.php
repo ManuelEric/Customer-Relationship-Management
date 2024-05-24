@@ -53,6 +53,7 @@
                 },
                 {
                     data: 'program_name',
+                    searchable: false,
                 },
                 {
                     data: 'uuid',

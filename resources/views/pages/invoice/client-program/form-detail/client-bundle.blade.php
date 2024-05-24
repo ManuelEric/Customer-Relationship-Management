@@ -16,11 +16,11 @@
                             <div class="accordion" id="accordion-{{ $detail->client_program->client->id }}">
                                 <div class="accordion-item">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $detail->client_program->client->id }}" aria-expanded="true" aria-controls="collapse-{{ $detail->client_program->client->id }}">
                                     {{ $detail->client_program->client->full_name }}
                                     </button>
                                 </h2>
-                                <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                                <div id="collapse-{{ $detail->client_program->client->id }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
                                     <div class="accordion-body">
                                         <div class="row mb-2 g-1">
                                             <div class="col-md-4 d-flex justify-content-between">

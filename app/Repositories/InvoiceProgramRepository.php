@@ -19,71 +19,176 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
         switch ($status) {
 
             case "needed":
-                $bundling = ViewClientProgram::when($status == "needed", function ($q) {
-                    # select all client program with relation bundling
-                    # where status already success which mean they(client) already paid the program
-                    $q->whereHas('bundlingDetail', function ($query) {
-                        $query->whereHas('bundling', function ($query2){
-                            $query2->doesntHave('invoice_b2c');
+
+                $regular = ClientProgram::
+                        leftJoin('tbl_lead as cpl', 'cpl.lead_id', '=', 'tbl_client_prog.lead_id')->
+                        leftJoin('tbl_eduf_lead as edl', 'edl.id', '=', 'tbl_client_prog.eduf_lead_id')->
+                        leftJoin('tbl_client_event as ce', 'ce.clientevent_id', '=', 'tbl_client_prog.clientevent_id')->
+                        leftJoin('tbl_events as e', 'e.event_id', '=', 'ce.event_id')->
+                        leftJoin('tbl_corp as corp', 'corp.corp_id', '=', 'tbl_client_prog.partner_id')->
+                        
+                        when($status == "needed", function ($q) {
+                        $q->where(function ($q2) use($q) {
+                            # select all client program with relation bundling
+                            # where status already success which mean they(client) already paid the program
+                            $q2->whereHas('bundlingDetail', function ($q3) {
+                                $q3->whereHas('bundling', function ($q4){
+                                    $q4->doesntHave('invoice_b2c');
+                                });
+
+                            # select all client program
+                            # where status already success which mean they(client) already paid the program
+                            })->orWhereDoesntHave('bundlingDetail', function ($q5) use ($q) {
+                                $q->doesntHave('invoice');
+                            });
                         });
-                    });
-                    })->where('status', 1);
-
-                $regular = ViewClientProgram::when($status == "needed", function ($q) {
-                    # select all client program
-                    # where status already success which mean they(client) already paid the program
-                    $q->doesntHave('invoice')->where('status', 1);
-                    });
+                    })
+                    ->where('tbl_client_prog.status', 1)->
+                    select([
+                        'tbl_client_prog.clientprog_id',
+                        'tbl_client_prog.success_date',
+                        'tbl_client_prog.client_id',
+                        'tbl_client_prog.prog_id',
+                        'tbl_client_prog.empl_id',
+                        'tbl_client_prog.lead_id',
+                    ]);
                    
+                $query = $regular;  
+                
+                $fColumns = [
+                    'relation' => ['client', 'viewProgram', 'internalPic'],
+                    'columns' => ['fullname', 'program_name', 'pic_name'],
+                    'realColumns' => [DB::raw('CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, ""))'), 'program_name', DB::raw('CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, ""))')]
+                ];
 
-                $query = $bundling->union($regular);
-                return DataTables::eloquent($query)->addColumn('is_bundle', function ($query) {
-                        return count($query->bundlingDetail);
+                $datatable = DataTables::eloquent($query)->
+                    addColumn('is_bundle', function ($query) {
+                        return $query->bundlingDetail()->count();
                     })->
                     addColumn('bundling_id', function ($query) {
-                        return count($query->bundlingDetail) > 0 ? $query->bundlingDetail->first()->bundling_id : null;
+                        return $query->bundlingDetail()->count() > 0 ? $query->bundlingDetail->bundling_id : null;
                     })->            
                     addColumn('count_invoice', function ($query) {
-                        return count($query->bundlingDetail) > 0 ? $query->bundlingDetail->first()->bundling->invoice_b2c()->count() : 0;
-                    })
-                    ->make(true);
+                        return $query->bundlingDetail()->count() > 0 ? $query->bundlingDetail->bundling->invoice_b2c()->count() : 0;
+                    })->
+                    addColumn('fullname', function ($query) {
+                        return $query->client->full_name;
+                    })->
+                    addColumn('program_name', function ($query) {
+                        return $query->program->program_name;
+                    })->
+                    addColumn('pic_name', function ($query) {
+                        return $query->internalPic->full_name;
+                    })->
+                    addColumn('conversion_lead', function (ClientProgram $clientProgram) {
+
+                        $main_lead = $clientProgram->lead->main_lead;
+                        $sub_lead = $clientProgram->lead->sub_lead;
+                        switch ($main_lead) {
+        
+                            case "KOL":
+                                $conv_lead = "KOL - {$sub_lead}";
+                                break;
+        
+                            case "External Edufair":
+                                $eduf_lead = $clientProgram->external_edufair->title;
+                                $conv_lead = "External Edufair - {$eduf_lead}";
+                                break;
+        
+                            case "All-In Event":
+                                $event_title = $clientProgram->clientEvent->event->title;
+                                $conv_lead = "EduALL Event - {$event_title}";
+                                break;
+        
+                            case "All-In Partners":
+                                $partner_name = $clientProgram->partner->corp_name;
+                                $conv_lead = "EduALL Partners - {$partner_name}";
+                                break;
+        
+                            default:
+                                $conv_lead = $main_lead;
+        
+                        }
+        
+                        return $conv_lead;
+                    });
+
+                    foreach ($fColumns['columns'] as $key => $column) {
+                        $datatable->filterColumn($column, function ($query, $keyword) use($fColumns, $key) {
+                            $query->whereRelation($fColumns['relation'][$key], $fColumns['realColumns'][$key], 'like', "%{$keyword}%");
+                        });
+                    }
+                    
+                    $datatable->filterColumn('conversion_lead', function ($query, $keyword) {
+                        $sql = "(CASE 
+                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'KOL' THEN CONCAT('KOL - ', cpl.sub_lead COLLATE utf8mb4_unicode_ci)
+                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'External Edufair' THEN CONCAT('External Edufair - ', edl.title COLLATE utf8mb4_unicode_ci)
+                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'EduALL Event' THEN CONCAT('All-In Event - ', e.event_title COLLATE utf8mb4_unicode_ci)
+                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'EduALL Partners' THEN CONCAT('All-In Partner - ', corp.corp_name COLLATE utf8mb4_unicode_ci)
+                                    ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
+                                END) like ?";
+                        $query->whereRaw($sql, ["%{$keyword}%"]);
+                    });
+
+                    return $datatable->make(true);
 
                 break;
 
             case "list":
-                $query = ViewClientProgram::leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')
+                $query = ClientProgram::leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')
                     ->select([
-                        'clientprogram.clientprog_id',
-                        'fullname',
+                        'tbl_client_prog.clientprog_id',
                         'inv_id',
                         'inv_paymentmethod',
                         'tbl_inv.created_at',
                         'inv_duedate',
                         'inv_totalprice_idr',
-                        'program_name',
-                        'clientprogram.status'
+                        'tbl_client_prog.status',
+                        'tbl_client_prog.prog_id',
+                        'tbl_client_prog.client_id'
                     ])->orderBy('tbl_inv.updated_at', 'desc')->groupBy('tbl_inv.inv_id');
 
-                return DataTables::eloquent($query)->addColumn('is_bundle', function ($query) {
-                        return count($query->bundlingDetail);
+                $fColumns = [
+                    'relation' => ['viewProgram', 'client'],
+                    'columns' => ['program_name', 'fullname'],
+                    'realColumns' => ['program_name', DB::raw('CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, ""))')]
+                ];
+
+                $datatable = DataTables::eloquent($query)->
+                    addColumn('is_bundle', function ($query) {
+                        return $query->bundlingDetail()->count();
                     })->
                     addColumn('bundling_id', function ($query) {
-                        return count($query->bundlingDetail) > 0 ? $query->bundlingDetail->first()->bundling_id : null;
-                    })
-                    ->make(true);
+                        return $query->bundlingDetail()->count() > 0 ? $query->bundlingDetail->bundling_id : null;
+                    })->
+                    addColumn('program_name', function ($query) {
+                        return $query->program->program_name;
+                    })->
+                    addColumn('fullname', function ($query) {
+                        return $query->client->full_name;
+                    });
+  
+                foreach ($fColumns['columns'] as $key => $column) {
+                    $datatable->filterColumn($column, function ($query, $keyword) use($fColumns, $key) {
+                        $query->whereRelation($fColumns['relation'][$key], $fColumns['realColumns'][$key], 'like', "%{$keyword}%");
+                    });
+                }
+                
+                return $datatable->make(true);
                 break;
 
             case "reminder":
-                $query = ViewClientProgram::with('client.parents')->leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')->leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')->leftJoin('tbl_client as child', 'child.id', '=', 'clientprogram.client_id')->leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')->leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')->leftJoin('tbl_receipt as receipt', 'receipt.inv_id', '=', 'tbl_inv.inv_id')->select([
+
+                $query = ClientProgram::with('client.parents')->leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')->leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')->leftJoin('tbl_client as child', 'child.id', '=', 'tbl_client_prog.client_id')->leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')->leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')->leftJoin('tbl_receipt as receipt', 'receipt.inv_id', '=', 'tbl_inv.inv_id')->select([
                     'tbl_inv.clientprog_id',
-                    'clientprogram.fullname',
-                    'clientprogram.parent_fullname',
-                    'clientprogram.parent_phone',
+                    DB::raw('CONCAT(child.first_name, " ", COALESCE(child.last_name, "")) as fullname'),
+                    DB::raw('CONCAT(parent.first_name, " ", COALESCE(parent.last_name, "")) as parent_fullname'),
+                    'parent.phone as parent_phone',
                     'parent.id as parent_id',
                     'child.id as client_id',
                     'child.phone as child_phone',
-                    'program_name',
                     'tbl_inv.inv_id',
+                    'tbl_client_prog.prog_id',
                     DB::raw('
                             (CASE
                                 WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_paymentmethod
@@ -136,7 +241,9 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     ->groupBy('tbl_inv.inv_id');
 
                 return DataTables::eloquent($query)->
-                filterColumn('payment_method', function ($query, $keyword) {
+                addColumn('program_name', function ($query) {
+                    return $query->program->program_name;
+                })->filterColumn('payment_method', function ($query, $keyword) {
                     $sql = '(CASE
                                             WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_paymentmethod
                                             WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_installment
@@ -160,12 +267,17 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                                             WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_amountidr
                                         END) like ?';
                     $query->whereRaw($sql, ["%{$keyword}%"]);
+                })->filterColumn('program_name', function ($query, $keyword) {
+                    $query->whereRelation('viewProgram', 'program_name', 'like', "%{$keyword}%");
+                })->filterColumn('fullname', function ($query, $keyword) {
+                    $sql = 'CONCAT(child.first_name, " ", COALESCE(child.last_name, "")) like ?';
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
                 })->toJson();
+                return DataTables::eloquent($query)->make(true);
                 break;
         }
 
 
-        return DataTables::eloquent($query)->make(true);
     }
 
     public function getAllDueDateInvoiceProgram(int $days)
@@ -839,6 +951,9 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                         addColumn('client_phone', function (Bundling $bundle) {
                             return $bundle->details()->first()->client_program->client->phone;
                         })->
+                        filterColumn('fullname', function ($query, $keyword) {
+                            $query->whereRelation('first_detail.client_program.client', DB::raw('CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, ""))'), 'like', "%{$keyword}%");
+                        })->
                         filterColumn('payment_method', function ($query, $keyword) {
                             $sql = '(CASE
                                                     WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_paymentmethod
@@ -878,6 +993,9 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     $program_names[] =  $detail->client_program->program->program_name;
                 }
                 return implode(', ', $program_names);
+            })->
+            filterColumn('fullname', function ($query, $keyword) {
+                $query->whereRelation('first_detail.client_program.client', DB::raw('CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, ""))'), 'like', "%{$keyword}%");
             })->
             toJson();
     }

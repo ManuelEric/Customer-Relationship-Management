@@ -120,7 +120,7 @@ class ReceiptController extends Controller
         $receiptDetails['receipt_id'] = $this->getLatestReceiptId($last_id, $client_prog->prog_id, $receiptDetails);
 
         if($request->is_child_program_bundle > 0){
-            $last_id = Receipt::whereMonth('created_at', isset($request->receipt_date) ? date('m', strtotime($request->receipt_date)) : date('m'))->whereYear('created_at', isset($request->receipt_date) ? date('Y', strtotime($request->receipt_date)) : date('Y'))->whereRelation('invoiceProgram', 'bundling_id', $client_prog->bundlingDetail->first()->bundling_id)->max(DB::raw('substr(receipt_id, 1, 4)'));
+            $last_id = Receipt::whereMonth('created_at', isset($request->receipt_date) ? date('m', strtotime($request->receipt_date)) : date('m'))->whereYear('created_at', isset($request->receipt_date) ? date('Y', strtotime($request->receipt_date)) : date('Y'))->whereRelation('invoiceProgram', 'bundling_id', $client_prog->bundlingDetail->bundling_id)->max(DB::raw('substr(receipt_id, 1, 4)'));
             # Use Trait Create Invoice Id
             $receiptDetails['receipt_id'] = $this->getLatestReceiptId($last_id, $client_prog->prog_id, $receiptDetails, $request->is_child_program_bundle);
         }

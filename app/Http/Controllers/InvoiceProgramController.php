@@ -216,7 +216,7 @@ class InvoiceProgramController extends Controller
             $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id, $invoiceDetails['created_at']);
             
             if($request->is_bundle > 0){
-                $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->where('bundling_id', $clientProg->bundlingDetail->first()->bundling_id)->max(DB::raw('substr(inv_id, 1, 4)'));
+                $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->where('bundling_id', $clientProg->bundlingDetail->bundling_id)->max(DB::raw('substr(inv_id, 1, 4)'));
                 # Use Trait Create Invoice Id
                 $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id, $invoiceDetails['created_at'], $request->is_bundle);
             }
@@ -274,7 +274,7 @@ class InvoiceProgramController extends Controller
         # call GET parameters
         
         if(isset($request->bundle) && $request->bundle)
-            return $this->createBundle($request->bundle);
+            return app('App\Http\Controllers\InvoiceProgramBundleController')->createBundle($request->bundle);
 
         $incomingRequestProg = $request->prog;
         
