@@ -193,7 +193,7 @@ class ReceiptController extends Controller
     {
         
         $receiptId = $request->route('receipt');
-        $receipt = $this->receiptRepository->getReceiptById($receiptId);    
+        $receipt = $this->receiptRepository->getReceiptById($receiptId);      
         
         $isBundle = $request->get('b') !== NULL ? true : false;
 
@@ -205,16 +205,18 @@ class ReceiptController extends Controller
 
         $file_name = str_replace('/', '-', $receipt->receipt_id) . '-' . ($type == 'idr' ? $type : 'other') . '.pdf';
 
-        if ($type == "idr")
+        if ($type == "idr"){
             $view = 'pages.receipt.client-program.export.receipt-pdf';
             if($isBundle){
                 $view = 'pages.receipt.client-program.export.receipt-bundle-pdf';
             }
-        else
+        }else{
             $view = 'pages.receipt.client-program.export.receipt-pdf-foreign';
             if($isBundle){
                 $view = 'pages.receipt.client-program.export.receipt-bundle-pdf-foreign';
             }
+        }
+
             
         # store to receipt attachment
         DB::beginTransaction();
@@ -243,14 +245,15 @@ class ReceiptController extends Controller
         # generate file 
         try {
             # update download status on tbl_receipt
-            if ($type == "idr")
-                $receipt->download_idr = 1;
-            else
-                $receipt->download_other = 1;
 
-            $receipt->save();
+            if ($type == "idr"){
+                $this->receiptRepository->updateReceipt($receiptId, ['download_idr' => 1]);
+            }else{
+                $this->receiptRepository->updateReceipt($receiptId, ['download_other' => 1]);
+            }
+            
             DB::commit();
-
+            
             $companyDetail = [
                 'name' => env('ALLIN_COMPANY'),
                 'address' => env('ALLIN_ADDRESS'),

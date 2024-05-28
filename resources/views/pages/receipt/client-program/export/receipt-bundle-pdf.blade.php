@@ -84,7 +84,7 @@
                     <p>
                         Bundle package with:
                     </p>
-                    @for($i = 1; $i < count($receipt->invoiceProgram->bundling->details); $i++)
+                    @for($i = 1; $i < $receipt->invoiceProgram->bundling->details->count(); $i++)
                         <p>
                             <strong> {{ $receipt->invoiceProgram->bundling->details[$i]->client_program->program->program_name }} </strong>
                         </p>

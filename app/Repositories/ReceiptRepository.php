@@ -174,6 +174,12 @@ class ReceiptRepository implements ReceiptRepositoryInterface
             // ->orderBy('tbl_receipt.created_at', 'DESC');
 
         return DataTables::eloquent($query)
+            ->addColumn('is_bundle', function ($query) {
+                return $query->invoiceProgram->clientprog->bundlingDetail()->count();
+            })
+            ->addColumn('bundling_id', function ($query) {
+                return $query->invoiceProgram->clientprog->bundlingDetail()->count() > 0 ? $query->invoiceProgram->clientprog->bundlingDetail->bundling_id : null;
+            })
             ->filterColumn('client_fullname', function ($query, $keyword) {
                 $sql = 'CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, "")) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);

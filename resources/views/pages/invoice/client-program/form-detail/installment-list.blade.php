@@ -34,7 +34,7 @@
                     </div>
                     <div class="mt-2 text-end">
                         @if ($detail->receipt)
-                            <a href="{{ route('receipt.client-program.show', ['receipt' => $detail->receipt->id]) }}">
+                            <a href="{{ isset($invoice->bundling) ? route('receipt.client-program.show', ['receipt' => $invoice->receipt->id, 'b' => true]) : route('receipt.client-program.show', ['receipt' => $detail->receipt->id]) }}">
                                 <button class="btn btn-sm btn-outline-warning py-1" style="font-size: 11px">
                                     <i class="bi bi-eye"></i> View
                                 </button>

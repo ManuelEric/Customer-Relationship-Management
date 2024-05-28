@@ -98,7 +98,15 @@
                 },
                 {
                     data: 'program_name',
-                    name: 'program.program_name'
+                    name: 'program.program_name',
+                    render: function(data, type, row, meta) {
+                                    if(row.bundling_id !== null){
+                                        bundling_id = row.bundling_id.substring(0, 3).toUpperCase();
+                                    }
+
+                                    return row.is_bundle > 0 ? data + ' <span class="badge text-bg-success" style="font-size:8px";>Bundle '+ bundling_id +'</span>' : data;
+                                }
+
                 },
                 {
                     data: 'receipt_id',
