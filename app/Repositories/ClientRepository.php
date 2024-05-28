@@ -24,7 +24,9 @@ use App\Models\PicClient;
 use App\Models\University;
 use App\Models\User;
 use App\Models\ViewRawClient;
+use Exception;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
@@ -257,6 +259,19 @@ class ClientRepository implements ClientRepositoryInterface
                         break;
                 }
                 return '<a href="'. url('client/board?name='.$client->full_name) .'" target="_blank">'.$message.'</a>';
+            })->
+            addColumn('took_ia', function ($data) {
+                $endpoint = env('EDUALL_ASSESSMENT_URL') . 'api/get/took-ia/' . $data->uuid;
+    
+                # create 
+                $response = Http::get($endpoint);
+    
+                # catch when sending the request to $endpoints failed
+                if ($response->failed()) {
+                    return 'error';
+                }
+    
+                return isset($response['data']) ? $response['data'] : 0;
             })->
             rawColumns(['followup_status', 'address'])->
             filterColumn('parent_name', function ($query, $keyword) {
@@ -1963,7 +1978,7 @@ class ClientRepository implements ClientRepositoryInterface
                 ],
                 'education' => [
                     'school' => $child->school->sch_name,
-                    'grade' => $child->st_grade,
+                    'grade' => $child->gradeNow,
                 ],
                 'country' => $child->destinationCountries->pluck('name')->toArray()
             ],
@@ -1995,7 +2010,7 @@ class ClientRepository implements ClientRepositoryInterface
                 ],
                 'education' => [
                     'school' => isset($child->school) ? $child->school->sch_name : null,
-                    'grade' => $child->st_grade,
+                    'grade' => $child->gradeNow,
                 ],
                 'country' => $child->destinationCountries->pluck('name')->toArray()
             ],

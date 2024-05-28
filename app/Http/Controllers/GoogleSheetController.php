@@ -763,9 +763,10 @@ class GoogleSheetController extends Controller
 
                     // Generate ticket id (if event offline)
                     $event = Event::where('event_id', $val['Event Name'])->first();
-                    if(!str_contains($event->event_location, 'online')){
+                    # Updated ticket id for all events
+                    // if(!str_contains($event->event_location, 'online')){
                         $data['ticket_id'] = app(ExtClientController::class)->generateTicketID();
-                    }
+                    // }
                     
                     # add additional identification
                     if ($val['Audience'] == "Parent"){
