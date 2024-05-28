@@ -833,11 +833,13 @@
                         defaultContent: '',
                         render: function(data, type, row, meta) {
                             let content = '<div class="d-flex gap-1 justify-content-center">' +
+                                '<small class="btn btn-sm btn-outline-info cursor-pointer copyLinkAssessment" onclick="copyLink(\''+ row.uuid +'\')"><i class="bi bi-card-text"></i></small>' +
                                 '<small class="btn btn-sm btn-outline-warning cursor-pointer editClient" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail"><i class="bi bi-eye"></i></small>'
                             '</div>';
 
                             if (get_st == 'new-leads' || get_st == 'potential') {
                                 content = '<div class="d-flex gap-1 justify-content-center">' +
+                                    '<small class="btn btn-sm btn-outline-info cursor-pointer copyLinkAssessment" onclick="copyLink(\''+ row.uuid +'\')"><i class="bi bi-card-text"></i></small>'+
                                     '<small data-bs-toggle="tooltip" data-bs-placement="top" ' +
                                     'data-bs-custom-class="custom-tooltip" ' +
                                     'data-bs-title="Delete" class="btn btn-sm btn-outline-danger cursor-pointer deleteClient">' +
@@ -1164,6 +1166,27 @@
                     swal.close();
                     notification('error', error)
                 })
+        }
+
+        function copyLink(uuid) {
+            
+            // Get the text field
+            var copyText = "{{ env('EDUALL_ASSESSMENT_URL') }}api/signin/u/" + uuid;
+
+            // Copy the text inside the text field
+            navigator.clipboard.writeText(copyText);
+
+
+            // Alert the copied text
+            // alert("Copied the text: " + copyText.value);
+            Swal.fire({
+                icon: 'success',
+                text: "Assessment successfully copied ",
+                timer: 1500,
+                width:300,
+                showConfirmButton: false,
+            });
+            //    swal("Copied the text: " + copyText.value);
         }
     </script>
 @endpush

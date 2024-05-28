@@ -190,6 +190,7 @@ Route::prefix('v1')->group(function () {
     # used in other platform
     #
     Route::get('get/user/by/TKT/{ticket_no}', [ExtClientController::class, 'getUserByTicket']);
+    Route::get('get/user/by/UUID/{uuid}', [ExtClientController::class, 'getUserByUUID']);
 
 });
 

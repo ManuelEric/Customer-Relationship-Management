@@ -134,5 +134,7 @@ interface ClientRepositoryInterface
 
     # API
     public function getClientByTicket($ticket_no);
+    public function getClientByUUIDforAssessment($uuid);
+
     
 }

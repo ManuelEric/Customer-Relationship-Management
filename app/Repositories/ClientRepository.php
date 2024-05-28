@@ -1975,6 +1975,38 @@ class ClientRepository implements ClientRepositoryInterface
 
     }
 
+    public function getClientByUUIDforAssessment($uuid)
+    {
+        $child = UserClient::where('uuid', $uuid)->first();
+
+        return [
+            'client' => [
+                'id' => $child->id,
+                'uuid_crm' => $child->uuid,
+                'is_vip' => false,
+                'took_initial_assessment' => 0,
+                'full_name' => $child->full_name,
+                'email' => $child->mail,
+                'phone' => $child->phone,
+                'address' => [
+                    'state' => $child->state,
+                    'city' => $child->city,
+                    'address' => $child->address
+                ],
+                'education' => [
+                    'school' => isset($child->school) ? $child->school->sch_name : null,
+                    'grade' => $child->st_grade,
+                ],
+                'country' => $child->destinationCountries->pluck('name')->toArray()
+            ],
+            'clientevent' => [
+                'id' => null,
+                'ticket_id' => null,
+            ]
+        ];
+
+    }
+
     # use for modal reminder invoice bundle
     public function getDataParentsByChildId($childId)
     {

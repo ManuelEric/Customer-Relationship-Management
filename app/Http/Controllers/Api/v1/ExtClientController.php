@@ -1631,4 +1631,22 @@ class ExtClientController extends Controller
             'data' => $student
         ]);
     }
+
+    public function getUserByUUID($uuid)
+    {
+        # get student info
+        $student = $this->clientRepository->getClientByUUIDforAssessment($uuid);
+        
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => "I apologize, but it appears you don't currently have access to the initial assessment app."
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $student
+        ]);
+    }
 }
