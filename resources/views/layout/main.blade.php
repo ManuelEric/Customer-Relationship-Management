@@ -413,8 +413,8 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($birthDay as $mentee)
-                                        <tr class="text-center">
-                                            <td>{{ $loop->iteration }}</td>
+                                        <tr class="text-left">
+                                            <td class="text-center">{{ $loop->iteration }}</td>
                                             <td>{{ $mentee->full_name }}</td>
                                             <td>{{ date('D, d M Y', strtotime($mentee->dob)) }}</td>
                                             <td>{{ strip_tags($mentee->address) }}</td>

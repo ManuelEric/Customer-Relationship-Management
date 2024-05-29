@@ -1379,6 +1379,7 @@ class ClientRepository implements ClientRepositoryInterface
         return Client::whereMonth('dob', date('m', strtotime($month)))->whereHas('roles', function ($query) {
                     $query->where('role_name', 'Student');
                 })->where('st_statusact', 1)->
+                orderBy(DB::raw('dayofmonth(dob)'), 'asc')->
                 isNotSalesAdmin()->
                 isUsingAPI()->
                 get();
