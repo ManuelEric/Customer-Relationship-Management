@@ -804,10 +804,15 @@
                         className: 'text-center',
                         searchable: false,
                         render: function(data, type, row, meta) {
-                            if (!data)
-                                return '<h5><i class="bi bi-dash-square-fill text-danger"></i></h5>'
-                            else
-                                return '<h5><i class="bi bi-check-square-fill text-success"></i></h5>'
+                            if(data !== 'error'){
+                                if(!data){
+                                    return '<h5><i class="bi bi-dash-square-fill text-danger"></i></h5>'
+                                }else{
+                                    return '<h5><i class="bi bi-check-square-fill text-success"></i></h5>'
+                                }
+                            }else{
+                                return data;
+                            }
                         }
                     },
                     {

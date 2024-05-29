@@ -263,11 +263,16 @@ class ClientRepository implements ClientRepositoryInterface
             addColumn('took_ia', function ($data) {
                 $endpoint = env('EDUALL_ASSESSMENT_URL') . 'api/get/took-ia/' . $data->uuid;
     
-                # create 
-                $response = Http::get($endpoint);
-    
-                # catch when sending the request to $endpoints failed
-                if ($response->failed()) {
+                try {
+                    # create 
+                    $response = Http::get($endpoint);
+        
+                    # catch when sending the request to $endpoints failed
+                    if ($response->failed() ) {
+                        return 'error';
+                    }
+
+                } catch (Exception $e) {
                     return 'error';
                 }
     
