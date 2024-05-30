@@ -34,6 +34,27 @@
                             'pageLength', {
                                 extend: 'excel',
                                 text: 'Export to Excel',
+                                exportOptions: {
+                                    format: {
+                                        body: function (data, row, column, node){
+                                            var clearHtml = '';
+                                            var result = '';
+                                            if(column === 2){
+                                                clearHtml = data.replace(/<[^>]*>?/gm, '');
+                                                if (clearHtml.indexOf('{}') === -1) {
+                                                    result = clearHtml.replace(/{.*}/, '');
+                                                }else{
+                                                    result = clearHtml;
+                                                }
+                                            }else if(column === 8 || column === 4){
+                                                result = data.replace(/<[^>]*>?/gm, '');
+                                            }else{
+                                                result = data;
+                                            }
+                                            return result;
+                                        }
+                                    }
+                                },
                             }
                         ],
                         scrollX: true,
@@ -82,9 +103,9 @@
                                     }
 
                                     if(parseInt(row.status) === 1){
-                                        return row.is_bundle > 0 ? data + ' <span class="badge text-bg-success" style="font-size:8px";>Bundle '+ bundling_id +'</span>' : data;
+                                        return row.is_bundle > 0 ? data + ' <span class="badge text-bg-success" style="font-size:8px";>{Bundle '+ bundling_id +'}</span>' : data;
                                     }else{
-                                        return row.is_bundle > 0 ? data + ' <div class="badge badge-danger py-1 px-2 ms-2">'+ status +'</div>' + ' <span class="badge text-bg-success" style="font-size:8px";>Bundle '+ bundling_id +'</span>' : data + ' <div class="badge badge-danger py-1 px-2 ms-2">'+ status +'</div>';  
+                                        return row.is_bundle > 0 ? data + ' <div class="badge badge-danger py-1 px-2 ms-2">'+ status +'</div>' + ' <span class="badge text-bg-success" style="font-size:8px";>{Bundle '+ bundling_id +'}</span>' : data + ' <div class="badge badge-danger py-1 px-2 ms-2">'+ status +'</div>';  
                                     }
                                 }
                             },

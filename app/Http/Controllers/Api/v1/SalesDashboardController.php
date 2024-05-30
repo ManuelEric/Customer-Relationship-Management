@@ -706,7 +706,6 @@ class SalesDashboardController extends Controller
         try {
 
             $clientProg = $this->clientProgramRepository->getClientProgramGroupDataByStatusAndUserArray(['program' => $type] + $cp_filter);
-            // return $clientProg;
 
             $html = $table_content = null;
             foreach ($clientProg as $title => $data) {

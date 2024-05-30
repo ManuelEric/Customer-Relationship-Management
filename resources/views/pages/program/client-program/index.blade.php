@@ -282,23 +282,7 @@
                 order: [
                     26, 'desc'
                 ],
-                exportOptions: {
-                    format: {
-                        body: function (data, column, row){
-                            var clearHtml = '';
-                            var result = '';
-                            if(column == 2){
-                                clearHtml = data.replace(/<[^>]*>?/gm, '');
-                                if (clearHtml.indexOf('{}') === -1) {
-                                    result = clearHtml.replace(/{.*}/, '');
-                                }
-                            }else{
-                                result = data;
-                            }
-                            return result;
-                        }
-                    }
-                },
+                
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
                     ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
@@ -307,6 +291,25 @@
                     'pageLength', {
                         extend: 'excel',
                         text: 'Export to Excel',
+                        exportOptions: {
+                            format: {
+                                body: function (data, row, column, node){
+                                    var clearHtml = '';
+                                    var result = '';
+                                    if(column === 2){
+                                        clearHtml = data.replace(/<[^>]*>?/gm, '');
+                                        if (clearHtml.indexOf('{}') === -1) {
+                                            result = clearHtml.replace(/{.*}/, '');
+                                        }
+                                    }else if(column === 1 || column === 18 || column === 28){
+                                        result = data.replace(/<[^>]*>?/gm, '');
+                                    }else{
+                                        result = data;
+                                    }
+                                    return result;
+                                }
+                            }
+                        },
                     },
                     {
                         text: '<i class="bi bi-bag-plus"></i> Create Bundle',
@@ -341,6 +344,9 @@
                     {
                         data: 'custom_clientprog_id',
                         className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return row.has_invoice < 1 ? data + ' <i class="bi bi-receipt text-info"></i>' : data;
+                        }
                     },
                     {
                         data: 'fullname',

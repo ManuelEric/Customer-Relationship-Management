@@ -75,6 +75,25 @@
                 'pageLength', {
                     extend: 'excel',
                     text: 'Export to Excel',
+                    exportOptions: {
+                        format: {
+                            body: function (data, row, column, node){
+                                var clearHtml = '';
+                                var result = '';
+                                if(column === 2){
+                                    clearHtml = data.replace(/<[^>]*>?/gm, '');
+                                    if (clearHtml.indexOf('{}') === -1) {
+                                        result = clearHtml.replace(/{.*}/, '');
+                                    }
+                                }else if(column === 8){
+                                    result = data.replace(/<[^>]*>?/gm, '');
+                                }else{
+                                    result = data;
+                                }
+                                return result;
+                            }
+                        }
+                    },
                 }
             ],
             order: [[6, 'desc']],
@@ -104,7 +123,7 @@
                                         bundling_id = row.bundling_id.substring(0, 3).toUpperCase();
                                     }
 
-                                    return row.is_bundle > 0 ? data + ' <span class="badge text-bg-success" style="font-size:8px";>Bundle '+ bundling_id +'</span>' : data;
+                                    return row.is_bundle > 0 ? data + ' <span class="badge text-bg-success" style="font-size:8px";>{Bundle '+ bundling_id +'}</span>' : data;
                                 }
 
                 },

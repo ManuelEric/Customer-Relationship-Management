@@ -416,6 +416,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             addColumn('bundling_id', function ($query) {
                 return $query->bundlingDetail()->count() > 0 ? $query->bundlingDetail->first()->bundling_id : null;
             })->
+            addColumn('has_invoice', function ($query) {
+                return $query->invoice()->count();
+            })->
             filterColumn(
                 'status',
                 function ($query, $keyword) {

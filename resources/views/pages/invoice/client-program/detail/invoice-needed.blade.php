@@ -33,6 +33,25 @@
                             'pageLength', {
                                 extend: 'excel',
                                 text: 'Export to Excel',
+                                exportOptions: {
+                                    format: {
+                                        body: function (data, row, column, node){
+                                            var clearHtml = '';
+                                            var result = '';
+                                            if(column === 2){
+                                                clearHtml = data.replace(/<[^>]*>?/gm, '');
+                                                if (clearHtml.indexOf('{}') === -1) {
+                                                    result = clearHtml.replace(/{.*}/, '');
+                                                }
+                                            }else if(column === 6){
+                                                result = data.replace(/<[^>]*>?/gm, '');
+                                            }else{
+                                                result = data;
+                                            }
+                                            return result;
+                                        }
+                                    }
+                                },
                             }
                         ],
                         scrollX: true,
@@ -64,7 +83,7 @@
                                     if(row.count_invoice > 0){
                                         invoice_alert = 'animated-gradient';
                                     }
-                                    return row.is_bundle > 0 ? data + ' <span class="badge text-bg-success '+ invoice_alert +'" style="font-size:8px";>Bundle '+ bundling_id +'</span>' : data;
+                                    return row.is_bundle > 0 ? data + ' <span class="badge text-bg-success '+ invoice_alert +'" style="font-size:8px";>{Bundle '+ bundling_id +'}</span>' : data;
                                 }
                             },
                             {
