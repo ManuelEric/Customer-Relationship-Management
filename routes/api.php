@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\v1\ExtProgramController;
 use App\Http\Controllers\Api\v1\ExtSalesTrackingController;
 use App\Http\Controllers\Api\v1\ExtUserController;
 use App\Http\Controllers\Api\v1\SalesDashboardController;
+use App\Http\Controllers\Api\v2\SalesDashboardController as SalesDashboardControllerV2;
 use App\Http\Controllers\Api\v1\PartnerDashboardController;
 use App\Http\Controllers\Api\v1\FinanceDashboardController;
 use App\Http\Controllers\ClientEventController;
@@ -237,3 +238,20 @@ Route::group(['middleware' => 'auth:api', 'prefix' => 'import'], function () {
 });
 
 Route::middleware('auth:api')->get('sync/{type}', [GoogleSheetController::class, 'sync']);
+
+# New dashboard
+Route::prefix('v2')->group(function () {
+
+    #sales
+    Route::get('get/client/{month}/type/{type}', [SalesDashboardControllerV2::class, 'getClientByMonthAndType']);
+    Route::get('get/client-status/{month}', [SalesDashboardControllerV2::class, 'getClientStatus']);
+    Route::get('get/client-program/{month}/{user?}', [SalesDashboardControllerV2::class, 'getClientProgramByMonth']);
+    Route::get('get/successful-program/{month}/{user?}', [SalesDashboardControllerV2::class, 'getSuccessfulProgramByMonth']);
+    Route::get('get/detail/successful-program/{month}/{program}/{user?}', [SalesDashboardControllerV2::class, 'getSuccessfulProgramDetailByMonthAndProgram']);
+    Route::get('get/detail/client-program/{month}/{type}/{user?}', [SalesDashboardControllerV2::class, 'getClientProgramByMonthDetail']);
+    Route::get('get/all-program/target/{month}/{user?}', [SalesDashboardControllerV2::class, 'getAllProgramTargetByMonth']);
+    
+    Route::get('get/client-event/{year}/{user?}', [SalesDashboardController::class, 'getClientEventByYear']);
+
+
+});
