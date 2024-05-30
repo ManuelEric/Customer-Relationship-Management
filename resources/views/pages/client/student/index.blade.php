@@ -804,11 +804,12 @@
                         className: 'text-center',
                         searchable: false,
                         render: function(data, type, row, meta) {
+                            var link = '{{ env("EDUALL_ASSESSMENT_URL") }}' + 'api/report/' + row.uuid;
                             if(data !== 'error'){
                                 if(!data){
                                     return '<h5><i class="bi bi-dash-square-fill text-danger"></i></h5>'
                                 }else{
-                                    return '<h5><i class="bi bi-check-square-fill text-success"></i></h5>'
+                                    return '<a href="'+link+'"><h5><i class="bi bi-check-square-fill text-success"></i></h5></a>'
                                 }
                             }else{
                                 return data;
@@ -1029,7 +1030,6 @@
                     }
                 });
 
-                console.log(selected);
 
                 if (selected.length > 0) {
                     Swal.fire({
