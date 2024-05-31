@@ -251,7 +251,7 @@ Route::prefix('v2')->group(function () {
     Route::get('get/detail/client-program/{month}/{type}/{user?}', [SalesDashboardControllerV2::class, 'getClientProgramByMonthDetail']);
     Route::get('get/all-program/target/{month}/{user?}', [SalesDashboardControllerV2::class, 'getAllProgramTargetByMonth']);
     
-    Route::get('get/client-event/{year}/{user?}', [SalesDashboardController::class, 'getClientEventByYear']);
+    Route::get('get/client-event/{year}/{user?}', [SalesDashboardControllerV2::class, 'getClientEventByYear']);
 
 
 });

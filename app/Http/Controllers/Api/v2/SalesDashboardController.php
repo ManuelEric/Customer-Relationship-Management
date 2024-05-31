@@ -1102,6 +1102,7 @@ class SalesDashboardController extends Controller
         $filter['quuid'] = $request->route('user') ?? null;
 
         $html = '';
+        $clientEventPercentage = [];
         if (!$events = $this->eventRepository->getEventsWithParticipants($filter)) {
 
             $html = '<tr><td colspan="2">There\'s no data</td></tr>';
@@ -1119,6 +1120,11 @@ class SalesDashboardController extends Controller
                             <td>' . $event->event_title . '</td>
                             <td class="text-end">' . $percentage . '%</td>
                         </tr>';
+
+                $clientEventPercentage[] = [
+                    'event_name' => $event->event_title,
+                    'percentage' => $percentage
+                ];
             }
         }
 
@@ -1143,7 +1149,7 @@ class SalesDashboardController extends Controller
             [
                 'success' => true,
                 'data' => [
-                    'html_txt' => $html,
+                    'client_event_percentage' => $clientEventPercentage,
                     'ctx' => [
                         'participants' => $dataset_participants,
                         'target' => $dataset_target,
