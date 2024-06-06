@@ -34,9 +34,9 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                             # select all client program with relation bundling
                             # where status already success which mean they(client) already paid the program
                             $q2->whereHas('bundlingDetail', function ($q3) {
-                                $q3->whereHas('bundling', function ($q4){
-                                    $q4->doesntHave('invoice_b2c');
-                                });
+                                // $q3->whereHas('bundling', function ($q4){
+                                //     $q4->doesntHave('invoice_b2c');
+                                // });
 
                             # select all client program
                             # where status already success which mean they(client) already paid the program

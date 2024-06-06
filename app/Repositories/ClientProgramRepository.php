@@ -441,8 +441,8 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 }
             )->filterColumn('custom_clientprog_id', function ($query, $keyword) {
-                $sql = "tbl_client_prog.clientprog_id like ?";
-                $query->whereRaw($sql, ["%CP-{$keyword}%"]);
+                $sql = "clientprog_id like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
             })
             ->make(true);
     }
@@ -1784,6 +1784,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     public function getBundleProgramByUUID($uuid)
     {
         return Bundling::where('uuid', $uuid)->first();
+    }
+
+    public function getBundleProgramDetailByBundlingId($bundlingId)
+    {
+        return BundlingDetail::where('bundling_id', $bundlingId)->get();
     }
 
     public function createBundleProgram($uuid, $clientProgramDetails)

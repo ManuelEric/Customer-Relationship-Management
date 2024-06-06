@@ -118,7 +118,7 @@
                                 @else
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Print Invoice">
-                                        <a href="{{ route('invoice.program.print', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}"
+                                        <a href="{{ route('invoice.program.print_bundle', ['bundle' => $bundle->uuid, 'currency' => 'other']) }}"
                                             class="text-info">
                                             <i class="bi bi-printer"></i>
                                         </a>
