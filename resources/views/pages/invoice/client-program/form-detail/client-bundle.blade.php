@@ -118,6 +118,7 @@
                                         <hr>
 
                                         <div class="card">
+                                            <p class="text-center mt-3"><b>Parent Information</b></p>
                                             <div class="card-body" style="overflow: auto;">
                                                 @if ($detail->client_program->client->parents()->count() > 0)
                                                     <table class="table table-bordered" id="list-parent">
