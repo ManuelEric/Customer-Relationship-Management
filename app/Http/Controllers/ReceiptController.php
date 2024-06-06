@@ -121,8 +121,23 @@ class ReceiptController extends Controller
 
         if($request->is_child_program_bundle > 0){
             $last_id = Receipt::whereMonth('created_at', isset($request->receipt_date) ? date('m', strtotime($request->receipt_date)) : date('m'))->whereYear('created_at', isset($request->receipt_date) ? date('Y', strtotime($request->receipt_date)) : date('Y'))->whereRelation('invoiceProgram', 'bundling_id', $client_prog->bundlingDetail->bundling_id)->max(DB::raw('substr(receipt_id, 1, 4)'));
+           
+            $bundlingDetails = $this->clientProgramRepository->getBundleProgramDetailByBundlingId($client_prog->bundlingDetail->bundling_id);
+
+            $clientIdsBundle = $incrementBundle = [];
+            $is_cross_client = false;
+            
+            foreach ($bundlingDetails as $key => $bundlingDetail) {
+                $incrementBundle[$bundlingDetail->client_program->clientprog_id] = $key + 1;
+                $clientIdsBundle[] = $bundlingDetail->client_program->client->id;
+            }
+    
+            if(count(array_count_values($clientIdsBundle)) > 1)
+                $is_cross_client = true;
+
             # Use Trait Create Invoice Id
-            $receiptDetails['receipt_id'] = $this->getLatestReceiptId($last_id, $client_prog->prog_id, $receiptDetails, $request->is_child_program_bundle);
+            $receiptDetails['receipt_id'] = $this->getLatestReceiptId($last_id, 'BDL', $receiptDetails, ['is_bundle' => 1, 'is_cross_client' => $is_cross_client, 'increment_bundle' => $incrementBundle[$invoice->clientprog->clientprog_id]]);
+        
         }
 
         $receiptDetails['inv_id'] = $invoice->inv_id;

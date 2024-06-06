@@ -15,12 +15,12 @@
                         @foreach ($bundle->details->unique('client_program.client.id') as $detail)
                             <div class="accordion" id="accordion-{{ $detail->client_program->client->id }}">
                                 <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $detail->client_program->client->id }}" aria-expanded="true" aria-controls="collapse-{{ $detail->client_program->client->id }}">
-                                    {{ $detail->client_program->client->full_name }}
+                                <h8 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $detail->client_program->client->id }}" style="font-size: 13px;">
+                                        {{ $detail->client_program->client->full_name }}
                                     </button>
-                                </h2>
-                                <div id="collapse-{{ $detail->client_program->client->id }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                                </h8>
+                                <div id="collapse-{{ $detail->client_program->client->id }}" class="accordion-collapse collapse" aria-labelledby="collapse-{{ $detail->client_program->client->id }}">
                                     <div class="accordion-body">
                                         <div class="row mb-2 g-1">
                                             <div class="col-md-4 d-flex justify-content-between">
@@ -114,6 +114,40 @@
                                                 {{ $detail->client_program->client->lead_source }}
                                             </div>
                                         </div>
+
+                                        <hr>
+
+                                        <div class="card">
+                                            <div class="card-body" style="overflow: auto;">
+                                                @if ($detail->client_program->client->parents()->count() > 0)
+                                                    <table class="table table-bordered" id="list-parent">
+                                                        <thead>
+                                                            <tr class="text-center">
+                                                                <th>No</th>
+                                                                <th>Full Name</th>
+                                                                <th>Email</th>
+                                                                <th>Phone</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @php
+                                                                $no = 1;
+                                                            @endphp
+                                                            @foreach ($clientProg->client->parents as $parent)
+                                                                <tr align="center">
+                                                                    <td>{{ $no++ }}</td>
+                                                                    <td>{{ $parent->fullname }}</td>
+                                                                    <td>{{ $parent->mail }}</td>
+                                                                    <td>{{ $parent->phone }}</td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                @else
+                                                    No parents data
+                                                @endif
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 </div>
@@ -125,7 +159,8 @@
             </div>
         </div>
     </div>
-    <div class="accordion-item">
+    
+    {{-- <div class="accordion-item">
         <h2 class="accordion-header">
             <button class="accordion-button" type="button" data-bs-toggle="collapse"
                 data-bs-target="#parentInfo">
@@ -165,41 +200,6 @@
                                 </tbody>
                             </table>
 
-                            {{-- @foreach($clientProg->client->parents as $parent)
-                            <div class="row mb-2 g-1">
-                                <div class="col-md-4 d-flex justify-content-between">
-                                    <label>
-                                        Parents Name
-                                    </label>
-                                    <label>:</label>
-                                </div>
-                                <div class="col-md-8">
-                                    {{ $parent->full_name }}
-                                </div>
-                            </div>
-                            <div class="row mb-2 g-1">
-                                <div class="col-md-4 d-flex justify-content-between">
-                                    <label>
-                                        Parents Email
-                                    </label>
-                                    <label>:</label>
-                                </div>
-                                <div class="col-md-8">
-                                    {{ $parent->mail }}
-                                </div>
-                            </div>
-                            <div class="row mb-2 g-1">
-                                <div class="col-md-4 d-flex justify-content-between">
-                                    <label>
-                                        Parents Phone
-                                    </label>
-                                    <label>:</label>
-                                </div>
-                                <div class="col-md-8">
-                                    {{ $parent->phone }}
-                                </div>
-                            </div>
-                            @endforeach --}}
                         @else
                             No parents data
                         @endif
@@ -207,5 +207,5 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>

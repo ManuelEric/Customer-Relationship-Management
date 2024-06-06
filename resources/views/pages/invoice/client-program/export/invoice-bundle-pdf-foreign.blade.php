@@ -1,5 +1,5 @@
 @extends('layout.invoice')
-@section('invoice_id', $clientProg->invoice->inv_id)
+@section('invoice_id', $bundle->invoice_b2c->inv_id)
 
 @section('body')
 <div style="height:150px;">
