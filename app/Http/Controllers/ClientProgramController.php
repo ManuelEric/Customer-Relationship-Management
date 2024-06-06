@@ -921,6 +921,9 @@ class ClientProgramController extends Controller
         
         $program = $this->programRepository->getProgramByName($programName);
 
+        if (!$program = $this->programRepository->getProgramByName($programName))
+            abort(404);
+
         $leads = $this->leadRepository->getLeadForFormEmbedEvent();
         $schools = $this->schoolRepository->getAllSchools();
         $tags = $this->tagRepository->getAllTags();

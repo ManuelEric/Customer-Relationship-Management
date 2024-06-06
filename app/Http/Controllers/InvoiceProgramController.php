@@ -422,7 +422,7 @@ class InvoiceProgramController extends Controller
 
             # when created date / invoice date has changed 
             # then check if old invoice_id same or not with the new invoice id using created at
-            if ( $invoice->created_at != $invoiceDetails['created_at']) {
+            if ( date('Y-m-d', strtotime($invoice->created_at)) != $invoiceDetails['created_at']) {
                 
                 $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
     
@@ -431,10 +431,20 @@ class InvoiceProgramController extends Controller
                 $invoiceDetails['inv_id'] = $new_inv_id;
             }
 
-            $this->invoiceProgramRepository->updateInvoice($inv_id, $invoiceDetails);
+            # update invoice 
+            $update = $this->invoiceProgramRepository->updateInvoice($inv_id, $invoiceDetails);
+            $invoiceWasChanged = $update['invoiceWasChanged'];
 
+            # if there was a change to invoice
+            # delete the invoice attachment in order to finance able to do the request sign
+            if ($invoiceWasChanged === true) 
+                $this->invoiceAttachmentRepository->deleteInvoiceAttachmentByInvoiceId($inv_id);
+            
+
+
+            # do this if payment method was changed from installment to full payment
             # check if invoice has installments
-            # if yes then remove it when status updated from installment to full payment
+            # then remove it
             if (isset($invoice->invoiceDetail) && $invoice->invoiceDetail->count() > 0)
                 $this->invoiceDetailRepository->deleteInvoiceDetailByInvId($inv_id);
 
@@ -468,11 +478,6 @@ class InvoiceProgramController extends Controller
                 $this->invoiceDetailRepository->updateInvoiceDetailByInvId($inv_id, $installmentDetails);
 
             }
-
-            # if update invoice success
-            # then delete the invoice attachment
-            if ($invoice->invoiceAttachment->count() > 0)
-                $this->invoiceAttachmentRepository->deleteInvoiceAttachmentByInvoiceId($inv_id);
 
             DB::commit();
         } catch (Exception $e) {

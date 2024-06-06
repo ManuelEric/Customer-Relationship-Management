@@ -242,14 +242,18 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        @if (empty($purchaseRequest) || isset($edit))
+                        <div class="text-right">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="bi bi-save2 me-1"></i>
+                                Save</button>
+                        </div>
+                        @endif
+                        
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="text-center">
-            <button type="submit" class="btn btn-primary btn-sm">
-                <i class="bi bi-save2 me-1"></i>
-                Save</button>
         </div>
 
         @if (!isset($edit) && isset($purchaseRequest))

@@ -5,12 +5,14 @@ namespace App\Repositories;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Models\Bundling;
 use App\Models\ClientProgram;
+use App\Models\InvoiceAttachment;
 use App\Models\InvoiceProgram;
 use App\Models\v1\Invoice as CRMInvoice;
 use App\Models\ViewClientProgram;
 use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 {
@@ -403,9 +405,33 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 
     public function updateInvoice($invoiceId, array $invoiceDetails)
     {
+        $invoiceWasChanged = false;
+
+        /* remove unused field */
         unset($invoiceDetails['is_session']);
         unset($invoiceDetails['invoice_date']);
-        return InvoiceProgram::where('inv_id', $invoiceId)->update($invoiceDetails);
+        
+
+        /* disable updating update_at temporarily */
+        $invoiceDetails['timestamps'] = false;
+        
+        /* query */
+        $invoiceProgram = InvoiceProgram::where('inv_id', $invoiceId)->first();
+        $invoiceProgram->fill($invoiceDetails);
+        $invoiceProgram->save($invoiceDetails);
+
+        /* if the invoice program was changed, then remove the attachments in order to able to do request sign */
+        if ($invoiceProgram->wasChanged()) {
+            
+            Log::info('Deleted invoice attachment of invoice number : '.$invoiceId.' because there was a changes in the invoice such as :'. json_encode($invoiceDetails));
+            $invoiceWasChanged = true;
+        }
+
+        return [
+            'invoiceProgram' => $invoiceProgram,
+            'invoiceWasChanged' => $invoiceWasChanged,
+        ];
+            
     }
 
     public function deleteInvoiceByClientProgId($clientProgId)

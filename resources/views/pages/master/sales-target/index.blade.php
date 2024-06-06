@@ -311,11 +311,14 @@
 
         axios.get(baseUrl)
             .then(function (response) {
+
+                
                 let obj = response.data;
                 var html = '<option data-placeholder="true"></option>'
                 
                 for (var key in obj.data) {
                     var selected = '';
+                    
                     if('{{ !empty(old("prog_id")) }}' && '{{ old("prog_id") }}' === obj.data[key].prog_id)
                         selected = "selected";
 
