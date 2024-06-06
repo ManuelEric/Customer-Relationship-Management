@@ -77,6 +77,7 @@ class InvoiceProgramController extends Controller
     {
         $clientProgId = $request->route('client_program');
         $clientProg = $this->clientProgramRepository->getClientProgramById($clientProgId);
+        
         $invoice = $this->invoiceProgramRepository->getInvoiceByClientProgId($clientProgId);
 
         return view('pages.invoice.client-program.form')->with(
@@ -217,8 +218,22 @@ class InvoiceProgramController extends Controller
             
             if($request->is_bundle > 0){
                 $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->where('bundling_id', $clientProg->bundlingDetail->bundling_id)->max(DB::raw('substr(inv_id, 1, 4)'));
+                
+                $bundlingDetails = $this->clientProgramRepository->getBundleProgramDetailByBundlingId($clientProg->bundlingDetail->bundling_id);
+
+                $clientIdsBundle = $incrementBundle = [];
+                $is_cross_client = false;
+                
+                foreach ($bundlingDetails as $key => $bundlingDetail) {
+                    $incrementBundle[$bundlingDetail->client_program->clientprog_id] = $key + 1;
+                    $clientIdsBundle[] = $bundlingDetail->client_program->client->id;
+                }
+
+                if(count(array_count_values($clientIdsBundle)) > 1)
+                    $is_cross_client = true;
+
                 # Use Trait Create Invoice Id
-                $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id, $invoiceDetails['created_at'], $request->is_bundle);
+                $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id, $invoiceDetails['created_at'], ['is_bundle' => $request->is_bundle, 'is_cross_client' => $is_cross_client, 'increment_bundle' => $incrementBundle[$clientProgId]]);
             }
 
             $invoiceProgramCreated = $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 1] + $invoiceDetails);
@@ -258,7 +273,7 @@ class InvoiceProgramController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store invoice program failed : ' . $e->getMessage());
+            Log::error('Store invoice program failed : ' . $e->getMessage() . ' | Line: ' . $e->getLine());
             return Redirect::to('invoice/client-program/create?prog=' . $request->clientprog_id)->withError('Failed to store invoice program');
         }
 
@@ -429,6 +444,27 @@ class InvoiceProgramController extends Controller
                 # Use Trait Create Invoice Id
                 $new_inv_id = $this->getInvoiceId($last_id, $invoice->clientprog->prog_id, $invoiceDetails['created_at']);
                 $invoiceDetails['inv_id'] = $new_inv_id;
+
+                if($request->is_bundle > 0){
+                    $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->where('bundling_id', $invoice->clientprog->bundlingDetail->bundling_id)->max(DB::raw('substr(inv_id, 1, 4)'));
+                    
+                    $bundlingDetails = $this->clientProgramRepository->getBundleProgramDetailByBundlingId($invoice->clientprog->bundlingDetail->bundling_id);
+    
+                    $clientIdsBundle = $incrementBundle = [];
+                    $is_cross_client = false;
+                    
+                    foreach ($bundlingDetails as $key => $bundlingDetail) {
+                        $incrementBundle[$bundlingDetail->client_program->clientprog_id] = $key + 1;
+                        $clientIdsBundle[] = $bundlingDetail->client_program->client->id;
+                    }
+    
+                    if(count(array_count_values($clientIdsBundle)) > 1)
+                        $is_cross_client = true;
+    
+                    # Use Trait Create Invoice Id
+                    $new_inv_id = $this->getInvoiceId($last_id, $invoice->clientprog->prog_id, $invoiceDetails['created_at'], ['is_bundle' => $request->is_bundle, 'is_cross_client' => $is_cross_client, 'increment_bundle' => $incrementBundle[$clientProgId]]);
+                    $invoiceDetails['inv_id'] = $new_inv_id;
+                }
             }
 
             $this->invoiceProgramRepository->updateInvoice($inv_id, $invoiceDetails);

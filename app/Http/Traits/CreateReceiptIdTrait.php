@@ -7,7 +7,7 @@ use Carbon\Carbon;
 trait CreateReceiptIdTrait
 {
 
-    public function getLatestReceiptId($last_id, $prog_id, $receiptDetails, $is_bundle = NULL)
+    public function getLatestReceiptId($last_id, $prog_id, $receiptDetails,  $bundleInfo = null)
     {
 
         if ($last_id == null) {
@@ -23,8 +23,14 @@ trait CreateReceiptIdTrait
 
         $receipt_id = $increment . '/REC-JEI/' . $prog_id . '/' . $monthOfRoman . '/' . $thisYear;
         
-        if($is_bundle != NULL && $is_bundle > 0){
-            $receipt_id = $last_id . '/REC-JEI/BDL/' . $monthOfRoman . '/' . $thisYear . '/' . $prog_id;
+        if($bundleInfo != null){
+            if($bundleInfo['is_bundle'] != NULL && $bundleInfo['is_bundle'] > 0){
+                $receipt_id = $last_id . '/REC-JEI/BDL/' . $monthOfRoman . '/' . $thisYear . '/' . $prog_id;
+                
+                if($bundleInfo['is_cross_client']){
+                    $receipt_id = $last_id . '/REC-JEI/BDL'.$bundleInfo['increment_bundle'].'/' . $monthOfRoman . '/' . $thisYear . '/' . $prog_id;
+                }
+            }
         }
 
         return $receipt_id;

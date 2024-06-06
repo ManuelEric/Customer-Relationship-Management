@@ -23,6 +23,7 @@ interface ClientProgramRepositoryInterface
 
     # bundling
     public function getBundleProgramByUUID($uuid);
+    public function getBundleProgramDetailByBundlingId($bundlingId);
     public function createBundleProgram($uuid, $clientProgramDetails);
     public function deleteBundleProgram($bundling_id);
 

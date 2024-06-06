@@ -345,7 +345,7 @@
                         data: 'custom_clientprog_id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            return row.has_invoice < 1 ? data + ' <i class="bi bi-receipt text-info"></i>' : data;
+                            return row.has_invoice > 0 ? data + ' <i class="bi bi-receipt text-info"></i>' : data;
                         }
                     },
                     {
