@@ -207,14 +207,14 @@ class InvoiceProgramController extends Controller
 
         $invoiceDetails['inv_paymentmethod'] = $invoiceDetails['inv_paymentmethod'] == "full" ? 'Full Payment' : 'Installment';
 
-        $invoiceDetails['created_at'] = $invoiceDetails['invoice_date'];
+        $invoiceDetails['created_at'] = Carbon::parse($invoiceDetails['invoice_date'] . ' ' . date('H:i:s'));
 
         DB::beginTransaction();
         try {
 
             $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
             # Use Trait Create Invoice Id
-            $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id, $invoiceDetails['created_at']);
+            $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id, $invoiceDetails['invoice_date']);
             
             if($request->is_bundle > 0){
                 $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->where('bundling_id', $clientProg->bundlingDetail->bundling_id)->max(DB::raw('substr(inv_id, 1, 4)'));
@@ -233,7 +233,7 @@ class InvoiceProgramController extends Controller
                     $is_cross_client = true;
 
                 # Use Trait Create Invoice Id
-                $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id, $invoiceDetails['created_at'], ['is_bundle' => $request->is_bundle, 'is_cross_client' => $is_cross_client, 'increment_bundle' => $incrementBundle[$clientProgId]]);
+                $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id, $invoiceDetails['invoice_date'], ['is_bundle' => $request->is_bundle, 'is_cross_client' => $is_cross_client, 'increment_bundle' => $incrementBundle[$clientProgId]]);
             }
 
             $invoiceProgramCreated = $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 1] + $invoiceDetails);
@@ -430,19 +430,19 @@ class InvoiceProgramController extends Controller
         $invoiceDetails['inv_paymentmethod'] = $invoiceDetails['inv_paymentmethod'] == "full" ? 'Full Payment' : 'Installment';
         unset($invoiceDetails['currency_detail']);
 
-        $invoiceDetails['created_at'] = $invoiceDetails['invoice_date'];
+        $invoiceDetails['created_at'] = Carbon::parse($invoiceDetails['invoice_date'] . ' ' . date('H:i:s'));
 
         DB::beginTransaction();
         try {
 
             # when created date / invoice date has changed 
             # then check if old invoice_id same or not with the new invoice id using created at
-            if ( $invoice->created_at != $invoiceDetails['created_at']) {
+            if ( date('Y-m-d', strtotime($invoice->created_at)) != $invoiceDetails['created_at']) {
                 
                 $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
     
                 # Use Trait Create Invoice Id
-                $new_inv_id = $this->getInvoiceId($last_id, $invoice->clientprog->prog_id, $invoiceDetails['created_at']);
+                $new_inv_id = $this->getInvoiceId($last_id, $invoice->clientprog->prog_id, $invoiceDetails['invoice_date']);
                 $invoiceDetails['inv_id'] = $new_inv_id;
 
                 if($request->is_bundle > 0){
@@ -462,15 +462,25 @@ class InvoiceProgramController extends Controller
                         $is_cross_client = true;
     
                     # Use Trait Create Invoice Id
-                    $new_inv_id = $this->getInvoiceId($last_id, $invoice->clientprog->prog_id, $invoiceDetails['created_at'], ['is_bundle' => $request->is_bundle, 'is_cross_client' => $is_cross_client, 'increment_bundle' => $incrementBundle[$clientProgId]]);
+                    $new_inv_id = $this->getInvoiceId($last_id, $invoice->clientprog->prog_id, $invoiceDetails['invoice_date'], ['is_bundle' => $request->is_bundle, 'is_cross_client' => $is_cross_client, 'increment_bundle' => $incrementBundle[$clientProgId]]);
                     $invoiceDetails['inv_id'] = $new_inv_id;
                 }
             }
 
-            $this->invoiceProgramRepository->updateInvoice($inv_id, $invoiceDetails);
+            # update invoice 
+            $update = $this->invoiceProgramRepository->updateInvoice($inv_id, $invoiceDetails);
+            $invoiceWasChanged = $update['invoiceWasChanged'];
 
+            # if there was a change to invoice
+            # delete the invoice attachment in order to finance able to do the request sign
+            if ($invoiceWasChanged === true) 
+                $this->invoiceAttachmentRepository->deleteInvoiceAttachmentByInvoiceId($inv_id);
+            
+
+
+            # do this if payment method was changed from installment to full payment
             # check if invoice has installments
-            # if yes then remove it when status updated from installment to full payment
+            # then remove it
             if (isset($invoice->invoiceDetail) && $invoice->invoiceDetail->count() > 0)
                 $this->invoiceDetailRepository->deleteInvoiceDetailByInvId($inv_id);
 
@@ -504,11 +514,6 @@ class InvoiceProgramController extends Controller
                 $this->invoiceDetailRepository->updateInvoiceDetailByInvId($inv_id, $installmentDetails);
 
             }
-
-            # if update invoice success
-            # then delete the invoice attachment
-            if ($invoice->invoiceAttachment->count() > 0)
-                $this->invoiceAttachmentRepository->deleteInvoiceAttachmentByInvoiceId($inv_id);
 
             DB::commit();
         } catch (Exception $e) {

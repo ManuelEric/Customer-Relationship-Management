@@ -302,9 +302,12 @@ class ReceiptController extends Controller
 
         $isBundle = $request->get('b') !== NULL ? true : false;
 
+        if (!$receipt->receiptAttachment()->exists()) 
+            return Redirect::back()->withError('You should upload the receipt that you already downloaded first before continue the process.');
 
         if ($receipt->receiptAttachment()->where('currency', $currency)->whereNotNull('attachment')->where('sign_status', 'not yet')->first())
             return Redirect::back()->withError('You already upload the receipt.');
+
 
         $validated = $request->validate([
             'currency' => 'in:idr,other',

@@ -127,7 +127,7 @@ class InvoiceProgramBundleController extends Controller
 
         $invoiceDetails['inv_paymentmethod'] = $invoiceDetails['inv_paymentmethod'] == "full" ? 'Full Payment' : 'Installment';
 
-        $invoiceDetails['created_at'] = $invoiceDetails['invoice_date'];
+        $invoiceDetails['created_at'] = $invoiceDetails['invoice_date'] . ' ' . date('H:i:s');
 
         DB::beginTransaction();
         try {
@@ -135,7 +135,7 @@ class InvoiceProgramBundleController extends Controller
             $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
 
             # Use Trait Create Invoice Id
-            $inv_id = $this->getInvoiceId($last_id, 'BDL', $invoiceDetails['created_at']);
+            $inv_id = $this->getInvoiceId($last_id, 'BDL', $invoiceDetails['invoice_date']);
          
             $invoiceProgramCreated = $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 1] + $invoiceDetails);
             // $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 0] + $invoiceDetails);
@@ -289,7 +289,7 @@ class InvoiceProgramBundleController extends Controller
         $invoiceDetails['inv_paymentmethod'] = $invoiceDetails['inv_paymentmethod'] == "full" ? 'Full Payment' : 'Installment';
         unset($invoiceDetails['currency_detail']);
 
-        $invoiceDetails['created_at'] = $invoiceDetails['invoice_date'];
+        $invoiceDetails['created_at'] = $invoiceDetails['invoice_date'] . ' ' . date('H:i:s');
 
         DB::beginTransaction();
         try {
@@ -301,7 +301,7 @@ class InvoiceProgramBundleController extends Controller
                 $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
     
                 # Use Trait Create Invoice Id
-                $new_inv_id = $this->getInvoiceId($last_id, 'BDL', $invoiceDetails['created_at']);
+                $new_inv_id = $this->getInvoiceId($last_id, 'BDL', $invoiceDetails['invoice_date']);
                 $invoiceDetails['inv_id'] = $new_inv_id;
             }
 

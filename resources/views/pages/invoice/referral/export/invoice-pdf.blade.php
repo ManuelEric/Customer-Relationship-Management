@@ -148,8 +148,8 @@
                             : PT. Jawara Edukasih Indonesia <br>
                             : BCA <br>
                             : 2483016611 <br>
-                            : KCP Pasar Kebayoran Lama Jakarta Selatan
-                            : CENAIDJA
+                            : KCP Pasar Kebayoran Lama Jakarta Selatan <br>
+                            : CENAIDJA <br>
                         </td>
                     </tr>
                 </table>
