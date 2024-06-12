@@ -207,14 +207,14 @@ class InvoiceProgramController extends Controller
 
         $invoiceDetails['inv_paymentmethod'] = $invoiceDetails['inv_paymentmethod'] == "full" ? 'Full Payment' : 'Installment';
 
-        $invoiceDetails['created_at'] = $invoiceDetails['invoice_date'];
+        $invoiceDetails['created_at'] = Carbon::parse($invoiceDetails['invoice_date'] . ' ' . date('H:i:s'));
 
         DB::beginTransaction();
         try {
 
             $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
             # Use Trait Create Invoice Id
-            $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id, $invoiceDetails['created_at']);
+            $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id, $invoiceDetails['invoice_date']);
             
             if($request->is_bundle > 0){
                 $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->where('bundling_id', $clientProg->bundlingDetail->bundling_id)->max(DB::raw('substr(inv_id, 1, 4)'));
@@ -233,7 +233,7 @@ class InvoiceProgramController extends Controller
                     $is_cross_client = true;
 
                 # Use Trait Create Invoice Id
-                $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id, $invoiceDetails['created_at'], ['is_bundle' => $request->is_bundle, 'is_cross_client' => $is_cross_client, 'increment_bundle' => $incrementBundle[$clientProgId]]);
+                $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id, $invoiceDetails['invoice_date'], ['is_bundle' => $request->is_bundle, 'is_cross_client' => $is_cross_client, 'increment_bundle' => $incrementBundle[$clientProgId]]);
             }
 
             $invoiceProgramCreated = $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 1] + $invoiceDetails);
@@ -430,7 +430,7 @@ class InvoiceProgramController extends Controller
         $invoiceDetails['inv_paymentmethod'] = $invoiceDetails['inv_paymentmethod'] == "full" ? 'Full Payment' : 'Installment';
         unset($invoiceDetails['currency_detail']);
 
-        $invoiceDetails['created_at'] = $invoiceDetails['invoice_date'];
+        $invoiceDetails['created_at'] = Carbon::parse($invoiceDetails['invoice_date'] . ' ' . date('H:i:s'));
 
         DB::beginTransaction();
         try {
@@ -442,7 +442,7 @@ class InvoiceProgramController extends Controller
                 $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
     
                 # Use Trait Create Invoice Id
-                $new_inv_id = $this->getInvoiceId($last_id, $invoice->clientprog->prog_id, $invoiceDetails['created_at']);
+                $new_inv_id = $this->getInvoiceId($last_id, $invoice->clientprog->prog_id, $invoiceDetails['invoice_date']);
                 $invoiceDetails['inv_id'] = $new_inv_id;
 
                 if($request->is_bundle > 0){
@@ -462,7 +462,7 @@ class InvoiceProgramController extends Controller
                         $is_cross_client = true;
     
                     # Use Trait Create Invoice Id
-                    $new_inv_id = $this->getInvoiceId($last_id, $invoice->clientprog->prog_id, $invoiceDetails['created_at'], ['is_bundle' => $request->is_bundle, 'is_cross_client' => $is_cross_client, 'increment_bundle' => $incrementBundle[$clientProgId]]);
+                    $new_inv_id = $this->getInvoiceId($last_id, $invoice->clientprog->prog_id, $invoiceDetails['invoice_date'], ['is_bundle' => $request->is_bundle, 'is_cross_client' => $is_cross_client, 'increment_bundle' => $incrementBundle[$clientProgId]]);
                     $invoiceDetails['inv_id'] = $new_inv_id;
                 }
             }
