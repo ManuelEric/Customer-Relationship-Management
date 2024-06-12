@@ -357,8 +357,8 @@ class GoogleSheetController extends Controller
                             'st_abryear' => isset($val['Year of Study Abroad']) ? $val['Year of Study Abroad'] : null,
                         ];
 
-                        isset($val['Joined Date']) ? $studentDetails['created_at'] = $val['Joined Date'] : null;
-                        isset($val['Joined Date']) ? $studentDetails['updated_at'] = $val['Joined Date'] : null;
+                        isset($val['Joined Date']) ? $studentDetails['created_at'] = Carbon::parse($val['Joined Date'] . ' ' . date('H:i:s')) : null;
+                        isset($val['Joined Date']) ? $studentDetails['updated_at'] = Carbon::parse($val['Joined Date'] . ' ' . date('H:i:s')) : null;
                         
                         $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['student'])->first();
 
@@ -578,8 +578,8 @@ class GoogleSheetController extends Controller
                             'eduf_id' => isset($val['Edufair'])  && $val['Lead'] == 'LS017' ? $val['Edufair'] : null,
                             'st_levelinterest' => $val['Level of Interest'],
                         ];
-                        isset($val['Joined Date']) ? $teacherDetails['created_at'] = $val['Joined Date'] : null;
-                        isset($val['Joined Date']) ? $teacherDetails['updated_at'] = $val['Joined Date'] : null;
+                        isset($val['Joined Date']) ? $teacherDetails['created_at'] = Carbon::parse($val['Joined Date'] . ' ' . date('H:i:s')) : null;
+                        isset($val['Joined Date']) ? $teacherDetails['updated_at'] = Carbon::parse($val['Joined Date'] . ' ' . date('H:i:s')) : null;
 
                         $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['teacher/counselor'])->first();
     
