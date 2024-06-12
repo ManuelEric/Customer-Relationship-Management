@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\v1\ExtUserController;
 use App\Http\Controllers\Api\v1\SalesDashboardController;
 use App\Http\Controllers\Api\v2\SalesDashboardController as SalesDashboardControllerV2;
 use App\Http\Controllers\Api\v1\PartnerDashboardController;
+use App\Http\Controllers\Api\v2\PartnerDashboardController as PartnerDashboardControllerV2;
 use App\Http\Controllers\Api\v1\FinanceDashboardController;
 use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\ClientParentController;
@@ -252,6 +253,15 @@ Route::prefix('v2')->group(function () {
     Route::get('get/all-program/target/{month}/{user?}', [SalesDashboardControllerV2::class, 'getAllProgramTargetByMonth']);
     
     Route::get('get/client-event/{year}/{user?}', [SalesDashboardControllerV2::class, 'getClientEventByYear']);
+    Route::get('get/outstanding-payment', [DashboardController::class, 'listOustandingPayments']);
 
+
+    #Partnership
+    Route::get('partner/total/{month}/{type}', [PartnerDashboardControllerV2::class, 'getTotalByMonth']);
+    Route::get('partner/detail/{month}/{type}', [PartnerDashboardControllerV2::class, 'getPartnerDetailByMonth']);
+    Route::get('partner/agenda/{date}', [PartnerDashboardControllerV2::class, 'getSpeakerByDate']);
+    Route::get('partner/partnership-program/{month}', [PartnerDashboardControllerV2::class, 'getPartnershipProgramByMonth']);
+    Route::get('partner/partnership-program/detail/{type}/{status}/{month}', [PartnerDashboardControllerV2::class, 'getPartnershipProgramDetailByMonth']);
+    Route::get('partner/partnership-program/program-comparison/{start_year}/{end_year}', [PartnerDashboardControllerV2::class, 'getProgramComparison']);
 
 });

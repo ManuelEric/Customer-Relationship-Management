@@ -48,10 +48,10 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: '{{ url('/') }}/api/get/outstanding-payment',
-                    beforeSend : function( xhr ) {
-                        xhr.setRequestHeader( 'Authorization', bearer_token);
-                    },
+                    url: '{{ url("/") }}/api/get/outstanding-payment',
+                    // beforeSend : function( xhr ) {
+                    //     xhr.setRequestHeader( 'Authorization', bearer_token);
+                    // },
                 },
                 columns: [{
                         data: 'id',

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\v1;
+namespace App\Http\Controllers\Api\v2;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -270,6 +270,7 @@ class PartnerDashboardController extends Controller
         $additional_header = '';
         $additional_content = '';
         $uncompletedSchools = null;
+        $data = [];
 
         switch ($type) {
             case 'Partner':
@@ -290,6 +291,15 @@ class PartnerDashboardController extends Controller
                         <td>' . $partner->country_type . '</td>
                         <td>' . $partner->created_at . '</td>
                     </tr>';
+
+                    $data[] = [
+                        'partner_name' => $partner->corp_name,
+                        'partner_mail' => $partner->corp_mail,
+                        'partner_phone' => $partner->corp_phone,
+                        'partner_type' => $partner->type,
+                        'partner_country' => $partner->country_type,
+                        'created_at' => $partner->created_at,
+                    ];
                 }
                 break;
 
@@ -347,6 +357,14 @@ class PartnerDashboardController extends Controller
                         <td>' . $school->sch_location . '</td>
                         <td>' . $school->created_at . '</td>
                     </tr>';
+
+                    $data[] = [
+                        'school_name' => $school->sch_name,
+                        'school_type' => $school->sch_type,
+                        'school_city' => $school->sch_city,
+                        'school_location' => $school->sch_location,
+                        'created_at' => $school->created_at,
+                    ];
                 }
                 break;
 
@@ -371,6 +389,16 @@ class PartnerDashboardController extends Controller
                         <td>' . $university->univ_country . '</td>
                         <td>' . $university->created_at . '</td>
                     </tr>';
+
+                    $data[] = [
+                        'univ_id' => $university->univ_id,
+                        'univ_name' => $university->univ_name,
+                        'univ_address' => $university->univ_address,
+                        'univ_email' => $university->univ_email,
+                        'univ_phone' => $university->univ_phone,
+                        'univ_country' => $university->univ_country,
+                        'created_at' => $university->created_at,
+                    ];
                 }
                 break;
 
@@ -408,6 +436,17 @@ class PartnerDashboardController extends Controller
                         <td>' . $agreement->user->first_name . ' ' . $agreement->user->last_name . '</td>
                         <td>' . $agreement->created_at . '</td>
                     </tr>';
+
+                    $data[] = [
+                        'partner_name' => $agreement->partner->corp_name,
+                        'agreement_name' => $agreement->agreement_name,
+                        'agreement_type' => $agreementType,
+                        'start_date' => date('M d, Y', strtotime($agreement->start_date)),
+                        'end_date' => date('M d, Y', strtotime($agreement->end_date)),
+                        'partner_pic' => $agreement->partnerPIC->pic_name,
+                        'internal_pic' => $agreement->user->first_name . ' ' . $agreement->user->last_name,
+                        'created_at' => $agreement->created_at,
+                    ];
                 }
                 break;
         }
@@ -415,10 +454,10 @@ class PartnerDashboardController extends Controller
         return response()->json(
             [
                 'title' => 'List of ' . ucwords($type),
-                'html_ctx' => $html,
-                'additional_header' => $additional_header,
-                'additional_content' => $additional_content,
-                'total_additional' => $uncompletedSchools ? $uncompletedSchools->count() : 0,
+                'data' => $data,
+                // 'additional_header' => $additional_header,
+                // 'additional_content' => $additional_content,
+                // 'total_additional' => $uncompletedSchools ? $uncompletedSchools->count() : 0,
             ]
         );
     }

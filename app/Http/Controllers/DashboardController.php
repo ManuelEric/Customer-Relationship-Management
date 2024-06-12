@@ -179,4 +179,9 @@ class DashboardController extends SalesDashboardController
     {
         return $this->invoicesRepository->getOustandingPaymentDataTables(date('Y-m'));
     }
+
+    public function listOustandingPayments()
+    {
+        return $this->invoicesRepository->getOustandingPaymentPaginate(date('Y-m'));
+    }
 }
