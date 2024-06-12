@@ -221,6 +221,9 @@ class GoogleSheetController extends Controller
          
             DB::commit();
         } catch (Exception $e) {
+            for ($i=$start; $i <= $end ; $i++) { 
+                Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Parents')->range('V'.$i)->update([['']]);
+            }
             DB::rollBack();
 
             Log::error($e->getMessage());
@@ -466,6 +469,10 @@ class GoogleSheetController extends Controller
          
             DB::commit();
         } catch (Exception $e) {
+            for ($i=$start; $i <= $end ; $i++) { 
+                Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Students')->range('Z'.$i)->update([['']]);
+            }
+
             DB::rollBack();
 
             Log::error($e->getMessage());
@@ -615,6 +622,9 @@ class GoogleSheetController extends Controller
          
             DB::commit();
         } catch (Exception $e) {
+            for ($i=$start; $i <= $end ; $i++) { 
+                Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Teachers')->range('R'.$i)->update([['']]);
+            }
             DB::rollBack();
 
             Log::error($e->getMessage());
@@ -831,6 +841,9 @@ class GoogleSheetController extends Controller
          
             DB::commit();
         } catch (Exception $e) {
+            for ($i=$start; $i <= $end ; $i++) { 
+                Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Client Events')->range('Z'.$i)->update([['']]);
+            }
             DB::rollBack();
 
             Log::error($e->getMessage());
@@ -1030,6 +1043,9 @@ class GoogleSheetController extends Controller
          
             DB::commit();
         } catch (Exception $e) {
+            for ($i=$start; $i <= $end ; $i++) { 
+                Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Client Programs')->range('W'.$i)->update([['']]);
+            }
             DB::rollBack();
 
             Log::error($e->getMessage());
