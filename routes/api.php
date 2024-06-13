@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\v1\DigitalDashboardController;
+use App\Http\Controllers\Api\v2\DigitalDashboardController as DigitalDashboardControllerV2;
 use App\Http\Controllers\Api\v1\ExtClientController;
 use App\Http\Controllers\Api\v1\ExtLeadController;
 use App\Http\Controllers\Api\v1\ExtProgramController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Api\v2\SalesDashboardController as SalesDashboardContro
 use App\Http\Controllers\Api\v1\PartnerDashboardController;
 use App\Http\Controllers\Api\v2\PartnerDashboardController as PartnerDashboardControllerV2;
 use App\Http\Controllers\Api\v1\FinanceDashboardController;
+use App\Http\Controllers\Api\v2\FinanceDashboardController as FinanceDashboardControllerV2;
 use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\ClientParentController;
 use App\Http\Controllers\ClientStudentController;
@@ -263,5 +265,20 @@ Route::prefix('v2')->group(function () {
     Route::get('partner/partnership-program/{month}', [PartnerDashboardControllerV2::class, 'getPartnershipProgramByMonth']);
     Route::get('partner/partnership-program/detail/{type}/{status}/{month}', [PartnerDashboardControllerV2::class, 'getPartnershipProgramDetailByMonth']);
     Route::get('partner/partnership-program/program-comparison/{start_year}/{end_year}', [PartnerDashboardControllerV2::class, 'getProgramComparison']);
+
+    #Digital
+    Route::get('digital/all-leads/{month}', [DigitalDashboardControllerV2::class, 'getDataLead']);
+    Route::get('digital/leads/{month}/{prog?}', [DigitalDashboardControllerV2::class, 'getLeadDigital']);
+    Route::get('digital/detail/{month}/type-lead/{type_lead}/division/{division}', [DigitalDashboardControllerV2::class, 'getDetailDataLead']);
+    Route::get('digital/detail/{month}/lead-source/{lead}/{prog?}', [DigitalDashboardControllerV2::class, 'getDetailLeadSource']);
+    Route::get('digital/detail/{month}/conversion-lead/{lead}/{prog?}', [DigitalDashboardControllerV2::class, 'getDetailConversionLead']);
+
+    #Finance
+    Route::get('finance/detail/{month}/{type}', [FinanceDashboardControllerV2::class, 'getFinanceDetailByMonth']);
+    Route::get('finance/total/{month}', [FinanceDashboardControllerV2::class, 'getTotalByMonth']);
+    Route::get('finance/outstanding/{month}', [FinanceDashboardControllerV2::class, 'getOutstandingPayment']);
+    Route::get('finance/revenue/{year}', [FinanceDashboardControllerV2::class, 'getRevenueByYear']);
+    Route::get('finance/revenue/detail/{year}/{month}', [FinanceDashboardControllerV2::class, 'getRevenueDetailByMonth']);
+    Route::get('finance/outstanding/period/{start_date}/{end_date}', [FinanceDashboardControllerV2::class, 'getOutstandingPaymentByPeriod']);
 
 });
