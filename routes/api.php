@@ -246,28 +246,37 @@ Route::middleware('auth:api')->get('sync/{type}', [GoogleSheetController::class,
 Route::prefix('v2')->group(function () {
 
     #sales
-    Route::get('get/client/{month}/type/{type}', [SalesDashboardControllerV2::class, 'getClientByMonthAndType']);
-    Route::get('get/client-status/{month}', [SalesDashboardControllerV2::class, 'getClientStatus']);
-    Route::get('get/client-program/{month}/{user?}', [SalesDashboardControllerV2::class, 'getClientProgramByMonth']);
-    Route::get('get/successful-program/{month}/{user?}', [SalesDashboardControllerV2::class, 'getSuccessfulProgramByMonth']);
-    Route::get('get/detail/successful-program/{month}/{program}/{user?}', [SalesDashboardControllerV2::class, 'getSuccessfulProgramDetailByMonthAndProgram']);
-    Route::get('get/detail/client-program/{month}/{type}/{user?}', [SalesDashboardControllerV2::class, 'getClientProgramByMonthDetail']);
-    Route::get('get/all-program/target/{month}/{user?}', [SalesDashboardControllerV2::class, 'getAllProgramTargetByMonth']);
-    
-    Route::get('get/client-event/{year}/{user?}', [SalesDashboardControllerV2::class, 'getClientEventByYear']);
+    Route::get('get/client', [SalesDashboardControllerV2::class, 'getClientByMonthAndType']);
+    Route::get('get/client-status', [SalesDashboardControllerV2::class, 'getClientStatus']);
+    Route::get('get/client-program', [SalesDashboardControllerV2::class, 'getClientProgramByMonth']);
+    Route::get('get/successful-program', [SalesDashboardControllerV2::class, 'getSuccessfulProgramByMonth']);
+    Route::get('get/detail/successful-program', [SalesDashboardControllerV2::class, 'getSuccessfulProgramDetailByMonthAndProgram']);
+    Route::get('get/admissions-mentoring', [SalesDashboardControllerV2::class, 'getAdmissionsProgramByMonth']);
+    Route::get('get/initial-consultation', [SalesDashboardControllerV2::class, 'getInitialConsultationByMonth']);
+    Route::get('get/academic-prep', [SalesDashboardControllerV2::class, 'getAcademicPrepByMonth']);
+    Route::get('get/career-exploration', [SalesDashboardControllerV2::class, 'getCareerExplorationByMonth']);
+    Route::get('get/conversion-lead', [SalesDashboardControllerV2::class, 'getConversionLeadByMonth']);
+    Route::get('get/lead/admissions-mentoring', [SalesDashboardControllerV2::class, 'getLeadAdmissionsProgramByMonth']);
+    Route::get('get/lead/academic-prep', [SalesDashboardControllerV2::class, 'getLeadAcademicPrepByMonth']);
+    Route::get('get/lead/career-exploration', [SalesDashboardControllerV2::class, 'getLeadCareerExplorationByMonth']);
+    Route::get('get/detail/client-program', [SalesDashboardControllerV2::class, 'getClientProgramByMonthDetail']);
+    Route::get('get/all-program/target', [SalesDashboardControllerV2::class, 'getAllProgramTargetByMonth']);
+    Route::get('get/program-comparison', [SalesDashboardControllerV2::class, 'compare_program']);
+
+    Route::get('get/client-event', [SalesDashboardControllerV2::class, 'getClientEventByYear']);
     Route::get('get/outstanding-payment', [DashboardController::class, 'listOustandingPayments']);
 
 
     #Partnership
-    Route::get('partner/total/{month}/{type}', [PartnerDashboardControllerV2::class, 'getTotalByMonth']);
-    Route::get('partner/detail/{month}/{type}', [PartnerDashboardControllerV2::class, 'getPartnerDetailByMonth']);
-    Route::get('partner/agenda/{date}', [PartnerDashboardControllerV2::class, 'getSpeakerByDate']);
-    Route::get('partner/partnership-program/{month}', [PartnerDashboardControllerV2::class, 'getPartnershipProgramByMonth']);
-    Route::get('partner/partnership-program/detail/{type}/{status}/{month}', [PartnerDashboardControllerV2::class, 'getPartnershipProgramDetailByMonth']);
-    Route::get('partner/partnership-program/program-comparison/{start_year}/{end_year}', [PartnerDashboardControllerV2::class, 'getProgramComparison']);
+    Route::get('partner/total', [PartnerDashboardControllerV2::class, 'getTotalByMonth']);
+    Route::get('partner/detail', [PartnerDashboardControllerV2::class, 'getPartnerDetailByMonth']);
+    Route::get('partner/agenda', [PartnerDashboardControllerV2::class, 'getSpeakerByDate']);
+    Route::get('partner/partnership-program', [PartnerDashboardControllerV2::class, 'getPartnershipProgramByMonth']);
+    Route::get('partner/partnership-program/detail', [PartnerDashboardControllerV2::class, 'getPartnershipProgramDetailByMonth']);
+    Route::get('partner/partnership-program/program-comparison', [PartnerDashboardControllerV2::class, 'getProgramComparison']);
 
     #Digital
-    Route::get('digital/all-leads/{month}', [DigitalDashboardControllerV2::class, 'getDataLead']);
+    Route::get('digital/all-leads', [DigitalDashboardControllerV2::class, 'getDataLead']);
     Route::get('digital/leads/{month}/{prog?}', [DigitalDashboardControllerV2::class, 'getLeadDigital']);
     Route::get('digital/detail/{month}/type-lead/{type_lead}/division/{division}', [DigitalDashboardControllerV2::class, 'getDetailDataLead']);
     Route::get('digital/detail/{month}/lead-source/{lead}/{prog?}', [DigitalDashboardControllerV2::class, 'getDetailLeadSource']);

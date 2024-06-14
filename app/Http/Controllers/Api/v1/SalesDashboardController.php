@@ -661,8 +661,8 @@ class SalesDashboardController extends Controller
 
         try {
 
-            $careerExploration = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Career Exploration'] + $cp_filter);
-            $totalRevenueCareerExplorationByMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Career Exploration'] + $cp_filter);
+            $careerExploration = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Experiential Learning'] + $cp_filter);
+            $totalRevenueCareerExplorationByMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Experiential Learning'] + $cp_filter);
         } catch (Exception $e) {
 
             Log::error('Failed to get career exploration dashboard data ' . $e->getMessage());
