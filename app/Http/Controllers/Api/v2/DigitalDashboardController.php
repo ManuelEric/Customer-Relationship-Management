@@ -148,21 +148,29 @@ class DigitalDashboardController extends Controller
 
     public function getLeadDigital(Request $request)
     {
-        $month = $request->route('month') ?? date('Y-m');
-        $prog_id = $request->route('prog') ?? null;
-
-         
-        # List Lead Source 
-        $leads = $this->leadRepository->getAllLead();
-        $dataLead = $this->leadTargetRepository->getLeadDigital($month, $prog_id ?? null);
-        // $dataConversionLead = $this->leadTargetRepository->getConversionLeadDigital($today);
+        $month = $request->get('month') ?? date('Y-m');
+        $prog_id = $request->get('prog') ?? null;
 
 
-        $response = [
-            'leadsDigital' => $this->mappingDataLead($leads->where('department_id', 7), $dataLead, 'Lead Source'),
-            'leadsAllDepart' => $this->mappingDataLead($leads, $dataLead, 'Conversion Lead'),
-            'dataLead' => $dataLead,
-        ];
+        try {
+            # List Lead Source 
+            $leads = $this->leadRepository->getAllLead();
+            $dataLead = $this->leadTargetRepository->getLeadDigital($month, $prog_id ?? null);
+            // $dataConversionLead = $this->leadTargetRepository->getConversionLeadDigital($today);
+
+            $response = [
+                'leadsDigital' => $this->mappingDataLead($leads->where('department_id', 7), $dataLead, 'Lead Source'),
+                'leadsAllDepart' => $this->mappingDataLead($leads, $dataLead, 'Conversion Lead'),
+                'dataLead' => $dataLead,
+            ];
+            
+        } catch (Exception $e) {
+            Log::error('Failed to get lead digital ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get lead digital'
+            ], 500);
+        }
 
         return response()->json(
             [
@@ -175,40 +183,49 @@ class DigitalDashboardController extends Controller
 
     public function getDetailDataLead(Request $request)
     {
-        $month = $request->route('month') ?? date('Y-m');
-        $division = $request->route('division');
-        $typeLead = $request->route('type_lead');
+        $month = $request->get('month') ?? date('Y-m');
+        $division = $request->get('division');
+        $typeLead = $request->get('type_lead');
         $methodName = 'getAchieved' . $typeLead . $division . 'ByMonth';
         $html = '';
 
-        $dataAchieved = $this->leadTargetRepository->{$methodName}($month);
-        if ($dataAchieved->count() == 0)
-            return response()->json(['success' => true, 'html_ctx' => '<tr align="center"><td colspan="6">No data</td></tr>']);
-
-        $index = 1;
-        $data = [];
-        foreach ($dataAchieved as $achieved) {
-            $achievedParents = $achieved->parents !== null ? $achieved->parents->count() : 0;
-        
-            $html .= '<tr class="detail" data-clientid="' .$achieved->id. '" style="cursor:pointer">
-                        <td>' . $index++ . '</td>
-                        <td>' . $achieved->full_name . '</td>
-                        <td>' . ($achievedParents > 0 ? $achieved->parents->first()->full_name : '-'). '</td>
-                        <td>' . ($achieved->school != null ? $achieved->school->sch_name : '-') . '</td>
-                        <td>' . $achieved->graduation_year_real . '</td>
-                        <td>' . $achieved->leadSource . '</td>
-                    </tr>';
+        try {
+            $dataAchieved = $this->leadTargetRepository->{$methodName}($month);
+            // if ($dataAchieved->count() == 0)
+            //     return response()->json(['success' => true, 'html_ctx' => '<tr align="center"><td colspan="6">No data</td></tr>']);
+    
+            $index = 1;
+            $data = [];
+            foreach ($dataAchieved as $achieved) {
+                $achievedParents = $achieved->parents !== null ? $achieved->parents->count() : 0;
             
-            $data[] = [
-                'client_id' => $achieved->id,
-                'full_name' => $achieved->full_name,
-                'parents_name' => ($achievedParents > 0 ? $achieved->parents->first()->full_name : '-'),
-                'school_name' => ($achieved->school != null ? $achieved->school->sch_name : '-'),
-                'graduation_year' => $achieved->graduation_year_real,
-                'lead_source' => $achieved->leadSource
-            ];
+                $html .= '<tr class="detail" data-clientid="' .$achieved->id. '" style="cursor:pointer">
+                            <td>' . $index++ . '</td>
+                            <td>' . $achieved->full_name . '</td>
+                            <td>' . ($achievedParents > 0 ? $achieved->parents->first()->full_name : '-'). '</td>
+                            <td>' . ($achieved->school != null ? $achieved->school->sch_name : '-') . '</td>
+                            <td>' . $achieved->graduation_year_real . '</td>
+                            <td>' . $achieved->leadSource . '</td>
+                        </tr>';
+                
+                $data[] = [
+                    'client_id' => $achieved->id,
+                    'full_name' => $achieved->full_name,
+                    'parents_name' => ($achievedParents > 0 ? $achieved->parents->first()->full_name : '-'),
+                    'school_name' => ($achieved->school != null ? $achieved->school->sch_name : '-'),
+                    'graduation_year' => $achieved->graduation_year_real,
+                    'lead_source' => $achieved->leadSource
+                ];
+            }
+    
+        } catch (Exception $e) {
+            Log::error('Failed to get detail data lead ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get detail data lead'
+            ], 500);
         }
-
+      
         return response()->json(
             [
                 'success' => true,
@@ -223,37 +240,46 @@ class DigitalDashboardController extends Controller
     public function getDetailLeadSource(Request $request)
     {
         // $month = date('Y-m');
-        $month = $request->route('month') ?? date('Y-m');
-        $lead_id = $request->lead;
-        $prog_id = $request->route('prog') ?? null;
+        $month = $request->get('month') ?? date('Y-m');
+        $lead_id = $request->get('lead');
+        $prog_id = $request->get('prog') ?? null;
 
-        $dataLeadSource = $this->leadTargetRepository->getLeadDigital($month, $prog_id)->where('lead_source_id', $lead_id);
+        try {
+            $dataLeadSource = $this->leadTargetRepository->getLeadDigital($month, $prog_id)->where('lead_source_id', $lead_id);
 
-        $html = '';
+            $html = '';
 
-        if ($dataLeadSource->count() == 0)
-            return response()->json(['success' => true, 'html_ctx' => '<tr align="center"><td colspan="6">No data</td></tr>']);
+            // if ($dataLeadSource->count() == 0)
+            //     return response()->json(['success' => true, 'html_ctx' => '<tr align="center"><td colspan="6">No data</td></tr>']);
 
-        $index = 1;
-        $result = [];
-        foreach ($dataLeadSource as $data) {
-            $html .= '<tr>
-                        <td>' . $index++ . '</td>
-                        <td>' . $data->fullname . '</td>
-                        <td>' . $data->parent_fullname . '</td>
-                        <td>' . $data->school_name . '</td>
-                        <td>' . $data->client->graduation_year_real . '</td>
-                        <td>' . $data->lead_source . '</td>
-                    </tr>';
+            $index = 1;
+            $result = [];
+            foreach ($dataLeadSource as $data) {
+                $html .= '<tr>
+                            <td>' . $index++ . '</td>
+                            <td>' . $data->fullname . '</td>
+                            <td>' . $data->parent_fullname . '</td>
+                            <td>' . $data->school_name . '</td>
+                            <td>' . $data->client->graduation_year_real . '</td>
+                            <td>' . $data->lead_source . '</td>
+                        </tr>';
 
-            $result[] = [
-                'full_name' => $data->fullname,
-                'parent_name' => $data->parent_fullname,
-                'school_name' => $data->school_name,
-                'graduation_year' => $data->graduation_year_real,
-                'lead_source' => $data->lead_source,
-            ];
+                $result[] = [
+                    'full_name' => $data->fullname,
+                    'parent_name' => $data->parent_fullname,
+                    'school_name' => $data->school_name,
+                    'graduation_year' => $data->graduation_year_real,
+                    'lead_source' => $data->lead_source,
+                ];
+            }
+        } catch (Exception $e) {
+            Log::error('Failed to get detail of leadsource ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get detail of leadsource'
+            ], 500);
         }
+        
 
         return response()->json(
             [
@@ -267,44 +293,53 @@ class DigitalDashboardController extends Controller
     public function getDetailConversionLead(Request $request)
     {
         // $month = date('Y-m');
-        $month = $request->route('month') ?? date('Y-m');
-        $lead_id = $request->lead;
-        $prog_id = $request->route('prog') ?? null;
+        $month = $request->get('month') ?? date('Y-m');
+        $lead_id = $request->get('lead');
+        $prog_id = $request->get('prog') ?? null;
 
         // $html = $lead_id;
         
 
-        $dataConversionLead = $this->leadTargetRepository->getLeadDigital($month, $prog_id)->where('lead_id', $lead_id);
+        try {
+            $dataConversionLead = $this->leadTargetRepository->getLeadDigital($month, $prog_id)->where('lead_id', $lead_id);
 
-        $html = '';
-
-        if ($dataConversionLead->count() == 0)
-            return response()->json(['success' => true, 'html_ctx' => '<tr align="center"><td colspan="8">No data</td></tr>']);
-
-        $index = 1;
-        $result = [];
-        foreach ($dataConversionLead as $data) {
-            $html .= '<tr>
-                        <td>' . $index++ . '</td>
-                        <td>' . $data->fullname . '</td>
-                        <td>' . $data->parent_fullname . '</td>
-                        <td>' . $data->school_name . '</td>
-                        <td>' . $data->client->graduation_year_real . '</td>
-                        <td>' . $data->lead_source . '</td>
-                        <td>' . $data->conversion_lead . '</td>
-                        <td>' . $data->program_name . '</td>
-                    </tr>';
-                
-            $result[] = [
-                'full_name' => $data->fullname,
-                'parent_name' => $data->parent_fullname,
-                'school_name' => $data->school_name,
-                'graduation_year' => $data->graduation_year_real,
-                'lead_source' => $data->lead_source,
-                'conversion_lead' => $data->conversion_lead,
-                'program_name' => $data->program_name,
-            ];
+            $html = '';
+    
+            // if ($dataConversionLead->count() == 0)
+            //     return response()->json(['success' => true, 'html_ctx' => '<tr align="center"><td colspan="8">No data</td></tr>']);
+    
+            $index = 1;
+            $result = [];
+            foreach ($dataConversionLead as $data) {
+                $html .= '<tr>
+                            <td>' . $index++ . '</td>
+                            <td>' . $data->fullname . '</td>
+                            <td>' . $data->parent_fullname . '</td>
+                            <td>' . $data->school_name . '</td>
+                            <td>' . $data->client->graduation_year_real . '</td>
+                            <td>' . $data->lead_source . '</td>
+                            <td>' . $data->conversion_lead . '</td>
+                            <td>' . $data->program_name . '</td>
+                        </tr>';
+                    
+                $result[] = [
+                    'full_name' => $data->fullname,
+                    'parent_name' => $data->parent_fullname,
+                    'school_name' => $data->school_name,
+                    'graduation_year' => $data->graduation_year_real,
+                    'lead_source' => $data->lead_source,
+                    'conversion_lead' => $data->conversion_lead,
+                    'program_name' => $data->program_name,
+                ];
+            }
+        } catch (Exception $e) {
+            Log::error('Failed to get detail of conversion lead ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get detail of conversion lead'
+            ], 500);
         }
+       
 
         return response()->json(
             [

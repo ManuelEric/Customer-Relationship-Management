@@ -277,17 +277,17 @@ Route::prefix('v2')->group(function () {
 
     #Digital
     Route::get('digital/all-leads', [DigitalDashboardControllerV2::class, 'getDataLead']);
-    Route::get('digital/leads/{month}/{prog?}', [DigitalDashboardControllerV2::class, 'getLeadDigital']);
-    Route::get('digital/detail/{month}/type-lead/{type_lead}/division/{division}', [DigitalDashboardControllerV2::class, 'getDetailDataLead']);
-    Route::get('digital/detail/{month}/lead-source/{lead}/{prog?}', [DigitalDashboardControllerV2::class, 'getDetailLeadSource']);
-    Route::get('digital/detail/{month}/conversion-lead/{lead}/{prog?}', [DigitalDashboardControllerV2::class, 'getDetailConversionLead']);
+    Route::get('digital/leads', [DigitalDashboardControllerV2::class, 'getLeadDigital']);
+    Route::get('digital/detail/type-lead', [DigitalDashboardControllerV2::class, 'getDetailDataLead']);
+    Route::get('digital/detail/lead-source', [DigitalDashboardControllerV2::class, 'getDetailLeadSource']);
+    Route::get('digital/detail/conversion-lead', [DigitalDashboardControllerV2::class, 'getDetailConversionLead']);
 
     #Finance
-    Route::get('finance/detail/{month}/{type}', [FinanceDashboardControllerV2::class, 'getFinanceDetailByMonth']);
-    Route::get('finance/total/{month}', [FinanceDashboardControllerV2::class, 'getTotalByMonth']);
-    Route::get('finance/outstanding/{month}', [FinanceDashboardControllerV2::class, 'getOutstandingPayment']);
-    Route::get('finance/revenue/{year}', [FinanceDashboardControllerV2::class, 'getRevenueByYear']);
-    Route::get('finance/revenue/detail/{year}/{month}', [FinanceDashboardControllerV2::class, 'getRevenueDetailByMonth']);
-    Route::get('finance/outstanding/period/{start_date}/{end_date}', [FinanceDashboardControllerV2::class, 'getOutstandingPaymentByPeriod']);
+    Route::get('finance/detail', [FinanceDashboardControllerV2::class, 'getFinanceDetailByMonth']);
+    Route::get('finance/total', [FinanceDashboardControllerV2::class, 'getTotalByMonth']);
+    Route::get('finance/outstanding', [FinanceDashboardControllerV2::class, 'getOutstandingPayment']);
+    Route::get('finance/revenue', [FinanceDashboardControllerV2::class, 'getRevenueByYear']);
+    Route::get('finance/revenue/detail', [FinanceDashboardControllerV2::class, 'getRevenueDetailByMonth']);
+    Route::get('finance/outstanding/period', [FinanceDashboardControllerV2::class, 'getOutstandingPaymentByPeriod']);
 
 });
