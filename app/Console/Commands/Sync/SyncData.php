@@ -72,6 +72,10 @@ class SyncData extends Command
                 foreach ($models as $key => $val) {
                     
                     switch ($type) {
+                        case 'tutor':
+                            $data[$key] = [$val->id, $val->fullname, $val->extended_id, $val->fullname . ' | ' . $val->id, $val->roles->first()->pivot->tutor_subject];
+                            break;
+                            
                         case 'school':
                             $data[$key] = [$val->sch_id, $val->sch_name];
                             break;
@@ -217,6 +221,15 @@ class SyncData extends Command
                     
                 $sheetName = 'Sales';
                 $colUpdatedAt = 'E';
+                break;
+
+            case 'tutor':
+                $query = User::withAndWhereHas('roles', function ($subQuery) {
+                    $subQuery->where('role_name', 'Tutor');
+                })->whereNotNull('email')->where('active', 1);
+
+                $sheetName = 'Tutors';
+                $colUpdatedAt = 'F';
                 break;
 
             case 'mentor':
