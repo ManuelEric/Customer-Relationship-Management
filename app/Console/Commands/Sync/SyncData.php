@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Sync;
 
 use App\Interfaces\ClientRepositoryInterface;
+use App\Models\Client;
 use App\Models\Corporate;
 use App\Models\EdufLead;
 use App\Models\Event;
@@ -12,6 +13,7 @@ use App\Models\Program;
 use App\Models\School;
 use App\Models\University;
 use App\Models\User;
+use App\Repositories\ClientRepository;
 use App\Repositories\SchoolRepository;
 use Carbon\Carbon;
 use Exception;
@@ -37,12 +39,14 @@ class SyncData extends Command
     protected $description = 'Sync data CRM to google sheet';
 
     protected SchoolRepository $schoolRepository;
+    protected ClientRepository $clientRepository;
 
-    public function __construct(SchoolRepository $schoolRepository)
+    public function __construct(SchoolRepository $schoolRepository, ClientRepository $clientRepository)
     {
         parent::__construct();
 
         $this->schoolRepository = $schoolRepository;
+        $this->clientRepository = $clientRepository;
     }
 
     /**
@@ -122,6 +126,10 @@ class SyncData extends Command
 
                         case 'university':
                             $data[$key] = [$val->univ_id, $val->univ_name, $val->univ_country];
+                            break;
+
+                        case 'mentee':
+                            $data[$key] = [$val->id, $val->full_name, $val->id . ' | ' . $val->full_name];
                             break;
                  
                     }
@@ -282,6 +290,23 @@ class SyncData extends Command
                 $query = University::query();
 
                 $sheetName = 'Universities';
+                $colUpdatedAt = 'D';
+                break;
+
+            case 'mentee':
+                $query = Client::withAndWhereHas('clientProgram', function ($subQuery) {
+                            $subQuery->with(['clientMentor', 'clientMentor.roles' => function ($subQuery_2) {
+                                $subQuery_2->where('role_name', 'Mentor');
+                            }])->whereHas('program', function ($subQuery_2) {
+                                $subQuery_2->whereHas('main_prog', function ($subQuery_3) {
+                                    $subQuery_3->where('prog_name', 'Admissions Mentoring');
+                                });
+                            })->where('status', 1)->where('prog_running_status', '!=', 2); # 1 success, 2 done
+                        })->whereHas('roles', function ($subQuery) {
+                            $subQuery->where('role_name', 'student');
+                        });
+
+                $sheetName = 'Active Mentees';
                 $colUpdatedAt = 'D';
                 break;
 
