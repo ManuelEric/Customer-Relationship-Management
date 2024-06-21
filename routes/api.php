@@ -42,7 +42,10 @@ use App\Http\Controllers\ReceiptReferralController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolEventController;
 use App\Http\Controllers\UserController;
+use App\Models\JobBatches;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Route;
 
 
@@ -235,5 +238,7 @@ Route::group(['middleware' => 'auth:api', 'prefix' => 'import'], function () {
     Route::get('teacher', [GoogleSheetController::class, 'storeTeacher']);
     Route::get('client-program', [GoogleSheetController::class, 'storeClientProgram']);
 });
+
+Route::get('/batch/{batchId}', [GoogleSheetController::class, 'findBatch'])->middleware(['auth:api']);
 
 Route::middleware('auth:api')->get('sync/{type}', [GoogleSheetController::class, 'sync']);
