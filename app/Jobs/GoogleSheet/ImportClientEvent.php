@@ -55,6 +55,8 @@ class ImportClientEvent implements ShouldQueue
             return;
         }
 
+        $childIds = $parentIds = $teacherIds = [];
+
         foreach ($this->clientEventData as $key => $val) {
             # initiate variables
             $status = $val['Status'] == 'Join' ? 0 : 1;

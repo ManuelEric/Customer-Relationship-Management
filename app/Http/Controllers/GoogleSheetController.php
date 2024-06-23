@@ -455,7 +455,7 @@ class GoogleSheetController extends Controller
 
     }
 
-    private function createClient($row, $type, $role, $majorDetails, $destinationCountryDetails, $school, $mainClient=null)
+    public function createClient($row, $type, $role, $majorDetails, $destinationCountryDetails, $school, $mainClient=null)
     {
         $clientId = '';
         $checkExistClientRelation = [
