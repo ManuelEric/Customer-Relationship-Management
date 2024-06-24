@@ -186,12 +186,19 @@ Route::prefix('v1')->group(function () {
     Route::patch('registration/verify/{clientevent_id}', [ExtClientController::class, 'update']);
     Route::get('school', [APISchoolController::class, 'alt_search']);
 
-    # 
+    # ----------------------
     # used in other platform
-    #
+    # ----------------------
     Route::get('get/user/by/TKT/{ticket_no}', [ExtClientController::class, 'getUserByTicket']);
     Route::get('get/user/by/UUID/{uuid}', [ExtClientController::class, 'getUserByUUID']);
 
+    # timesheet
+    Route::middleware('throttle:10,1')->group(function () {
+        Route::get('auth/email/check', [ExtClientController::class, 'checkUserEmail']);
+        Route::post('auth/token', [ExtClientController::class, 'validateCredentials']);
+        Route::get('user/mentor-tutors', [ExtClientController::class, 'getMentorTutors']);
+        Route::post('user/update', [ExtClientController::class, 'updateUser']);
+    });
 });
 
 # Client Event Attendance

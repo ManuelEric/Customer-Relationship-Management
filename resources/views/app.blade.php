@@ -43,7 +43,7 @@
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script> --}}
     <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
     {{-- <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script> --}}
-    <script src="https://cdn.tiny.cloud/1/665k5cso7x9x0errf1h417cn6fgnxs67ayozubvhomg0vony/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+    {{-- <script src="https://cdn.tiny.cloud/1/665k5cso7x9x0errf1h417cn6fgnxs67ayozubvhomg0vony/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script> --}}
     {{-- <script src="https://cdn.tiny.cloud/1/h7t62ozvqkx2ifkeh051fsy3k9irz7axx1g2zitzpbaqfo8m/tinymce/6/tinymce.min.js"
         referrerpolicy="origin"></script> --}}
     <script src="https://fastly.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -165,6 +165,24 @@
 
     <script>
         window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+    </script>
+
+    {{-- Editor --}}
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+    <script>
+        var myEditor;
+
+        document.querySelectorAll( 'textarea' ).forEach(function (element) {
+            ClassicEditor
+                .create( element )
+                .then( editor => {
+                    console.log('Editor was initialized', editor);
+                    myEditor = editor;
+                })
+                .catch( error => {
+                    console.error( error );
+                } );
+        })        
     </script>
 
     {{-- Tooltip  --}}
@@ -378,16 +396,16 @@
     </script>
 
     {{-- TinyMCE  --}}
-    <script>
-        tinymce.init({
-            strict_loading_mode : true,
-            selector: 'textarea',
-            height: "250",
-            menubar: false,
-            // plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
-            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
-        });
-    </script>
+    // <script>
+    //     tinymce.init({
+    //         strict_loading_mode : true,
+    //         selector: 'textarea',
+    //         height: "250",
+    //         menubar: false,
+    //         // plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+    //         toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+    //     });
+    // </script>
 
     {{-- Select2  --}}
     <script>

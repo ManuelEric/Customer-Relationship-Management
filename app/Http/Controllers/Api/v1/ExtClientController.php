@@ -25,9 +25,12 @@ use App\Rules\Event\DestinationCountryRequiredRule;
 use App\Rules\Event\DestinationCountryRule;
 use App\Rules\Event\DestinationCountryValidityRule;
 use Exception;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
@@ -1648,5 +1651,120 @@ class ExtClientController extends Controller
             'success' => true,
             'data' => $student
         ]);
+    }
+
+    //! Timesheet needs
+    public function checkUserEmail(Request $request): JsonResponse
+    {   
+        $incomingEmail = $request->get('email');
+        
+        $query = \App\Models\User::with('roles')->whereHas('roles', function ($query) use ($incomingEmail) {
+            $query->whereIn('role_name', ['Mentor', 'Tutor']);
+        })->where('email', $incomingEmail);
+
+        $result = $query->exists() ? $query->select(['id', 'uuid', 'first_name', 'last_name', 'email', 'password'])->first() : null;
+
+        return response()->json($result);
+    }
+
+    public function validateCredentials(Request $request): JsonResponse
+    {
+        $incomingEmail = $request->post('email');
+        $incomingPassword = $request->post('password');
+
+        $user = \App\Models\User::with('roles')->where('email', $incomingEmail)->first();
+
+        if (!$user || !Hash::check($incomingPassword, $user->password)) {
+
+            throw new HttpResponseException(
+                response()->json([
+                    'errors' => 'The provided credentials are incorrect.'
+                ], JsonResponse::HTTP_BAD_REQUEST)
+            );
+        }
+
+        return response()->json($user);
+    }
+
+    public function getMentorTutors(Request $request): JsonResponse 
+    {
+        /* Incoming request */
+        $keyword = $request->get('keyword');
+
+        $user = \App\Models\User::query()->
+            select('id', 'uuid', 'first_name', 'last_name', 'email', 'phone')->
+            with(['roles' => function ($query) {
+                $query->select('role_name', 'tutor_subject', 'feehours');
+            }])->
+            whereHas('roles', function ($query) {
+                $query->whereIn('role_name', ['Mentor', 'Tutor']);
+            })->
+            when($keyword, function ($query) use ($keyword) {
+                $query->
+                    whereRaw('CONCAT(first_name, " ", last_name) like ?', ['%'.$keyword.'%'])->
+                    orWhereRaw('email like ?', ['%'.$keyword.'%'])->
+                    orWhereRaw('phone like ?', ['%'.$keyword.'%']);
+            })->
+            get();
+        
+        $mappedUser = $user->map(function ($data) {
+            $base = [
+                'uuid' => $data['uuid'],
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'email' => $data['email'],
+                'phone' => $data['phone']
+            ];
+
+            foreach ($data['roles'] as $role) {
+
+                if (!in_array($role['role_name'], ['Mentor', 'Tutor']))
+                    continue;
+
+
+                $acceptedRole = [
+                    'role' => $role['role_name'],
+                    'tutor_subject' => $role['tutor_subject'],
+                    'feehours' => $role['feehours'],
+                ];
+            
+            }
+
+            return array_merge($base, $acceptedRole);
+        });
+
+        $mappedUser = $mappedUser->paginate(10);
+
+        return response()->json($mappedUser);
+    }
+
+    public function updateUser (Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required'
+        ]);
+
+        $validated = $request->only(['email', 'password']);
+
+        DB::beginTransaction();
+        try {
+            $user = \App\Models\User::where('email', $validated['email'])->first();
+            $user->password = Hash::make($validated['password']);
+            $user->save();
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'error' => $e->getMessage(),
+            ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        Log::info($user->first_name . ' ' . $user->last_name . ' has perform a password change.');
+
+        return response()->json([
+            'message' => 'Information has been updated.'
+        ]);
+
     }
 }
