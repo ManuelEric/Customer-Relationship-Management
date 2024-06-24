@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Revolution\Google\Sheets\Facades\Sheets;
 use App\Models\JobBatches;
+use App\Models\ViewProgram;
 use App\Services\ImportDataService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
@@ -653,59 +654,61 @@ class GoogleSheetController extends Controller
     private function setDataForValidation($rawData, $category)
     {
         $arrInputData = [];
-        foreach ($rawData as $data) {
-            switch ($category) {
-                case 'client-event':
-                    $event_name = Event::where('event_title', $data['Event Name'])->get()->pluck('event_id')->first();
-                    isset($event_name) ? $data['Event Name'] = $event_name : null;
+        $chunks = $rawData->chunk(50);
+        foreach ($chunks as $chunk) {
+            foreach ($chunk as $data) {
+                switch ($category) {
+                    case 'client-event':
+                        $event_name = Event::where('event_title', $data['Event Name'])->get()->pluck('event_id')->first();
+                        isset($event_name) ? $data['Event Name'] = $event_name : null;
+                        
+                        // $data['Date'] = str_replace('/', '-', $data['Date']);
+                        $data['Date'] = Carbon::parse($data['Date'])->format('Y-m-d');
+    
+                        break;
+    
+                    case 'client-program':
+                        $program_name = ViewProgram::where('program_name', $data['Program Name'])->pluck('prog_id')->first();
+                        isset($program_name) ? $data['Program Name'] = $program_name : null;
+    
+                        $event = Event::where('event_title', $data['Event'])->get()->pluck('event_id')->first();
+                        isset($event) ? $data['Event'] = $event : null;
+    
+                        // $data['Date'] = str_replace('/', '-', $data['Date']);
+                        $data['Date'] = Carbon::parse($data['Date'])->format('Y-m-d');
+    
+                        break;
                     
-                    // $data['Date'] = str_replace('/', '-', $data['Date']);
-                    $data['Date'] = Carbon::parse($data['Date'])->format('Y-m-d');
-
-                    break;
-
-                case 'client-program':
-                    $programs = Program::all();
-                    $program_name = $programs->where('program_name', $data['Program Name'])->pluck('prog_id')->first(); 
-                    isset($program_name) ? $data['Program Name'] = $program_name : null;
-
-                    $event = Event::where('event_title', $data['Event'])->get()->pluck('event_id')->first();
-                    isset($event) ? $data['Event'] = $event : null;
-
-                    // $data['Date'] = str_replace('/', '-', $data['Date']);
-                    $data['Date'] = Carbon::parse($data['Date'])->format('Y-m-d');
-
-                    break;
+                    default:
+                        $event = Event::where('event_title', $data['Event'])->get()->pluck('event_id')->first();
+                        isset($event) ? $data['Event'] = $event : null;
+    
+                        // $data['Joined Date'] = str_replace('/', '-', $data['Joined Date']);
+                        $data['Joined Date'] = Carbon::parse($data['Joined Date'])->format('Y-m-d');        
+                        break;
+                }
+    
+                if ($data['Lead'] == 'School' || $data['Lead'] == 'Counselor') {
+                    $data['Lead'] = 'School/Counselor';
+                }else if($data['Lead'] == 'KOL'){
+                    $data['Lead'] = 'KOL';
+                }else{
+                    $lead = Lead::where('main_lead', $data['Lead'])->get()->pluck('lead_id')->first();
+                    isset($lead) ? $data['Lead'] = $lead : null;
+                }
+    
+                $getAllEduf = EdufLead::all();
+                $edufair = $getAllEduf->where('organizerName', $data['Edufair'])->pluck('id')->first();
+                $partner = Corporate::where('corp_name', $data['Partner'])->get()->pluck('corp_id')->first();
+                $kol = Lead::where('main_lead', 'KOL')->where('sub_lead', $data['KOL'])->get()->pluck('lead_id')->first();
                 
-                default:
-                    $event = Event::where('event_title', $data['Event'])->get()->pluck('event_id')->first();
-                    isset($event) ? $data['Event'] = $event : null;
-
-                    // $data['Joined Date'] = str_replace('/', '-', $data['Joined Date']);
-                    $data['Joined Date'] = Carbon::parse($data['Joined Date'])->format('Y-m-d');        
-                    break;
+                isset($edufair) ? $data['Edufair'] = $edufair : null;
+                isset($partner) ? $data['Partner'] = $partner : null;
+                isset($kol) ? $data['KOL'] = $kol : null;
+    
+    
+                $arrInputData[$data['No']] = array_map(fn($v) => $v == '' ? null : $v, $data->toArray()); # Replace value "" to null
             }
-
-            if ($data['Lead'] == 'School' || $data['Lead'] == 'Counselor') {
-                $data['Lead'] = 'School/Counselor';
-            }else if($data['Lead'] == 'KOL'){
-                $data['Lead'] = 'KOL';
-            }else{
-                $lead = Lead::where('main_lead', $data['Lead'])->get()->pluck('lead_id')->first();
-                isset($lead) ? $data['Lead'] = $lead : null;
-            }
-
-            $getAllEduf = EdufLead::all();
-            $edufair = $getAllEduf->where('organizerName', $data['Edufair'])->pluck('id')->first();
-            $partner = Corporate::where('corp_name', $data['Partner'])->get()->pluck('corp_id')->first();
-            $kol = Lead::where('main_lead', 'KOL')->where('sub_lead', $data['KOL'])->get()->pluck('lead_id')->first();
-            
-            isset($edufair) ? $data['Edufair'] = $edufair : null;
-            isset($partner) ? $data['Partner'] = $partner : null;
-            isset($kol) ? $data['KOL'] = $kol : null;
-
-
-            $arrInputData[$data['No']] = array_map(fn($v) => $v == '' ? null : $v, $data->toArray()); # Replace value "" to null
         }
         return $arrInputData;
     }
