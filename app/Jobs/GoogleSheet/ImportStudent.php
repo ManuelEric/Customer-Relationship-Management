@@ -192,12 +192,12 @@ class ImportStudent implements ShouldQueue
         # trigger to verifying parent
         count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent') : null;
 
-        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('test')->range('Z'. $this->studentData->first()['No'] + 1)->update($imported_date);
+        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Students')->range('Z'. $this->studentData->first()['No'] + 1)->update($imported_date);
         $dataJobBatches = JobBatches::find($this->batch()->id);
         
         $logDetailsCollection = Collect($logDetails);
         $logDetailsMerge = $logDetailsCollection->merge(json_decode($dataJobBatches->log_details));
-        JobBatches::where('id', $this->batch()->id)->update(['total_imported' => $dataJobBatches->total_imported + count($imported_date), 'log_details' => json_encode($logDetailsMerge)]);
+        JobBatches::where('id', $this->batch()->id)->update(['total_imported' => $dataJobBatches->total_imported + count($imported_date), 'log_details' => json_encode($logDetailsMerge), 'type' => 'student']);
         
 
     }

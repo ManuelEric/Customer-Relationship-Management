@@ -14,6 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('job_batches', function (Blueprint $table) {
+            $table->enum('type', ['student', 'parent', 'teacher', 'client-event', 'client-program'])->nullable()->after('finished_at');
             $table->integer('total_data')->default('0')->after('finished_at');
             $table->integer('total_imported')->default('0')->after('finished_at');
             $table->longText('log_details')->nullable()->after('finished_at');

@@ -746,7 +746,7 @@ class GoogleSheetController extends Controller
         $data->put('total_imported', $jobBatches->total_imported);
 
         if($jobBatches->finished_at != null){
-            $this->logSuccess('store', 'Import Student', 'Student', auth()->guard('api')->user()->first_name . ' ' . auth()->guard('api')->user()->last_name, Collect(json_decode($jobBatches->log_details, true)));
+            $this->logSuccess('store', 'Import '. $jobBatches->type, $jobBatches->type, auth()->guard('api')->user()->first_name . ' ' . auth()->guard('api')->user()->last_name, Collect(json_decode($jobBatches->log_details, true)));
         } 
         return $data;
     }

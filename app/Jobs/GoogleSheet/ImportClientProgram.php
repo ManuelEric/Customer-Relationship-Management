@@ -125,6 +125,7 @@ class ImportClientProgram implements ShouldQueue
 
             if (!isset($existClientProgram)) {
                 $insertedClientProgram = ClientProgram::create($data);
+                $clientprog_id = $insertedClientProgram->clientprog_id;
 
                 # add to log client event 
                 # to trigger the cron for send the qr email
@@ -138,7 +139,7 @@ class ImportClientProgram implements ShouldQueue
             }
 
             $logDetails[] = [
-                'clientprog_id' => isset($insertedClientProgram->clientprog_id) ? $insertedClientProgram->clientprog_id : null
+                'clientprog_id' => $clientprog_id
             ];
 
             $imported_date[] = [Carbon::now()->format('d-m-Y H:i:s')];
@@ -154,7 +155,7 @@ class ImportClientProgram implements ShouldQueue
         
         $logDetailsCollection = Collect($logDetails);
         $logDetailsMerge = $logDetailsCollection->merge(json_decode($dataJobBatches->log_details));
-        JobBatches::where('id', $this->batch()->id)->update(['total_imported' => $dataJobBatches->total_imported + count($imported_date), 'log_details' => json_encode($logDetailsMerge)]);
+        JobBatches::where('id', $this->batch()->id)->update(['total_imported' => $dataJobBatches->total_imported + count($imported_date), 'log_details' => json_encode($logDetailsMerge), 'type' => 'client-program']);
         
 
     }
