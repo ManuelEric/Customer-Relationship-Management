@@ -11,6 +11,7 @@ use App\Http\Controllers\ClientStudentController;
 use App\Http\Controllers\GoogleSheetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VolunteerController;
+use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\testQueue;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
@@ -35,8 +36,14 @@ Route::get('/', function () {
     return view('auth.login');
 })->middleware('guest');
 
-// Route::get('google-sheet', [GoogleSheetController::class, 'store']);
-
+Route::get('test', function (){
+    # 5158 => newlead
+    # 1505 => potential
+    # 3735 => potential
+    # 379 => mentee
+    # 470 => non mentee
+    ProcessDefineCategory::dispatch([5158, 1505, 379, 470, 3735])->onQueue('define-client');
+});
 
 Route::get('404', function () {
     return view('auth.404');

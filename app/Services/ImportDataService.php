@@ -8,6 +8,7 @@ use App\Jobs\GoogleSheet\ImportClientProgram;
 use App\Jobs\GoogleSheet\ImportParent;
 use App\Jobs\GoogleSheet\ImportStudent;
 use App\Jobs\GoogleSheet\ImportTeacher;
+use App\Jobs\GoogleSheet\ProcessDefineCategory;
 use App\Models\Client;
 use App\Models\JobBatches;
 use Generator;
@@ -47,6 +48,7 @@ class ImportDataService
                 case 'client-program':
                     $batch->add(new ImportClientProgram($val));
                     break;
+
             }
         }
 
