@@ -21,6 +21,13 @@
     <link href="https://fastly.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
     @yield('css')
+    <style>
+        /* This selector targets the editable element (excluding comments). */
+        .ck-editor__editable_inline:not(.ck-comment__input *) {
+            min-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
 
 
     {{-- JS  --}}
