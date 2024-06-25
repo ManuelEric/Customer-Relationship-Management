@@ -738,16 +738,24 @@ class GoogleSheetController extends Controller
     {
         $batchId = $request->route('batchId');
         $data = new Collection();
-        $batch = Bus::findBatch($batchId);
-        $jobBatches = JobBatches::find($batchId);
-        $data = Collect($batch);
-        
-        $data->put('total_data', $jobBatches->total_data);
-        $data->put('total_imported', $jobBatches->total_imported);
 
-        if($jobBatches->finished_at != null){
-            $this->logSuccess('store', 'Import '. $jobBatches->type, $jobBatches->type, auth()->guard('api')->user()->first_name . ' ' . auth()->guard('api')->user()->last_name, Collect(json_decode($jobBatches->log_details, true)));
-        } 
+        try {
+            $batch = Bus::findBatch($batchId);
+            $jobBatches = JobBatches::find($batchId);
+            $data = Collect($batch);
+            
+            $data->put('total_data', $jobBatches->total_data);
+            $data->put('total_imported', $jobBatches->total_imported);
+    
+            if($jobBatches->finished_at != null){
+                $this->logSuccess('store', 'Import '. $jobBatches->type, $jobBatches->type, auth()->guard('api')->user()->first_name . ' ' . auth()->guard('api')->user()->last_name, Collect(json_decode($jobBatches->log_details, true)));
+            } 
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Something went wrong. Please try again'
+            ], 500);
+        }
         return $data;
     }
 

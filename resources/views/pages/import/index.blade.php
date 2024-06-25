@@ -368,6 +368,7 @@
                                 }
                             }).catch(function(error, response) {
                                 clearInterval(myInterval);
+                                $("#modal-notif-import").modal('hide');
                                 var msg = 'Something went wrong. Please try again';
                                 notification('error', msg);
 
