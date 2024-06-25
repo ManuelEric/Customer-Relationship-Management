@@ -95,7 +95,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                             case "External Edufair":
                                 $conv_lead = null;
                                 if($clientProgram->eduf_lead_id == NULL){
-                                    $conv_lead = $clientProgram->lead->main_lead;
+                                    return $conv_lead = $clientProgram->lead->main_lead;
                                 }
                 
                                 if ($clientProgram->external_edufair->title != NULL)
