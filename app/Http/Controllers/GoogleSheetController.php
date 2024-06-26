@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\Validator;
 use Revolution\Google\Sheets\Facades\Sheets;
 use App\Models\JobBatches;
 use App\Models\ViewProgram;
-use App\Services\ImportDataService;
+use App\Services\JobBatchService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
 
@@ -101,7 +101,7 @@ class GoogleSheetController extends Controller
                     ]);
                 }
 
-                $batchID = (new ImportDataService())->import(Collect($arrInputData), 'parent');
+                $batchID = (new JobBatchService())->import(Collect($arrInputData), 'parent');
 
                 JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 
@@ -187,7 +187,7 @@ class GoogleSheetController extends Controller
                     ]);
                 }
 
-                $batchID = (new ImportDataService())->import(Collect($arrInputData), 'student');
+                $batchID = (new JobBatchService())->import(Collect($arrInputData), 'student');
 
                 JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 
@@ -265,7 +265,7 @@ class GoogleSheetController extends Controller
                 }
 
     
-                $batchID = (new ImportDataService())->import(Collect($arrInputData), 'teacher');
+                $batchID = (new JobBatchService())->import(Collect($arrInputData), 'teacher');
 
                 JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 
@@ -351,7 +351,7 @@ class GoogleSheetController extends Controller
                     ]);
                 }
 
-                $batchID = (new ImportDataService())->import(Collect($arrInputData), 'client-event');
+                $batchID = (new JobBatchService())->import(Collect($arrInputData), 'client-event');
 
                 JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 
@@ -435,7 +435,7 @@ class GoogleSheetController extends Controller
                     ]);
                 }
 
-                $batchID = (new ImportDataService())->import(Collect($arrInputData), 'client-program');
+                $batchID = (new JobBatchService())->import(Collect($arrInputData), 'client-program');
 
                 JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 

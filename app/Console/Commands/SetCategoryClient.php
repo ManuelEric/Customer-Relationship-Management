@@ -1,88 +1,57 @@
 <?php
 
-namespace App\Jobs\Client;
+namespace App\Console\Commands;
 
 use App\Interfaces\ClientRepositoryInterface;
 use Exception;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class ProcessDefineCategory implements ShouldQueue
+class SetCategoryClient extends Command
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    protected ClientRepositoryInterface $clientRepository;
-    protected $clientIds;
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'set:category_client';
 
     /**
-     * Create a new job instance.
+     * The console command description.
      *
-     * @return void
+     * @var string
      */
-    public function __construct($clients)
+    protected $description = 'Automatically set category client active and verified.';
+
+
+    private ClientRepositoryInterface $clientRepository;
+
+    public function __construct(ClientRepositoryInterface $clientRepository)
     {
-        $this->clientIds = $clients;
+        parent::__construct();
+        $this->clientRepository = $clientRepository;
     }
 
     /**
-     * Execute the job.
+     * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle(ClientRepositoryInterface $clientRepository)
+    public function handle()
     {
-        $clients = $clientRepository->getClientsById($this->clientIds);
-        
+        $students = $this->clientRepository->getAllClientByRole('Student');
+        // $mentees = $this->clientRepository->getExistingMentees(false, null, []);
+        $progressBar = $this->output->createProgressBar($students->count());
+        $progressBar->start();
+
         DB::beginTransaction();
         try {
 
-            # declare default variables
-            $updatedClients = [];
-
-            foreach ($clients as $student) {
-
-                # New leads
-                /*
-                    - Doesnt have clientprogram
-                    - Or have clientprogram but status failed (2) or refund (3)
-                */
-
-                # Potential
-                /*
-                    - Have clienprogram and status pending (0)
-                */
-
-                # Mentee
-                /*
-                    - Have clientprogram & (join admission with status success (1) where prog running status != done (2))
-                    - Or have clientprogram & (join admission with status success (1) where prog running status == done (2) and join another program with status pending(0))
-               */
-
-                # Non mentee
-                /*
-                    - Have clientprogram & (Not join admission with status success (1) where prog running status != done (2))
-                    - Or have clientprogram & (Not join admission with status success (1) and join another program with status pending(0))
-                */
-
-                # Alumni mentee
-                /*
-                    - Have clientprogram & (join admission with status success (1) where prog running status == done (2))
-                */
-
-                # Alumni non mentee
-                /*
-                    - Have clientprogram & (not join admission with status success (1) where prog running status == done (2))
-                */
-
-
-                $categories = New Collection;
+            $categories = New Collection;
+            foreach ($students->where('st_statusact', 1)->where('is_verified', 'Y') as $student) {
+                
 
                 # check if client have clientprogram
                 if($student->clientProgram->count() > 0){
@@ -146,37 +115,27 @@ class ProcessDefineCategory implements ShouldQueue
                 }else if($mentee == 0 && $nonMentee == 0 && $alumniMentee == 0 && $alumniNonMentee == 0 && $potential == 0 && $newLead > 0){
                     $category = 'new-lead';
                 }
+                $progressBar->advance();
 
-
-                // $logDetails = [
-                //     'client_id' => $student->id,
-                //     'category' => $category,
-                //     'mentee' => $mentee,
-                //     'nonMentee' => $nonMentee,
-                //     'potential' => $potential,
-                //     'newLead' => $newLead,
-                //     'alumniMentee' => $alumniMentee,
-                //     'alumniNonMentee' => $alumniNonMentee,
-                // ];
 
                 $this->clientRepository->updateClient($student->id, ['category' => $category]);
-                
-                $updatedClients[] = [
-                    'client_id' => $student->id,
-                    'category' => $category,
-                ];
-
-            }
-            DB::commit();
             
+            }
+
+            // $a =  $mentees->whereNotIn('id', $categories->where('category', 'mentee')->pluck('id'))->pluck('id', 'first_name');
+                
+            // Log::debug($a);
+
+            
+
+            DB::commit();
+            $progressBar->finish();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Failed to define category client : ' . $e->getMessage() . ' on line ' . $e->getLine());
-
+            Log::info('Failed to set category client : ' . $e->getMessage() . ' on line ' . $e->getLine());
         }
 
-        Log::notice('clients that have defined categories  : ('.json_encode($updatedClients).')');
-
+        return Command::SUCCESS;
     }
 }

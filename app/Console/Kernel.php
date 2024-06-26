@@ -138,6 +138,15 @@ class Kernel extends ConsoleKernel
         $schedule->command('sync:data university')->withoutOverlapping()->hourly()->onOneServer();
         $schedule->command('sync:data tutor')->withoutOverlapping()->hourly()->onOneServer();
         $schedule->command('sync:data mentee')->withoutOverlapping()->hourly()->onOneServer();
+        
+        # Get took IA
+        $schedule->command('get:took_ia new-lead')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
+        $schedule->command('get:took_ia potential')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
+        $schedule->command('get:took_ia mentee')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
+        $schedule->command('get:took_ia non-mentee')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
+        // $schedule->command('get:took_ia inactive')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
+        // $schedule->command('get:took_ia alumni-mentee')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
+        // $schedule->command('get:took_ia alumni-non-mentee')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
     }
 
     /**

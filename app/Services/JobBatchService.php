@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Jobs\AnalyticsImportJob;
+use App\Jobs\Client\ProcessGetTookIA;
 use App\Jobs\GoogleSheet\ImportClientEvent;
 use App\Jobs\GoogleSheet\ImportClientProgram;
 use App\Jobs\GoogleSheet\ImportParent;
@@ -15,7 +16,7 @@ use Generator;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 
-class ImportDataService
+class JobBatchService
 {
     public function import($data, $type): string
     {
@@ -47,6 +48,29 @@ class ImportDataService
 
                 case 'client-program':
                     $batch->add(new ImportClientProgram($val));
+                    break;
+
+            }
+        }
+
+
+        return $batch->id;
+    }
+
+    public function jobBatch($data, $type): string
+    {
+        $batch = Bus::batch([])
+            ->name('proccess-' . $type)
+            ->dispatch();
+
+        
+        $chunks = $data->chunk(50);
+
+        foreach($chunks as $val)
+        {
+            switch ($type) {
+                case 'took-ia':
+                    $batch->add(new ProcessGetTookIA($val));
                     break;
 
             }

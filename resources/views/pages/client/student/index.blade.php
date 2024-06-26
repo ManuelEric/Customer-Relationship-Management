@@ -805,14 +805,10 @@
                         searchable: false,
                         render: function(data, type, row, meta) {
                             var link = '{{ env("EDUALL_ASSESSMENT_URL") }}' + 'api/report/' + row.uuid;
-                            if(data !== 'error'){
-                                if(!data){
-                                    return '<h5><i class="bi bi-dash-square-fill text-danger"></i></h5>'
-                                }else{
-                                    return '<a href="'+link+'"><h5><i class="bi bi-check-square-fill text-success"></i></h5></a>'
-                                }
+                            if(data == 1){
+                                return '<a href="'+link+'"><h5><i class="bi bi-check-square-fill text-success"></i></h5></a>'
                             }else{
-                                return data;
+                                return '<h5><i class="bi bi-dash-square-fill text-danger"></i></h5>'
                             }
                         }
                     },
