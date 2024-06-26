@@ -804,12 +804,12 @@
                         className: 'text-center',
                         searchable: false,
                         render: function(data, type, row, meta) {
-                            var link = '{{ env("EDUALL_ASSESSMENT_URL") }}' + 'api/report/' + row.uuid;
+                            var link = '{{ env("EDUALL_ASSESSMENT_URL") }}' + 'api/report/' + row.uuid + '?is_preview=1';
                             if(data !== 'error'){
                                 if(!data){
-                                    return '<h5><i class="bi bi-dash-square-fill text-danger"></i></h5>'
+                                    return '<h5><i class="bi bi-dash-square-fill text-danger" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Not yet"></i></h5>'
                                 }else{
-                                    return '<a href="'+link+'"><h5><i class="bi bi-check-square-fill text-success"></i></h5></a>'
+                                    return '<a href="'+link+'" target="_blank"><h5><i class="bi bi-check-square-fill text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Filled in"></i></h5></a>'
                                 }
                             }else{
                                 return data;
@@ -857,7 +857,7 @@
 
                             if (get_st == 'new-leads' || get_st == 'potential') {
                                 content = '<div class="d-flex gap-1 justify-content-center">' +
-                                    '<small class="btn btn-sm btn-outline-info cursor-pointer copyLinkAssessment" onclick="copyLink(\''+ row.uuid +'\')"><i class="bi bi-card-text"></i></small>'+
+                                    '<small class="btn btn-sm btn-outline-info cursor-pointer copyLinkAssessment" onclick="copyLink(\''+ row.uuid +'\')" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Copy link assessment"><i class="bi bi-card-text"></i></small>'+
                                     '<small data-bs-toggle="tooltip" data-bs-placement="top" ' +
                                     'data-bs-custom-class="custom-tooltip" ' +
                                     'data-bs-title="Delete" class="btn btn-sm btn-outline-danger cursor-pointer deleteClient">' +
