@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ClientProgram extends Model
 {
@@ -82,7 +85,7 @@ class ClientProgram extends Model
     protected function stripTagNotes(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => substr(strip_tags($this->meeting_notes), 0, 50)
+            get: fn ($value) => mb_substr(strip_tags($this->meeting_notes), 0, 50)
         );
     }
 
@@ -95,6 +98,16 @@ class ClientProgram extends Model
         return $instance->newQuery()->where('clientprog_id', $id)->first();
     }
 
+    public function scopeSuccessAndPaid(Builder $query): void
+    {
+        $query->where('status', 1)->whereNot('prog_running_status', 2)->where('prog_end_date', '>=', Carbon::now())->
+            where(function ($query) {
+                $query->where(function ($query2) {
+                    $query2->has('invoice')->has('invoice.receipt');
+                });
+            });
+    }
+
 
     /**
      * Scope a query to only include popular users.
@@ -105,7 +118,7 @@ class ClientProgram extends Model
     protected function programName(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->program->prog_program . ' - ' . $this->program->main_prog->main_prog_name,
+            get: fn ($value) => $this->program->main_prog_name . ' - ' . $this->program->main_prog->prog_program,
         );
     }
 
@@ -118,8 +131,8 @@ class ClientProgram extends Model
 
     public function getReferralNameFromRefCodeView($refCode)
     {
-        // return ViewClientRefCode::whereRaw('ref_code COLLATE utf8mb4_unicode_ci = (?)', $refCode)->first()->full_name;
-        return ViewClientRefCode::whereRaw('ref_code = (?)', $refCode)->first()->full_name;
+        return ViewClientRefCode::whereRaw('ref_code COLLATE utf8mb4_unicode_ci = (?)', $refCode)->first()->full_name;
+        // return ViewClientRefCode::whereRaw('ref_code = (?)', $refCode)->first()->full_name;
     }
 
     public function client()

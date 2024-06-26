@@ -54,7 +54,7 @@ class RunWorker extends Command
         ]);
         
         
-        // Log::debug('Workers has been ran : '.json_encode(Artisan::output()));
+        Log::debug('Workers has been ran : '.json_encode(Artisan::output()));
 
         
 

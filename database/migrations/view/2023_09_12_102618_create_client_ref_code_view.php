@@ -35,7 +35,7 @@ return new class extends Migration
 
         DB::statement('
         CREATE OR REPLACE VIEW client_ref_code_view AS
-            SELECT id, first_name, last_name, CONCAT (first_name, " ", COALESCE(last_name, "")) as full_name, CreateRefCode(id) as ref_code
+            SELECT id, first_name, last_name, CONCAT (first_name, " ", COALESCE(last_name, "")) as full_name, CreateRefCode(id) as ref_code COLLATE utf8mb4_unicode_ci
             FROM tbl_client;
         ');
     }

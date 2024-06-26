@@ -1686,7 +1686,7 @@ class ExtClientController extends Controller
         return response()->json($user);
     }
 
-    public function getMentorTutors(Request $request): JsonResponse 
+    public function getMentorTutors(Request $request, $authorization = null): JsonResponse 
     {
         /* Incoming request */
         $keyword = $request->get('keyword');
