@@ -2053,4 +2053,9 @@ class ClientRepository implements ClientRepositoryInterface
         $child = UserClient::find($childId);
         return $child->parents()->get();
     }
+
+    public function getClientsByCategory($category)
+    {
+        return UserClient::where('category', $category)->get();
+    }
 }
