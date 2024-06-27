@@ -7,6 +7,7 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\SyncClientTrait;
+use App\Interfaces\ClientRepositoryInterface;
 use App\Jobs\RawClient\ProcessVerifyClient;
 use App\Jobs\RawClient\ProcessVerifyClientParent;
 use App\Jobs\RawClient\ProcessVerifyClientTeacher;
@@ -35,9 +36,17 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
 
 
+
 class GoogleSheetController extends Controller
 {
     use SyncClientTrait, CreateCustomPrimaryKeyTrait, LoggingTrait, SyncClientTrait, StandardizePhoneNumberTrait;
+
+    private ClientRepositoryInterface $clientRepository;
+
+    public function __construct(ClientRepositoryInterface $clientRepository)
+    {
+        $this->clientRepository = $clientRepository;
+    }
 
     public function storeParent(Request $request)
     {
@@ -101,7 +110,7 @@ class GoogleSheetController extends Controller
                     ]);
                 }
 
-                $batchID = (new JobBatchService())->import(Collect($arrInputData), 'parent');
+                $batchID = (new JobBatchService())->jobBatch(Collect($arrInputData), 'Import', 'parent', 10);
 
                 JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 
@@ -187,7 +196,7 @@ class GoogleSheetController extends Controller
                     ]);
                 }
 
-                $batchID = (new JobBatchService())->import(Collect($arrInputData), 'student');
+                $batchID = (new JobBatchService())->jobBatch(Collect($arrInputData), 'Import', 'student', 10);
 
                 JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 
@@ -265,7 +274,7 @@ class GoogleSheetController extends Controller
                 }
 
     
-                $batchID = (new JobBatchService())->import(Collect($arrInputData), 'teacher');
+                $batchID = (new JobBatchService())->jobBatch(Collect($arrInputData), 'Import', 'teacher', 10);
 
                 JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 
@@ -351,7 +360,7 @@ class GoogleSheetController extends Controller
                     ]);
                 }
 
-                $batchID = (new JobBatchService())->import(Collect($arrInputData), 'client-event');
+                $batchID = (new JobBatchService())->jobBatch(Collect($arrInputData), 'Import', 'client-event', 10);
 
                 JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 
@@ -435,7 +444,7 @@ class GoogleSheetController extends Controller
                     ]);
                 }
 
-                $batchID = (new JobBatchService())->import(Collect($arrInputData), 'client-program');
+                $batchID = (new JobBatchService())->jobBatch(Collect($arrInputData), 'Import', 'client-program', 10);
 
                 JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 
@@ -733,6 +742,18 @@ class GoogleSheetController extends Controller
         ]);
     }
 
+    public function exportData(Request $request)
+    {
+        $data = $this->clientRepository->getNewLeads(false, null, []);
+        $batchID = (new JobBatchService())->jobBatch($data, 'export', 'new-leads', 50);
+        JobBatches::where('id', $batchID)->update(['total_data' => count($data)]);
+
+        $response = [
+            'success' => true,
+            'batch_id' => $batchID,
+        ];
+        return response()->json($response);
+    }
 
     public function findBatch(Request $request)
     {

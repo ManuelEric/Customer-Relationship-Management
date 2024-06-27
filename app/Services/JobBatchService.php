@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Jobs\AnalyticsImportJob;
 use App\Jobs\Client\ProcessGetTookIA;
+use App\Jobs\GoogleSheet\ExportClient;
 use App\Jobs\GoogleSheet\ImportClientEvent;
 use App\Jobs\GoogleSheet\ImportClientProgram;
 use App\Jobs\GoogleSheet\ImportParent;
@@ -57,23 +58,63 @@ class JobBatchService
         return $batch->id;
     }
 
-    public function jobBatch($data, $type): string
+    public function jobBatch($data, $category, $type, $sizeChunk): string
     {
+       
         $batch = Bus::batch([])
-            ->name('proccess-' . $type)
+            ->name($category . '-' . $type)
             ->dispatch();
 
         
-        $chunks = $data->chunk(50);
+        $chunks = $data->chunk($sizeChunk);
 
         foreach($chunks as $val)
-        {
-            switch ($type) {
-                case 'took-ia':
-                    $batch->add(new ProcessGetTookIA($val));
-                    break;
+        {   switch ($category) {
+            case 'import':
+                switch ($type) {
+                    case 'student':
+                        $batch->add(new ImportStudent($val));
+                        break;
+    
+                    case 'parent':
+                        $batch->add(new ImportParent($val));
+                        break;
+    
+                    case 'teacher':
+                        $batch->add(new ImportTeacher($val));
+                        break;
+    
+                    case 'client-event':
+                        $batch->add(new ImportClientEvent($val));
+                        break;
+    
+                    case 'client-program':
+                        $batch->add(new ImportClientProgram($val));
+                        break;
+                }
+                break;
+            
+            case 'process':
+                switch ($type) {
+                    case 'took-ia':
+                        $batch->add(new ProcessGetTookIA($val));
+                        break;
+    
+                }
 
-            }
+            case 'export':
+                switch ($type) {
+                    case 'new-leads':
+                        $batch->add(new ExportClient($val, $type));
+                        break;
+                    case 'potentials':
+                        $batch->add(new ExportClient($val, $type));
+                        break;
+    
+                }
+                break;
+        }
+            
         }
 
 
