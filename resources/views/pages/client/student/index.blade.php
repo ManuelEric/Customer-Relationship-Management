@@ -809,7 +809,7 @@
                                 if(!data){
                                     return '<h5><i class="bi bi-dash-square-fill text-danger" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Not yet"></i></h5>'
                                 }else{
-                                    return '<a href="'+link+'" target="_blank"><h5><i class="bi bi-check-square-fill text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Filled in"></i></h5></a>'
+                                    return '<h5 onclick="copyLink(\''+ row.uuid +'\', \'ia-report\')" style="cursor: pointer;"><i class="bi bi-check-square-fill text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Filled in"></i></h5>'
                                 }
                             }else{
                                 return data;
@@ -851,13 +851,13 @@
                         defaultContent: '',
                         render: function(data, type, row, meta) {
                             let content = '<div class="d-flex gap-1 justify-content-center">' +
-                                '<small class="btn btn-sm btn-outline-info cursor-pointer copyLinkAssessment" onclick="copyLink(\''+ row.uuid +'\')"><i class="bi bi-card-text"></i></small>' +
+                                '<small class="btn btn-sm btn-outline-info cursor-pointer copyLinkAssessment" onclick="copyLink(\''+ row.uuid +'\', \'ia-link\')"><i class="bi bi-card-text"></i></small>' +
                                 '<small class="btn btn-sm btn-outline-warning cursor-pointer editClient" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail"><i class="bi bi-eye"></i></small>'
                             '</div>';
 
                             if (get_st == 'new-leads' || get_st == 'potential') {
                                 content = '<div class="d-flex gap-1 justify-content-center">' +
-                                    '<small class="btn btn-sm btn-outline-info cursor-pointer copyLinkAssessment" onclick="copyLink(\''+ row.uuid +'\')" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Copy initial assessment link"><i class="bi bi-card-text"></i></small>'+
+                                    '<small class="btn btn-sm btn-outline-info cursor-pointer copyLinkAssessment" onclick="copyLink(\''+ row.uuid +'\', \'ia-link\')" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Copy initial assessment link"><i class="bi bi-card-text"></i></small>'+
                                     '<small data-bs-toggle="tooltip" data-bs-placement="top" ' +
                                     'data-bs-custom-class="custom-tooltip" ' +
                                     'data-bs-title="Delete" class="btn btn-sm btn-outline-danger cursor-pointer deleteClient">' +
@@ -1185,20 +1185,36 @@
                 })
         }
 
-        function copyLink(uuid) {
+        function copyLink(uuid, type) {
+            var copyText = "";
+            var msg = "";
+            switch (type) {
+                case 'ia-link':
+                    // Get the text field
+                    copyText = "{{ env('EDUALL_ASSESSMENT_URL') }}login/" + uuid;
+                    msg = "Assessment successfully copied ";
+                    
+                    break;
+
+                case 'ia-report':
+                    // Get the text field
+                    copyText = "{{ env('EDUALL_ASSESSMENT_URL') }}api/report/" + uuid + "?is_preview=1";
+                    msg = "Assessment report successfully copied ";
+                    
+                    break;
             
-            // Get the text field
-            var copyText = "{{ env('EDUALL_ASSESSMENT_URL') }}login/" + uuid;
+                default:
+                    break;
+            }
 
             // Copy the text inside the text field
             navigator.clipboard.writeText(copyText);
-
 
             // Alert the copied text
             // alert("Copied the text: " + copyText.value);
             Swal.fire({
                 icon: 'success',
-                text: "Assessment successfully copied ",
+                text: msg,
                 timer: 1500,
                 width:300,
                 showConfirmButton: false,
