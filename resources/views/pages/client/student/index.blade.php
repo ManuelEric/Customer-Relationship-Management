@@ -809,7 +809,17 @@
                                 if(!data){
                                     return '<h5><i class="bi bi-dash-square-fill text-danger" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Not yet"></i></h5>'
                                 }else{
-                                    return '<h5 onclick="copyLink(\''+ row.uuid +'\', \'ia-report\')" style="cursor: pointer;"><i class="bi bi-check-square-fill text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Filled in"></i></h5>'
+                                    return '<div class="container" style="padding-left:0;">'
+                                            + '<div class="row justify-content-center">'
+                                            + '<div class="col-1">'
+                                            + '<h5 onclick="copyLink(\''+ row.uuid +'\', \'ia-report\')" style="cursor: pointer;"><i class="bi bi-check-square-fill text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Report"></i></h5>' 
+                                            + '</div>'
+                                            + '<div class="col-1">'
+                                            + '<h5 onclick="copyLink(\''+ row.uuid +'\', \'ia-answer\')" style="cursor: pointer;"><i class="bi bi-zoom-in text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Answer"></i></h5>' 
+                                            + '</div>'
+                                            + '</div>'
+                                            + '</div>'
+                                            
                                 }
                             }else{
                                 return data;
@@ -1202,8 +1212,12 @@
                     msg = "Assessment report successfully copied ";
                     
                     break;
-            
-                default:
+
+                case 'ia-answer':
+                    // Get the text field
+                    copyText = "{{ env('EDUALL_ASSESSMENT_URL') }}api/report/" + uuid + "/summary?is_preview=1";
+                    msg = "Answer assessment successfully copied ";
+                    
                     break;
             }
 
