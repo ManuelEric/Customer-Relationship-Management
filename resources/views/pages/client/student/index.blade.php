@@ -857,7 +857,7 @@
 
                             if (get_st == 'new-leads' || get_st == 'potential') {
                                 content = '<div class="d-flex gap-1 justify-content-center">' +
-                                    '<small class="btn btn-sm btn-outline-info cursor-pointer copyLinkAssessment" onclick="copyLink(\''+ row.uuid +'\')" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Copy link assessment"><i class="bi bi-card-text"></i></small>'+
+                                    '<small class="btn btn-sm btn-outline-info cursor-pointer copyLinkAssessment" onclick="copyLink(\''+ row.uuid +'\')" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Copy initial assessment link"><i class="bi bi-card-text"></i></small>'+
                                     '<small data-bs-toggle="tooltip" data-bs-placement="top" ' +
                                     'data-bs-custom-class="custom-tooltip" ' +
                                     'data-bs-title="Delete" class="btn btn-sm btn-outline-danger cursor-pointer deleteClient">' +
