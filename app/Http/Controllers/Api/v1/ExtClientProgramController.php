@@ -28,15 +28,24 @@ class ExtClientProgramController extends Controller
         ])->successAndPaid()->select('clientprog_id', 'prog_id', 'client_id')->get();
 
         $mappedPrograms = $programs->map(function ($data) {
+
+            $clientprog_id = $data->clientprog_id;
+            $invoice_id = $data->invoice->inv_id;
+            $program_name = $data->program->program_name;
+            $client_id = $data->client->id;
+            $client_fname = $data->client->first_name;
+            $client_lname = $data->client->last_name;
+            $school_name = $data->client->school ? $data->client->school->sch_name : null;
+
             return [
-                'clientprog_id' => $data->clientprog_id,
-                'invoice_id' => $data->invoice->inv_id,
-                'program_name' => $data->program->program_name,
+                'clientprog_id' => $clientprog_id,
+                'invoice_id' => $invoice_id,
+                'program_name' => $program_name,
                 'client' => [
-                    'id' => $data->client->id,
-                    'first_name' => $data->client->first_name,
-                    'last_name' => $data->client->last_name,
-                    'school_name' => $data->client->school->sch_name,
+                    'id' => $client_id,
+                    'first_name' => $client_fname,
+                    'last_name' => $client_lname,
+                    'school_name' => $school_name,
                 ]
             ];
         });

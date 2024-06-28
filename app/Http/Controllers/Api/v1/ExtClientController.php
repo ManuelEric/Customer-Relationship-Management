@@ -1771,4 +1771,19 @@ class ExtClientController extends Controller
         ]);
 
     }
+
+    public function identifyUserByEmail(Request $request, $email)
+    {
+        $validator = Validator::make($email, ['email' => 'required|email']);
+
+        if ( $validator->fails() ) {
+            return response()->json([
+                'errors' => $validator
+            ], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $validated = $request->only(['email']);
+
+        return $validated;
+    }
 }

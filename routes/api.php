@@ -197,9 +197,12 @@ Route::prefix('v1')->group(function () {
     Route::middleware('throttle:10,1')->group(function () {
         Route::get('auth/email/check', [ExtClientController::class, 'checkUserEmail']);
         Route::post('auth/token', [ExtClientController::class, 'validateCredentials']);
-        Route::get('user/mentor-tutors/{authorization?}', [ExtClientController::class, 'getMentorTutors']);
         Route::post('user/update', [ExtClientController::class, 'updateUser']);
+
+        Route::get('user/mentor-tutors/{authorization?}', [ExtClientController::class, 'getMentorTutors']);
+
         Route::get('program/list/{authorization?}', [ExtClientProgramController::class, 'getSuccessPrograms']);
+        Route::get('user/identify/email/{email}', [ExtClientController::class, 'identifyUserByEmail']);
     });
 });
 
