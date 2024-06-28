@@ -360,15 +360,20 @@
                     },
                     {
                         data: 'student_mail',
+                        name: 'c.mail',
                     },
                     {
                         data: 'student_phone',
+                        name: 'c.phone',
                     },
                     {
                         data: 'school_name',
+                        name: 'sch.sch_name',
+
                     },
                     {
                         data: 'grade_now',
+                        name: 'c.grade_now',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
                             if (data > 12)
@@ -379,6 +384,7 @@
                     },
                     {
                         data: 'program_name',
+                        name: 'p.program_name',
                         render: function(data, type, row, meta) {
                             return row.referral_type == "Out" ? row.additional_prog_name : row
                                 .program_name
@@ -386,15 +392,19 @@
                     },
                     {
                         data: 'register_as',
+                        name: 'c.register_as',
+
                     },
                     {
                         data: 'parent_fullname',
                     },
                     {
                         data: 'parent_mail',
+                        name: 'parent.mail',
                     },
                     {
                         data: 'parent_phone',
+                        name: 'parent.phone',
                     },
                     {
                         data: 'mentor_tutor_name',
@@ -431,6 +441,7 @@
                     },
                     {
                         data: 'status',
+                        name: 'tbl_client_prog.status',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
                             switch (parseInt(data)) {
@@ -473,6 +484,7 @@
                     },
                     {
                         data: 'reason',
+                        name: 'r.reason_name'
                     },
                     {
                         data: 'pic_name',
