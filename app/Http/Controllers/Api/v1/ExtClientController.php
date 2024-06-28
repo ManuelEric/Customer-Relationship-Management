@@ -1716,6 +1716,8 @@ class ExtClientController extends Controller
                 'phone' => $data['phone']
             ];
 
+            $acceptedRole = [];
+
             foreach ($data['roles'] as $role) {
 
                 if (!in_array($role['role_name'], ['Mentor', 'Tutor']))
