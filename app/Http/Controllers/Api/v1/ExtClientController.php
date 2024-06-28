@@ -1701,9 +1701,11 @@ class ExtClientController extends Controller
             })->
             when($keyword, function ($query) use ($keyword) {
                 $query->
-                    whereRaw('CONCAT(first_name, " ", COALESCE(last_name)) like ?', ['%'.$keyword.'%'])->
-                    orWhereRaw('email like ?', ['%'.$keyword.'%'])->
-                    orWhereRaw('phone like ?', ['%'.$keyword.'%']);
+                    where(function ($sub) use ($keyword) {
+                        $sub->whereRaw('CONCAT(first_name, " ", COALESCE(last_name)) like ?', ['%'.$keyword.'%'])->
+                        orWhereRaw('email like ?', ['%'.$keyword.'%'])->
+                        orWhereRaw('phone like ?', ['%'.$keyword.'%']);
+                    });
             })->
             get();
         
