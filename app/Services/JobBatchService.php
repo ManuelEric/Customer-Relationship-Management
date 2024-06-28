@@ -107,7 +107,19 @@ class JobBatchService
                     case 'new-leads':
                         $batch->add(new ExportClient($val, $type));
                         break;
-                    case 'potentials':
+                    case 'potential':
+                        $batch->add(new ExportClient($val, $type));
+                        break;
+                    case 'mentee':
+                        $batch->add(new ExportClient($val, $type));
+                        break;
+                    case 'non-mentee':
+                        $batch->add(new ExportClient($val, $type));
+                        break;
+                    case 'all':
+                        $batch->add(new ExportClient($val, $type));
+                        break;
+                    case 'inactive':
                         $batch->add(new ExportClient($val, $type));
                         break;
     

@@ -36,7 +36,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
 
 
-
 class GoogleSheetController extends Controller
 {
     use SyncClientTrait, CreateCustomPrimaryKeyTrait, LoggingTrait, SyncClientTrait, StandardizePhoneNumberTrait;
@@ -744,9 +743,51 @@ class GoogleSheetController extends Controller
 
     public function exportData(Request $request)
     {
-        $data = $this->clientRepository->getNewLeads(false, null, []);
-        $batchID = (new JobBatchService())->jobBatch($data, 'export', 'new-leads', 50);
-        JobBatches::where('id', $batchID)->update(['total_data' => count($data)]);
+        $type = $request->route('type');
+        $data = [];
+        DB::beginTransaction();
+        try {
+            switch ($type) {
+                case 'new-leads':
+                    $data = $this->clientRepository->getNewLeads(false, null, []);
+                    break;
+                case 'potential':
+                    $data = $this->clientRepository->getPotentialClients(false, null, []);
+                    break;
+                case 'mentee':
+                    $data = $this->clientRepository->getExistingMentees(false, null, []);
+                    break;
+                case 'non-mentee':
+                    $data = $this->clientRepository->getExistingNonMentees(false, null, []);
+                    break;
+                case 'all':
+                    $data = $this->clientRepository->getAllClientStudent([])->get();
+                    break;
+                case 'inactive':
+                    $data = $this->clientRepository->getInactiveStudent(false ,null, []);
+                    break;
+                
+                default:
+                    return response()->json([
+                        'success' => false,
+                        'error' => 'Invalid client category!'
+                    ], 500);
+                    break;
+            }
+
+            $batchID = (new JobBatchService())->jobBatch($data, 'export', $type, 50);
+            JobBatches::where('id', $batchID)->update(['total_data' => $data->count()]);
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            Log::error('Failed to export data: ' . $e->getMessage() . '| on line: ' . $e->getLine());
+            return response()->json([
+                'success' => false,
+                'error' => 'Something went wrong. Please try again'
+            ], 500);
+        }
 
         $response = [
             'success' => true,

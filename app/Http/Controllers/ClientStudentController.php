@@ -1015,7 +1015,8 @@ class ClientStudentController extends ClientController
             'phone' => $this->setPhoneNumber($request->phoneFinal),
             'graduation_year' => $request->graduationFinal,
             'sch_id' => $request->schoolFinal,
-            'is_verified' => 'Y'
+            'is_verified' => 'Y',
+            'cagegory' => 'new-lead'
         ];
 
         if ($request->parentName != null) {

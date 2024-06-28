@@ -246,6 +246,12 @@ Route::group(['middleware' => 'auth:api', 'prefix' => 'import'], function () {
     Route::get('client-program', [GoogleSheetController::class, 'storeClientProgram']);
 });
 
+# Export data to google sheet
+Route::group(['middleware' => 'auth:api', 'prefix' => 'export'], function () {
+
+    Route::get('{type}', [GoogleSheetController::class, 'exportData']);
+});
+
 Route::get('/batch/{batchId}', [GoogleSheetController::class, 'findBatch'])->middleware(['auth:api']);
 
 Route::middleware('auth:api')->get('sync/{type}', [GoogleSheetController::class, 'sync']);

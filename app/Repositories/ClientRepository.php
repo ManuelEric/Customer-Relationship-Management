@@ -596,21 +596,23 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getAllClientStudent($advanced_filter = [])
     {
-        $new_leads = $this->getNewLeads(false, null, $advanced_filter)->pluck('id')->toArray();
-        $potential = $this->getPotentialClients(false, null, $advanced_filter)->pluck('id')->toArray();
-        $existing = $this->getExistingMentees(false, null, $advanced_filter)->pluck('id')->toArray();
-        $existingNon = $this->getExistingNonMentees(false, null, $advanced_filter)->pluck('id')->toArray();
+        // $new_leads = $this->getNewLeads(false, null, $advanced_filter)->pluck('id')->toArray();
+        // $potential = $this->getPotentialClients(false, null, $advanced_filter)->pluck('id')->toArray();
+        // $existing = $this->getExistingMentees(false, null, $advanced_filter)->pluck('id')->toArray();
+        // $existingNon = $this->getExistingNonMentees(false, null, $advanced_filter)->pluck('id')->toArray();
 
-        $clientStudent = $new_leads;
-        $clientStudent = array_merge($clientStudent, $potential);
-        $clientStudent = array_merge($clientStudent, $existing);
-        $clientStudent = array_merge($clientStudent, $existingNon);
+        // $clientStudent = $new_leads;
+        // $clientStudent = array_merge($clientStudent, $potential);
+        // $clientStudent = array_merge($clientStudent, $existing);
+        // $clientStudent = array_merge($clientStudent, $existingNon);
 
         $query = Client::select([
             'client.*',
             'parent.mail as parent_mail',
             'parent.phone as parent_phone'
-        ])->selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->whereIn('client.id', $clientStudent)->where('client.is_verified', 'Y')->whereNull('client.deleted_at');
+        ])
+        // ->selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->whereIn('client.id', $clientStudent)->where('client.is_verified', 'Y')->whereNull('client.deleted_at');
+        ->selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->whereIn('client.category', ['new-lead', 'potential', 'mentee', 'non-mentee'])->where('client.is_verified', 'Y')->whereNull('client.deleted_at');
 
         return $query->orderBy('first_name', 'asc');
     }

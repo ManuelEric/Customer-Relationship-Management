@@ -80,8 +80,6 @@ Route::group(['middleware' => ['auth', 'auth.department']], function () {
 # AUTH END ------------------------------------
 
 
-Route::get('export', [GoogleSheetController::class, 'exportData']);
-
 # FORM EVENT EMBED START ------------------------
 
 Route::get('form/event', [ClientEventController::class, 'createFormEmbed'])->name('form.event.create');
