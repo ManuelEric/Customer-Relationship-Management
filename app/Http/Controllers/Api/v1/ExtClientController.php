@@ -1701,7 +1701,7 @@ class ExtClientController extends Controller
             })->
             when($keyword, function ($query) use ($keyword) {
                 $query->
-                    whereRaw('CONCAT(first_name, " ", last_name) like ?', ['%'.$keyword.'%'])->
+                    whereRaw('CONCAT(first_name, " ", COALESCE(last_name)) like ?', ['%'.$keyword.'%'])->
                     orWhereRaw('email like ?', ['%'.$keyword.'%'])->
                     orWhereRaw('phone like ?', ['%'.$keyword.'%']);
             })->
@@ -1734,7 +1734,7 @@ class ExtClientController extends Controller
         });
 
         $mappedUser = $mappedUser->paginate(10);
-
+        
         return response()->json($mappedUser);
     }
 
