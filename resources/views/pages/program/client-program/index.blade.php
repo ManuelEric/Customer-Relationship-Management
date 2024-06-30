@@ -11,6 +11,21 @@
     </style>
 @endpush
 @section('content')
+    {{-- Modal notif export --}}
+    <div class="modal modal-md fade" id="modal-notif-export" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="m-0 p-0" id="title-modal-export">
+                        Export Information
+                    </h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="content-export-information">
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="card bg-secondary mb-1 p-2">
         <div class="d-flex align-items-center justify-content-between">
@@ -311,6 +326,12 @@
                             }
                         },
                     },
+                    // {
+                    //     text: 'Export to Spreadsheet',
+                    //     action: function(e, dt, node, config) {
+                    //         exportData('client-program');
+                    //     }
+                    // },
                     {
                         text: '<i class="bi bi-bag-plus"></i> Create Bundle',
                         action: function(e, dt, node, config) {
@@ -757,6 +778,110 @@
             //     var data = table.row($(this).parents('tr')).data();
             //     confirmDelete('master/event', data.event_id)
             // });
+
+            function exportData(type)
+            {
+                showLoading()
+                type = type === '' ? 'all' : type;
+                axios
+                    .get("{{ url('api/export') }}/" + type, {
+                        headers:{
+                            'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
+                        }
+                    }).then(function (response) {
+                        
+                        var data = response.data;
+                        var batch_id = data.batch_id;
+
+                        html += `<div id="loading-bar">`;
+                        html += `<div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="height:25px;">`;
+                        html += `<div class="progress-bar progress-bar-striped progress-bar-animated" id="bar" style="width: 0%">0%</div>`;
+                        html += `</div>`;
+                        html += `<p class="text-center mt-2" id="total">Exporting ...</p>`;
+                        html += `</div>`;
+
+                                        
+                        $("#modal-notif-export").modal('show');
+                        $('#content-export-information').html(html);
+
+                        var i = 0;
+
+                        let myInterval = setInterval(() => {
+                            axios
+                            .get("{{ url('api/batch') }}/" + batch_id, {
+                                headers:{
+                                    'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
+                                }
+                            }).then(function(response){
+                                console.log(response);
+                                $('#bar').css({'width': response.data.progress + '%'});
+                                $('#bar').text(response.data.progress + '%');
+                                $('#total').html(`Exporting ${response.data.total_imported}/${response.data.total_data}`);
+                                            
+                                i++;
+
+                                if(response.data.progress == 100){
+                                    console.log('100 fully');
+                                    $("#modal-notif-export").modal('hide');
+                                    var urlSpreadsheet  = 'https://docs.google.com/spreadsheets/d/1aPIULau0i3p1UoJVVsX8SnxIXVcIW6I42s9AwgofV-U/edit'
+                                    var tab_id = '';
+                                    switch (type) {
+                                        case 'new-leads':
+                                            tab_id = 0;
+                                            break;
+                                        case 'potential':
+                                            tab_id = '110833908';
+                                            break;
+                                        case 'mentee':
+                                            tab_id = '1367815258';
+                                            break;
+                                        case 'non-mentee':
+                                            tab_id = '1480246071';
+                                            break;
+                                        case 'all':
+                                            tab_id = '819681920';
+                                            break;
+                                        case 'inactive':
+                                            tab_id = '1330533397';
+                                            break;
+                                        case 'client-program':
+                                            tab_id = '969544076';
+                                            break;
+                                        default:
+                                            notification('error', 'Invalid client category!');
+                                            break;
+                                    }
+                                    window.open(urlSpreadsheet + '?gid=' + tab_id + '#gid=' + tab_id, '_blank');
+                                    clearInterval(myInterval);
+                                }
+
+                                if(i >= 100){
+                                    $("#modal-notif-export").modal('hide');
+                                    clearInterval(myInterval);
+                                    var msg = 'Timeout!';
+                                    notification('error', msg);
+                                }
+                            }).catch(function(error, response) {
+                                clearInterval(myInterval);
+                                $("#modal-notif-export").modal('hide');
+                                var msg = 'Something went wrong. Please try again';
+                                notification('error', msg);
+
+                            });
+                        }, 3000);
+                        
+                        swal.close()
+                    }).catch(function(error, response) {
+                        var msg = error.response.data.error;
+                        if(error.response.status == 429){
+                            msg = 'Please wait 1 minute!'
+                        }
+                        swal.close()
+                        notification('error', msg);
+
+                })
+                
+            }
 
         });
 

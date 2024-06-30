@@ -7,6 +7,7 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\SyncClientTrait;
+use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Jobs\RawClient\ProcessVerifyClient;
 use App\Jobs\RawClient\ProcessVerifyClientParent;
@@ -41,10 +42,12 @@ class GoogleSheetController extends Controller
     use SyncClientTrait, CreateCustomPrimaryKeyTrait, LoggingTrait, SyncClientTrait, StandardizePhoneNumberTrait;
 
     private ClientRepositoryInterface $clientRepository;
+    private ClientProgramRepositoryInterface $clientProgramRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, ClientProgramRepositoryInterface $clientProgramRepository)
     {
         $this->clientRepository = $clientRepository;
+        $this->clientProgramRepository = $clientProgramRepository;
     }
 
     public function storeParent(Request $request)
@@ -766,6 +769,9 @@ class GoogleSheetController extends Controller
                 case 'inactive':
                     $data = $this->clientRepository->getInactiveStudent(false ,null, []);
                     break;
+                // case 'client-program':
+                //     $data = $this->clientProgramRepository->getAllClientProgramDataTables(['clientId' => null, 'programName' => null, 'mainProgram' => null, 'schoolName' => null, 'leadId' => null, 'grade' => null, 'status' => null, 'emplUUID' => null, 'startDate' => null, 'endDate' => null, 'userId' => null] , false);
+                //     break;
                 
                 default:
                     return response()->json([

@@ -69,63 +69,64 @@ class JobBatchService
         $chunks = $data->chunk($sizeChunk);
 
         foreach($chunks as $val)
-        {   switch ($category) {
-            case 'import':
-                switch ($type) {
-                    case 'student':
-                        $batch->add(new ImportStudent($val));
-                        break;
-    
-                    case 'parent':
-                        $batch->add(new ImportParent($val));
-                        break;
-    
-                    case 'teacher':
-                        $batch->add(new ImportTeacher($val));
-                        break;
-    
-                    case 'client-event':
-                        $batch->add(new ImportClientEvent($val));
-                        break;
-    
-                    case 'client-program':
-                        $batch->add(new ImportClientProgram($val));
-                        break;
-                }
-                break;
-            
-            case 'process':
-                switch ($type) {
-                    case 'took-ia':
-                        $batch->add(new ProcessGetTookIA($val));
-                        break;
-    
-                }
+        {   
+            switch ($category) {
+                case 'import':
+                    switch ($type) {
+                        case 'student':
+                            $batch->add(new ImportStudent($val));
+                            break;
+        
+                        case 'parent':
+                            $batch->add(new ImportParent($val));
+                            break;
+        
+                        case 'teacher':
+                            $batch->add(new ImportTeacher($val));
+                            break;
+        
+                        case 'client-event':
+                            $batch->add(new ImportClientEvent($val));
+                            break;
+        
+                        case 'client-program':
+                            $batch->add(new ImportClientProgram($val));
+                            break;
+                    }
+                    break;
+                
+                case 'process':
+                    switch ($type) {
+                        case 'took-ia':
+                            $batch->add(new ProcessGetTookIA($val));
+                            break;
+        
+                    }
 
-            case 'export':
-                switch ($type) {
-                    case 'new-leads':
-                        $batch->add(new ExportClient($val, $type));
-                        break;
-                    case 'potential':
-                        $batch->add(new ExportClient($val, $type));
-                        break;
-                    case 'mentee':
-                        $batch->add(new ExportClient($val, $type));
-                        break;
-                    case 'non-mentee':
-                        $batch->add(new ExportClient($val, $type));
-                        break;
-                    case 'all':
-                        $batch->add(new ExportClient($val, $type));
-                        break;
-                    case 'inactive':
-                        $batch->add(new ExportClient($val, $type));
-                        break;
-    
-                }
-                break;
-        }
+                case 'export':
+                    switch ($type) {
+                        case 'new-leads':
+                            $batch->add(new ExportClient($val, $type));
+                            break;
+                        case 'potential':
+                            $batch->add(new ExportClient($val, $type));
+                            break;
+                        case 'mentee':
+                            $batch->add(new ExportClient($val, $type));
+                            break;
+                        case 'non-mentee':
+                            $batch->add(new ExportClient($val, $type));
+                            break;
+                        case 'all':
+                            $batch->add(new ExportClient($val, $type));
+                            break;
+                        case 'inactive':
+                            $batch->add(new ExportClient($val, $type));
+                            break;
+        
+                    }
+                    break;
+            }
             
         }
 
