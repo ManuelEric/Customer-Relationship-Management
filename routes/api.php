@@ -202,7 +202,6 @@ Route::prefix('v1')->group(function () {
         Route::get('user/mentor-tutors/{authorization?}', [ExtClientController::class, 'getMentorTutors']);
 
         Route::get('program/list/{authorization?}', [ExtClientProgramController::class, 'getSuccessPrograms']);
-        Route::get('user/identify/email/{email}', [ExtClientController::class, 'identifyUserByEmail']);
     });
 });
 

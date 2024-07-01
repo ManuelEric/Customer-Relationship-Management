@@ -1690,6 +1690,7 @@ class ExtClientController extends Controller
     {
         /* Incoming request */
         $keyword = $request->get('keyword');
+        $paginate = $request->get('paginate'); # true will return paginate results, false will return all results 
 
         $user = \App\Models\User::query()->
             select('id', 'uuid', 'first_name', 'last_name', 'email', 'phone')->
@@ -1737,7 +1738,8 @@ class ExtClientController extends Controller
             return array_merge($base, $acceptedRole);
         });
 
-        $mappedUser = $mappedUser->paginate(10);
+        if ($paginate)
+            $mappedUser = $mappedUser->paginate(10);
         
         return response()->json($mappedUser);
     }
@@ -1770,20 +1772,5 @@ class ExtClientController extends Controller
             'message' => 'Information has been updated.'
         ]);
 
-    }
-
-    public function identifyUserByEmail(Request $request, $email)
-    {
-        $validator = Validator::make($email, ['email' => 'required|email']);
-
-        if ( $validator->fails() ) {
-            return response()->json([
-                'errors' => $validator
-            ], JsonResponse::HTTP_BAD_REQUEST);
-        }
-
-        $validated = $request->only(['email']);
-
-        return $validated;
     }
 }

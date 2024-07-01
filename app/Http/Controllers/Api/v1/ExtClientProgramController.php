@@ -11,7 +11,7 @@ class ExtClientProgramController extends Controller
     public function getSuccessPrograms(Request $request, $authorization = null): JsonResponse
     {
 
-        $programs = \App\Models\ClientProgram::
+        $b2cPrograms = \App\Models\ClientProgram::
         with([
             'client' => function ($query) {
                 $query->select('id', 'sch_id', 'first_name', 'last_name');
@@ -27,7 +27,7 @@ class ExtClientProgramController extends Controller
             }
         ])->successAndPaid()->select('clientprog_id', 'prog_id', 'client_id')->get();
 
-        $mappedPrograms = $programs->map(function ($data) {
+        $mappedB2CPrograms = $b2cPrograms->map(function ($data) {
 
             $clientprog_id = $data->clientprog_id;
             $invoice_id = $data->invoice->inv_id;
@@ -38,6 +38,7 @@ class ExtClientProgramController extends Controller
             $school_name = $data->client->school ? $data->client->school->sch_name : null;
 
             return [
+                'category' => 'b2c',
                 'clientprog_id' => $clientprog_id,
                 'invoice_id' => $invoice_id,
                 'program_name' => $program_name,
@@ -50,6 +51,40 @@ class ExtClientProgramController extends Controller
             ];
         });
 
-        return response()->json($mappedPrograms);
+        $b2bPrograms = \App\Models\SchoolProgram::
+        with([
+            'school' => function ($query) {
+                $query->select('sch_id', 'sch_name');
+            },
+            'invoiceB2b' => function ($query) {
+                $query->select('schprog_id', 'invb2b_id');
+            },
+            'program' => function ($query) {
+                $query->select('prog_id', 'main_prog_id', 'prog_program');
+            }
+        ])->success()->programIs('Academic & Test Preparation')->select('tbl_sch_prog.id', 'prog_id', 'sch_id')->get();
+
+        $mappedB2BPrograms = $b2bPrograms->map(function ($data) {
+
+            $schprog_id = $data->id;
+            $invoiceb2b_id = $data->invoiceB2b->invb2b_id;
+            $program_name = $data->program->program_name;
+            $school_name = $data->school->sch_name;
+
+            return [
+                'category' => 'b2b',
+                'schprog_id' => $schprog_id,
+                'invoice_id' => $invoiceb2b_id,
+                'program_name' => $program_name,
+                'client' => [
+                    'school_name' => $school_name,
+                ]
+            ];
+        });
+        
+
+        $programs = $mappedB2CPrograms->merge($mappedB2BPrograms);
+
+        return response()->json($programs);
     }
 }
