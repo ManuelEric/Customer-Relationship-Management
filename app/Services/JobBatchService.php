@@ -102,6 +102,7 @@ class JobBatchService
                             break;
         
                     }
+                    break;
 
                 case 'export':
                     switch ($type) {

@@ -142,8 +142,8 @@ class Kernel extends ConsoleKernel
         # Get took IA
         $schedule->command('get:took_ia new-lead')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
         $schedule->command('get:took_ia potential')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
-        $schedule->command('get:took_ia mentee')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
-        $schedule->command('get:took_ia non-mentee')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
+        // $schedule->command('get:took_ia mentee')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
+        // $schedule->command('get:took_ia non-mentee')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
         // $schedule->command('get:took_ia inactive')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
         // $schedule->command('get:took_ia alumni-mentee')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
         // $schedule->command('get:took_ia alumni-non-mentee')->withoutOverlapping()->everyFiveMinutes()->onOneServer();

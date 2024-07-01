@@ -53,6 +53,8 @@ class ProcessGetTookIA implements ShouldQueue
 
         $response = Http::post(env('EDUALL_ASSESSMENT_URL') . 'api/get/took-ia-bulk', ['uuid_crm' => $this->clientData]);
 
+        $clientUUIDS = [];
+
         if ($response->failed()){
             Log::warning('Fetch took ia failed');
             return;
@@ -61,12 +63,15 @@ class ProcessGetTookIA implements ShouldQueue
         if ($response->ok()){
             if(count($response['data']) > 0){
                 foreach ($response['data'] as $val) {
+                    $clientUUIDS[] = $val['uuid'];
                     $userClient = UserClient::where('uuid', $val['uuid']);
                     $userClient->timestamp = false;
                     $userClient->update(['took_ia' => $val['took_ia']]);
                     $userClient->timestamp = true;
                 }
             }
+
+            Log::info('Successfully updated took IA');
         }
        
 

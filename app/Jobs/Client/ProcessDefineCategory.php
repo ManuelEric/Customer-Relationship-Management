@@ -81,6 +81,11 @@ class ProcessDefineCategory implements ShouldQueue
                     - Have clientprogram & (not join admission with status success (1) where prog running status == done (2))
                 */
 
+                if($student->is_verified == 'N'){
+                    Log::warning('Client with id '. $student->id .', failed to determine its category because it has not been verified yet');
+                    continue;
+                }
+
 
                 $categories = New Collection;
 
@@ -159,7 +164,7 @@ class ProcessDefineCategory implements ShouldQueue
                 //     'alumniNonMentee' => $alumniNonMentee,
                 // ];
 
-                $this->clientRepository->updateClient($student->id, ['category' => $category]);
+                $clientRepository->updateClient($student->id, ['category' => $category]);
                 
                 $updatedClients[] = [
                     'client_id' => $student->id,
