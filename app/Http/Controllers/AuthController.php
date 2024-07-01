@@ -85,8 +85,18 @@ class AuthController extends Controller
             } else {
 
                 if ($user->roles()->where('role_name', 'Admin')->exists() && $user->department()->where('dept_name', 'Client Management')->exists()) {
+                     # create access token 
+                    # in order to access api with data session
+                    if (!$token = $user->createToken('Grant User Access', $scopes)->accessToken) 
+                        Log::error('Failed to generate token');
+                        
                     $scopes = ['sales-admin'];
-                    $request->session()->put('user_role', 'SalesAdmin');
+                    $request->session()->put(
+                        [
+                            'access_token' => $token,
+                            'user_role', 'SalesAdmin'
+                        ]
+                    );
                 } 
                 
             }
