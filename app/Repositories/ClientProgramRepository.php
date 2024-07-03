@@ -18,6 +18,7 @@ use App\Models\UserClient;
 use App\Models\v1\ClientProgram as CRMClientProgram;
 use App\Models\ViewClientProgram;
 use App\Models\ViewClientRefCode;
+use App\Models\ViewProgram;
 use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -393,19 +394,19 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     })
                     # search by main program 
                     ->when(isset($searchQuery['mainProgram']) && count($searchQuery['mainProgram']) > 0, function ($query) use ($searchQuery) {
-                        $query->whereIn('main_prog_id', $searchQuery['mainProgram']);
+                        $query->whereIn('p.main_prog_id', $searchQuery['mainProgram']);
                     })
                     # search by program name 
                     ->when(isset($searchQuery['programName']) && count($searchQuery['programName']) > 0, function ($query) use ($searchQuery) {
-                        $query->whereIn('prog_id', $searchQuery['programName']);
+                        $query->whereIn('p.prog_id', $searchQuery['programName']);
                     })
                     # search by school name 
                     ->when(isset($searchQuery['schoolName']), function ($query) use ($searchQuery) {
-                        $query->whereIn('sch_id', $searchQuery['schoolName']);
+                        $query->whereIn('sch.sch_id', $searchQuery['schoolName']);
                     })
                     # search by conversion lead
                     ->when(isset($searchQuery['leadId']), function ($query) use ($searchQuery) {
-                        $query->whereIn('lead_id', $searchQuery['leadId']);
+                        $query->whereIn('cpl.lead_id', $searchQuery['leadId']);
                     })
                     # search by grade
                     ->when(isset($searchQuery['grade']), function ($query) use ($searchQuery) {
@@ -423,7 +424,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     })
                     # search by status
                     ->when(isset($searchQuery['status']) && $searchQuery['status'] != null, function ($query) use ($searchQuery) {
-                        $query->whereIn('status', $searchQuery['status']);
+                        $query->whereIn('tbl_client_prog.status', $searchQuery['status']);
                     })
                     # search by date
                     # when start date && end date filled
@@ -433,9 +434,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                             $no = 0;
                             foreach ($fieldKey as $key => $val) {
                                 if ($no == 0)
-                                    $subQuery->whereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
+                                    $subQuery->whereBetween('tbl_client_prog.'. $val, [$searchQuery['startDate'], $searchQuery['endDate']]);
                                 else
-                                    $subQuery->orWhereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
+                                    $subQuery->orWhereBetween('tbl_client_prog.'. $val, [$searchQuery['startDate'], $searchQuery['endDate']]);
                         
                                 $no++;
                             }
@@ -446,9 +447,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         $no = 0;
                         foreach ($fieldKey as $key => $val) {
                             if ($no == 0)
-                                $query->whereBetween($val, [$searchQuery['startDate'], $searchQuery['startDate']]);
+                                $query->whereBetween('tbl_client_prog.'. $val, [$searchQuery['startDate'], $searchQuery['startDate']]);
                             else
-                                $query->orWhereBetween($val, [$searchQuery['startDate'], $searchQuery['startDate']]);
+                                $query->orWhereBetween('tbl_client_prog.'. $val, [$searchQuery['startDate'], $searchQuery['startDate']]);
                 
                             $no++;
                         }
@@ -458,9 +459,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         $no = 0;
                         foreach ($fieldKey as $key => $val) {
                             if ($no == 0)
-                                $query->whereBetween($val, [$searchQuery['endDate'], $searchQuery['endDate']]);
+                                $query->whereBetween('tbl_client_prog.'. $val, [$searchQuery['endDate'], $searchQuery['endDate']]);
                             else
-                                $query->orWhereBetween($val, [$searchQuery['endDate'], $searchQuery['endDate']]);
+                                $query->orWhereBetween('tbl_client_prog.'. $val, [$searchQuery['endDate'], $searchQuery['endDate']]);
                 
                             $no++;
                         }
@@ -557,12 +558,12 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
     public function getAllProgramOnClientProgram()
     {
-        return ViewClientProgram::distinct('program_name')->select('program_name', 'prog_id')->get();
+        return ViewProgram::distinct('program_name')->select('program_name', 'prog_id')->get();
     }
 
     public function getAllMainProgramOnClientProgram()
     {
-        return ViewClientProgram::distinct('main_prog_name')->select('main_prog_name', 'main_prog_id')->get();
+        return ViewProgram::distinct('main_prog_name')->select('main_prog_name', 'main_prog_id')->get();
     }
 
     public function getAllConversionLeadOnClientProgram()
@@ -578,10 +579,16 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
     public function getAllPICOnClientProgram()
     {
-        return ViewClientProgram::
-                leftJoin('users', 'users.id', '=', 'clientprogram.empl_id')->
-                distinct('empl_id')->
-                select('empl_id', 'pic_name', 'users.uuid')->get();
+        $role = 'Employee';
+        $department = 'Client Management';
+
+        return User::whereHas('roles', function ($query) use ($role) {
+                $query->where('role_name', 'like', '%'.$role);
+                })->whereHas('department', function ($query) use ($department) {
+                    $query->where('dept_name', 'like', '%'.$department.'%');
+                })->where('active', 1)
+                ->select(DB::raw('id as empl_id'), DB::raw('CONCAT(users.first_name, " ", COALESCE(users.last_name, "")) as pic_name'), 'uuid')
+                ->orderBy('first_name', 'asc')->orderBy('last_name', 'asc')->get();
     }
 
     public function getClientProgramById($clientProgramId)

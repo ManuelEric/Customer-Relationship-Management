@@ -147,9 +147,24 @@ class ClientProgramController extends Controller
         $programs = $this->clientProgramRepository->getAllProgramOnClientProgram();
         $mainPrograms = $this->clientProgramRepository->getAllMainProgramOnClientProgram();
         $schools = $this->schoolRepository->getAllSchools();
-        $conversion_leads = $this->clientProgramRepository->getAllConversionLeadOnClientProgram();
+        // $conversion_leads = $this->clientProgramRepository->getAllConversionLeadOnClientProgram();
         $mentor_tutors = $this->clientProgramRepository->getAllMentorTutorOnClientProgram();
         $pics = $this->clientProgramRepository->getAllPICOnClientProgram();
+        $main_leads = $this->leadRepository->getAllMainLead();
+        $main_leads = $main_leads->map(function ($item) {
+            return [
+                'lead_id' => $item->lead_id,
+                'main_lead' => $item->main_lead
+            ];
+        });
+        $sub_leads = $this->leadRepository->getAllKOLlead();
+        $sub_leads = $sub_leads->map(function ($item) {
+            return [
+                'lead_id' => $item->lead_id,
+                'main_lead' => $item->sub_lead
+            ];
+        });
+        $conversion_leads = $main_leads->merge($sub_leads);
 
         return view('pages.program.client-program.index')->with(
             [

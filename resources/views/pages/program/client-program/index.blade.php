@@ -84,9 +84,9 @@
                             <select name="conversion_lead[]" class="select form-select form-select-sm w-100" multiple
                                 id="conversion-lead">
                                 @foreach ($conversion_leads as $lead)
-                                    <option value="{{ $lead->lead_id }}"
-                                        @if ($request->get('conversion_lead') !== null && in_array($lead->lead_id, $request->get('conversion_lead'))) {{ 'selected' }} @endif>
-                                        {{ $lead->conversion_lead }}</option>
+                                    <option value="{{ $lead['lead_id'] }}"
+                                        @if ($request->get('conversion_lead') !== null && in_array($lead['lead_id'], $request->get('conversion_lead'))) {{ 'selected' }} @endif>
+                                        {{ $lead['main_lead'] }}</option>
                                 @endforeach
                             </select>
                         </div>

@@ -445,8 +445,13 @@ class ClientRepository implements ClientRepositoryInterface
                 'parent.mail as parent_mail',
                 'parent.phone as parent_phone'
             ])->selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
-            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
-            leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
+            // leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 
+                    DB::raw('( SELECT
+                        MAX(parent_id) parent_id
+                        FROM tbl_client_relation as relation
+                        WHERE relation.child_id = client.id
+                    )'))->
             # code below is commented out
             # because when code below uncommented then clients that has running admission program and running non-admission program will not be able to show on the list
             // whereDoesntHave('clientProgram', function ($subQuery) {
@@ -525,9 +530,13 @@ class ClientRepository implements ClientRepositoryInterface
                 'parent.phone as parent_phone'
             ])->
             selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
-            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
-            leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
-            
+            // leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 
+                    DB::raw('( SELECT
+                        MAX(parent_id) parent_id
+                        FROM tbl_client_relation as relation
+                        WHERE relation.child_id = client.id
+                    )'))->
             // where(function ($r) {
 
             //     $r->
