@@ -303,35 +303,36 @@
                     ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
                 ],
                 buttons: [
-                    'pageLength', {
-                        extend: 'excel',
-                        text: 'Export to Excel',
-                        exportOptions: {
-                            format: {
-                                body: function (data, row, column, node){
-                                    var clearHtml = '';
-                                    var result = '';
-                                    if(column === 2){
-                                        clearHtml = data.replace(/<[^>]*>?/gm, '');
-                                        if (clearHtml.indexOf('{}') === -1) {
-                                            result = clearHtml.replace(/{.*}/, '');
-                                        }
-                                    }else if(column === 1 || column === 18 || column === 28){
-                                        result = data.replace(/<[^>]*>?/gm, '');
-                                    }else{
-                                        result = data;
-                                    }
-                                    return result;
-                                }
-                            }
-                        },
-                    },
+                    'pageLength', 
                     // {
-                    //     text: 'Export to Spreadsheet',
-                    //     action: function(e, dt, node, config) {
-                    //         exportData('client-program');
-                    //     }
+                    //     extend: 'excel',
+                    //     text: 'Export to Excel',
+                    //     exportOptions: {
+                    //         format: {
+                    //             body: function (data, row, column, node){
+                    //                 var clearHtml = '';
+                    //                 var result = '';
+                    //                 if(column === 2){
+                    //                     clearHtml = data.replace(/<[^>]*>?/gm, '');
+                    //                     if (clearHtml.indexOf('{}') === -1) {
+                    //                         result = clearHtml.replace(/{.*}/, '');
+                    //                     }
+                    //                 }else if(column === 1 || column === 18 || column === 28){
+                    //                     result = data.replace(/<[^>]*>?/gm, '');
+                    //                 }else{
+                    //                     result = data;
+                    //                 }
+                    //                 return result;
+                    //             }
+                    //         }
+                    //     },
                     // },
+                    {
+                        text: 'Export to Spreadsheet',
+                        action: function(e, dt, node, config) {
+                            exportData('client-program');
+                        }
+                    },
                     {
                         text: '<i class="bi bi-bag-plus"></i> Create Bundle',
                         action: function(e, dt, node, config) {
@@ -404,12 +405,12 @@
                         }
                     },
                     {
-                        data: 'program_name',
+                        data: 'program_names',
                         name: 'p.program_name',
-                        render: function(data, type, row, meta) {
-                            return row.referral_type == "Out" ? row.additional_prog_name : row
-                                .program_name
-                        }
+                        // render: function(data, type, row, meta) {
+                        //     return row.referral_type == "Out" ? row.additional_prog_name : row
+                        //         .program_name
+                        // }
                     },
                     {
                         data: 'register_as',
@@ -784,7 +785,7 @@
                 showLoading()
                 type = type === '' ? 'all' : type;
                 axios
-                    .get("{{ url('api/export') }}/" + type, {
+                    .get("{{ url('api/export') }}/" + type + '/model', {
                         headers:{
                             'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
                         }
@@ -792,7 +793,7 @@
                         
                         var data = response.data;
                         var batch_id = data.batch_id;
-
+                        html = '';
                         html += `<div id="loading-bar">`;
                         html += `<div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="height:25px;">`;
                         html += `<div class="progress-bar progress-bar-striped progress-bar-animated" id="bar" style="width: 0%">0%</div>`;
@@ -813,7 +814,6 @@
                                     'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
                                 }
                             }).then(function(response){
-                                console.log(response);
                                 $('#bar').css({'width': response.data.progress + '%'});
                                 $('#bar').text(response.data.progress + '%');
                                 $('#total').html(`Exporting ${response.data.total_imported}/${response.data.total_data}`);
@@ -821,7 +821,6 @@
                                 i++;
 
                                 if(response.data.progress == 100){
-                                    console.log('100 fully');
                                     $("#modal-notif-export").modal('hide');
                                     var urlSpreadsheet  = 'https://docs.google.com/spreadsheets/d/1aPIULau0i3p1UoJVVsX8SnxIXVcIW6I42s9AwgofV-U/edit'
                                     var tab_id = '';
@@ -845,7 +844,7 @@
                                             tab_id = '1330533397';
                                             break;
                                         case 'client-program':
-                                            tab_id = '969544076';
+                                            tab_id = '310613762';
                                             break;
                                         default:
                                             notification('error', 'Invalid client category!');

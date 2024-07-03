@@ -909,7 +909,7 @@
                     if (moment(data['created_at']).format('YYYY-MM-DD') == currentDate) {
                         $('td', row).addClass('table-success');
                     }
-                }
+                },
             });
 
             @php
@@ -1245,7 +1245,7 @@
             showLoading()
             type = type === '' ? 'all' : type;
             axios
-                .get("{{ url('api/export') }}/" + type, {
+                .get("{{ url('api/export') }}/" + type + '/collection', {
                     headers:{
                         'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
                     }
@@ -1254,6 +1254,7 @@
                     var data = response.data;
                     var batch_id = data.batch_id;
 
+                    html = '';
                     html += `<div id="loading-bar">`;
                     html += `<div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="height:25px;">`;
                     html += `<div class="progress-bar progress-bar-striped progress-bar-animated" id="bar" style="width: 0%">0%</div>`;
@@ -1274,7 +1275,7 @@
                                 'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
                             }
                         }).then(function(response){
-                            console.log(response);
+
                             $('#bar').css({'width': response.data.progress + '%'});
                             $('#bar').text(response.data.progress + '%');
                             $('#total').html(`Exporting ${response.data.total_imported}/${response.data.total_data}`);
@@ -1282,7 +1283,7 @@
                             i++;
 
                             if(response.data.progress == 100){
-                                console.log('100 fully');
+
                                 $("#modal-notif-export").modal('hide');
                                 var urlSpreadsheet  = 'https://docs.google.com/spreadsheets/d/1aPIULau0i3p1UoJVVsX8SnxIXVcIW6I42s9AwgofV-U/edit'
                                 var tab_id = '';

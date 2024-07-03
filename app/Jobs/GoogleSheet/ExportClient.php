@@ -152,7 +152,7 @@ class ExportClient implements ShouldQueue
             $index = $dataJobBatches->total_imported + 2;
         }
         Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet($sheetName)->range('A'. $index)->update($data);
-        JobBatches::where('id', $this->batch()->id)->update(['total_imported' => $dataJobBatches->total_imported + count($data)]); 
+        JobBatches::where('id', $this->batch()->id)->update(['total_imported' => $dataJobBatches->total_imported + count($data), 'category' => 'Export', 'type' => 'Student']); 
 
     }
     

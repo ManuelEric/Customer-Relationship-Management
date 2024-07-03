@@ -159,7 +159,7 @@ class ImportClientProgram implements ShouldQueue
         
         $logDetailsCollection = Collect($logDetails);
         $logDetailsMerge = $logDetailsCollection->merge(json_decode($dataJobBatches->log_details));
-        JobBatches::where('id', $this->batch()->id)->update(['total_imported' => $dataJobBatches->total_imported + count($imported_date), 'log_details' => json_encode($logDetailsMerge), 'type' => 'client-program']);
+        JobBatches::where('id', $this->batch()->id)->update(['total_imported' => $dataJobBatches->total_imported + count($imported_date), 'log_details' => json_encode($logDetailsMerge), 'type' => 'client-program', 'category' => 'Import']);
         
 
     }

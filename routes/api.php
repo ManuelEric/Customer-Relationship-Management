@@ -249,7 +249,8 @@ Route::group(['middleware' => 'auth:api', 'prefix' => 'import'], function () {
 # Export data to google sheet
 Route::group(['middleware' => 'auth:api', 'prefix' => 'export'], function () {
 
-    Route::get('{type}', [GoogleSheetController::class, 'exportData']);
+    // From mean type data {collection or model}
+    Route::get('{type}/{from}', [GoogleSheetController::class, 'exportData']);
 });
 
 Route::get('/batch/{batchId}', [GoogleSheetController::class, 'findBatch'])->middleware(['auth:api']);

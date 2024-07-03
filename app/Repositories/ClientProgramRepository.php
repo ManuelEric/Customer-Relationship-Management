@@ -284,7 +284,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     
     }
     
-    public function getAllClientProgramDataTables($searchQuery = NULL)
+    public function getAllClientProgramDataTables($searchQuery = NULL, $asDatatables = true)
     {
         # default 
         $fieldKey = ["success_date", "failed_date", "refund_date", "created_at"];
@@ -333,6 +333,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     leftJoin('tbl_reason as r', 'r.reason_id', '=', 'tbl_client_prog.reason_id')->
                     leftJoin('users as u', 'u.id', '=', 'tbl_client_prog.empl_id')->
                     select([
+                        'c.id as client_id', 
                         'tbl_client_prog.clientprog_id', 
                         'tbl_client_prog.prog_id',
                         'tbl_client_prog.referral_code',
@@ -343,7 +344,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         'c.phone AS student_phone',
                         'sch.sch_name AS school_name',
                         'c.grade_now AS grade_now',
-                        'p.program_name AS program_name',
+                        'p.program_name AS program_names',
                         'c.register_as AS register_as',
                         DB::raw("CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, '')) AS parent_fullname"),
                         'parent.phone as parent_phone',
@@ -375,7 +376,13 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         'tbl_client_prog.failed_date',
                         'tbl_client_prog.success_date',
                         'tbl_client_prog.created_at',
-                    ])->
+                    ]);
+
+                    if(!$asDatatables){
+                        return $model;
+                    }
+                    
+                    $model->
                     when(Session::get('user_role') == 'Employee', function ($subQuery) {
                         $subQuery->whereHas('internalPic', function ($query2) {
                             $query2->where('users.id', auth()->user()->id);

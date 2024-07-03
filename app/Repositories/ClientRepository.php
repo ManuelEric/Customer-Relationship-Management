@@ -510,8 +510,8 @@ class ClientRepository implements ClientRepositoryInterface
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified()->
-            groupBy('client.id');
+            isVerified();
+            // groupBy('client.id');
 
         return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
     }
@@ -588,8 +588,8 @@ class ClientRepository implements ClientRepositoryInterface
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified()->
-            groupBy('client.id');
+            isVerified();
+            // groupBy('client.id');
 
         return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
     }
@@ -637,7 +637,7 @@ class ClientRepository implements ClientRepositoryInterface
             //     $subQuery->whereIn('status', [0, 1])->whereIn('prog_running_status', [0, 1]);
             // })->
 
-            where('client.category', 'alumin-mentee')->
+            where('client.category', 'alumni-mentee')->
             when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {

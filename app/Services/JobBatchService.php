@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Jobs\AnalyticsImportJob;
 use App\Jobs\Client\ProcessGetTookIA;
 use App\Jobs\GoogleSheet\ExportClient;
+use App\Jobs\GoogleSheet\ExportClientProgram;
 use App\Jobs\GoogleSheet\ImportClientEvent;
 use App\Jobs\GoogleSheet\ImportClientProgram;
 use App\Jobs\GoogleSheet\ImportParent;
@@ -58,7 +59,7 @@ class JobBatchService
         return $batch->id;
     }
 
-    public function jobBatch($data, $category, $type, $sizeChunk): string
+    public function jobBatchFromCollection($data, $category, $type, $sizeChunk): string
     {
        
         $batch = Bus::batch([])
@@ -131,6 +132,38 @@ class JobBatchService
             
         }
 
+
+        return $batch->id;
+    }
+
+    public function jobBatchFromModel($data, $category, $type, $sizeChunk)
+    {
+        $result = [];
+
+        $i = 0;
+        $data->chunk($sizeChunk, function ($chunk) use(&$i, &$result, $sizeChunk) {
+            foreach ($chunk as $val) {
+                $result[$i][] = $val;
+            }
+            $i++;
+
+        });
+
+        $batch = Bus::batch([])
+            ->name($category . '-' . $type)
+            ->dispatch();
+
+        foreach ($result as $val) {
+            switch ($category) {
+                case 'export':
+                    switch ($type) {
+                        case 'client-program':
+                            $batch->add(new ExportClientProgram($val));
+                            break;
+                    }
+                    break;
+            }
+        }
 
         return $batch->id;
     }

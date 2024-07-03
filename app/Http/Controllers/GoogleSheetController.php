@@ -112,7 +112,7 @@ class GoogleSheetController extends Controller
                     ]);
                 }
 
-                $batchID = (new JobBatchService())->jobBatch(Collect($arrInputData), 'import', 'parent', 10);
+                $batchID = (new JobBatchService())->jobBatchFromCollection(Collect($arrInputData), 'import', 'parent', 10);
 
                 JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 
@@ -198,7 +198,7 @@ class GoogleSheetController extends Controller
                     ]);
                 }
 
-                $batchID = (new JobBatchService())->jobBatch(Collect($arrInputData), 'import', 'student', 10);
+                $batchID = (new JobBatchService())->jobBatchFromCollection(Collect($arrInputData), 'import', 'student', 10);
 
                 JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 
@@ -276,7 +276,7 @@ class GoogleSheetController extends Controller
                 }
 
     
-                $batchID = (new JobBatchService())->jobBatch(Collect($arrInputData), 'import', 'teacher', 10);
+                $batchID = (new JobBatchService())->jobBatchFromCollection(Collect($arrInputData), 'import', 'teacher', 10);
 
                 JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 
@@ -362,7 +362,7 @@ class GoogleSheetController extends Controller
                     ]);
                 }
 
-                $batchID = (new JobBatchService())->jobBatch(Collect($arrInputData), 'import', 'client-event', 10);
+                $batchID = (new JobBatchService())->jobBatchFromCollection(Collect($arrInputData), 'import', 'client-event', 10);
 
                 JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 
@@ -446,7 +446,7 @@ class GoogleSheetController extends Controller
                     ]);
                 }
 
-                $batchID = (new JobBatchService())->jobBatch(Collect($arrInputData), 'import', 'client-program', 10);
+                $batchID = (new JobBatchService())->jobBatchFromCollection(Collect($arrInputData), 'import', 'client-program', 10);
 
                 JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 
@@ -747,6 +747,7 @@ class GoogleSheetController extends Controller
     public function exportData(Request $request)
     {
         $type = $request->route('type');
+        $from = $request->route('from'); # From mean type data {collection or model}
         $data = [];
         DB::beginTransaction();
         try {
@@ -769,9 +770,9 @@ class GoogleSheetController extends Controller
                 case 'inactive':
                     $data = $this->clientRepository->getInactiveStudent(false ,null, []);
                     break;
-                // case 'client-program':
-                //     $data = $this->clientProgramRepository->getAllClientProgramDataTables(['clientId' => null, 'programName' => null, 'mainProgram' => null, 'schoolName' => null, 'leadId' => null, 'grade' => null, 'status' => null, 'emplUUID' => null, 'startDate' => null, 'endDate' => null, 'userId' => null] , false);
-                //     break;
+                case 'client-program':
+                    $data = $this->clientProgramRepository->getAllClientProgramDataTables([] , false);
+                    break;
                 
                 default:
                     return response()->json([
@@ -781,8 +782,19 @@ class GoogleSheetController extends Controller
                     break;
             }
 
-            $batchID = (new JobBatchService())->jobBatch($data, 'export', $type, 50);
-            JobBatches::where('id', $batchID)->update(['total_data' => $data->count()]);
+            switch ($from) {
+                case 'collection':
+                    $count = $data->count();
+                    $batchID = (new JobBatchService())->jobBatchFromCollection($data, 'export', $type, 100);
+                    break;
+
+                case 'model':
+                    $count = $data->get()->count();
+                    $batchID = (new JobBatchService())->jobBatchFromModel($data, 'export', $type, 100);
+                    break;
+            }
+
+            JobBatches::where('id', $batchID)->update(['total_data' => $count]);
 
             DB::commit();
         } catch (Exception $e) {
@@ -816,7 +828,11 @@ class GoogleSheetController extends Controller
             $data->put('total_imported', $jobBatches->total_imported);
     
             if($jobBatches->finished_at != null){
-                $this->logSuccess('store', 'Import '. $jobBatches->type, $jobBatches->type, auth()->guard('api')->user()->first_name . ' ' . auth()->guard('api')->user()->last_name, Collect(json_decode($jobBatches->log_details, true)));
+                if($jobBatches->category != null & $jobBatches->category == 'Import'){
+                    $this->logSuccess('store', 'Import '. $jobBatches->type, $jobBatches->type, auth()->guard('api')->user()->first_name . ' ' . auth()->guard('api')->user()->last_name, Collect(json_decode($jobBatches->log_details, true)));
+                }else{
+                    Log::notice('Successfully exported data '. $jobBatches->type);
+                }
             } 
         } catch (Exception $e) {
             return response()->json([

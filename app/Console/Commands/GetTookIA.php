@@ -48,27 +48,27 @@ class GetTookIA extends Command
 
         switch ($type) {
             case 'new-lead':
-                (new JobBatchService())->jobBatch(Collect($this->clientRepository->getClientsByCategory('new-lead')->where('took_ia', 0)->pluck('uuid')), 'process', 'took-ia', 50);
+                (new JobBatchService())->jobBatchFromCollection(Collect($this->clientRepository->getClientsByCategory('new-lead')->where('took_ia', 0)->pluck('uuid')), 'process', 'took-ia', 50);
                 break;
 
             case 'potential':
-                (new JobBatchService())->jobBatch(Collect($this->clientRepository->getClientsByCategory('potential')->where('took_ia', 0)->pluck('uuid')), 'process', 'took-ia', 50);
+                (new JobBatchService())->jobBatchFromCollection(Collect($this->clientRepository->getClientsByCategory('potential')->where('took_ia', 0)->pluck('uuid')), 'process', 'took-ia', 50);
                 break;
 
             case 'mentee':
-                (new JobBatchService())->jobBatch(Collect($this->clientRepository->getClientsByCategory('mentee')->where('took_ia', 0)->pluck('uuid')), 'process', 'took-ia', 50);
+                (new JobBatchService())->jobBatchFromCollection(Collect($this->clientRepository->getClientsByCategory('mentee')->where('took_ia', 0)->pluck('uuid')), 'process', 'took-ia', 50);
                 break;
 
             case 'non-mentee':
-                (new JobBatchService())->jobBatch(Collect($this->clientRepository->getClientsByCategory('non-mentee')->where('took_ia', 0)->pluck('uuid')), 'process', 'took-ia', 50);
+                (new JobBatchService())->jobBatchFromCollection(Collect($this->clientRepository->getClientsByCategory('non-mentee')->where('took_ia', 0)->pluck('uuid')), 'process', 'took-ia', 50);
                 break;
 
             case 'alumni-mentee':
-                (new JobBatchService())->jobBatch(Collect($this->clientRepository->getClientsByCategory('alumni-mentee')->where('took_ia', 0)->pluck('uuid')), 'process', 'took-ia', 50);
+                (new JobBatchService())->jobBatchFromCollection(Collect($this->clientRepository->getClientsByCategory('alumni-mentee')->where('took_ia', 0)->pluck('uuid')), 'process', 'took-ia', 50);
                 break;
 
             case 'alumni-non-mentee':
-                (new JobBatchService())->jobBatch(Collect($this->clientRepository->getClientsByCategory('alumni-non-mentee')->where('took_ia', 0)->pluck('uuid')), 'process', 'took-ia', 50);
+                (new JobBatchService())->jobBatchFromCollection(Collect($this->clientRepository->getClientsByCategory('alumni-non-mentee')->where('took_ia', 0)->pluck('uuid')), 'process', 'took-ia', 50);
                 break;
         
         }

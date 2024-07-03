@@ -71,13 +71,54 @@ class ExportClientProgram implements ShouldQueue
         }
 
         foreach ($clientProgs as $clientProg) {
-            $i == 1 ? Log::debug($clientProg) : null;
             $customClientProgId = 'CP-' . $clientProg->clientprog_id;
+
+            # Set referral name
             $referral_name = '';
             if (isset($clientProg->referral_code)){
                 $referral = ViewClientRefCode::where('id', (int) filter_var($clientProg->referral_code, FILTER_SANITIZE_NUMBER_INT))->first();
                 $referral_name = isset($referral) ? $referral->full_name : '';
 
+            }
+
+            # Set status
+            $status = '';
+            if(isset($clientProg->status)){
+                switch ($clientProg->status) {
+                    case 0:
+                        $status = 'Pending';
+                        break;
+                        
+                    case 1:
+                        $status = 'Success';
+                        break;
+
+                    case 2:
+                        $status = 'Failed';
+                        break;
+
+                    case 3:
+                        $status = 'Refund';
+                        break;
+                }
+            }
+
+            # Set prog running status
+            $prog_running_status = '';
+            if(isset($clientProg->prog_running_status)){
+                switch ($clientProg->prog_running_status) {
+                    case 0:
+                        $prog_running_status = 'Not Yet';
+                        break;
+                        
+                    case 1:
+                        $prog_running_status = 'Ongoing';
+                        break;
+
+                    case 2:
+                        $prog_running_status = 'Done';
+                        break;
+                }
             }
 
             $data[] = [
@@ -87,7 +128,7 @@ class ExportClientProgram implements ShouldQueue
                 $this->replaceNullValue($clientProg['student_phone']),
                 $this->replaceNullValue($clientProg['school_name']),
                 $this->replaceNullValue($clientProg['grade_now']),
-                $this->replaceNullValue($clientProg['program_name']),
+                $this->replaceNullValue($clientProg['program_names']),
                 $this->replaceNullValue($clientProg['register_as']),
                 $this->replaceNullValue($clientProg['parent_fullname']),
                 $this->replaceNullValue($clientProg['parent_phone']),
@@ -98,8 +139,8 @@ class ExportClientProgram implements ShouldQueue
                 $this->replaceNullValue($clientProg['conversion_lead']),
                 $referral_name,
                 $this->replaceNullValue(strip_tags($clientProg['notes'])),
-                $this->replaceNullValue($clientProg['status']),
-                $this->replaceNullValue($clientProg['prog_running_status']),
+                $status,
+                $prog_running_status,
                 $this->replaceNullValue($clientProg['reason_name']),
                 $this->replaceNullValue($clientProg['pic_name']),
                 $this->replaceNullValue(date('M d, Y', strtotime($clientProg['initconsult_date']))),
@@ -119,7 +160,7 @@ class ExportClientProgram implements ShouldQueue
             $index = $dataJobBatches->total_imported + 2;
         }
         Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet('Client Programs')->range('A'. $index)->update($data);
-        JobBatches::where('id', $this->batch()->id)->update(['total_imported' => $dataJobBatches->total_imported + count($data)]); 
+        JobBatches::where('id', $this->batch()->id)->update(['total_imported' => $dataJobBatches->total_imported + count($data), 'category' => 'Export', 'type' => 'client-program']); 
 
     }
     
