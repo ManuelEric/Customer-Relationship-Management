@@ -68,6 +68,24 @@ class AuthController extends Controller
             # set the default scopes
             $scopes = ['employee'];
             $request->session()->put('user_role', 'Employee');
+            
+            # if scope is employee
+            if (in_array('employee', $scopes)) {
+
+                # create access token 
+                # in order to access api with data session
+                if (!$token = $user->createToken('Grant User Access', $scopes)->accessToken) 
+                    Log::error('Failed to generate token');
+                
+                # store the access token
+                // $request->session()->put([
+                //     'access_token' => $token,
+                //     'scopes' => $scopes
+                // ]);
+                $request->session()->put('access_token', $token);
+                $request->session()->put('scope', $scopes);
+            }
+            
             if ($user->roles()->where('role_name', 'Super Admin')->exists()) {
                 $scopes = ['super-admin'];
                 $request->session()->put('user_role', 'SuperAdmin');
@@ -78,45 +96,29 @@ class AuthController extends Controller
                     Log::error('Failed to generate token');
                 
                 # store the access token
-                $request->session()->put([
-                    'access_token' => $token,
-                    'scopes' => $scopes
-                ]);
+                // $request->session()->put([
+                //     'access_token' => $token,
+                //     'scopes' => $scopes
+                // ]);
+                $request->session()->put('access_token', $token);
+                $request->session()->put('scope', $scopes);
             } else {
 
                 if ($user->roles()->where('role_name', 'Admin')->exists() && $user->department()->where('dept_name', 'Client Management')->exists()) {
-                     # create access token 
+                    # create access token 
                     # in order to access api with data session
                     if (!$token = $user->createToken('Grant User Access', $scopes)->accessToken) 
                         Log::error('Failed to generate token');
                         
                     $scopes = ['sales-admin'];
-                    $request->session()->put(
-                        [
-                            'access_token' => $token,
-                            'user_role', 'SalesAdmin'
-                        ]
-                    );
+                    $request->session()->put('access_token', $token);
+                    $request->session()->put('user_role', 'SalesAdmin');
                 } 
                 
             }
             
 
-            # if scope is employee
-            if (in_array('employee', $scopes)) {
-
-                # create access token 
-                # in order to access api with data session
-                if (!$token = $user->createToken('Grant User Access', $scopes)->accessToken) 
-                    Log::error('Failed to generate token');
-                
-                # store the access token
-                $request->session()->put([
-                    'access_token' => $token,
-                    'scopes' => $scopes
-                ]);
-            }
-            
+           
             return redirect()->intended('/dashboard2');
             
         }
