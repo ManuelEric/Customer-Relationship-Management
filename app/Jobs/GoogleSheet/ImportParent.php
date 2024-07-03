@@ -93,6 +93,7 @@ class ImportParent implements ShouldQueue
                 
                 if($checkExistChildren['isExist'] && $checkExistChildren['client'] != null){
                     $children = $checkExistChildren['client'];
+                    $childrenIds[] = $children;
                 }else if(!$checkExistChildren['isExist']){
                     $name = $this->explodeName($val['Children Name']);
                     $school = School::where('sch_name', $val['School'])->first();
@@ -118,9 +119,9 @@ class ImportParent implements ShouldQueue
                     $children = UserClient::create($childrenDetails);
                     $children->roles()->attach($roleId);
                     $parent->childrens()->attach($children);
+                    $childrenIds[] = $children['id'];
                 }
 
-                $childrenIds[] = $children['id'];
             }
 
             if (isset($val['Interested Program'])) {

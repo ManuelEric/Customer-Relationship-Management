@@ -4,6 +4,7 @@ namespace App\Console\Commands\Sync;
 
 use App\Interfaces\ClientRepositoryInterface;
 use App\Models\Client;
+use App\Models\ClientProgram;
 use App\Models\Corporate;
 use App\Models\EdufLead;
 use App\Models\Event;
@@ -129,9 +130,25 @@ class SyncData extends Command
                             break;
 
                         case 'mentee':
+                        case 'alumni-mentee':
                             $data[$key] = [$val->id, $val->full_name, $val->id . ' | ' . $val->full_name];
                             break;
-                 
+
+                        case 'tutoring-student':
+                            $subjects = [];
+                            if(isset($val->clientMentor) && $val->clientMentor()->where('type', 5)->count() > 0){
+                                $tutors = $val->clientMentor->pluck('id');
+                                if(count($tutors) > 0){
+                                    $users = User::whereIn('id', $tutors)->get();
+                                    foreach ($users as $user) {
+                                        $tutor_subject = $user->roles()->where('role_name', 'tutor')->pluck('tutor_subject')->toArray();
+                                        $subjects[] = count($tutor_subject) > 0 ? implode(", ", $tutor_subject) : null;
+                                    }
+                                }
+                            }
+
+                            $data[$key] = [$val->client->id, $val->client->full_name, $val->client->id . ' | ' . $val->client->full_name, count($subjects) > 0 ? implode(", ", $subjects) : ''];
+                            break;                 
                     }
 
                 }
@@ -152,7 +169,7 @@ class SyncData extends Command
             
 
         } catch (Exception $e) {
-            Log::error('Failed sync data '.$query['sheetName'], $e->getMessage());
+            Log::error('Failed sync data '.$query['sheetName'] . ': '. $e->getMessage());
         }
 
         return Command::SUCCESS;
@@ -308,6 +325,29 @@ class SyncData extends Command
 
                 $sheetName = 'Active Mentees';
                 $colUpdatedAt = 'D';
+                break;
+
+            case 'alumni-mentee':
+                $query = Client::whereHas('clientProgram', function ($subQuery) {
+                            $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
+                                $subQuery_2->where('prog_name', 'Admissions Mentoring');
+                            })->where('status', 1)->where('prog_running_status', 2);
+                        })->
+                        whereDoesntHave('clientProgram', function ($subQuery) {
+                            $subQuery->whereIn('status', [0, 1])->whereIn('prog_running_status', [0, 1]);
+                        });
+
+                $sheetName = 'Alumni Mentees';
+                $colUpdatedAt = 'D';
+                break;
+
+            case 'tutoring-student':
+                $query = ClientProgram::whereHas('program', function ($subQuery) {
+                    $subQuery->where('main_prog_id', 4);
+                })->where('status', 1)->groupBy('client_id');
+
+                $sheetName = 'Tutoring Students';
+                $colUpdatedAt = 'E';
                 break;
 
         }
