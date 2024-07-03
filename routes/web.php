@@ -55,21 +55,21 @@ Route::group(['middleware' => ['auth', 'auth.department']], function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('index');
     Route::get('dashboard2', function (Request $request) {
 
-        $endpoint = "https://api.quotable.io/quotes/random";
+        // $endpoint = "https://api.quotable.io/quotes/random";
 
-        # create 
-        $response = Http::get($endpoint);
+        // # create 
+        // $response = Http::get($endpoint);
         
         $data = null;
 
         # check status
-        if ($response->successful()) {
-            if(count(json_decode($response))> 0)
-            {
-                $decode = json_decode($response);
-                $data = $decode[0];
-            }
-        }
+        // if ($response->successful()) {
+        //     if(count(json_decode($response))> 0)
+        //     {
+        //         $decode = json_decode($response);
+        //         $data = $decode[0];
+        //     }
+        // }
     
         return view('pages.dashboard.blank-page')->with('data', $data);
     });
