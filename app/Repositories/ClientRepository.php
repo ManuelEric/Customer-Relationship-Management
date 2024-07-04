@@ -313,9 +313,13 @@ class ClientRepository implements ClientRepositoryInterface
                 'parent.phone as parent_phone',
             ])->
             selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
-            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
-            leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
-            // where(function ($q) {
+            // leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 
+            DB::raw('( SELECT
+                MAX(parent_id) parent_id
+                FROM tbl_client_relation as relation
+                WHERE relation.child_id = client.id
+            )'))->            // where(function ($q) {
             //     $q->
             //         doesntHave('clientProgram')->
             //         orWhere(function ($q_2) {
@@ -388,9 +392,13 @@ class ClientRepository implements ClientRepositoryInterface
                 'parent.phone as parent_phone'
             ])->
             selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
-            leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
-            leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
-           
+            // leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 
+            DB::raw('( SELECT
+                MAX(parent_id) parent_id
+                FROM tbl_client_relation as relation
+                WHERE relation.child_id = client.id
+            )'))->           
             // whereHas('clientProgram', function ($subQuery) {
             //     // $subQuery->whereIn('status', [0, 2, 3]); # because refund and cancel still marked as potential client
             //     $subQuery->where('status', 0); # because refund and cancel still marked as potential client
@@ -621,7 +629,40 @@ class ClientRepository implements ClientRepositoryInterface
             'parent.phone as parent_phone'
         ])
         // ->selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->whereIn('client.id', $clientStudent)->where('client.is_verified', 'Y')->whereNull('client.deleted_at');
-        ->selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->whereIn('client.category', ['new-lead', 'potential', 'mentee', 'non-mentee'])->where('client.is_verified', 'Y')->whereNull('client.deleted_at');
+        ->selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')
+        ->leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')
+        ->leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')
+        ->whereIn('client.category', ['new-lead', 'potential', 'mentee', 'non-mentee'])
+        ->where('client.is_verified', 'Y')
+        ->whereNull('client.deleted_at')
+        ->when(!empty($advanced_filter['school_name']), function ($subQuery) use ($advanced_filter) {
+            $subQuery->whereIn('school_name', $advanced_filter['school_name']);
+        })->when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
+            $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
+        })->when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
+            $querySearch->whereIn('lead_source', $advanced_filter['leads']);
+        })->when(!empty($advanced_filter['initial_programs']), function ($querySearch) use ($advanced_filter) {
+            $querySearch->whereIn('program_suggest', $advanced_filter['initial_programs']);
+        })->when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
+            $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
+        })->
+        when(!empty($advanced_filter['pic']), function ($querySearch) use ($advanced_filter) {
+            $querySearch->whereIn('client.pic_id', $advanced_filter['pic']);
+        })->
+        when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
+            $querySearch->whereIn('client.st_statusact', $advanced_filter['active_status']);
+        }, function ($subQuery) {
+            $subQuery->where('client.st_statusact', 1);
+        })->
+        when(!empty($advanced_filter['start_joined_date']) && empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+            $querySearch->whereDate('client.created_at', '>=', $advanced_filter['start_joined_date']);
+        })->
+        when(!empty($advanced_filter['end_joined_date']) && empty($advanced_filter['start_joined_date']), function ($querySearch) use ($advanced_filter) {
+            $querySearch->whereDate('client.created_at', '<=', $advanced_filter['end_joined_date']);
+        })->
+        when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+            $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
+        });
 
         return $query->orderBy('first_name', 'asc');
     }

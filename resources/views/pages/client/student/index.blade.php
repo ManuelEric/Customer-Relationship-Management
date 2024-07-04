@@ -218,7 +218,7 @@
                         <th>Country of Study Abroad</th>
                         <th>University Destination</th>
                         <th>Interest Major</th>
-                        <th>Joined Date</th>
+                        {{-- <th>Joined Date</th> --}}
                         <th>Scholarship Eligible</th>
                         <th>Assessment</th>
                         <th>Joined Date</th>
@@ -821,11 +821,11 @@
                         className: 'text-center',
                         defaultContent: '-'
                     },
-                    {
-                        data: 'dream_major',
-                        className: 'text-center',
-                        defaultContent: '-'
-                    },
+                    // {
+                    //     data: 'dream_major',
+                    //     className: 'text-center',
+                    //     defaultContent: '-'
+                    // },
                     {
                         data: 'scholarship',
                         className: 'text-center',
