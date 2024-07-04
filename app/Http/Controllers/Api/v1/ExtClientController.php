@@ -1658,11 +1658,17 @@ class ExtClientController extends Controller
     {   
         $incomingEmail = $request->get('email');
         
-        $query = \App\Models\User::with('roles')->whereHas('roles', function ($query) use ($incomingEmail) {
-            $query->whereIn('role_name', ['Mentor', 'Tutor']);
+        $query = \App\Models\User::with(
+                [
+                    'roles' => function ($query) {
+                        $query->select('role_name', 'tutor_subject', 'feehours', 'feesession');
+                    },
+                ]
+            )->whereHas('roles', function ($query) use ($incomingEmail) {
+            $query->whereIn('role_name', ['Mentor', 'Tutor'])->select('role_name');
         })->where('email', $incomingEmail);
 
-        $result = $query->exists() ? $query->select(['id', 'uuid', 'first_name', 'last_name', 'email', 'password'])->first() : null;
+        $result = $query->exists() ? $query->select('id', 'uuid', 'first_name', 'last_name', 'email', 'password')->first() : null;
 
         return response()->json($result);
     }
@@ -1691,14 +1697,19 @@ class ExtClientController extends Controller
         /* Incoming request */
         $keyword = $request->get('keyword');
         $paginate = $request->get('paginate'); # true will return paginate results, false will return all results 
+        $role = $request->get('role');
 
         $user = \App\Models\User::query()->
             select('id', 'uuid', 'first_name', 'last_name', 'email', 'phone')->
             with(['roles' => function ($query) {
                 $query->select('role_name', 'tutor_subject', 'feehours');
             }])->
-            whereHas('roles', function ($query) {
-                $query->whereIn('role_name', ['Mentor', 'Tutor']);
+            whereHas('roles', function ($query) use ($role) {
+                $query->when($role, function ($sub) use ($role) {
+                    $sub->where('role_name', $role);
+                }, function ($sub) use ($role) {
+                    $sub->whereIn('role_name', ['Mentor', 'Tutor']);
+                });
             })->
             when($keyword, function ($query) use ($keyword) {
                 $query->
@@ -1708,16 +1719,10 @@ class ExtClientController extends Controller
                         orWhereRaw('phone like ?', ['%'.$keyword.'%']);
                     });
             })->
+            whereNotNull('email')->
             get();
         
         $mappedUser = $user->map(function ($data) {
-            $base = [
-                'uuid' => $data['uuid'],
-                'first_name' => $data['first_name'],
-                'last_name' => $data['last_name'],
-                'email' => $data['email'],
-                'phone' => $data['phone']
-            ];
 
             $acceptedRole = [];
 
@@ -1727,15 +1732,24 @@ class ExtClientController extends Controller
                     continue;
 
 
-                $acceptedRole = [
+                $acceptedRole[] = [
                     'role' => $role['role_name'],
                     'tutor_subject' => $role['tutor_subject'],
-                    'feehours' => $role['feehours'],
+                    'fee_hours' => $role['feehours'],
+                    'fee_session' => $role['feesession'],
                 ];
             
             }
 
-            return array_merge($base, $acceptedRole);
+            return [
+                'uuid' => $data['uuid'],
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'],
+                'roles' => $acceptedRole
+            ];
+            
         });
 
         if ($paginate)

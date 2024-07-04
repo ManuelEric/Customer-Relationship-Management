@@ -85,7 +85,7 @@ class AuthController extends Controller
             } else {
 
                 if ($user->roles()->where('role_name', 'Admin')->exists() && $user->department()->where('dept_name', 'Client Management')->exists()) {
-                    $scopes = ['sales-admin'];
+                    array_push($scopes, 'sales-admin');
                     $request->session()->put('user_role', 'SalesAdmin');
                 } 
                 

@@ -477,6 +477,7 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                                     ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
                                     ->select(DB::raw('SUM(inv_totalprice_idr) as total'))
                                     ->where('tbl_main_prog.id', 1)
+                                    ->where('tbl_client_prog.status', 1)
                                     ->whereYear('tbl_inv.created_at', '=', $year)
                                     ->whereMonth('tbl_inv.created_at', '=', $month)
                                     ->get();
@@ -489,11 +490,15 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $month = date('m', strtotime($monthYear));
         $year = date('Y', strtotime($monthYear));
 
-        $query = ViewClientProgram::whereMonth('success_date', $month)->whereYear('success_date', $year)->where('lead_from', 'Digital');
-        if ($prog_id != null){
-            $query->where('prog_id', $prog_id);
-        }
-        return $query->get();
+        $query = ClientProgram::whereMonth('success_date', $month)->whereYear('success_date', $year)->
+                whereHas('client.lead', function ($sub) {
+                    $sub->where('department_id', 7);
+                })->
+                when($prog_id, function ($sub) use ($prog_id) {
+                    $sub->where('prog_id', $prog_id);
+                })->get();
+
+        return $query;
     }
 
 //     public function getLeadSourceDigital($monthYear)
