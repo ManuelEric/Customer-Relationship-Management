@@ -51,10 +51,10 @@ return new class extends Migration
             END COLLATE utf8mb4_unicode_ci) AS referral_name,
             s.sch_name as school_name,
             (CASE 
-                WHEN l.main_lead = "KOL" THEN CONCAT("KOL - ", l.sub_lead)
-                WHEN l.main_lead = "External Edufair" THEN CONCAT("External Edufair - ", el.title)
-                WHEN l.main_lead = "All-In Event" THEN CONCAT("All-In Event - ", ts.event_title)
-                ELSE l.main_lead
+                WHEN l.main_lead COLLATE utf8mb4_unicode_ci = "KOL" THEN CONCAT("KOL - ", l.sub_lead COLLATE utf8mb4_unicode_ci)
+                WHEN l.main_lead COLLATE utf8mb4_unicode_ci = "External Edufair" THEN (CASE WHEN c.eduf_id is not null THEN vel.organizer_name else "External Edufair" END)
+                WHEN l.main_lead COLLATE utf8mb4_unicode_ci = "All-In Event" THEN CONCAT("All-In Event - ", ts.event_title COLLATE utf8mb4_unicode_ci)
+                ELSE l.main_lead COLLATE utf8mb4_unicode_ci
             END) AS lead_source,
             GetTotalScore (
                 s.sch_score, 
@@ -159,6 +159,8 @@ return new class extends Migration
                 ON l.lead_id = c.lead_id
             LEFT JOIN tbl_eduf_lead el
                 ON el.id = c.eduf_id
+            LEFT JOIN eduf_lead vel 
+                ON vel.id = el.id
             LEFT JOIN tbl_events ts
                 ON ts.event_id = c.event_id
         ');

@@ -444,6 +444,7 @@
                     },
                     {
                         data: 'lead_source',
+                        name: 'c.lead_source',
                         className: 'text-center'
                     },
                     {

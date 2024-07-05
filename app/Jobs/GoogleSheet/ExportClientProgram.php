@@ -143,12 +143,12 @@ class ExportClientProgram implements ShouldQueue
                 $prog_running_status,
                 $this->replaceNullValue($clientProg['reason_name']),
                 $this->replaceNullValue($clientProg['pic_name']),
-                $this->replaceNullValue(date('M d, Y', strtotime($clientProg['initconsult_date']))),
-                $this->replaceNullValue(date('M d, Y', strtotime($clientProg['assessmentsent_date']))),
-                $this->replaceNullValue(date('M d, Y', strtotime($clientProg['first_discuss_date']))),
-                $this->replaceNullValue(date('M d, Y', strtotime($clientProg['failed_date']))),
-                $this->replaceNullValue(date('M d, Y', strtotime($clientProg['success_date']))),
-                $this->replaceNullValue(date('M d, Y', strtotime($clientProg['created_at']))),
+                $this->replaceNullValue($clientProg['initconsult_date']) != '-' ? date('M d, Y', strtotime($clientProg['initconsult_date'])) : '-',
+                $this->replaceNullValue($clientProg['assessmentsent_date']) != '-' ? date('M d, Y', strtotime($clientProg['assessmentsent_date'])) : '-',
+                $this->replaceNullValue($clientProg['first_discuss_date']) != '-' ? date('M d, Y', strtotime($clientProg['first_discuss_date'])) : '-',
+                $this->replaceNullValue($clientProg['failed_date']) != '-' ? date('M d, Y', strtotime($clientProg['failed_date'])) : '-',
+                $this->replaceNullValue($clientProg['success_date']) != '-' ? date('M d, Y', strtotime($clientProg['success_date'])) : '-',
+                $this->replaceNullValue($clientProg['created_at']) != '-' ? date('M d, Y', strtotime($clientProg['created_at'])) : '-',
             ];
             $i++;
         }

@@ -333,6 +333,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     leftJoin('tbl_corp as corp', 'corp.corp_id', '=', 'tbl_client_prog.partner_id')->
                     leftJoin('tbl_reason as r', 'r.reason_id', '=', 'tbl_client_prog.reason_id')->
                     leftJoin('users as u', 'u.id', '=', 'tbl_client_prog.empl_id')->
+                    leftJoin('eduf_lead as vedl', 'vedl.id', '=', 'edl.id')->
                     select([
                         'c.id as client_id', 
                         'tbl_client_prog.clientprog_id', 
@@ -354,15 +355,10 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                                 LEFT JOIN users squ ON squ.id = sqcm.user_id
                                 WHERE sqcm.clientprog_id = tbl_client_prog.clientprog_id GROUP BY sqcm.clientprog_id) as mentor_tutor_name"),
                         'tbl_client_prog.prog_end_date',
-                        DB::raw('(CASE 
-                                    WHEN cl.main_lead = "KOL" THEN CONCAT("KOL - ", cl.sub_lead)
-                                    WHEN cl.main_lead = "External Edufair" THEN CONCAT("External Edufair - ", cedl.title)
-                                    WHEN cl.main_lead = "All-In Event" THEN CONCAT("All-In Event - ", cec.event_title)
-                                    ELSE cl.main_lead
-                                END) AS lead_source'),
+                        'c.lead_source',
                         DB::raw('(CASE 
                                     WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead COLLATE utf8mb4_unicode_ci)
-                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "External Edufair" THEN CONCAT("External Edufair - ", edl.title COLLATE utf8mb4_unicode_ci)
+                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "External Edufair" THEN (CASE WHEN tbl_client_prog.eduf_lead_id is not null THEN vedl.organizer_name ELSE "External Edufair" END) 
                                     WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title COLLATE utf8mb4_unicode_ci)
                                     WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name COLLATE utf8mb4_unicode_ci)
                                     ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
@@ -532,21 +528,13 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                             LEFT JOIN users squ ON squ.id = sqcm.user_id
                         WHERE sqcm.clientprog_id = tbl_client_prog.clientprog_id GROUP BY sqcm.clientprog_id) like ?";
                 $query->whereRaw($sql, ["%{$keyword}%"]);
-            })->filterColumn('lead_source', function ($query, $keyword) {
-                $sql = '(CASE 
-                            WHEN cl.main_lead = "KOL" THEN CONCAT("KOL - ", cl.sub_lead)
-                            WHEN cl.main_lead = "External Edufair" THEN CONCAT("External Edufair - ", cedl.title)
-                            WHEN cl.main_lead = "All-In Event" THEN CONCAT("All-In Event - ", cec.event_title)
-                                ELSE cl.main_lead
-                        END) like ?';
-                $query->whereRaw($sql, ["%{$keyword}%"]);
             })->filterColumn('conversion_lead', function ($query, $keyword) {
                 $sql = '(CASE 
                             WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead COLLATE utf8mb4_unicode_ci)
-                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "External Edufair" THEN CONCAT("External Edufair - ", edl.title COLLATE utf8mb4_unicode_ci)
+                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "External Edufair" THEN (CASE WHEN tbl_client_prog.eduf_lead_id is not null THEN vedl.organizer_name ELSE "External Edufair" END) 
                             WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title COLLATE utf8mb4_unicode_ci)
                             WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name COLLATE utf8mb4_unicode_ci)
-                                ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
+                        ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
                         END) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             })->filterColumn('pic_name', function ($query, $keyword) {
