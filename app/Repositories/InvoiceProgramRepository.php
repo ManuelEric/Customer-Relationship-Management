@@ -745,7 +745,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             ->whereNull('tbl_inv.bundling_id');
         // ->groupBy('tbl_inv.inv_id');
 
-        return $queryInv->orderBy('inv_id_year', 'asc')->orderBy('inv_id_month', 'asc')->orderBy('inv_id_num', 'asc')->groupBy('invoice_id')->get();
+        return $queryInv->orderBy('inv_id_year', 'asc')->orderBy('inv_id_month', 'asc')->orderBy('inv_id_num', 'asc')->get();
     }
 
     public function getRevenueByYear($year)
