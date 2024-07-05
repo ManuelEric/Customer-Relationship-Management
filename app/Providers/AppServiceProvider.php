@@ -10,6 +10,7 @@ use App\Repositories\AlarmRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\FollowupRepository;
 use Barryvdh\Debugbar\Facades\Debugbar;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -45,11 +47,28 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        /* pagination */
+        Collection::macro('paginate', function ($perPage = 15, $page = null, $options = []) {
+            $page = $page ?: (LengthAwarePaginator::resolveCurrentPage() ?: 1);
+            $paginator = new LengthAwarePaginator(
+                items: $this->forPage($page, $perPage),
+                total: $this->count(),
+                perPage: $perPage,
+                currentPage: $page,
+                options: $options
+            );
+    
+            return $paginator->withPath(Request::url());
+        });
 
+
+        /* queue logger */
         Queue::after(function (JobProcessed $event) {
             Log::debug('Queue : '.json_encode($event).' has ran');
         });
 
+
+        /* menu manager */
         view()->composer('*', function ($view) {
 
             $user = auth()->user();

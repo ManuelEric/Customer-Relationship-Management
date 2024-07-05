@@ -93,9 +93,18 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                                 break;
         
                             case "External Edufair":
-                                $eduf_lead = $clientProgram->external_edufair->title;
-                                $conv_lead = "External Edufair - {$eduf_lead}";
+                                $conv_lead = null;
+                                if($clientProgram->eduf_lead_id == NULL){
+                                    return $conv_lead = $clientProgram->lead->main_lead;
+                                }
+                
+                                if ($clientProgram->external_edufair->title != NULL)
+                                    $conv_lead = "External Edufair - " . $clientProgram->external_edufair->title;
+                                else
+                                    $conv_lead = "External Edufair - " . $clientProgram->external_edufair->organizerName;
                                 break;
+            
+                  
         
                             case "All-In Event":
                                 $event_title = $clientProgram->clientEvent->event->title;
@@ -736,7 +745,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             ->whereNull('tbl_inv.bundling_id');
         // ->groupBy('tbl_inv.inv_id');
 
-        return $queryInv->orderBy('inv_id_year', 'asc')->orderBy('inv_id_month', 'asc')->orderBy('inv_id_num', 'asc')->groupBy('invoice_id')->get();
+        return $queryInv->orderBy('inv_id_year', 'asc')->orderBy('inv_id_month', 'asc')->orderBy('inv_id_num', 'asc')->get();
     }
 
     public function getRevenueByYear($year)

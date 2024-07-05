@@ -3,6 +3,8 @@
 namespace App\Console\Commands\Sync;
 
 use App\Interfaces\ClientRepositoryInterface;
+use App\Models\Client;
+use App\Models\ClientProgram;
 use App\Models\Corporate;
 use App\Models\EdufLead;
 use App\Models\Event;
@@ -12,6 +14,7 @@ use App\Models\Program;
 use App\Models\School;
 use App\Models\University;
 use App\Models\User;
+use App\Repositories\ClientRepository;
 use App\Repositories\SchoolRepository;
 use Carbon\Carbon;
 use Exception;
@@ -37,12 +40,14 @@ class SyncData extends Command
     protected $description = 'Sync data CRM to google sheet';
 
     protected SchoolRepository $schoolRepository;
+    protected ClientRepository $clientRepository;
 
-    public function __construct(SchoolRepository $schoolRepository)
+    public function __construct(SchoolRepository $schoolRepository, ClientRepository $clientRepository)
     {
         parent::__construct();
 
         $this->schoolRepository = $schoolRepository;
+        $this->clientRepository = $clientRepository;
     }
 
     /**
@@ -123,7 +128,27 @@ class SyncData extends Command
                         case 'university':
                             $data[$key] = [$val->univ_id, $val->univ_name, $val->univ_country];
                             break;
-                 
+
+                        case 'mentee':
+                        case 'alumni-mentee':
+                            $data[$key] = [$val->id, $val->full_name, $val->id . ' | ' . $val->full_name];
+                            break;
+
+                        case 'tutoring-student':
+                            $subjects = [];
+                            if(isset($val->clientMentor) && $val->clientMentor()->where('type', 5)->count() > 0){
+                                $tutors = $val->clientMentor->pluck('id');
+                                if(count($tutors) > 0){
+                                    $users = User::whereIn('id', $tutors)->get();
+                                    foreach ($users as $user) {
+                                        $tutor_subject = $user->roles()->where('role_name', 'tutor')->pluck('tutor_subject')->toArray();
+                                        $subjects[] = count($tutor_subject) > 0 ? implode(", ", $tutor_subject) : null;
+                                    }
+                                }
+                            }
+
+                            $data[$key] = [$val->client->id, $val->client->full_name, $val->client->id . ' | ' . $val->client->full_name, count($subjects) > 0 ? implode(", ", $subjects) : ''];
+                            break;                 
                     }
 
                 }
@@ -144,7 +169,7 @@ class SyncData extends Command
             
 
         } catch (Exception $e) {
-            Log::error('Failed sync data '.$query['sheetName'], $e->getMessage());
+            Log::error('Failed sync data '.$query['sheetName'] . ': '. $e->getMessage());
         }
 
         return Command::SUCCESS;
@@ -283,6 +308,46 @@ class SyncData extends Command
 
                 $sheetName = 'Universities';
                 $colUpdatedAt = 'D';
+                break;
+
+            case 'mentee':
+                $query = Client::withAndWhereHas('clientProgram', function ($subQuery) {
+                            $subQuery->with(['clientMentor', 'clientMentor.roles' => function ($subQuery_2) {
+                                $subQuery_2->where('role_name', 'Mentor');
+                            }])->whereHas('program', function ($subQuery_2) {
+                                $subQuery_2->whereHas('main_prog', function ($subQuery_3) {
+                                    $subQuery_3->where('prog_name', 'Admissions Mentoring');
+                                });
+                            })->where('status', 1)->where('prog_running_status', '!=', 2); # 1 success, 2 done
+                        })->whereHas('roles', function ($subQuery) {
+                            $subQuery->where('role_name', 'student');
+                        });
+
+                $sheetName = 'Active Mentees';
+                $colUpdatedAt = 'D';
+                break;
+
+            case 'alumni-mentee':
+                $query = Client::whereHas('clientProgram', function ($subQuery) {
+                            $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
+                                $subQuery_2->where('prog_name', 'Admissions Mentoring');
+                            })->where('status', 1)->where('prog_running_status', 2);
+                        })->
+                        whereDoesntHave('clientProgram', function ($subQuery) {
+                            $subQuery->whereIn('status', [0, 1])->whereIn('prog_running_status', [0, 1]);
+                        });
+
+                $sheetName = 'Alumni Mentees';
+                $colUpdatedAt = 'D';
+                break;
+
+            case 'tutoring-student':
+                $query = ClientProgram::whereHas('program', function ($subQuery) {
+                    $subQuery->where('main_prog_id', 4);
+                })->where('status', 1)->groupBy('client_id');
+
+                $sheetName = 'Tutoring Students';
+                $colUpdatedAt = 'E';
                 break;
 
         }

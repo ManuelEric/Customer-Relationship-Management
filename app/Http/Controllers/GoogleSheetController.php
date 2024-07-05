@@ -24,12 +24,16 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Revolution\Google\Sheets\Facades\Sheets;
+use App\Models\JobBatches;
+use App\Models\ViewProgram;
+use App\Services\ImportDataService;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Bus;
+
 
 class GoogleSheetController extends Controller
 {
@@ -37,10 +41,7 @@ class GoogleSheetController extends Controller
 
     public function storeParent(Request $request)
     {
-        $logDetails = [];
         
-        DB::beginTransaction();
-        try {
 
             $range = $request->only('start', 'end');
             $start = $request->start;
@@ -100,153 +101,29 @@ class GoogleSheetController extends Controller
                     ]);
                 }
 
-                $totalImported = 0;
+                $batchID = (new ImportDataService())->import(Collect($arrInputData), 'parent');
 
-                foreach ($arrInputData as $key => $val) {
-                    $parent = null;
-                    $phoneNumber = $this->setPhoneNumber($val['Phone Number']);
-    
-                    $parent = $this->checkExistingClientImport($phoneNumber, $val['Email']);
-    
-                    $joinedDate = isset($val['Joined Date']) ? $val['Joined Date'] : null;
-    
-                    $parentName = $this->explodeName($val['Full Name']);
-
-                    if (!$parent['isExist']) {
-                        $parentDetails = [
-                            'first_name' => $parentName['firstname'],
-                            'last_name' => isset($parentName['lastname']) ? $parentName['lastname'] : null,
-                            'mail' => $val['Email'],
-                            'phone' => $phoneNumber,
-                            'dob' => isset($val['Date of Birth']) ? $val['Date of Birth'] : null,
-                            'insta' => isset($val['Instagram']) ? $val['Instagram'] : null,
-                            'state' => isset($val['State']) ? $val['State'] : null,
-                            'city' => isset($val['City']) ? $val['City'] : null,
-                            'address' => isset($val['Address']) ? $val['Address'] : null,
-                            'lead_id' => $val['Lead'],
-                            'event_id' => isset($val['Event']) && $val['Lead'] == 'LS003' ? $val['Event'] : null,
-                            'eduf_id' => isset($val['Edufair'])  && $val['Lead'] == 'LS017' ? $val['Edufair'] : null,
-                            'st_levelinterest' => $val['Level of Interest'],
-                        ];
-
-    
-                        isset($val['Joined Date']) ? $parentDetails['created_at'] = $val['Joined Date'] : null;
-                        
-                        $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['parent'])->first();
-    
-                        $parent = UserClient::create($parentDetails);
-                        $parent->roles()->attach($roleId);
-                    } else {
-                        $parent = UserClient::find($parent['id']);
-                    }
-
-
-                    $children = null;
-                    $checkExistChildren = null;
-                    if (isset($val['Children Name'])) {
-                        $checkExistChildren = $this->checkExistClientRelation('parent', $parent, $val['Children Name']);
-                        
-                        if($checkExistChildren['isExist'] && $checkExistChildren['client'] != null){
-                            $children = $checkExistChildren['client'];
-                        }else if(!$checkExistChildren['isExist']){
-                            $name = $this->explodeName($val['Children Name']);
-                            $school = School::where('sch_name', $val['School'])->first();
-
-                            if (!isset($school)) {
-                                $school = $this->createSchoolIfNotExists($val['School']);
-                            }
-
-                            $childrenDetails = [
-                                'first_name' => $name['firstname'],
-                                'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
-                                'sch_id' => $school->sch_id,
-                                'graduation_year' => isset($val['Graduation Year']) ? $val['Graduation Year'] : null,
-                                'lead_id' => $val['Lead'],
-                                'event_id' => isset($val['Event']) && $val['Lead'] == 'LS003' ? $val['Event'] : null,
-                                'eduf_id' => isset($val['Edufair'])  && $val['Lead'] == 'LS017' ? $val['Edufair'] : null,
-                            ];
-
-                            isset($val['Joined Date']) ? $childrenDetails['created_at'] = $val['Joined Date'] : null;
-
-                            $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['student'])->first();
-
-                            $children = UserClient::create($childrenDetails);
-                            $children->roles()->attach($roleId);
-                            $parent->childrens()->attach($children);
-                        }
-
-                        $childrenIds[] = $children['id'];
-                    }
-
-                    if (isset($val['Interested Program'])) {
-                        $this->syncInterestProgram($val['Interested Program'], $parent, $joinedDate);
-                        $children != null ?  $this->syncInterestProgram($val['Interested Program'], $children, $joinedDate) : null;
-                    }
-
-                    // Sync country of study abroad
-                    if (isset($val['Destination Country'])) {
-                        $this->syncDestinationCountry($val['Destination Country'], $parent);
-                        $children != null ?  $this->syncDestinationCountry($val['Destination Country'], $children) : null;
-                    }
-                
-                    $parentIds[] = $parent['id'];
-
-                    $logDetails[] = [
-                        'client_id' => $parent['id']
-                    ];
-    
-                    $imported = Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Parents')->range('V'.$val['No'] + 1)->update([[Carbon::now()->format('d-m-Y H:i:s')]]);
-                    $totalImported += $imported->totalUpdatedRows;
-                }
-
-                # trigger to verifying parent
-                count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent') : null;
-                
-                # trigger to verifying children
-                count($childrenIds) > 0 ? ProcessVerifyClient::dispatch($childrenIds)->onQueue('verifying-client') : null;
-
+                JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 
                 $response = [
-                    'total_imported' => $totalImported,
-                    'message' => null,
+                    'success' => true,
+                    'batch_id' => $batchID,
                 ];
-
                 
             }else{
                 $response = [
+                    'success' => true, 
                     'total_imported' => 0,
                     'message' => 'Data parents is uptodate'
                 ];
             }
-         
-            DB::commit();
-        } catch (Exception $e) {
-            for ($i=$start; $i <= $end ; $i++) { 
-                Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Parents')->range('V'.$i)->update([['']]);
-            }
-            DB::rollBack();
+        
+        return response()->json($response);
 
-            Log::error($e->getMessage());
-            return response()->json([
-                'success' => false,
-                'error' => 'Something went wrong. Please try again'
-            ], 500);
-        }
-
-        $this->logSuccess('store', 'Import Parent', 'Parent', auth()->guard('api')->user()->first_name . ' ' . auth()->guard('api')->user()->last_name, $logDetails);
-      
-        return response()->json([
-            'success' => true,
-            'data' => $response
-        ]);
     }
 
     public function storeStudent(Request $request)
     {
-        $logDetails = [];
-
-        DB::beginTransaction();
-        try {
 
             $range = $request->only('start', 'end');
             $start = $request->start;
@@ -310,192 +187,28 @@ class GoogleSheetController extends Controller
                     ]);
                 }
 
-                $totalImported = 0;
+                $batchID = (new ImportDataService())->import(Collect($arrInputData), 'student');
 
-                foreach ($arrInputData as $key => $val) {
-                    $student = null;
-                    $phoneNumber = isset($val['Phone Number']) ? $this->setPhoneNumber($val['Phone Number']) : null;
-                    isset($val['Parents Phone']) ? $parentPhone = $this->setPhoneNumber($val['Parents Phone']) : $parentPhone = null;
-
-                    $studentName = $val['Full Name'] != null ? $this->explodeName($val['Full Name']) : null;
-                    $parentName = $val['Parents Name'] != null ? $this->explodeName($val['Parents Name']) : null;
-
-                    $joinedDate = isset($val['Joined Date']) ? $val['Joined Date'] : null;
-
-
-                    // $last_id = UserClient::max('st_id');
-                    // $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
-                    // $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
-
-                    // Check existing school
-                    $school = School::where('sch_name', $val['School'])->get()->pluck('sch_id')->first();
-
-                    if (!isset($school)) {
-                        $newSchool = $this->createSchoolIfNotExists($val['School']);
-                    }
-
-                    $mail = isset($val['Email']) ? $val['Email'] : null;
-                    $student = $this->checkExistingClientImport($phoneNumber, $mail);
-
-                    if (!$student['isExist']) {
-                        $studentDetails = [
-                            // 'st_id' => $studentId,
-                            'first_name' => $studentName != null ? $studentName['firstname'] : ($parentName != null ? $parentName['firstname'] . ' ' . $parentName['lastname'] : null),
-                            'last_name' =>  $studentName != null && isset($studentName['lastname']) ? $studentName['lastname'] : ($parentName != null ? 'Child' : null),
-                            'mail' => $mail,
-                            'phone' => $phoneNumber,
-                            'dob' => isset($val['Date of Birth']) ? $val['Date of Birth'] : null,
-                            'insta' => isset($val['Instagram']) ? $val['Instagram'] : null,
-                            'state' => isset($val['State']) ? $val['State'] : null,
-                            'city' => isset($val['City']) ? $val['City'] : null,
-                            'address' => isset($val['Address']) ? $val['Address'] : null,
-                            'sch_id' => isset($school) ? $school : $newSchool->sch_id,
-                            'st_grade' => isset($val['Grade']) ? $val['Grade'] : null,
-                            'lead_id' => $val['Lead'] == 'KOL' ? $val['kol'] : $val['Lead'],
-                            'event_id' => isset($val['Event']) && $val['Lead'] == 'LS003' ? $val['Event'] : null,
-                            // 'partner_id' => isset($val['partner']) && $val['Lead'] == 'LS015' ? $val['partner'] : null,
-                            'eduf_id' => isset($val['Edufair'])  && $val['Lead'] == 'LS017' ? $val['Edufair'] : null,
-                            'st_levelinterest' => $val['Level of Interest'],
-                            'graduation_year' => isset($val['Graduation Year']) ? $val['Graduation Year'] : null,
-                            'st_abryear' => isset($val['Year of Study Abroad']) ? $val['Year of Study Abroad'] : null,
-                        ];
-
-                        isset($val['Joined Date']) ? $studentDetails['created_at'] = Carbon::parse($val['Joined Date'] . ' ' . date('H:i:s')) : null;
-                        isset($val['Joined Date']) ? $studentDetails['updated_at'] = Carbon::parse($val['Joined Date'] . ' ' . date('H:i:s')) : null;
-                        
-                        $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['student'])->first();
-
-                        $student = UserClient::create($studentDetails);
-                        $student->roles()->attach($roleId);
-
-                    } else {
-                        $student = UserClient::find($student['id']);
-
-                    }
-
-                    // Connecting student with parent
-                    $checkExistParent = null;
-                    $parent = null;
-                    $parentIds = [];
-                    if (isset($val['Parents Name'])) {
-                        // $this->createParentsIfNotExists($val['Parents Name'], $parentPhone, $student);
-                        $checkExistParent = $this->checkExistClientRelation('student', $student, $val['Parents Name']);
-                        if($checkExistParent['isExist'] && $checkExistParent['client'] != null){
-                            $parent = $checkExistParent['client'];
-                        }else if(!$checkExistParent['isExist']){
-                            $name = $this->explodeName($val['Parents Name']);
-
-                            if(isset($parentPhone)){
-                                $checkParent = $this->checkExistingClientImport($parentPhone, null);
-                                
-                                if(!$checkParent['isExist']){
-
-                                    $parentDetails = [
-                                        'first_name' => $name['firstname'],
-                                        'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
-                                        'phone' => isset($parentPhone) ? $parentPhone : null,
-                                    ];
-        
-                                    $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['parent'])->first();
-        
-                                    $parent = UserClient::create($parentDetails);
-                                    $parent->roles()->attach($roleId);
-                                }else{
-                                    $parent = UserClient::find($checkParent['id']);
-                                }
-                            }else{
-                                
-                                $parentDetails = [
-                                    'first_name' => $name['firstname'],
-                                    'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
-                                    'phone' => isset($parentPhone) ? $parentPhone : null,
-                                ];
-    
-                                $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['parent'])->first();
-    
-                                $parent = UserClient::create($parentDetails);
-                                $parent->roles()->attach($roleId);
-                            }
-
-                            $student->parents()->attach($parent);
-
-                        }
-                        $parentIds[] = $parent['id'];
-                    }
-
-                    // Sync interest program
-                    if (isset($val['Interested Program'])) {
-                        $this->syncInterestProgram($val['Interested Program'], $student, $joinedDate);
-                    }
-
-                    // Sync country of study abroad
-                    if (isset($val['Country of Study Abroad'])) {
-                        $this->syncDestinationCountry($val['Country of Study Abroad'], $student);
-                    }
-
-                    // Sync interest major
-                    if (isset($val['Interest Major'])) {
-                        $this->syncInterestMajor($val['Interest Major'], $student);
-                    }
-
-                    $logDetails[] = [
-                        'client_id' => $student['id']
-                    ];
-
-                    $childIds[] = $student['id'];
-        
-                    $imported = Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Students')->range('Z'.$val['No'] + 1)->update([[Carbon::now()->format('d-m-Y H:i:s')]]);
-                    $totalImported += $imported->totalUpdatedRows;
-                }
-
-                # trigger to verifying children
-                count($childIds) > 0 ? ProcessVerifyClient::dispatch($childIds)->onQueue('verifying-client') : null;
-
-                # trigger to verifying parent
-                count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent') : null;
-
+                JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 
                 $response = [
-                    'total_imported' => $totalImported,
-                    'message' => null,
+                    'success' => true,
+                    'batch_id' => $batchID,
                 ];
                 
             }else{
                 $response = [
+                    'success' => true,
                     'total_imported' => 0,
                     'message' => 'Data students is uptodate'
                 ];
             }
          
-            DB::commit();
-        } catch (Exception $e) {
-            for ($i=$start; $i <= $end ; $i++) { 
-                Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Students')->range('Z'.$i)->update([['']]);
-            }
-
-            DB::rollBack();
-
-            Log::error($e->getMessage());
-            return response()->json([
-                'success' => false,
-                'error' => 'Something went wrong. Please try again'
-            ], 500);
-        }
-
-        $this->logSuccess('store', 'Import Student', 'Student', auth()->guard('api')->user()->first_name . ' ' . auth()->guard('api')->user()->last_name, $logDetails);
-      
-        return response()->json([
-            'success' => true,
-            'data' => $response
-        ]);
+        return response()->json($response);
     }
 
     public function storeTeacher(Request $request)
     {
-        $logDetails = [];
-
-        DB::beginTransaction();
-        try {
 
             $range = $request->only('start', 'end');
             $start = $request->start;
@@ -515,7 +228,7 @@ class GoogleSheetController extends Controller
            
             if(count($rawData) > 0){
 
-                $arrInputData = $this->setDataForValidation($rawData, 'parent');
+                $arrInputData = $this->setDataForValidation($rawData, 'teacher');
 
                 # validation
                 $rules = [
@@ -551,103 +264,29 @@ class GoogleSheetController extends Controller
                     ]);
                 }
 
-                $totalImported = 0;
+    
+                $batchID = (new ImportDataService())->import(Collect($arrInputData), 'teacher');
 
-                foreach ($arrInputData as $key => $val) {
-                    $teacher = null;
-                    $phoneNumber = $this->setPhoneNumber($val['Phone Number']);
-    
-                    $teacherName = $this->explodeName($val['Full Name']);
-    
-                    // Check existing school
-                    $school = School::where('sch_name', $val['School'])->get()->pluck('sch_id')->first();
-    
-                    if (!isset($school)) {
-                        $newSchool = $this->createSchoolIfNotExists($val['School']);
-                    }
-    
-                    $teacher = $this->checkExistingClientImport($phoneNumber, $val['Email']);
-    
-                    if (!$teacher['isExist']) {
-                        $teacherDetails = [
-                            'first_name' => $teacherName['firstname'],
-                            'last_name' => isset($teacherName['lastname']) ? $teacherName['lastname'] : null,
-                            'mail' => $val['Email'],
-                            'phone' => $phoneNumber,
-                            'dob' => isset($val['Date of Birth']) ? $val['Date of Birth'] : null,
-                            'insta' => isset($val['Instagram']) ? $val['Instagram'] : null,
-                            'state' => isset($val['State']) ? $val['State'] : null,
-                            'city' => isset($val['City']) ? $val['City'] : null,
-                            'address' => isset($val['Address']) ? $val['Address'] : null,
-                            'sch_id' => isset($school) ? $school : $newSchool->sch_id,
-                            'lead_id' => $val['Lead'],
-                            'event_id' => isset($val['Event']) && $val['Lead'] == 'LS003' ? $val['Event'] : null,
-                            'eduf_id' => isset($val['Edufair'])  && $val['Lead'] == 'LS017' ? $val['Edufair'] : null,
-                            'st_levelinterest' => $val['Level of Interest'],
-                        ];
-                        isset($val['Joined Date']) ? $teacherDetails['created_at'] = Carbon::parse($val['Joined Date'] . ' ' . date('H:i:s')) : null;
-                        isset($val['Joined Date']) ? $teacherDetails['updated_at'] = Carbon::parse($val['Joined Date'] . ' ' . date('H:i:s')) : null;
-
-                        $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['teacher/counselor'])->first();
-    
-                        $teacher = UserClient::create($teacherDetails);
-                        $teacher->roles()->attach($roleId);
-    
-                    }
-    
-                    $logDetails[] = [
-                        'client_id' => $teacher['id']
-                    ];
-    
-                    $teacherIds[] = $teacher['id'];
-        
-                    $imported = Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Teachers')->range('R'.$val['No'] + 1)->update([[Carbon::now()->format('d-m-Y H:i:s')]]);
-                    $totalImported += $imported->totalUpdatedRows;
-                }
-
-                # trigger to verifying parent
-                count($teacherIds) > 0 ? ProcessVerifyClientTeacher::dispatch($teacherIds)->onQueue('verifying-client-teacher') : null;
+                JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 
                 $response = [
-                    'total_imported' => $totalImported,
-                    'message' => null,
+                    'success' => true,
+                    'batch_id' => $batchID,
                 ];
                 
             }else{
                 $response = [
+                    'success' => true,
                     'total_imported' => 0,
                     'message' => 'Data teachers is uptodate'
                 ];
             }
          
-            DB::commit();
-        } catch (Exception $e) {
-            for ($i=$start; $i <= $end ; $i++) { 
-                Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Teachers')->range('R'.$i)->update([['']]);
-            }
-            DB::rollBack();
-
-            Log::error($e->getMessage());
-            return response()->json([
-                'success' => false,
-                'error' => 'Something went wrong. Please try again'
-            ], 500);
-        }
-
-        $this->logSuccess('store', 'Import Teacher', 'Parent', auth()->guard('api')->user()->first_name . ' ' . auth()->guard('api')->user()->last_name, $teacher);
-      
-        return response()->json([
-            'success' => true,
-            'data' => $response
-        ]);
+        return response()->json($response);
     }
 
     public function storeClientEvent(Request $request)
     {
-        $logDetails = [];
-
-        DB::beginTransaction();
-        try {
 
             $range = $request->only('start', 'end');
             $start = $request->start;
@@ -712,161 +351,29 @@ class GoogleSheetController extends Controller
                     ]);
                 }
 
-                $totalImported = 0;
+                $batchID = (new ImportDataService())->import(Collect($arrInputData), 'client-event');
 
-                $logDetails = $childIds = $parentIds = $teacherIds = $data = [];
-
-                foreach ($arrInputData as $key => $val) {
-                    # initiate variables
-                    $status = $val['Status'] == 'Join' ? 0 : 1;
-
-                    // Check existing school
-                    if (!$school = School::where('sch_name', $val['School'])->first())
-                        $school = $this->createSchoolIfNotExists($val['School']);
-
-                    $roleSub = null;
-                    switch ($val['Audience']) {
-                        case 'Student':
-                            $roleSub = 'Parent';
-                            break;
-                        case 'Parent':
-                            $roleSub = 'Student';
-                            break;
-                    }
-    
-                    $createdMainClient = $this->createClient($val, 'main', $val['Audience'], $val['Itended Major'], $val['Destination Country'], $school);
-
-                    $mainClient = UserClient::find($createdMainClient);
-                    $createdSubClient = ($val['Audience'] == 'Student' || $val['Audience'] == 'Parent') && isset($val['Child or Parent Name']) ? $this->createClient($val, 'sub', $roleSub, $val['Itended Major'], $val['Destination Country'], $school, $mainClient) : null;
-
-                    // Create relation parent and student
-                    if(($val['Audience'] == 'Parent' || $val['Audience'] == 'Student') && isset($createdSubClient)){
-                        $checkExistChildren = null;
-                        switch ($val['Audience']) {
-                            case 'Parent':
-                                $parent = UserClient::find($createdMainClient);
-                                $student = UserClient::find($createdSubClient);
-                                $checkExistChildren = $this->checkExistClientRelation('parent', $parent, $student->fullName);
-                                !$checkExistChildren['isExist'] ? $parent->childrens()->attach($createdSubClient) : null;
-                                break;
-
-                            case 'Student':
-                                $parent = UserClient::find($createdSubClient);
-                                $student = UserClient::find($createdMainClient);
-                                $checkExistChildren = $this->checkExistClientRelation('parent', $parent, $student->fullName);
-                                !$checkExistChildren['isExist'] ? $parent->childrens()->attach($createdMainClient) : null;
-                                break;
-                        }
-                    }
-
-                    // Insert client event
-                    $data = [
-                        'event_id' => $val['Event Name'],
-                        'joined_date' => isset($val['Date']) ? $val['Date'] : null,
-                        'client_id' => $createdMainClient,
-                        'lead_id' => $val['Lead'],
-                        'status' => $status,
-                        'registration_type' => isset($val['Registration Type']) ? $val['Registration Type'] : null,
-                        'number_of_attend' => isset($val['Number Of Attend']) ? $val['Number Of Attend'] : 1,
-                        'referral_code' => isset($val['Referral Code']) ? $val['Referral Code'] : null,
-                    ];
-
-                    // Generate ticket id (if event offline)
-                    $event = Event::where('event_id', $val['Event Name'])->first();
-                    # Updated ticket id for all events
-                    // if(!str_contains($event->event_location, 'online')){
-                        $data['ticket_id'] = app(ExtClientController::class)->generateTicketID();
-                    // }
-                    
-                    # add additional identification
-                    if ($val['Audience'] == "Parent"){
-                        $parentIds[] = $createdMainClient;
-                        if(isset($createdSubClient))
-                            $data['child_id'] = $createdSubClient;
-                            $childIds[] = $createdSubClient;
-                        
-                    }elseif ($val['Audience'] == "Student"){
-                        $childIds[] = $createdMainClient;
-                        if(isset($createdSubClient))
-                            $data['parent_id'] = $createdSubClient;
-                            $parentIds[] = $createdSubClient;
-                    }else{
-                        $teacherIds[] = $createdMainClient;
-                    }
-
-
-                    $existClientEvent = ClientEvent::where('event_id', $data['event_id'])
-                        ->where('client_id', $createdMainClient)
-                        ->where('joined_date', $data['joined_date'])
-                        ->first();
-
-                    if (!isset($existClientEvent)) {
-                        $insertedClientEvent = ClientEvent::create($data);
-
-                        # add to log client event 
-                        # to trigger the cron for send the qr email
-                        // ClientEventLogMail::create([
-                        //     'clientevent_id' => $insertedClientEvent->clientevent_id,
-                        //     'event_id' => $val['Event Name'],
-                        //     'sent_status' => 0,
-                        //     'category' => 'qrcode-mail'
-                        // ]);
-
-                    }
-
-                    $logDetails[] = [
-                        'clientevent_id' => isset($insertedClientEvent->clientevent_id) ? $insertedClientEvent->clientevent_id : null
-                    ];
-    
-                    $imported = Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Client Events')->range('Z'.$val['No'] + 1)->update([[Carbon::now()->format('d-m-Y H:i:s')]]);
-                    $totalImported += $imported->totalUpdatedRows;
-                }
-
-                # trigger to verifying client
-                count($childIds) > 0 ? ProcessVerifyClient::dispatch($childIds)->onQueue('verifying-client') : null;
-                count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent') : null;
-                count($teacherIds) > 0 ? ProcessVerifyClientTeacher::dispatch($teacherIds)->onQueue('verifying-client-teacher') : null;
+                JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 
                 $response = [
-                    'total_imported' => $totalImported,
-                    'message' => null,
+                    'success' => true,
+                    'batch_id' => $batchID,
                 ];
                 
             }else{
                 $response = [
+                    'success' => true,
                     'total_imported' => 0,
-                    'message' => 'Data parents is uptodate'
+                    'message' => 'Data client events is uptodate'
                 ];
             }
          
-            DB::commit();
-        } catch (Exception $e) {
-            for ($i=$start; $i <= $end ; $i++) { 
-                Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Client Events')->range('Z'.$i)->update([['']]);
-            }
-            DB::rollBack();
+        return response()->json($response);
 
-            Log::error($e->getMessage());
-            return response()->json([
-                'success' => false,
-                'error' => 'Something went wrong. Please try again'
-            ], 500);
-        }
-      
-        $this->logSuccess('store', 'Import Client Event', 'Client Event', auth()->guard('api')->user()->first_name . ' ' . auth()->guard('api')->user()->last_name, $logDetails);
-
-        return response()->json([
-            'success' => true,
-            'data' => $response
-        ]);
     }
 
     public function storeClientProgram(Request $request)
     {
-        $logDetails = [];
-
-        DB::beginTransaction();
-        try {
 
             $range = $request->only('start', 'end');
             $start = $request->start;
@@ -928,142 +435,28 @@ class GoogleSheetController extends Controller
                     ]);
                 }
 
-                $totalImported = 0;
+                $batchID = (new ImportDataService())->import(Collect($arrInputData), 'client-program');
 
-                $logDetails = $childIds = $parentIds = $data = [];
-
-                foreach ($arrInputData as $key => $val) {
-                    # initiate variables
-                    // Check existing school
-                    if (!$school = School::where('sch_name', $val['School'])->first())
-                        $school = $this->createSchoolIfNotExists($val['School']);
-
-                    $roleSub = null;
-                    switch ($val['Audience']) {
-                        case 'Student':
-                            $roleSub = 'Parent';
-                            break;
-                        case 'Parent':
-                            $roleSub = 'Student';
-                            break;
-                    }
-    
-                    $createdMainClient = $this->createClient($val, 'main', $val['Audience'], $val['Itended Major'], $val['Destination Country'], $school);
-                    $mainClient = UserClient::find($createdMainClient);
-                    $createdSubClient = ($val['Audience'] == 'Student' || $val['Audience'] == 'Parent') && isset($val['Child or Parent Name']) ? $this->createClient($val, 'sub', $roleSub, $val['Itended Major'], $val['Destination Country'], $school, $mainClient) : null;
-
-                    // Create relation parent and student
-                    if(($val['Audience'] == 'Parent' || $val['Audience'] == 'Student') && isset($createdSubClient)){
-                        $checkExistChildren = null;
-                        switch ($val['Audience']) {
-                            case 'Parent':
-                                $parent = UserClient::find($createdMainClient);
-                                $student = UserClient::find($createdSubClient);
-                                $checkExistChildren = $this->checkExistClientRelation('parent', $parent, $student->fullName);
-                                !$checkExistChildren['isExist'] ? $parent->childrens()->attach($createdSubClient) : null;
-                                break;
-
-                            case 'Student':
-                                $parent = UserClient::find($createdSubClient);
-                                $student = UserClient::find($createdMainClient);
-                                $checkExistChildren = $this->checkExistClientRelation('parent', $parent, $student->fullName);
-                                !$checkExistChildren['isExist'] ? $parent->childrens()->attach($createdMainClient) : null;
-                                break;
-                        }
-                    }
-
-                    // Insert client event
-                    $data = [
-                        'prog_id' => $val['Program Name'],
-                        'lead_id' => $val['Lead'],
-                        'first_discuss_date' => Carbon::now(),
-                        'status' => 0,
-                        'registration_type' => 'I',
-                        'referral_code' => isset($val['Referral Code']) ? $val['Referral Code'] : null,
-                    ];
-
-                    # add additional identification
-                    if ($val['Audience'] == "Parent"){
-                        $parentIds[] = $createdMainClient;
-                        $data['client_id'] = $createdMainClient;
-                        if(isset($createdSubClient))
-                            $data['client_id'] = $createdSubClient;
-                            $childIds[] = $createdSubClient;
-                        
-                    }elseif ($val['Audience'] == "Student"){
-                        $childIds[] = $createdMainClient;
-                        $data['client_id'] = $createdMainClient;
-                        if(isset($createdSubClient))
-                            $data['client_id'] = $createdSubClient;
-                            $parentIds[] = $createdSubClient;
-                    }
-
-
-                    $existClientProgram = ClientProgram::where('prog_id', $data['prog_id'])
-                        ->where('client_id', $data['client_id'])
-                        ->first();
-
-                    if (!isset($existClientProgram)) {
-                        $insertedClientProgram = ClientProgram::create($data);
-
-                        # add to log client event 
-                        # to trigger the cron for send the qr email
-                        // ClientEventLogMail::create([
-                        //     'clientevent_id' => $insertedClientEvent->clientevent_id,
-                        //     'event_id' => $val['Event Name'],
-                        //     'sent_status' => 0,
-                        //     'category' => 'qrcode-mail'
-                        // ]);
-
-                    }
-
-                    $logDetails[] = [
-                        'clientprog_id' => isset($insertedClientProgram->clientprog_id) ? $insertedClientProgram->clientprog_id : null
-                    ];
-    
-                    $imported = Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Client Programs')->range('W'.$val['No'] + 1)->update([[Carbon::now()->format('d-m-Y H:i:s')]]);
-                    $totalImported += $imported->totalUpdatedRows;
-                }
-
-                # trigger to verifying client
-                count($childIds) > 0 ? ProcessVerifyClient::dispatch($childIds)->onQueue('verifying-client') : null;
-                count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent') : null;
+                JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
 
                 $response = [
-                    'total_imported' => $totalImported,
-                    'message' => null,
+                    'success' => true,
+                    'batch_id' => $batchID,
                 ];
                 
             }else{
                 $response = [
+                    'success' => true,
                     'total_imported' => 0,
                     'message' => 'Data Client Programs is uptodate'
                 ];
             }
          
-            DB::commit();
-        } catch (Exception $e) {
-            for ($i=$start; $i <= $end ; $i++) { 
-                Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Client Programs')->range('W'.$i)->update([['']]);
-            }
-            DB::rollBack();
+        return response()->json($response);
 
-            Log::error($e->getMessage());
-            return response()->json([
-                'success' => false,
-                'error' => 'Something went wrong. Please try again'
-            ], 500);
-        }
-      
-        $this->logSuccess('store', 'Import Client Program', 'Client Program', auth()->guard('api')->user()->first_name . ' ' . auth()->guard('api')->user()->last_name, $logDetails);
-
-        return response()->json([
-            'success' => true,
-            'data' => $response
-        ]);
     }
 
-    private function createClient($row, $type, $role, $majorDetails, $destinationCountryDetails, $school, $mainClient=null)
+    public function createClient($row, $type, $role, $majorDetails, $destinationCountryDetails, $school, $mainClient=null)
     {
         $clientId = '';
         $checkExistClientRelation = [
@@ -1261,59 +654,61 @@ class GoogleSheetController extends Controller
     private function setDataForValidation($rawData, $category)
     {
         $arrInputData = [];
-        foreach ($rawData as $data) {
-            switch ($category) {
-                case 'client-event':
-                    $event_name = Event::where('event_title', $data['Event Name'])->get()->pluck('event_id')->first();
-                    isset($event_name) ? $data['Event Name'] = $event_name : null;
+        $chunks = $rawData->chunk(50);
+        foreach ($chunks as $chunk) {
+            foreach ($chunk as $data) {
+                switch ($category) {
+                    case 'client-event':
+                        $event_name = Event::where('event_title', $data['Event Name'])->get()->pluck('event_id')->first();
+                        isset($event_name) ? $data['Event Name'] = $event_name : null;
+                        
+                        // $data['Date'] = str_replace('/', '-', $data['Date']);
+                        $data['Date'] = Carbon::parse($data['Date'])->format('Y-m-d');
+    
+                        break;
+    
+                    case 'client-program':
+                        $program_name = ViewProgram::where('program_name', $data['Program Name'])->pluck('prog_id')->first();
+                        isset($program_name) ? $data['Program Name'] = $program_name : null;
+    
+                        $event = Event::where('event_title', $data['Event'])->get()->pluck('event_id')->first();
+                        isset($event) ? $data['Event'] = $event : null;
+    
+                        // $data['Date'] = str_replace('/', '-', $data['Date']);
+                        $data['Date'] = Carbon::parse($data['Date'])->format('Y-m-d');
+    
+                        break;
                     
-                    // $data['Date'] = str_replace('/', '-', $data['Date']);
-                    $data['Date'] = Carbon::parse($data['Date'])->format('Y-m-d');
-
-                    break;
-
-                case 'client-program':
-                    $programs = Program::all();
-                    $program_name = $programs->where('program_name', $data['Program Name'])->pluck('prog_id')->first(); 
-                    isset($program_name) ? $data['Program Name'] = $program_name : null;
-
-                    $event = Event::where('event_title', $data['Event'])->get()->pluck('event_id')->first();
-                    isset($event) ? $data['Event'] = $event : null;
-
-                    // $data['Date'] = str_replace('/', '-', $data['Date']);
-                    $data['Date'] = Carbon::parse($data['Date'])->format('Y-m-d');
-
-                    break;
+                    default:
+                        $event = Event::where('event_title', $data['Event'])->get()->pluck('event_id')->first();
+                        isset($event) ? $data['Event'] = $event : null;
+    
+                        // $data['Joined Date'] = str_replace('/', '-', $data['Joined Date']);
+                        $data['Joined Date'] = Carbon::parse($data['Joined Date'])->format('Y-m-d');        
+                        break;
+                }
+    
+                if ($data['Lead'] == 'School' || $data['Lead'] == 'Counselor') {
+                    $data['Lead'] = 'School/Counselor';
+                }else if($data['Lead'] == 'KOL'){
+                    $data['Lead'] = 'KOL';
+                }else{
+                    $lead = Lead::where('main_lead', $data['Lead'])->get()->pluck('lead_id')->first();
+                    isset($lead) ? $data['Lead'] = $lead : null;
+                }
+    
+                $getAllEduf = EdufLead::all();
+                $edufair = $getAllEduf->where('organizerName', $data['Edufair'])->pluck('id')->first();
+                $partner = Corporate::where('corp_name', $data['Partner'])->get()->pluck('corp_id')->first();
+                $kol = Lead::where('main_lead', 'KOL')->where('sub_lead', $data['KOL'])->get()->pluck('lead_id')->first();
                 
-                default:
-                    $event = Event::where('event_title', $data['Event'])->get()->pluck('event_id')->first();
-                    isset($event) ? $data['Event'] = $event : null;
-
-                    // $data['Joined Date'] = str_replace('/', '-', $data['Joined Date']);
-                    $data['Joined Date'] = Carbon::parse($data['Joined Date'])->format('Y-m-d');        
-                    break;
+                isset($edufair) ? $data['Edufair'] = $edufair : null;
+                isset($partner) ? $data['Partner'] = $partner : null;
+                isset($kol) ? $data['KOL'] = $kol : null;
+    
+    
+                $arrInputData[$data['No']] = array_map(fn($v) => $v == '' ? null : $v, $data->toArray()); # Replace value "" to null
             }
-
-            if ($data['Lead'] == 'School' || $data['Lead'] == 'Counselor') {
-                $data['Lead'] = 'School/Counselor';
-            }else if($data['Lead'] == 'KOL'){
-                $data['Lead'] = 'KOL';
-            }else{
-                $lead = Lead::where('main_lead', $data['Lead'])->get()->pluck('lead_id')->first();
-                isset($lead) ? $data['Lead'] = $lead : null;
-            }
-
-            $getAllEduf = EdufLead::all();
-            $edufair = $getAllEduf->where('organizerName', $data['Edufair'])->pluck('id')->first();
-            $partner = Corporate::where('corp_name', $data['Partner'])->get()->pluck('corp_id')->first();
-            $kol = Lead::where('main_lead', 'KOL')->where('sub_lead', $data['KOL'])->get()->pluck('lead_id')->first();
-            
-            isset($edufair) ? $data['Edufair'] = $edufair : null;
-            isset($partner) ? $data['Partner'] = $partner : null;
-            isset($kol) ? $data['KOL'] = $kol : null;
-
-
-            $arrInputData[$data['No']] = array_map(fn($v) => $v == '' ? null : $v, $data->toArray()); # Replace value "" to null
         }
         return $arrInputData;
     }
@@ -1336,6 +731,32 @@ class GoogleSheetController extends Controller
         return response()->json([
             'success' => true,
         ]);
+    }
+
+
+    public function findBatch(Request $request)
+    {
+        $batchId = $request->route('batchId');
+        $data = new Collection();
+
+        try {
+            $batch = Bus::findBatch($batchId);
+            $jobBatches = JobBatches::find($batchId);
+            $data = Collect($batch);
+            
+            $data->put('total_data', $jobBatches->total_data);
+            $data->put('total_imported', $jobBatches->total_imported);
+    
+            if($jobBatches->finished_at != null){
+                $this->logSuccess('store', 'Import '. $jobBatches->type, $jobBatches->type, auth()->guard('api')->user()->first_name . ' ' . auth()->guard('api')->user()->last_name, Collect(json_decode($jobBatches->log_details, true)));
+            } 
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Something went wrong. Please try again'
+            ], 500);
+        }
+        return $data;
     }
 
 }

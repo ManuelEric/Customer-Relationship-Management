@@ -46,7 +46,10 @@ use App\Http\Controllers\ReceiptReferralController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolEventController;
 use App\Http\Controllers\UserController;
+use App\Models\JobBatches;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Route;
 
 
@@ -190,12 +193,19 @@ Route::prefix('v1')->group(function () {
     Route::patch('registration/verify/{clientevent_id}', [ExtClientController::class, 'update']);
     Route::get('school', [APISchoolController::class, 'alt_search']);
 
-    # 
+    # ----------------------
     # used in other platform
-    #
+    # ----------------------
     Route::get('get/user/by/TKT/{ticket_no}', [ExtClientController::class, 'getUserByTicket']);
     Route::get('get/user/by/UUID/{uuid}', [ExtClientController::class, 'getUserByUUID']);
 
+    # timesheet
+    Route::middleware('throttle:10,1')->group(function () {
+        Route::get('auth/email/check', [ExtClientController::class, 'checkUserEmail']);
+        Route::post('auth/token', [ExtClientController::class, 'validateCredentials']);
+        Route::get('user/mentor-tutors', [ExtClientController::class, 'getMentorTutors']);
+        Route::post('user/update', [ExtClientController::class, 'updateUser']);
+    });
 });
 
 # Client Event Attendance
@@ -239,8 +249,6 @@ Route::group(['middleware' => 'auth:api', 'prefix' => 'import'], function () {
     Route::get('teacher', [GoogleSheetController::class, 'storeTeacher']);
     Route::get('client-program', [GoogleSheetController::class, 'storeClientProgram']);
 });
-
-Route::middleware('auth:api')->get('sync/{type}', [GoogleSheetController::class, 'sync']);
 
 # New dashboard
 Route::prefix('v2')->group(function () {
@@ -291,3 +299,6 @@ Route::prefix('v2')->group(function () {
     Route::get('finance/outstanding/period', [FinanceDashboardControllerV2::class, 'getOutstandingPaymentByPeriod']);
 
 });
+Route::get('/batch/{batchId}', [GoogleSheetController::class, 'findBatch'])->middleware(['auth:api']);
+
+Route::middleware('auth:api')->get('sync/{type}', [GoogleSheetController::class, 'sync']);
