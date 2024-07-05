@@ -1586,7 +1586,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             $q->whereMonth('initconsult_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('initconsult_date', date('Y', strtotime($cp_filter['qdate'])));
         })->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
             $q->where('empl_id', $userId);
-        })->where('status', 0)->where('initconsult_date', '>', Carbon::now())->get(); # soon
+        })->whereRelation('client', 'is_verified', 'Y')->where('status', 0)->where('initconsult_date', '>', Carbon::now())->get(); # soon
 
         // $data[0] = $query->where('status', 0)->where('initconsult_date', '>', Carbon::now())->count(); # soon
         $already = ClientProgram::when($cp_filter['qdate'], function ($q) use ($cp_filter) {
@@ -1594,14 +1594,14 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             $q->whereMonth('initconsult_date', '<=', date('m', strtotime($cp_filter['qdate'])))->whereYear('initconsult_date', '<=', date('Y', strtotime($cp_filter['qdate'])));
         })->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
             $q->where('empl_id', $userId);
-        })->where('status', 0)->where('initconsult_date', '<', Carbon::now())->get(); # already
+        })->whereRelation('client', 'is_verified', 'Y')->where('status', 0)->where('initconsult_date', '<', Carbon::now())->get(); # already
         
         $success = ClientProgram::when($cp_filter['qdate'], function ($q) use ($cp_filter) {
             // $q->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])));
             $q->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])));
         })->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
             $q->where('empl_id', $userId);
-        })->where('status', 1)->whereNotNull('success_date')->whereNotNull('initconsult_date')->get(); # success
+        })->whereRelation('client', 'is_verified', 'Y')->where('status', 1)->whereNotNull('success_date')->whereNotNull('initconsult_date')->get(); # success
 
         $data = [$soon, $already, $success];
 
