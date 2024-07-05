@@ -67,6 +67,8 @@ class UserClient extends Authenticatable
         'is_verified',
         'register_as',
         'referral_code',
+        'category',
+        'took_ia',
         'created_at',
         'updated_at',
     ];

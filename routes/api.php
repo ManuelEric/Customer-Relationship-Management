@@ -299,6 +299,13 @@ Route::prefix('v2')->group(function () {
     Route::get('finance/outstanding/period', [FinanceDashboardControllerV2::class, 'getOutstandingPaymentByPeriod']);
 
 });
+# Export data to google sheet
+Route::group(['middleware' => 'auth:api', 'prefix' => 'export'], function () {
+
+    // From mean type data {collection or model}
+    Route::get('{type}/{from}', [GoogleSheetController::class, 'exportData']);
+});
+
 Route::get('/batch/{batchId}', [GoogleSheetController::class, 'findBatch'])->middleware(['auth:api']);
 
 Route::middleware('auth:api')->get('sync/{type}', [GoogleSheetController::class, 'sync']);

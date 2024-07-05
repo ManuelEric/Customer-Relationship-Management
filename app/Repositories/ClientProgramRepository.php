@@ -17,6 +17,8 @@ use App\Models\User;
 use App\Models\UserClient;
 use App\Models\v1\ClientProgram as CRMClientProgram;
 use App\Models\ViewClientProgram;
+use App\Models\ViewClientRefCode;
+use App\Models\ViewProgram;
 use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -283,7 +285,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     
     }
     
-    public function getAllClientProgramDataTables($searchQuery = NULL)
+    public function getAllClientProgramDataTables($searchQuery = NULL, $asDatatables = true)
     {
         # default 
         $fieldKey = ["success_date", "failed_date", "refund_date", "created_at"];
@@ -316,104 +318,169 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             }
         }
 
-        $model = ViewClientProgram::
-                when(Session::get('user_role') == 'Employee', function ($subQuery) {
-                    $subQuery->whereHas('internalPic', function ($query2) {
-                        $query2->where('users.id', auth()->user()->id);
-                    })->orWhere('pic_client', auth()->user()->id);
-                })->
-                when($searchQuery['clientId'], function ($query) use ($searchQuery) {
-                    $query->where('client_id', $searchQuery['clientId']);
-                })
-                # search by main program 
-                ->when(isset($searchQuery['mainProgram']) && count($searchQuery['mainProgram']) > 0, function ($query) use ($searchQuery) {
-                    $query->whereIn('main_prog_id', $searchQuery['mainProgram']);
-                })
-                # search by program name 
-                ->when(isset($searchQuery['programName']) && count($searchQuery['programName']) > 0, function ($query) use ($searchQuery) {
-                    $query->whereIn('prog_id', $searchQuery['programName']);
-                })
-                # search by school name 
-                ->when(isset($searchQuery['schoolName']), function ($query) use ($searchQuery) {
-                    $query->whereIn('sch_id', $searchQuery['schoolName']);
-                })
-                # search by conversion lead
-                ->when(isset($searchQuery['leadId']), function ($query) use ($searchQuery) {
-                    $query->whereIn('lead_id', $searchQuery['leadId']);
-                })
-                # search by grade
-                ->when(isset($searchQuery['grade']), function ($query) use ($searchQuery) {
-                    if(in_array('not_high_school', $searchQuery['grade'])){
-                        $key = array_search('not_high_school', $searchQuery['grade']);
-                        unset($searchQuery["grade"][$key]);
-                        count($searchQuery['grade']) > 0
+        $model = ClientProgram::leftJoin('client as c', 'c.id', '=', 'tbl_client_prog.client_id')->
+                    leftJoin('tbl_sch as sch', 'sch.sch_id', '=', 'c.sch_id')->
+                    leftJoin('tbl_lead as cl', 'cl.lead_id', '=', 'c.lead_id')->
+                    leftJoin('tbl_eduf_lead as cedl', 'cedl.id', '=', 'c.eduf_id')->
+                    leftJoin('tbl_events as cec', 'cec.event_id', '=', 'c.event_id')->
+                    leftJoin('program as p', 'p.prog_id', '=', 'tbl_client_prog.prog_id')->
+                    leftJoin('tbl_client_relation as cr', 'cr.child_id', '=', 'c.id')->
+                    leftJoin('tbl_client as parent', 'parent.id', '=', 'cr.parent_id')->
+                    leftJoin('tbl_lead as cpl', 'cpl.lead_id', '=', 'tbl_client_prog.lead_id')->
+                    leftJoin('tbl_eduf_lead as edl', 'edl.id', '=', 'tbl_client_prog.eduf_lead_id')->
+                    leftJoin('tbl_client_event as ce', 'ce.clientevent_id', '=', 'tbl_client_prog.clientevent_id')->
+                    leftJoin('tbl_events as e', 'e.event_id', '=', 'ce.event_id')->
+                    leftJoin('tbl_corp as corp', 'corp.corp_id', '=', 'tbl_client_prog.partner_id')->
+                    leftJoin('tbl_reason as r', 'r.reason_id', '=', 'tbl_client_prog.reason_id')->
+                    leftJoin('users as u', 'u.id', '=', 'tbl_client_prog.empl_id')->
+                    leftJoin('eduf_lead as vedl', 'vedl.id', '=', 'edl.id')->
+                    select([
+                        'c.id as client_id', 
+                        'tbl_client_prog.clientprog_id', 
+                        'tbl_client_prog.prog_id',
+                        'tbl_client_prog.referral_code',
+                        'p.main_prog_id',
+                        'p.main_prog_name',
+                        DB::raw("CONCAT(c.first_name, ' ', COALESCE(c.last_name, '')) AS fullname"),
+                        'c.mail AS student_mail',
+                        'c.phone AS student_phone',
+                        'sch.sch_name AS school_name',
+                        'c.grade_now AS grade_now',
+                        'p.program_name AS program_names',
+                        'c.register_as AS register_as',
+                        DB::raw("CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, '')) AS parent_fullname"),
+                        'parent.phone as parent_phone',
+                        'parent.mail as parent_mail',
+                        DB::raw("(SELECT GROUP_CONCAT(CONCAT(squ.first_name, ' ', squ.last_name)) FROM tbl_client_mentor sqcm
+                                LEFT JOIN users squ ON squ.id = sqcm.user_id
+                                WHERE sqcm.clientprog_id = tbl_client_prog.clientprog_id GROUP BY sqcm.clientprog_id) as mentor_tutor_name"),
+                        'tbl_client_prog.prog_end_date',
+                        'c.lead_source',
+                        DB::raw('(CASE 
+                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead COLLATE utf8mb4_unicode_ci)
+                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "External Edufair" THEN (CASE WHEN tbl_client_prog.eduf_lead_id is not null THEN vedl.organizer_name ELSE "External Edufair" END) 
+                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title COLLATE utf8mb4_unicode_ci)
+                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name COLLATE utf8mb4_unicode_ci)
+                                    ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
+                                END) AS conversion_lead'),
+                        'tbl_client_prog.status',
+                        'tbl_client_prog.prog_running_status',
+                        'r.reason_name as reason',
+                        DB::raw('CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) AS pic_name'),
+                        'tbl_client_prog.initconsult_date',
+                        'tbl_client_prog.assessmentsent_date',
+                        'tbl_client_prog.first_discuss_date',
+                        'tbl_client_prog.failed_date',
+                        'tbl_client_prog.success_date',
+                        'tbl_client_prog.created_at',
+                    ]);
+
+                    if(!$asDatatables){
+                        return $model;
+                    }
+                    
+                    $model->
+                    when(Session::get('user_role') == 'Employee', function ($subQuery) {
+                        $subQuery->whereHas('internalPic', function ($query2) {
+                            $query2->where('users.id', auth()->user()->id);
+                        })->orWhere('pic_client', auth()->user()->id);
+                    })->
+                    when($searchQuery['clientId'], function ($query) use ($searchQuery) {
+                        $query->where('client_id', $searchQuery['clientId']);
+                    })
+                    # search by main program 
+                    ->when(isset($searchQuery['mainProgram']) && count($searchQuery['mainProgram']) > 0, function ($query) use ($searchQuery) {
+                        $query->whereIn('p.main_prog_id', $searchQuery['mainProgram']);
+                    })
+                    # search by program name 
+                    ->when(isset($searchQuery['programName']) && count($searchQuery['programName']) > 0, function ($query) use ($searchQuery) {
+                        $query->whereIn('p.prog_id', $searchQuery['programName']);
+                    })
+                    # search by school name 
+                    ->when(isset($searchQuery['schoolName']), function ($query) use ($searchQuery) {
+                        $query->whereIn('sch.sch_id', $searchQuery['schoolName']);
+                    })
+                    # search by conversion lead
+                    ->when(isset($searchQuery['leadId']), function ($query) use ($searchQuery) {
+                        $query->whereIn('cpl.lead_id', $searchQuery['leadId']);
+                    })
+                    # search by grade
+                    ->when(isset($searchQuery['grade']), function ($query) use ($searchQuery) {
+                        if(in_array('not_high_school', $searchQuery['grade'])){
+                            $key = array_search('not_high_school', $searchQuery['grade']);
+                            unset($searchQuery["grade"][$key]);
+                            count($searchQuery['grade']) > 0
                             ?
                                 $query->where('grade_now', '>', 12)->orWhereIn('grade_now', $searchQuery['grade'])
                                     :
                                         $query->where('grade_now', '>', 12);
-                    }else{
-                        $query->whereIn('grade_now', $searchQuery['grade']);
-                    }
-                })
-                # search by status
-                ->when(isset($searchQuery['status']) && $searchQuery['status'] != null, function ($query) use ($searchQuery) {
-                    $query->whereIn('status', $searchQuery['status']);
-                })
-                # search by date
-                # when start date && end date filled
-                ->when(isset($searchQuery['startDate']) && isset($searchQuery['endDate']), function ($query) use ($searchQuery, $fieldKey) {
-                    $query->where(function ($subQuery) use ($searchQuery, $fieldKey) {
-
+                        }else{
+                            $query->whereIn('grade_now', $searchQuery['grade']);
+                        }
+                    })
+                    # search by status
+                    ->when(isset($searchQuery['status']) && $searchQuery['status'] != null, function ($query) use ($searchQuery) {
+                        $query->whereIn('tbl_client_prog.status', $searchQuery['status']);
+                    })
+                    # search by date
+                    # when start date && end date filled
+                    ->when(isset($searchQuery['startDate']) && isset($searchQuery['endDate']), function ($query) use ($searchQuery, $fieldKey) {
+                        $query->where(function ($subQuery) use ($searchQuery, $fieldKey) {
+                
+                            $no = 0;
+                            foreach ($fieldKey as $key => $val) {
+                                if ($no == 0)
+                                    $subQuery->whereBetween('tbl_client_prog.'. $val, [$searchQuery['startDate'], $searchQuery['endDate']]);
+                                else
+                                    $subQuery->orWhereBetween('tbl_client_prog.'. $val, [$searchQuery['startDate'], $searchQuery['endDate']]);
+                        
+                                $no++;
+                            }
+                        });
+                    })
+                    # when start date filled && end date null
+                    ->when(isset($searchQuery['startDate']) && !isset($searchQuery['endDate']), function ($query) use ($searchQuery, $fieldKey) {
                         $no = 0;
                         foreach ($fieldKey as $key => $val) {
                             if ($no == 0)
-                                $subQuery->whereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
+                                $query->whereBetween('tbl_client_prog.'. $val, [$searchQuery['startDate'], $searchQuery['startDate']]);
                             else
-                                $subQuery->orWhereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
-    
+                                $query->orWhereBetween('tbl_client_prog.'. $val, [$searchQuery['startDate'], $searchQuery['startDate']]);
+                
                             $no++;
                         }
+                    })
+                    # when start date null && end date filled
+                    ->when(isset($searchQuery['endDate']) && !isset($searchQuery['startDate']), function ($query) use ($searchQuery, $fieldKey) {
+                        $no = 0;
+                        foreach ($fieldKey as $key => $val) {
+                            if ($no == 0)
+                                $query->whereBetween('tbl_client_prog.'. $val, [$searchQuery['endDate'], $searchQuery['endDate']]);
+                            else
+                                $query->orWhereBetween('tbl_client_prog.'. $val, [$searchQuery['endDate'], $searchQuery['endDate']]);
+                
+                            $no++;
+                        }
+                    })
+                                # search by mentor / tutor id
+                    ->when(isset($searchQuery['userId']), function ($query) use ($searchQuery) {
+                        $query->whereHas('clientMentor', function ($query2) use ($searchQuery) {
+                            $query2->whereIn('users.id', $searchQuery['userId']);
+                        });
+                    })
+                    # search by pic uuid
+                    ->when(isset($searchQuery['emplUUID']) && count($searchQuery['emplUUID']) > 0, function ($query) use ($searchQuery) {
+                        $query->whereHas('internalPic', function ($query2) use ($searchQuery) {
+                            $query2->whereIn('users.uuid', $searchQuery['emplUUID']);
+                        });
                     });
-                })
-                # when start date filled && end date null
-                ->when(isset($searchQuery['startDate']) && !isset($searchQuery['endDate']), function ($query) use ($searchQuery, $fieldKey) {
-                    $no = 0;
-                    foreach ($fieldKey as $key => $val) {
-                        if ($no == 0)
-                            $query->whereBetween($val, [$searchQuery['startDate'], $searchQuery['startDate']]);
-                        else
-                            $query->orWhereBetween($val, [$searchQuery['startDate'], $searchQuery['startDate']]);
-
-                        $no++;
-                    }
-                })
-                # when start date null && end date filled
-                ->when(isset($searchQuery['endDate']) && !isset($searchQuery['startDate']), function ($query) use ($searchQuery, $fieldKey) {
-                    $no = 0;
-                    foreach ($fieldKey as $key => $val) {
-                        if ($no == 0)
-                            $query->whereBetween($val, [$searchQuery['endDate'], $searchQuery['endDate']]);
-                        else
-                            $query->orWhereBetween($val, [$searchQuery['endDate'], $searchQuery['endDate']]);
-
-                        $no++;
-                    }
-                })
-                # search by mentor / tutor id
-                ->when(isset($searchQuery['userId']), function ($query) use ($searchQuery) {
-                    $query->whereHas('clientMentor', function ($query2) use ($searchQuery) {
-                        $query2->whereIn('users.id', $searchQuery['userId']);
-                    });
-                })
-                # search by pic uuid
-                ->when(isset($searchQuery['emplUUID']) && count($searchQuery['emplUUID']) > 0, function ($query) use ($searchQuery) {
-                    $query->whereHas('internalPic', function ($query2) use ($searchQuery) {
-                        $query2->whereIn('users.uuid', $searchQuery['emplUUID']);
-                    });
-                });
 
         return Datatables::eloquent($model)->
-            // rawColumns(['strip_tag_notes'])->
+            rawColumns(['strip_tag_notes'])->
+            addColumn('referral_name', function ($query) {
+                $referral = ViewClientRefCode::where('id', (int) filter_var($query->referral_code, FILTER_SANITIZE_NUMBER_INT))->first();
+                return isset($referral) ? $referral->full_name : '';
+            })->
             addColumn('custom_clientprog_id', function ($query) {
                 return 'CP-' . $query->clientprog_id;
             })->
@@ -450,18 +517,41 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             )->filterColumn('custom_clientprog_id', function ($query, $keyword) {
                 $sql = "clientprog_id like ?";
                 $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->filterColumn('fullname', function ($query, $keyword) {
+                $sql = "CONCAT(c.first_name, ' ', COALESCE(c.last_name, '')) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->filterColumn('parent_fullname', function ($query, $keyword) {
+                $sql = "CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, '')) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->filterColumn('mentor_tutor_name', function ($query, $keyword) {
+                $sql = "(SELECT GROUP_CONCAT(CONCAT(squ.first_name, ' ', squ.last_name)) FROM tbl_client_mentor sqcm
+                            LEFT JOIN users squ ON squ.id = sqcm.user_id
+                        WHERE sqcm.clientprog_id = tbl_client_prog.clientprog_id GROUP BY sqcm.clientprog_id) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->filterColumn('conversion_lead', function ($query, $keyword) {
+                $sql = '(CASE 
+                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead COLLATE utf8mb4_unicode_ci)
+                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "External Edufair" THEN (CASE WHEN tbl_client_prog.eduf_lead_id is not null THEN vedl.organizer_name ELSE "External Edufair" END) 
+                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title COLLATE utf8mb4_unicode_ci)
+                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name COLLATE utf8mb4_unicode_ci)
+                        ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
+                        END) like ?';
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->filterColumn('pic_name', function ($query, $keyword) {
+                $sql = 'CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) like ?';
+                $query->whereRaw($sql, ["%{$keyword}%"]);
             })
             ->make(true);
     }
 
     public function getAllProgramOnClientProgram()
     {
-        return ViewClientProgram::distinct('program_name')->select('program_name', 'prog_id')->get();
+        return ViewProgram::distinct('program_name')->select('program_name', 'prog_id')->get();
     }
 
     public function getAllMainProgramOnClientProgram()
     {
-        return ViewClientProgram::distinct('main_prog_name')->select('main_prog_name', 'main_prog_id')->get();
+        return ViewProgram::distinct('main_prog_name')->select('main_prog_name', 'main_prog_id')->get();
     }
 
     public function getAllConversionLeadOnClientProgram()
@@ -477,10 +567,16 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
     public function getAllPICOnClientProgram()
     {
-        return ViewClientProgram::
-                leftJoin('users', 'users.id', '=', 'clientprogram.empl_id')->
-                distinct('empl_id')->
-                select('empl_id', 'pic_name', 'users.uuid')->get();
+        $role = 'Employee';
+        $department = 'Client Management';
+
+        return User::whereHas('roles', function ($query) use ($role) {
+                $query->where('role_name', 'like', '%'.$role);
+                })->whereHas('department', function ($query) use ($department) {
+                    $query->where('dept_name', 'like', '%'.$department.'%');
+                })->where('active', 1)
+                ->select(DB::raw('id as empl_id'), DB::raw('CONCAT(users.first_name, " ", COALESCE(users.last_name, "")) as pic_name'), 'uuid')
+                ->orderBy('first_name', 'asc')->orderBy('last_name', 'asc')->get();
     }
 
     public function getClientProgramById($clientProgramId)

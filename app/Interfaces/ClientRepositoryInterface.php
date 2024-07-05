@@ -47,6 +47,8 @@ interface ClientRepositoryInterface
     public function addInterestProgram($studentId, $interestProgram);
     public function removeInterestProgram($studentId, $interstProgram, $progId);
     public function getDataParentsByChildId($childId);
+    public function getClientsByCategory($category);
+
 
     /* ~ END */
 

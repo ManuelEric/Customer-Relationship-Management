@@ -11,6 +11,21 @@
     </style>
 @endpush
 @section('content')
+    {{-- Modal notif export --}}
+    <div class="modal modal-md fade" id="modal-notif-export" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="m-0 p-0" id="title-modal-export">
+                        Export Information
+                    </h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="content-export-information">
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="card bg-secondary mb-1 p-2">
         <div class="d-flex align-items-center justify-content-between">
@@ -69,9 +84,9 @@
                             <select name="conversion_lead[]" class="select form-select form-select-sm w-100" multiple
                                 id="conversion-lead">
                                 @foreach ($conversion_leads as $lead)
-                                    <option value="{{ $lead->lead_id }}"
-                                        @if ($request->get('conversion_lead') !== null && in_array($lead->lead_id, $request->get('conversion_lead'))) {{ 'selected' }} @endif>
-                                        {{ $lead->conversion_lead }}</option>
+                                    <option value="{{ $lead['lead_id'] }}"
+                                        @if ($request->get('conversion_lead') !== null && in_array($lead['lead_id'], $request->get('conversion_lead'))) {{ 'selected' }} @endif>
+                                        {{ $lead['main_lead'] }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -288,28 +303,35 @@
                     ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
                 ],
                 buttons: [
-                    'pageLength', {
-                        extend: 'excel',
-                        text: 'Export to Excel',
-                        exportOptions: {
-                            format: {
-                                body: function (data, row, column, node){
-                                    var clearHtml = '';
-                                    var result = '';
-                                    if(column === 2){
-                                        clearHtml = data.replace(/<[^>]*>?/gm, '');
-                                        if (clearHtml.indexOf('{}') === -1) {
-                                            result = clearHtml.replace(/{.*}/, '');
-                                        }
-                                    }else if(column === 1 || column === 18 || column === 28){
-                                        result = data.replace(/<[^>]*>?/gm, '');
-                                    }else{
-                                        result = data;
-                                    }
-                                    return result;
-                                }
-                            }
-                        },
+                    'pageLength', 
+                    // {
+                    //     extend: 'excel',
+                    //     text: 'Export to Excel',
+                    //     exportOptions: {
+                    //         format: {
+                    //             body: function (data, row, column, node){
+                    //                 var clearHtml = '';
+                    //                 var result = '';
+                    //                 if(column === 2){
+                    //                     clearHtml = data.replace(/<[^>]*>?/gm, '');
+                    //                     if (clearHtml.indexOf('{}') === -1) {
+                    //                         result = clearHtml.replace(/{.*}/, '');
+                    //                     }
+                    //                 }else if(column === 1 || column === 18 || column === 28){
+                    //                     result = data.replace(/<[^>]*>?/gm, '');
+                    //                 }else{
+                    //                     result = data;
+                    //                 }
+                    //                 return result;
+                    //             }
+                    //         }
+                    //     },
+                    // },
+                    {
+                        text: 'Export to Spreadsheet',
+                        action: function(e, dt, node, config) {
+                            exportData('client-program');
+                        }
                     },
                     {
                         text: '<i class="bi bi-bag-plus"></i> Create Bundle',
@@ -360,15 +382,20 @@
                     },
                     {
                         data: 'student_mail',
+                        name: 'c.mail',
                     },
                     {
                         data: 'student_phone',
+                        name: 'c.phone',
                     },
                     {
                         data: 'school_name',
+                        name: 'sch.sch_name',
+
                     },
                     {
                         data: 'grade_now',
+                        name: 'c.grade_now',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
                             if (data > 12)
@@ -378,23 +405,28 @@
                         }
                     },
                     {
-                        data: 'program_name',
-                        render: function(data, type, row, meta) {
-                            return row.referral_type == "Out" ? row.additional_prog_name : row
-                                .program_name
-                        }
+                        data: 'program_names',
+                        name: 'p.program_name',
+                        // render: function(data, type, row, meta) {
+                        //     return row.referral_type == "Out" ? row.additional_prog_name : row
+                        //         .program_name
+                        // }
                     },
                     {
                         data: 'register_as',
+                        name: 'c.register_as',
+
                     },
                     {
                         data: 'parent_fullname',
                     },
                     {
                         data: 'parent_mail',
+                        name: 'parent.mail',
                     },
                     {
                         data: 'parent_phone',
+                        name: 'parent.phone',
                     },
                     {
                         data: 'mentor_tutor_name',
@@ -412,6 +444,7 @@
                     },
                     {
                         data: 'lead_source',
+                        name: 'c.lead_source',
                         className: 'text-center'
                     },
                     {
@@ -431,6 +464,7 @@
                     },
                     {
                         data: 'status',
+                        name: 'tbl_client_prog.status',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
                             switch (parseInt(data)) {
@@ -473,6 +507,7 @@
                     },
                     {
                         data: 'reason',
+                        name: 'r.reason_name'
                     },
                     {
                         data: 'pic_name',
@@ -745,6 +780,108 @@
             //     var data = table.row($(this).parents('tr')).data();
             //     confirmDelete('master/event', data.event_id)
             // });
+
+            function exportData(type)
+            {
+                showLoading()
+                type = type === '' ? 'all' : type;
+                axios
+                    .get("{{ url('api/export') }}/" + type + '/model', {
+                        headers:{
+                            'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
+                        }
+                    }).then(function (response) {
+                        
+                        var data = response.data;
+                        var batch_id = data.batch_id;
+                        html = '';
+                        html += `<div id="loading-bar">`;
+                        html += `<div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="height:25px;">`;
+                        html += `<div class="progress-bar progress-bar-striped progress-bar-animated" id="bar" style="width: 0%">0%</div>`;
+                        html += `</div>`;
+                        html += `<p class="text-center mt-2" id="total">Exporting ...</p>`;
+                        html += `</div>`;
+
+                                        
+                        $("#modal-notif-export").modal('show');
+                        $('#content-export-information').html(html);
+
+                        var i = 0;
+
+                        let myInterval = setInterval(() => {
+                            axios
+                            .get("{{ url('api/batch') }}/" + batch_id, {
+                                headers:{
+                                    'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
+                                }
+                            }).then(function(response){
+                                $('#bar').css({'width': response.data.progress + '%'});
+                                $('#bar').text(response.data.progress + '%');
+                                $('#total').html(`Exporting ${response.data.total_imported}/${response.data.total_data}`);
+                                            
+                                i++;
+
+                                if(response.data.progress == 100){
+                                    $("#modal-notif-export").modal('hide');
+                                    var urlSpreadsheet  = 'https://docs.google.com/spreadsheets/d/1aPIULau0i3p1UoJVVsX8SnxIXVcIW6I42s9AwgofV-U/edit'
+                                    var tab_id = '';
+                                    switch (type) {
+                                        case 'new-leads':
+                                            tab_id = 0;
+                                            break;
+                                        case 'potential':
+                                            tab_id = '110833908';
+                                            break;
+                                        case 'mentee':
+                                            tab_id = '1367815258';
+                                            break;
+                                        case 'non-mentee':
+                                            tab_id = '1480246071';
+                                            break;
+                                        case 'all':
+                                            tab_id = '819681920';
+                                            break;
+                                        case 'inactive':
+                                            tab_id = '1330533397';
+                                            break;
+                                        case 'client-program':
+                                            tab_id = '310613762';
+                                            break;
+                                        default:
+                                            notification('error', 'Invalid client category!');
+                                            break;
+                                    }
+                                    window.open(urlSpreadsheet + '?gid=' + tab_id + '#gid=' + tab_id, '_blank');
+                                    clearInterval(myInterval);
+                                }
+
+                                if(i >= 100){
+                                    $("#modal-notif-export").modal('hide');
+                                    clearInterval(myInterval);
+                                    var msg = 'Timeout!';
+                                    notification('error', msg);
+                                }
+                            }).catch(function(error, response) {
+                                clearInterval(myInterval);
+                                $("#modal-notif-export").modal('hide');
+                                var msg = 'Something went wrong. Please try again';
+                                notification('error', msg);
+
+                            });
+                        }, 3000);
+                        
+                        swal.close()
+                    }).catch(function(error, response) {
+                        var msg = error.response.data.error;
+                        if(error.response.status == 429){
+                            msg = 'Please wait 1 minute!'
+                        }
+                        swal.close()
+                        notification('error', msg);
+
+                })
+                
+            }
 
         });
 

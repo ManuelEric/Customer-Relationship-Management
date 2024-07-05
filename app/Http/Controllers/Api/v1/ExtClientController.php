@@ -15,6 +15,7 @@ use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
+use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\RawClient\ProcessVerifyClient;
 use App\Jobs\RawClient\ProcessVerifyClientParent;
 use App\Models\ClientEvent;
@@ -903,6 +904,9 @@ class ExtClientController extends Controller
 
         # trigger to verify student / children
         ProcessVerifyClient::dispatch([$clientId])->onQueue('verifying_client');
+
+        # trigger define category client
+        ProcessDefineCategory::dispatch([$clientId])->onQueue('define-category-client');
 
         return $client;
     
