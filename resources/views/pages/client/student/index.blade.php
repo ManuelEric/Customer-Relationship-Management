@@ -441,10 +441,10 @@
             var get_st = "{{ isset($_GET['st']) ? $_GET['st'] : '' }}"
             var button = [
                 'pageLength', 
-                // {
-                //     extend: 'excel',
-                //     text: 'Export to Excel',
-                // },
+                {
+                    extend: 'excel',
+                    text: 'Export to Excel',
+                },
                 {
                     text: 'Export to Spreadsheet',
                     action: function(e, dt, node, config) {
@@ -457,10 +457,10 @@
             if (get_st == 'new-leads' || get_st == 'potential') {
                 button = [
                     'pageLength', 
-                    // {
-                    //     extend: 'excel',
-                    //     text: 'Export to Excel',
-                    // },
+                    {
+                        extend: 'excel',
+                        text: 'Export to Excel',
+                    },
                     {
                         text: 'Export to Spreadsheet',
                         action: function(e, dt, node, config) {
@@ -486,10 +486,10 @@
                 '{{ auth()->user()->email }}' != 'ericko.siswanto@all-inedu.com') {
                 button = [
                     'pageLength', 
-                    // {
-                    //     extend: 'excel',
-                    //     text: 'Export to Excel',
-                    // },
+                    {
+                        extend: 'excel',
+                        text: 'Export to Excel',
+                    },
                     {
                         text: 'Export to Spreadsheet',
                         action: function(e, dt, node, config) {
@@ -844,7 +844,7 @@
                         render: function(data, type, row, meta) {
                             var link = '{{ env("EDUALL_ASSESSMENT_URL") }}' + 'api/report/' + row.uuid + '?is_preview=1';
                             if(data !== 'error'){
-                                if(!data){
+                                if(data == 0){
                                     return '<h5><i class="bi bi-dash-square-fill text-danger" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Not yet"></i></h5>'
                                 }else{
                                     return '<div class="container" style="padding-left:0;">'
