@@ -1734,9 +1734,11 @@ class ExtClientController extends Controller
 
                 $acceptedRole[] = [
                     'role' => $role['role_name'],
-                    'tutor_subject' => $role['tutor_subject'],
-                    'fee_hours' => $role['feehours'],
-                    'fee_session' => $role['feesession'],
+                    'subjects' => array([
+                        'name' => $role['tutor_subject'],
+                        'fee_hours' => $role['feehours'],
+                        'fee_session' => $role['feesession'],
+                    ])
                 ];
             
             }
