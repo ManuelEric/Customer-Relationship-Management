@@ -44,8 +44,6 @@
             'active' => Request::segment(3) == NULL && Request::get('st') == NULL
         ]) aria-current="page" href="{{ url('client/student') }}">All</a>
     </li>
-    @endenv
-    @env('local')
     <li class="nav-item">
         <a @class([
             'nav-link',
