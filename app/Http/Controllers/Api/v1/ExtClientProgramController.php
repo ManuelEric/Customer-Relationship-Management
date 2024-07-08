@@ -14,7 +14,7 @@ class ExtClientProgramController extends Controller
         $b2cPrograms = \App\Models\ClientProgram::
         with([
             'client' => function ($query) {
-                $query->select('id', 'sch_id', 'first_name', 'last_name');
+                $query->select('id', 'uuid', 'sch_id', 'first_name', 'last_name');
             },
             'client.school' => function ($query) {
                 $query->select('sch_id', 'sch_name');
@@ -33,7 +33,7 @@ class ExtClientProgramController extends Controller
             $invoice_id = $data->invoice->inv_id;
             $program_name = $data->program->program_name;
             $require = $data->program->main_prog->id == 4 ? "Tutor" : "Mentor";
-            $client_id = $data->client->id;
+            $client_uuid = $data->client->uuid;
             $client_fname = $data->client->first_name;
             $client_lname = $data->client->last_name;
             $school_name = $data->client->school ? $data->client->school->sch_name : null;
@@ -45,7 +45,7 @@ class ExtClientProgramController extends Controller
                 'program_name' => $program_name,
                 'require' => $require,
                 'client' => [
-                    'id' => $client_id,
+                    'uuid' => $client_uuid,
                     'first_name' => $client_fname,
                     'last_name' => $client_lname,
                     'school_name' => $school_name,

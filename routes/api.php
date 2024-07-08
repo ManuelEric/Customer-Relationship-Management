@@ -203,6 +203,7 @@ Route::prefix('v1')->group(function () {
         
 
         Route::get('program/list/{authorization?}', [ExtClientProgramController::class, 'getSuccessPrograms']);
+        Route::get('client/information/{uuid}', [ExtClientController::class, 'getClientInformation']);
     });
 });
 

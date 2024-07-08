@@ -1789,4 +1789,10 @@ class ExtClientController extends Controller
         ]);
 
     }
+
+    public function getClientInformation($uuid): JsonResponse
+    {
+        $userClient = UserClient::where('uuid', $uuid)->first();
+        return response()->json($userClient);
+    }
 }
