@@ -11,21 +11,21 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class EndedActiveProgramClientExistingMentee extends Command
+class EndedActiveProgram extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'ended:client_program_existing_mentee';
+    protected $signature = 'ended:client_program';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Ended all of the existing mentee\'s client program when graduation year less than or equal to the current year';
+    protected $description = 'Ended all client program when graduation year less than or equal to the current year';
 
     private ClientRepositoryInterface $clientRepository;
     private ClientProgramRepositoryInterface $clientProgramRepository;
@@ -46,10 +46,10 @@ class EndedActiveProgramClientExistingMentee extends Command
      */
     public function handle()
     {
-        $existing = $this->clientRepository->getExistingMentees();
+        $ids = $this->clientRepository->getAllClients(['id'])->pluck('id')->toArray();
 
         # add condition
-        $ids = $existing->where('graduation_year_real', '<=', Carbon::now()->format('Y'))->pluck('id')->toArray();
+        // $ids = $existing->where('graduation_year_real', '<=', Carbon::now()->format('Y'))->pluck('id')->toArray();
 
         $progressBar = $this->output->createProgressBar(count($ids));
         if (count($ids) == 0 ) {
@@ -65,9 +65,11 @@ class EndedActiveProgramClientExistingMentee extends Command
                 if (!$clientProgram = $this->clientProgramRepository->getClientProgramByClientId($value))
                     continue;
     
-                $activeClientProgram = $clientProgram->where('status', 1 /* success */)->whereIn('prog_running_status', [0 /*not yet */, 1 /* ongoing */])->pluck('clientprog_id')->toArray();
-                $pendingClientProgram = $clientProgram->where('status', 0)->pluck('clientprog_id')->toArray();
-    
+                // $activeClientProgram = $clientProgram->where('status', 1 /* success */)->whereIn('prog_running_status', [0 /*not yet */, 1 /* ongoing */])->pluck('clientprog_id')->toArray();
+                // $activeClientProgram = $clientProgram->where('status', 1 /* success */)->where('prog_end_date', '<', date('Y-m-d'))->where('prog_running_status', '!=', 2)->pluck('clientprog_id')->toArray();
+                $activeClientProgram = $clientProgram->where('status', 1 /* success */)->where('prog_end_date', '<', date('Y-m-d'))->where('prog_running_status', '!=', 2)->pluck('clientprog_id')->toArray();
+                $pendingClientProgram = $clientProgram->where('status', 0)->where('created_at', '<', date('Y').'-01-01 00:00:00')->pluck('clientprog_id')->toArray();
+
                 # update the active client program to done
                 $this->clientProgramRepository->endedClientPrograms($activeClientProgram, ['prog_running_status' => 2 /* done */]);
                 

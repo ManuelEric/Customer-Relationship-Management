@@ -21,6 +21,7 @@ use App\Http\Traits\LoggingTrait;
 use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\ClientProgramLogMailRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
+use App\Jobs\Client\ProcessDefineCategory;
 use App\Models\Bundling;
 use App\Models\BundlingDetail;
 use App\Models\Program;
@@ -146,9 +147,24 @@ class ClientProgramController extends Controller
         $programs = $this->clientProgramRepository->getAllProgramOnClientProgram();
         $mainPrograms = $this->clientProgramRepository->getAllMainProgramOnClientProgram();
         $schools = $this->schoolRepository->getAllSchools();
-        $conversion_leads = $this->clientProgramRepository->getAllConversionLeadOnClientProgram();
+        // $conversion_leads = $this->clientProgramRepository->getAllConversionLeadOnClientProgram();
         $mentor_tutors = $this->clientProgramRepository->getAllMentorTutorOnClientProgram();
         $pics = $this->clientProgramRepository->getAllPICOnClientProgram();
+        $main_leads = $this->leadRepository->getAllMainLead();
+        $main_leads = $main_leads->map(function ($item) {
+            return [
+                'lead_id' => $item->lead_id,
+                'main_lead' => $item->main_lead
+            ];
+        });
+        $sub_leads = $this->leadRepository->getAllKOLlead();
+        $sub_leads = $sub_leads->map(function ($item) {
+            return [
+                'lead_id' => $item->lead_id,
+                'main_lead' => $item->sub_lead
+            ];
+        });
+        $conversion_leads = $main_leads->merge($sub_leads);
 
         return view('pages.program.client-program.index')->with(
             [
@@ -501,6 +517,9 @@ class ClientProgramController extends Controller
                     $this->clientLeadTrackingRepository->updateClientLeadTrackingById($leadTracking->id, ['status' => 0]);
                 }
             }
+
+            # trigger to define category child
+            ProcessDefineCategory::dispatch([$studentId])->onQueue('define-category-client');
 
             DB::commit();
         } catch (Exception $e) {
@@ -866,6 +885,10 @@ class ClientProgramController extends Controller
                 }
             }
 
+            # trigger to define category child
+            ProcessDefineCategory::dispatch([$studentId])->onQueue('define-category-client');
+
+
             DB::commit();
         } catch (Exception $e) {
 
@@ -898,6 +921,9 @@ class ClientProgramController extends Controller
         try {
 
             $this->clientProgramRepository->deleteClientProgram($clientProgramId);
+            # trigger to define category child
+            ProcessDefineCategory::dispatch([$studentId])->onQueue('define-category-client');
+
             DB::commit();
         } catch (Exception $e) {
 
@@ -1092,6 +1118,9 @@ class ClientProgramController extends Controller
                 # send thanks mail
                 $this->sendMailThanks($storedClientProgram, $parentId, $childId);
             }
+
+            # trigger define category client
+            ProcessDefineCategory::dispatch([$childId])->onQueue('define-category-client');
 
             DB::commit();
         

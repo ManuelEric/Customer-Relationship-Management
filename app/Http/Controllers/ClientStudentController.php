@@ -35,6 +35,7 @@ use App\Interfaces\ReasonRepositoryInterface;
 use App\Imports\MasterStudentImport;
 use App\Imports\StudentImport;
 use App\Interfaces\UserRepositoryInterface;
+use App\Jobs\Client\ProcessDefineCategory;
 use App\Models\ClientLeadTracking;
 use App\Models\Lead;
 use App\Models\School;
@@ -298,6 +299,9 @@ class ClientStudentController extends ClientController
                 throw new Exception('Failed to store new student', 3);
 
             $newStudentId = $newStudentDetails->id;
+            
+            # trigger define category client
+            ProcessDefineCategory::dispatch([$newStudentId])->onQueue('define-category-client');
 
             # case 4 (optional)
             # add relation between parent and student
@@ -538,6 +542,9 @@ class ClientStudentController extends ClientController
             if (!$student = $this->clientRepository->updateClient($studentId, $data['studentDetails']))
                 throw new Exception('Failed to update student information', 3);
 
+
+            # trigger define category client
+            ProcessDefineCategory::dispatch([$studentId])->onQueue('define-category-client');
 
             # case 4
             # add relation between parent and student
@@ -1008,7 +1015,8 @@ class ClientStudentController extends ClientController
             'phone' => $this->setPhoneNumber($request->phoneFinal),
             'graduation_year' => $request->graduationFinal,
             'sch_id' => $request->schoolFinal,
-            'is_verified' => 'Y'
+            'is_verified' => 'Y',
+            'cagegory' => 'new-lead'
         ];
 
         if ($request->parentName != null) {
