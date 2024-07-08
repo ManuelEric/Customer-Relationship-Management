@@ -45,7 +45,8 @@ class RunWorker extends Command
             'default',
             'verifying_client',
             'verifying_client_parent',
-            'verifying_client_teacher'
+            'verifying_client_teacher',
+            'define-category-client',
         ];
 
         Artisan::call('queue:work', [
