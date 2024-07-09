@@ -1016,7 +1016,7 @@ class ClientStudentController extends ClientController
             'graduation_year' => $request->graduationFinal,
             'sch_id' => $request->schoolFinal,
             'is_verified' => 'Y',
-            'cagegory' => 'new-lead'
+            'category' => 'new-lead'
         ];
 
         if ($request->parentName != null) {
