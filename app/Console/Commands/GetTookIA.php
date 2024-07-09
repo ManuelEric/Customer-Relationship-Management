@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Interfaces\ClientRepositoryInterface;
+use App\Jobs\Client\ProcessGetTookIA;
 use App\Services\JobBatchService;
 use Exception;
 use Illuminate\Console\Command;
@@ -48,31 +49,46 @@ class GetTookIA extends Command
 
         switch ($type) {
             case 'new-lead':
-                (new JobBatchService())->jobBatchFromCollection(Collect($this->clientRepository->getClientsByCategory('new-lead')->where('took_ia', 0)->pluck('uuid')), 'process', 'took-ia', 50);
+                $data = Collect($this->clientRepository->getClientsByCategory('new-lead')->where('took_ia', 0)->pluck('uuid'));
+                $this->dispatchTookIA($data);
                 break;
 
             case 'potential':
-                (new JobBatchService())->jobBatchFromCollection(Collect($this->clientRepository->getClientsByCategory('potential')->where('took_ia', 0)->pluck('uuid')), 'process', 'took-ia', 50);
+                $data = Collect($this->clientRepository->getClientsByCategory('potential')->where('took_ia', 0)->pluck('uuid'));
+                $this->dispatchTookIA($data);
                 break;
 
             case 'mentee':
-                (new JobBatchService())->jobBatchFromCollection(Collect($this->clientRepository->getClientsByCategory('mentee')->where('took_ia', 0)->pluck('uuid')), 'process', 'took-ia', 50);
+                $data = Collect($this->clientRepository->getClientsByCategory('mentee')->where('took_ia', 0)->pluck('uuid'));
+                $this->dispatchTookIA($data);
                 break;
 
             case 'non-mentee':
-                (new JobBatchService())->jobBatchFromCollection(Collect($this->clientRepository->getClientsByCategory('non-mentee')->where('took_ia', 0)->pluck('uuid')), 'process', 'took-ia', 50);
+                $data = Collect($this->clientRepository->getClientsByCategory('non-mentee')->where('took_ia', 0)->pluck('uuid'));
+                $this->dispatchTookIA($data);
                 break;
 
             case 'alumni-mentee':
-                (new JobBatchService())->jobBatchFromCollection(Collect($this->clientRepository->getClientsByCategory('alumni-mentee')->where('took_ia', 0)->pluck('uuid')), 'process', 'took-ia', 50);
+                $data = Collect($this->clientRepository->getClientsByCategory('alumni-mentee')->where('took_ia', 0)->pluck('uuid'));
+                $this->dispatchTookIA($data);
                 break;
 
             case 'alumni-non-mentee':
-                (new JobBatchService())->jobBatchFromCollection(Collect($this->clientRepository->getClientsByCategory('alumni-non-mentee')->where('took_ia', 0)->pluck('uuid')), 'process', 'took-ia', 50);
+                $data = Collect($this->clientRepository->getClientsByCategory('alumni-non-mentee')->where('took_ia', 0)->pluck('uuid'));
+                $this->dispatchTookIA($data);
                 break;
         
         }
        
         return Command::SUCCESS;
+    }
+
+    protected function dispatchTookIA($data)
+    {
+        $chunks = $data->chunk(50);
+        
+        foreach ($chunks as $val) {
+            ProcessGetTookIA::dispatch($val)->onQueue('get-took-ia');
+        }
     }
 }

@@ -32,6 +32,7 @@ class RunWorker extends Command
     {
 
         $resources = [
+            'default',
             'inv-send-to-client',
             'inv-email-request-sign',
             'verifying-client',
@@ -42,11 +43,11 @@ class RunWorker extends Command
             'imports-teacher',
             'imports-client-event',
             'imports-school-merge',
-            'default',
             'verifying_client',
             'verifying_client_parent',
             'verifying_client_teacher',
             'define-category-client',
+            'get-took-ia',
         ];
 
         Artisan::call('queue:work', [
@@ -55,7 +56,7 @@ class RunWorker extends Command
         ]);
         
         
-        // Log::debug('Workers has been ran : '.json_encode(Artisan::output()));
+        Log::debug('Workers has been ran : '.json_encode(Artisan::output()));
 
         
 
