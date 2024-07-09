@@ -66,7 +66,7 @@ class ProcessGetTookIA implements ShouldQueue
                 }
             }
 
-            Log::info('Successfully updated took IA');
+            // Log::info('Successfully updated took IA');
         }
        
 
