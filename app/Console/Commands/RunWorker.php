@@ -47,11 +47,11 @@ class RunWorker extends Command
             'verifying_client_parent',
             'verifying_client_teacher',
             'define-category-client',
-            'get-took-ia',
+            'get-took-ia'
         ];
 
-        Artisan::call('queue:work', [
-            '--stop-when-empty' => 1,
+        Artisan::call('queue:listen', [
+            // '--stop-when-empty' => 1,
             '--queue' => implode(',', $resources)
         ]);
         
