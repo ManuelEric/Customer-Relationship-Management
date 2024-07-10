@@ -48,7 +48,7 @@ class StoreUserRequest extends FormRequest
         $rules += [
             'first_name' => 'required',
             'last_name' => 'nullable',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email',
             'phone' => 'required|unique:users,phone',
 
             // 'emergency_contact' => 'required_if:role.*,1,8',
@@ -66,6 +66,10 @@ class StoreUserRequest extends FormRequest
             'type' => 'required|exists:tbl_user_type,id',
             'start_period' => 'required',
             'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
+
+            'subject_id.*' => 'nullable',
+            'fee_hours.*' => 'nullable',
+            'fee_session.*' => 'nullable',
 
             'curriculum_vitae' => 'nullable|mimes:pdf|max:5000',
             'bankname' => 'required',

@@ -2,6 +2,7 @@
 
 namespace App\Models\pivot;
 
+use App\Models\Subject;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class UserSubject extends Pivot
@@ -15,10 +16,15 @@ class UserSubject extends Pivot
      */
     protected $fillable = [
         'id',
-        'user_id', 
+        'user_role_id', 
         'subject_id', 
-        'feehours',
-        'feesession',
+        'fee_hours',
+        'fee_session',
     ];
+
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class, 'subject_id', 'id');
+    }
 
 }

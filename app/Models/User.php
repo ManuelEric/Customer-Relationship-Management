@@ -165,6 +165,7 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Role::class, 'tbl_user_roles', 'user_id', 'role_id')->using(UserRole::class)->withPivot(
             [
+                'id',
                 'extended_id',
                 'tutor_subject',
                 'feehours',
@@ -257,14 +258,9 @@ class User extends Authenticatable
         return $this->hasMany(SchoolVisit::class, 'internal_pic', 'id');
     }
 
-    public function subjects()
+    public function user_subjects()
     {
-        return $this->belongsToMany(Subject::class, 'tbl_user_subjects', 'user_id', 'subject_id')->using(UserSubject::class)->withPivot(
-            [
-                'feehours',
-                'feesession'
-            ]
-        )->withTimestamps();
+        return $this->hasManyThrough(UserSubject::class, UserRole::class, 'user_id', 'user_role_id', 'id', 'id');  
     }
 
     # applied when user from sales department

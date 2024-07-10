@@ -16,14 +16,14 @@ return new class extends Migration
         Schema::create('tbl_user_subjects', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedBigInteger('user_role_id');
+            $table->foreign('user_role_id')->references('id')->on('tbl_user_roles')->onUpdate('cascade')->onDelete('cascade');
 
             $table->unsignedBigInteger('subject_id');
             $table->foreign('subject_id')->references('id')->on('tbl_subjects')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->bigInteger('feehours')->nullable();
-            $table->bigInteger('feesession')->nullable();
+            $table->bigInteger('fee_hours')->nullable();
+            $table->bigInteger('fee_session')->nullable();
 
             $table->timestamps();
         });
