@@ -14,6 +14,7 @@ use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\UserTypeRepositoryInterface;
 use App\Models\pivot\UserRole;
+use App\Models\pivot\UserSubject;
 use App\Models\pivot\UserTypeDetail;
 use App\Models\User;
 use App\Models\UserType;
@@ -393,6 +394,11 @@ class UserController extends Controller
                 ];
                 
                 $this->userRepository->createOrUpdateUserSubject($user, $userSubjectDetails);
+            }else{
+                if(in_array(4, $request->role) && $user->user_subjects()->count() > 0){
+                    $user_role_id = $user->roles()->where('role_name', 'Tutor')->first()->pivot->id;
+                    UserSubject::where('user_role_id', $user_role_id)->delete();
+                }
             }
 
             # validate
