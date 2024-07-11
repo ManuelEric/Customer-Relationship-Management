@@ -1771,4 +1771,45 @@ class ExtClientController extends Controller
         ]);
 
     }
+
+    public function updateTookIA(Request $request){
+        $uuid = $request->uuid;
+
+        $rules = [
+            'uuid' => 'required|exists:tbl_client,uuid'
+        ];
+
+        $validator = Validator::make(['uuid' => $uuid], $rules);
+        
+        # threw error if validation fails
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'error' => $validator->errors()
+            ]);
+        }
+
+        DB::beginTransaction();
+        try {
+            
+            $client =  $this->clientRepository->updateClientByUUID($uuid, ['took_ia' => 1]);
+
+            $response = [
+                'success' => true,
+                'message' => 'Successfully update took ia'
+            ];
+
+            Log::notice('Successfully update took ia ' . $client->full_name);
+            DB::commit();
+        }catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to update took ia '. $e->getMessage() . ' | On Line: ' .$e->getLine());
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to update took ia' . $e->getMessage()
+            ], 500);
+        }
+
+        return response()->json($response);
+    }
 }
