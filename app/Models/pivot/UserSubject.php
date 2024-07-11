@@ -18,8 +18,12 @@ class UserSubject extends Pivot
         'id',
         'user_role_id', 
         'subject_id', 
-        'fee_hours',
-        'fee_session',
+        'fee_individual',
+        'fee_group',
+        'grade',
+        'addtional_fee',
+        'agreement',
+        'head'
     ];
 
     public function subject()
