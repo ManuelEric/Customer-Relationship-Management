@@ -1799,7 +1799,7 @@ class ExtClientController extends Controller
                 'message' => 'Successfully update took ia'
             ];
 
-            Log::notice('Successfully update took ia' . $client->full_name);
+            Log::notice('Successfully update took ia ' . $client->full_name);
             DB::commit();
         }catch (Exception $e) {
             DB::rollBack();
