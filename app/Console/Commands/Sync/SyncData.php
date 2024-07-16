@@ -67,7 +67,8 @@ class SyncData extends Command
             $index = 2;
             
             $query = $this->setQueryByType($type);
-
+                        
+            Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_SYNC_DATA'))->sheet($query['sheetName'])->range('A2:Z'. $query['query']->count() + 1)->clear();
 
             $query['query']
             ->chunk(200, function($models) use(&$i, &$index, $query, $type){
@@ -153,7 +154,6 @@ class SyncData extends Command
 
                 }
                    
-                // $this->info($index);
                 if($i == 0){
                     $index = 2;
                 }else{

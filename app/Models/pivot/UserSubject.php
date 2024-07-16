@@ -21,9 +21,10 @@ class UserSubject extends Pivot
         'fee_individual',
         'fee_group',
         'grade',
-        'addtional_fee',
+        'additional_fee',
         'agreement',
-        'head'
+        'head',
+        'year'
     ];
 
     public function subject()

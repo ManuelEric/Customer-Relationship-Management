@@ -20,6 +20,7 @@ return new class extends Migration
             $table->bigInteger('additional_fee')->after('subject_id')->nullable();
             $table->integer('head')->after('subject_id')->nullable();
             $table->text('agreement')->after('subject_id');
+            $table->year('year')->after('subject_id');
         });
     }
 
