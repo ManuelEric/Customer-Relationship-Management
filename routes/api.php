@@ -194,15 +194,15 @@ Route::prefix('v1')->group(function () {
     Route::get('get/user/by/UUID/{uuid}', [ExtClientController::class, 'getUserByUUID']);
 
     # timesheet
-    Route::middleware('throttle:10,1')->group(function () {
+    Route::middleware(['throttle:10,1', 'timesheet.access'])->group(function () {
         Route::get('auth/email/check', [ExtClientController::class, 'checkUserEmail']);
         Route::post('auth/token', [ExtClientController::class, 'validateCredentials']);
         Route::post('user/update', [ExtClientController::class, 'updateUser']);
 
-        Route::get('user/mentor-tutors/{authorization?}', [ExtClientController::class, 'getMentorTutors']);
+        Route::get('user/mentor-tutors', [ExtClientController::class, 'getMentorTutors']);
         
 
-        Route::get('program/list/{authorization?}', [ExtClientProgramController::class, 'getSuccessPrograms']);
+        Route::get('program/list', [ExtClientProgramController::class, 'getSuccessPrograms']);
         Route::get('client/information/{uuid}', [ExtClientController::class, 'getClientInformation']);
     });
 });

@@ -48,7 +48,7 @@ class RunWorker extends Command
             'verifying_client_teacher'
         ];
 
-        Artisan::call('queue:work', [
+        Artisan::call('queue:listen', [
             '--stop-when-empty' => 1,
             '--queue' => implode(',', $resources)
         ]);
