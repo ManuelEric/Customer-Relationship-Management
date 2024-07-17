@@ -953,6 +953,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 1), '/', -1) as 'invb2b_id_num'"),
                     DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 4), '/', -1) as 'invb2b_id_month'"),
                     DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 5), '/', -1) as 'invb2b_id_year'"),
+                    'tbl_invdtl.invdtl_id',
                     DB::raw('(CASE 
                                 WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch.sch_name
                                 WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_corp.corp_name
@@ -984,6 +985,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 1), '/', -1) as 'invb2b_id_num'"),
                     DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 4), '/', -1) as 'invb2b_id_month'"),
                     DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 5), '/', -1) as 'invb2b_id_year'"),
+                    'tbl_invdtl.invdtl_id',
                     DB::raw('(CASE 
                                 WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch.sch_name
                                 WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_corp.corp_name
@@ -1049,8 +1051,8 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     END)')
         )->orderBy('invb2b_id_year', 'asc')
             ->orderBy('invb2b_id_month', 'asc')
-            ->orderBy('invb2b_id_num', 'asc');
-        // ->groupBy('tbl_invb2b.invb2b_id');
+            ->orderBy('invb2b_id_num', 'asc')
+        ->groupBy(DB::raw('(CASE WHEN tbl_invdtl.invdtl_id is null THEN tbl_invb2b.invb2b_id ELSE tbl_invdtl.invdtl_id END)'));
 
 
         return $queryInv->get();

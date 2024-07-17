@@ -678,6 +678,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 1), '/', -1) as 'inv_id_num'"),
                     DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 4), '/', -1) as 'inv_id_month'"),
                     DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 5), '/', -1) as 'inv_id_year'"),
+                    'tbl_invdtl.invdtl_id',
                     'tbl_inv.clientprog_id',
                     DB::raw('CONCAT(child.first_name, " ", COALESCE(child.last_name, "")) as full_name'),
                     'parent.phone as parent_phone',
@@ -703,6 +704,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 1), '/', -1) as 'inv_id_num'"),
                     DB::raw("ABS(SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 4), '/', -1)) as 'inv_id_month'"),
                     DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 5), '/', -1) as 'inv_id_year'"),
+                    'tbl_invdtl.invdtl_id',
                     'tbl_inv.clientprog_id',
                     'tbl_inv.clientprog_id as client_prog_id',
                     'child.id as client_id',
@@ -744,8 +746,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 
         $queryInv
             ->whereRelation('clientprog', 'status', 1)
-            ->whereNull('tbl_inv.bundling_id');
-        // ->groupBy('tbl_inv.inv_id');
+            ->whereNull('tbl_inv.bundling_id')
+        ->groupBy(DB::raw('(CASE WHEN tbl_invdtl.invdtl_id is null THEN tbl_inv.inv_id ELSE tbl_invdtl.invdtl_id END)'));
 
         return $queryInv->orderBy('inv_id_year', 'asc')->orderBy('inv_id_month', 'asc')->orderBy('inv_id_num', 'asc')->get();
     }
