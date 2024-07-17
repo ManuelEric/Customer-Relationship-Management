@@ -25,8 +25,7 @@
                                                 </button>
                                                 <div id="agreement-upload-{{$user_subject->id}}" class="upload-file d-flex justify-content-center align-items-center d-none">
                                                     <input type="hidden" name="agreement_text[]" value={{$user_subject->agreement}}>
-                                                    <input type="file" name="agremeent[]" class="form-control form-control-sm rounded"
-                                                        value="{{$user_subject->agreement}}">
+                                                    <input type="file" name="agreement[]" class="form-control form-control-sm rounded">
                                                     <i id="btn-roolback-{{$user_subject->id}}" class="bi bi-backspace ms-2 cursor-pointer text-danger rollback" onclick="roolbackAgreement('{{$user_subject->id}}')"></i>
                                                 </div>
                                                 @error('agreement.'. $loop->index)
@@ -170,59 +169,59 @@
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
-                                    @for ($j=0; $j < count(old('count_subject_detail.'.$i)); $j++)
-                                        <div class="detail-subject border py-2 px-3 mb-1" id="detail-subject-{{ $j }}">
-                                            <div class="row" id="subjectDetailField-{{$j}}">
-                                                <input type="hidden" value="1" name="count_subject_detail[{{$i}}][]">
-                                                <div class="col-md-2 mb-3">
-                                                    <label for="" class="text-muted">Grade <sup class="text-danger">*</sup></label>
-                                                    <select name="grade[{{$i}}][]" class="select w-100">
-                                                        <option data-placeholder="true"></option>
-                                                        <option value="[9-10]" {{ json_encode(old('grade.'.$i.'.'.$j)) == '"[9-10]"' ? 'selected' : null }}>9-10</option>
-                                                        <option value="[11-12]" {{ json_encode(old('grade.'.$i.'.'.$j)) == '"[11-12]"' ? 'selected' : null }}>11-12</option>
-                                                    </select>
-                                                    @error('grade.'.$i.'.'.$j)
-                                                        <small class="text-danger fw-light">{{ $message }}</small>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-2 mb-3">
-                                                    <label for="" class="text-muted">Fee Indiviudal <sup class="text-danger">*</sup></label>
-                                                    <input class="form-control form-control-sm rounded" type="text" name="fee_individual[{{$i}}][]" value="{{ old('fee_individual.'.$i.'.'.$j) }}">
-                                                    @error('fee_individual.'.$i.'.'.$j)
-                                                        <small class="text-danger fw-light">{{ $message }}</small>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-2 mb-3">
-                                                    <label for="" class="text-muted">Fee Group </label>
-                                                    <input class="form-control form-control-sm rounded" type="text" name="fee_group[{{$i}}][]" value="{{ old('fee_group.'.$i.'.'.$j) }}">
-                                                    @error('fee_group.'.$i.'.'.$j)
-                                                        <small class="text-danger fw-light">{{ $message }}</small>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-2 mb-3">
-                                                    <label for="" class="text-muted">Additional </label>
-                                                    <input class="form-control form-control-sm rounded" type="text" name="additional_fee[{{$i}}][]" value="{{ old('additional_fee.'.$i.'.'.$j) }}">
-                                                    @error('additional_fee.'.$i.'.'.$j)
-                                                        <small class="text-danger fw-light">{{ $message }}</small>
-                                                    @enderror
-                                                </div>
-                                                <div class="col-md-3 mb-3 d-flex justify-content-between align-items-start">
-                                                    <div style="width:{{$i > 0 ? '85' : '100'}}%">
-                                                        <label for="" class="text-muted">Head </label>
-                                                        <input class="form-control form-control-sm rounded" type="text" name="head[{{$i}}][]" value="{{ old('head.'.$i.'.'.$j)}}">
-                                                        @error('head.'.$i.'.'.$j)
+                                    <div class="detail-subject border py-2 px-3 mb-1" id="detail-subject-{{ $i }}">
+                                        @for ($j=0; $j < count(old('count_subject_detail.'.$i)); $j++)
+                                                <div class="row" id="subjectDetailField-{{$j}}">
+                                                    <input type="hidden" value="1" name="count_subject_detail[{{$i}}][]">
+                                                    <div class="col-md-2 mb-3">
+                                                        <label for="" class="text-muted">Grade <sup class="text-danger">*</sup></label>
+                                                        <select name="grade[{{$i}}][]" class="select w-100">
+                                                            <option data-placeholder="true"></option>
+                                                            <option value="[9-10]" {{ json_encode(old('grade.'.$i.'.'.$j)) == '"[9-10]"' ? 'selected' : null }}>9-10</option>
+                                                            <option value="[11-12]" {{ json_encode(old('grade.'.$i.'.'.$j)) == '"[11-12]"' ? 'selected' : null }}>11-12</option>
+                                                        </select>
+                                                        @error('grade.'.$i.'.'.$j)
                                                             <small class="text-danger fw-light">{{ $message }}</small>
                                                         @enderror
                                                     </div>
-                                                    @if($j > 0)
-                                                        <button type="button" class="btn btn-sm btn-danger py-1" onclick="deleteDetailSubject('{{$j}}')" style="margin-top:18px; margin-left:10px;"><i class="bi bi-trash2"></i></button>
-                                                    @else
-                                                        <button type="button" class="btn btn-sm btn-outline-primary py-1" onclick="addDetailSubject('{{$i}}')" style="margin-top:18px; margin-left:10px;"><i class="bi bi-plus"></i></button>
-                                                    @endif
+                                                    <div class="col-md-2 mb-3">
+                                                        <label for="" class="text-muted">Fee Indiviudal <sup class="text-danger">*</sup></label>
+                                                        <input class="form-control form-control-sm rounded" type="text" name="fee_individual[{{$i}}][]" value="{{ old('fee_individual.'.$i.'.'.$j) }}">
+                                                        @error('fee_individual.'.$i.'.'.$j)
+                                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                                        @enderror
+                                                    </div>
+                                                    <div class="col-md-2 mb-3">
+                                                        <label for="" class="text-muted">Fee Group </label>
+                                                        <input class="form-control form-control-sm rounded" type="text" name="fee_group[{{$i}}][]" value="{{ old('fee_group.'.$i.'.'.$j) }}">
+                                                        @error('fee_group.'.$i.'.'.$j)
+                                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                                        @enderror
+                                                    </div>
+                                                    <div class="col-md-2 mb-3">
+                                                        <label for="" class="text-muted">Additional </label>
+                                                        <input class="form-control form-control-sm rounded" type="text" name="additional_fee[{{$i}}][]" value="{{ old('additional_fee.'.$i.'.'.$j) }}">
+                                                        @error('additional_fee.'.$i.'.'.$j)
+                                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                                        @enderror
+                                                    </div>
+                                                    <div class="col-md-3 mb-3 d-flex justify-content-between align-items-start">
+                                                        <div style="width:{{$i > 0 ? '85' : '100'}}%">
+                                                            <label for="" class="text-muted">Head </label>
+                                                            <input class="form-control form-control-sm rounded" type="text" name="head[{{$i}}][]" value="{{ old('head.'.$i.'.'.$j)}}">
+                                                            @error('head.'.$i.'.'.$j)
+                                                                <small class="text-danger fw-light">{{ $message }}</small>
+                                                            @enderror
+                                                        </div>
+                                                        @if($j > 0)
+                                                            <button type="button" class="btn btn-sm btn-danger py-1" onclick="deleteDetailSubject('{{$j}}')" style="margin-top:18px; margin-left:10px;"><i class="bi bi-trash2"></i></button>
+                                                        @else
+                                                            <button type="button" class="btn btn-sm btn-outline-primary py-1" onclick="addDetailSubject('{{$i}}')" style="margin-top:18px; margin-left:10px;"><i class="bi bi-plus"></i></button>
+                                                        @endif
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    @endfor
+                                        @endfor
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -428,7 +427,7 @@
             '<div class="row" id="subjectDetailField-'+id+'">' +
                 '<input type="hidden" value="1" name="count_subject_detail['+index+'][]">' +
                 '<div class="col-md-2 mb-3">' +
-                    '<label for="" class="text-muted">Grade</label>' +
+                    '<label for="" class="text-muted">Grade <sup class="text-danger">*</sup></label>' +
                     '<select name="grade['+index+'][]" class="select w-100">' +
                         '<option data-placeholder="true"></option>' +
                         '<option value="[9-10]">9-10</option>' +
@@ -439,7 +438,7 @@
                     @enderror
                 '</div>' +
                 '<div class="col-md-2 mb-3">' +
-                    '<label for="" class="text-muted">Fee Individual</label>' +
+                    '<label for="" class="text-muted">Fee Individual <sup class="text-danger">*</sup></label>' +
                     '<input class="form-control form-control-sm rounded" type="text" name="fee_individual['+index+'][]">' +
                     @error('fee_individual.0.0')
                         '<small class="text-danger fw-light">{{ $message }}</small>' +

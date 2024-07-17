@@ -178,7 +178,11 @@ class UserController extends Controller
 
             if ($request->subject_id[0] != null) {
                 # store new user subject to tbl_user_subjects
-                $this->userRepository->createOrUpdateUserSubject($newUser, $request, $user_id_with_label);
+                $checkUserSubject = $this->userRepository->createOrUpdateUserSubject($newUser, $request, $user_id_with_label);
+                
+                if($checkUserSubject[0]){
+                    return back()->withErrors(["agreement.".$checkUserSubject[1] => "The Agreement field is required"])->withInput();
+                }
             }
 
             # upload curriculum vitae
@@ -386,8 +390,12 @@ class UserController extends Controller
 
             if ($request->subject_id[0] != null) {
                 # update user subject to tbl_user_subjects
-                $this->userRepository->createOrUpdateUserSubject($user, $request, $user_id_with_label);
-                
+                $checkUserSubject = $this->userRepository->createOrUpdateUserSubject($user, $request, $user_id_with_label);
+                 
+                if($checkUserSubject[0]){
+                    return back()->withErrors(["agreement.".$checkUserSubject[1]=> "The Agreement field is required"])->withInput();
+                }
+
             }else{
                 if(in_array(4, $request->role) && $user->user_subjects()->count() > 0){
                     $user_role_id = $user->roles()->where('role_name', 'Tutor')->first()->pivot->id;

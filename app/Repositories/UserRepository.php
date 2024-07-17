@@ -358,6 +358,8 @@ class UserRepository implements UserRepositoryInterface
         $user_role_id = $user->roles()->where('role_name', 'Tutor')->first()->pivot->id;
         $subjectDetails = [];
         $agreement_file_path = null;
+        
+        $isErrorAgreement = [false, 0];
 
         if($user_role_id == null){
             Log::warning('Failed to create user subject!, User is not Tutor', ['id' => $user->id]);
@@ -369,7 +371,7 @@ class UserRepository implements UserRepositoryInterface
                 $agreement_file_format = $request->file('agreement.'.$i)->getClientOriginalExtension();
                 $agreement_file_name = 'Agreement-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name . '-' . $request->subject_id[$i] .  '-' . date('Y'));
                 $agreement_file_path = $request->file('agreement.'.$i)->storeAs('public/uploaded_file/user/' . $user_id_with_label, $agreement_file_name . '.' . $agreement_file_format);
-                   
+
                 for($j = 0; $j < count($request->grade[$i]); $j++){
                     $subjectDetails =  [
                         'fee_individual' => $request->fee_individual[$i][$j],
@@ -386,6 +388,9 @@ class UserRepository implements UserRepositoryInterface
                     ], $subjectDetails);
                 }
             }else{
+                if($request->isMethod('POST')){
+                    return $isErrorAgreement = [true, $i];
+                }
                 for($j = 0; $j < count($request->grade[$i]); $j++){
                     $subjectDetails =  [
                         'fee_individual' => $request->fee_individual[$i][$j],
@@ -401,10 +406,10 @@ class UserRepository implements UserRepositoryInterface
                         'year' => $request->year[$i]
                     ], $subjectDetails);
                 }
-            }
-
-          
+            }  
         }
+        
+        return $isErrorAgreement;
         
     }
 
