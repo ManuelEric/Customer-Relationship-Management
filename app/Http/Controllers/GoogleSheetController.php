@@ -79,7 +79,7 @@ class GoogleSheetController extends Controller
                     '*.No' => ['required'],
                     '*.Full Name' => ['required'],
                     '*.Email' => ['required', 'email'],
-                    '*.Phone Number' => ['required', 'min:5', 'max:15'],
+                    '*.Phone Number' => ['required', 'min:5', 'max:18'],
                     '*.Date of Birth' => ['nullable', 'date'],
                     '*.Instagram' => ['nullable', 'unique:tbl_client,insta'],
                     '*.State' => ['nullable'],
@@ -161,10 +161,10 @@ class GoogleSheetController extends Controller
                     '*.No' => ['required'],
                     '*.Full Name' => ['required'],
                     '*.Email' => ['required', 'email'],
-                    '*.Phone Number' => ['nullable', 'min:5', 'max:15'],
+                    '*.Phone Number' => ['nullable', 'min:5', 'max:18'],
                     '*.Date of Birth' => ['nullable', 'date'],
                     '*.Parents Name' => ['nullable', 'different:*.Full Name'],
-                    '*.Parents Phone' => ['nullable', 'min:5', 'max:15', 'different:*.Phone_number'],
+                    '*.Parents Phone' => ['nullable', 'min:5', 'max:18', 'different:*.Phone_number'],
                     '*.School' => ['required'],
                     '*.Graduation Year' => ['nullable', 'integer'],
                     '*.Grade' => ['nullable', 'integer'],
@@ -246,7 +246,7 @@ class GoogleSheetController extends Controller
                     '*.No' => ['required'],
                     '*.Full Name' => ['required'],
                     '*.Email' => ['required', 'email'],
-                    '*.Phone Number' => ['required', 'min:5', 'max:15'],
+                    '*.Phone Number' => ['required', 'min:5', 'max:18'],
                     '*.Date of Birth' => ['nullable', 'date'],
                     '*.Instagram' => ['nullable', 'unique:tbl_client,insta'],
                     '*.State' => ['nullable'],
@@ -756,9 +756,12 @@ class GoogleSheetController extends Controller
                     $data = $this->clientRepository->getNewLeads(false, null, []);
                     break;
                 case 'potential':
+                    Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet('Potentials')->range('A2:AE1000')->clear();
                     $data = $this->clientRepository->getPotentialClients(false, null, []);
                     break;
                 case 'mentee':
+                    Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet('Mentees')->range('A2:AE1000')->clear();
+
                     $data = $this->clientRepository->getExistingMentees(false, null, []);
                     break;
                 case 'non-mentee':

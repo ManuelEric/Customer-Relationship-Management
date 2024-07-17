@@ -351,6 +351,28 @@ class UserRepository implements UserRepositoryInterface
         }
     }
 
+    public function createOrUpdateUserSubject(User $user, array $userSubjectDetails)
+    {
+        $user_role_id = $user->roles()->where('role_name', 'Tutor')->first()->pivot->id;
+
+        if($user_role_id == null){
+            Log::warning('Failed to create user subject!, User is not Tutor', ['id' => $user->id]);
+            return;
+        }
+
+        for ($i = 0; $i < count($userSubjectDetails['listSubjectId']); $i++) {
+            $user->user_subjects()->updateOrCreate([
+                    'user_role_id' => $user_role_id,
+                    'subject_id' => $userSubjectDetails['listSubjectId'][$i],
+                ],
+                [
+                    'fee_hours' => $userSubjectDetails['listFeeHours'][$i],
+                    'fee_session' => $userSubjectDetails['listFeeSession'][$i],
+            ]);
+
+        }
+    }
+
     public function createUserRole(User $user, array $userRoleDetails)
     {
         for ($i = 0; $i < count($userRoleDetails['listRoles']); $i++) {

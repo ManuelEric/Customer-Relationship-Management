@@ -305,7 +305,6 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getNewLeads($asDatatables = false, $month = null, $advanced_filter = [])
     {
-        // return UserClient::all();
         # new client that havent offering our program
         $query = Client::select([
                 'client.*',
@@ -2109,5 +2108,10 @@ class ClientRepository implements ClientRepositoryInterface
     public function getClientsByCategory($category)
     {
         return UserClient::where('category', $category)->get();
+    }
+
+    public function updateClientByUUID($uuid, array $newDetails)
+    {
+        return tap(UserClient::where('uuid', $uuid))->update($newDetails)->first();
     }
 }

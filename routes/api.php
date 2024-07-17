@@ -309,3 +309,5 @@ Route::group(['middleware' => 'auth:api', 'prefix' => 'export'], function () {
 Route::get('/batch/{batchId}', [GoogleSheetController::class, 'findBatch'])->middleware(['auth:api']);
 
 Route::middleware('auth:api')->get('sync/{type}', [GoogleSheetController::class, 'sync']);
+
+Route::middleware('crm.key')->post('assessment/update', [ExtClientController::class, 'updateTookIA']);

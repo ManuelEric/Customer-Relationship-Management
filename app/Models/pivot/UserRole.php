@@ -19,9 +19,6 @@ class UserRole extends Pivot
         'user_id',
         'role_id', 
         'extended_id', 
-        'tutor_subject', 
-        'feehours',
-        'feesession',
     ];
 
     // public function department()

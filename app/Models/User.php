@@ -8,6 +8,7 @@ use App\Models\pivot\AgendaSpeaker;
 use App\Models\pivot\AssetReturned;
 use App\Models\pivot\AssetUsed;
 use App\Models\pivot\UserRole;
+use App\Models\pivot\UserSubject;
 use App\Models\pivot\UserTypeDetail;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -164,10 +165,8 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Role::class, 'tbl_user_roles', 'user_id', 'role_id')->using(UserRole::class)->withPivot(
             [
+                'id',
                 'extended_id',
-                'tutor_subject',
-                'feehours',
-                'feesession'
             ]
         )->withTimestamps();
     }
@@ -254,6 +253,11 @@ class User extends Authenticatable
     public function pic_school_visit()
     {
         return $this->hasMany(SchoolVisit::class, 'internal_pic', 'id');
+    }
+
+    public function user_subjects()
+    {
+        return $this->hasManyThrough(UserSubject::class, UserRole::class, 'user_id', 'user_role_id', 'id', 'id');  
     }
 
     # applied when user from sales department

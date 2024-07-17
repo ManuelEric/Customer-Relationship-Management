@@ -304,29 +304,29 @@
                 ],
                 buttons: [
                     'pageLength', 
-                    // {
-                    //     extend: 'excel',
-                    //     text: 'Export to Excel',
-                    //     exportOptions: {
-                    //         format: {
-                    //             body: function (data, row, column, node){
-                    //                 var clearHtml = '';
-                    //                 var result = '';
-                    //                 if(column === 2){
-                    //                     clearHtml = data.replace(/<[^>]*>?/gm, '');
-                    //                     if (clearHtml.indexOf('{}') === -1) {
-                    //                         result = clearHtml.replace(/{.*}/, '');
-                    //                     }
-                    //                 }else if(column === 1 || column === 18 || column === 28){
-                    //                     result = data.replace(/<[^>]*>?/gm, '');
-                    //                 }else{
-                    //                     result = data;
-                    //                 }
-                    //                 return result;
-                    //             }
-                    //         }
-                    //     },
-                    // },
+                    {
+                        extend: 'excel',
+                        text: 'Export to Excel',
+                        exportOptions: {
+                            format: {
+                                body: function (data, row, column, node){
+                                    var clearHtml = '';
+                                    var result = '';
+                                    if(column === 2){
+                                        clearHtml = data.replace(/<[^>]*>?/gm, '');
+                                        if (clearHtml.indexOf('{}') === -1) {
+                                            result = clearHtml.replace(/{.*}/, '');
+                                        }
+                                    }else if(column === 1 || column === 18 || column === 28){
+                                        result = data.replace(/<[^>]*>?/gm, '');
+                                    }else{
+                                        result = data;
+                                    }
+                                    return result;
+                                }
+                            }
+                        },
+                    },
                     {
                         text: 'Export to Spreadsheet',
                         action: function(e, dt, node, config) {

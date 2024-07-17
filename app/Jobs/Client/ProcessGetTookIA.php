@@ -45,12 +45,7 @@ class ProcessGetTookIA implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->batch()->cancelled()) {
-            // Determine if the batch has been cancelled...
- 
-            return;
-        }
-
+    
         $response = Http::post(env('EDUALL_ASSESSMENT_URL') . 'api/get/took-ia-bulk', ['uuid_crm' => $this->clientData]);
 
         $clientUUIDS = [];
@@ -71,7 +66,7 @@ class ProcessGetTookIA implements ShouldQueue
                 }
             }
 
-            Log::info('Successfully updated took IA');
+            // Log::info('Successfully updated took IA');
         }
        
 
