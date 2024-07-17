@@ -64,6 +64,9 @@ class SendReminderInvoiceProgramToClient extends Command
 
             foreach ($invoice_master as $data) {
 
+                if($data->sign_status != 'signed')
+                    continue;
+
                 $invoiceId = $data->inv_id;
                 $logExist = $this->generalMailLogRepository->getStatus($invoiceId);
                 $clientprogId = $data->clientprog_id;

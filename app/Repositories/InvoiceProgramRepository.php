@@ -295,6 +295,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
     {
         return ViewClientProgram::
             leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')->
+            leftJoin('tbl_inv_attachment', 'tbl_inv.inv_id', '=', 'tbl_inv_attachment.inv_id')->
             leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')->
             leftJoin('tbl_client as child', 'child.id', '=', 'clientprogram.client_id')->
             leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')->
@@ -312,6 +313,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 'tbl_inv.currency',
                 'tbl_inv.inv_paymentmethod as master_paymentmethod',
                 'tbl_inv.inv_id',
+                'tbl_inv_attachment.sign_status as sign_status',
                 DB::raw('
                     (CASE
                         WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.id

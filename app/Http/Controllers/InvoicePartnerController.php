@@ -225,8 +225,6 @@ class InvoicePartnerController extends InvoiceB2BBaseController
             DB::rollBack();
             Log::error('Create invoice failed : ' . $e->getMessage());
 
-            return $e->getMessage();
-            exit;
             return Redirect::to('invoice/corporate-program/' . $partnerProgId . '/detail/create')->withError('Failed to create a new invoice');
         }
 
