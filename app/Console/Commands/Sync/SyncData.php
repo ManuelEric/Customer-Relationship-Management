@@ -67,7 +67,6 @@ class SyncData extends Command
             $index = 2;
             
             $query = $this->setQueryByType($type);
-                        
             Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_SYNC_DATA'))->sheet($query['sheetName'])->range('A2:Z'. $query['query']->count() + 1)->clear();
 
             $query['query']

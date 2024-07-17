@@ -53,6 +53,9 @@ class SendReminderInvoiceProgramToSchool extends Command
 
             foreach ($invoice_master as $data) {
     
+                if($data->sign_status != 'signed')
+                    continue;
+
                 $invoiceB2bId = $data->invb2b_id;
                 $logExist = $this->generalMailLogRepository->getStatus($invoiceB2bId);
                 $pic_email = $data->pic_mail;
