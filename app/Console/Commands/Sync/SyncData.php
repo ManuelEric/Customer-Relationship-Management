@@ -312,31 +312,14 @@ class SyncData extends Command
                 break;
 
             case 'mentee':
-                $query = Client::withAndWhereHas('clientProgram', function ($subQuery) {
-                            $subQuery->with(['clientMentor', 'clientMentor.roles' => function ($subQuery_2) {
-                                $subQuery_2->where('role_name', 'Mentor');
-                            }])->whereHas('program', function ($subQuery_2) {
-                                $subQuery_2->whereHas('main_prog', function ($subQuery_3) {
-                                    $subQuery_3->where('prog_name', 'Admissions Mentoring');
-                                });
-                            })->where('status', 1)->where('prog_running_status', '!=', 2); # 1 success, 2 done
-                        })->whereHas('roles', function ($subQuery) {
-                            $subQuery->where('role_name', 'student');
-                        });
+                $query = Client::where('client.category', 'mentee');
 
                 $sheetName = 'Active Mentees';
                 $colUpdatedAt = 'D';
                 break;
 
             case 'alumni-mentee':
-                $query = Client::whereHas('clientProgram', function ($subQuery) {
-                            $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
-                                $subQuery_2->where('prog_name', 'Admissions Mentoring');
-                            })->where('status', 1)->where('prog_running_status', 2);
-                        })->
-                        whereDoesntHave('clientProgram', function ($subQuery) {
-                            $subQuery->whereIn('status', [0, 1])->whereIn('prog_running_status', [0, 1]);
-                        });
+                $query = Client::where('client.category', 'alumni-mentee');
 
                 $sheetName = 'Alumni Mentees';
                 $colUpdatedAt = 'D';
