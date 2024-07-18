@@ -383,7 +383,7 @@ class UserRepository implements UserRepositoryInterface
                     $user->user_subjects()->updateOrCreate([
                         'user_role_id' => $user_role_id,
                         'subject_id' => $request->subject_id[$i],
-                        'grade' => json_encode($request->grade[$i][$j]),
+                        'grade' => $request->grade[$i][$j],
                         'year' => $request->year[$i]
                     ], $subjectDetails);
                 }
@@ -402,7 +402,7 @@ class UserRepository implements UserRepositoryInterface
                     $user->user_subjects()->updateOrCreate([
                         'user_role_id' => $user_role_id,
                         'subject_id' => $request->subject_id[$i],
-                        'grade' => json_encode($request->grade[$i][$j]),
+                        'grade' => $request->grade[$i][$j],
                         'year' => $request->year[$i]
                     ], $subjectDetails);
                 }

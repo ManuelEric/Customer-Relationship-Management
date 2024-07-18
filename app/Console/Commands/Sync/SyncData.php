@@ -141,8 +141,11 @@ class SyncData extends Command
                                 if(count($tutors) > 0){
                                     $users = User::whereIn('id', $tutors)->get();
                                     foreach ($users as $user) {
-                                        $tutor_subject = $user->roles()->where('role_name', 'tutor')->pluck('tutor_subject')->toArray();
-                                        $subjects[] = count($tutor_subject) > 0 ? implode(", ", $tutor_subject) : null;
+                                        if($user->user_subjects()->count() > 0){
+                                            foreach ($user->user_subjects as $user_subject) {
+                                                $subjects[] = $user_subject->subject->name;
+                                            }
+                                        }
                                     }
                                 }
                             }
