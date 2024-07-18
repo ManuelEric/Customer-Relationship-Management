@@ -1279,7 +1279,7 @@
             showLoading()
             type = type === '' ? 'all' : type;
             axios
-                .get("{{ url('api/export') }}/" + type + '/collection', {
+                .get("{{ url('api/export') }}/" + type + '/model', {
                     headers:{
                         'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
                     }

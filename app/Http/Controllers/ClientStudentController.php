@@ -173,7 +173,7 @@ class ClientStudentController extends ClientController
                     break;
 
                 default:
-                    $model = $this->clientRepository->getAllClientStudent($advanced_filter);
+                    $model = $this->clientRepository->getAllClientStudent($advanced_filter, $asDatatables);
             }
 
             return $this->clientRepository->getDataTables($model);
