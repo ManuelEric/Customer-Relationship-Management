@@ -121,12 +121,12 @@ class Kernel extends ConsoleKernel
         $schedule->command('reminder:event evt-0014')->withoutOverlapping()->everyMinute()->onOneServer();
         
         # run sync data crm to google sheet
-        $schedule->command('sync:data school')->withoutOverlapping()->hourly()->onOneServer();
-        $schedule->command('sync:data partner')->withoutOverlapping()->hourly()->onOneServer();
-        $schedule->command('sync:data event')->withoutOverlapping()->hourly()->onOneServer();
-        $schedule->command('sync:data program_b2b')->withoutOverlapping()->hourly()->onOneServer();
-        $schedule->command('sync:data program_b2c')->withoutOverlapping()->hourly()->onOneServer();
-        $schedule->command('sync:data program')->withoutOverlapping()->hourly()->onOneServer();
+        $schedule->command('sync:data school')->withoutOverlapping()->cron('* */1,5 * * *')->onOneServer();
+        $schedule->command('sync:data partner')->withoutOverlapping()->cron('* */1,5 * * *')->onOneServer();
+        $schedule->command('sync:data event')->withoutOverlapping()->cron('* */1,5 * * *')->onOneServer();
+        $schedule->command('sync:data program_b2b')->withoutOverlapping()->cron('* */1,5 * * *')->onOneServer();
+        $schedule->command('sync:data program_b2c')->withoutOverlapping()->cron('* */1,5 * * *')->onOneServer();
+        $schedule->command('sync:data program')->withoutOverlapping()->every()->onOneServer();
         $schedule->command('sync:data admission')->withoutOverlapping()->hourly()->onOneServer();
         $schedule->command('sync:data sales')->withoutOverlapping()->hourly()->onOneServer();
         $schedule->command('sync:data mentor')->withoutOverlapping()->hourly()->onOneServer();
