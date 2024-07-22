@@ -753,7 +753,8 @@ class GoogleSheetController extends Controller
         try {
             switch ($type) {
                 case 'new-leads':
-                    $data = $this->clientRepository->getNewLeads(false, null, []);
+                    Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet('New Leads')->range('A2:AE1000')->clear();
+                    $data = $this->clientRepository->getNewLeads(true, null, []);
                     break;
                 case 'potential':
                     Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet('Potentials')->range('A2:AE1000')->clear();
@@ -761,16 +762,18 @@ class GoogleSheetController extends Controller
                     break;
                 case 'mentee':
                     Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet('Mentees')->range('A2:AE1000')->clear();
-
                     $data = $this->clientRepository->getExistingMentees(true, null, []);
                     break;
                 case 'non-mentee':
+                    Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet('Non Mentees')->range('A2:AE1000')->clear();                    
                     $data = $this->clientRepository->getExistingNonMentees(true, null, []);
                     break;
                 case 'all':
+                    Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet('All')->range('A2:AE1000')->clear();                    
                     $data = $this->clientRepository->getAllClientStudent([], true)->get();
                     break;
                 case 'inactive':
+                    Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet('Inactive')->range('A2:AE1000')->clear();
                     $data = $this->clientRepository->getInactiveStudent(true ,null, []);
                     break;
                 case 'client-program':
