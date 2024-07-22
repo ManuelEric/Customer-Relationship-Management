@@ -573,12 +573,14 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
         $year = date('Y', strtotime($monthYear));
         $month = date('m', strtotime($monthYear));
 
-        return ViewClientProgram::doesntHave('invoice')
-            ->leftJoin('program', 'program.prog_id', '=', 'clientprogram.prog_id')
+        return ClientProgram::doesntHave('invoice')
+            ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
+            ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
+            ->leftJoin('users', 'users.id', '=', 'tbl_client_prog.empl_id')
             ->select(
-                'fullname as client_name',
+                DB::raw('CONCAT(tbl_client.first_name, " ", COALESCE(tbl_client.last_name)) as client_name'),
                 'program.program_name',
-                'pic_name',
+                DB::raw('CONCAT(users.first_name, " ", COALESCE(users.last_name)) as pic_name'),
                 'success_date',
                 'clientprog_id as client_prog_id',
                 DB::raw("'client_prog' as type"),
@@ -603,7 +605,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                         END)');
 
         return InvoiceProgram::leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')
-            ->leftJoin('clientprogram', 'clientprogram.clientprog_id', '=', 'tbl_inv.clientprog_id')
+            ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
             ->select(
                 'tbl_inv.id',
                 'tbl_invdtl.invdtl_id',
@@ -612,7 +614,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 'tbl_invdtl.invdtl_amountidr'
             )->whereYear($whereBy, '=', $year)
             ->whereMonth($whereBy, '=', $month)
-            ->where('clientprogram.status', 1)
+            ->where('tbl_client_prog.status', 1)
             ->whereNull('tbl_inv.bundling_id')
             ->get();
     }
