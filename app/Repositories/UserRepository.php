@@ -9,6 +9,7 @@ use App\Models\ClientEvent;
 use App\Models\ClientProgram;
 use App\Models\PicClient;
 use App\Models\pivot\UserRole;
+use App\Models\pivot\UserSubject;
 use App\Models\pivot\UserTypeDetail;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,6 +18,7 @@ use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class UserRepository implements UserRepositoryInterface
 {
@@ -351,26 +353,64 @@ class UserRepository implements UserRepositoryInterface
         }
     }
 
-    public function createOrUpdateUserSubject(User $user, array $userSubjectDetails)
+    public function createOrUpdateUserSubject(User $user, $request, $user_id_with_label)
     {
         $user_role_id = $user->roles()->where('role_name', 'Tutor')->first()->pivot->id;
+        $subjectDetails = [];
+        $agreement_file_path = null;
+        
+        $isErrorAgreement = [false, 0];
 
         if($user_role_id == null){
             Log::warning('Failed to create user subject!, User is not Tutor', ['id' => $user->id]);
             return;
         }
 
-        for ($i = 0; $i < count($userSubjectDetails['listSubjectId']); $i++) {
-            $user->user_subjects()->updateOrCreate([
-                    'user_role_id' => $user_role_id,
-                    'subject_id' => $userSubjectDetails['listSubjectId'][$i],
-                ],
-                [
-                    'fee_hours' => $userSubjectDetails['listFeeHours'][$i],
-                    'fee_session' => $userSubjectDetails['listFeeSession'][$i],
-            ]);
+        for ($i = 0; $i < count($request->subject_id); $i++) {
+            if($request->hasFile('agreement.'.$i)){
+                $agreement_file_format = $request->file('agreement.'.$i)->getClientOriginalExtension();
+                $agreement_file_name = 'Agreement-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name . '-' . $request->subject_id[$i] .  '-' . date('Y'));
+                $agreement_file_path = $request->file('agreement.'.$i)->storeAs('public/uploaded_file/user/' . $user_id_with_label, $agreement_file_name . '.' . $agreement_file_format);
 
+                for($j = 0; $j < count($request->grade[$i]); $j++){
+                    $subjectDetails =  [
+                        'fee_individual' => $request->fee_individual[$i][$j],
+                        'fee_group' => $request->fee_group[$i][$j],
+                        'additional_fee' => $request->additional_fee[$i][$j],
+                        'head' => $request->head[$i][$j],
+                        'agreement' => $agreement_file_path,
+                    ];
+                    $user->user_subjects()->updateOrCreate([
+                        'user_role_id' => $user_role_id,
+                        'subject_id' => $request->subject_id[$i],
+                        'grade' => $request->grade[$i][$j],
+                        'year' => $request->year[$i]
+                    ], $subjectDetails);
+                }
+            }else{
+                if($request->isMethod('POST')){
+                    return $isErrorAgreement = [true, $i];
+                }
+                for($j = 0; $j < count($request->grade[$i]); $j++){
+                    $subjectDetails =  [
+                        'fee_individual' => $request->fee_individual[$i][$j],
+                        'fee_group' => $request->fee_group[$i][$j],
+                        'additional_fee' => $request->additional_fee[$i][$j],
+                        'head' => $request->head[$i][$j],
+                        'agreement' => isset($request->agreement_text) && $request->agreement_text[$i] != null ? $request->agreement_text[$i] : null
+                    ];
+                    $user->user_subjects()->updateOrCreate([
+                        'user_role_id' => $user_role_id,
+                        'subject_id' => $request->subject_id[$i],
+                        'grade' => $request->grade[$i][$j],
+                        'year' => $request->year[$i]
+                    ], $subjectDetails);
+                }
+            }  
         }
+        
+        return $isErrorAgreement;
+        
     }
 
     public function createUserRole(User $user, array $userRoleDetails)
@@ -402,5 +442,10 @@ class UserRepository implements UserRepositoryInterface
             'start_date' => $userTypeDetails['startWorking'],
             'end_date' => $userTypeDetails['stopWorking'],
         ]);
+    }
+
+    public function getUserSubjectById($user_subject_id)
+    {
+        return UserSubject::where('id', $user_subject_id)->first();
     }
 }

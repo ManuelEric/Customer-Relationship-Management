@@ -562,12 +562,20 @@
                                                     {{ $disabled }}>
                                                     <option data-placeholder="true"></option>
                                                     @foreach ($tutors as $tutor)
+                                                        @php
+                                                            $subjects = [];
+                                                            if($tutor->user_subjects()->count() > 0){
+                                                                foreach ($tutor->user_subjects as $user_subject) {
+                                                                    $subjects[] = $user_subject->subject->name;
+                                                                }
+                                                            }
+                                                        @endphp
                                                         <option value="{{ $tutor->id }}"
                                                             @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->count() > 0) @if ($clientProgram->clientMentor()->first()->id == $tutor->id)
                                                                     {{ 'selected' }} @endif
                                                             @endif
                                                             @selected(old('tutor_id') == $tutor->id)
-                                                            >{{ $tutor->first_name .' ' .$tutor->last_name .' - ' .json_encode($tutor->roles()->where('role_name', 'Tutor')->pluck('tutor_subject')->toArray()) }}
+                                                            >{{ $tutor->first_name .' ' .$tutor->last_name .(count($subjects) > 0 ? ' - ' .json_encode($subjects) : '') }}
                                                         </option>
                                                     @endforeach
                                                 </select>

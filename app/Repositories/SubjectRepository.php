@@ -24,6 +24,11 @@ class SubjectRepository implements SubjectRepositoryInterface
         return Subject::find($subjectId)->first();
     }
 
+    public function getSubjectByName($subjectName)
+    {
+        return Subject::where('name', $subjectName)->first();
+    }
+
     public function createSubject(array $subjectDetails)
     {
         return Subject::create($subjectDetails);

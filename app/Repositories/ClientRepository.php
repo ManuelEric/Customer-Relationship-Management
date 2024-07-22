@@ -610,7 +610,7 @@ class ClientRepository implements ClientRepositoryInterface
         return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
     }
 
-    public function getAllClientStudent($advanced_filter = [])
+    public function getAllClientStudent($advanced_filter = [], $asDatatables=false)
     {
         // $new_leads = $this->getNewLeads(false, null, $advanced_filter)->pluck('id')->toArray();
         // $potential = $this->getPotentialClients(false, null, $advanced_filter)->pluck('id')->toArray();
@@ -663,7 +663,7 @@ class ClientRepository implements ClientRepositoryInterface
             $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
         });
 
-        return $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->orderBy('first_name', 'asc')->get() : $query;
     }
 
     public function getAlumniMentees($groupBy = false, $asDatatables = false, $month = null)

@@ -67,7 +67,6 @@ class SyncData extends Command
             $index = 2;
             
             $query = $this->setQueryByType($type);
-
             Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_SYNC_DATA'))->sheet($query['sheetName'])->range('A2:Z'. $query['query']->count() + 1)->clear();
 
             $query['query']
@@ -142,8 +141,11 @@ class SyncData extends Command
                                 if(count($tutors) > 0){
                                     $users = User::whereIn('id', $tutors)->get();
                                     foreach ($users as $user) {
-                                        $tutor_subject = $user->roles()->where('role_name', 'tutor')->pluck('tutor_subject')->toArray();
-                                        $subjects[] = count($tutor_subject) > 0 ? implode(", ", $tutor_subject) : null;
+                                        if($user->user_subjects()->count() > 0){
+                                            foreach ($user->user_subjects as $user_subject) {
+                                                $subjects[] = $user_subject->subject->name;
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -154,7 +156,6 @@ class SyncData extends Command
 
                 }
                    
-                // $this->info($index);
                 if($i == 0){
                     $index = 2;
                 }else{

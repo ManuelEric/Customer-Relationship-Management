@@ -32,6 +32,7 @@ Route::resource('{user_role}', UserController::class, [
 ]);
 Route::prefix('{user_role}/{user}')->name('user.')->group(function () {
     Route::get('download/{filetype}', [UserController::class, 'download'])->name('file.download');
+    Route::get('download_agreement/{user_subject}', [UserController::class, 'downloadAgreement'])->name('file.download.agreement');
     Route::get('set_password', [UserController::class, 'setPassword'])->name('set.password');
     Route::post('update/status', [UserController::class, 'changeStatus'])->name('update.status');
     Route::delete('{user_type}', [UserController::class, 'destroyUserType'])->name('type.destroy');

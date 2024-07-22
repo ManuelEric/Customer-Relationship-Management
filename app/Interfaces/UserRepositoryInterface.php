@@ -30,7 +30,8 @@ interface UserRepositoryInterface
     public function getUserRoles($userId, $roleName);
     public function cleaningUser();
     public function createUserEducation(User $user, array $userEducationDetails);
-    public function createOrUpdateUserSubject(User $user, array $userSubjectDetails);
+    public function createOrUpdateUserSubject(User $user, $request, $user_id_with_label);
     public function createUserRole(User $user, array $userRoleDetails);
     public function createUserType(User $user, array $userTypeDetails);
+    public function getUserSubjectById($user_subject_id);
 }

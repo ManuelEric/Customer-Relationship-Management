@@ -160,6 +160,9 @@ class JobBatchService
                         case 'client-program':
                             $batch->add(new ExportClientProgram($val));
                             break;
+                        case 'potential':
+                            $batch->add(new ExportClient($val, $type));
+                            break;
                     }
                     break;
             }

@@ -167,6 +167,9 @@ class User extends Authenticatable
             [
                 'id',
                 'extended_id',
+                'tutor_subject',
+                'feehours',
+                'feesession'
             ]
         )->withTimestamps();
     }

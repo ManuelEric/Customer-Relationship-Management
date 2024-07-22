@@ -118,18 +118,17 @@ class UserController extends Controller
                 'listGraduationDate' => $listGraduationDate,
             ];
         }
-
-        # variables for user subjects
-        $listSubjectId = $request->subject_id;
-        $listFeeHours = $request->fee_hours;
-        $listFeeSession = $request->fee_session;
         
         $userSubjectDetails = [];
         if ($request->subject_id[0] != null) {
             $userSubjectDetails = [
-                'listSubjectId' => $listSubjectId,
-                'listFeeHours' => $listFeeHours,
-                'listFeeSession' => $listFeeSession,
+                'listSubjectId' => $request->subject_id,
+                'listGrade' => $request->grade,
+                'listAgreement' => $request->agreement,
+                'listFeeIndividual' => $request->fee_individual,
+                'listFeeGroup' => $request->fee_group,
+                'listAdditionalFee' => $request->additional_fee,
+                'listHead' => $request->head,
             ];
         }
 
@@ -179,7 +178,11 @@ class UserController extends Controller
 
             if ($request->subject_id[0] != null) {
                 # store new user subject to tbl_user_subjects
-                $this->userRepository->createOrUpdateUserSubject($newUser, $userSubjectDetails);
+                $checkUserSubject = $this->userRepository->createOrUpdateUserSubject($newUser, $request, $user_id_with_label);
+                
+                if($checkUserSubject[0]){
+                    return back()->withErrors(["agreement.".$checkUserSubject[1] => "The Agreement field is required"])->withInput();
+                }
             }
 
             # upload curriculum vitae
@@ -387,13 +390,12 @@ class UserController extends Controller
 
             if ($request->subject_id[0] != null) {
                 # update user subject to tbl_user_subjects
-                $userSubjectDetails = [
-                    'listSubjectId' => $request->subject_id,
-                    'listFeeHours' => $request->fee_hours,
-                    'listFeeSession' => $request->fee_session,                    
-                ];
-                
-                $this->userRepository->createOrUpdateUserSubject($user, $userSubjectDetails);
+                $checkUserSubject = $this->userRepository->createOrUpdateUserSubject($user, $request, $user_id_with_label);
+                 
+                if($checkUserSubject[0]){
+                    return back()->withErrors(["agreement.".$checkUserSubject[1]=> "The Agreement field is required"])->withInput();
+                }
+
             }else{
                 if(in_array(4, $request->role) && $user->user_subjects()->count() > 0){
                     $user_role_id = $user->roles()->where('role_name', 'Tutor')->first()->pivot->id;
@@ -656,4 +658,21 @@ class UserController extends Controller
             ]
         );    
     } 
+
+    public function downloadAgreement(Request $request)
+    {
+        $userId = $request->route('user');
+        $user = $this->userRepository->getUserById($userId);
+
+        $userSubjectId = $request->route('user_subject');
+        $userSubject = $this->userRepository->getUserSubjectById($userSubjectId);
+
+        $file = Storage::disk('local')->get($userSubject->agreement);
+
+        # Download success
+        # create log success
+        $this->logSuccess('download', null, 'User', Auth::user()->first_name . ' '. Auth::user()->last_name, ['user' => $user->first_name . ' ' . $user->last_name]);
+
+        return response($file)->header('Content-Type', 'application/pdf');
+    }
 }

@@ -757,21 +757,21 @@ class GoogleSheetController extends Controller
                     break;
                 case 'potential':
                     Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet('Potentials')->range('A2:AE1000')->clear();
-                    $data = $this->clientRepository->getPotentialClients(false, null, []);
+                    $data = $this->clientRepository->getPotentialClients(true, null, []);
                     break;
                 case 'mentee':
                     Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet('Mentees')->range('A2:AE1000')->clear();
 
-                    $data = $this->clientRepository->getExistingMentees(false, null, []);
+                    $data = $this->clientRepository->getExistingMentees(true, null, []);
                     break;
                 case 'non-mentee':
-                    $data = $this->clientRepository->getExistingNonMentees(false, null, []);
+                    $data = $this->clientRepository->getExistingNonMentees(true, null, []);
                     break;
                 case 'all':
-                    $data = $this->clientRepository->getAllClientStudent([])->get();
+                    $data = $this->clientRepository->getAllClientStudent([], true)->get();
                     break;
                 case 'inactive':
-                    $data = $this->clientRepository->getInactiveStudent(false ,null, []);
+                    $data = $this->clientRepository->getInactiveStudent(true ,null, []);
                     break;
                 case 'client-program':
                     $data = $this->clientProgramRepository->getAllClientProgramDataTables([] , false);

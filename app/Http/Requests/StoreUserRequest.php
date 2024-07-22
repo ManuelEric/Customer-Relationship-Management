@@ -67,9 +67,14 @@ class StoreUserRequest extends FormRequest
             'start_period' => 'required',
             'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
 
-            'subject_id.*' => 'nullable',
-            'fee_hours.*' => 'nullable',
-            'fee_session.*' => 'nullable',
+            'agreement.*' => 'required|mimes:pdf|max:5000',
+            'subject_id.*' => 'required',
+            'year.*' => 'required',
+            'grade.*.*' => 'required|in:[9-10],[11-12]',
+            'fee_individual.*.*' => 'required',
+            'fee_group.*.*' => 'nullable',
+            'additional_fee.*.*' => 'nullable',
+            'head.*.*' => 'nullable',
 
             'curriculum_vitae' => 'nullable|mimes:pdf|max:5000',
             'bankname' => 'required',
@@ -120,6 +125,15 @@ class StoreUserRequest extends FormRequest
             'start_period' => 'required',
             'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
 
+            'agreement.*' => 'required|mimes:pdf|max:5000',
+            'subject_id.*' => 'required',
+            'year.*' => 'required',
+            'grade.*.*' => 'required|in:[9-10],[11-12]',
+            'fee_individual.*.*' => 'required',
+            'fee_group.*.*' => 'nullable',
+            'additional_fee.*.*' => 'nullable',
+            'head.*.*' => 'nullable',
+            
             'curriculum_vitae' => 'nullable|mimes:pdf|max:5000',
             'bankname' => 'required',
             'bankacc' => 'required',
