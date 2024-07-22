@@ -35,23 +35,57 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
             $userId = $user->id;
         }
 
-        return SalesTarget::
-            leftJoin('clientprogram', DB::raw('(CASE WHEN tbl_sales_target.prog_id is null THEN tbl_sales_target.main_prog_id ELSE tbl_sales_target.prog_id END)'), '=', DB::raw('(CASE WHEN tbl_sales_target.prog_id is null THEN clientprogram.main_prog_id ELSE clientprogram.prog_id END)'))->
-            leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')->
-            when($programId, function ($query) use ($programId) {
-            $query->where('prog_id', $programId);
-        })->when($userId, function ($query) use ($userId) {
-            $query->where('clientprogram.empl_id', $userId);
+        $salesTarget = SalesTarget::when($programId, function ($query) use ($programId) {
+            $query->where('tbl_sales_target.prog_id', $programId);
         })->when($filter['qdate'], function ($query) use ($filter) {
-            $query->whereMonth('clientprogram.success_date', date('m', strtotime($filter['qdate'])))->whereYear('clientprogram.success_date', date('Y', strtotime($filter['qdate'])));
-        })->when($filter['qdate'], function ($query) use ($filter) {
-            $query->whereMonth('month_year', date('m', strtotime($filter['qdate'])))->whereYear('month_year', date('Y', strtotime($filter['qdate'])));
-        })->when(isset($filter['quuid']), function ($q) use ($userId) {
-            $q->where('clientprogram.empl_id', $userId);
-        })->select([
-            DB::raw('COUNT(*) as total_participant'),
-            DB::raw('SUM(tbl_inv.inv_totalprice_idr) as total_target')
-        ])->where('clientprogram.status', 1)->first();
+            $query->whereMonth('tbl_sales_target.month_year', date('m', strtotime($filter['qdate'])))->whereYear('tbl_sales_target.month_year', date('Y', strtotime($filter['qdate'])));
+        })->groupBy(DB::raw('(CASE WHEN tbl_sales_target.prog_id is null THEN tbl_sales_target.main_prog_id ELSE tbl_sales_target.prog_id END)'))->get();
+
+
+        $mapping = $salesTarget->map(function ($item) use ($filter, $userId) {
+
+            $totalActualParticipant = ClientProgram::whereHas('program', function($q) use($item){
+                if($item->prog_id == null){
+                    $q->where('main_prog_id', $item->main_prog_id);
+                }else{
+                    $q->where('prog_id', $item->prog_id);
+                }
+            })->when($userId, function($query) use($userId){
+                $query->where('empl_id', $userId);
+            })
+            ->select(DB::raw('count(*) as count_participant'))
+            ->where('status', 1)
+            ->whereMonth('success_date', date('m', strtotime($filter['qdate'])))
+            ->whereYear('success_date', date('Y', strtotime($filter['qdate'])))
+            ->first();
+    
+            $totalActualAmount = InvoiceProgram::leftJoin('tbl_client_prog', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')
+                ->whereHas('clientprog', function($q) use($item, $userId){
+                    $q->whereHas('program', function($q2) use($item){
+                        if($item->prog_id == null){
+                            $q2->where('main_prog_id', $item->main_prog_id);
+                        }else{
+                            $q2->where('prog_id', $item->prog_id);
+                        }
+                    })->when($userId, function($query) use($userId){
+                        $query->where('empl_id', $userId);
+                    });
+                })->select(DB::raw('SUM(tbl_inv.inv_totalprice_idr) as total_actual_amount'))
+                ->where('tbl_client_prog.status', 1)
+                ->whereMonth('tbl_client_prog.success_date', date('m', strtotime($filter['qdate'])))
+                ->whereYear('tbl_client_prog.success_date', date('Y', strtotime($filter['qdate'])))
+                ->first();
+    
+            return [
+                'total_participant' => $totalActualParticipant->count_participant,
+                'total_target' => $totalActualAmount->total_actual_amount
+            ];
+        });
+
+        return [
+            'total_participant' => $mapping->sum('total_participant'),
+            'total_target' => $mapping->sum('total_target'),
+        ];
     }
 
     public function getSalesDetail($programId, $filter)
@@ -73,7 +107,7 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
             $query->whereMonth('tbl_sales_target.month_year', date('m', strtotime($filter['qdate'])))->whereYear('tbl_sales_target.month_year', date('Y', strtotime($filter['qdate'])));
         })->groupBy(DB::raw('(CASE WHEN tbl_sales_target.prog_id is null THEN tbl_sales_target.main_prog_id ELSE tbl_sales_target.prog_id END)'))->get();
 
-        $mapping = $salesTarget->map(function ($item) use ($filter) {
+        $mapping = $salesTarget->map(function ($item) use ($filter, $userId) {
 
             $totalActualParticipant = ClientProgram::whereHas('program', function($q) use($item){
                 if($item->prog_id == null){
@@ -81,6 +115,8 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
                 }else{
                     $q->where('prog_id', $item->prog_id);
                 }
+            })->when($userId, function($query) use($userId){
+                $query->where('empl_id', $userId);
             })
             ->select(DB::raw('count(*) as count_participant'))
             ->where('status', 1)
@@ -89,13 +125,15 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
             ->first();
     
             $totalActualAmount = InvoiceProgram::leftJoin('tbl_client_prog', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')
-                ->whereHas('clientprog', function($q) use($item){
+                ->whereHas('clientprog', function($q) use($item, $userId){
                     $q->whereHas('program', function($q2) use($item){
                         if($item->prog_id == null){
                             $q2->where('main_prog_id', $item->main_prog_id);
                         }else{
                             $q2->where('prog_id', $item->prog_id);
                         }
+                    })->when($userId, function($query) use($userId){
+                        $query->where('empl_id', $userId);
                     });
                 })->select(DB::raw('SUM(tbl_inv.inv_totalprice_idr) as total_actual_amount'))
                 ->where('tbl_client_prog.status', 1)

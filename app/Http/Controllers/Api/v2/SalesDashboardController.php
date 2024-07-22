@@ -915,9 +915,9 @@ class SalesDashboardController extends Controller
             $salesActual = $this->salesTargetRepository->getMonthlySalesActual($programId, $cp_filter);
 
             $participant_target = isset($salesTarget->total_participant) ? $salesTarget->total_participant : 0;
-            $participant_actual = isset($salesActual->total_participant) ? $salesActual->total_participant : 0;
+            $participant_actual = isset($salesActual['total_participant']) ? $salesActual['total_participant'] : 0;
             $revenue_target = isset($salesTarget->total_target) ? $salesTarget->total_target : 0;
-            $revenue_actual = isset($salesActual->total_target) ? $salesActual->total_target : 0;
+            $revenue_actual = isset($salesActual['total_target']) ? $salesActual['total_target'] : 0;
 
 
             $dataset_participant = [$participant_target, $participant_actual];
@@ -954,7 +954,7 @@ class SalesDashboardController extends Controller
                         'total_amount' => number_format($detail['total_target'], '2', ',', '.'),
                     ],
                     'actual' => [
-                        'student' => $detail['target_actual_participant'],
+                        'student' => $detail['total_actual_participant'],
                         'total_amount' => number_format($detail['total_actual_amount'], '2', ',', '.'),
                     ],
                     'sales_percentage' => [
