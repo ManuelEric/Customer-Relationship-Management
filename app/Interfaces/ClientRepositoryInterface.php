@@ -49,6 +49,8 @@ interface ClientRepositoryInterface
     public function getDataParentsByChildId($childId);
     public function getClientsByCategory($category);
     public function updateClientByUUID($uuid, array $newDetails);
+    public function countClientByCategory($category, $month = NULL);
+    public function countClientByRole($role, $month = null);
 
 
     /* ~ END */

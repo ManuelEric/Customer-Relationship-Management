@@ -2114,4 +2114,37 @@ class ClientRepository implements ClientRepositoryInterface
     {
         return tap(UserClient::where('uuid', $uuid))->update($newDetails)->first();
     }
+
+    public function countClientByCategory($category, $month = null)
+    {
+        $client = DB::table('tbl_client')
+            ->select(DB::raw('count(*) as client_count'))
+            ->where('category', $category)
+            ->when($month, function ($subQuery) use ($month) {
+                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+            })
+            ->first();
+
+        return $client->client_count;
+    }
+
+    public function countClientByRole($role, $month = null)
+    {
+        $client = DB::table('tbl_client')
+            ->select(DB::raw('count(*) as client_count'))
+            ->join('tbl_client_roles', function ($q) {
+                $q->on('tbl_client_roles.client_id', '=', 'tbl_client.id');
+            })
+            ->join('tbl_roles', function ($q) use($role) {
+                $q->on('tbl_roles.id', '=', 'tbl_client_roles.role_id');
+            })->where('tbl_roles.role_name', '=', $role)->
+            when($month, function ($subQuery) use ($month) {
+                $subQuery->whereMonth('tbl_client.created_at', date('m', strtotime($month)))->whereYear('tbl_client.created_at', date('Y', strtotime($month)));
+            })->
+            where('is_verified', 'Y')->
+            where('st_statusact', 1)->
+            first();
+
+        return $client->client_count;
+    }
 }

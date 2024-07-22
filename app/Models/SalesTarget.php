@@ -34,4 +34,9 @@ class SalesTarget extends Model
         return $this->belongsTo(Program::class, 'prog_id', 'prog_id');
     }
 
+    public function main_program()
+    {
+        return $this->belongsTo(MainProg::class, 'main_prog_id', 'id');
+    }
+
 }

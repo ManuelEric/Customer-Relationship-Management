@@ -239,29 +239,29 @@ class SalesDashboardController extends Controller
         try {
 
             $asDatatables = $groupBy = false;
-            $last_month_prospective_client = $this->clientRepository->getNewLeads($asDatatables, $last_month)->count();
-            $monthly_new_prospective_client = $this->clientRepository->getNewLeads($asDatatables, $month)->count();
+            $last_month_prospective_client =  $this->clientRepository->countClientByCategory('new-lead', $last_month);
+            $monthly_new_prospective_client = $this->clientRepository->countClientByCategory('new-lead', $month);
 
-            $last_month_potential_client = $this->clientRepository->getPotentialClients($asDatatables, $last_month)->count();
-            $monthly_new_potential_client = $this->clientRepository->getPotentialClients($asDatatables, $month)->count();
+            $last_month_potential_client = $this->clientRepository->countClientByCategory('potential', $last_month);
+            $monthly_new_potential_client= $this->clientRepository->countClientByCategory('potential', $month);
 
-            $last_month_current_client = $this->clientRepository->getExistingMentees($asDatatables, $last_month)->count();
-            $monthly_new_current_client = $this->clientRepository->getExistingMentees($asDatatables, $month)->count();
+            $last_month_current_client = $this->clientRepository->countClientByCategory('mentee', $last_month);
+            $monthly_new_current_client = $this->clientRepository->countClientByCategory('mentee', $month);
 
-            $last_month_completed_client = $this->clientRepository->getExistingNonMentees($asDatatables, $last_month)->count();
-            $monthly_new_completed_client = $this->clientRepository->getExistingNonMentees($asDatatables, $month)->count();
+            $last_month_completed_client = $this->clientRepository->countClientByCategory('non-mentee', $last_month);
+            $monthly_new_completed_client =  $this->clientRepository->countClientByCategory('non-mentee', $month);
 
-            $last_month_alumniMentees = $this->clientRepository->getAlumniMentees($groupBy, $asDatatables, $last_month)->count();
-            $monthly_new_alumniMentees = $this->clientRepository->getAlumniMentees($groupBy, $asDatatables, $month)->count();
+            $last_month_alumniMentees = $this->clientRepository->countClientByCategory('alumni-mentee', $last_month);
+            $monthly_new_alumniMentees = $this->clientRepository->countClientByCategory('alumni-mentee', $month);
 
-            $last_month_alumniNonMentees = $this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables, $last_month)->count();
-            $monthly_new_alumniNonMentees = $this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables, $month)->count();
+            $last_month_alumniNonMentees = $this->clientRepository->countClientByCategory('alumni-non-mentee', $last_month);
+            $monthly_new_alumniNonMentees = $this->clientRepository->getAlumniNonMentees('alumni-non-mentee', $month);
 
-            $last_month_parent = $this->clientRepository->getParents($asDatatables, $last_month)->count();
-            $monthly_new_parent = $this->clientRepository->getParents($asDatatables, $month)->count();
+            $last_month_parent = $this->clientRepository->countClientByRole('Parent', $last_month);
+            $monthly_new_parent = $this->clientRepository->countClientByRole('Parent', $month);
 
-            $last_month_teacher = $this->clientRepository->getAllClientByRole('Teacher/Counselor', $last_month)->count();
-            $monthly_new_teacher = $this->clientRepository->getAllClientByRole('Teacher/Counselor', $month)->count();
+            $last_month_teacher = $this->clientRepository->countClientByRole('Teacher/Counselor', $last_month);
+            $monthly_new_teacher = $this->clientRepository->countClientByRole('Teacher/Counselor', $month);
 
             $data = [
                 [
@@ -381,7 +381,7 @@ class SalesDashboardController extends Controller
 
             $html = '';
             $data = [];
-            if (!$allSuccessProgramByMonth = $this->clientProgramRepository->getSuccessProgramByMonth($cp_filter2)) {
+            if (!$allSuccessProgramByMonth = $this->clientProgramRepository->getSuccessProgramByMonth($cp_filter)) {
                 $html .= "There's no success programs";
             } else {
 
@@ -424,7 +424,7 @@ class SalesDashboardController extends Controller
 
 
             $program = $this->programRepository->getProgramById($cp_filter['progId']);
-            $detailClientJoinedProgram = $this->clientProgramRepository->getDetailSuccessProgramByMonthAndProgram($cp_filter2);
+            $detailClientJoinedProgram = $this->clientProgramRepository->getDetailSuccessProgramByMonthAndProgram($cp_filter);
 
             $content = '';
             $data = [];
@@ -625,7 +625,7 @@ class SalesDashboardController extends Controller
 
         try {
 
-            $clientProg = $this->clientProgramRepository->getClientProgramGroupDataByStatusAndUserArray(['program' => $type] + $cp_filter2);
+            $clientProg = $this->clientProgramRepository->getClientProgramGroupDataByStatusAndUserArray(['program' => $type] + $cp_filter);
 
             $html = $table_content = null;
             $result = [];
@@ -929,33 +929,33 @@ class SalesDashboardController extends Controller
             $data = [];
             $no = 1;
             foreach ($salesDetail as $detail) {
-                $percentage_participant = $detail->total_target_participant != 0 ? round(($detail->total_actual_participant / $detail->total_target_participant) * 100, 2) : 0;
-                $percentage_revenue = $detail->total_target != 0 ? ($detail->total_actual_amount / $detail->total_target) * 100 : 0;
+                $percentage_participant = $detail['total_target_participant'] != 0 ? round(($detail['total_actual_participant'] / $detail['total_target_participant']) * 100, 2) : 0;
+                $percentage_revenue = $detail['total_target'] != 0 ? ($detail['total_actual_amount'] / $detail['total_target']) * 100 : 0;
 
-                $target_student = $detail->total_target_participant ??= 0;
+                $target_student = $detail['total_target_participant'] ??= 0;
 
                 $html .= '<tr class="text-center">
                         <td>' . $no++ . '</td>
-                        <td>' . (isset($detail->prog_id) ? $detail->prog_id : '-') . '</td>
-                        <td class="text-start">' . $detail->program_name_sales . '</td>
+                        <td>' . (isset($detail['prog_id']) ? $detail['prog_id'] : '-') . '</td>
+                        <td class="text-start">' . $detail['program_name_sales'] . '</td>
                         <td>' . $target_student . '</td>
-                        <td>' . number_format($detail->total_target, '2', ',', '.') . '</td>
-                        <td>' . $detail->total_actual_participant . '</td>
-                        <td>' . number_format($detail->total_actual_amount, '2', ',', '.') . '</td>
+                        <td>' . number_format($detail['total_target'], '2', ',', '.') . '</td>
+                        <td>' . $detail['total_actual_participant'] . '</td>
+                        <td>' . number_format($detail['total_actual_amount'], '2', ',', '.') . '</td>
                         <td>' . $percentage_participant . '%</td>
                         <td>' . $percentage_revenue . '%</td>
                     </tr>';
                 
                 $data[] = [
-                    'prog_id' => (isset($detail->prog_id) ? $detail->prog_id : '-'),
-                    'program_name' => $detail->program_name_sales,
+                    'prog_id' => (isset($detail['prog_id']) ? $detail['prog_id'] : '-'),
+                    'program_name' => $detail['program_name_sales'],
                     'target' => [
                         'student' => $target_student,
-                        'total_amount' => number_format($detail->total_target, '2', ',', '.'),
+                        'total_amount' => number_format($detail['total_target'], '2', ',', '.'),
                     ],
                     'actual' => [
-                        'student' => $detail->target_actual_participant,
-                        'total_amount' => number_format($detail->total_actual_amount, '2', ',', '.'),
+                        'student' => $detail['target_actual_participant'],
+                        'total_amount' => number_format($detail['total_actual_amount'], '2', ',', '.'),
                     ],
                     'sales_percentage' => [
                         'student' => $percentage_participant,
