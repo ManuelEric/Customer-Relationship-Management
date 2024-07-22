@@ -160,7 +160,22 @@ class JobBatchService
                         case 'client-program':
                             $batch->add(new ExportClientProgram($val));
                             break;
+                        case 'new-leads':
+                            $batch->add(new ExportClient($val, $type));
+                            break;
                         case 'potential':
+                            $batch->add(new ExportClient($val, $type));
+                            break;
+                        case 'mentee':
+                            $batch->add(new ExportClient($val, $type));
+                            break;
+                        case 'non-mentee':
+                            $batch->add(new ExportClient($val, $type));
+                            break;
+                        case 'all':
+                            $batch->add(new ExportClient($val, $type));
+                            break;
+                        case 'inactive':
                             $batch->add(new ExportClient($val, $type));
                             break;
                     }
