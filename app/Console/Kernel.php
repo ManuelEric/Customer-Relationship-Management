@@ -109,7 +109,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('send:thanks_mail_event')->everyFifteenMinutes();
         
         # queue worker
-        $schedule->command('run:worker')->everyMinute()->withoutOverlapping()->runInBackground();
+        // $schedule->command('run:worker')->everyMinute()->withoutOverlapping()->onOneServer();
 
         # run verifying raw data
         $schedule->command('verified:parent')->withoutOverlapping()->everyMinute()->onOneServer();
@@ -140,6 +140,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('sync:data mentee')->withoutOverlapping()->hourlyAt(57)->onOneServer();
         $schedule->command('sync:data alumni-mentee')->withoutOverlapping()->hourlyAt(32)->onOneServer();
         $schedule->command('sync:data tutoring-student')->withoutOverlapping()->hourlyAt(47)->onOneServer();
+
         # Get took IA
         // $schedule->command('get:took_ia new-lead')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
         // $schedule->command('get:took_ia potential')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
