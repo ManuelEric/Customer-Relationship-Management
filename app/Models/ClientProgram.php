@@ -73,47 +73,41 @@ class ClientProgram extends Model
         'updated_at'
     ];
 
-    public function leadName(): Attribute
+    protected function conversionLead(): Attribute
     {
-        $main_lead = $this->lead->main_lead;
-        $sub_lead = $this->lead->sub_lead;
-        switch ($main_lead) {
+        return Attribute::make(
+            get: fn ($value) => $this->lead != NULL ? $this->getConversionLead($this->lead->main_lead) : NULL
+        );
+    }
 
-            case "KOL":
-                $conv_lead = "KOL - {$sub_lead}";
+    public function getConversionLead($parameter)
+    {
+        switch ($parameter) {
+            case "All-In Event":
+                if ($this->event != NULL)
+                    return "ALL-In Event - " . $this->event->event_title;
+                else
+                    return "ALL-In Event";
                 break;
 
             case "External Edufair":
-                $conv_lead = null;
-                if($this->eduf_lead_id == NULL){
-                    return $conv_lead = $this->lead->main_lead;
+                if($this->eduf_id == NULL){
+                    return $this->lead->main_lead;
                 }
 
                 if ($this->external_edufair->title != NULL)
-                    $conv_lead = "External Edufair - " . $this->external_edufair->title;
+                    return "External Edufair - " . $this->external_edufair->title;
                 else
-                    $conv_lead = "External Edufair - " . $this->external_edufair->organizerName;
+                    return "External Edufair - " . $this->external_edufair->organizerName;
                 break;
 
-            case "All-In Event":
-                $event_title = $this->clientEvent->event->title;
-                $conv_lead = "EduALL Event - {$event_title}";
-                break;
-
-            case "All-In Partners":
-                $partner_name = $this->partner->corp_name;
-                $conv_lead = "EduALL Partners - {$partner_name}";
+            case "KOL":
+                return "KOL - " . $this->lead->sub_lead;
                 break;
 
             default:
-                $conv_lead = $main_lead;
-
-        }   
-            
-        return Attribute::make(
-            get: fn ($value) => $conv_lead,
-        );
-        
+                return $this->lead->main_lead;
+        }
     }
 
     protected function referralName(): Attribute
@@ -276,4 +270,5 @@ class ClientProgram extends Model
     {
         return $this->hasOne(BundlingDetail::class, 'clientprog_id', 'clientprog_id');
     }
+
 }

@@ -27,11 +27,13 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Revolution\Google\Sheets\Facades\Sheets;
+use romanzipp\QueueMonitor\Traits\IsMonitored;
 
 class ImportClientProgram implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use SyncClientTrait, CreateCustomPrimaryKeyTrait, LoggingTrait, SyncClientTrait, StandardizePhoneNumberTrait;
+    use IsMonitored;
 
     public $clientProgData;
     /**

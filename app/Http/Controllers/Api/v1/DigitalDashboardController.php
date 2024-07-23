@@ -152,7 +152,7 @@ class DigitalDashboardController extends Controller
                     <td> '.$i.' </td>
                     <td> '.$data->client->full_name.' </td>
                     <td>' . (isset($data->client->lead_source) ? $data->client->lead_source : '-') . '</td>
-                    <td>' . (isset($data->lead_name) ? $data->lead_name : '-') . '</td>
+                    <td>' . (isset($data->conversion_lead) ? $data->conversion_lead : '-') . '</td>
                     <td>' . $data->program->program_name . '</td>
                     <td>' . $data->conversion_time . '</td>
                 </tr>';
@@ -274,7 +274,7 @@ class DigitalDashboardController extends Controller
                         <td>' . (isset($data->client->school) ? $data->client->school->sch_name : '-') . '</td>
                         <td>' . $data->client->graduation_year_real . '</td>
                         <td>' . (isset($data->client->lead_source) ? $data->client->lead_source : '-') . '</td>
-                        <td>' . (isset($data->lead_name) ? $data->lead_name : '-') . '</td>
+                        <td>' . (isset($data->conversion_lead) ? $data->conversion_lead : '-') . '</td>
                         <td>' . $data->program->program_name . '</td>
                     </tr>';
         }

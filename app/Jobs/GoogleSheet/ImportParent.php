@@ -21,11 +21,13 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Revolution\Google\Sheets\Facades\Sheets;
+use romanzipp\QueueMonitor\Traits\IsMonitored;
 
 class ImportParent implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use SyncClientTrait, CreateCustomPrimaryKeyTrait, LoggingTrait, SyncClientTrait, StandardizePhoneNumberTrait;
+    use IsMonitored;
 
     public $parentData;
     /**

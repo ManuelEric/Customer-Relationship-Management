@@ -12,10 +12,12 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use romanzipp\QueueMonitor\Traits\IsMonitored;
 
 class ProcessEmailThanks implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use IsMonitored;
 
     public $tries = 3;
     public $timeout = 600;

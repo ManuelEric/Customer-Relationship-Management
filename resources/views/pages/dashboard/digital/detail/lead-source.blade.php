@@ -45,7 +45,7 @@
                                         <td>{{$loop->iteration}}</td>
                                         <td>{{$data->client->full_name}}</td>
                                         <td>{{(isset($data->client->lead_source) ? $data->client->lead_source : '-')}}</td>
-                                        <td>{{(isset($data->lead_name) ? $data->lead_name : '-')}}</td>
+                                        <td>{{(isset($data->conversion_lead) ? $data->conversion_lead : '-')}}</td>
                                         <td>{{$data->program->program_name}}</td>
                                         <td>{{$data->conversion_time}} Days</td>
                                         {{-- <td>{{$data->followup_time}} Days</td> --}}

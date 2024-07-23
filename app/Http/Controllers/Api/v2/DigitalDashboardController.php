@@ -280,7 +280,7 @@ class DigitalDashboardController extends Controller
                     'school_name' => (isset($data->client->school) ? $data->client->school->sch_name : '-'),
                     'graduation_year' => $data->client->graduation_year_real,
                     'lead_source' => (isset($data->client->lead_source) ? $data->client->lead_source : '-'),
-                    'conversion_lead' => (isset($data->lead_name) ? $data->lead_name : '-'),
+                    'conversion_lead' => (isset($data->conversion_lead) ? $data->conversion_lead : '-'),
                     'program_name' => $data->program->program_name,
                 ];
             }
