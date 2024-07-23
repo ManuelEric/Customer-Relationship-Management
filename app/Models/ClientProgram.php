@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class ClientProgram extends Model
 {
@@ -72,6 +73,49 @@ class ClientProgram extends Model
         'updated_at'
     ];
 
+    public function leadName(): Attribute
+    {
+        $main_lead = $this->lead->main_lead;
+        $sub_lead = $this->lead->sub_lead;
+        switch ($main_lead) {
+
+            case "KOL":
+                $conv_lead = "KOL - {$sub_lead}";
+                break;
+
+            case "External Edufair":
+                $conv_lead = null;
+                if($this->eduf_lead_id == NULL){
+                    return $conv_lead = $this->lead->main_lead;
+                }
+
+                if ($this->external_edufair->title != NULL)
+                    $conv_lead = "External Edufair - " . $this->external_edufair->title;
+                else
+                    $conv_lead = "External Edufair - " . $this->external_edufair->organizerName;
+                break;
+
+            case "All-In Event":
+                $event_title = $this->clientEvent->event->title;
+                $conv_lead = "EduALL Event - {$event_title}";
+                break;
+
+            case "All-In Partners":
+                $partner_name = $this->partner->corp_name;
+                $conv_lead = "EduALL Partners - {$partner_name}";
+                break;
+
+            default:
+                $conv_lead = $main_lead;
+
+        }   
+            
+        return Attribute::make(
+            get: fn ($value) => $conv_lead,
+        );
+        
+    }
+
     protected function referralName(): Attribute
     {
         return Attribute::make(
@@ -102,10 +146,20 @@ class ClientProgram extends Model
     
 
     # attributes
+    protected function conversionTime(): Attribute
+    {
+        $successDate = Carbon::parse($this->success_date);
+        $firstDiscussDate = Carbon::parse($this->first_discuss_date);
+
+        return Attribute::make(
+            get: fn ($value) => $successDate->diffInDays($firstDiscussDate),
+        );
+    }
+
     protected function programName(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->program->prog_program . ' - ' . $this->program->main_prog->main_prog_name,
+            get: fn ($value) => $value,
         );
     }
 

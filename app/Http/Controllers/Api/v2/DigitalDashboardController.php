@@ -156,7 +156,6 @@ class DigitalDashboardController extends Controller
             # List Lead Source 
             $leads = $this->leadRepository->getAllLead();
             $dataLead = $this->leadTargetRepository->getLeadDigital($month, $prog_id ?? null);
-            // $dataConversionLead = $this->leadTargetRepository->getConversionLeadDigital($today);
 
             $response = [
                 'leadsDigital' => $this->mappingDataLead($leads->where('department_id', 7), $dataLead, 'Lead Source'),
@@ -191,28 +190,15 @@ class DigitalDashboardController extends Controller
 
         try {
             $dataAchieved = $this->leadTargetRepository->{$methodName}($month);
-            // if ($dataAchieved->count() == 0)
-            //     return response()->json(['success' => true, 'html_ctx' => '<tr align="center"><td colspan="6">No data</td></tr>']);
-    
-            $index = 1;
+
             $data = [];
             foreach ($dataAchieved as $achieved) {
-                $achievedParents = $achieved->parents !== null ? $achieved->parents->count() : 0;
-            
-                $html .= '<tr class="detail" data-clientid="' .$achieved->id. '" style="cursor:pointer">
-                            <td>' . $index++ . '</td>
-                            <td>' . $achieved->full_name . '</td>
-                            <td>' . ($achievedParents > 0 ? $achieved->parents->first()->full_name : '-'). '</td>
-                            <td>' . ($achieved->school != null ? $achieved->school->sch_name : '-') . '</td>
-                            <td>' . $achieved->graduation_year_real . '</td>
-                            <td>' . $achieved->leadSource . '</td>
-                        </tr>';
                 
                 $data[] = [
                     'client_id' => $achieved->id,
                     'full_name' => $achieved->full_name,
-                    'parents_name' => ($achievedParents > 0 ? $achieved->parents->first()->full_name : '-'),
-                    'school_name' => ($achieved->school != null ? $achieved->school->sch_name : '-'),
+                    'parents_name' => (count($achieved->parents) > 0 ? $achieved->parents->first()->full_name : '-'),
+                    'school_name' => (isset($achieved->school) ? $achieved->school->sch_name : '-'),
                     'graduation_year' => $achieved->graduation_year_real,
                     'lead_source' => $achieved->leadSource
                 ];
@@ -239,37 +225,22 @@ class DigitalDashboardController extends Controller
 
     public function getDetailLeadSource(Request $request)
     {
-        // $month = date('Y-m');
         $month = $request->get('month') ?? date('Y-m');
         $lead_id = $request->get('lead');
         $prog_id = $request->get('prog') ?? null;
 
         try {
-            $dataLeadSource = $this->leadTargetRepository->getLeadDigital($month, $prog_id)->where('lead_source_id', $lead_id);
+            $dataLeadSource = $this->leadTargetRepository->getLeadDigital($month, $prog_id)->where('client.lead_id', $lead_id);
 
-            $html = '';
-
-            // if ($dataLeadSource->count() == 0)
-            //     return response()->json(['success' => true, 'html_ctx' => '<tr align="center"><td colspan="6">No data</td></tr>']);
-
-            $index = 1;
             $result = [];
             foreach ($dataLeadSource as $data) {
-                $html .= '<tr>
-                            <td>' . $index++ . '</td>
-                            <td>' . $data->fullname . '</td>
-                            <td>' . $data->parent_fullname . '</td>
-                            <td>' . $data->school_name . '</td>
-                            <td>' . $data->client->graduation_year_real . '</td>
-                            <td>' . $data->lead_source . '</td>
-                        </tr>';
 
                 $result[] = [
-                    'full_name' => $data->fullname,
-                    'parent_name' => $data->parent_fullname,
-                    'school_name' => $data->school_name,
-                    'graduation_year' => $data->graduation_year_real,
-                    'lead_source' => $data->lead_source,
+                    'full_name' => $data->client->full_name,
+                    'parent_name' => (count($data->client->parents) > 0 ? $data->client->parents->first()->full_name : '-'),
+                    'school_name' => (isset($data->client->school) ? $data->client->school->sch_name : '-'),
+                    'graduation_year' => $data->client->graduation_year_real,
+                    'lead_source' => (isset($data->client->lead_source) ? $data->client->lead_source : '-'),
                 ];
             }
         } catch (Exception $e) {
@@ -292,44 +263,25 @@ class DigitalDashboardController extends Controller
 
     public function getDetailConversionLead(Request $request)
     {
-        // $month = date('Y-m');
         $month = $request->get('month') ?? date('Y-m');
         $lead_id = $request->get('lead');
         $prog_id = $request->get('prog') ?? null;
-
-        // $html = $lead_id;
         
 
         try {
             $dataConversionLead = $this->leadTargetRepository->getLeadDigital($month, $prog_id)->where('lead_id', $lead_id);
 
-            $html = '';
-    
-            // if ($dataConversionLead->count() == 0)
-            //     return response()->json(['success' => true, 'html_ctx' => '<tr align="center"><td colspan="8">No data</td></tr>']);
-    
-            $index = 1;
             $result = [];
             foreach ($dataConversionLead as $data) {
-                $html .= '<tr>
-                            <td>' . $index++ . '</td>
-                            <td>' . $data->fullname . '</td>
-                            <td>' . $data->parent_fullname . '</td>
-                            <td>' . $data->school_name . '</td>
-                            <td>' . $data->client->graduation_year_real . '</td>
-                            <td>' . $data->lead_source . '</td>
-                            <td>' . $data->conversion_lead . '</td>
-                            <td>' . $data->program_name . '</td>
-                        </tr>';
                     
                 $result[] = [
-                    'full_name' => $data->fullname,
-                    'parent_name' => $data->parent_fullname,
-                    'school_name' => $data->school_name,
-                    'graduation_year' => $data->graduation_year_real,
-                    'lead_source' => $data->lead_source,
-                    'conversion_lead' => $data->conversion_lead,
-                    'program_name' => $data->program_name,
+                    'full_name' => $data->client->full_name,
+                    'parent_name' => (count($data->client->parents) > 0 ? $data->client->parents->first()->full_name : '-'),
+                    'school_name' => (isset($data->client->school) ? $data->client->school->sch_name : '-'),
+                    'graduation_year' => $data->client->graduation_year_real,
+                    'lead_source' => (isset($data->client->lead_source) ? $data->client->lead_source : '-'),
+                    'conversion_lead' => (isset($data->lead_name) ? $data->lead_name : '-'),
+                    'program_name' => $data->program->program_name,
                 ];
             }
         } catch (Exception $e) {
@@ -355,7 +307,7 @@ class DigitalDashboardController extends Controller
         $data = new Collection();
         foreach ($leads as $lead) {
             if($type == 'Lead Source'){
-                $count = $dataLead->where('lead_source_id', $lead->lead_id)->count();
+                $count = $dataLead->where('client.lead_id', $lead->lead_id)->count();
             }else if($type == 'Conversion Lead'){
                 $count = $dataLead->where('lead_id', $lead->lead_id)->count();
             }

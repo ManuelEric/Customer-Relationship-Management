@@ -43,9 +43,9 @@
                                 @foreach ($dataLead as $data)
                                     <tr>
                                         <td>{{$loop->iteration}}</td>
-                                        <td>{{$data->fullname}}</td>
-                                        <td>{{$data->lead_source}}</td>
-                                        <td>{{$data->conversion_lead}}</td>
+                                        <td>{{$data->client->full_name}}</td>
+                                        <td>{{(isset($data->client->lead_source) ? $data->client->lead_source : '-')}}</td>
+                                        <td>{{(isset($data->lead_name) ? $data->lead_name : '-')}}</td>
                                         <td>{{$data->program_name}}</td>
                                         <td>{{$data->conversion_time}} Days</td>
                                         {{-- <td>{{$data->followup_time}} Days</td> --}}
@@ -263,26 +263,10 @@
                 var count = 0;
 
                 $('#t-body-leads-digital').empty()
-                result.dataLead.forEach(function (item, index) {
-                    html = '<tr>'
-                    html += '<td>' + i + '</td>'
-                    html += '<td>' + item.fullname + '</td>'
-                    html += '<td>' + item.lead_source + '</td>'
-                    html += '<td>' + item.conversion_lead + '</td>'
-                    html += '<td>' + item.program_name + '</td>'
-                    // html += '<td>' + item.followup_time + ' Days </td>'
-                    html += '<td>' + item.conversion_time + ' Days </td>'
-                    html += '</tr>'
-                    $('#t-body-leads-digital').append(html)
+                html = result.htmlDataLead;
+                $('#t-body-leads-digital').append(html)
 
-                    // totalFollowUpTime += item.followup_time;
-                    totalConversionTime += parseInt(item.conversion_time);
-                    count++;
-                    i++;
-                })
-
-                // avgFollowUpTime = count !== 0 ? totalFollowUpTime / count : 0;
-                avgConversionTime = count !== 0 ? parseInt(totalConversionTime) / count : 0;
+                avgConversionTime = result.totalConversionTime;
 
                 // $('#avg-follow-up').html(icon + Math.round(avgFollowUpTime) + ' Days');
                 $('#avg-conversion').html(icon + Math.round(avgConversionTime) + ' Days');

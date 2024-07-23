@@ -489,7 +489,11 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $month = date('m', strtotime($monthYear));
         $year = date('Y', strtotime($monthYear));
 
-        $query = ViewClientProgram::whereMonth('success_date', $month)->whereYear('success_date', $year)->where('lead_from', 'Digital');
+        $query = ClientProgram::with(['client'])->whereMonth('success_date', $month)->whereYear('success_date', $year)->whereHas('client', function ($subQuery){
+            $subQuery->whereHas('lead', function ($subQuery2) {
+                $subQuery2->where('department_id', 7);
+            });
+        });
         if ($prog_id != null){
             $query->where('prog_id', $prog_id);
         }

@@ -62,7 +62,7 @@ class DigitalDashboardController extends Controller
         $data = new Collection();
         foreach ($leads as $lead) {
             if($type == 'Lead Source'){
-                $count = $dataLead->where('lead_source_id', $lead->lead_id)->count();
+                $count = $dataLead->where('client.lead_id', $lead->lead_id)->count();
             }else if($type == 'Conversion Lead'){
                 $count = $dataLead->where('lead_id', $lead->lead_id)->count();
             }
