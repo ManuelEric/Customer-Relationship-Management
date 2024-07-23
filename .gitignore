@@ -25,3 +25,5 @@ yarn-error.log
 .composer.lock
 composer.lock
 error_log
+.ftpquota
+.htaccess
