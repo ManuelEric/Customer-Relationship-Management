@@ -2,12 +2,23 @@
 
 namespace App\Console;
 
+use App\Console\Commands\StopQueueListeners;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Carbon;
 
 class Kernel extends ConsoleKernel
 {
+    /**
+     * The Artisan commands provided by your application.
+     *
+     * @var array
+     */
+    protected $commands = [
+        StopQueueListeners::class,
+    ];
+
+
     /**
      * Define the application's command schedule.
      *
