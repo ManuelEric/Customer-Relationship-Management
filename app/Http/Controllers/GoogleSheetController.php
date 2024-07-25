@@ -770,7 +770,7 @@ class GoogleSheetController extends Controller
                     break;
                 case 'all':
                     Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet('All')->range('A2:AE1000')->clear();                    
-                    $data = $this->clientRepository->getAllClientStudent([], true)->get();
+                    $data = $this->clientRepository->getAllClientStudent([], true);
                     break;
                 case 'inactive':
                     Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet('Inactive')->range('A2:AE1000')->clear();
