@@ -90,14 +90,14 @@ class ImportClientEvent implements ShouldQueue
                     case 'Parent':
                         $parent = UserClient::find($createdMainClient);
                         $student = UserClient::find($createdSubClient);
-                        $checkExistChildren = $this->checkExistClientRelation('parent', $parent, $student->fullName);
+                        $checkExistChildren = $this->checkExistClientRelation('parent', $parent, $student->full_name);
                         !$checkExistChildren['isExist'] ? $parent->childrens()->attach($createdSubClient) : null;
                         break;
 
                     case 'Student':
                         $parent = UserClient::find($createdSubClient);
                         $student = UserClient::find($createdMainClient);
-                        $checkExistChildren = $this->checkExistClientRelation('parent', $parent, $student->fullName);
+                        $checkExistChildren = $this->checkExistClientRelation('parent', $parent, $student->full_name);
                         !$checkExistChildren['isExist'] ? $parent->childrens()->attach($createdMainClient) : null;
                         break;
                 }
