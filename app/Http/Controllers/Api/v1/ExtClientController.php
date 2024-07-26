@@ -757,6 +757,150 @@ class ExtClientController extends Controller
 
     }
 
+    public function storePublicRegistration(Request $request)
+    {
+
+        # validation
+        $rules = [
+            'role' => 'required|in:parent,student',
+            'fullname' => 'required',
+            'mail' => 'required|email',
+            'phone' => 'required',
+            'school_id' => [
+                'nullable',
+                $request->school_id != 'new' ? 'exists:tbl_sch,sch_id' : null
+            ],
+            'other_school' => 'nullable',
+            'graduation_year' => 'required',
+            'destination_country' => 'required|array',
+            'destination_country.*' => 'exists:tbl_tag,id',
+            'interest_prog' => 'required'
+        ];
+
+        $incomingRequest = $request->only([
+            'role', 'fullname', 'mail', 'phone', 'school_id', 'other_school', 'graduation_year', 'destination_country', 'interest_prog'
+        ]);
+
+        $messages = [
+            'school_id.required_if' => 'The school field is required.',
+            'school_id.exists' => 'The school field is not valid.',
+            'destination_country.*.exists' => 'The destination country must be one of the following values.'
+        ];
+
+        
+        $validator = Validator::make($incomingRequest, $rules, $messages);
+        
+
+        # threw error if validation fails
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'error' => $validator->errors()
+            ]);
+        }
+
+
+        # after validating incoming request data, then retrieve the incoming request data
+        $validated = $request->collect();
+        $validated['scholarship'] = 'N';
+
+        # declaration of default variables that will be used 
+        $client = null;
+
+        DB::beginTransaction();
+        try {
+            
+            # separate the incoming request data
+            switch ($validated['role']) {
+                case 'student':
+                    $client = $this->storeStudent($validated);
+                    $clientId = $client->id;
+
+                    break;
+
+                case 'parent':
+                    $parent = $client = $this->storeParent($validated);
+
+                    $schoolId = $this->getSchoolId($validated);
+
+                    if(isset($schoolId)){
+                        $this->clientRepository->updateClient($parent->id, ['sch_id' => $schoolId]);
+                    }
+                    
+                    break;
+            }
+
+            $validatedArray = $validated->toArray();
+            if($client != null && isset($validated['destination_country'])){
+                $this->attachDestinationCountry($clientId, $validatedArray['destination_country']);
+            }
+
+            if($client != null && isset($validated['interest_prog'])){
+                if(count($validatedArray['interest_prog']) > 0){
+                    foreach ($validatedArray['interest_prog'] as $interestProg) {
+                        $this->reAttachInterestPrograms($clientId, $interestProg);
+                    }
+                }
+            }
+
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Registration from EduAll website failed: '. $e->getMessage() . ' | On Line: ' .$e->getLine());
+            
+            return response()->json([
+                'success' => false,
+                'message' => "We encountered an issue completing your registration. Please check for any missing information or errors and try again. If you're still having trouble, feel free to contact our support team for assistance."
+            ]);
+        }
+
+        $template = 'mail-template.registration.event.ots-mail-registration';
+
+        $dataResponseClient = [
+            'role' => $validated['role'],
+            'first_name' => $client->first_name,
+            'last_name' => $client->last_name,
+            'mail' => $client->mail,
+            'phone' => $client->phone,
+            'inteset_prog' => $client->interestPrograms,
+            'school_id' => $client->sch_id,
+            'school_name' => $client->school->sch_name,
+            'graduation_year' => $client->graduation_year
+        ];
+
+        try {
+
+            $subject = 'Lorem ipsum dolor sit amet.';
+
+            Mail::send($template, $dataResponseClient,
+                    function ($message) use ($client, $subject) {
+                        $message->to($client->mail, $client->full_name)
+                            ->subject($subject);
+                    }
+            );
+            $sent_mail = 1;
+
+        } catch (Exception $e) {
+
+            $sent_mail = 0;
+            throw new Exception($e->getMessage());
+            Log::error('Failed send email to public registration | error : ' . $e->getMessage() . ' on file '.$e->getFile().' | Line ' . $e->getLine());
+
+        }
+
+
+        # create log success
+        $this->logSuccess('store', 'Form Embed', 'Public Registration', 'Guest', $dataResponseClient, null);
+
+        return response()->json([
+            'success' => true,
+            'data' => $dataResponseClient,
+            'message' => "Welcome aboard! Your registration is complete."
+        ]);
+
+    }
+
     public function getRole(ClientEvent $clientevent)
     {
         # initiate variables

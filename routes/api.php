@@ -310,4 +310,10 @@ Route::get('/batch/{batchId}', [GoogleSheetController::class, 'findBatch'])->mid
 
 Route::middleware('auth:api')->get('sync/{type}', [GoogleSheetController::class, 'sync']);
 
-Route::middleware('crm.key')->post('assessment/update', [ExtClientController::class, 'updateTookIA']);
+Route::group(['middleware' => 'crm.key'], function () {
+    Route::post('assessment/update', [ExtClientController::class, 'updateTookIA']);
+
+    # Form embed public registration
+    Route::post('register/public', [ExtClientController::class, 'storePublicRegistration']);
+
+});
