@@ -1148,8 +1148,8 @@ class ClientProgramController extends Controller
         $children = $this->clientRepository->getClientById($childId);
         
         $recipientDetails = [
-            'name' => $parent->full_name,  
-            'mail' => $parent->mail,
+            'name' => $parent->mail != null ? $parent->full_name : $children->full_name,  
+            'mail' => $parent->mail != null ? $parent->mail : $children->mail,
             'children_details' => [
                 'name' => $children->full_name
             ]
