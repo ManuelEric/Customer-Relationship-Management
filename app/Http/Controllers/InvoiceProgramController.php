@@ -212,12 +212,24 @@ class InvoiceProgramController extends Controller
         DB::beginTransaction();
         try {
 
-            $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
+            if(date('Y-m-d') != date('Y-m-d', strtotime($invoiceDetails['created_at']))){
+                $last_id = InvoiceProgram::whereMonth('created_at', Carbon::parse($invoiceDetails['created_at'])->format('m'))->whereYear('created_at', Carbon::parse($invoiceDetails['created_at'])->format('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
+
+                if($request->is_bundle > 0){
+                    $last_id = InvoiceProgram::whereMonth('created_at', Carbon::parse($invoiceDetails['created_at'])->format('m'))->whereYear('created_at', Carbon::parse($invoiceDetails['created_at'])->format('Y'))->where('bundling_id', $clientProg->bundlingDetail->blunding_id)->max(DB::raw('substr(inv_id, 1, 4)'));
+                }
+            }else{
+                $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
+                
+                if($request->is_bundle> 0){
+                    $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->where('bundling_id', $clientProg->bundlingDetail->bundling_id)->max(DB::raw('substr(inv_id, 1, 4)'));
+                }
+            }
+            
             # Use Trait Create Invoice Id
             $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id, $invoiceDetails['invoice_date']);
-            
+
             if($request->is_bundle > 0){
-                $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->where('bundling_id', $clientProg->bundlingDetail->bundling_id)->max(DB::raw('substr(inv_id, 1, 4)'));
                 
                 $bundlingDetails = $this->clientProgramRepository->getBundleProgramDetailByBundlingId($clientProg->bundlingDetail->bundling_id);
 
