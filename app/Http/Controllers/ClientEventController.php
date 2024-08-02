@@ -39,6 +39,7 @@ use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
+use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\RawClient\ProcessVerifyClient;
 use App\Jobs\RawClient\ProcessVerifyClientParent;
 use App\Models\Client;
@@ -898,6 +899,9 @@ class ClientEventController extends Controller
             ProcessVerifyClientParent::dispatch([$parentId])->onQueue('verifying-client-parent');
             # trigger to verifying children
             ProcessVerifyClient::dispatch([$childId])->onQueue('verifying-client');
+            # trigger define category client
+            ProcessDefineCategory::dispatch([$childId])->onQueue('define-category-client');
+
             
         } else if ($choosen_role == 'student') {
             # to prevent empty parent name being stored into database
@@ -909,6 +913,9 @@ class ClientEventController extends Controller
             $childId = $newClientDetails[0]['id'] = $clientArrayIds[0];
             # trigger to verifying children
             ProcessVerifyClient::dispatch([$childId])->onQueue('verifying-client');
+            # trigger define category client
+            ProcessDefineCategory::dispatch([$childId])->onQueue('define-category-client');
+
 
         } else {
             $teacherId = $newClientDetails[0]['id'] = $clientArrayIds[0];

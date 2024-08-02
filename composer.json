@@ -29,6 +29,7 @@
         "pusher/pusher-php-server": "^7.2",
         "revolution/laravel-google-sheets": "*",
         "riskihajar/terbilang": "^2.0",
+        "romanzipp/laravel-queue-monitor": "*",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "yajra/laravel-datatables-oracle": "10.0"
     },

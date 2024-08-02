@@ -32,6 +32,7 @@ class RunWorker extends Command
     {
 
         $resources = [
+            'default',
             'inv-send-to-client',
             'inv-email-request-sign',
             'verifying-client',
@@ -42,14 +43,16 @@ class RunWorker extends Command
             'imports-teacher',
             'imports-client-event',
             'imports-school-merge',
-            'default',
             'verifying_client',
             'verifying_client_parent',
-            'verifying_client_teacher'
+            'verifying_client_teacher',
+            'define-category-client',
+            'get-took-ia'
         ];
 
         Artisan::call('queue:listen', [
-            '--stop-when-empty' => 1,
+            // '--stop-when-empty' => 1,
+            // '--daemon' => 1,
             '--queue' => implode(',', $resources)
         ]);
         

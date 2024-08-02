@@ -147,7 +147,10 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
 
     public function getAllDueDateInvoiceSchoolProgram($days)
     {
-        return Invb2b::leftJoin('tbl_invdtl', 'tbl_invdtl.invb2b_id', '=', 'tbl_invb2b.invb2b_id')->leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
+        return Invb2b::
+            leftJoin('tbl_inv_attachment', 'tbl_invb2b.invb2b_id', '=', 'tbl_inv_attachment.invb2b_id')
+            ->leftJoin('tbl_invdtl', 'tbl_invdtl.invb2b_id', '=', 'tbl_invb2b.invb2b_id')
+            ->leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
             ->leftJoin('users as u', 'u.id', '=', 'tbl_sch_prog.empl_id')
             ->leftJoin('tbl_sch', 'tbl_sch_prog.sch_id', '=', 'tbl_sch.sch_id')
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_sch_prog.prog_id')
@@ -162,6 +165,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 'tbl_invb2b.invb2b_status',
                 'tbl_invb2b.invb2b_pm',
                 'tbl_invb2b.created_at',
+                'tbl_inv_attachment.sign_status as sign_status',
                 DB::raw('
                     (CASE
                         WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN tbl_invb2b.invb2b_duedate
@@ -335,6 +339,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
     public function getAllDueDateInvoicePartnerProgram($days)
     {
         return Invb2b::
+            leftJoin('tbl_inv_attachment', 'tbl_invb2b.invb2b_id', '=', 'tbl_inv_attachment.invb2b_id')->
             leftJoin('tbl_invdtl', 'tbl_invdtl.invb2b_id', '=', 'tbl_invb2b.invb2b_id')->
             leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')->
             leftJoin('users as u', 'u.id', '=', 'tbl_partner_prog.empl_id')->
@@ -351,6 +356,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 'tbl_invb2b.invb2b_status',
                 'tbl_invb2b.invb2b_pm',
                 'tbl_invb2b.created_at',
+                'tbl_inv_attachment.sign_status as sign_status',
                 DB::raw('
                     (CASE
                         WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN tbl_invb2b.invb2b_duedate
@@ -495,7 +501,9 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
 
     public function getAllDueDateInvoiceReferralProgram($days)
     {
-        return Invb2b::leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
+        return Invb2b::
+            leftJoin('tbl_inv_attachment', 'tbl_invb2b.invb2b_id', '=', 'tbl_inv_attachment.invb2b_id')
+            ->leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
             ->leftJoin('users as u', 'u.id', '=', 'tbl_referral.empl_id')
             ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
@@ -519,6 +527,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 'tbl_invb2b.invb2b_totpriceidr',
                 'tbl_invb2b.invb2b_totprice',
                 'u.email as pic_mail',
+                'tbl_inv_attachment.sign_status as sign_status',
                 DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now()) as date_difference')
             )
             ->whereDoesntHave('receipt')
@@ -944,6 +953,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 1), '/', -1) as 'invb2b_id_num'"),
                     DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 4), '/', -1) as 'invb2b_id_month'"),
                     DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 5), '/', -1) as 'invb2b_id_year'"),
+                    'tbl_invdtl.invdtl_id',
                     DB::raw('(CASE 
                                 WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch.sch_name
                                 WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_corp.corp_name
@@ -975,6 +985,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 1), '/', -1) as 'invb2b_id_num'"),
                     DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 4), '/', -1) as 'invb2b_id_month'"),
                     DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 5), '/', -1) as 'invb2b_id_year'"),
+                    'tbl_invdtl.invdtl_id',
                     DB::raw('(CASE 
                                 WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch.sch_name
                                 WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_corp.corp_name
@@ -1040,8 +1051,8 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     END)')
         )->orderBy('invb2b_id_year', 'asc')
             ->orderBy('invb2b_id_month', 'asc')
-            ->orderBy('invb2b_id_num', 'asc');
-        // ->groupBy('tbl_invb2b.invb2b_id');
+            ->orderBy('invb2b_id_num', 'asc')
+        ->groupBy(DB::raw('(CASE WHEN tbl_invdtl.invdtl_id is null THEN tbl_invb2b.invb2b_id ELSE tbl_invdtl.invdtl_id END)'));
 
 
         return $queryInv->get();

@@ -562,12 +562,20 @@
                                                     {{ $disabled }}>
                                                     <option data-placeholder="true"></option>
                                                     @foreach ($tutors as $tutor)
+                                                        @php
+                                                            $subjects = [];
+                                                            if($tutor->user_subjects()->count() > 0){
+                                                                foreach ($tutor->user_subjects as $user_subject) {
+                                                                    $subjects[] = $user_subject->subject->name;
+                                                                }
+                                                            }
+                                                        @endphp
                                                         <option value="{{ $tutor->id }}"
                                                             @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->count() > 0) @if ($clientProgram->clientMentor()->first()->id == $tutor->id)
                                                                     {{ 'selected' }} @endif
                                                             @endif
                                                             @selected(old('tutor_id') == $tutor->id)
-                                                            >{{ $tutor->first_name .' ' .$tutor->last_name .' - ' .json_encode($tutor->roles()->where('role_name', 'Tutor')->pluck('tutor_subject')->toArray()) }}
+                                                            >{{ $tutor->first_name .' ' .$tutor->last_name .(count($subjects) > 0 ? ' - ' .json_encode($subjects) : '') }}
                                                         </option>
                                                     @endforeach
                                                 </select>
@@ -592,12 +600,20 @@
                                                 <select name="tutor_1" class="select w-100" {{ $disabled }}>
                                                     <option data-placeholder="true"></option>
                                                     @foreach ($tutors as $tutor)
+                                                        @php
+                                                            $subjects = [];
+                                                            if($tutor->user_subjects()->count() > 0){
+                                                                foreach ($tutor->user_subjects as $user_subject) {
+                                                                    $subjects[] = $user_subject->subject->name;
+                                                                }
+                                                            }
+                                                        @endphp
                                                         <option value="{{ $tutor->id }}"
                                                             @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->where('type', 5)->count() > 0) @if ($clientProgram->clientMentor()->where('type', 5)->orderBy('tbl_client_mentor.id', 'asc')->first()->id == $tutor->id)
                                                                     {{ 'selected' }} @endif
                                                         @elseif (old('tutor_1') == $tutor->id) {{ 'selected' }}
                                                             @endif
-                                                            >{{ $tutor->first_name .' ' .$tutor->last_name .' - ' .json_encode($tutor->roles()->where('role_name', 'Tutor')->pluck('tutor_subject')->toArray()) }}
+                                                            >{{ $tutor->first_name .' ' .$tutor->last_name .(count($subjects) > 0 ? ' - ' .json_encode($subjects) : '') }}
                                                         </option>
                                                     @endforeach
                                                 </select>
@@ -629,12 +645,20 @@
                                                 <select name="tutor_2" class="select w-100" {{ $disabled }}>
                                                     <option data-placeholder="true"></option>
                                                     @foreach ($tutors as $tutor)
+                                                        @php
+                                                            $subjects = [];
+                                                            if($tutor->user_subjects()->count() > 0){
+                                                                foreach ($tutor->user_subjects as $user_subject) {
+                                                                    $subjects[] = $user_subject->subject->name;
+                                                                }
+                                                            }
+                                                        @endphp
                                                         <option value="{{ $tutor->id }}"
                                                             @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->where('type', 5)->count() > 1) @if ($clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'desc')->first()->id == $tutor->id)
                                                                     {{ 'selected' }} @endif
                                                         @elseif (old('tutor_2') == $tutor->id) {{ 'selected' }}
                                                             @endif
-                                                            >{{ $tutor->first_name .' ' .$tutor->last_name .' - ' .json_encode($tutor->roles()->where('role_name', 'Tutor')->pluck('tutor_subject')->toArray()) }}
+                                                            >{{ $tutor->first_name .' ' .$tutor->last_name . (count($subjects) > 0 ? ' - ' .json_encode($subjects) : '') }}
                                                         </option>
                                                     @endforeach
                                                 </select>

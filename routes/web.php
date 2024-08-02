@@ -11,6 +11,7 @@ use App\Http\Controllers\ClientStudentController;
 use App\Http\Controllers\GoogleSheetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VolunteerController;
+use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\testQueue;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
@@ -35,9 +36,6 @@ Route::get('/', function () {
     return view('auth.login');
 })->middleware('guest');
 
-// Route::get('google-sheet', [GoogleSheetController::class, 'store']);
-
-
 Route::get('404', function () {
     return view('auth.404');
 })->name('auth.404');
@@ -56,22 +54,26 @@ Route::group(['middleware' => ['auth', 'auth.department']], function () {
     Route::get('dashboard2', function (Request $request) {
 
         $endpoint = "https://api.quotable.io/quotes/random";
+        $alternate_endpoint = "https://dummyjson.com/quotes";
 
         # create 
-        $response = Http::get($endpoint);
-        
+        $response = Http::get($alternate_endpoint);
+
         $data = null;
 
         # check status
         if ($response->successful()) {
-            if(count(json_decode($response))> 0)
+            if(count($response['quotes'])> 0)
             {
-                $decode = json_decode($response);
-                $data = $decode[0];
+                $decode = $response['quotes'];
+                $data['content'] = $decode[0]['quote'];
+                $data['author'] = $decode[0]['author'];
             }
         }
+
+        $data = compact('data');
     
-        return view('pages.dashboard.blank-page')->with('data', $data);
+        return view('pages.dashboard.blank-page')->with(json_encode($data));
     });
 
     Route::get('import', function () {
@@ -80,7 +82,6 @@ Route::group(['middleware' => ['auth', 'auth.department']], function () {
 });
 
 # AUTH END ------------------------------------
-
 
 
 # FORM EVENT EMBED START ------------------------

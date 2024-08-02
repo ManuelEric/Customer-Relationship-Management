@@ -6,9 +6,8 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class ClientProgram extends Model
 {
@@ -75,6 +74,43 @@ class ClientProgram extends Model
         'updated_at'
     ];
 
+    protected function conversionLead(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->lead != NULL ? $this->getConversionLead($this->lead->main_lead) : NULL
+        );
+    }
+
+    public function getConversionLead($parameter)
+    {
+        switch ($parameter) {
+            case "All-In Event":
+                if ($this->event != NULL)
+                    return "ALL-In Event - " . $this->event->event_title;
+                else
+                    return "ALL-In Event";
+                break;
+
+            case "External Edufair":
+                if($this->eduf_id == NULL){
+                    return $this->lead->main_lead;
+                }
+
+                if ($this->external_edufair->title != NULL)
+                    return "External Edufair - " . $this->external_edufair->title;
+                else
+                    return "External Edufair - " . $this->external_edufair->organizerName;
+                break;
+
+            case "KOL":
+                return "KOL - " . $this->lead->sub_lead;
+                break;
+
+            default:
+                return $this->lead->main_lead;
+        }
+    }
+
     protected function referralName(): Attribute
     {
         return Attribute::make(
@@ -115,10 +151,20 @@ class ClientProgram extends Model
     
 
     # attributes
+    protected function conversionTime(): Attribute
+    {
+        $successDate = Carbon::parse($this->success_date);
+        $firstDiscussDate = Carbon::parse($this->first_discuss_date);
+
+        return Attribute::make(
+            get: fn ($value) => $successDate->diffInDays($firstDiscussDate),
+        );
+    }
+
     protected function programName(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->program->main_prog_name . ' - ' . $this->program->main_prog->prog_program,
+            get: fn ($value) => $value,
         );
     }
 
@@ -235,4 +281,5 @@ class ClientProgram extends Model
     {
         return $this->hasOne(BundlingDetail::class, 'clientprog_id', 'clientprog_id');
     }
+
 }

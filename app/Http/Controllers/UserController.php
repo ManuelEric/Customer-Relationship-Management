@@ -9,10 +9,12 @@ use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\DepartmentRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\PositionRepositoryInterface;
+use App\Interfaces\SubjectRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\UserTypeRepositoryInterface;
 use App\Models\pivot\UserRole;
+use App\Models\pivot\UserSubject;
 use App\Models\pivot\UserTypeDetail;
 use App\Models\User;
 use App\Models\UserType;
@@ -39,8 +41,9 @@ class UserController extends Controller
     private DepartmentRepositoryInterface $departmentRepository;
     private PositionRepositoryInterface $positionRepository;
     private UserTypeRepositoryInterface $userTypeRepository;
+    private SubjectRepositoryInterface $subjectRepository;
 
-    public function __construct(UserRepositoryInterface $userRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, DepartmentRepositoryInterface $departmentRepository, PositionRepositoryInterface $positionRepository, UserTypeRepositoryInterface $userTypeRepository)
+    public function __construct(UserRepositoryInterface $userRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, DepartmentRepositoryInterface $departmentRepository, PositionRepositoryInterface $positionRepository, UserTypeRepositoryInterface $userTypeRepository, SubjectRepositoryInterface $subjectRepository)
     {
         $this->userRepository = $userRepository;
         $this->universityRepository = $universityRepository;
@@ -48,6 +51,7 @@ class UserController extends Controller
         $this->departmentRepository = $departmentRepository;
         $this->positionRepository = $positionRepository;
         $this->userTypeRepository = $userTypeRepository;
+        $this->subjectRepository = $subjectRepository;
     }
 
     public function index(Request $request)
@@ -114,6 +118,19 @@ class UserController extends Controller
                 'listGraduationDate' => $listGraduationDate,
             ];
         }
+        
+        $userSubjectDetails = [];
+        if ($request->subject_id[0] != null) {
+            $userSubjectDetails = [
+                'listSubjectId' => $request->subject_id,
+                'listGrade' => $request->grade,
+                'listAgreement' => $request->agreement,
+                'listFeeIndividual' => $request->fee_individual,
+                'listFeeGroup' => $request->fee_group,
+                'listAdditionalFee' => $request->additional_fee,
+                'listHead' => $request->head,
+            ];
+        }
 
         # variables for user roles
         $listRoles = $request->role;
@@ -158,6 +175,15 @@ class UserController extends Controller
 
             # store new user type to tbl_user_type
             $this->userRepository->createUserType($newUser, $userTypeDetails);
+
+            if ($request->subject_id[0] != null) {
+                # store new user subject to tbl_user_subjects
+                $checkUserSubject = $this->userRepository->createOrUpdateUserSubject($newUser, $request, $user_id_with_label);
+                
+                if($checkUserSubject[0]){
+                    return back()->withErrors(["agreement.".$checkUserSubject[1] => "The Agreement field is required"])->withInput();
+                }
+            }
 
             # upload curriculum vitae
             $CV_file_path = null;
@@ -233,6 +259,7 @@ class UserController extends Controller
         $departments = $this->departmentRepository->getAllDepartment();
         $positions = $this->positionRepository->getAllPositions();
         $user_types = $this->userTypeRepository->getAllUserType();
+        $subjects = $this->subjectRepository->getAllSubjects();
 
         return view('pages.user.employee.form')->with(
             [
@@ -242,6 +269,8 @@ class UserController extends Controller
                 'departments' => $departments,
                 'positions' => $positions,
                 'user_types' => $user_types,
+                'subjects' => $subjects,
+                'is_tutor' => false,
             ]
         );
     }
@@ -359,6 +388,21 @@ class UserController extends Controller
             }
             $user->roles()->sync($roleDetails);
 
+            if ($request->subject_id[0] != null) {
+                # update user subject to tbl_user_subjects
+                $checkUserSubject = $this->userRepository->createOrUpdateUserSubject($user, $request, $user_id_with_label);
+                 
+                if($checkUserSubject[0]){
+                    return back()->withErrors(["agreement.".$checkUserSubject[1]=> "The Agreement field is required"])->withInput();
+                }
+
+            }else{
+                if(in_array(4, $request->role) && $user->user_subjects()->count() > 0){
+                    $user_role_id = $user->roles()->where('role_name', 'Tutor')->first()->pivot->id;
+                    UserSubject::where('user_role_id', $user_role_id)->delete();
+                }
+            }
+
             # validate
             # in order to avoid double data
             $newUserType = $request->type;
@@ -461,6 +505,8 @@ class UserController extends Controller
         $positions = $this->positionRepository->getAllPositions();
         $user_types = $this->userTypeRepository->getAllUserType();
         $salesTeams = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $subjects = $this->subjectRepository->getAllSubjects();
+        $is_tutor = $user->roles()->where('role_name', 'Tutor')->first() != null ? true : false;
 
 
         return view('pages.user.employee.form')->with(
@@ -473,6 +519,8 @@ class UserController extends Controller
                 'user_types' => $user_types,
                 'user' => $user,
                 'salesTeams' => $salesTeams->whereNotIn('id', [$userId]),
+                'subjects' => $subjects,
+                'is_tutor' => $is_tutor
             ]
         );
     }
@@ -610,4 +658,21 @@ class UserController extends Controller
             ]
         );    
     } 
+
+    public function downloadAgreement(Request $request)
+    {
+        $userId = $request->route('user');
+        $user = $this->userRepository->getUserById($userId);
+
+        $userSubjectId = $request->route('user_subject');
+        $userSubject = $this->userRepository->getUserSubjectById($userSubjectId);
+
+        $file = Storage::disk('local')->get($userSubject->agreement);
+
+        # Download success
+        # create log success
+        $this->logSuccess('download', null, 'User', Auth::user()->first_name . ' '. Auth::user()->last_name, ['user' => $user->first_name . ' ' . $user->last_name]);
+
+        return response($file)->header('Content-Type', 'application/pdf');
+    }
 }

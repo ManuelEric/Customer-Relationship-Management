@@ -171,6 +171,9 @@
                                 @include('pages.user.employee.form-detail.role')
                             </div>
                             <div class="col-md-12 mb-3">
+                                @include('pages.user.employee.form-detail.subject')
+                            </div>
+                            <div class="col-md-12 mb-3">
                                 @include('pages.user.employee.form-detail.attachment')
                             </div>
                             
@@ -191,6 +194,13 @@
     @include('pages.user.employee.form-detail.deactive')
 
     <script type="text/javascript">
+        $("#role").change(function(){
+            var role = $(this).val();
+            if(Object.values(role).indexOf('4') > -1){
+                $("#subject").removeClass('d-none');
+            }
+        });
+
         $('.modal-select').select2({
             dropdownParent: $('#modalDeactive .modal-content'),
             placeholder: "Select value",

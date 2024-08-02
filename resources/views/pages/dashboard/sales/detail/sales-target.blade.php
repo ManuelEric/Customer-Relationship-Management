@@ -59,15 +59,15 @@
                                     @foreach ($salesDetail as $detail)
                                         <tr class="text-center">
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ isset($detail->prog_id) ? $detail->prog_id : '-' }}</td>
-                                            <td class="text-start">{{ $detail->program_name_sales }}</td>
-                                            <td>{{ $detail->total_target_participant ??= 0 }}</td>
-                                            <td>{{ number_format($detail->total_target, '2', ',', '.') }}</td>
-                                            <td>{{ $detail->total_actual_participant }}</td>
-                                            <td>{{ number_format($detail->total_actual_amount, '2', ',', '.') }}</td>
-                                            <td>{{ $detail->total_target_participant != 0 ? round(($detail->total_actual_participant / $detail->total_target_participant) * 100, 2) : 0 }}%
+                                            <td>{{ isset($detail['prog_id']) ? $detail['prog_id'] : '-' }}</td>
+                                            <td class="text-start">{{ $detail['program_name_sales'] }}</td>
+                                            <td>{{ $detail['total_target_participant'] ??= 0 }}</td>
+                                            <td>{{ number_format($detail['total_target'], '2', ',', '.') }}</td>
+                                            <td>{{ $detail['total_actual_participant'] }}</td>
+                                            <td>{{ number_format($detail['total_actual_amount'], '2', ',', '.') }}</td>
+                                            <td>{{ $detail['total_target_participant'] != 0 ? round(($detail['total_actual_participant'] / $detail['total_target_participant']) * 100, 2) : 0 }}%
                                             </td>
-                                            <td>{{ $detail->total_target != 0 ? ($detail->total_actual_amount / $detail->total_target) * 100 : 0 }}%
+                                            <td>{{ $detail['total_target'] != 0 ? ($detail['total_actual_amount'] / $detail['total_target']) * 100 : 0 }}%
                                             </td>
                                         </tr>
                                     @endforeach
@@ -188,12 +188,12 @@
     const dataset_sales_actual = new Array();
 
     const target_of_participant = {{ $salesTarget->total_participant ?? 0 }};
-    const actual_of_participant = {{ $salesActual->total_participant ?? 0 }};
+    const actual_of_participant = {{ $salesActual['total_participant'] ?? 0 }};
     const achieved_percentage_of_participant = target_of_participant == 0 ? actual_of_participant * 100 : (
         actual_of_participant / target_of_participant) * 100;
 
     const target_of_amount = {{ $salesTarget->total_target ?? 0 }};
-    const actual_of_amount = {{ $salesActual->total_target ?? 0 }};
+    const actual_of_amount = {{ $salesActual['total_target'] ?? 0 }};
     const achieved_percentage_of_amount = target_of_amount == 0 ? actual_of_amount * 100 : (actual_of_amount /
         target_of_amount) * 100;
 
@@ -205,10 +205,10 @@
     })
 
     dataset_sales_target.push({{ $salesTarget->total_participant ?? 0 }})
-    dataset_sales_target.push({{ $salesActual->total_participant ?? 0 }})
+    dataset_sales_target.push({{ $salesActual['total_participant'] ?? 0 }})
 
     dataset_sales_actual.push({{ $salesTarget->total_target ?? 0 }})
-    dataset_sales_actual.push({{ $salesActual->total_target ?? 0 }})
+    dataset_sales_actual.push({{ $salesActual['total_target'] ?? 0 }})
 
     var target_people_chart = new Chart(st, {
         data: {

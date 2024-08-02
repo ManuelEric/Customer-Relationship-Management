@@ -112,7 +112,10 @@
                      data-bs-dismiss="modal">
                      <i class="bi bi-x-square me-1"></i>
                      Cancel</button>
-                 <button type="button" id="import" class="btn btn-primary btn-sm">
+                 {{-- <button type="button" id="import" class="btn btn-primary btn-sm">
+                     <i class="bi bi-save2 me-1"></i>
+                     Import</button> --}}
+                 <button type="button" id="import2" class="btn btn-primary btn-sm">
                      <i class="bi bi-save2 me-1"></i>
                      Import</button>
              </div>
@@ -267,6 +270,120 @@
 
                 swal.close()
             }).catch(function(error, response) {
+                var msg = 'Something went wrong. Please try again';
+                if(error.response.status == 429){
+                    msg = 'Please wait 1 minute!'
+                }
+                swal.close()
+                notification('error', msg);
+
+            })
+    })
+
+    $('#import2').click(function(e){
+        $("#inputRange").modal('hide');
+        $('#content-import-information').html('');
+        var category = $("#category").val();
+        var start = $("#start").val();
+        var end = $("#end").val();
+
+        showLoading()
+        axios
+            .get("{{ url('api/import') }}/" + category + "?start=" + start + "&end=" + end, {
+                headers:{
+                    'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
+                }
+            })
+            .then(function(response){
+                html = '';
+                // html += `<h5>Import ${category}</h5>`;
+                $('#title-modal-import').html(`Import ${category}`);
+                
+                if(response.data.success == false){
+                    html += `<ul>`;
+                    var error = response.data.error
+                    if(Object.keys(error).length){
+                        Object.keys(error).forEach(key => {
+                            html += `<li class="text-danger">${key + ': ' + error[key]}</li>`
+                        });
+                    }
+
+                    $("#modal-notif-import").modal('show');
+                    $('#content-import-information').html(html);
+
+                }else{
+                    var data = response.data;
+                    
+                    if( data['batch_id'] === undefined ){
+                        html += `<ul>`;
+                        html += `<li>Total Imported: ${parseInt(data.total_imported)}</li>`
+                        if(data.message !== null){
+                            html += `<li>Message: ${data.message}</li>`
+                        }
+                        html += `</ul>`
+
+                        $("#modal-notif-import").modal('show');
+                        $('#content-import-information').html(html);
+
+                    }else{
+                        localStorage.setItem("batch_id", data.batch_id);
+                        html += `<div id="loading-bar">`;
+                        html += `<div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="height:25px;">`;
+                        html += `<div class="progress-bar progress-bar-striped progress-bar-animated" id="bar" style="width: 0%">0%</div>`;
+                        html += `</div>`;
+                        html += `<p class="text-center mt-2" id="total">Importing ...</p>`;
+                        html += `</div>`;
+
+                            
+                        $("#modal-notif-import").modal('show');
+                        $('#content-import-information').html(html);
+
+                        var i = 0;
+
+                        let myInterval = setInterval(() => {
+                            axios
+                            .get("{{ url('api/batch') }}/" + localStorage.getItem("batch_id"), {
+                                headers:{
+                                    'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
+                                }
+                            }).then(function(response){
+                                console.log(response);
+                                $('#bar').css({'width': response.data.progress + '%'});
+                                $('#bar').text(response.data.progress + '%');
+                                $('#total').html(`Importing ${response.data.total_imported}/${response.data.total_data}`);
+                                
+                                i++;
+
+                                if(response.data.progress == 100){
+                                    console.log('100 fully');
+                                    
+                                    clearInterval(myInterval);
+                                }
+
+                                if(i >= 100){
+                                    $("#modal-notif-import").modal('hide');
+                                    clearInterval(myInterval);
+                                    var msg = 'Timeout!';
+                                    notification('error', msg);
+                                }
+                            }).catch(function(error, response) {
+                                clearInterval(myInterval);
+                                $("#modal-notif-import").modal('hide');
+                                var msg = 'Something went wrong. Please try again';
+                                notification('error', msg);
+
+                            });
+                        }, 3000);
+                       
+                    }
+
+                }
+
+                
+
+                swal.close()
+            }).catch(function(error, response) {
+                console.log(error);
                 var msg = 'Something went wrong. Please try again';
                 if(error.response.status == 429){
                     msg = 'Please wait 1 minute!'

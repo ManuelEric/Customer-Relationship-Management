@@ -28,7 +28,7 @@ interface ClientRepositoryInterface
     public function getPotentialClients($asDatatables = false, $month = NULL,  array $advanced_filter); # month nullable
     public function getExistingMentees($asDatatables = false, $month = NULL,  array $advanced_filter); # month nullable
     public function getExistingNonMentees($asDatatables = false, $month = NULL,  array $advanced_filter); # month nullable
-    public function getAllClientStudent(array $advanced_filter);
+    public function getAllClientStudent(array $advanced_filter, $asDatatables=false);
     public function getAlumniMentees($groupBy = false, $asDatatables = false, $month = NULL); # month nullable
     public function getAlumniMenteesSiblings();
     public function getAlumniNonMentees($groupBy = false, $asDatatables = false, $month = NULL); # month nullable
@@ -47,6 +47,11 @@ interface ClientRepositoryInterface
     public function addInterestProgram($studentId, $interestProgram);
     public function removeInterestProgram($studentId, $interstProgram, $progId);
     public function getDataParentsByChildId($childId);
+    public function getClientsByCategory($category);
+    public function updateClientByUUID($uuid, array $newDetails);
+    public function countClientByCategory($category, $month = NULL);
+    public function countClientByRole($role, $month = null);
+
 
     /* ~ END */
 

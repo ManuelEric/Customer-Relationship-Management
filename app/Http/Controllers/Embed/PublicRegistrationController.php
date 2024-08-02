@@ -10,6 +10,7 @@ use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
+use App\Jobs\Client\ProcessDefineCategory;
 use App\Models\School;
 use Exception;
 use Illuminate\Http\Request;
@@ -86,6 +87,9 @@ class PublicRegistrationController extends Controller
 
             # checking if client was a child
             $newChild = $this->storeChildrenIfNotExists($childrenDetail);
+
+            # trigger define category client
+            ProcessDefineCategory::dispatch([$newChild])->onQueue('define-category-client');
 
             # create relation between parent & student
             if ($newParent && $newChild)

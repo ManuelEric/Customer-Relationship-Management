@@ -34,6 +34,30 @@ class InvoicesRepository implements InvoicesRepositoryInterface
         return Datatables::of($model)->make(true);
     }
 
+    public function getOustandingPaymentPaginate($monthYear, $search = null)
+    {
+         # get raw query with the bind parameters into string
+         $model_invB2b = $this->getOutstandingPaymentFromB2b($monthYear);
+
+         # binding manually
+         $query_invB2b = str_replace(['?'], ['\'%s\''], $model_invB2b->toSql());
+         $query_invB2b = vsprintf($query_invB2b, $model_invB2b->getBindings());
+         
+         # get raw query with the bind parameters into string
+         $model_invProgram = $this->getOutstandingPaymentFromClientProgram($monthYear);
+         $query_invB2c = str_replace(['?'], ['\'%s\''], $model_invProgram->toSql());
+         $query_invB2c = vsprintf($query_invB2c, $model_invProgram->getBindings());
+         
+         # merge 2 table between invoice b2b and invoice client program using raw query
+         if(isset($search) && $search != null){
+             return $model = DB::table(DB::raw("({$query_invB2b} UNION {$query_invB2c}) A"))
+                                    ->where('full_name', 'like', '%' . $search . '%')
+                                    ->orWhere('parent_name', 'like', '%' . $search . '%')
+                                    ->orWhere('program_name', 'like', '%' . $search . '%')
+                                    ->paginate(15);
+         }
+         return $model = DB::table(DB::raw("({$query_invB2b} UNION {$query_invB2c}) A"))->paginate(15);
+    }
 
 
     private function getOutstandingPaymentFromClientProgram($monthYear)

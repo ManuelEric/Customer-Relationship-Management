@@ -11,7 +11,7 @@
                         $roles = $user->roles()->pluck('tbl_roles.id')->toArray();
                 @endphp
                 <label for="">Role <sup class="text-danger">*</sup></label>
-                <select name="role[]" id="" class="select w-100" multiple>
+                <select name="role[]" id="role" class="select w-100" multiple>
                     <option data-placeholder="true"></option>
                     <option value="1"
                         @if (isset($user))

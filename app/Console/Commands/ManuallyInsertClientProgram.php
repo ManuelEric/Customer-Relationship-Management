@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Models\ClientProgram;
 use App\Models\UserClient;
+use App\Models\v1\ClientProgram;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ManuallyInsertClientProgram extends Command
 {
@@ -37,6 +38,7 @@ class ManuallyInsertClientProgram extends Command
 
         $progressBar = $this->output->createProgressBar(count($sql));
         $progressBar->start();
+        Log::debug('clients changed to potential', $sql->pluck('id')->toArray());
 
         DB::beginTransaction();
         try {
@@ -59,6 +61,8 @@ class ManuallyInsertClientProgram extends Command
                 UserClient::where('id', $client_id)->update(['category' => 'potential']);
                 DB::commit();
                 $progressBar->advance();
+
+                $this->info($client_id);
             }
         } catch (\Exception $e) {
             DB::rollBack();

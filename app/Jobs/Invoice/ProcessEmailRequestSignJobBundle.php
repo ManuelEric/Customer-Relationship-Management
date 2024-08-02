@@ -12,11 +12,13 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use PDF;
+use romanzipp\QueueMonitor\Traits\IsMonitored;
 
 class ProcessEmailRequestSignJobBundle implements ShouldQueue, ShouldBeUniqueUntilProcessing
 // class ProcessEmailRequestSignJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use IsMonitored;
 
     protected $mailDetails;
     protected $attachmentDetails;

@@ -67,6 +67,7 @@ use App\Interfaces\SchoolProgramAttachRepositoryInterface;
 use App\Interfaces\SchoolProgramCollaboratorsRepositoryInterface;
 use App\Interfaces\SchoolVisitRepositoryInterface;
 use App\Interfaces\SeasonalProgramRepositoryInterface;
+use App\Interfaces\SubjectRepositoryInterface;
 use App\Interfaces\SubProgRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Interfaces\TargetTrackingRepositoryInterface;
@@ -145,6 +146,7 @@ use App\Repositories\SchoolProgramAttachRepository;
 use App\Repositories\SchoolProgramCollaboratorsRepository;
 use App\Repositories\SchoolVisitRepository;
 use App\Repositories\SeasonalProgramRepository;
+use App\Repositories\SubjectRepository;
 use App\Repositories\SubProgRepository;
 use App\Repositories\TagRepository;
 use App\Repositories\TargetTrackingRepository;
@@ -246,6 +248,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(TargetTrackingRepositoryInterface::class, TargetTrackingRepository::class);
         $this->app->bind(TargetSignalRepositoryInterface::class, TargetSignalRepository::class);
         $this->app->bind(AlarmRepositoryInterface::class, AlarmRepository::class);
+        $this->app->bind(SubjectRepositoryInterface::class, SubjectRepository::class);
     }
 
     /**

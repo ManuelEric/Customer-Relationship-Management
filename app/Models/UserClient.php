@@ -67,6 +67,8 @@ class UserClient extends Authenticatable
         'is_verified',
         'register_as',
         'referral_code',
+        'category',
+        'took_ia',
         'created_at',
         'updated_at',
     ];
@@ -231,6 +233,10 @@ class UserClient extends Authenticatable
                 break;
 
             case "External Edufair":
+                if($this->eduf_id == NULL){
+                    return $this->lead->main_lead;
+                }
+
                 if ($this->external_edufair->title != NULL)
                     return "External Edufair - " . $this->external_edufair->title;
                 else

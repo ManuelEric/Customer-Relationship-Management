@@ -246,13 +246,13 @@
                 createdRow: function ( row, data, index ) {
 
                     if ( data['program_status'] == 'Success')
-                        $('td', row).eq(5).addClass('bg-success text-light');
+                        $('td', row).eq(6).addClass('bg-success text-light');
 
 
                     if ( data['prog_running_status'] == 2 ) 
-                        $('td', row).eq(6).addClass('bg-success text-light');
+                        $('td', row).eq(7).addClass('bg-success text-light');
                     else if (data['prog_running_status'] == 0)
-                        $('td', row).eq(6).addClass('bg-warning');
+                        $('td', row).eq(7).addClass('bg-warning');
 
                     
                 },

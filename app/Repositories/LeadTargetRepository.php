@@ -490,15 +490,15 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $month = date('m', strtotime($monthYear));
         $year = date('Y', strtotime($monthYear));
 
-        $query = ClientProgram::whereMonth('success_date', $month)->whereYear('success_date', $year)->
-                whereHas('client.lead', function ($sub) {
-                    $sub->where('department_id', 7);
-                })->
-                when($prog_id, function ($sub) use ($prog_id) {
-                    $sub->where('prog_id', $prog_id);
-                })->get();
-
-        return $query;
+        $query = ClientProgram::with(['client'])->whereMonth('success_date', $month)->whereYear('success_date', $year)->whereHas('client', function ($subQuery){
+            $subQuery->whereHas('lead', function ($subQuery2) {
+                $subQuery2->where('department_id', 7);
+            });
+        });
+        if ($prog_id != null){
+            $query->where('prog_id', $prog_id);
+        }
+        return $query->get();
     }
 
 //     public function getLeadSourceDigital($monthYear)

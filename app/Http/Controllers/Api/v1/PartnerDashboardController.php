@@ -56,16 +56,16 @@ class PartnerDashboardController extends Controller
         }
 
         $newPartner = $this->corporateRepository->getCorporateByMonthly($monthYear, 'monthly');
-        $lastMonthPartner = $this->corporateRepository->getCorporateByMonthly($last_month, $type);
+        $lastMonthPartner = $this->corporateRepository->getCorporateByMonthly($last_month, 'all');
 
         $newSchool = $this->schoolRepository->getSchoolByMonthly($monthYear, 'monthly');
-        $lastMonthSchool = $this->schoolRepository->getSchoolByMonthly($last_month, $type);
+        $lastMonthSchool = $this->schoolRepository->getSchoolByMonthly($last_month, 'all');
 
         $newUniversity = $this->universityRepository->getUniversityByMonthly($monthYear, 'monthly');
-        $lastMonthUniversity = $this->universityRepository->getUniversityByMonthly($last_month, $type);
+        $lastMonthUniversity = $this->universityRepository->getUniversityByMonthly($last_month, 'all');
 
-        $totalAgreement = $this->partnerAgreementRepository->getPartnerAgreementByMonthly($monthYear, $type);
-        $lastMonthAgreement = $this->partnerAgreementRepository->getPartnerAgreementByMonthly($last_month, $type);
+        $totalAgreement = $this->partnerAgreementRepository->getPartnerAgreementByMonthly($monthYear, 'all');
+        $lastMonthAgreement = $this->partnerAgreementRepository->getPartnerAgreementByMonthly($last_month, 'all');
 
         $data = [
             'totalPartner' => $lastMonthPartner,

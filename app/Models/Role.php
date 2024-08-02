@@ -23,7 +23,7 @@ class Role extends Model
 
     public function user()
     {
-        return $this->belongsToMany(User::class, 'tbl_user_roles', 'role_id', 'user_id')->using(UserRole::class)->withPivot('tutor_subject', 'feehours', 'feesession')->withTimestamps();
+        return $this->belongsToMany(User::class, 'tbl_user_roles', 'role_id', 'user_id')->using(UserRole::class)->withTimestamps();
     }
 
     public function client()

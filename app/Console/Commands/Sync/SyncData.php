@@ -4,6 +4,7 @@ namespace App\Console\Commands\Sync;
 
 use App\Interfaces\ClientRepositoryInterface;
 use App\Models\Client;
+use App\Models\ClientProgram;
 use App\Models\Corporate;
 use App\Models\EdufLead;
 use App\Models\Event;
@@ -66,7 +67,7 @@ class SyncData extends Command
             $index = 2;
             
             $query = $this->setQueryByType($type);
-
+            Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_SYNC_DATA'))->sheet($query['sheetName'])->range('A2:Z'. $query['query']->count() + 1)->clear();
 
             $query['query']
             ->chunk(200, function($models) use(&$i, &$index, $query, $type){
@@ -129,14 +130,32 @@ class SyncData extends Command
                             break;
 
                         case 'mentee':
+                        case 'alumni-mentee':
                             $data[$key] = [$val->id, $val->full_name, $val->id . ' | ' . $val->full_name];
                             break;
-                 
+
+                        case 'tutoring-student':
+                            $subjects = [];
+                            if(isset($val->clientMentor) && $val->clientMentor()->where('type', 5)->count() > 0){
+                                $tutors = $val->clientMentor->pluck('id');
+                                if(count($tutors) > 0){
+                                    $users = User::whereIn('id', $tutors)->get();
+                                    foreach ($users as $user) {
+                                        if($user->user_subjects()->count() > 0){
+                                            foreach ($user->user_subjects as $user_subject) {
+                                                $subjects[] = $user_subject->subject->name;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            $data[$key] = [$val->client->id, $val->client->full_name, $val->client->id . ' | ' . $val->client->full_name, count($subjects) > 0 ? implode(", ", $subjects) : ''];
+                            break;                 
                     }
 
                 }
                    
-                // $this->info($index);
                 if($i == 0){
                     $index = 2;
                 }else{
@@ -152,7 +171,7 @@ class SyncData extends Command
             
 
         } catch (Exception $e) {
-            Log::error('Failed sync data '.$query['sheetName'], $e->getMessage());
+            Log::error('Failed sync data '.$query['sheetName'] . ': '. $e->getMessage());
         }
 
         return Command::SUCCESS;
@@ -294,20 +313,26 @@ class SyncData extends Command
                 break;
 
             case 'mentee':
-                $query = Client::withAndWhereHas('clientProgram', function ($subQuery) {
-                            $subQuery->with(['clientMentor', 'clientMentor.roles' => function ($subQuery_2) {
-                                $subQuery_2->where('role_name', 'Mentor');
-                            }])->whereHas('program', function ($subQuery_2) {
-                                $subQuery_2->whereHas('main_prog', function ($subQuery_3) {
-                                    $subQuery_3->where('prog_name', 'Admissions Mentoring');
-                                });
-                            })->where('status', 1)->where('prog_running_status', '!=', 2); # 1 success, 2 done
-                        })->whereHas('roles', function ($subQuery) {
-                            $subQuery->where('role_name', 'student');
-                        });
+                $query = Client::where('client.category', 'mentee');
 
                 $sheetName = 'Active Mentees';
                 $colUpdatedAt = 'D';
+                break;
+
+            case 'alumni-mentee':
+                $query = Client::where('client.category', 'alumni-mentee');
+
+                $sheetName = 'Alumni Mentees';
+                $colUpdatedAt = 'D';
+                break;
+
+            case 'tutoring-student':
+                $query = ClientProgram::whereHas('program', function ($subQuery) {
+                    $subQuery->where('main_prog_id', 4);
+                })->where('status', 1)->groupBy('client_id');
+
+                $sheetName = 'Tutoring Students';
+                $colUpdatedAt = 'E';
                 break;
 
         }

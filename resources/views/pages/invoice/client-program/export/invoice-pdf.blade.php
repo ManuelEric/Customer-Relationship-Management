@@ -145,7 +145,7 @@
                 <td valign="top" style="padding-bottom:10px;">
                     <div style="min-height:80px;">
                         <p>
-                            <strong> {{ $clientProg->invoice_program_name }} </strong>
+                            <strong> {{ $clientProg->program->program_name }} </strong>
                         </p>
                         <p class="notes">
                             <br>

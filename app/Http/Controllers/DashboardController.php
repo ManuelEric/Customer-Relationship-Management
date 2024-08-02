@@ -49,8 +49,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use App\Models\v1\Student as CRMStudent;
 use Carbon\CarbonImmutable;
+use Exception;
 use Illuminate\Support\Benchmark;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Laravel\Passport\Passport;
 use Mostafaznv\LaraCache\Facades\LaraCache;
 
@@ -178,5 +180,22 @@ class DashboardController extends SalesDashboardController
     public function ajaxDataTablesOutstandingPayment()
     {
         return $this->invoicesRepository->getOustandingPaymentDataTables(date('Y-m'));
+    }
+
+    public function listOustandingPayments(Request $request)
+    {
+        $search = $request->get('q') ?? null;
+
+        try {
+            $listOutstanding = $this->invoicesRepository->getOustandingPaymentPaginate(date('Y-m'), $search);
+        } catch (Exception $e) {
+            Log::error('Failed to get list outstanding payment ' . $e->getMessage() . ' | Line: ' . $e->getLine());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get list outstanding payment'
+            ], 500);
+        }
+
+        return $listOutstanding;
     }
 }

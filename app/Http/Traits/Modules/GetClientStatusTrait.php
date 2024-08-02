@@ -6,29 +6,29 @@ trait GetClientStatusTrait {
     public function clientStatus($month)
     {
         $asDatatables = $groupBy = false;
-        $total_newLeads = $this->clientRepository->getNewLeads($asDatatables)->count();
-        $monthly_new_newLeads = $this->clientRepository->getNewLeads($asDatatables, $month)->count();
+        $total_newLeads = $this->clientRepository->countClientByCategory('new-lead');
+        $monthly_new_newLeads = $this->clientRepository->countClientByCategory('new-lead', $month);
 
-        $total_potential_client = $this->clientRepository->getPotentialClients($asDatatables)->count();
-        $monthly_new_potential_client = $this->clientRepository->getPotentialClients($asDatatables, $month)->count();
+        $total_potential_client = $this->clientRepository->countClientByCategory('potential');
+        $monthly_new_potential_client = $this->clientRepository->countClientByCategory('potential', $month);
 
-        $total_existingMentees = $this->clientRepository->getExistingMentees($asDatatables)->count();
-        $monthly_new_existingMentees = $this->clientRepository->getExistingMentees($asDatatables, $month)->count();
+        $total_existingMentees = $this->clientRepository->countClientByCategory('mentee');
+        $monthly_new_existingMentees = $this->clientRepository->countClientByCategory('mentee', $month);
 
-        $total_existingNonMentees = $this->clientRepository->getExistingNonMentees($asDatatables)->count();
-        $monthly_new_existingNonMentees = $this->clientRepository->getExistingNonMentees($asDatatables, $month)->count();
+        $total_existingNonMentees = $this->clientRepository->countClientByCategory('non-mentee');
+        $monthly_new_existingNonMentees = $this->clientRepository->countClientByCategory('non-mentee', $month);
 
-        $total_alumniMentees = $this->clientRepository->getAlumniMentees($groupBy, $asDatatables)->count();
-        $monthly_new_alumniMentees = $this->clientRepository->getAlumniMentees($groupBy, $asDatatables, $month)->count();
+        $total_alumniMentees = $this->clientRepository->countClientByCategory('alumni-mentee');
+        $monthly_new_alumniMentees = $this->clientRepository->countClientByCategory('alumni-mentee', $month);
 
-        $total_alumniNonMentees = $this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables)->count();
-        $monthly_new_alumniNonMentees = $this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables, $month)->count();
+        $total_alumniNonMentees = $this->clientRepository->countClientByCategory('alumni-non-mentee');
+        $monthly_new_alumniNonMentees = $this->clientRepository->countClientByCategory('alumni-non-mentee', $month);
 
-        $total_parent = $this->clientRepository->getParents($asDatatables)->count();
-        $monthly_new_parent = $this->clientRepository->getParents($asDatatables, $month)->count();
+        $total_parent = $this->clientRepository->countClientByRole('Parent');
+        $monthly_new_parent = $this->clientRepository->countClientByRole('Parent', $month);
 
-        $total_teacher = $this->clientRepository->getTeachers($asDatatables)->count();
-        $monthly_new_teacher = $this->clientRepository->getTeachers($asDatatables, $month)->count();
+        $total_teacher = $this->clientRepository->countClientByRole('Teacher/Counselor');
+        $monthly_new_teacher = $this->clientRepository->countClientByRole('Teacher/Counselor', $month);
 
         # data at the top of dashboard
         $response['totalClientInformation'] = [
