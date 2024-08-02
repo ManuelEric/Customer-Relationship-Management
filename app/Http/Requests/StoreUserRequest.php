@@ -44,6 +44,7 @@ class StoreUserRequest extends FormRequest
             ];
             $i++;
         }
+        
 
         $rules += [
             'first_name' => 'required',
@@ -67,15 +68,6 @@ class StoreUserRequest extends FormRequest
             'start_period' => 'required',
             'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
 
-            'agreement.*' => 'required|mimes:pdf|max:5000',
-            'subject_id.*' => 'required',
-            'year.*' => 'required',
-            'grade.*.*' => 'required|in:[9-10],[11-12]',
-            'fee_individual.*.*' => 'required',
-            'fee_group.*.*' => 'nullable',
-            'additional_fee.*.*' => 'nullable',
-            'head.*.*' => 'nullable',
-
             'curriculum_vitae' => 'nullable|mimes:pdf|max:5000',
             'bankname' => 'required',
             'bankacc' => 'required',
@@ -87,6 +79,21 @@ class StoreUserRequest extends FormRequest
             'empl_insurance' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000'
 
         ];
+
+        if($total_roles > 0){
+            if(in_array(4, $this->input('role'))){
+                $rules += [
+                    'agreement.*' => 'required|mimes:pdf|max:5000',
+                    'subject_id.*' => 'required',
+                    'year.*' => 'required',
+                    'grade.*.*' => 'required|in:[9-10],[11-12]',
+                    'fee_individual.*.*' => 'required',
+                    'fee_group.*.*' => 'nullable',
+                    'additional_fee.*.*' => 'nullable',
+                    'head.*.*' => 'nullable',
+                ];
+            }
+        }
 
         return $rules;
     }
@@ -124,15 +131,6 @@ class StoreUserRequest extends FormRequest
             'type' => 'required|exists:tbl_user_type,id',
             'start_period' => 'required',
             'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
-
-            'agreement.*' => 'required|mimes:pdf|max:5000',
-            'subject_id.*' => 'required',
-            'year.*' => 'required',
-            'grade.*.*' => 'required|in:[9-10],[11-12]',
-            'fee_individual.*.*' => 'required',
-            'fee_group.*.*' => 'nullable',
-            'additional_fee.*.*' => 'nullable',
-            'head.*.*' => 'nullable',
             
             'curriculum_vitae' => 'nullable|mimes:pdf|max:5000',
             'bankname' => 'required',
@@ -159,6 +157,21 @@ class StoreUserRequest extends FormRequest
 
         // if ($user->empl_insurance == null)
         //     $rules['empl_insurance'] = 'required|mimes:pdf|max:5000';
+
+        if($total_roles > 0){
+            if(in_array(4, $this->input('role'))){
+                $rules += [
+                    'agreement.*' => 'required|mimes:pdf|max:5000',
+                    'subject_id.*' => 'required',
+                    'year.*' => 'required',
+                    'grade.*.*' => 'required|in:[9-10],[11-12]',
+                    'fee_individual.*.*' => 'required',
+                    'fee_group.*.*' => 'nullable',
+                    'additional_fee.*.*' => 'nullable',
+                    'head.*.*' => 'nullable',
+                ];
+            }
+        }
 
         return $rules;
     }
