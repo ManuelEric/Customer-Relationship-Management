@@ -943,10 +943,8 @@ class ClientProgramController extends Controller
     {
         $programName = $request->get('program_name');
         if ($programName == null)
-            abort('404');
+            abort(404);
         
-        $program = $this->programRepository->getProgramByName($programName);
-
         if (!$program = $this->programRepository->getProgramByName($programName))
             abort(404);
 

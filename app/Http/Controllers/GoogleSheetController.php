@@ -765,11 +765,11 @@ class GoogleSheetController extends Controller
                     $data = $this->clientRepository->getExistingMentees(true, null, []);
                     break;
                 case 'non-mentee':
-                    Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet('Non Mentees')->range('A2:AE1000')->clear();                    
+                    Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet('Non-Mentees')->range('A2:AE1000')->clear();                    
                     $data = $this->clientRepository->getExistingNonMentees(true, null, []);
                     break;
                 case 'all':
-                    Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet('All')->range('A2:AE1000')->clear();                    
+                    Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_EXPORT_DATA'))->sheet('All')->range('A2:AE3000')->clear();                    
                     $data = $this->clientRepository->getAllClientStudent([], true);
                     break;
                 case 'inactive':

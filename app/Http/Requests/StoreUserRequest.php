@@ -44,7 +44,6 @@ class StoreUserRequest extends FormRequest
             ];
             $i++;
         }
-        
 
         $rules += [
             'first_name' => 'required',
@@ -94,7 +93,7 @@ class StoreUserRequest extends FormRequest
                 ];
             }
         }
-
+        
         return $rules;
     }
 
@@ -172,7 +171,6 @@ class StoreUserRequest extends FormRequest
                 ];
             }
         }
-
         return $rules;
     }
 }

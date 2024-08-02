@@ -52,6 +52,7 @@ class RunWorker extends Command
 
         Artisan::call('queue:listen', [
             // '--stop-when-empty' => 1,
+            // '--daemon' => 1,
             '--queue' => implode(',', $resources)
         ]);
         
