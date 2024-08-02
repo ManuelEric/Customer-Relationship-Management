@@ -22,6 +22,7 @@ use App\Models\ClientEvent;
 use App\Models\Event;
 use App\Models\School;
 use App\Models\UserClient;
+use App\Repositories\ProgramRepository;
 use App\Rules\Event\DestinationCountryRequiredRule;
 use App\Rules\Event\DestinationCountryRule;
 use App\Rules\Event\DestinationCountryValidityRule;
@@ -53,14 +54,16 @@ class ExtClientController extends Controller
     private ClientEventRepositoryInterface $clientEventRepository;
     private EventRepositoryInterface $eventRepository;
     private ClientEventLogMailRepositoryInterface $clientEventLogMailRepository;
+    private ProgramRepository $programRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, ClientEventRepositoryInterface $clientEventRepository, EventRepositoryInterface $eventRepository, ClientEventLogMailRepositoryInterface $clientEventLogMailRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, ClientEventRepositoryInterface $clientEventRepository, EventRepositoryInterface $eventRepository, ClientEventLogMailRepositoryInterface $clientEventLogMailRepository, ProgramRepository $programRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->schoolRepository = $schoolRepository;
         $this->clientEventRepository = $clientEventRepository;
         $this->eventRepository = $eventRepository;
         $this->clientEventLogMailRepository = $clientEventLogMailRepository;
+        $this->programRepository = $programRepository;
     }
 
     public function getParentMentee()
@@ -771,17 +774,21 @@ class ExtClientController extends Controller
                 $request->school_id != 'new' ? 'exists:tbl_sch,sch_id' : null
             ],
             'other_school' => 'nullable',
+            'secondary_name' => 'required_if:role,parent',
+            'secondary_mail' => 'nullable',
+            'secondary_phone' => 'nullable',
             'graduation_year' => 'required',
             'destination_country' => 'required|array',
             'destination_country.*' => 'exists:tbl_tag,id',
-            'interest_prog' => 'required'
+            'interest_prog' => 'required|exists:tbl_prog,prog_id'
         ];
 
         $incomingRequest = $request->only([
-            'role', 'fullname', 'mail', 'phone', 'school_id', 'other_school', 'graduation_year', 'destination_country', 'interest_prog'
+            'role', 'fullname', 'mail', 'phone', 'school_id', 'other_school', 'graduation_year', 'destination_country', 'interest_prog', 'secondary_name', 'secondary_mail', 'secondary_phone'
         ]);
 
         $messages = [
+            'secondary_name.required_if' => 'The child name field is required.',
             'school_id.required_if' => 'The school field is required.',
             'school_id.exists' => 'The school field is not valid.',
             'destination_country.*.exists' => 'The destination country must be one of the following values.'
@@ -810,6 +817,8 @@ class ExtClientController extends Controller
         DB::beginTransaction();
         try {
             
+            $validatedArray = $validated->toArray();
+
             # separate the incoming request data
             switch ($validated['role']) {
                 case 'student':
@@ -820,26 +829,64 @@ class ExtClientController extends Controller
 
                 case 'parent':
                     $parent = $client = $this->storeParent($validated);
+                    $clientId = $client->id;
+                    if(isset($validated['secondary_name'])){
+                        $validatedStudent = $request->except(['fullname', 'email', 'phone']);
+                        $validatedStudent['fullname'] = $validated['secondary_name'];
+                        $validatedStudent['mail'] = $validated['secondary_mail'] != null ? $validated['secondary_mail'] : null;
+                        $validatedStudent['phone'] = $validated['secondary_phone'] != null ? $validated['secondary_phone'] : null;
+                        $validatedStudent['scholarship'] = 'N';
 
-                    $schoolId = $this->getSchoolId($validated);
+                        $student = $this->storeStudent($validatedStudent);
 
-                    if(isset($schoolId)){
-                        $this->clientRepository->updateClient($parent->id, ['sch_id' => $schoolId]);
+                        $studentId = $student->id;
+
+                        # prevent client_id and child_id on client event has the same value
+                        if ($parent->id == $studentId) {
+
+                            throw new Exception('Client ID and Child ID has the same value');
+                        }
+
+                        # catch if studentId is not from a valid student but from client with role parent
+                        if ($student->roles()->where('role_name', 'Parent')->exists()) {
+
+                            throw new Exception('We cannot continue the process because the studentId was filled with Client that has parent role.');
+                        }
+
+                        $this->storeRelationship($parent, $student);
+                        
+                        if($studentId != null && isset($validated['destination_country'])){
+                            $this->attachDestinationCountry($studentId, $validatedArray['destination_country']);
+                        }
+
+                        if($studentId != null && isset($validated['interest_prog'])){            
+                            if(isset($validatedArray['interest_prog'])){
+                                $this->reAttachInterestPrograms($studentId, $validatedArray['interest_prog']);
+                            }
+                        }
+
+                    }else{
+                        if(isset($schoolId)){
+                            $this->clientRepository->updateClient($parent->id, ['sch_id' => $schoolId]);
+                        }
+
                     }
-                    
                     break;
             }
 
-            $validatedArray = $validated->toArray();
             if($client != null && isset($validated['destination_country'])){
                 $this->attachDestinationCountry($clientId, $validatedArray['destination_country']);
             }
 
             if($client != null && isset($validated['interest_prog'])){
-                if(count($validatedArray['interest_prog']) > 0){
-                    foreach ($validatedArray['interest_prog'] as $interestProg) {
-                        $this->reAttachInterestPrograms($clientId, $interestProg);
-                    }
+                // if(count($validatedArray['interest_prog']) > 0){
+                //     foreach ($validatedArray['interest_prog'] as $interestProg) {
+                //         $this->reAttachInterestPrograms($clientId, $interestProg);
+                //     }
+                // }
+
+                if(isset($validatedArray['interest_prog'])){
+                    $this->reAttachInterestPrograms($clientId, $validatedArray['interest_prog']);
                 }
             }
 
@@ -855,7 +902,22 @@ class ExtClientController extends Controller
             ]);
         }
 
-        $template = 'mail-template.registration.event.ots-mail-registration';
+        $prog = $this->programRepository->getProgramById($request->interest_prog);
+        $passedData = [
+            'client' => [
+                'name' => $client->full_name,
+            ],
+            'program' => [
+                'name' => $prog->program_name
+            ]
+        ];
+
+        if($request->role == 'student'){
+            $template = 'mail-template.registration.public.thanks-email-student';
+        }else{
+            $passedData['client']['child_name'] = $request->secondary_name;
+            $template = 'mail-template.registration.public.thanks-email-parent';
+        }
 
         $dataResponseClient = [
             'role' => $validated['role'],
@@ -865,15 +927,15 @@ class ExtClientController extends Controller
             'phone' => $client->phone,
             'inteset_prog' => $client->interestPrograms,
             'school_id' => $client->sch_id,
-            'school_name' => $client->school->sch_name,
+            'school_name' => isset($client->school) ? $client->school->sch_name : null,
             'graduation_year' => $client->graduation_year
         ];
 
         try {
 
-            $subject = 'Lorem ipsum dolor sit amet.';
+            $subject = "Your registration is confirmed";
 
-            Mail::send($template, $dataResponseClient,
+            Mail::send($template, $passedData,
                     function ($message) use ($client, $subject) {
                         $message->to($client->mail, $client->full_name)
                             ->subject($subject);
@@ -1393,7 +1455,8 @@ class ExtClientController extends Controller
         $schoolId = $incomingRequest['school_id'];
 
 
-        if ($incomingRequest['school_id'] == "new") {
+        # SCH-0301 == other 
+        if ($incomingRequest['school_id'] == "new" || $incomingRequest['school_id'] == "SCH-0301") {
             # store a new school or get the existing one
 
             if (!$schoolExistOnDB = $this->schoolRepository->getSchoolByName($incomingRequest['other_school'])) {

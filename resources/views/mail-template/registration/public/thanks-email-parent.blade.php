@@ -1,6 +1,9 @@
 @extends('layout.email')
-@section('header', 'Your Registration is Confirmed')
+@section('header', 'Your Registration is Confirmed!')
 @section('content')
+<h4 style="margin-top:-15px;margin-bottom:1.38em; letter-spacing:-0.02em; text-align:center">
+    What's Next?
+</h4>
 <table role="presentation" class="main">
 
     <!-- START MAIN CONTENT AREA -->
@@ -14,7 +17,7 @@
                             I hope this email finds you well.<br>
                             <br>
                             {{-- I'm writing to confirm that your child, <b>{{ ucwords($client['children_details']['name']) }}</b>, has been successfully registered for the <u>{{ $program['name'] }}</u> program. We're so excited to have them join us!<br> --}}
-                            I'm writing to confirm that your child, <b>[Child]</b>, has been successfully registered for the <u>{{ $program['name'] }}</u> program. We're so excited to have them join us!<br>
+                            I'm writing to confirm that your child, <b>{{ ucfirst($client['child_name']) }}</b>, has been successfully registered for the <u>{{ $program['name'] }}</u> program. We're so excited to have them join us!<br>
                             <br>
                             We'll be sending out more information about the program in the coming weeks, including the syllabus, a list of required materials, and contact information for the program leaders.<br>
                             <br>
