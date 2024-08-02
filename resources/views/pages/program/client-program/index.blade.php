@@ -448,7 +448,7 @@
                         className: 'text-center'
                     },
                     {
-                        data: 'conversion_lead',
+                        data: 'conversion_lead_view',
                         className: 'text-center'
                     },
                     {

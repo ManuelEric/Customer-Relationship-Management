@@ -362,7 +362,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                                     WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title COLLATE utf8mb4_unicode_ci)
                                     WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name COLLATE utf8mb4_unicode_ci)
                                     ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
-                                END) AS conversion_lead'),
+                                END) AS conversion_lead_view'),
                         'tbl_client_prog.status',
                         'tbl_client_prog.prog_running_status',
                         'r.reason_name as reason',
@@ -528,7 +528,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                             LEFT JOIN users squ ON squ.id = sqcm.user_id
                         WHERE sqcm.clientprog_id = tbl_client_prog.clientprog_id GROUP BY sqcm.clientprog_id) like ?";
                 $query->whereRaw($sql, ["%{$keyword}%"]);
-            })->filterColumn('conversion_lead', function ($query, $keyword) {
+            })->filterColumn('conversion_lead_view', function ($query, $keyword) {
                 $sql = '(CASE 
                             WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead COLLATE utf8mb4_unicode_ci)
                             WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "External Edufair" THEN (CASE WHEN tbl_client_prog.eduf_lead_id is not null THEN vedl.organizer_name ELSE "External Edufair" END) 
