@@ -223,6 +223,9 @@
                     left: (widthView < 768) ? 1 : 2,
                     right: 1
                 },
+                search: {
+                    return: true
+                },
                 processing: true,
                 serverSide: true,
                 ajax: {
