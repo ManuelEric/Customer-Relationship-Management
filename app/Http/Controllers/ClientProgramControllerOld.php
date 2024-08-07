@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 
-class ClientProgramController extends Controller
+class ClientProgramControllerOld extends Controller
 {
     use CheckExistingClient;
     private ClientRepositoryInterface $clientRepository;

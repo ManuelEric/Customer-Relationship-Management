@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\Hot_leads_automation;
+namespace Database\Seeders\HotLeadsAutomation;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
