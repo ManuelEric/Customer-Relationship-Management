@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\pivot\ClientAcceptance;
 use App\Models\pivot\ClientLeadTracking;
+use App\Observers\ClientObserver;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,7 +17,9 @@ use Illuminate\Support\Facades\Session;
 use Laravel\Sanctum\HasApiTokens;
 use Mostafaznv\LaraCache\CacheEntity;
 use Mostafaznv\LaraCache\Traits\LaraCache;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
+#[ObservedBy([ClientObserver::class])]
 class UserClient extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;

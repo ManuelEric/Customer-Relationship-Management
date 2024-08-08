@@ -48,28 +48,18 @@
 <script>
     var widthView = $(window).width();
     $(document).ready(function() {
-        var table = $('#clientTable').DataTable({
-            dom: 'Bfrtip',
-            lengthMenu: [
-                [10, 25, 50, 100, -1],
-                ['10 alumni', '25 alumni', '50 alumni', '100 alumni', 'Show all']
-            ],
+
+        var options = {
             buttons: [
                 'pageLength', {
                     extend: 'excel',
                     text: 'Export to Excel',
                 }
             ],
-            scrollX: true,
             fixedColumns: {
                 left: (widthView < 768) ? 1 : 2,
                 right: 1
             },
-            search: {
-                return: true
-            },
-            processing: true,
-            serverSide: true,
             ajax: '',
             columns: [
                 {
@@ -104,7 +94,9 @@
                     defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editAcceptance"><i class="bi bi-eye"></i></button>'
                 }
             ]
-        });
+        };
+
+        var table = initializeDataTable('#clientTable', options, 'rt_client');
 
         $('#clientTable tbody').on('click', '.editAcceptance ', function() {
             var data = table.row($(this).parents('tr')).data();

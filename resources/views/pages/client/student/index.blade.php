@@ -539,24 +539,15 @@
                     };
 
             var no = 1;
-            var table = $('#clientTable').DataTable({
+
+            var options = {
                 order: [],
-                dom: 'Bfrtip',
                 buttons: [button],
-                lengthMenu: [
-                    [10, 50, 100, -1],
-                    ['10 row', '50 row', '100 row', 'Show all']
-                ],
                 scrollX: true,
                 fixedColumns: {
                     left: (widthView < 768) ? 1 : 2,
                     right: 1
                 },
-                search: {
-                    return: true
-                },
-                processing: true,
-                serverSide: true,
                 ajax: {
                     url: '',
                     data: function(params) {
@@ -927,7 +918,9 @@
                         $('td', row).addClass('table-success');
                     }
                 },
-            });
+            }
+
+            var table = initializeDataTable('#clientTable', options, 'rt_client');
 
             @php
                 $privilage = $menus['Client']->where('submenu_name', 'Students')->first();
@@ -1062,13 +1055,13 @@
                 $('input.editor-active').each(function() {
                     if (uncheck_number == check_number) {
                         $(this).prop('checked', true)
-                        table.button(2).text('<i class="bi bi-x me-1"></i> Unselect All')
+                        table.button(3).text('<i class="bi bi-x me-1"></i> Unselect All')
                     } else if (checked_number == check_number) {
                         $(this).prop('checked', false)
-                        table.button(2).text('<i class="bi bi-check-square me-1"></i> Select All')
+                        table.button(3).text('<i class="bi bi-check-square me-1"></i> Select All')
                     } else {
                         $(this).prop('checked', true)
-                        table.button(2).text('<i class="bi bi-x me-1"></i> Unselect All')
+                        table.button(3).text('<i class="bi bi-x me-1"></i> Unselect All')
                     }
                 });
             }
@@ -1179,6 +1172,8 @@
                         $('#assignForm').modal('hide');
                     })
             });
+
+           
         });
 
         function closeUpdateLead() {
@@ -1378,5 +1373,8 @@
             })
             
         }
+
+    
+
     </script>
 @endpush

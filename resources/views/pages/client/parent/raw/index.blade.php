@@ -190,12 +190,11 @@
                 return (similar);
             }
 
-            var table = $('#rawTable').DataTable({
+            var options = {
                 order: [
                     // [20, 'desc'],
                     [13, 'desc']
                 ],
-                dom: 'Bfrtip',
                 buttons: [
                     'pageLength', {
                         extend: 'excel',
@@ -214,20 +213,10 @@
                         }
                     },
                 ],
-                lengthMenu: [
-                    [10, 50, 100, -1],
-                    ['10 Leads', '50 Leads', '100 Leads', 'Show all']
-                ],
-                scrollX: true,
                 fixedColumns: {
                     left: (widthView < 768) ? 1 : 2,
                     right: 1
                 },
-                search: {
-                    return: true
-                },
-                processing: true,
-                serverSide: true,
                 ajax: {
                     url: '',
                 },
@@ -368,7 +357,9 @@
                         $('td', row).addClass('table-success');
                     }
                 }
-            });
+            };
+
+            var table = initializeDataTable('#rawTable', options, 'rt_client');
 
             // Add a click event listener to each row in the parent DataTable
             table.on('click', 'td.dt-control', function(e) {

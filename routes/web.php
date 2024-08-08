@@ -1,5 +1,7 @@
 <?php
 
+use App\Events\SendMessageEvent;
+use App\Events\UpdateDatatableEvent;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolDetailController;
@@ -9,12 +11,15 @@ use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\ClientProgramController;
 use App\Http\Controllers\ClientStudentController;
 use App\Http\Controllers\GoogleSheetController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VolunteerController;
 use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\testQueue;
+use Google\Service\CloudSearch\MessageContent;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
@@ -31,6 +36,11 @@ use Illuminate\Support\Facades\Session;
 */
 
 # AUTH START --------------------------------
+Route::get('/message', function(){
+    event(New UpdateDatatableEvent(
+        tableName: 'rt_client'
+    ));
+});
 
 Route::get('/', function () {
     return view('auth.login');

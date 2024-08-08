@@ -312,12 +312,11 @@
                 return (similar);
             }
 
-            var table = $('#rawTable').DataTable({
+            var options = {
                 order: [
                     // [20, 'desc'],
                     [18, 'desc']
                 ],
-                dom: 'Bfrtip',
                 buttons: [
                     'pageLength', {
                         extend: 'excel',
@@ -336,11 +335,6 @@
                         }
                     },
                 ],
-                lengthMenu: [
-                    [10, 50, 100, -1],
-                    ['10 Leads', '50 Leads', '100 Leads', 'Show all']
-                ],
-                scrollX: true,
                 columnDefs: [{
                     width: 20,
                     targets: 0
@@ -349,11 +343,6 @@
                     left: (widthView < 768) ? 3 : 4,
                     right: 2
                 },
-                search: {
-                    return: true
-                },
-                processing: true,
-                serverSide: true,
                 ajax: {
                     url: '',
                     data: function(params) {
@@ -552,7 +541,9 @@
                         $('td', row).addClass('table-success');
                     }
                 }
-            });
+            };
+
+            var table = initializeDataTable('#rawTable', options, 'rt_client');
 
             /* for advanced filter */
             $("#school-name").on('change', function(e) {

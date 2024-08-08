@@ -66,81 +66,9 @@
     <script src="{{ asset('js/currency.js') }}"></script>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 
-    {{-- Pusher --}}
-    <script>
-        // Enable pusher logging - don't include this in production
-        @env('local')
-            Pusher.logToConsole = true;
-        @endenv
+    {{-- Laravel Reverb --}}
+    @vite(['resources/js/app.js', 'resources/css/app.css'])
 
-        var pusher = new Pusher('{{ env("PUSHER_APP_KEY") }}', {
-            cluster: '{{ env("PUSHER_APP_CLUSTER") }}'
-        });
-
-        var validationImport = pusher.subscribe('validation-import');
-        var progressImport = pusher.subscribe('progress-import');
-        var html = '';
-        var htmlLoading = '';
-
-        $('#content-import-information').html('');
-
-        htmlLoading += '<div>'
-        htmlLoading += '<span class="spinner-border spinner-border-sm text-black" aria-hidden="true"></span>'
-        htmlLoading += '<span class="ms-2 text-black" role="status">Importing...</span>'
-        htmlLoading += '</div>'
-
-        validationImport.bind('my-event', function(data) {
-            if(data.message !== null){
-                html = '';
-                html += `<h5>${data.message.progress.import_name}</h5>`;
-                html += `<ul>`;
-                html += `<li>Total Imported: ${parseInt(data.message.progress.total_row) - data.message.progress.total_error}</li>`
-                html += `<li>Total error: ${data.message.progress.total_error}</li>`
-                html += `</ul>`
-                
-                if(data.message.progress.total_error > 0){
-                    html += `<h5>Validation</h5>`;
-                    html += `<ul>`;
-                    Object.entries(data.message).forEach(function([key, messages]){
-                        if(messages !== null && key != 'user_id' && key != 'progress'){
-                            Object.entries(messages).forEach(([key2, value]) => {
-                                html += `<li class="text-danger">${value}</li>`
-                            });
-                        }
-                    });
-                    html += `</ul>`
-                }
-
-                if( '{{ Auth::user() != null ? Auth::user()->id : null }}' == data.message.progress.user_id ){
-                    $("#modal-validation-import").modal('show');
-                    $('#content-import-information').html(html);
-                    $('#loading-import').html('');
-                }
-            }
-        });
-
-        progressImport.bind('my-event', function(data) {
-            html = ''
-
-            html += '<h3>Import Done</h3>';
-
-            html += `<li>Total Imported: ${parseInt(data.message.total_row) - data.message.total_error}</li>`
-            html += `<li>Total Error: ${data.message.total_error}</li>`
-
-            if(data.message !== null){
-
-                if( '{{ Auth::user() != null ? Auth::user()->id : null }}' == data.message.user_id ){
-                    if(data.message.isStart == true){
-                        $('#loading-import').html(htmlLoading);
-                    }
-
-                }
-            }
-          
-        });
-
-              
-    </script>
     @stack('styles')
 </head>
 
@@ -151,22 +79,6 @@
     @endenv --}}
 
     @yield('body')
-
-    {{-- Modal validation import --}}
-    <div class="modal modal-md fade" id="modal-validation-import" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="m-0 p-0" id="title-modal-import">
-                        Import Information
-                    </h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="content-import-information">
-                </div>
-            </div>
-        </div>
-    </div>
 
     <x-main.modal />
 
@@ -213,8 +125,35 @@
     <script src="https://fastly.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/general-use-script.js') }}"></script>
 
-    {{-- Realtime for Datatables  --}}
     <script>
+        function initializeDataTable(selector, options, tableName) {
+            var table = $(selector).DataTable({
+                ...options,
+                dom: 'Bfrtip',
+                lengthMenu: [
+                    [10, 50, 100, -1],
+                    ['10 row', '50 row', '100 row', 'Show all']
+                ],
+                scrollX: true,
+                search: {
+                    return: true
+                },
+                processing: true,
+                serverSide: true,
+            });
+
+            // listen reverb for datatable
+            var channel = Echo.channel('channel-datatable');
+            channel.listen("UpdateDatatableEvent", function(data) {
+                if(data.tableName == tableName){
+                    table.ajax.reload(null, false)
+                }
+            })
+
+            return table;
+        }
+
+        // Realtime datatable
         function realtimeData(data) {
             setInterval(() => {
 
@@ -439,6 +378,8 @@
             });
         }
     </script>
+
+    
 
     @stack('scripts')
 </body>
