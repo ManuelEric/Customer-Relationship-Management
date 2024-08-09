@@ -209,7 +209,7 @@
 
             $('#programTable tbody').on('click', '.generateLinkEmbed ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                $('#link').val("{{ url('form/program') }}?program_name=" + encodeURIComponent(data.prog_program))
+                $('#link').val("https://registration.edu-all.com/form/program?program_id=" + encodeURIComponent(data.prog_id))
                 // $('#firstLink').val("{{ url('form/event') }}?event_name=" + encodeURIComponent(data
                 //     .event_title))
                 $('#linkEmbed').modal('show')

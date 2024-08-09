@@ -61,6 +61,9 @@
                     left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     right: 1
                 },
+                search: {
+                    return: true
+                },
                 processing: true,
                 serverSide: true,
                 ajax: '',

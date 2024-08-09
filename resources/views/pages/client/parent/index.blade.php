@@ -159,7 +159,7 @@
         var widthView = $(window).width();
         $(document).ready(function() {
             var table = $('#clientTable').DataTable({
-                searchDelay: 500,
+                // searchDelay: 500,
                 dom: 'Bfrtip',
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
@@ -175,6 +175,9 @@
                 fixedColumns: {
                     left: (widthView < 768) ? 1 : 2,
                     right: 1
+                },
+                search: {
+                    return: true
                 },
                 processing: true,
                 serverSide: true,
