@@ -2045,7 +2045,10 @@ class ExtClientController extends Controller
 
     public function getClientInformation($uuid): JsonResponse
     {
-        $userClient = UserClient::where('uuid', $uuid)->first();
+        $userClient = UserClient::where('uuid', $uuid)->
+            select('*')->
+            selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade')->
+            first();
         return response()->json($userClient);
     }
     
