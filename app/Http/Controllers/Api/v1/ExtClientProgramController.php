@@ -14,7 +14,9 @@ class ExtClientProgramController extends Controller
         $b2cPrograms = \App\Models\ClientProgram::
         with([
             'client' => function ($query) {
-                $query->select('id', 'uuid', 'sch_id', 'first_name', 'last_name');
+                $query->
+                    select('id', 'uuid', 'sch_id', 'first_name', 'last_name')->
+                    selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade');
             },
             'client.school' => function ($query) {
                 $query->select('sch_id', 'sch_name');
@@ -36,6 +38,7 @@ class ExtClientProgramController extends Controller
             $client_uuid = $data->client->uuid;
             $client_fname = $data->client->first_name;
             $client_lname = $data->client->last_name;
+            $client_grade = $data->client->grade;
             $school_name = $data->client->school ? $data->client->school->sch_name : null;
 
             return [
@@ -49,6 +52,7 @@ class ExtClientProgramController extends Controller
                     'first_name' => $client_fname,
                     'last_name' => $client_lname,
                     'school_name' => $school_name,
+                    'grade' => $client_grade,
                 ]
             ];
         });

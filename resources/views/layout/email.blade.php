@@ -82,7 +82,7 @@
             <tr>
               <td style="padding:40px 30px 30px 30px;text-align:center;font-size:1.5em;font-weight:bold;">
                 <a href="https://edu-all.com" style="text-decoration:none;">
-                    <img src="{{asset('img/new-logo.png')}}" alt="all-inedu" alt="Doppler Health" width="200" style="width:200px;max-width:200px;height:auto;border:none;text-decoration:none;color:#ffffff;" >
+                    <img src="{{asset('img/new-logo.png')}}" alt="edu-all" alt="Doppler Health" width="200" style="width:200px;max-width:200px;height:auto;border:none;text-decoration:none;color:#ffffff;" >
                 </a>
               </td>
             </tr>

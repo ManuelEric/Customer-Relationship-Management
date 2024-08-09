@@ -2,7 +2,8 @@
 
 namespace App\Models\pivot;
 
-use App\Models\Department;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
@@ -25,4 +26,19 @@ class UserRole extends Pivot
     // {
     //     return $this->belongsTo(Department::class, 'department_id', 'id');
     // }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id', 'id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function subjects()
+    {
+        return $this->hasMany(UserSubject::class, 'user_role_id');
+    }
 }

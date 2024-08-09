@@ -49,12 +49,12 @@ return new class extends Migration
                     LEFT JOIN tbl_client_roles ON tbl_client_roles.client_id = tbl_client.id  
                     WHERE (tbl_client.is_verified = "Y"
                         AND tbl_client_roles.role_id = role_id) 
-                        AND (first_name like fname COLLATE utf8mb4_unicode_ci
-                        OR first_name like mname COLLATE utf8mb4_unicode_ci
-                        OR first_name like lname COLLATE utf8mb4_unicode_ci
-                        OR last_name like fname COLLATE utf8mb4_unicode_ci
-                        OR last_name like mname COLLATE utf8mb4_unicode_ci
-                        OR last_name like lname COLLATE utf8mb4_unicode_ci);
+                        AND (first_name like fname
+                        OR first_name like mname
+                        OR first_name like lname
+                        OR last_name like fname
+                        OR last_name like mname
+                        OR last_name like lname);
 
                 RETURN id_similiar;
             END; //
@@ -163,7 +163,7 @@ return new class extends Migration
             (CASE 
                 WHEN rc.referral_code is not null THEN GetReferralNameByRefCode (rc.referral_code)
                 ELSE NUll
-            END COLLATE utf8mb4_unicode_ci) AS referral_name,
+            END) AS referral_name,
             sch.sch_id,
             (SELECT GROUP_CONCAT(
                 (CASE

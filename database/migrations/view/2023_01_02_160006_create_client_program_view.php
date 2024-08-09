@@ -25,7 +25,7 @@ return new class extends Migration
             (CASE 
                 WHEN cp.referral_code is not null THEN GetReferralNameByRefCode (cp.referral_code)
                 ELSE NULL
-            END COLLATE utf8mb4_unicode_ci) AS referral_name,
+            END) AS referral_name,
             c.st_grade,
             c.register_as,
             UpdateGradeStudent (
@@ -67,11 +67,11 @@ return new class extends Migration
                 ELSE cl.main_lead
             END) AS lead_source,
             (CASE 
-                WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead COLLATE utf8mb4_unicode_ci)
-                WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "External Edufair" THEN CONCAT("External Edufair - ", edl.title COLLATE utf8mb4_unicode_ci)
-                WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title COLLATE utf8mb4_unicode_ci)
-                WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name COLLATE utf8mb4_unicode_ci)
-                ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
+                WHEN cpl.main_lead = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead)
+                WHEN cpl.main_lead = "External Edufair" THEN CONCAT("External Edufair - ", edl.title)
+                WHEN cpl.main_lead = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title)
+                WHEN cpl.main_lead = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name)
+                ELSE cpl.main_lead
             END) AS conversion_lead,
             DATEDIFF(cp.first_discuss_date, c.created_at) AS followup_time,
             DATEDIFF(cp.success_date, cp.first_discuss_date) AS conversion_time,

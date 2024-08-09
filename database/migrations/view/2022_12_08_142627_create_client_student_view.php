@@ -48,13 +48,13 @@ return new class extends Migration
             (CASE 
                 WHEN c.referral_code is not null THEN GetReferralNameByRefCode (c.referral_code)
                 ELSE NULL
-            END COLLATE utf8mb4_unicode_ci) AS referral_name,
+            END) AS referral_name,
             s.sch_name as school_name,
             (CASE 
-                WHEN l.main_lead COLLATE utf8mb4_unicode_ci = "KOL" THEN CONCAT("KOL - ", l.sub_lead COLLATE utf8mb4_unicode_ci)
-                WHEN l.main_lead COLLATE utf8mb4_unicode_ci = "External Edufair" THEN (CASE WHEN c.eduf_id is not null THEN vel.organizer_name else "External Edufair" END)
-                WHEN l.main_lead COLLATE utf8mb4_unicode_ci = "All-In Event" THEN CONCAT("All-In Event - ", ts.event_title COLLATE utf8mb4_unicode_ci)
-                ELSE l.main_lead COLLATE utf8mb4_unicode_ci
+                WHEN l.main_lead = "KOL" THEN CONCAT("KOL - ", l.sub_lead)
+                WHEN l.main_lead = "External Edufair" THEN (CASE WHEN c.eduf_id is not null THEN vel.organizer_name else "External Edufair" END)
+                WHEN l.main_lead = "All-In Event" THEN CONCAT("All-In Event - ", ts.event_title)
+                ELSE l.main_lead
             END) AS lead_source,
             GetTotalScore (
                 s.sch_score, 
