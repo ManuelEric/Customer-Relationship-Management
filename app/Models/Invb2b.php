@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-
+use App\Observers\InvoiceB2BObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
-
+#[ObservedBy([InvoiceB2BObserver::class])]
 class Invb2b extends Model
 {
     use HasFactory;

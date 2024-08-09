@@ -292,15 +292,9 @@
 
         $(document).ready(function() {
 
-            var table = $('#programTable').DataTable({
-                dom: 'Bfrtip',
+            var options = {
                 order: [
                     26, 'desc'
-                ],
-                
-                lengthMenu: [
-                    [10, 25, 50, 100, -1],
-                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
                 ],
                 buttons: [
                     'pageLength', 
@@ -346,16 +340,10 @@
                         }
                     },
                 ],
-                scrollX: true,
                 fixedColumns: {
                     left: window.matchMedia('(max-width: 767px)').matches ? 0 : 3,
                     right: 1
                 },
-                search: {
-                    return: true
-                },
-                processing: true,
-                serverSide: true,
                 ajax: '',
                 pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [
@@ -587,13 +575,9 @@
                         defaultContent: '<button type="button"class="btn btn-sm btn-outline-warning showClientProgram"><i class="bi bi-eye"></i></button>'
                     }
                 ],
-                // createdRow: function(row, data, index) {
-                //     let currentDate = new Date().toJSON().slice(0, 10);
-                //     if (data['created_at'].slice(0, 10) == currentDate) {
-                //         $('td', row).addClass('table-success');
-                //     }
-                // }
-            })
+            };
+
+            var table = initializeDataTable('#programTable', options, 'rt_client_program');
 
             var selectedRows = [];
             var customClientProgId = [];

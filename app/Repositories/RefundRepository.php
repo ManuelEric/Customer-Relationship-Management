@@ -150,7 +150,7 @@ class RefundRepository implements RefundRepositoryInterface
                 $query->whereRaw($sql, ["%{$keyword}%", "%{$keyword}%", "%{$keyword}%"]);
             })
             ->filterColumn('pic_name', function ($query, $keyword) {
-                $sql = 'b2c_c_u.first_name, " ", COALESCE(b2c_c_u.last_name, "")) like ? 
+                $sql = 'CONCAT(b2c_c_u.first_name, " ", COALESCE(b2c_c_u.last_name, "")) like ? 
                         OR CONCAT(b2b_s_u.first_name, " ", COALESCE(b2b_s_u.last_name, "")) like ? 
                         OR CONCAT(b2b_p_u.first_name, " ", COALESCE(b2b_p_u.last_name, "")) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%", "%{$keyword}%", "%{$keyword}%"]);

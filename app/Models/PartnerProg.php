@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Models\pivot\AgendaSpeaker;
+use App\Observers\PartnerProgramObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+#[ObservedBy([PartnerProgramObserver::class])]
 class PartnerProg extends Model
 {
     use HasFactory;

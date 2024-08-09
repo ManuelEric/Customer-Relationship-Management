@@ -64,12 +64,7 @@
     <script>
         var widthView = $(window).width();
         $(document).ready(function() {
-            var table = $('#receiptTable').DataTable({
-                dom: 'Bfrtip',
-                lengthMenu: [
-                    [10, 25, 50, 100, -1],
-                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-                ],
+            var options = {
                 buttons: [
                     'pageLength', {
                         extend: 'excel',
@@ -77,16 +72,10 @@
                     }
                 ],
                 order: [[6, 'desc']],
-                scrollX: true,
                 fixedColumns: {
                     left: (widthView < 768) ? 1 : 2,
                     right: 1
                 },
-                search: {
-                    return: true
-                },
-                processing: true,
-                serverSide: true,
                 ajax: '',
                 columns: [{
                         data: 'increment_receipt',
@@ -170,7 +159,9 @@
                         defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning showReceipt"><i class="bi bi-eye"></i></button>'
                     }
                 ]
-            });
+            };
+
+            var table = initializeDataTable('#receiptTable', options, 'rt_receipt');
 
             @php
                 $privilage = $menus['Receipt']->where('submenu_name', 'Referral Program')->first();

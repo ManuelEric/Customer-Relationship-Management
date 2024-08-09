@@ -25,28 +25,18 @@
 <script>
     var widthView = $(window).width();
     $(document).ready(function() {
-        var table = $('#invoiceListReferral').DataTable({
-            dom: 'Bfrtip',
-            lengthMenu: [
-                [10, 25, 50, 100, -1],
-                ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-            ],
+
+        var options = {
             buttons: [
                 'pageLength', {
                     extend: 'excel',
                     text: 'Export to Excel',
                 }
             ],
-            scrollX: true,
             fixedColumns: {
                 left: (widthView < 768) ? 1 : 2,
                 right: 1
             },
-            search: {
-                return: true
-            },
-            processing: true,
-            serverSide: true,
             ajax: '',
             columns: [{
                     data: 'invb2b_num',
@@ -127,9 +117,9 @@
                     defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning showInvoice"><i class="bi bi-eye"></i></button>'
                 }
             ]
-        });
+        };
 
-        realtimeData(table)
+        var table = initializeDataTable('#invoiceListReferral', options, 'rt_invoice_b2b');
 
         $('#invoiceListReferral tbody').on('click', '.showInvoice ', function() {
             var data = table.row($(this).parents('tr')).data();

@@ -238,12 +238,7 @@
     <script>
         $(document).ready(function() {
 
-            var table = $('#eventTable').DataTable({
-                dom: 'Bfrtip',
-                lengthMenu: [
-                    [10, 25, 50, 100, -1],
-                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-                ],
+            var options = {
                 buttons: [
                     'pageLength', {
                         extend: 'excel',
@@ -290,18 +285,11 @@
                             }
                         }
                     },
-
                 ],
-                scrollX: true,
                 fixedColumns: {
                     left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     right: 1
                 },
-                search: {
-                    return: true
-                },
-                processing: true,
-                serverSide: true,
                 ajax: {
                     url: '',
                     data: function(params) {
@@ -396,20 +384,9 @@
                         name: 'child.phone',
                         defaultContent: '-'
                     },
-                    // {
-                    //     data: 'parent_mail',
-                    //     name: 'parent.mail',
-                    //     defaultContent: '-'
-                    // },
-                    // {
-                    //     data: 'parent_phone',
-                    //     name: 'parent.phone',
-                    //     defaultContent: '-'
-                    // },
                     {
                         data: 'participated',
                         searchable: true
-                        //    defaultContent: '-'
                     },
                     {
                         data: 'school_name',
@@ -423,7 +400,6 @@
                         data: 'conversion_lead',
                         name: 'conversion_lead',
                         className: 'text-center'
-                        // name: 'tbl_lead.main_lead'
                     },
                     {
                         data: 'referral_from',
@@ -480,21 +456,6 @@
                         data: 'registration_type',
                         className: 'text-center',
                     },
-                    // {
-                    //     data: 'parent_phone',
-                    //     name: 'parent.phone',
-                    //     defaultContent: '-'
-                    // },
-                    // {
-                    //     data: 'mail',
-                    //     name: 'client.mail',
-                    //     defaultContent: '-'
-                    // },
-                    // {
-                    //     data: 'phone',
-                    //     name: 'client.phone',
-                    //     defaultContent: '-'
-                    // },
                     {
                         data: '',
                         className: 'text-center',
@@ -507,9 +468,9 @@
                         $('td', row).addClass('table-success');
                     }
                 }
-            });
+            };
 
-            // realtimeData(table)
+            var table = initializeDataTable('#eventTable', options, 'rt_client_event');
 
             @php
                 $privilage = $menus['Program']->where('submenu_name', 'Client Event')->first();

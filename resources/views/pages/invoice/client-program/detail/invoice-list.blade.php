@@ -24,12 +24,8 @@
             <script>
                 var widthView = $(window).width();
                 $(document).ready(function() {
-                    var table = $('#programTable').DataTable({
-                        dom: 'Bfrtip',
-                        lengthMenu: [
-                            [10, 25, 50, 100, -1],
-                            ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-                        ],
+
+                    var options = {
                         buttons: [
                             'pageLength', {
                                 extend: 'excel',
@@ -57,16 +53,6 @@
                                 },
                             }
                         ],
-                        scrollX: true,
-                        fixedColumns: {
-                            left: (widthView < 768) ? 1 : 2,
-                            right: 1
-                        },
-                        search: {
-                            return: true
-                        },
-                        processing: true,
-                        serverSide: true,
                         ajax: '',
                         columns: [{
                                 data: 'clientprog_id',
@@ -164,7 +150,9 @@
                                 }
                             }
                         ]
-                    })
+                    };
+
+                    var table = initializeDataTable('#programTable', options, 'rt_invoice_b2c');
 
                 });
             </script>

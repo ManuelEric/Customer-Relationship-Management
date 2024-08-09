@@ -40,76 +40,66 @@
 
             {{-- Need Changing --}}
             <script>
-            var widthView = $(window).width();
-            $(document).ready(function() {
-                $('#cancel').click(function() {
-                    $(this).parents('.dropdown').find('button.dropdown-toggle').dropdown('toggle')
-                });
+                var widthView = $(window).width();
+                $(document).ready(function() {
+                    $('#cancel').click(function() {
+                        $(this).parents('.dropdown').find('button.dropdown-toggle').dropdown('toggle')
+                    });
 
-            var table = $('#invoiceRef').DataTable({
-                dom: 'Bfrtip',
-                lengthMenu: [
-                    [10, 25, 50, 100, -1],
-                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-                ],
-                buttons: [
-                    'pageLength', {
-                        extend: 'excel',
-                        text: 'Export to Excel',
-                    }
-                ],
-                scrollX: true,
-                fixedColumns: {
-                    left: (widthView < 768) ? 1 : 2,
-                    right: 1
-                },
-                search: {
-                    return: true
-                },
-                processing: true,
-                serverSide: true,
-                ajax: '',
-                columns: [{
-                        data: 'id',
-                        className: 'text-center',
-                        render: function(data, type, row, meta) {
-                            return meta.row + meta.settings._iDisplayStart + 1;
-                        }
-                    },
-                    {
-                        data: 'partner_name',
-                        name: 'tbl_corp.corp_name' 
-                    },
-                    {
-                        data: 'program_name',
-                        name: 'tbl_referral.additional_prog_name'
-                    },
-                    {
-                        data: 'number_of_student',
-                        className: 'text-center',
-                        name: 'tbl_referral.number_of_student',
-                    },
-                    {
-                        data: 'ref_date',
-                        name: 'tbl_referral.ref_date',
-                        className: 'text-center',
-                        render: function(data, type, row) {
-                            let ref_date = data ? moment(data).format("MMMM Do YYYY") : '-'
-                            return ref_date
+                    var options = {
+                        buttons: [
+                            'pageLength', {
+                                extend: 'excel',
+                                text: 'Export to Excel',
+                            }
+                        ],
+                        fixedColumns: {
+                            left: (widthView < 768) ? 1 : 2,
+                            right: 1
                         },
-                    },
-                    {
-                        data: 'pic_name',
-                        className: 'text-center',
-                    },
-                    {
-                        data: '',
-                        className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning createInvRef"><i class="bi bi-plus"></i> Invoice</button>'
-                    }
-                ]
-            });
-            realtimeData(table)
+                        ajax: '',
+                        columns: [{
+                                data: 'id',
+                                className: 'text-center',
+                                render: function(data, type, row, meta) {
+                                    return meta.row + meta.settings._iDisplayStart + 1;
+                                }
+                            },
+                            {
+                                data: 'partner_name',
+                                name: 'tbl_corp.corp_name'
+                            },
+                            {
+                                data: 'program_name',
+                                name: 'tbl_referral.additional_prog_name'
+                            },
+                            {
+                                data: 'number_of_student',
+                                className: 'text-center',
+                                name: 'tbl_referral.number_of_student',
+                            },
+                            {
+                                data: 'ref_date',
+                                name: 'tbl_referral.ref_date',
+                                className: 'text-center',
+                                render: function(data, type, row) {
+                                    let ref_date = data ? moment(data).format("MMMM Do YYYY") : '-'
+                                    return ref_date
+                                },
+                            },
+                            {
+                                data: 'pic_name',
+                                className: 'text-center',
+                            },
+                            {
+                                data: '',
+                                className: 'text-center',
+                                defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning createInvRef"><i class="bi bi-plus"></i> Invoice</button>'
+                            }
+                        ]
+                    };
+
+                    var table = initializeDataTable('#invoiceRef', options, 'rt_referral');
 
                     $('#invoiceRef tbody').on('click', '.createInvRef ', function() {
                         var data = table.row($(this).parents('tr')).data();
@@ -117,6 +107,6 @@
                         window.location.href = "{{ url('invoice/referral') }}/" + data.id + "/detail/create";
 
                     });
-        
-            });
+
+                });
             </script>

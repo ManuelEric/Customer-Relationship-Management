@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Observers\ReceiptObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+#[ObservedBy([ReceiptObserver::class])]
 class Receipt extends Model
 {
     use HasFactory;
