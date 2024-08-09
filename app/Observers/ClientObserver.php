@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Events\MessageSent;
 use App\Events\UpdateDatatableEvent;
 use App\Models\UserClient;
 use Illuminate\Support\Facades\Log;
@@ -13,9 +14,9 @@ class ClientObserver
      */
     public function created(UserClient $userClient): void
     {
-        event(New UpdateDatatableEvent(
-            tableName: 'rt_client'
-        ));
+
+        // Send to pusher
+        event(New MessageSent('rt_client', 'channel_datatable'));
     }
 
     /**
@@ -23,9 +24,8 @@ class ClientObserver
      */
     public function updated(UserClient $userClient): void
     {
-        event(New UpdateDatatableEvent(
-            tableName: 'rt_client'
-        ));
+        // Send to pusher
+        event(New MessageSent('rt_client', 'channel_datatable'));
     }
 
     /**
@@ -33,9 +33,8 @@ class ClientObserver
      */
     public function deleted(UserClient $userClient): void
     {
-        event(New UpdateDatatableEvent(
-            tableName: 'rt_client'
-        ));
+        // Send to pusher
+        event(New MessageSent('rt_client', 'channel_datatable'));
     }
 
     /**

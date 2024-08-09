@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\MessageSent;
 use App\Events\SendMessageEvent;
 use App\Events\UpdateDatatableEvent;
 use App\Http\Controllers\DashboardController;
@@ -36,10 +37,22 @@ use Illuminate\Support\Facades\Session;
 */
 
 # AUTH START --------------------------------
-Route::get('/message', function(){
-    event(New UpdateDatatableEvent(
-        tableName: 'rt_client'
-    ));
+Route::get('/message', function () {
+    event(new MessageSent('rt_client', 'channel-datatable'));
+    // event(new UpdateDatatableEvent(tableName: 'test'));
+    // $options = array(
+    //     'cluster' => 'ap1',
+    //     'useTLS' => true
+    //   );
+    //   $pusher = new Pusher\Pusher(
+    //     'e69b02b944a4b7ffb31c',
+    //     'c01153bc74383eb5d18f',
+    //     '1742668',
+    //     $options
+    //   );
+    
+    //   $data['message'] = 'hello world2';
+    //   $pusher->trigger('channel-datatable', 'my-event', $data);
 });
 
 Route::get('/', function () {
@@ -73,8 +86,7 @@ Route::group(['middleware' => ['auth', 'auth.department']], function () {
 
         # check status
         if ($response->successful()) {
-            if(count($response['quotes'])> 0)
-            {
+            if (count($response['quotes']) > 0) {
                 $decode = $response['quotes'];
                 $data['content'] = $decode[0]['quote'];
                 $data['author'] = $decode[0]['author'];
@@ -82,7 +94,7 @@ Route::group(['middleware' => ['auth', 'auth.department']], function () {
         }
 
         $data = compact('data');
-    
+
         return view('pages.dashboard.blank-page')->with(json_encode($data));
     });
 
@@ -149,4 +161,3 @@ Route::resource('user/volunteer', VolunteerController::class);
 Route::resource('profile', ProfileController::class);
 
 # PROFILE END -----------------------------------------
-

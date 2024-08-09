@@ -141,30 +141,6 @@
     <script src="{{ asset('js/general-use-script.js') }}"></script>
 
     <script>
-        @env('local')
-            Pusher.logToConsole = true;
-        @endenv
-
-        // Initialize Pusher
-        const pusher = new Pusher("{{ env('PUSHER_APP_KEY') }}", {
-            cluster: "{{ env('PUSHER_APP_CLUSTER') }}"
-        });
-
-        // Subscribe to the public channel
-        const channel = pusher.subscribe('progress-import');
-
-        console.log(channel);
-
-
-        // Bind to the event
-        channel.bind('my-channel', function(data) {
-            console.log('masuk');
-
-            console.log('Received data:', data);
-            alert('Message: ' + data.data.message);
-        });
-
-
 
         function initializeDataTable(selector, options, tableName) {
             var table = $(selector).DataTable({
@@ -182,18 +158,15 @@
                 serverSide: true,
             });
 
-            // listen reverb for datatable
-            // var channel = Echo.channel('channel-datatable');
-            // channel.listen(".my-channel", function(data) {
-            //     console.log('WORK!!');
-            //     if(data.tableName == tableName){
-            //         console.log('WORK!!');
+            // listen channel datatable for datatable
+            var channel_datatable = Echo.channel('channel-datatable');
+            channel_datatable.listen(".my-event", function(data) {
+                if(data.message == tableName){
+                    table.ajax.reload(null, false)
+                }
+            })
 
-            //         table.ajax.reload(null, false)
-            //     }
-            // })
-
-            // return table;
+            return table;
 
 
         }

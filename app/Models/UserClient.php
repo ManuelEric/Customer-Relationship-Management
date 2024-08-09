@@ -18,11 +18,12 @@ use Laravel\Sanctum\HasApiTokens;
 use Mostafaznv\LaraCache\CacheEntity;
 use Mostafaznv\LaraCache\Traits\LaraCache;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\BroadcastsEvents;
 
 #[ObservedBy([ClientObserver::class])]
 class UserClient extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, BroadcastsEvents, HasFactory, Notifiable, SoftDeletes;
 
     protected $table = 'tbl_client';
     protected $appends = ['lead_source', 'graduation_year_real', 'referral_name'];
