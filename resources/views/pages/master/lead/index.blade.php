@@ -129,26 +129,17 @@
     {{-- Need Changing --}}
     <script>
         $(document).ready(function() {
-
-            var table = $('#leadTable').DataTable({
-                dom: 'Bfrtip',
-                lengthMenu: [
-                    [10, 25, 50, 100, -1],
-                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-                ],
+            var options = {
                 buttons: [
                     'pageLength', {
                         extend: 'excel',
                         text: 'Export to Excel',
                     }
                 ],
-                scrollX: true,
                 fixedColumns: {
                     left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     right: 1
                 },
-                processing: true,
-                serverSide: true,
                 ajax: '{!! url('master/lead') !!}',
                 pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
@@ -189,7 +180,9 @@
                             '<button  type="button" class="btn btn-sm btn-outline-danger ms-1 deleteLead"><i class="bi bi-trash2"></i></button>'
                     }
                 ]
-            });
+            };
+
+            var table = initializeDataTable('#leadTable', options, 'rt_lead');
 
             @php
                 $privilage = $menus['Master']->where('submenu_name', 'Lead Source')->first();
@@ -206,9 +199,6 @@
             @if ($privilage['export'] == 0)
                 table.button(1).disable();
             @endif
-
-            // App Blade
-            realtimeData(table)
 
             $('#leadTable tbody').on('click', '.editLead ', function() {
                 var data = table.row($(this).parents('tr')).data();

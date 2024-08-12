@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Observers\PartnerObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+#[ObservedBy([PartnerObserver::class])]
 class Corporate extends Model
 {
     use HasFactory;

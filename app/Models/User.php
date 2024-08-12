@@ -10,6 +10,8 @@ use App\Models\pivot\AssetUsed;
 use App\Models\pivot\UserRole;
 use App\Models\pivot\UserSubject;
 use App\Models\pivot\UserTypeDetail;
+use App\Observers\UserObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -19,6 +21,7 @@ use Illuminate\Support\Facades\Crypt;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Support\Str;
 
+#[ObservedBy([UserObserver::class])]
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;

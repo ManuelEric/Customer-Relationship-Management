@@ -785,7 +785,44 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 
     public function getDatatables($model)
     {
-        return Datatables::eloquent($model)->make(true);
+        return Datatables::eloquent($model)
+            ->filterColumn('payment_method', function ($query, $keyword) {
+                $query->whereRaw('(CASE
+                            WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_paymentmethod
+                            WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_installment
+                        END) like ?', "%{$keyword}%");
+            })
+            ->filterColumn('show_created_at', function ($query, $keyword) {
+                $query->whereRaw('(CASE
+                            WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.created_at
+                            WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.created_at
+                        END) like ?', "%{$keyword}%");
+            })
+            ->filterColumn('due_date', function ($query, $keyword) {
+                $query->whereRaw('(CASE
+                            WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_duedate
+                            WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_duedate
+                        END) like ?', "%{$keyword}%");
+            })
+            ->filterColumn('total_price', function ($query, $keyword) {
+                $query->whereRaw('(CASE
+                            WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_totalprice
+                            WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_amount
+                        END) like ?', "%{$keyword}%");
+            })
+            ->filterColumn('total_price_idr', function ($query, $keyword) {
+                $query->whereRaw('(CASE
+                            WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_totalprice_idr
+                            WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_amountidr
+                        END) like ?', "%{$keyword}%");
+            })
+            ->filterColumn('date_difference', function ($query, $keyword) {
+                $query->whereRaw('(CASE
+                            WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
+                            WHEN tbl_inv.inv_paymentmethod = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
+                        END) like ?', "%{$keyword}%");
+            })
+            ->make(true);
     }
 
     # signature

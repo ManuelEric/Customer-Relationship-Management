@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Observers\SeasonalProgramObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+#[ObservedBy([SeasonalProgramObserver::class])]
 class SeasonalProgram extends Model
 {
     use HasFactory;

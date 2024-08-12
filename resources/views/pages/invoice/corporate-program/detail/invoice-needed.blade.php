@@ -1,4 +1,4 @@
-            <table class="table table-bordered table-hover nowrap align-middle w-100" id="PartnerProgramTable">
+            <table class="table table-bordered table-hover nowrap align-middle w-100" id="partnerProgramTable">
                 <thead class="bg-secondary text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
@@ -72,9 +72,9 @@
                         ]
                     };
 
-                    var table = initializeDataTable('#PartnerProgramTable', options, 'rt_partner_program');
+                    var table = initializeDataTable('#partnerProgramTable', options, 'rt_partner_program');
 
-                    $('#PartnerProgramTable tbody').on('click', '.createInvCorp ', function() {
+                    $('#partnerProgramTable tbody').on('click', '.createInvCorp ', function() {
                         var data = table.row($(this).parents('tr')).data();
                         window.location.href = "{{ url('invoice/corporate-program') }}/" + data.id +
                             "/detail/create";

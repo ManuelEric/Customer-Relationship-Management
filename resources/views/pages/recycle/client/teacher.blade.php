@@ -68,28 +68,18 @@
 <script>
     var widthView = $(window).width();
     $(document).ready(function() {
-        var table = $('#clientTable').DataTable({
-            dom: 'Bfrtip',
-            lengthMenu: [
-                [10, 25, 50, 100, -1],
-                ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-            ],
+
+        var options = {
             buttons: [
                 'pageLength', {
                     extend: 'excel',
                     text: 'Export to Excel',
                 }
             ],
-            scrollX: true,
             fixedColumns: {
                 left: (widthView < 768) ? 1 : 2,
                 right: 1
             },
-            search: {
-                return: true
-            },
-            processing: true,
-            serverSide: true,
             ajax: '',
             columns: [{
                     data: 'id',
@@ -134,7 +124,9 @@
                     defaultContent: '<button type="button" class="btn btn-sm btn-outline-success editClient"><i class="bi bi-arrow-counterclockwise"></i></button>'
                 }
             ],
-        });
+        }
+
+        var table = initializeDataTable('#clientTable', options, 'rt_client');
 
         @php
             $privilage = $menus['Client']->where('submenu_name', 'Teacher/Counselor')->first();

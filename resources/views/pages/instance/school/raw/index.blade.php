@@ -254,8 +254,7 @@
                 return (similar);
             }
 
-            var table = $('#rawTable').DataTable({
-                dom: 'Bfrtip',
+            var options = {
                 buttons: [
                     'pageLength', {
                         extend: 'excel',
@@ -274,17 +273,10 @@
                         }
                     },
                 ],
-                lengthMenu: [
-                    [10, 50, 100, -1],
-                    ['10 Schools', '50 Schools', '100 Schools', 'Show all']
-                ],
-                scrollX: true,
                 fixedColumns: {
                     left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     // right: 1
                 },
-                processing: true,
-                serverSide: true,
                 ajax: '',
                 pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
@@ -350,8 +342,10 @@
                         }
                     },
                 ]
-            });
+            };
 
+            var table = initializeDataTable('#rawTable', options, 'rt_school');
+            
             // Add a click event listener to each row in the parent DataTable
             table.on('click', 'td.dt-control', function(e) {
                 let tr = e.target.closest('tr');

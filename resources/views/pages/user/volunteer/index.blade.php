@@ -41,25 +41,18 @@
 
     <script>
         $(document).ready(function() {
-            var table = $('#volunteerTable').DataTable({
-                dom: 'Bfrtip',
-                lengthMenu: [
-                    [10, 25, 50, 100, -1],
-                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-                ],
+
+            var options = {
                 buttons: [
                     'pageLength', {
                         extend: 'excel',
                         text: 'Export to Excel',
                     }
                 ],
-                scrollX: true,
                 fixedColumns: {
                     left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     right: 1
                 },
-                processing: true,
-                serverSide: true,
                 ajax: '',
                 pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
@@ -104,7 +97,9 @@
                             '<button type="button" class="btn btn-sm btn-danger ms-1 deleteVolunt"><i class="bi bi-trash"></i></button>'
                     }
                 ]
-            });
+            };
+
+            var table = initializeDataTable('#volunteerTable', options, 'rt_user');
 
             @php
                 $privilage = $menus['Users']->where('submenu_name', 'Volunteer')->first();

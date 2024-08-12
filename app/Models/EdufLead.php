@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Observers\EdufLeadObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+#[ObservedBy([EdufLeadObserver::class])]
 class EdufLead extends Model
 {
     use HasFactory;

@@ -263,28 +263,21 @@
         var widthView = $(window).width();
         $(document).ready(function() {
 
-            var table = $('#clientTable').DataTable({
+            var options = {
                 order: [
                     // [20, 'desc'],
                     // [21, 'desc']
                 ],
-                dom: 'Bfrtip',
                 buttons: [
                     'pageLength', {
                         extend: 'excel',
                         text: 'Export to Excel',
                     }
                 ],
-                scrollX: true,
                 fixedColumns: {
                     left: (widthView < 768) ? 1 : 2,
                     right: 1
                 },
-                search: {
-                    return: true
-                },
-                processing: true,
-                serverSide: true,
                 ajax: {
                     url: '',
                     data: function(params) {
@@ -430,40 +423,15 @@
                             return data == 1 ? "Active" : "Non-active";
                         }
                     },
-                    // {
-                    //     data: 'total_score',
-                    //     className: 'text-primary text-center',
-                    // },
                     {
                         data: '',
                         className: 'text-center',
                         defaultContent: '<button type="button" class="btn btn-sm btn-outline-success restore"><i class="bi bi-arrow-counterclockwise"></i></button>'
                     }
                 ],
-                // createdRow: function(row, data, index) {
-                //     // temporary condition
-                //     // while change soon
-                //     if (data['total_score'] < 2) {
-                //         $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
-                //         $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Cold)');
-                //     } else if ((data['total_score'] >= 2) && (data['total_score'] < 4)) {
-                //         $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
-                //         $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Warm)');
-                //     } else {
-                //         $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
-                //         $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Hot)');
-                //     }
-                // }
-                // createdRow: function(row, data, index) {
-                //     // temporary condition
-                //     // will change soon
-                //     if (data['st_statusact'] == 0) {
-                //         $('td', row).addClass('text-danger');
-                //         $('td:nth-last-child(1) .deleteUser', row).addClass('d-none');
-                //         // $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
-                //     }
-                // }
-            });
+            };
+
+            var table = initializeDataTable('#clientTable', options, 'rt_client');
 
             $('#clientTable tbody').on('click', '.restore ', function() {
                 var data = table.row($(this).parents('tr')).data();
@@ -529,27 +497,27 @@
                 table.draw();
             })
 
-            $("#pic").on('change', function (e) {
+            $("#pic").on('change', function(e) {
                 var value = $(e.currentTarget).find("option:selected").val();
                 table.draw();
             })
 
-            $("#start_joined_date").on('change', function (e) {
+            $("#start_joined_date").on('change', function(e) {
                 var value = $(e.currentTarget).val();
                 table.draw();
             })
 
-            $("#end_joined_date").on('change', function (e) {
-                var value = $(e.currentTarget).val();
-                table.draw();
-            })
-            
-            $("#start_deleted_date").on('change', function (e) {
+            $("#end_joined_date").on('change', function(e) {
                 var value = $(e.currentTarget).val();
                 table.draw();
             })
 
-            $("#end_deleted_date").on('change', function (e) {
+            $("#start_deleted_date").on('change', function(e) {
+                var value = $(e.currentTarget).val();
+                table.draw();
+            })
+
+            $("#end_deleted_date").on('change', function(e) {
                 var value = $(e.currentTarget).val();
                 table.draw();
             })

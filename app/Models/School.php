@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use App\Models\SchoolVisit;
+use App\Observers\SchoolObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[ObservedBy([SchoolObserver::class])]
 class School extends Model
 {
     use HasFactory, SoftDeletes;
