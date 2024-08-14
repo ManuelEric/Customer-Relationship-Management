@@ -197,17 +197,18 @@ trait SyncClientTrait
                             return [
                                 'id' => $item->id,
                                 'full_name' => strtolower($item->fullName),
+                                'deleted_at' => $item->deleted_at,
                             ];
                         }
                     );
             
-                    $existChildren = $mapChildren->where('full_name', strtolower($secondClient))->first();
-                 
+                    $existChildren = $mapChildren->where('deleted_at', null)->where('full_name', strtolower($secondClient))->first();
                     # if children not existing from this parent
                     if(!isset($existChildren)){
                         $secondClientDetails['isExist'] = false;
                     }else{
                         $children = UserClient::find($existChildren['id']);
+                        Log::debug('existChildren' . $existChildren['id']);
                         $secondClientDetails['isExist'] = true;
                         $secondClientDetails['client'] = $children;
                     }
@@ -229,12 +230,13 @@ trait SyncClientTrait
                             return [
                                 'id' => $item->id,
                                 'full_name' => strtolower($item->fullName),
+                                'deleted_at' => $item->deleted_at,
                             ];
                         }
                     );
                     
             
-                    $existParent = $mapParent->where('full_name', strtolower($secondClient))->first();
+                    $existParent = $mapParent->where('deleted_at', null)->where('full_name', strtolower($secondClient))->first();
                  
                     # if parent not existing from this child
                     if(!isset($existParent)){
