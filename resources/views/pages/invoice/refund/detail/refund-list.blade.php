@@ -166,7 +166,7 @@
             ]
         };
 
-        var table = initializeDataTable('#programTable', options, 'rt_invoice_b2b');
+        var table = initializeDataTable('#programTable', options, 'rt_refund');
 
     });
 </script>

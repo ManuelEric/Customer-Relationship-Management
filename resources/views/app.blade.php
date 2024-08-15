@@ -159,7 +159,7 @@
             });
 
             // listen channel datatable for datatable
-            var channel_datatable = Echo.channel('channel-datatable');
+            var channel_datatable = Echo.channel('channel_datatable');
             channel_datatable.listen(".my-event", function(data) {
                 if(data.message == tableName){
                     table.ajax.reload(null, false)

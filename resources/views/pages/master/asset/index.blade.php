@@ -140,7 +140,6 @@
                 table.button(1).disable();
             @endif
 
-            realtimeData(table)
 
             $('#assetTable tbody').on('click', '.editAsset ', function() {
                 var data = table.row($(this).parents('tr')).data();

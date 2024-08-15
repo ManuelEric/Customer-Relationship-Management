@@ -2,13 +2,11 @@
 
 namespace App\Models;
 
-use App\Observers\ClientEventObserver;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use App\Events\MessageSent;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-#[ObservedBy([ClientEventObserver::class])]
 class ClientEvent extends Model
 {
     use HasFactory;
@@ -37,6 +35,48 @@ class ClientEvent extends Model
         'status',
         'joined_date',
     ];
+
+    # Modify methods Model
+    public function delete()
+    {
+        // Custom logic before deleting the model
+
+        parent::delete();
+
+        // Custom logic after deleting the model
+        // Send to pusher
+        event(new MessageSent('rt_client_event', 'channel_datatable'));
+
+        return true;
+    }
+
+    public function update(array $attributes = [], array $options = [])
+    {
+        // Custom logic before update
+
+        $updated = parent::update($attributes);
+
+        // Custom logic after update
+        // Send to pusher
+        event(new MessageSent('rt_client_event', 'channel_datatable'));
+
+        return $updated;
+    }
+
+    public static function create(array $attributes = [])
+    {
+        // Custom logic before creating the model
+
+        $model = static::query()->create($attributes);
+
+        // Custom logic after creating the model
+
+        // Send to pusher
+        event(new MessageSent('rt_client_event', 'channel_datatable'));
+
+        return $model;
+    }
+
 
     public function joinedDate(): Attribute
     {

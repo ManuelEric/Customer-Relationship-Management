@@ -204,7 +204,7 @@
                         <th>School</th>
                         <th>Graduation Year</th>
                         <th>Grade</th>
-                        <th>Instagram</th>
+                        {{-- <th>Instagram</th> --}}
                         <th>State/Region</th>
                         <th>City</th>
                         <th>Location</th>
@@ -216,7 +216,7 @@
                         <th>Mentor/Tutor</th> --}}
                         <th>Year of Study Abroad</th>
                         <th>Country of Study Abroad</th>
-                        <th>University Destination</th>
+                        {{-- <th>University Destination</th> --}}
                         <th>Interest Major</th>
                         {{-- <th>Joined Date</th> --}}
                         <th>Scholarship Eligible</th>
@@ -541,7 +541,7 @@
             var no = 1;
 
             var options = {
-                order: [],
+                order: [[29, 'desc']],
                 buttons: [button],
                 scrollX: true,
                 fixedColumns: {
@@ -702,11 +702,11 @@
                             return data > 12 ? 'Not high school' : data;
                         }
                     },
-                    {
-                        data: 'insta',
-                        className: 'text-center',
-                        defaultContent: '-'
-                    },
+                    // {
+                    //     data: 'insta',
+                    //     className: 'text-center',
+                    //     defaultContent: '-'
+                    // },
                     {
                         data: 'state',
                         defaultContent: '-'
@@ -805,11 +805,11 @@
                             }
                         }
                     },
-                    {
-                        data: 'dream_uni',
-                        className: 'text-center',
-                        defaultContent: '-'
-                    },
+                    // {
+                    //     data: 'dream_uni',
+                    //     className: 'text-center',
+                    //     defaultContent: '-'
+                    // },
                     {
                         data: 'dream_major',
                         className: 'text-center',

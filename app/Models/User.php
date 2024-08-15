@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Events\MessageSent;
 use App\Models\pivot\AgendaSpeaker;
 use App\Models\pivot\AssetReturned;
 use App\Models\pivot\AssetUsed;
@@ -21,7 +22,6 @@ use Illuminate\Support\Facades\Crypt;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Support\Str;
 
-#[ObservedBy([UserObserver::class])]
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -57,6 +57,48 @@ class User extends Authenticatable
         'export',
         'notes',
     ];
+
+    # Modify methods Model
+    public function delete()
+    {
+        // Custom logic before deleting the model
+
+        parent::delete();
+
+        // Custom logic after deleting the model
+        // Send to pusher
+        event(new MessageSent('rt_user', 'channel_datatable'));
+
+        return true;
+    }
+
+    public function update(array $attributes = [], array $options = [])
+    {
+        // Custom logic before update
+
+        $updated = parent::update($attributes);
+
+        // Custom logic after update
+        // Send to pusher
+        event(new MessageSent('rt_user', 'channel_datatable'));
+
+        return $updated;
+    }
+
+    public static function create(array $attributes = [])
+    {
+        // Custom logic before creating the model
+
+        $model = static::query()->create($attributes);
+
+        // Custom logic after creating the model
+
+        // Send to pusher
+        event(new MessageSent('rt_user', 'channel_datatable'));
+
+        return $model;
+    }
+
 
     /**
      * The attributes that should be hidden for serialization.

@@ -1,8 +1,5 @@
 <?php
 
-use App\Events\MessageSent;
-use App\Events\SendMessageEvent;
-use App\Events\UpdateDatatableEvent;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolDetailController;
@@ -12,15 +9,12 @@ use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\ClientProgramController;
 use App\Http\Controllers\ClientStudentController;
 use App\Http\Controllers\GoogleSheetController;
-use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VolunteerController;
 use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\testQueue;
-use Google\Service\CloudSearch\MessageContent;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
@@ -37,23 +31,6 @@ use Illuminate\Support\Facades\Session;
 */
 
 # AUTH START --------------------------------
-Route::get('/message', function () {
-    event(new MessageSent('rt_client', 'channel-datatable'));
-    // event(new UpdateDatatableEvent(tableName: 'test'));
-    // $options = array(
-    //     'cluster' => 'ap1',
-    //     'useTLS' => true
-    //   );
-    //   $pusher = new Pusher\Pusher(
-    //     'e69b02b944a4b7ffb31c',
-    //     'c01153bc74383eb5d18f',
-    //     '1742668',
-    //     $options
-    //   );
-    
-    //   $data['message'] = 'hello world2';
-    //   $pusher->trigger('channel-datatable', 'my-event', $data);
-});
 
 Route::get('/', function () {
     return view('auth.login');

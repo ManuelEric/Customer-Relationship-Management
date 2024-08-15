@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Events\MessageSent;
 use App\Models\pivot\ClientAcceptance;
 use App\Models\pivot\ClientLeadTracking;
-use App\Observers\ClientObserver;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,15 +15,10 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Laravel\Sanctum\HasApiTokens;
-use Mostafaznv\LaraCache\CacheEntity;
-use Mostafaznv\LaraCache\Traits\LaraCache;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
-use Illuminate\Database\Eloquent\BroadcastsEvents;
 
-#[ObservedBy([ClientObserver::class])]
 class UserClient extends Authenticatable
 {
-    use HasApiTokens, BroadcastsEvents, HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     protected $table = 'tbl_client';
     protected $appends = ['lead_source', 'graduation_year_real', 'referral_name'];
@@ -83,6 +78,47 @@ class UserClient extends Authenticatable
      * @var array
      */
     protected $dates = ['deleted_at'];
+
+    # Modify methods Model
+    public function delete()
+    {
+        // Custom logic before deleting the model
+
+        parent::delete();
+
+        // Custom logic after deleting the model
+        // Send to pusher
+        event(New MessageSent('rt_client', 'channel_datatable'));
+
+        return true;
+    }
+
+    public function update(array $attributes = [], array $options = [])
+    {
+        // Custom logic before update
+
+        $updated = parent::update($attributes);
+
+        // Custom logic after update
+        // Send to pusher
+        event(New MessageSent('rt_client', 'channel_datatable'));
+
+        return $updated;
+    }
+
+    public static function create(array $attributes = [])
+    {
+        // Custom logic before creating the model
+
+        $model = static::query()->create($attributes);
+
+        // Custom logic after creating the model
+
+        // Send to pusher
+        event(New MessageSent('rt_client', 'channel_datatable'));
+
+        return $model;
+    }
 
     # attributes
     protected function fullName(): Attribute
