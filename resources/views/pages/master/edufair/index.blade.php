@@ -159,8 +159,7 @@
                 table.button(1).disable();
             @endif
 
-            realtimeData(table)
-
+            
             $('#edufairTable tbody').on('click', '.viewEdufair ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 window.location.href = "{{ url('master/edufair') }}/" + data.id;
