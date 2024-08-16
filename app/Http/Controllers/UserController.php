@@ -369,6 +369,13 @@ class UserController extends Controller
                     if ($existingRoleInfo = $user->roles()->where('tbl_roles.id', $request->role[$i])->first()) {
 
                         $ext_id_with_label = $existingRoleInfo->pivot->extended_id;
+                        # just in case the extended id is null
+                        if ($ext_id_with_label == null) {
+                            # generate secondary extended_id 
+                            $last_id = UserRole::max('extended_id');
+                            $ext_id_without_label = $this->remove_primarykey_label($last_id, 3);
+                            $ext_id_with_label = 'MT-' . $this->add_digit((int)$ext_id_without_label + 1, 4);
+                        }
                     } else {
                         # generate secondary extended_id 
                         $last_id = UserRole::max('extended_id');

@@ -125,10 +125,20 @@ class ExtClientController extends Controller
             $trimmedFullname = trim($value->full_name);
 
             return [
+                /* essay editing purposes */
+                'first_name' => $value->first_name,
+                'last_name' => $value->last_name,
+                'phone' => $value->phone,
+                'email' => $value->email,
+                'address' => $value->address,
+                'roles' => $value->roles,
+                'educations' => $value->educations,
+                /* end */
+
                 'fullname' => $trimmedFullname,
                 'id' => $value->id,
                 'extended_id' => $value->extended_id,
-                'formatted' => $trimmedFullname.' | '.$value->id
+                'formatted' => $trimmedFullname.' | '.$value->id,
             ];
         });
 

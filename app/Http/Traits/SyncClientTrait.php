@@ -203,12 +203,12 @@ trait SyncClientTrait
                     );
             
                     $existChildren = $mapChildren->where('deleted_at', null)->where('full_name', strtolower($secondClient))->first();
+
                     # if children not existing from this parent
                     if(!isset($existChildren)){
                         $secondClientDetails['isExist'] = false;
                     }else{
                         $children = UserClient::find($existChildren['id']);
-                        Log::debug('existChildren' . $existChildren['id']);
                         $secondClientDetails['isExist'] = true;
                         $secondClientDetails['client'] = $children;
                     }
