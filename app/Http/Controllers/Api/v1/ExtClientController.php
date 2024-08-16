@@ -1961,8 +1961,6 @@ class ExtClientController extends Controller
             })->
             whereNotNull('email')->
             get();
-
-        // return response()->json($user);
         
         $mappedUser = $user->map(function ($data) {
 

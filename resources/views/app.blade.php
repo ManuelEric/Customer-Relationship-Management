@@ -439,7 +439,6 @@
             });
         }
     </script>
-
     @stack('scripts')
 </body>
 
