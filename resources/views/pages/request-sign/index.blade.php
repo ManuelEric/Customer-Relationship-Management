@@ -74,6 +74,7 @@
             const paramType = urlParams.get('type');
 
             var options = {
+                order: [[5, 'desc']],
                 buttons: [
                     'pageLength', {
                         extend: 'excel',

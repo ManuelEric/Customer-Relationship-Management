@@ -138,7 +138,6 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 ->when(Session::get('user_role') == 'Employee', function ($sub) {
                     $sub->where('client.pic_id', auth()->user()->id);
                 })
-                ->orderBy('tbl_client_event.created_at', 'DESC')
                 ->groupBy('tbl_client_event.clientevent_id');
 
 

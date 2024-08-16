@@ -315,7 +315,7 @@
             var options = {
                 order: [
                     // [20, 'desc'],
-                    [18, 'desc']
+                    [20, 'desc']
                 ],
                 buttons: [
                     'pageLength', {

@@ -12,7 +12,7 @@ class PurchaseRequestRepository implements PurchaseRequestRepositoryInterface
     public function getAllPurchaseRequestDataTables()
     {
         return Datatables::eloquent(
-            PurchaseRequest::join('tbl_department', 'tbl_department.id', '=', 'tbl_purchase_request.purchase_department')->join('users', 'users.id', '=', 'tbl_purchase_request.requested_by')->select(['tbl_purchase_request.*', 'tbl_department.*', 'users.first_name as fullname', DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS fullname")])
+            PurchaseRequest::join('tbl_department', 'tbl_department.id', '=', 'tbl_purchase_request.purchase_department')->join('users', 'users.id', '=', 'tbl_purchase_request.requested_by')->select(['tbl_purchase_request.purchase_id', 'tbl_purchase_request.purchase_statusrequest', 'tbl_purchase_request.updated_at', 'tbl_department.dept_name', 'users.first_name as fullname', DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS fullname")])
         )->filterColumn(
             'fullname',
             function ($query, $keyword) {

@@ -270,6 +270,7 @@
     $(document).ready(function() {
 
         var options = {
+            order: [[5, 'desc']],
             buttons: [
                 'pageLength', {
                     extend: 'excel',

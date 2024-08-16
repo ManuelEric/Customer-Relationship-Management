@@ -171,31 +171,18 @@
         var widthView = $(window).width();
         var i = 1;
 
-        var table = $('#eventTrackTable').DataTable({
-            dom: 'Bfrtip',
-            lengthMenu: [
-                [10, 25, 50, 100, -1],
-                ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-            ],
+        var options = {
+            order: [[18, 'desc']],
             buttons: [
                 'pageLength', {
                     extend: 'excel',
                     text: 'Export to Excel',
                 }
             ],
-            scrollX: true,
             fixedColumns: {
                 left: (widthView < 768) ? 1 : 2,
                 right: 1
             },
-            processing: true,
-            serverSide: true,
-            // ajax: {
-            //     url: '',
-            //     data: function(params) {
-            //         params.event_name = $("#event-name").val()
-            //     }
-            // },
             columns: [{
                     data: 'event_id',
                     defaultContent: '-',
@@ -306,7 +293,9 @@
                     defaultContent: '-',
                 },
             ]
-        });
+        };
+
+        var table = initializeDataTable('#eventTrackTable', options, 'rt_client_event');
 
         // realtimeData(table)
 

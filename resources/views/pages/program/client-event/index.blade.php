@@ -239,6 +239,7 @@
         $(document).ready(function() {
 
             var options = {
+                order: [[16, 'desc']],
                 buttons: [
                     'pageLength', {
                         extend: 'excel',

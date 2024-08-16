@@ -60,7 +60,6 @@ class UserRepository implements UserRepositoryInterface
                     'active',
 
                 ])
-                ->orderBy('extended_id', 'asc')
         )
             ->filterColumn('full_name', function ($query, $keyword) {
                 $sql = 'CONCAT(first_name, " ", COALESCE(last_name, "")) like ?';
