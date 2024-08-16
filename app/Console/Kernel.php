@@ -120,7 +120,6 @@ class Kernel extends ConsoleKernel
         // $schedule->command('send:thanks_mail_event')->everyFifteenMinutes();
         
         # queue worker
-        // $schedule->command('check:queue')->withoutOverlapping()->everyMinute()->onOneServer();
         // $schedule->command('run:worker')->everyMinute()->withoutOverlapping()->onOneServer();
 
         # This command is no longer used, because it already uses queue
