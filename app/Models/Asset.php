@@ -72,7 +72,6 @@ class Asset extends Model
         $model = static::query()->create($attributes);
 
         // Custom logic after creating the model
-
         // Send to pusher
         event(new MessageSent('rt_asset', 'channel_datatable'));
 
