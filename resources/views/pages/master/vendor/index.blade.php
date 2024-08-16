@@ -43,25 +43,18 @@
 
     <script>
         $(document).ready(function() {
-            var table = $('#vendor-table').DataTable({
-                dom: 'Bfrtip',
-                lengthMenu: [
-                    [10, 25, 50, 100, -1],
-                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-                ],
+
+            var options = {
                 buttons: [
                     'pageLength', {
                         extend: 'excel',
                         text: 'Export to Excel',
                     }
                 ],
-                scrollX: true,
                 fixedColumns: {
                     left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     right: 1
                 },
-                processing: true,
-                serverSide: true,
                 ajax: '',
                 pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
@@ -112,7 +105,9 @@
                             '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteVendor"><i class="bi bi-trash"></i></button>'
                     }
                 ]
-            });
+            }
+
+            var table = initializeDataTable('#vendor-table', options, 'rt_vendor');
 
             @php
                 $privilage = $menus['Master']->where('submenu_name', 'Vendors')->first();

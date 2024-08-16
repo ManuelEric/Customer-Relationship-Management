@@ -293,13 +293,13 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             # query for ordering client by status suggest (Hot --> Cold)
             # orderColumn is used to handle sorting when user click javascript header
-            orderColumn('status_lead', function ($query, $order) {
-                $query->orderBy('status_lead_score', $order);
-            })->
-            # order is used to handle sorting by default when page refreshed
-            order(function ($query) {
-                $query->orderBy('status_lead_score', 'desc');
-            })->
+            // orderColumn('status_lead', function ($query, $order) {
+            //     $query->orderBy('status_lead_score', $order);
+            // })->
+            // # order is used to handle sorting by default when page refreshed
+            // order(function ($query) {
+            //     $query->orderBy('status_lead_score', 'desc');
+            // })->
             toJson();
     }
 
@@ -767,7 +767,17 @@ class ClientRepository implements ClientRepositoryInterface
     public function getParents($asDatatables = false, $month = null, $advanced_filter = [])
     {
         $query = Client::select([
-                'client.*',
+                'client.id',
+                'client.first_name',
+                'client.last_name',
+                'client.full_name',
+                'client.lead_source',
+                'client.mail',
+                'client.phone',
+                'client.graduation_year_real',
+                'client.dob',
+                'client.created_at',
+                'client.updated_at',
                 'children.mail as children_mail',
                 'children.phone as children_phone'
             ])->
@@ -1306,7 +1316,9 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function updateClient($clientId, array $newDetails)
     {
-        return tap(UserClient::whereId($clientId))->update($newDetails)->first();
+        $updated = tap(UserClient::whereId($clientId)->first())->update($newDetails);
+        // UserClient::dispatchUpdated($updated);
+        return $updated;
     }
 
     public function updateClients(array $clientIds, array $newDetails)
@@ -2112,7 +2124,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function updateClientByUUID($uuid, array $newDetails)
     {
-        return tap(UserClient::where('uuid', $uuid))->update($newDetails)->first();
+        return tap(UserClient::where('uuid', $uuid)->first())->update($newDetails);
     }
 
     public function countClientByCategory($category, $month = null)

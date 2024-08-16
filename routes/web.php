@@ -63,8 +63,7 @@ Route::group(['middleware' => ['auth', 'auth.department']], function () {
 
         # check status
         if ($response->successful()) {
-            if(count($response['quotes'])> 0)
-            {
+            if (count($response['quotes']) > 0) {
                 $decode = $response['quotes'];
                 $data['content'] = $decode[0]['quote'];
                 $data['author'] = $decode[0]['author'];
@@ -72,7 +71,7 @@ Route::group(['middleware' => ['auth', 'auth.department']], function () {
         }
 
         $data = compact('data');
-    
+
         return view('pages.dashboard.blank-page')->with(json_encode($data));
     });
 
@@ -139,4 +138,3 @@ Route::resource('user/volunteer', VolunteerController::class);
 Route::resource('profile', ProfileController::class);
 
 # PROFILE END -----------------------------------------
-

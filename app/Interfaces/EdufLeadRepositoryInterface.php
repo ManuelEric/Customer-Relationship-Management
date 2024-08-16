@@ -11,5 +11,6 @@ interface EdufLeadRepositoryInterface
     public function createEdufairLead(array $edufairLeadDetails);
     public function createEdufairLeads(array $edufairLeadDetails);
     public function updateEdufairLead($edufLId, array $newDetails);
+    public function getEdufairLeadByYear($year);
     public function getAllEdufFromCRM();
 }

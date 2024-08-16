@@ -75,6 +75,11 @@ class EdufLeadRepository implements EdufLeadRepositoryInterface
     {
         return EdufLead::whereId($edufLId)->update($newDetails);
     }
+    
+    public function getEdufairLeadByYear($year)
+    {
+        return EdufLead::whereYear('event_start', $year)->get();
+    }
 
     # CRM
     public function getAllEdufFromCRM()

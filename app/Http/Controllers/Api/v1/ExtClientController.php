@@ -8,6 +8,7 @@ use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
+use App\Http\Traits\SplitLeadEdufairTrait;
 use App\Http\Traits\SplitNameTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\ClientEventLogMailRepositoryInterface;
@@ -46,6 +47,7 @@ class ExtClientController extends Controller
     use StandardizePhoneNumberTrait;
     use CreateCustomPrimaryKeyTrait;
     use LoggingTrait;
+    use SplitLeadEdufairTrait;
     private ClientRepositoryInterface $clientRepository;
     private SchoolRepositoryInterface $schoolRepository;
     private ClientEventRepositoryInterface $clientEventRepository;
@@ -120,10 +122,20 @@ class ExtClientController extends Controller
             $trimmedFullname = trim($value->full_name);
 
             return [
+                /* essay editing purposes */
+                'first_name' => $value->first_name,
+                'last_name' => $value->last_name,
+                'phone' => $value->phone,
+                'email' => $value->email,
+                'address' => $value->address,
+                'roles' => $value->roles,
+                'educations' => $value->educations,
+                /* end */
+
                 'fullname' => $trimmedFullname,
                 'id' => $value->id,
                 'extended_id' => $value->extended_id,
-                'formatted' => $trimmedFullname.' | '.$value->id
+                'formatted' => $trimmedFullname.' | '.$value->id,
             ];
         });
 
@@ -494,6 +506,13 @@ class ExtClientController extends Controller
 
     public function store(Request $request)
     {
+        # split lead id and eduf id when lead source is edufair
+        $explodeLeadId = explode('-', $request['lead_source_id']);
+        if($explodeLeadId[0] == 'LS017'){
+            $splitLeadEdufair = $this->splitLeadEdufair($request['lead_source_id']);
+            $request['lead_source_id'] = $splitLeadEdufair['lead_id'];
+            $request['eduf_id'] = $splitLeadEdufair['eduf_id'];
+        } 
 
         # validation
         $rules = [
@@ -523,6 +542,7 @@ class ExtClientController extends Controller
             'destination_country.*' => 'exists:tbl_tag,id',
             'scholarship' => 'required|in:Y,N',
             'lead_source_id' => 'required|exists:tbl_lead,lead_id',
+            'eduf_id' => 'required_if:lead_source_id,LS017|exists:tbl_eduf_lead,id',
             'event_id' => 'required|exists:tbl_events,event_id',
             # status
             'attend_status' => 'nullable|in:attend',
@@ -541,11 +561,12 @@ class ExtClientController extends Controller
     
 
         $incomingRequest = $request->only([
-            'role', 'user', 'fullname', 'mail', 'phone', 'secondary_name', 'secondary_email', 'secondary_phone', 'school_id', 'other_school', 'graduation_year', 'destination_country', 'scholarship', 'lead_source_id', 'event_id', 'attend_status', 'attend_party', 'event_type', 'status', 'referral', 'have_child'
+            'role', 'user', 'fullname', 'mail', 'phone', 'secondary_name', 'secondary_email', 'secondary_phone', 'school_id', 'other_school', 'graduation_year', 'destination_country', 'scholarship', 'lead_source_id', 'eduf_id', 'event_id', 'attend_status', 'attend_party', 'event_type', 'status', 'referral', 'have_child'
         ]);
 
         $messages = [
             'school_id.required_if' => 'The school field is required.',
+            'lead_source_id.required_if' => 'The eduf lead field is required.',
             'school_id.exists' => 'The school field is not valid.',
             'lead_source_id.required' => 'The lead field is required.',
             'lead_source_id.exists' => 'The lead field is not valid.',
@@ -567,7 +588,6 @@ class ExtClientController extends Controller
 
         # after validating incoming request data, then retrieve the incoming request data
         $validated = $request->collect();
-
 
         # modify the variables inside request array
         $validated = $validated->merge([
@@ -684,6 +704,7 @@ class ExtClientController extends Controller
                 'parent_id' => null,
                 'event_id' => $validated['event_id'],
                 'lead_id' => $validated['lead_source_id'],
+                'eduf_id' => isset($incomingRequest['eduf_id']) ? $incomingRequest['eduf_id'] : null,
                 'registration_type' => $validated['registration_type'], # default is PR means Pra-Reg
                 'number_of_attend' => isset($validated['attend_party']) ? $validated['attend_party'] : 1,
                 'notes' => $validated['notes'], # previously, notes filled with VIP & VVIP
@@ -1097,7 +1118,8 @@ class ExtClientController extends Controller
             'register_as' => $incomingRequest['role'],
             'st_grade' => $this->getGradeByGraduationYear($incomingRequest['graduation_year']),
             'graduation_year' => $incomingRequest['graduation_year'],
-            'lead_id' => 'LS001', # lead is hardcoded into website
+            'lead_id' => $incomingRequest['lead_source_id'],
+            'eduf_id' => isset($incomingRequest['eduf_id']) ? $incomingRequest['eduf_id'] : null,
             'scholarship' => $incomingRequest['scholarship'],
             'sch_id' => $schoolId
         ];
@@ -1154,7 +1176,8 @@ class ExtClientController extends Controller
             'phone' => $this->setPhoneNumber($incomingRequest['phone']),
             'register_as' => $incomingRequest['role'],
             'scholarship' => $incomingRequest['scholarship'],
-            'lead_id' => 'LS001', # lead is hardcoded into website
+            'lead_id' => $incomingRequest['lead_source_id'],
+            'eduf_id' => isset($incomingRequest['eduf_id']) ? $incomingRequest['eduf_id'] : null,
         ];
 
         $client = $this->clientRepository->createClient('Parent', $newClientDetails);
@@ -1192,7 +1215,8 @@ class ExtClientController extends Controller
             'phone' => $this->setPhoneNumber($incomingRequest['phone']),
             'register_as' => $incomingRequest['role'],
             'sch_id' => $schoolId,
-            'lead_id' => 'LS001', # lead is hardcoded into website
+            'lead_id' => $incomingRequest['lead_source_id'],
+            'eduf_id' => isset($incomingRequest['eduf_id']) ? $incomingRequest['eduf_id'] : null,
         ];
 
         $client = $this->clientRepository->createClient('Teacher/Counselor', $newClientDetails);

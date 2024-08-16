@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\hot_leads_automation;
+namespace Database\Seeders\HotLeadsAutomation;
 
 use App\Models\ScoringParam;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;

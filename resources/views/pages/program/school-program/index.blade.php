@@ -23,7 +23,7 @@
                     data-bs-auto-close="false" id="filter">
                     <i class="bi bi-funnel me-2"></i> Filter
                 </button>
-                <form action="{{ route('school.index') }}"
+                <form action="{{ route('program.school.index') }}"
                     class="dropdown-menu dropdown-menu-end pt-0 shadow filter-schoolprog" style="width: 400px"
                     method="GET">
 
@@ -126,28 +126,17 @@
                 $(this).parents('.dropdown').find('button.dropdown-toggle').dropdown('toggle')
             });
 
-            var table = $('#schProgTable').DataTable({
-                dom: 'Bfrtip',
-                lengthMenu: [
-                    [10, 25, 50, 100, -1],
-                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-                ],
+            var options = {
                 buttons: [
                     'pageLength', {
                         extend: 'excel',
                         text: 'Export to Excel',
                     }
                 ],
-                scrollX: true,
                 fixedColumns: {
                     left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     right: 1
                 },
-                search: {
-                    return: true
-                },
-                processing: true,
-                serverSide: true,
                 ajax: '',
                 pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
@@ -240,7 +229,9 @@
                         defaultContent: '<button type="button"class="btn btn-sm btn-outline-warning editSchProg"><i class="bi bi-eye"></i></button>'
                     }
                 ]
-            });
+            };
+
+            var table = initializeDataTable('#schProgTable', options, 'rt_school_program');
 
             @php
                 $privilage = $menus['Program']->where('submenu_name', 'School Program')->first();
@@ -257,8 +248,6 @@
             @if ($privilage['export'] == 0)
                 table.button(1).disable();
             @endif
-
-            realtimeData(table)
 
             $('#schProgTable tbody').on('click', '.editSchProg', function() {
                 var data = table.row($(this).parents('tr')).data();

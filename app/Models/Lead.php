@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\MessageSent;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,6 +35,47 @@ class Lead extends Model
         static::creating(function ($query) {
             $query->color_code = self::getColorCodeAttribute();
         });
+    }
+
+    # Modify methods Model
+    public function delete()
+    {
+        // Custom logic before deleting the model
+
+        parent::delete();
+
+        // Custom logic after deleting the model
+        // Send to pusher
+        event(new MessageSent('rt_lead', 'channel_datatable'));
+
+        return true;
+    }
+
+    public function update(array $attributes = [], array $options = [])
+    {
+        // Custom logic before update
+
+        $updated = parent::update($attributes);
+
+        // Custom logic after update
+        // Send to pusher
+        event(new MessageSent('rt_lead', 'channel_datatable'));
+
+        return $updated;
+    }
+
+    public static function create(array $attributes = [])
+    {
+        // Custom logic before creating the model
+
+        $model = static::query()->create($attributes);
+
+        // Custom logic after creating the model
+
+        // Send to pusher
+        event(new MessageSent('rt_lead', 'channel_datatable'));
+
+        return $model;
     }
 
     public static function getColorCodeAttribute()

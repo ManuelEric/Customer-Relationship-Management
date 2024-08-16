@@ -96,15 +96,11 @@
 
         var widthView = $(window).width();
         $(document).ready(function() {
-            var table = $('#clientTable').DataTable({
+
+            var options = {
                 order: [
                     // [20, 'desc'],
                     [1, 'asc']
-                ],
-                dom: 'Bfrtip',
-                lengthMenu: [
-                    [10, 25, 50, 100, -1],
-                    ['10 alumni', '25 alumni', '50 alumni', '100 alumni', 'Show all']
                 ],
                 buttons: [
                     'pageLength', {
@@ -112,16 +108,10 @@
                         text: 'Export to Excel',
                     }
                 ],
-                scrollX: true,
                 fixedColumns: {
                     left: (widthView < 768) ? 1 : 2,
                     right: 1
                 },
-                search: {
-                    return: true
-                },
-                processing: true,
-                serverSide: true,
                 ajax: '',
                 columns: [{
                         data: 'id',
@@ -175,7 +165,9 @@
                         $('td', row).addClass('table-success');
                     }
                 }
-            });
+            };
+
+            var table = initializeDataTable('#clientTable', options, 'rt_client');
 
             @php
                 $privilage = $menus['Client']->where('submenu_name', 'Alumnis')->first();

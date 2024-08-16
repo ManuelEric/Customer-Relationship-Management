@@ -44,28 +44,18 @@
 
     <script>
         $(document).ready(function() {
-            var table = $('#refTable').DataTable({
-                dom: 'Bfrtip',
-                lengthMenu: [
-                    [10, 25, 50, 100, -1],
-                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-                ],
+
+            var options = {
                 buttons: [
                     'pageLength', {
                         extend: 'excel',
                         text: 'Export to Excel',
                     }
                 ],
-                scrollX: true,
                 fixedColumns: {
                     left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     right: 1
                 },
-                search: {
-                    return: true
-                },
-                processing: true,
-                serverSide: true,
                 ajax: '',
                 pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
@@ -141,7 +131,9 @@
                         defaultContent: '<button type="button"class="btn btn-sm btn-outline-warning editRef"><i class="bi bi-eye"></i></button>'
                     }
                 ]
-            });
+            };
+
+            var table = initializeDataTable('#refTable', options, 'rt_referral');
 
             @php
                 $privilage = $menus['Program']->where('submenu_name', 'Referral')->first();

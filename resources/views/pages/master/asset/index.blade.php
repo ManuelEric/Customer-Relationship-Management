@@ -45,25 +45,18 @@
 
     <script>
         $(document).ready(function() {
-            var table = $('#assetTable').DataTable({
-                dom: 'Bfrtip',
-                lengthMenu: [
-                    [10, 25, 50, 100, -1],
-                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-                ],
+
+            var options = {
                 buttons: [
                     'pageLength', {
                         extend: 'excel',
                         text: 'Export to Excel',
                     }
                 ],
-                scrollX: true,
                 fixedColumns: {
                     left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     right: 1
                 },
-                processing: true,
-                serverSide: true,
                 ajax: '',
                 columns: [{
                         data: 'asset_id',
@@ -127,7 +120,9 @@
                     }
                 ],
                 pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
-            });
+            };
+
+            var table = initializeDataTable('#assetTable', options, 'rt_asset');
 
             @php
                 $privilage = $menus['Master']->where('submenu_name', 'Assets')->first();
@@ -145,7 +140,6 @@
                 table.button(1).disable();
             @endif
 
-            realtimeData(table)
 
             $('#assetTable tbody').on('click', '.editAsset ', function() {
                 var data = table.row($(this).parents('tr')).data();

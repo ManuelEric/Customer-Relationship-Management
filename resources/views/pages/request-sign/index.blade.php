@@ -73,37 +73,30 @@
             const urlParams = new URLSearchParams(queryString);
             const paramType = urlParams.get('type');
 
-            var table = $('#requestSignTable').DataTable({
-                dom: 'Bfrtip',
-                lengthMenu: [
-                    [10, 25, 50, 100, -1],
-                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-                ],
+            var options = {
                 buttons: [
                     'pageLength', {
                         extend: 'excel',
                         text: 'Export to Excel',
                     }
                 ],
-                scrollX: true,
                 fixedColumns: {
                     left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     right: 1
                 },
-                processing: true,
-                serverSide: true,
                 ajax: '',
                 pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [
                     {
-                        data: 'clientprog_id',
+                        data: paramType == 'invoice' ? 'clientprog_id' : 'receipt_id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
                             return meta.row + meta.settings._iDisplayStart + 1;
                         }
                     },
                     {
-                        data: 'inv_id',
+                        data: paramType == 'invoice' ? 'inv_id' : 'receipt_id',
+                        name: paramType == 'invoice' ? 'tbl_inv.inv_id' : 'tbl_receipt.receipt_id',
                         render: function(data, type, row, meta) {
                             
                             switch (paramType) {
@@ -123,21 +116,26 @@
                     },
                     {
                         data: 'fullname',
+                        name: paramType == 'invoice' ? 'clientprogram.fullname' : 'client.full_name'
                     },
                     {
                         data: 'program_name',
+                        name: paramType == 'invoice' ? 'program_name' : 'program.program_name'
                     },
                     {
                         data: 'payment_method',
+                        name: paramType == 'invoice' ? 'payment_method' : 'tbl_receipt.receipt_method'
                     },
                     {
                         data: 'due_date',
+                        name: paramType == 'invoice' ? 'due_date' : 'tbl_receipt.receipt_date',
                         render: function(data, type, row) {
                             return moment(data).format('MMMM Do YYYY')
                         }
                     },
                     {
                         data: 'total_price',
+                        name: paramType == 'invoice' ? 'total_price' : 'tbl_receipt.receipt_amount',
                         render: function(data, type, row) {
                             var format, currency;
 
@@ -175,6 +173,7 @@
                     },
                     {
                         data: 'total_price_idr',
+                        name: paramType == 'invoice' ? 'total_price_idr' : 'tbl_receipt.receipt_amount_idr',
                         render: function(data, type, row) {
                             return new Intl.NumberFormat("id-ID", {
                                 style: "currency",
@@ -186,6 +185,7 @@
                     },
                     {
                         data: 'clientprog_id',
+                        name: paramType == 'invoice' ? 'tbl_inv.clientprog_id' : 'tbl_client_prog.clientprog_id',
                         className: 'text-center',
                         render: function(data, type, row) {
 
@@ -209,7 +209,10 @@
                         }
                     }
                 ]
-            });
+            };
+
+            var table = initializeDataTable('#requestSignTable', options, paramType == 'invoice' ? 'rt_invoice_b2c' : 'rt_receipt');
+
         });
     </script>
 @endsection

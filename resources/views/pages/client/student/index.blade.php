@@ -204,7 +204,7 @@
                         <th>School</th>
                         <th>Graduation Year</th>
                         <th>Grade</th>
-                        <th>Instagram</th>
+                        {{-- <th>Instagram</th> --}}
                         <th>State/Region</th>
                         <th>City</th>
                         <th>Location</th>
@@ -216,7 +216,7 @@
                         <th>Mentor/Tutor</th> --}}
                         <th>Year of Study Abroad</th>
                         <th>Country of Study Abroad</th>
-                        <th>University Destination</th>
+                        {{-- <th>University Destination</th> --}}
                         <th>Interest Major</th>
                         {{-- <th>Joined Date</th> --}}
                         <th>Scholarship Eligible</th>
@@ -539,24 +539,15 @@
                     };
 
             var no = 1;
-            var table = $('#clientTable').DataTable({
-                order: [],
-                dom: 'Bfrtip',
+
+            var options = {
+                order: [[29, 'desc']],
                 buttons: [button],
-                lengthMenu: [
-                    [10, 50, 100, -1],
-                    ['10 row', '50 row', '100 row', 'Show all']
-                ],
                 scrollX: true,
                 fixedColumns: {
                     left: (widthView < 768) ? 1 : 2,
                     right: 1
                 },
-                search: {
-                    return: true
-                },
-                processing: true,
-                serverSide: true,
                 ajax: {
                     url: '',
                     data: function(params) {
@@ -711,11 +702,11 @@
                             return data > 12 ? 'Not high school' : data;
                         }
                     },
-                    {
-                        data: 'insta',
-                        className: 'text-center',
-                        defaultContent: '-'
-                    },
+                    // {
+                    //     data: 'insta',
+                    //     className: 'text-center',
+                    //     defaultContent: '-'
+                    // },
                     {
                         data: 'state',
                         defaultContent: '-'
@@ -814,11 +805,11 @@
                             }
                         }
                     },
-                    {
-                        data: 'dream_uni',
-                        className: 'text-center',
-                        defaultContent: '-'
-                    },
+                    // {
+                    //     data: 'dream_uni',
+                    //     className: 'text-center',
+                    //     defaultContent: '-'
+                    // },
                     {
                         data: 'dream_major',
                         className: 'text-center',
@@ -927,7 +918,9 @@
                         $('td', row).addClass('table-success');
                     }
                 },
-            });
+            }
+
+            var table = initializeDataTable('#clientTable', options, 'rt_client');
 
             @php
                 $privilage = $menus['Client']->where('submenu_name', 'Students')->first();
@@ -1062,13 +1055,13 @@
                 $('input.editor-active').each(function() {
                     if (uncheck_number == check_number) {
                         $(this).prop('checked', true)
-                        table.button(2).text('<i class="bi bi-x me-1"></i> Unselect All')
+                        table.button(3).text('<i class="bi bi-x me-1"></i> Unselect All')
                     } else if (checked_number == check_number) {
                         $(this).prop('checked', false)
-                        table.button(2).text('<i class="bi bi-check-square me-1"></i> Select All')
+                        table.button(3).text('<i class="bi bi-check-square me-1"></i> Select All')
                     } else {
                         $(this).prop('checked', true)
-                        table.button(2).text('<i class="bi bi-x me-1"></i> Unselect All')
+                        table.button(3).text('<i class="bi bi-x me-1"></i> Unselect All')
                     }
                 });
             }
@@ -1179,6 +1172,8 @@
                         $('#assignForm').modal('hide');
                     })
             });
+
+           
         });
 
         function closeUpdateLead() {
@@ -1378,5 +1373,8 @@
             })
             
         }
+
+    
+
     </script>
 @endpush

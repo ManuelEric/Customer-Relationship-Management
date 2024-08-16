@@ -50,9 +50,15 @@
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script> --}}
     <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
     {{-- <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script> --}}
-    {{-- <script src="https://cdn.tiny.cloud/1/665k5cso7x9x0errf1h417cn6fgnxs67ayozubvhomg0vony/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script> --}}
-    {{-- <script src="https://cdn.tiny.cloud/1/h7t62ozvqkx2ifkeh051fsy3k9irz7axx1g2zitzpbaqfo8m/tinymce/6/tinymce.min.js"
-        referrerpolicy="origin"></script> --}}
+    
+    <!--<script src="https://cdn.tiny.cloud/1/2q9m55m7htm3r3r2vxdsfky8m4mqzba6h25dj5ea83oge61i/tinymce/6/tinymce.min.js"-->
+    <!--    referrerpolicy="origin"></script>-->
+     <!--<script src="https://cdn.tiny.cloud/1/665k5cso7x9x0errf1h417cn6fgnxs67ayozubvhomg0vony/tinymce/6/tinymce.min.js"-->
+     <!--   referrerpolicy="origin"></script> -->
+    <!--<script src="https://cdn.tiny.cloud/1/h7t62ozvqkx2ifkeh051fsy3k9irz7axx1g2zitzpbaqfo8m/tinymce/6/tinymce.min.js"-->
+    <!--    referrerpolicy="origin"></script>-->
+    {{-- <script src="https://cdn.tiny.cloud/1/6rtskj4e67x7o5h9g4gu406k5ba49e4fzsjcgw2v5ueihahb/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script> --}}
+    
     <script src="https://fastly.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://fastly.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://fastly.jsdelivr.net/npm/chart.js"></script>
@@ -66,81 +72,9 @@
     <script src="{{ asset('js/currency.js') }}"></script>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 
-    {{-- Pusher --}}
-    <script>
-        // Enable pusher logging - don't include this in production
-        @env('local')
-            Pusher.logToConsole = true;
-        @endenv
+    {{-- Laravel Reverb --}}
+    @vite(['resources/js/app.js', 'resources/css/app.css'])
 
-        var pusher = new Pusher('{{ env("PUSHER_APP_KEY") }}', {
-            cluster: '{{ env("PUSHER_APP_CLUSTER") }}'
-        });
-
-        var validationImport = pusher.subscribe('validation-import');
-        var progressImport = pusher.subscribe('progress-import');
-        var html = '';
-        var htmlLoading = '';
-
-        $('#content-import-information').html('');
-
-        htmlLoading += '<div>'
-        htmlLoading += '<span class="spinner-border spinner-border-sm text-black" aria-hidden="true"></span>'
-        htmlLoading += '<span class="ms-2 text-black" role="status">Importing...</span>'
-        htmlLoading += '</div>'
-
-        validationImport.bind('my-event', function(data) {
-            if(data.message !== null){
-                html = '';
-                html += `<h5>${data.message.progress.import_name}</h5>`;
-                html += `<ul>`;
-                html += `<li>Total Imported: ${parseInt(data.message.progress.total_row) - data.message.progress.total_error}</li>`
-                html += `<li>Total error: ${data.message.progress.total_error}</li>`
-                html += `</ul>`
-                
-                if(data.message.progress.total_error > 0){
-                    html += `<h5>Validation</h5>`;
-                    html += `<ul>`;
-                    Object.entries(data.message).forEach(function([key, messages]){
-                        if(messages !== null && key != 'user_id' && key != 'progress'){
-                            Object.entries(messages).forEach(([key2, value]) => {
-                                html += `<li class="text-danger">${value}</li>`
-                            });
-                        }
-                    });
-                    html += `</ul>`
-                }
-
-                if( '{{ Auth::user() != null ? Auth::user()->id : null }}' == data.message.progress.user_id ){
-                    $("#modal-validation-import").modal('show');
-                    $('#content-import-information').html(html);
-                    $('#loading-import').html('');
-                }
-            }
-        });
-
-        progressImport.bind('my-event', function(data) {
-            html = ''
-
-            html += '<h3>Import Done</h3>';
-
-            html += `<li>Total Imported: ${parseInt(data.message.total_row) - data.message.total_error}</li>`
-            html += `<li>Total Error: ${data.message.total_error}</li>`
-
-            if(data.message !== null){
-
-                if( '{{ Auth::user() != null ? Auth::user()->id : null }}' == data.message.user_id ){
-                    if(data.message.isStart == true){
-                        $('#loading-import').html(htmlLoading);
-                    }
-
-                }
-            }
-          
-        });
-
-              
-    </script>
     @stack('styles')
 </head>
 
@@ -151,22 +85,6 @@
     @endenv --}}
 
     @yield('body')
-
-    {{-- Modal validation import --}}
-    <div class="modal modal-md fade" id="modal-validation-import" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="m-0 p-0" id="title-modal-import">
-                        Import Information
-                    </h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="content-import-information">
-                </div>
-            </div>
-        </div>
-    </div>
 
     <x-main.modal />
 
@@ -179,26 +97,41 @@
     <script>
         var myEditor;
 
-        document.querySelectorAll( 'textarea' ).forEach(function (element) {
+        document.querySelectorAll('textarea').forEach(function(element) {
             ClassicEditor
-                .create( element, {
-                    toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote' ],
+                .create(element, {
+                    toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList',
+                        'blockQuote'
+                    ],
                     heading: {
-                        options: [
-                            { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
-                            { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
-                            { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' }
+                        options: [{
+                                model: 'paragraph',
+                                title: 'Paragraph',
+                                class: 'ck-heading_paragraph'
+                            },
+                            {
+                                model: 'heading1',
+                                view: 'h1',
+                                title: 'Heading 1',
+                                class: 'ck-heading_heading1'
+                            },
+                            {
+                                model: 'heading2',
+                                view: 'h2',
+                                title: 'Heading 2',
+                                class: 'ck-heading_heading2'
+                            }
                         ]
                     }
-                } )
-                .then( editor => {
+                })
+                .then(editor => {
                     console.log('Editor was initialized', editor);
                     myEditor = editor;
                 })
-                .catch( error => {
-                    console.error( error );
-                } );
-        })        
+                .catch(error => {
+                    console.error(error);
+                });
+        })
     </script>
 
     {{-- Tooltip  --}}
@@ -213,8 +146,38 @@
     <script src="https://fastly.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/general-use-script.js') }}"></script>
 
-    {{-- Realtime for Datatables  --}}
     <script>
+
+        function initializeDataTable(selector, options, tableName) {
+            var table = $(selector).DataTable({
+                ...options,
+                dom: 'Bfrtip',
+                lengthMenu: [
+                    [10, 50, 100, -1],
+                    ['10 row', '50 row', '100 row', 'Show all']
+                ],
+                scrollX: true,
+                search: {
+                    return: true
+                },
+                processing: true,
+                serverSide: true,
+            });
+
+            // listen channel datatable for datatable
+            var channel_datatable = Echo.channel('channel_datatable');
+            channel_datatable.listen(".my-event", function(data) {
+                if(data.message == tableName){
+                    table.ajax.reload(null, false)
+                }
+            })
+
+            return table;
+
+
+        }
+
+        // Realtime datatable
         function realtimeData(data) {
             setInterval(() => {
 
@@ -232,21 +195,26 @@
             htmlLoading += '<span class="spinner-border spinner-border-sm text-black" aria-hidden="true"></span>'
             htmlLoading += '<span class="ms-2 text-black" role="status">Importing...</span>'
             htmlLoading += '</div>'
-            
+
             @php
-                $authImport = Cache::has("auth") ? Cache::get("auth") : null;
-                $isStart = Cache::has("isStartImport") ? Cache::get("isStartImport") : null;
+                $authImport = Cache::has('auth') ? Cache::get('auth') : null;
+                $isStart = Cache::has('isStartImport') ? Cache::get('isStartImport') : null;
             @endphp
 
             @php
-                $authImport = Cache::has("auth") ? Cache::get("auth") : null;
-                $isStart = Cache::has("isStartImport") ? Cache::get("isStartImport") : null;
+                $authImport = Cache::has('auth') ? Cache::get('auth') : null;
+                $isStart = Cache::has('isStartImport') ? Cache::get('isStartImport') : null;
             @endphp
 
-            @if (($authImport != null && $isStart != null && Auth::user() != null) && (Auth::user()->id == $authImport['id']) && ($isStart))
+            @if (
+                $authImport != null &&
+                    $isStart != null &&
+                    Auth::user() != null &&
+                    Auth::user()->id == $authImport['id'] &&
+                    $isStart)
                 $('#loading-import').html(htmlLoading);
             @endif
-            
+
             $.fn.dataTable.ext.errMode = function(settings, helpPage, message) {
 
                 if (settings && settings.jqXHR && settings.jqXHR.status == 401) {
@@ -412,16 +380,18 @@
     </script>
 
     {{-- TinyMCE  --}}
-    // <script>
-    //     tinymce.init({
-    //         strict_loading_mode : true,
-    //         selector: 'textarea',
-    //         height: "250",
-    //         menubar: false,
-    //         // plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
-    //         toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
-    //     });
-    // </script>
+    //
+    <script>
+        //     tinymce.init({
+        //         strict_loading_mode : true,
+        //         selector: 'textarea',
+        //         height: "250",
+        //         menubar: false,
+        //         // plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+        //         toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+        //     });
+        // 
+    </script>
 
     {{-- Select2  --}}
     <script>
