@@ -254,7 +254,7 @@
                 table.button(1).disable();
             @endif
 
-            realtimeData(table)
+            // realtimeData(table)
 
             $('#partnerProgTable tbody').on('click', '.editSchProg', function() {
                 var data = table.row($(this).parents('tr')).data();

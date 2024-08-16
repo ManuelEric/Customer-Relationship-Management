@@ -308,7 +308,7 @@
             ]
         });
 
-        realtimeData(table)
+        // realtimeData(table)
 
         $("#select-event").on("submit", function(e){
             var value = $('#event-name').find("option:selected").val();

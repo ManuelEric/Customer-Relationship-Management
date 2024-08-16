@@ -161,7 +161,7 @@
                 table.button(1).disable();
             @endif
 
-            realtimeData(table)
+            // realtimeData(table)
 
             $('#receiptTable tbody').on('click', '.showReceipt ', function() {
                 var data = table.row($(this).parents('tr')).data();
