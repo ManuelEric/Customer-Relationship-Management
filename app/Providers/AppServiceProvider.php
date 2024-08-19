@@ -15,6 +15,7 @@ use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redirect;
@@ -136,13 +137,18 @@ class AppServiceProvider extends ServiceProvider
                     ]
                 ];
 
+                $countAlarm = Cache::has('countAlarm') ? Cache::get('countAlarm') : Cache::put('countAlarm', app('alarm-repository-services')->countAlarm());
+                $notification = Cache::has('notification') ? Cache::get('notification') : Cache::put('notification', app('alarm-repository-services')->notification());
+                $followUp = Cache::has('followUp') ? Cache::get('followUp') : Cache::put('followUp', app('follow-up')->getAllFollowupWithin(7));
+                $birthDay = Cache::has('birthDay') ? Cache::get('birthDay') : Cache::put('birthDay', app('birthday')->getMenteesBirthdayMonthly(date('Y-m')));
+
                 $view->with(
                     $roleScopeData +
                     [
-                        'countAlarm' => app('alarm-repository-services')->countAlarm(),
-                        'notification' => app('alarm-repository-services')->notification(),
-                        'followUp' => app('follow-up')->getAllFollowupWithin(7),
-                        'birthDay' => app('birthday')->getMenteesBirthdayMonthly(date('Y-m')),
+                        'countAlarm' => $countAlarm,
+                        'notification' => $notification,
+                        'followUp' => $followUp,
+                        'birthDay' => $birthDay,
                         'invRecPics' => $invRecPics,
                         'registrationUrl' => env('REGISTRATION_URL')
                     ]
