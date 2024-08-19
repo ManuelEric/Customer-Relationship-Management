@@ -31,28 +31,31 @@ class ExtLeadController extends Controller
         }
 
         # map the data that being shown to the user
-        $mappedLeads = $leads->map(function ($value) use ($edufLeads) {
+        $mappedLeads = $leads->map(function ($value) {
             $lead_id = $value->lead_id;
             $lead_name = $value->lead_name;
             $id = $value->id;
 
-            if($value->lead_id != 'LS017') # External Edufair
-            {
-                return [
-                    'lead' => $lead_name,
-                    'id' => $id,
-                    'id_raw' => $id, # for ordering data
-                    'lead_id' => $lead_id,
-                    'department' => $value->department_name
-                ];
-            }
+            return [
+                'lead' => $lead_name,
+                'id' => $id,
+                'id_raw' => $id, # for ordering data
+                'lead_id' => $lead_id,
+                'department' => $value->department_name
+            ];
 
         });
+
+        # filter mapped lead where lead id != LS017 (EduFair)
+        $filtered = $mappedLeads->filter(function ($value, $key) {
+            return $value['lead_id']!='LS017';
+        });
+        
 
         # get lead where main lead is edufair
         # 'LS017' is lead id edufair
         $mainEdufLead = $leads->where('lead_id', 'LS017')->first();
-
+    
         # looping list of edufair
         # push edufair list to collection mapped leads
         foreach ($edufLeads as $edufLead) {
@@ -69,13 +72,13 @@ class ExtLeadController extends Controller
                 'department' => $mainEdufLead->department_name
             ];
 
-            $mappedLeads->push($additionalLeads);
+            $filtered->push($additionalLeads);
         }
       
         return response()->json([
             'success' => true,
             'message' => 'There are leads found.',
-            'data' => $mappedLeads->sortBy('id_raw')->values()
+            'data' => $filtered->sortBy('id_raw')->values()
         ]);
     }
 }
