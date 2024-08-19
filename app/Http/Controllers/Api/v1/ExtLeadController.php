@@ -22,7 +22,6 @@ class ExtLeadController extends Controller
     {
         $edufLeads = $this->edufLeadRepository->getEdufairLeadByYear(date('Y'));
 
-        // $leads = $this->leadRepository->getAllLead();
         $leads = $this->leadRepository->getActiveLead();
         if (!$leads) {
             return response()->json([
@@ -37,27 +36,46 @@ class ExtLeadController extends Controller
             $lead_name = $value->lead_name;
             $id = $value->id;
 
-            if($value->lead_id == 'LS017') # External Edufair
+            if($value->lead_id != 'LS017') # External Edufair
             {
-                foreach ($edufLeads as $edufLead) {
-                    $lead_id = $value->lead_id . '-' . $edufLead->id;
-                    $lead_name = $value->lead_name . ' : ' . $edufLead->title;
-                    $id = $value->id . '-' . $edufLead->id;
-                }
+                return [
+                    'lead' => $lead_name,
+                    'id' => $id,
+                    'id_raw' => $id, # for ordering data
+                    'lead_id' => $lead_id,
+                    'department' => $value->department_name
+                ];
             }
 
-            return [
-                'lead' => $lead_name,
-                'id' => $id,
-                'lead_id' => $lead_id,
-                'department' => $value->department_name
-            ];
         });
 
+        # get lead where main lead is edufair
+        # 'LS017' is lead id edufair
+        $mainEdufLead = $leads->where('lead_id', 'LS017')->first();
+
+        # looping list of edufair
+        # push edufair list to collection mapped leads
+        foreach ($edufLeads as $edufLead) {
+            
+            $lead_id = $mainEdufLead->lead_id . '-' . $edufLead->id;
+            $lead_name = $mainEdufLead->lead_name . ' : ' . $edufLead->organizer_name;
+            $id = $mainEdufLead->id . '-' . $edufLead->id;
+
+            $additionalLeads = [
+                'lead' => $lead_name,
+                'id' => $id,
+                'id_raw' => $mainEdufLead->id, # for ordering data
+                'lead_id' => $lead_id,
+                'department' => $mainEdufLead->department_name
+            ];
+
+            $mappedLeads->push($additionalLeads);
+        }
+      
         return response()->json([
             'success' => true,
             'message' => 'There are leads found.',
-            'data' => $mappedLeads
+            'data' => $mappedLeads->sortBy('id_raw')->values()
         ]);
     }
 }
