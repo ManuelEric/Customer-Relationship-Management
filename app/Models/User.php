@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Support\Str;
@@ -69,6 +70,9 @@ class User extends Authenticatable
         // Send to pusher
         event(new MessageSent('rt_user', 'channel_datatable'));
 
+        // Delete Cache menu
+        Cache::has('menu') ? Cache::forget('menu') : null;
+
         return true;
     }
 
@@ -81,6 +85,9 @@ class User extends Authenticatable
         // Custom logic after update
         // Send to pusher
         event(new MessageSent('rt_user', 'channel_datatable'));
+
+        // Delete Cache menu
+        Cache::has('menu') ? Cache::forget('menu') : null;
 
         return $updated;
     }
@@ -96,9 +103,12 @@ class User extends Authenticatable
         // Send to pusher
         event(new MessageSent('rt_user', 'channel_datatable'));
 
+        // Delete Cache menu
+        Cache::has('menu') ? Cache::forget('menu') : null;
+
         return $model;
     }
-
+ 
 
     /**
      * The attributes that should be hidden for serialization.
@@ -221,6 +231,8 @@ class User extends Authenticatable
 
     public function department()
     {
+        Cache::has('menu') ? Cache::forget('menu') : null;
+
         return $this->belongsToMany(Department::class, 'tbl_user_type_detail', 'user_id', 'department_id')->withPivot(
             [
                 'user_type_id',
@@ -235,6 +247,8 @@ class User extends Authenticatable
 
     public function access_menus()
     {
+        Cache::has('menu') ? Cache::forget('menu') : null;
+
         return $this->belongsToMany(Menu::class, 'tbl_menus_user', 'user_id', 'menu_id')->withPivot(['copy', 'export'])->withTimestamps();
     }
 
@@ -295,6 +309,8 @@ class User extends Authenticatable
 
     public function user_type()
     {
+        Cache::has('menu') ? Cache::forget('menu') : null;
+
         return $this->belongsToMany(UserType::class, 'tbl_user_type_detail', 'user_id', 'user_type_id')->using(UserTypeDetail::class)->withPivot('id', 'department_id', 'start_date', 'end_date', 'status', 'deactivated_at')->withTimestamps();
     }
 
