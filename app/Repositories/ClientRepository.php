@@ -305,7 +305,9 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getNewLeads($asDatatables = false, $month = null, $advanced_filter = [])
     {
+
         # new client that havent offering our program
+        
         $query = Client::select([
                 'client.*',
                 'parent.mail as parent_mail',

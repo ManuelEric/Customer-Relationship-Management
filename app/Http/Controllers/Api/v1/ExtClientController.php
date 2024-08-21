@@ -831,6 +831,7 @@ class ExtClientController extends Controller
         # after validating incoming request data, then retrieve the incoming request data
         $validated = $request->collect();
         $validated['scholarship'] = 'N';
+        $validated['lead_source_id'] = 'LS001'; # Website
 
         # declaration of default variables that will be used 
         $client = null;
