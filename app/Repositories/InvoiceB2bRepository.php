@@ -35,7 +35,6 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     'users.id as pic_id',
                     DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
                 )->where('tbl_sch_prog.status', 1)->whereNull('tbl_invb2b.schprog_id')
-                ->orderBy('tbl_sch_prog.success_date', 'DESC')
         )->filterColumn(
             'pic_name',
             function ($query, $keyword) {
@@ -71,8 +70,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                         'tbl_invb2b.invb2b_totprice',
                         'tbl_sch_prog.status'
                     )
-                    ->where('tbl_sch_prog.status', '!=', 0)
-                    ->orderBy('tbl_invb2b.created_at', 'DESC');
+                    ->where('tbl_sch_prog.status', '!=', 0);
                 break;
 
             case 'reminder':
@@ -133,13 +131,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                         WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN DATEDIFF(tbl_invb2b.invb2b_duedate, now())
                         WHEN tbl_invb2b.invb2b_pm = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
                     END)
-                '), '<=', 7)
-                    ->orderBy(DB::raw('
-                    (CASE
-                        WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN DATEDIFF(tbl_invb2b.invb2b_duedate, now())
-                        WHEN tbl_invb2b.invb2b_pm = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
-                    END)
-                '), 'desc');
+                '), '<=', 7);
                 break;
         }
         return DataTables::eloquent($query)->make(true);
@@ -222,7 +214,6 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     'users.id as pic_id',
                     DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
                 )->where('tbl_partner_prog.status', 1)->whereNull('tbl_invb2b.partnerprog_id')
-                ->orderBy('tbl_partner_prog.success_date', 'DESC')
         )->filterColumn(
             'pic_name',
             function (
@@ -261,8 +252,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                         'tbl_partner_prog.status'
                     )
                     // ->where('tbl_partner_prog.status', 1)
-                    ->where('tbl_partner_prog.status', '!=', 0)
-                    ->orderBy('tbl_invb2b.created_at', 'DESC');
+                    ->where('tbl_partner_prog.status', '!=', 0);
                 // ->where('tbl_invb2b.invb2b_status', 1);
                 break;
 
@@ -323,12 +313,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                             (CASE
                                 WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN DATEDIFF(tbl_invb2b.invb2b_duedate, now())
                                 WHEN tbl_invb2b.invb2b_pm = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
-                            END)'), '<=', 7)->orderBy(DB::raw('
-                    (CASE
-                        WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN DATEDIFF(tbl_invb2b.invb2b_duedate, now())
-                        WHEN tbl_invb2b.invb2b_pm = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
-                    END)
-                '), 'desc');
+                            END)'), '<=', 7);
                 break;
         }
         $response = DataTables::eloquent($query)->make(true);
@@ -419,7 +404,6 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     'users.id as pic_id',
                     DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
                 )->where('tbl_referral.referral_type', 'Out')->whereNull('tbl_invb2b.ref_id')
-                ->orderBy('tbl_referral.ref_date', 'DESC')
         )->filterColumn(
             'pic_name',
             function (
@@ -460,8 +444,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                         'tbl_invb2b.invb2b_totpriceidr',
                         'tbl_invb2b.invb2b_totprice',
                     )
-                    ->where('tbl_referral.referral_type', 'Out')
-                    ->orderBy('tbl_invb2b.created_at', 'DESC');
+                    ->where('tbl_referral.referral_type', 'Out');
                 break;
 
             case 'reminder':
@@ -491,8 +474,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     )
                     ->whereDoesntHave('receipt')
                     ->where(DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now())'), '<=', 7)
-                    ->where('tbl_referral.referral_type', 'Out')
-                    ->orderBy('date_difference', 'asc');
+                    ->where('tbl_referral.referral_type', 'Out');
                 break;
         }
 

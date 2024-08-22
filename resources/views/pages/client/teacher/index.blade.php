@@ -125,6 +125,7 @@
         $(document).ready(function() {
 
             var options = {
+                order: [[1, 'asc']],
                 buttons: [
                     'pageLength', {
                         extend: 'excel',

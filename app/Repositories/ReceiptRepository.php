@@ -403,9 +403,8 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 'tbl_receipt.receipt_amount_idr as total_price_idr',
                 'tbl_receipt.receipt_amount as total_price',
                 DB::raw('DATEDIFF(inv_duedate, now()) as date_difference')
-            ])->
-            orderBy('tbl_receipt.created_at', 'DESC');
-
+            ]);
+            
         return $asDatatables === true ? $response : $response->get();
     }
 

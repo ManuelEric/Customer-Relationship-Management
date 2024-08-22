@@ -122,11 +122,12 @@ class Kernel extends ConsoleKernel
         # queue worker
         $schedule->command('run:worker')->everyMinute()->withoutOverlapping()->onOneServer();
 
+        # This command is no longer used, because it already uses queue
         # run verifying raw data
-        $schedule->command('verified:parent')->withoutOverlapping()->everyMinute()->onOneServer();
-        $schedule->command('verified:school')->withoutOverlapping()->everyMinute()->onOneServer();
-        $schedule->command('verified:student')->withoutOverlapping()->everyMinute()->onOneServer();
-        $schedule->command('verified:teacher')->withoutOverlapping()->everyMinute()->onOneServer();
+        // $schedule->command('verified:parent')->withoutOverlapping()->everyMinute()->onOneServer();
+        // $schedule->command('verified:school')->withoutOverlapping()->everyMinute()->onOneServer();
+        // $schedule->command('verified:student')->withoutOverlapping()->everyMinute()->onOneServer();
+        // $schedule->command('verified:teacher')->withoutOverlapping()->everyMinute()->onOneServer();
 
         # run reminder H-1 EduALL Launchpad
         $schedule->command('reminder:event evt-0014')->withoutOverlapping()->everyMinute()->onOneServer();

@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\Validator;
 use Revolution\Google\Sheets\Facades\Sheets;
 use App\Models\JobBatches;
 use App\Models\ViewProgram;
+use App\Rules\AlphaNumNoAt;
 use App\Services\JobBatchService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
@@ -77,8 +78,8 @@ class GoogleSheetController extends Controller
                 # validation
                 $rules = [
                     '*.No' => ['required'],
-                    '*.Full Name' => ['required'],
-                    '*.Email' => ['required', 'email'],
+                    '*.Full Name' => ['required', 'alpha_num:ascii'],
+                    '*.Email' => ['required', 'email', New AlphaNumNoAt],
                     '*.Phone Number' => ['required', 'min:5', 'max:18'],
                     '*.Date of Birth' => ['nullable', 'date'],
                     '*.Instagram' => ['nullable', 'unique:tbl_client,insta'],
@@ -159,8 +160,8 @@ class GoogleSheetController extends Controller
                 # validation
                 $rules = [
                     '*.No' => ['required'],
-                    '*.Full Name' => ['required'],
-                    '*.Email' => ['required', 'email'],
+                    '*.Full Name' => ['required', 'alpha_num:ascii'],
+                    '*.Email' => ['required', 'email', New AlphaNumNoAt],
                     '*.Phone Number' => ['nullable', 'min:5', 'max:18'],
                     '*.Date of Birth' => ['nullable', 'date'],
                     '*.Parents Name' => ['nullable', 'different:*.Full Name'],
@@ -244,8 +245,8 @@ class GoogleSheetController extends Controller
                 # validation
                 $rules = [
                     '*.No' => ['required'],
-                    '*.Full Name' => ['required'],
-                    '*.Email' => ['required', 'email'],
+                    '*.Full Name' => ['required', 'alpha_num:ascii'],
+                    '*.Email' => ['required', 'email', New AlphaNumNoAt],
                     '*.Phone Number' => ['required', 'min:5', 'max:18'],
                     '*.Date of Birth' => ['nullable', 'date'],
                     '*.Instagram' => ['nullable', 'unique:tbl_client,insta'],
@@ -324,8 +325,8 @@ class GoogleSheetController extends Controller
                     '*.Event Name' => ['required', 'exists:tbl_events,event_id'],
                     '*.Date' => ['required', 'date'],
                     '*.Audience' => ['required', 'in:Student,Parent,Teacher/Counselor'],
-                    '*.Name' => ['required'],
-                    '*.Email' => ['required', 'email'],
+                    '*.Name' => ['required', 'alpha_num:ascii'],
+                    '*.Email' => ['required', 'email', New AlphaNumNoAt],
                     '*.Phone Number' => ['nullable'],
                     '*.Child or Parent Name' => ['nullable', 'different:*.name'],
                     '*.Child or Parent Email' => ['nullable', 'different:*.email'],
@@ -413,8 +414,8 @@ class GoogleSheetController extends Controller
                     '*.Program Name' => ['required', 'exists:tbl_prog,prog_id'],
                     '*.Date' => ['required', 'date'],
                     '*.Audience' => ['required', 'in:Student,Parent'],
-                    '*.Name' => ['required'],
-                    '*.Email' => ['required', 'email'],
+                    '*.Name' => ['required', 'alpha_num:ascii'],
+                    '*.Email' => ['required', 'email', New AlphaNumNoAt],
                     '*.Phone Number' => ['nullable'],
                     '*.Child or Parent Name' => ['nullable', 'different:*.name'],
                     '*.Child or Parent Email' => ['nullable', 'different:*.email'],

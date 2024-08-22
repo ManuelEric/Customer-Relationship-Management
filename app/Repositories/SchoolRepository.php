@@ -26,7 +26,7 @@ class SchoolRepository implements SchoolRepositoryInterface
 
     public function getAllSchoolDataTables($isRaw = false)
     {
-        $query = School::orderBy('created_at', 'desc')->
+        $query = School::
                     when($isRaw, function ($subQuery) {
                         $subQuery->isNotVerified();
                     }, function ($subQuery) {

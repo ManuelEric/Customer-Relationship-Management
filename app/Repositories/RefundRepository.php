@@ -85,7 +85,7 @@ class RefundRepository implements RefundRepositoryInterface
                         'tbl_receipt.invdtl_id',
                         'tbl_receipt.invb2b_id',
                         'tbl_receipt.receipt_cat'
-                    ])->groupBy('tbl_inv.inv_id', 'tbl_invb2b.invb2b_id')->orderBy('tbl_receipt.updated_at', 'desc');
+                    ])->groupBy('tbl_inv.inv_id', 'tbl_invb2b.invb2b_id');
 
                 break;
 

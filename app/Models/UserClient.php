@@ -12,6 +12,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Laravel\Sanctum\HasApiTokens;
@@ -90,6 +91,9 @@ class UserClient extends Authenticatable
         // Send to pusher
         event(New MessageSent('rt_client', 'channel_datatable'));
 
+        // Delete cache birthDay
+        Cache::has('birthDay') ? Cache::forget('birthDay') : null;
+
         return true;
     }
 
@@ -102,6 +106,10 @@ class UserClient extends Authenticatable
         // Custom logic after update
         // Send to pusher
         event(New MessageSent('rt_client', 'channel_datatable'));
+        
+        // Delete cache birthDay
+        Cache::has('birthDay') ? Cache::forget('birthDay') : null;
+
 
         return $updated;
     }
@@ -116,6 +124,9 @@ class UserClient extends Authenticatable
 
         // Send to pusher
         event(New MessageSent('rt_client', 'channel_datatable'));
+
+        // Delete cache birthDay
+        Cache::has('birthDay') ? Cache::forget('birthDay') : null;
 
         return $model;
     }

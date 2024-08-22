@@ -157,7 +157,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                         'tbl_client_prog.status',
                         'tbl_client_prog.prog_id',
                         'tbl_client_prog.client_id'
-                    ])->orderBy('tbl_inv.updated_at', 'desc')->groupBy('tbl_inv.inv_id');
+                    ])->groupBy('tbl_inv.inv_id');
 
                 $fColumns = [
                     'relation' => ['viewProgram', 'client'],
@@ -243,12 +243,6 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                             WHEN tbl_inv.inv_paymentmethod = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
                         END)
                     '), '<=', 7)
-                    ->orderBy(DB::raw('
-                        (CASE
-                            WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
-                            WHEN tbl_inv.inv_paymentmethod = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
-                        END)
-                    '), 'desc')
                     ->groupBy('tbl_inv.inv_id');
 
                 return DataTables::eloquent($query)->
@@ -894,13 +888,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
                     WHEN tbl_inv.inv_paymentmethod = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
                 END)
-            '), '<=', 7)->
-            orderBy(DB::raw('
-                (CASE
-                    WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
-                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
-                END)
-            '), 'desc');
+            '), '<=', 7);
 
         return $asDatatables === true ? $response : $response->get();
     }

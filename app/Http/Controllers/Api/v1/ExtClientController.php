@@ -518,7 +518,7 @@ class ExtClientController extends Controller
         $rules = [
             'role' => 'required|in:parent,student,teacher/counsellor',
             'user' => 'nullable',
-            'fullname' => 'required',
+            'fullname' => 'required|alpha_num:ascii',
             'mail' => 'required|email',
             'phone' => 'required|different:secondary_phone',
             'secondary_name' => 'required_if:have_child,true',
@@ -784,7 +784,7 @@ class ExtClientController extends Controller
         # validation
         $rules = [
             'role' => 'required|in:parent,student',
-            'fullname' => 'required',
+            'fullname' => 'required|alpha_num:ascii',
             'mail' => 'required|email',
             'phone' => 'required',
             'school_id' => [
@@ -828,6 +828,7 @@ class ExtClientController extends Controller
         # after validating incoming request data, then retrieve the incoming request data
         $validated = $request->collect();
         $validated['scholarship'] = 'N';
+        $validated['lead_source_id'] = 'LS001'; # Website
 
         # declaration of default variables that will be used 
         $client = null;

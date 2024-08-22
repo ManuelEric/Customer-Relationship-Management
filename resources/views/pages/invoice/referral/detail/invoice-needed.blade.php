@@ -47,6 +47,7 @@
                     });
 
                     var options = {
+                        order: [[4, 'desc']],
                         buttons: [
                             'pageLength', {
                                 extend: 'excel',

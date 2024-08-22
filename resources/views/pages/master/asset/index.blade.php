@@ -47,6 +47,7 @@
         $(document).ready(function() {
 
             var options = {
+                order: [[9, 'desc']],
                 buttons: [
                     'pageLength', {
                         extend: 'excel',

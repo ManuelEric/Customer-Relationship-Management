@@ -200,7 +200,6 @@
                 table.button(1).disable();
             @endif
 
-            realtimeData(table)
 
             $('#programTable tbody').on('click', '.generateLinkEmbed ', function() {
                 var data = table.row($(this).parents('tr')).data();

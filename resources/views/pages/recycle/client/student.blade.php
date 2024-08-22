@@ -266,7 +266,7 @@
             var options = {
                 order: [
                     // [20, 'desc'],
-                    // [21, 'desc']
+                    [21, 'desc']
                 ],
                 buttons: [
                     'pageLength', {

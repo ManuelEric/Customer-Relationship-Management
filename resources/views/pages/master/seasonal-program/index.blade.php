@@ -142,6 +142,7 @@
         $(document).ready(function() {
 
             var options = {
+                order: [[4, 'desc']],
                 buttons: [
                     'pageLength', {
                         extend: 'excel',
@@ -232,7 +233,6 @@
 
         function editById(id) {
             let link = "{{ url('master/seasonal-program') }}/" + id + "/edit"
-            console.log(link)
 
             axios.get(link)
                 .then(function(response) {
