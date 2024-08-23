@@ -21,7 +21,7 @@
         <div class="col-md-4 text-center">
             <div class="card">
                 <div class="card-body">
-                    <img src="{{ asset('img/profile.jpg') }}" alt="" class="w-75">
+                    <img loading="lazy"  src="{{ asset('img/profile.webp') }}" alt="" class="w-75">
                 </div>
             </div>
         </div>

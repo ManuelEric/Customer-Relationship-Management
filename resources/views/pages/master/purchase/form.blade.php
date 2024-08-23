@@ -96,7 +96,7 @@
             <div class="col-md-4 text-center">
                 <div class="card rounded">
                     <div class="card-body">
-                        <img loading="lazy" src="{{ asset('img/icon/purchase.png') }}" alt="" class="w-25">
+                        <img loading="lazy"  loading="lazy" src="{{ asset('img/icon/purchase.webp') }}" alt="" class="w-25">
                         <h5>
                             {{ isset($purchaseRequest->purchase_id) ? 'Purchase Request No. ' . $purchaseRequest->purchase_id : 'Add New Purchase Request' }}
                         </h5>

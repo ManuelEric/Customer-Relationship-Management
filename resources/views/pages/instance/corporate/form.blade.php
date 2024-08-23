@@ -18,7 +18,7 @@
         <div class="col-md-4 mb-2">
             <div class="card mb-3">
                 <div class="card-body text-center">
-                    <img src="{{ asset('img/school.jpg') }}" alt="" class="w-75">
+                    <img loading="lazy"  src="{{ asset('img/school.webp') }}" alt="" class="w-75">
                     <h5>
                         {{ isset($corporate) ? $corporate->corp_name : 'Add New Partner' }}
                     </h5>

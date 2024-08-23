@@ -1,6 +1,6 @@
 @extends('layout.email-stem')
 @section('banner')
-    <img src="{{asset('img/makerspace/header_thank_email.jpg')}}" alt="STEM+ Wonderlab" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
+    <img loading="lazy"  src="{{asset('img/makerspace/header_thank_email.jpg')}}" alt="STEM+ Wonderlab" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
 @endsection
 @section('content')
     <table role="presentation" class="main">
@@ -28,7 +28,7 @@
                             </p>
 
                             <p style="text-align: center">
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ $qr }}" alt="">
+                                <img loading="lazy"  src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ $qr }}" alt="">
                             </p>
                                 
                             <p class="text-align: center">
@@ -48,5 +48,5 @@
     </table>
 @endsection
 @section('footer')
-    <img src="{{asset('img/makerspace/email_footer.jpg')}}" alt="STEM+ Wonderlab" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
+    <img loading="lazy"  src="{{asset('img/makerspace/email_footer.jpg')}}" alt="STEM+ Wonderlab" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
 @endsection

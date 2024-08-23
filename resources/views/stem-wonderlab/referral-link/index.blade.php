@@ -25,7 +25,7 @@
             <div class="row justify-content-center align-items-center" style="height: 100vh">
                 <div class="col-md-4 mb-4">
                     <div class="d-flex justify-content-center py-3">
-                        <img src="{{asset('img/makerspace/stem-logo-allin-color.webp')}}" alt="STEM+ Wonderlab" class="w-50" >
+                        <img loading="lazy"  src="{{asset('img/makerspace/stem-logo-allin-color.webp')}}" alt="STEM+ Wonderlab" class="w-50" >
                     </div>
                     <div class="card bg-eduall shadow">
                         <div class="card-body p-1">

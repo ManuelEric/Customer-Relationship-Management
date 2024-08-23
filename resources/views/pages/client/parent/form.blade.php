@@ -23,7 +23,7 @@
                 <input type="hidden" name="queryClientProgId" value="{{ isset($_GET['client_prog']) ? $_GET['client_prog'] : null }}">
                 <div class="row flex-md-row flex-column align-items-center">
                     <div class="col-md-4 col text-center mb-md-0 mb-3">
-                        <img src="{{ asset('img/parent.jpeg') }}" class="w-50">
+                        <img loading="lazy"  src="{{ asset('img/parent.webp') }}" class="w-50">
                     </div>
                     <div class="col-md-8 col">
                         <div class="row">
@@ -502,7 +502,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4 text-center">
-                                        <img src="{{ asset('img/mentee.jpg') }}" alt="" class="w-50">
+                                        <img loading="lazy"  src="{{ asset('img/mentee.webp') }}" alt="" class="w-50">
                                     </div>
                                 </div>
                             </div>

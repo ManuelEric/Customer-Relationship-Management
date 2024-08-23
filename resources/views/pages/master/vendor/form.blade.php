@@ -12,7 +12,7 @@
         <div class="col-md-3 text-center">
             <div class="card rounded">
                 <div class="card-body">
-                    <img loading="lazy" src="{{ asset('img/icon/vendor.png') }}" alt="" class="w-25">
+                    <img loading="lazy"  loading="lazy" src="{{ asset('img/icon/vendor.webp') }}" alt="" class="w-25">
                 </div>
             </div>
         </div>

@@ -23,7 +23,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <img src="{{ asset('storage/uploaded_file/events/'.$event->event_banner) }}" alt="" class="w-100">
+                    <img loading="lazy"  src="{{ asset('storage/uploaded_file/events/'.$event->event_banner) }}" alt="" class="w-100">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -38,7 +38,7 @@
         <div class="col-md-3 text-center">
             <div class="card rounded mb-3">
                 <div class="card-body">
-                    <img loading="lazy" src="{{ asset('img/icon/event.png') }}" alt="" class="w-25">
+                    <img loading="lazy"  loading="lazy" src="{{ asset('img/icon/event.webp') }}" alt="" class="w-25">
                     @if (isset($event) && !isset($edit))
                         <div class="mt-3 d-flex justify-content-center">
                             <a href="{{ route('event.edit', ['event' => $event->event_id]) }}"

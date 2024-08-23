@@ -704,14 +704,14 @@
                     videoClass = 'lg-has-html5';
                 }
 
-                _this.$slide.eq(index).prepend('<div class="lg-video-cont ' + videoClass + ' "><div class="lg-video"><span class="lg-video-play"></span><img class="lg-object lg-has-poster" src="' + _poster + '" /></div></div>');
+                _this.$slide.eq(index).prepend('<div class="lg-video-cont ' + videoClass + ' "><div class="lg-video"><span class="lg-video-play"></span><img loading="lazy"  class="lg-object lg-has-poster" src="' + _poster + '" /></div></div>');
 
             } else if (_isVideo) {
                 _this.$slide.eq(index).prepend('<div class="lg-video-cont "><div class="lg-video"></div></div>');
                 _this.$el.trigger('hasVideo.lg', [index, _src, _html]);
             } else {
                 _alt = _alt ? 'alt="' + _alt + '"' : '';
-                _this.$slide.eq(index).prepend('<div class="lg-img-wrap"><img class="lg-object lg-image" ' + _alt + ' src="' + _src + '" /></div>');
+                _this.$slide.eq(index).prepend('<div class="lg-img-wrap"><img loading="lazy"  class="lg-object lg-image" ' + _alt + ' src="' + _src + '" /></div>');
             }
 
             _this.$el.trigger('onAferAppendSlide.lg', [index]);
@@ -1774,15 +1774,15 @@
 
         if (_this.core.s.dynamic) {
             for (var i = 0; i < _this.core.s.dynamicEl.length; i++) {
-                pagerList += '<span class="lg-pager-cont"> <span class="lg-pager"></span><div class="lg-pager-thumb-cont"><span class="lg-caret"></span> <img src="' + _this.core.s.dynamicEl[i].thumb + '" /></div></span>';
+                pagerList += '<span class="lg-pager-cont"> <span class="lg-pager"></span><div class="lg-pager-thumb-cont"><span class="lg-caret"></span> <img loading="lazy"  src="' + _this.core.s.dynamicEl[i].thumb + '" /></div></span>';
             }
         } else {
             _this.core.$items.each(function() {
 
                 if (!_this.core.s.exThumbImage) {
-                    pagerList += '<span class="lg-pager-cont"> <span class="lg-pager"></span><div class="lg-pager-thumb-cont"><span class="lg-caret"></span> <img src="' + $(this).find('img').attr('src') + '" /></div></span>';
+                    pagerList += '<span class="lg-pager-cont"> <span class="lg-pager"></span><div class="lg-pager-thumb-cont"><span class="lg-caret"></span> <img loading="lazy"  src="' + $(this).find('img').attr('src') + '" /></div></span>';
                 } else {
-                    pagerList += '<span class="lg-pager-cont"> <span class="lg-pager"></span><div class="lg-pager-thumb-cont"><span class="lg-caret"></span> <img src="' + $(this).attr(_this.core.s.exThumbImage) + '" /></div></span>';
+                    pagerList += '<span class="lg-pager-cont"> <span class="lg-pager"></span><div class="lg-pager-thumb-cont"><span class="lg-caret"></span> <img loading="lazy"  src="' + $(this).attr(_this.core.s.exThumbImage) + '" /></div></span>';
                 }
 
             });
@@ -2009,7 +2009,7 @@
                 thumbImg = thumb;
             }
 
-            thumbList += '<div data-vimeo-id="' + vimeoId + '" class="lg-thumb-item" style="width:' + _this.core.s.thumbWidth + 'px; height: ' + _this.core.s.thumbHeight + '; margin-right: ' + _this.core.s.thumbMargin + 'px"><img src="' + thumbImg + '" /></div>';
+            thumbList += '<div data-vimeo-id="' + vimeoId + '" class="lg-thumb-item" style="width:' + _this.core.s.thumbWidth + 'px; height: ' + _this.core.s.thumbHeight + '; margin-right: ' + _this.core.s.thumbMargin + 'px"><img loading="lazy"  src="' + thumbImg + '" /></div>';
             vimeoId = '';
         }
 

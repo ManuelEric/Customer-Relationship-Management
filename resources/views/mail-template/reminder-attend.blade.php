@@ -1,6 +1,6 @@
 @extends('layout.email-stem')
 @section('banner')
-    <img src="{{ asset('img/makerspace/header_reminder_registration.jpg') }}" alt="STEM+ Wonderlab" width="2500"
+    <img loading="lazy"  src="{{ asset('img/makerspace/header_reminder_registration.jpg') }}" alt="STEM+ Wonderlab" width="2500"
         style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;">
 @endsection
 
@@ -40,13 +40,13 @@
                                         <br>
                                         <a href="https://calendar.google.com/calendar/u/0/r/eventedit?dates=20231111T050000Z/20231111T110000Z&text=STEM%2B+Wonderlab&details=Indonesia%E2%80%99s+FIRST+Student+Makerspace+Expo&location=Ciputra+Artpreneur,+Jakarta&pli=1"
                                             style="text-decoration: none;">
-                                            <img src="{{ asset('img/icon/google.png') }}" width="25" height="25"
+                                            <img loading="lazy"  src="{{ asset('img/icon/google.webp') }}" width="25" height="25"
                                                 alt="">
                                         </a>
                                         &nbsp; &nbsp;
                                         <a href="https://groot.mailerlite.com/events/download?dates=20231111T050000Z/20231111T110000Z&text=STEM%2B%20Wonderlab&details=Indonesia%E2%80%99s%20FIRST%20Student%20Makerspace%20Expo&location=Ciputra%20Artpreneur%2C%20Jakarta"
                                             style="text-decoration: none;">
-                                            <img src="{{ asset('img/icon/outlook.png') }}" width="25" height="25"
+                                            <img loading="lazy"  src="{{ asset('img/icon/outlook.webp') }}" width="25" height="25"
                                                 alt="">
                                         </a>
                                     </p>
@@ -61,7 +61,7 @@
                                     </p>
 
                                     <p style="text-align:center; ">
-                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ $qr }}"
+                                        <img loading="lazy"  src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ $qr }}"
                                             alt="">
                                         <br>
                                         <b>
@@ -105,13 +105,13 @@
                                         <br>
                                         <a href="https://calendar.google.com/calendar/u/0/r/eventedit?dates=20231111T050000Z/20231111T110000Z&text=STEM%2B+Wonderlab&details=Indonesia%E2%80%99s+FIRST+Student+Makerspace+Expo&location=Ciputra+Artpreneur,+Jakarta&pli=1"
                                             style="text-decoration: none;">
-                                            <img src="{{ asset('img/icon/google.png') }}" width="25" height="25"
+                                            <img loading="lazy"  src="{{ asset('img/icon/google.webp') }}" width="25" height="25"
                                                 alt="">
                                         </a>
                                         &nbsp; &nbsp;
                                         <a href="https://groot.mailerlite.com/events/download?dates=20231111T050000Z/20231111T110000Z&text=STEM%2B%20Wonderlab&details=Indonesia%E2%80%99s%20FIRST%20Student%20Makerspace%20Expo&location=Ciputra%20Artpreneur%2C%20Jakarta"
                                             style="text-decoration: none;">
-                                            <img src="{{ asset('img/icon/outlook.png') }}" width="25" height="25"
+                                            <img loading="lazy"  src="{{ asset('img/icon/outlook.webp') }}" width="25" height="25"
                                                 alt="">
                                         </a>
                                     </p>
@@ -126,7 +126,7 @@
                                     </p>
 
                                     <p style="text-align:center;">
-                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ $qr }}"
+                                        <img loading="lazy"  src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ $qr }}"
                                             alt="">
                                         <br>
                                         <b>
@@ -149,6 +149,6 @@
     </table>
 @endsection
 @section('footer')
-    <img src="{{ asset('img/makerspace/email_footer.jpg') }}" alt="STEM+ Wonderlab" width="2500"
+    <img loading="lazy"  src="{{ asset('img/makerspace/email_footer.jpg') }}" alt="STEM+ Wonderlab" width="2500"
         style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;">
 @endsection

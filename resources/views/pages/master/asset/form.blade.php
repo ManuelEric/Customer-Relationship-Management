@@ -11,7 +11,7 @@
         <div class="col-md-3 text-center">
             <div class="card">
                 <div class="card-body">
-                    <img loading="lazy" src="{{ asset('img/icon/asset.png') }}" alt="" class="w-25">
+                    <img loading="lazy"  loading="lazy" src="{{ asset('img/icon/asset.webp') }}" alt="" class="w-25">
                     @if (isset($asset))
                         <div class="text-center">
                             <div class="badge badge-primary mb-2">

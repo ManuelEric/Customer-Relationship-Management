@@ -98,7 +98,7 @@
         </div>
         <div class="col-md-4 order-md-2 order-1 text-center">
             <div class="card card-body d-flex justify-content-center align-items-center">
-                <img src="{{ asset('img/teacher.jpg') }}" alt="" class="w-25">
+                <img loading="lazy"  src="{{ asset('img/teacher.webp') }}" alt="" class="w-25">
             </div>
         </div>
         <div class="col-md-12 order-3">

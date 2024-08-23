@@ -43,12 +43,12 @@
             <div class="row h-100 align-items-center row-cols-md-2 g-3">
                 <div class="col pe-md-5">
                     <div class="text-center mb-3">
-                        <img src="{{ asset('img/logo.png') }}" alt="" class="w-50">
+                        <img loading="lazy"  src="{{ asset('img/logo.webp') }}" alt="" class="w-50">
                     </div>
                     <div class="card border-0 shadow mb-3">
                         <div class="d-flex align-items-center">
                             <div class="px-2" style="width: 30%">
-                                <img src="{{ asset('img/vision.png') }}" alt="ALL-in Vision" class="w-100">
+                                <img loading="lazy"  src="{{ asset('img/vision.webp') }}" alt="ALL-in Vision" class="w-100">
                             </div>
                             <div class="card-body" style="width:70%">
                                 <h6 class="fw-light text-start">
@@ -72,7 +72,7 @@
                     <div class="card border-0 shadow">
                         <div class="d-flex align-items-center">
                             <div class="px-2" style="width: 30%">
-                                <img src="{{ asset('img/mission.png') }}" alt="ALL-in Vision" class="w-100">
+                                <img loading="lazy"  src="{{ asset('img/mission.webp') }}" alt="ALL-in Vision" class="w-100">
                             </div>
                             <div class="card-body"style="width: 70%">
                                 <h6 class=" mb-3 ps-3">
@@ -104,19 +104,19 @@
                         <div class="splide__track px-5">
                             <ul class="splide__list">
                                 <li class="splide__slide">
-                                    <img src="{{ asset('img/core-values/1-01.png') }}" class="w-100">
+                                    <img loading="lazy"  src="{{ asset('img/core-values/1-01.webp') }}" class="w-100">
                                 </li>
                                 <li class="splide__slide">
-                                    <img src="{{ asset('img/core-values/2-01.png') }}" class="w-100">
+                                    <img loading="lazy"  src="{{ asset('img/core-values/2-01.webp') }}" class="w-100">
                                 </li>
                                 <li class="splide__slide">
-                                    <img src="{{ asset('img/core-values/3-01.png') }}" class="w-100">
+                                    <img loading="lazy"  src="{{ asset('img/core-values/3-01.webp') }}" class="w-100">
                                 </li>
                                 <li class="splide__slide">
-                                    <img src="{{ asset('img/core-values/4-01.png') }}" class="w-100">
+                                    <img loading="lazy"  src="{{ asset('img/core-values/4-01.webp') }}" class="w-100">
                                 </li>
                                 <li class="splide__slide">
-                                    <img src="{{ asset('img/core-values/5-01.png') }}" class="w-100">
+                                    <img loading="lazy"  src="{{ asset('img/core-values/5-01.webp') }}" class="w-100">
                                 </li>
                             </ul>
                         </div>

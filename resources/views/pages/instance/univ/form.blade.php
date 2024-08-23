@@ -25,7 +25,7 @@
         <div class="col-md-4">
             <div class="card mb-3">
                 <div class="card-body text-center">
-                    <img src="{{ asset('img/school.jpg') }}" alt="" class="w-75">
+                    <img loading="lazy"  src="{{ asset('img/school.webp') }}" alt="" class="w-75">
 
                     @if (isset($university))
                         <div class="mt-3 d-flex justify-content-center">

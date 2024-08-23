@@ -26,7 +26,7 @@
                 @endif
                 <div class="row flex-md-row flex-column align-items-center">
                     <div class="col-md-4 col text-center mb-md-0 mb-2">
-                        <img src="{{ asset('img/teacher.jpg') }}" class="w-50">
+                        <img loading="lazy"  src="{{ asset('img/teacher.webp') }}" class="w-50">
                     </div>
                     <div class="col-md-8 col">
                         <div class="row">

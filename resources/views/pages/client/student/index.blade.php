@@ -192,7 +192,6 @@
                         @if ($st == 'new-leads')
                         <th>Followup Status</th>
                         @endif
-                        <th>Interested Program</th>
                         <th>Program Suggest</th>
                         <th>Status Lead</th>
                         <th>PIC</th>
@@ -204,22 +203,13 @@
                         <th>School</th>
                         <th>Graduation Year</th>
                         <th>Grade</th>
-                        {{-- <th>Instagram</th> --}}
                         <th>State/Region</th>
                         <th>City</th>
                         <th>Location</th>
                         <th>Lead</th>
                         <th>Referral From</th>
                         <th>Level of Interest</th>
-                        <th>Joined Event</th>
-                        {{-- <th>Success Program</th>
-                        <th>Mentor/Tutor</th> --}}
-                        <th>Year of Study Abroad</th>
                         <th>Country of Study Abroad</th>
-                        {{-- <th>University Destination</th> --}}
-                        <th>Interest Major</th>
-                        {{-- <th>Joined Date</th> --}}
-                        <th>Scholarship Eligible</th>
                         <th>Assessment</th>
                         <th>Joined Date</th>
                         <th>Last Update</th>
@@ -541,7 +531,7 @@
             var no = 1;
 
             var options = {
-                order: [[29, 'desc']],
+                order: [[get_st == 'new-leads' ? 24 : 23, 'desc']],
                 buttons: [button],
                 scrollX: true,
                 fixedColumns: {
@@ -590,39 +580,9 @@
                     },
                     @endif
                     {
-                        data: 'interest_prog',
-                        searchable: false,
-                        className: 'text-start',
-                        defaultContent: '-',
-                        render: function(data, type, row, meta) {
-                            if (data == undefined && data == null) {
-                                return '-'
-                            } else {
-                                var arrayInterest = data.split(',');
-                                var arrayLength = arrayInterest.length > 1 ? (arrayInterest.length -
-                                    1) + ' More' : ''
-
-                                var interestProgram = ""
-
-                                for (i = 0; i < arrayInterest.length; i++) {
-                                    if (i != 0) {
-                                        interestProgram += arrayInterest[i] + '</br>'
-                                    }
-                                }
-
-                                var descProgram = arrayInterest.length > 1 ?
-                                    '<div class="badge badge-primary py-1 px-2" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-placement="right" data-bs-title="' +
-                                    interestProgram + '">' + arrayLength +
-                                    '</div>' : ''
-
-
-                                return arrayInterest[0] + " " + descProgram
-                            }
-                        }
-                    },
-                    {
                         data: 'program_suggest',
-                        defaultContent: '-'
+                        defaultContent: '-',
+                        searchable: false,
                     },
                     {
                         data: 'status_lead',
@@ -657,7 +617,8 @@
                     },
                     {
                         data: 'pic_name',
-                        defaultContent: '-'
+                        defaultContent: '-',
+                        searchable: false,
                     },
                     {
                         data: 'mail',
@@ -687,11 +648,13 @@
                     {
                         data: 'school_name',
                         name: 'school_name',
+                        searchable: false,
                         defaultContent: '-'
                     },
                     {
                         data: 'graduation_year_real',
                         className: 'text-center',
+                        searchable: false,
                         defaultContent: '-'
                     },
                     {
@@ -702,11 +665,6 @@
                             return data > 12 ? 'Not high school' : data;
                         }
                     },
-                    // {
-                    //     data: 'insta',
-                    //     className: 'text-center',
-                    //     defaultContent: '-'
-                    // },
                     {
                         data: 'state',
                         defaultContent: '-'
@@ -722,6 +680,7 @@
                     {
                         data: 'lead_source',
                         className: 'text-center',
+                        searchable: false,
                         defaultContent: '-',
                     },
                     {
@@ -739,40 +698,6 @@
                     },
                     {
                         data: 'st_levelinterest',
-                        className: 'text-center',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'joined_event',
-                        className: 'text-center',
-                        render: function(data, type, row, meta) {
-                            if (data == undefined && data == null) {
-                                return '-'
-                            } else {
-                                var arrayInterest = data.split(',');
-                                var arrayLength = arrayInterest.length > 1 ? (arrayInterest.length -
-                                    1) + ' More' : ''
-
-                                var interestProgram = ""
-
-                                for (i = 0; i < arrayInterest.length; i++) {
-                                    if (i != 0) {
-                                        interestProgram += arrayInterest[i] + '</br>'
-                                    }
-                                }
-
-                                var descProgram = arrayInterest.length > 1 ?
-                                    '<div class="badge badge-primary py-1 px-2" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-placement="right" data-bs-title="' +
-                                    interestProgram + '">' + arrayLength +
-                                    '</div>' : ''
-
-
-                                return arrayInterest[0] + " " + descProgram
-                            }
-                        }
-                    },
-                    {
-                        data: 'st_abryear',
                         className: 'text-center',
                         defaultContent: '-'
                     },
@@ -803,32 +728,6 @@
 
                                 return arrayInterest[0] + " " + descProgram
                             }
-                        }
-                    },
-                    // {
-                    //     data: 'dream_uni',
-                    //     className: 'text-center',
-                    //     defaultContent: '-'
-                    // },
-                    {
-                        data: 'dream_major',
-                        className: 'text-center',
-                        defaultContent: '-'
-                    },
-                    // {
-                    //     data: 'dream_major',
-                    //     className: 'text-center',
-                    //     defaultContent: '-'
-                    // },
-                    {
-                        data: 'scholarship',
-                        className: 'text-center',
-                        searchable: false,
-                        render: function(data, type, row, meta) {
-                            if (data == "Y")
-                                return "Yes"
-                            else
-                                return "No"
                         }
                     },
                     {

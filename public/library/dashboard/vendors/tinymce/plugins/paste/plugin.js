@@ -886,7 +886,7 @@
       editor.undoManager.extra(function () {
         pasteHtmlFn(editor, url);
       }, function () {
-        editor.insertContent('<img src="' + url + '">');
+        editor.insertContent('<img loading="lazy"  src="' + url + '">');
       });
       return true;
     };
@@ -1051,9 +1051,9 @@
         } else {
           blobInfo = existingBlobInfo;
         }
-        pasteHtml$1(editor, '<img src="' + blobInfo.blobUri() + '">', false);
+        pasteHtml$1(editor, '<img loading="lazy"  src="' + blobInfo.blobUri() + '">', false);
       } else {
-        pasteHtml$1(editor, '<img src="' + imageItem.uri + '">', false);
+        pasteHtml$1(editor, '<img loading="lazy"  src="' + imageItem.uri + '">', false);
       }
     };
     var isClipboardEvent = function (event) {

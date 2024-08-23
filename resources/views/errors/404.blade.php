@@ -30,7 +30,7 @@
             </div>
 
             <div class="relative w-full mt-12 lg:w-1/2 lg:mt-0">
-                <img class="w-full max-w-lg lg:mx-auto" src="{{asset('img/errors/404.svg')}}" alt="">
+                <img loading="lazy"  class="w-full max-w-lg lg:mx-auto" src="{{asset('img/errors/404.svg')}}" alt="">
             </div>
         </div>
     </section>

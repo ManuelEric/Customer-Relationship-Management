@@ -53,10 +53,10 @@
                 </div>
                 <div>
                     <a class="navbar-brand brand-logo" href="{{ url('dashboard') }}">
-                        <img src="{{ asset('img/new-logo.png') }}" alt="logo" class="h-auto" />
+                        <img loading="lazy"  src="{{ asset('img/logo.webp') }}" alt="logo" class="h-auto" />
                     </a>
                     <a class="navbar-brand brand-logo-mini" href="{{ url('dashboard') }}">
-                        <img src="{{ asset('library/dashboard/images/logo-mini.svg') }}" alt="logo" />
+                        <img loading="lazy"  src="{{ asset('library/dashboard/images/logo-mini.svg') }}" alt="logo" />
                     </a>
                 </div>
             </div>
@@ -171,10 +171,10 @@
                     <li class="nav-item dropdown d-none d-lg-block user-dropdown">
                         <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown"
                             aria-expanded="false">
-                            <img class="img-xs rounded-circle" src="{{ asset('img/user.png') }}" alt="Profile image"> </a>
+                            <img loading="lazy"  class="img-xs rounded-circle" src="{{ asset('img/user.webp') }}" alt="Profile image"> </a>
                         <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
                             <div class="dropdown-header text-center">
-                                <img class="img-md rounded-circle w-25" src="{{ asset('img/user.png') }}"
+                                <img loading="lazy"  class="img-md rounded-circle w-25" src="{{ asset('img/user.webp') }}"
                                     alt="Profile image">
                                 <p class="mb-1 mt-3 font-weight-semibold">{{ Auth::user()->first_name }}
                                     {{ Auth::user()->last_name }}</p>
@@ -239,11 +239,11 @@
                 <div class="dropdown d-block d-lg-none user-dropdown me-0">
                     <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown"
                         aria-expanded="false">
-                        <img class="img-xs rounded-circle" src="{{ asset('img/user.png') }}" alt="Profile image"> </a>
+                        <img loading="lazy"  class="img-xs rounded-circle" src="{{ asset('img/user.webp') }}" alt="Profile image"> </a>
                     <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown"
                         style="left:-150px;">
                         <div class="dropdown-header text-center">
-                            <img class="img-md rounded-circle w-25" src="{{ asset('img/user.png') }}"
+                            <img loading="lazy"  class="img-md rounded-circle w-25" src="{{ asset('img/user.webp') }}"
                                 alt="Profile image">
                             <p class="mb-1 mt-3 font-weight-semibold">{{ Auth::user()->first_name }}
                                 {{ Auth::user()->last_name }}</p>

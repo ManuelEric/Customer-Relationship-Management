@@ -102,8 +102,8 @@
                                         <select name="conversion_lead[]" class="select form-select form-select-sm w-100" multiple
                                             id="conversion-lead">
                                             @foreach ($conversion_leads as $lead)
-                                                <option value="{{ $lead->lead_id }}">
-                                                    {{ $lead->conversion_lead }}</option>
+                                                <option value="{{ $lead['lead_id'] }}">
+                                                    {{ $lead['conversion_lead'] }}</option>
                                             @endforeach
                                         </select>
                                     </div>

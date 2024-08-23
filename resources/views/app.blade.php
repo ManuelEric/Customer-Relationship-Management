@@ -7,7 +7,7 @@
     <title>
         @yield('title')
     </title>
-    <link rel="shortcut icon" href="{{ asset('img/favicon.png') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('img/favicon.webp') }}" type="image/x-icon">
 
     {{-- CSS  --}}
     <link href="https://fastly.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"

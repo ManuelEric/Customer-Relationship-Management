@@ -87,20 +87,20 @@
 
 <body style="padding: 0; margin:0;">
     <header>
-        <img src="{{ public_path('img/pdf/edu-all-header.webp') }}" width="auto" height="50px" style="margin-left: 50px; margin-top: 50px;">
+        <img loading="lazy"  src="{{ public_path('img/pdf/edu-all-header.webp') }}" width="auto" height="50px" style="margin-left: 50px; margin-top: 50px;">
         <h4
             style="line-height:1.6; letter-spacing:3px; font-weight:bold; text-align:center; color:#247df2; font-size:16px; margin-bottom:10px; ">
             INVOICE
         </h4>
-        {{-- <img src="{{ public_path('img/pdf/edu-all-watermark.webp') }}" width="85%"
+        {{-- <img loading="lazy"  src="{{ public_path('img/pdf/edu-all-watermark.webp') }}" width="85%"
         style="position:absolute; left:8%; top:32.5%; z-index:-999;"> --}}
-        <img src="{{ public_path('img/pdf/confidential.png') }}" width="85%"
+        <img loading="lazy"  src="{{ public_path('img/pdf/confidential.webp') }}" width="85%"
         style="position:absolute; left:8%; top:25%; z-index:-999;opacity: 0.04;">
 
     </header>
 
     <footer>
-        <img src="{{ public_path('img/pdf/edu-all-footer.webp') }}" width="100%">
+        <img loading="lazy"  src="{{ public_path('img/pdf/edu-all-footer.webp') }}" width="100%">
     </footer>
     
     <main>

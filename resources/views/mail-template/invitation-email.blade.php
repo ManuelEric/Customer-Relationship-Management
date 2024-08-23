@@ -1,6 +1,6 @@
 @extends('layout.email-stem')
 @section('banner')
-    <img src="{{asset('img/makerspace/header_invitation_email.jpg')}}" alt="STEM+ Wonderlab" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
+    <img loading="lazy"  src="{{asset('img/makerspace/header_invitation_email.jpg')}}" alt="STEM+ Wonderlab" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
 @endsection
 
 {{-- @section('header', 'Thanks for Joining Our Event') --}}
@@ -18,7 +18,7 @@
                             We are thrilled to share an exclusive invitation to your family as {{$notes}} guests for <b>STEM+ Wonderlab</b>, Indonesia's FIRST Student Makerspace Expo!                        
                         </p>
                         <p style="text-align: center;">
-                            <img src="https://drive.google.com/uc?id=1FnGPGz4aM0uHC7nRvmLTc9zGX0MVXvGe" width="400" height="600">
+                            <img loading="lazy"  src="https://drive.google.com/uc?id=1FnGPGz4aM0uHC7nRvmLTc9zGX0MVXvGe" width="400" height="600">
                         </p>
                         <p style="text-align: center;margin: 2.5em auto;">
                             <a class="button" href="{{ $param['link'] }}"
@@ -81,5 +81,5 @@
 </table>
 @endsection
 @section('footer')
-    <img src="{{asset('img/makerspace/email_footer.jpg')}}" alt="STEM+ Wonderlab" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
+    <img loading="lazy"  src="{{asset('img/makerspace/email_footer.jpg')}}" alt="STEM+ Wonderlab" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
 @endsection

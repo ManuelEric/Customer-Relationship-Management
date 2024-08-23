@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ ucfirst(request()->get('event_name')) }} Form</title>
-    <link rel="shortcut icon" href="{{ asset('img/favicon.png') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('img/favicon.webp') }}" type="image/x-icon">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.6/flowbite.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
     <link href="https://fastly.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
@@ -61,7 +61,7 @@
         }
 
         .bg-form {
-            background-image: url('{{ asset('img/form-embed/bg-form.jpg') }}');
+            background-image: url('{{ asset('img/form-embed/bg-form.webp') }}');
             background-attachment: fixed;
             background-size: cover;
             background-position: center;
@@ -79,11 +79,11 @@
         <div class="max-w-screen-lg w-full mx-auto p-4 relative overflow-hidden">
             @if (request()->get('form_type') == 'cta')
                 <div class="w-full flex justify-center my-4">
-                    <img src="{{ asset('img/logo.png') }}" alt="Form ALL-in Event" class="w-[150px]">
+                    <img loading="lazy"  src="{{ asset('img/logo.webp') }}" alt="Form ALL-in Event" class="w-[150px]">
                 </div>
 
                 <div class="h-[200px] overflow-hidden mb-2 rounded-lg shadow">
-                    <img src="{{ $image }}" alt=""
+                    <img loading="lazy"  src="{{ $image }}" alt=""
                         class="w-full object-cover hover:scale-[1.05] ease-in-out duration-500">
                 </div>
             @endif
@@ -125,7 +125,7 @@
                                     class="hidden peer" onchange="checkRole(this)">
                                 <label for="role-1" class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc] dark:peer-checked:text-[#999]">
                                     <div class="text-center">
-                                        <img src="{{ asset('img/form-embed/parent.webp') }}" alt="Student"
+                                        <img loading="lazy"  src="{{ asset('img/form-embed/parent.webp') }}" alt="Student"
                                             style="width: 70px;">
                                         Parent
                                     </div>
@@ -137,7 +137,7 @@
                                 <label for="role-2"
                                     class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc] dark:peer-checked:text-[#999]">
                                     <div class="text-center">
-                                        <img src="{{ asset('img/form-embed/student.webp') }}" alt="Student"
+                                        <img loading="lazy"  src="{{ asset('img/form-embed/student.webp') }}" alt="Student"
                                             style="width: 70px;">
                                         Student
                                     </div>

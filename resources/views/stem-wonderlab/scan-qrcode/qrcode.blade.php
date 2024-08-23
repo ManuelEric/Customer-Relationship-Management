@@ -35,16 +35,16 @@
 @section('body')
     <section>
         <div class="container-fluid position-relative overflow-hidden">
-            <img src="{{ asset('img/makerspace/asset-1.webp') }}" alt=""
+            <img loading="lazy"  src="{{ asset('img/makerspace/asset-1.webp') }}" alt=""
                 class="position-absolute animate__animated animate__pulse animate__infinite"
                 style="top:-2vh; left:-10vh; --animate-duration:10s; width:18%;">
-            <img src="{{ asset('img/makerspace/asset-2.webp') }}" alt=""
+            <img loading="lazy"  src="{{ asset('img/makerspace/asset-2.webp') }}" alt=""
                 class="position-absolute animate__animated animate__pulse animate__infinite"
                 style="bottom:-7vh; left:-10vh; --animate-duration:10s; width:18%;">
-            <img src="{{ asset('img/makerspace/asset-3.webp') }}" alt=""
+            <img loading="lazy"  src="{{ asset('img/makerspace/asset-3.webp') }}" alt=""
                 class="position-absolute animate__animated animate__pulse animate__infinite"
                 style="top:-7vh; right:-10vh; --animate-duration:10s; width:18%;">
-            <img src="{{ asset('img/makerspace/asset-4.webp') }}" alt=""
+            <img loading="lazy"  src="{{ asset('img/makerspace/asset-4.webp') }}" alt=""
                 class="position-absolute animate__animated animate__pulse animate__infinite"
                 style="bottom:-7vh; right:-10vh; --animate-duration:10s; width:18%;">
 
@@ -54,7 +54,7 @@
                     <div class="col-md-8 mb-4">
                         <div class="text-center">
                             <div class="d-flex justify-content-center mb-4">
-                                <img src="{{ asset('img/makerspace/stem-logo-allin-color.webp') }}" alt=""
+                                <img loading="lazy"  src="{{ asset('img/makerspace/stem-logo-allin-color.webp') }}" alt=""
                                     class="w-75">
                             </div>
                             <h5>Thank you for joining the STEM+ Wonderlab</h5>
@@ -75,7 +75,7 @@
                                             <div
                                                 class="w-100 h-100 position-absolute top-0 start-0 d-flex align-items-center justify-content-center">
                                                 <div class="bg-white p-2 rounded-3" style="width: 40px;">
-                                                    <img src="{{ asset('img/favicon.png') }}" alt="" class="w-100">
+                                                    <img loading="lazy"  src="{{ asset('img/favicon.webp') }}" alt="" class="w-100">
                                                 </div>
                                             </div>
                                             {!! QrCode::size(200)->generate($url) !!}

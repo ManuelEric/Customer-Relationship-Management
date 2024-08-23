@@ -1,6 +1,6 @@
 @extends('layout.email-event')
 @section('banner')
-    <img src="{{asset('img/event/EduAll/banner_email_eduall_2024.webp')}}" alt="EduAll Launchpad" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
+    <img loading="lazy"  src="{{asset('img/event/EduAll/banner_email_eduall_2024.webp')}}" alt="EduAll Launchpad" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
 @endsection
 @section('content')
     <table role="presentation" class="main">
@@ -68,5 +68,5 @@
     </table>
 @endsection
 @section('footer')
-    <img src="{{asset('img/event/EduAll/banner-email-footer.png')}}" alt="EduAll Launchpad" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
+    <img loading="lazy"  src="{{asset('img/event/EduAll/banner-email-footer.webp')}}" alt="EduAll Launchpad" width="2500" style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;" >
 @endsection
