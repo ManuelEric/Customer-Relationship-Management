@@ -668,7 +668,7 @@ class ClientRepository implements ClientRepositoryInterface
         return $asDatatables === false ? $query->orderBy('first_name', 'asc')->get() : $query;
     }
 
-    public function getAlumniMentees($groupBy = false, $asDatatables = false, $month = null)
+    public function getAlumniMentees($groupBy = false, $asDatatables = false, $month = null, $advanced_filter=[])
     {
         # has finish our admission program
         $query = Client::select([
@@ -693,6 +693,12 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
+            })->
+            when(!empty($advanced_filter['school_name']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('school_name', $advanced_filter['school_name']);
+            })->
+            when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
             })->
             isNotSalesAdmin()->
             isUsingAPI()->
@@ -721,7 +727,7 @@ class ClientRepository implements ClientRepositoryInterface
         return $query->get();
     }
 
-    public function getAlumniNonMentees($groupBy = false, $asDatatables = false, $month = null)
+    public function getAlumniNonMentees($groupBy = false, $asDatatables = false, $month = null, $advanced_filter = [])
     {
         # has finish our program and hasnt joined admission program
         $query = Client::select([
@@ -755,6 +761,12 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
+            })->
+            when(!empty($advanced_filter['school_name']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('school_name', $advanced_filter['school_name']);
+            })->
+            when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
             })->
             isNotSalesAdmin()->
             isUsingAPI()->

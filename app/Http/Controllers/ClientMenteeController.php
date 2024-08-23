@@ -36,23 +36,33 @@ class ClientMenteeController extends Controller
     {
         if ($request->ajax()) {
             $status = $request->get('st');
+            $school_name = $request->get('school_name');
+            $graduation_year = $request->get('graduation_year');
             $asDatatables = true;
             $groupBy = false;
+
+            # array for advanced filter request
+            $advanced_filter = [
+                'school_name' => $school_name,
+                'graduation_year' => $graduation_year,
+            ];
+
             switch ($status) {
 
                 case "mentee":
-                    $model = $this->clientRepository->getAlumniMentees($groupBy, $asDatatables);
+                    $model = $this->clientRepository->getAlumniMentees($groupBy, $asDatatables, null, $advanced_filter);
                     break;
 
                 case "non-mentee":
-                    $model = $this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables);
+                    $model = $this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables, null, $advanced_filter);
                     break;
-                 
             }
             return $this->clientRepository->getDataTables($model);
         }
 
-        return view('pages.client.student.index-mentee');
+        $entries = app('App\Services\ClientStudentService')->advancedFilterClient();
+
+        return view('pages.client.student.index-mentee')->with($entries);
     }
 
     public function show(Request $request)
@@ -75,10 +85,10 @@ class ClientMenteeController extends Controller
             abort(404);
 
         $picActive = null;
-        if (count($student->picClient) > 0){
+        if (count($student->picClient) > 0) {
             $picActive = $student->picClient->where('status', 1)->first();
         }
-        
+
         $salesTeams = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
 
         return view('pages.client.student.view')->with(

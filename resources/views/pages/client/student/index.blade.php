@@ -189,12 +189,13 @@
                         <th class="d-none">Score</th>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Name</th>
-                        @if ($st == 'new-leads')
-                        <th>Followup Status</th>
-                        @endif
+                        <th>Assessment</th>
+                        <th>PIC</th>
                         <th>Program Suggest</th>
                         <th>Status Lead</th>
-                        <th>PIC</th>
+                        {{-- @if ($st == 'new-leads')
+                        <th>Followup Status</th>
+                        @endif --}}
                         <th>Mail</th>
                         <th>Phone</th>
                         <th>Parents Name</th>
@@ -210,7 +211,6 @@
                         <th>Referral From</th>
                         <th>Level of Interest</th>
                         <th>Country of Study Abroad</th>
-                        <th>Assessment</th>
                         <th>Joined Date</th>
                         <th>Last Update</th>
                         <th>Is Active</th>
@@ -531,7 +531,7 @@
             var no = 1;
 
             var options = {
-                order: [[get_st == 'new-leads' ? 24 : 23, 'desc']],
+                order: [[23, 'desc']],
                 buttons: [button],
                 scrollX: true,
                 fixedColumns: {
@@ -574,11 +574,39 @@
                             return data
                         }
                     },
-                    @if ($st == 'new-leads')
                     {
-                        data: 'followup_status',
+                        data: 'took_ia',
+                        className: 'text-center',
+                        searchable: false,
+                        render: function(data, type, row, meta) {
+                            var link = '{{ env("EDUALL_ASSESSMENT_URL") }}' + 'api/report/' + row.uuid + '?is_preview=1';
+                            if(data !== 'error'){
+                                if(data == 0){
+                                    return '<h5><i class="bi bi-dash-square-fill text-danger" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Not yet"></i></h5>'
+                                }else{
+                                    return '<div class="container" style="padding-left:0;">'
+                                            + '<div class="row justify-content-center">'
+                                            + '<div class="col-1">'
+                                            + '<h5 onclick="copyLink(\''+ row.uuid +'\', \'ia-report\')" style="cursor: pointer;"><i class="bi bi-check-square-fill text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Report"></i></h5>' 
+                                            + '</div>'
+                                            + '<div class="col-1">'
+                                            + '<h5 onclick="copyLink(\''+ row.uuid +'\', \'ia-answer\')" style="cursor: pointer;"><i class="bi bi-zoom-in text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Answer"></i></h5>' 
+                                            + '</div>'
+                                            + '</div>'
+                                            + '</div>'
+                                            
+                                }
+                            }else{
+                                return '<h5><i class="bi bi-dash-square-fill text-danger"  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Not yet"></i></h5>'
+                            }
+                        }
                     },
-                    @endif
+                    {
+                        data: 'pic_name',
+                        defaultContent: '-',
+                        searchable: false,
+                    },
+                  
                     {
                         data: 'program_suggest',
                         defaultContent: '-',
@@ -614,11 +642,6 @@
                                 '>Cold</option></select>' : '-';
                         }
 
-                    },
-                    {
-                        data: 'pic_name',
-                        defaultContent: '-',
-                        searchable: false,
                     },
                     {
                         data: 'mail',
@@ -727,33 +750,6 @@
 
 
                                 return arrayInterest[0] + " " + descProgram
-                            }
-                        }
-                    },
-                    {
-                        data: 'took_ia',
-                        className: 'text-center',
-                        searchable: false,
-                        render: function(data, type, row, meta) {
-                            var link = '{{ env("EDUALL_ASSESSMENT_URL") }}' + 'api/report/' + row.uuid + '?is_preview=1';
-                            if(data !== 'error'){
-                                if(data == 0){
-                                    return '<h5><i class="bi bi-dash-square-fill text-danger" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Not yet"></i></h5>'
-                                }else{
-                                    return '<div class="container" style="padding-left:0;">'
-                                            + '<div class="row justify-content-center">'
-                                            + '<div class="col-1">'
-                                            + '<h5 onclick="copyLink(\''+ row.uuid +'\', \'ia-report\')" style="cursor: pointer;"><i class="bi bi-check-square-fill text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Report"></i></h5>' 
-                                            + '</div>'
-                                            + '<div class="col-1">'
-                                            + '<h5 onclick="copyLink(\''+ row.uuid +'\', \'ia-answer\')" style="cursor: pointer;"><i class="bi bi-zoom-in text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Answer"></i></h5>' 
-                                            + '</div>'
-                                            + '</div>'
-                                            + '</div>'
-                                            
-                                }
-                            }else{
-                                return '<h5><i class="bi bi-dash-square-fill text-danger"  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Not yet"></i></h5>'
                             }
                         }
                     },
