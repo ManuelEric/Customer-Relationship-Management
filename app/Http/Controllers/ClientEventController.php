@@ -151,8 +151,22 @@ class ClientEventController extends Controller
 
         $events = $this->eventRepository->getAllEvents();
         $schools = $this->schoolRepository->getAllSchools();
-        $conversion_leads = $this->clientProgramRepository->getAllConversionLeadOnClientProgram();
-
+        // $conversion_leads = $this->clientProgramRepository->getAllConversionLeadOnClientProgram();
+        $main_leads = $this->leadRepository->getAllMainLead();
+        $main_leads = $main_leads->map(function ($item) {
+            return [
+                'lead_id' => $item->lead_id,
+                'conversion_lead' => $item->main_lead
+            ];
+        });
+        $sub_leads = $this->leadRepository->getAllKOLlead();
+        $sub_leads = $sub_leads->map(function ($item) {
+            return [
+                'lead_id' => $item->lead_id,
+                'conversion_lead' => $item->sub_lead
+            ];
+        });
+        $conversion_leads = $main_leads->merge($sub_leads);
 
         return view('pages.program.client-event.index')->with(
             [
