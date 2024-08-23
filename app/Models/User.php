@@ -13,6 +13,7 @@ use App\Models\pivot\UserSubject;
 use App\Models\pivot\UserTypeDetail;
 use App\Observers\UserObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -27,20 +28,24 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    public $incrementing = false;
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'uuid',
-        'extended_id',
+        'number',
+        'id',
+        'nip',
         'first_name',
         'last_name',
         'address',
         'email',
         'phone',
-        'emergency_contact',
+        'emergency_contact_phone',
+        'emergency_contact_relation_name',
         'datebirth',
         'position_id',
         'password',
@@ -129,27 +134,13 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function scopeWithAndWhereHas($query, $relation, $constraint){
-        return $query->whereHas($relation, $constraint)
-                     ->with([$relation => $constraint]);
-    }
-
     public static function boot()
     {
         parent::boot();
 
         self::creating(function ($model) {
-            $model->uuid = (string) Str::uuid();
+            $model->id = (string) Str::uuid();
         });
-    }
-
-    public static function whereExtendedId($id)
-    {
-        if (is_array($id) && empty($id)) return new Collection();
-
-        $instance = new static;
-
-        return $instance->newQuery()->where('extended_id', $id)->first();
     }
 
     public static function whereFullName($name)
@@ -175,7 +166,20 @@ class User extends Authenticatable
         );
     }
 
-    # scope
+
+    /**
+     * The scopes.
+     */
+    public function scopeIsActive(Builder $query): void
+    {
+        $query->where('active', 1);
+    }
+
+    public function scopeWithAndWhereHas($query, $relation, $constraint){
+        return $query->whereHas($relation, $constraint)
+                     ->with([$relation => $constraint]);
+    }
+
     public function scopeIsAdminSales($query)
     {
         return $query->whereHas('roles', function ($subQuery) {
@@ -215,18 +219,13 @@ class User extends Authenticatable
         })->exists();
     }
 
-    # relation
+
+    /**
+     * The relations.
+     */
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'tbl_user_roles', 'user_id', 'role_id')->using(UserRole::class)->withPivot(
-            [
-                'id',
-                'extended_id',
-                'tutor_subject',
-                'feehours',
-                'feesession'
-            ]
-        )->withTimestamps();
+        return $this->belongsToMany(Role::class, 'tbl_user_roles', 'user_id', 'role_id')->using(UserRole::class)->withTimestamps();
     }
 
     public function department()
@@ -274,7 +273,6 @@ class User extends Authenticatable
                 'condition',
             ]
         );
-        // return $this->belongsToMany(Asset::class, 'tbl_asset_used', 'user_id', 'asset_id');
     }
 
     public function edufairReview()

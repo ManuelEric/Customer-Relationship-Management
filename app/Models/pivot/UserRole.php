@@ -18,8 +18,7 @@ class UserRole extends Pivot
      */
     protected $fillable = [
         'user_id',
-        'role_id', 
-        'extended_id', 
+        'role_id',
     ];
 
     // public function department()

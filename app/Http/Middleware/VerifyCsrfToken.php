@@ -15,5 +15,6 @@ class VerifyCsrfToken extends Middleware
         'form/events',
         'form/registrations',
         'form/program',
+        'auth/login',
     ];
 }

@@ -9,7 +9,9 @@ use App\Interfaces\MenuRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\UserTypeRepositoryInterface;
 use App\Models\User;
+use App\Services\Authorization\AuthorizationService;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -27,105 +29,46 @@ class AuthController extends Controller
         $this->userTypeRepository = $userTypeRepository;
     }
 
-    public function login(Request $request)
+    public function login(
+        Request $request,
+        AuthorizationService $authorizationService,
+        )
     {
         $credentials = $request->validate([
             'email' => 'required|exists:users,email',
             'password' => 'required',
         ]);
 
-        
         # check credentials
-        if (Auth::attempt($credentials)) {
-            
+        if (!Auth::attempt($credentials))
+            return back()->withErrors([ 'password' => 'Wrong email or password' ]);
+        
+        try {
+
             $user = Auth::user();
-            $user_type = $this->userTypeRepository->getActiveUserTypeByUserId($user->id);
-                        
-            if (!$user_type) {
-                Auth::logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-                return back()->withError([
-                    'password' => 'You don\'t have permission to login. If this problem persists, please contact our administrator.'
-                ]);
-            }
-
-            if ($user_type->type_name != 'Full-Time' && ($user_type->pivot->end_date <= Carbon::now()->toDateString())) {
-                return back()->withError([
-                    'password' => 'Your access is expired',
-                ]);
-            }
-
-            # login Success
-            # create log success
-            $this->logSuccess('auth', null, 'Login', $request->email);
+            $userId = $user->id;
+            $authorizationService->checkPermissionFromUserType($userId);
+            $scopes = $authorizationService->checkUserRole($user);
+            [$generatedToken, $acceptableUserRole] = $authorizationService->authorize($user, $scopes);
+    
+            $request->session()->put('user_role', $acceptableUserRole);
+            $request->session()->put('access_token', $generatedToken);
+            $request->session()->put('scope', $scopes);
             
-            $request->session()->regenerate();
+        } catch (Exception $e) {
 
+            return back()->withErrors($e->getMessage());
 
-
-            # check roles
-            # set the default scopes
-            $scopes = ['employee'];
-            $request->session()->put('user_role', 'Employee');
-            
-            # if scope is employee
-            if (in_array('employee', $scopes)) {
-
-                # create access token 
-                # in order to access api with data session
-                if (!$token = $user->createToken('Grant User Access', $scopes)->accessToken) 
-                    Log::error('Failed to generate token');
-                
-                # store the access token
-                // $request->session()->put([
-                //     'access_token' => $token,
-                //     'scopes' => $scopes
-                // ]);
-                $request->session()->put('access_token', $token);
-                $request->session()->put('scope', $scopes);
-            }
-            
-            if ($user->roles()->where('role_name', 'Super Admin')->exists()) {
-                $scopes = ['super-admin'];
-                $request->session()->put('user_role', 'SuperAdmin');
-                
-                # create access token 
-                # in order to access api with data session
-                if (!$token = $user->createToken('Grant User Access', $scopes)->accessToken) 
-                    Log::error('Failed to generate token');
-                
-                # store the access token
-                // $request->session()->put([
-                //     'access_token' => $token,
-                //     'scopes' => $scopes
-                // ]);
-                $request->session()->put('access_token', $token);
-                $request->session()->put('scope', $scopes);
-            } else {
-
-                if ($user->roles()->where('role_name', 'Admin')->exists() && $user->department()->where('dept_name', 'Client Management')->exists()) {
-                    # create access token 
-                    # in order to access api with data session
-                    if (!$token = $user->createToken('Grant User Access', $scopes)->accessToken) 
-                        Log::error('Failed to generate token');
-                        
-                    $scopes = ['sales-admin'];
-                    $request->session()->put('access_token', $token);
-                    $request->session()->put('user_role', 'SalesAdmin');
-                } 
-                
-            }
-            
-
-           
-            return redirect()->intended('/dashboard2');
-            
         }
 
-        return back()->withErrors([
-            'password' => 'Wrong email or password',
-        ]);
+
+        # login Success
+        # create log success
+        $this->logSuccess('auth', null, 'Login', $request->email);
+        $request->session()->regenerate();
+
+        
+        return redirect()->intended('/dashboard2');
     }
 
     public function logout(Request $request)
