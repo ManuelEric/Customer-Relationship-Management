@@ -15,7 +15,7 @@
         <div class="max-w-screen-md w-full">
             <div class="md:mx-auto mx-4 md:p-4 px-4 py-5 text-center shadow rounded-lg">
                 <div class="flex justify-center my-4">
-                    <img src="{{ asset('img/submitted.png') }}" alt="Form ALL-in Event" class="w-[200px]">
+                    <img loading="lazy"  src="{{ asset('img/submitted.webp') }}" alt="Form ALL-in Event" class="w-[200px]">
                 </div>
                 <h2 class="md:text-3xl text-xl mb-4 font-bold">
                     Thank You <br> For Submitting Your Form!

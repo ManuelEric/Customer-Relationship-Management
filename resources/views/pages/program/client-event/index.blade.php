@@ -102,8 +102,8 @@
                                         <select name="conversion_lead[]" class="select form-select form-select-sm w-100" multiple
                                             id="conversion-lead">
                                             @foreach ($conversion_leads as $lead)
-                                                <option value="{{ $lead->lead_id }}">
-                                                    {{ $lead->conversion_lead }}</option>
+                                                <option value="{{ $lead['lead_id'] }}">
+                                                    {{ $lead['conversion_lead'] }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -170,7 +170,7 @@
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Client Name</th>
                         <th>Event Name</th>
-                        <th>Ticket No</th>
+                        {{-- <th>Ticket No</th> --}}
                         <th>Audience</th>
                         <th>Email</th>
                         <th>Phone Number</th>
@@ -239,7 +239,7 @@
         $(document).ready(function() {
 
             var options = {
-                order: [[16, 'desc']],
+                order: [[15, 'desc']],
                 buttons: [
                     'pageLength', {
                         extend: 'excel',
@@ -342,16 +342,18 @@
                     },
                     {
                         data: 'event_name',
-                        name: 'tbl_events.event_title'
+                        name: 'tbl_events.event_title',
+                        searchable: false,
                     },
-                    {
-                        data: 'ticket_id',
-                        name: 'tbl_client_event.ticket_id',
-                        className: 'text-center'
-                    },
+                    // {
+                    //     data: 'ticket_id',
+                    //     name: 'tbl_client_event.ticket_id',
+                    //     className: 'text-center'
+                    // },
                     {
                         data: 'register_as',
                         name: 'client.register_as',
+                        searchable: false,
                         render: function(data, type, row, meta) {
                             if (data != null){
                                 return data?.charAt(0).toUpperCase() + data?.slice(1);
@@ -391,15 +393,18 @@
                     },
                     {
                         data: 'school_name',
-                        defaultContent: '-'
+                        defaultContent: '-',
+                        searchable: false,
                     },
                     {
                         data: 'graduation_year',
-                        defaultContent: '-'
+                        defaultContent: '-',
+                        searchable: false,
                     },
                     {
                         data: 'conversion_lead',
                         name: 'conversion_lead',
+                        searchable: false,
                         className: 'text-center'
                     },
                     {
@@ -439,6 +444,7 @@
                     },
                     {
                         data: 'status',
+                        searchable: false,
                         className: 'text-center',
                         render: function(data, type, row, meta) {
                             switch (parseInt(row.status)) {
@@ -455,6 +461,7 @@
                     },
                     {
                         data: 'registration_type',
+                        searchable: false,
                         className: 'text-center',
                     },
                     {

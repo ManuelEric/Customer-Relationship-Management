@@ -1,6 +1,6 @@
 @extends('layout.email-stem')
 @section('banner')
-    <img src="{{ asset('img/makerspace/header_reminder_registration.jpg') }}" alt="STEM+ Wonderlab" width="2500"
+    <img loading="lazy"  src="{{ asset('img/makerspace/header_reminder_registration.jpg') }}" alt="STEM+ Wonderlab" width="2500"
         style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;">
 @endsection
 
@@ -16,7 +16,7 @@
                         <td>
                             <p>Dear {{ $recipient }},</p>
                             <p style="text-align: center;">
-                                <img src="{{ asset('img/makerspace/certificate/certificate_quest_level_'.$level.'-min.jpg') }}"
+                                <img loading="lazy"  src="{{ asset('img/makerspace/certificate/certificate_quest_level_'.$level.'-min.jpg') }}"
                                    height="250" alt="">
                                 <br>
                                 <br>
@@ -43,6 +43,6 @@
     </table>
 @endsection
 @section('footer')
-    <img src="{{ asset('img/makerspace/email_footer.jpg') }}" alt="STEM+ Wonderlab" width="2500"
+    <img loading="lazy"  src="{{ asset('img/makerspace/email_footer.jpg') }}" alt="STEM+ Wonderlab" width="2500"
         style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;">
 @endsection

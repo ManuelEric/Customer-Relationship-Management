@@ -11,7 +11,7 @@
         <div class="col-md-4 text-center">
             <div class="card">
                 <div class="card-body">
-                    <img src="{{ asset('img/asset.png') }}" alt="" class="w-75">
+                    <img loading="lazy"  src="{{ asset('img/asset.webp') }}" alt="" class="w-75">
                     @if (isset($isUpdate) && $isUpdate === true)
                     {{-- View of Edit  --}}
                     <div class="text-center" id="client-information-section">

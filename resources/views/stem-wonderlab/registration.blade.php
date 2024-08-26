@@ -10,25 +10,25 @@
         <div class="container-fluid">
             <div class="row align-items-stretch">
                 <div class="col-md-9 px-5 position-relative overflow-hidden bg-eduall" style="height: 100vh;">
-                    <img src="{{ asset('img/makerspace/asset-1.webp') }}" alt=""
+                    <img loading="lazy"  src="{{ asset('img/makerspace/asset-1.webp') }}" alt=""
                         class="position-absolute w-25 animate__animated animate__pulse animate__infinite"
                         style="top:-2vh; left:-20vh; --animate-duration:10s">
-                    <img src="{{ asset('img/makerspace/asset-2.webp') }}" alt=""
+                    <img loading="lazy"  src="{{ asset('img/makerspace/asset-2.webp') }}" alt=""
                         class="position-absolute w-25 animate__animated animate__pulse animate__infinite"
                         style="bottom:-7vh; left:-20vh; --animate-duration:10s">
-                    <img src="{{ asset('img/makerspace/asset-3.webp') }}" alt=""
+                    <img loading="lazy"  src="{{ asset('img/makerspace/asset-3.webp') }}" alt=""
                         class="position-absolute w-25 animate__animated animate__pulse animate__infinite"
                         style="top:-7vh; right:-20vh; --animate-duration:10s">
-                    <img src="{{ asset('img/makerspace/asset-4.webp') }}" alt=""
+                    <img loading="lazy"  src="{{ asset('img/makerspace/asset-4.webp') }}" alt=""
                         class="position-absolute w-25 animate__animated animate__pulse animate__infinite"
                         style="bottom:-7vh; right:-20vh; --animate-duration:10s">
-                    <img src="{{ asset('img/makerspace/Segitiga.png') }}" alt="" class="position-absolute"
+                    <img loading="lazy"  src="{{ asset('img/makerspace/Segitiga.png') }}" alt="" class="position-absolute"
                         width="100px" style="top:40vh; right:-5vh;">
 
                     <div class="d-flex align-items-center h-100">
                         <div class="row justify-content-center">
                             <div class="col-md-9">
-                                <img src="{{ asset('img/makerspace/stem-logo-white.webp') }}" alt="" class="w-100">
+                                <img loading="lazy"  src="{{ asset('img/makerspace/stem-logo-white.webp') }}" alt="" class="w-100">
                                 <h5 class="text-center text-white mt-4" style="font-size: 1.8em;">SCIENCE, TECHNOLOGY,
                                     ENGINEERING, MATHEMATICS AND ART</h5>
                                 <button class="btn btn-lg btn-regist btn-block w-100 rounded-pill py-1 shadow-lg mt-3">
@@ -76,7 +76,7 @@
                                 <div class="card border-0 shadow mb-3">
                                     <div class="card-body text-center">
                                         <div class="d-flex justify-content-center mb-3">
-                                            <img src="{{ asset('img/makerspace/ots.png') }}" alt="" class="w-25">
+                                            <img loading="lazy"  src="{{ asset('img/makerspace/ots.png') }}" alt="" class="w-25">
                                         </div>
                                         <h5>Onsite Registration</h5>
                                     </div>
@@ -87,7 +87,7 @@
                                 <div class="card border-0 shadow">
                                     <div class="card-body text-center">
                                         <div class="d-flex justify-content-center mb-3">
-                                            <img src="{{ asset('img/makerspace/scanner.png') }}" alt=""
+                                            <img loading="lazy"  src="{{ asset('img/makerspace/scanner.png') }}" alt=""
                                                 class="w-25">
                                         </div>
                                         <h5>QR Scanner</h5>

@@ -14,7 +14,7 @@
         <div class="col-md-3">
             <div class="card mb-3">
                 <div class="card-body text-center">
-                    <img src="{{ asset('img/icon/edufair.png') }}" alt="" class="w-25">
+                    <img loading="lazy"  src="{{ asset('img/icon/edufair.webp') }}" alt="" class="w-25">
                     @if (isset($edufair))
                         <div class="card mt-2">
                             <div class="card-body">

@@ -382,12 +382,14 @@
                     {
                         data: 'school_name',
                         name: 'sch.sch_name',
+                        searchable: false,
 
                     },
                     {
                         data: 'grade_now',
                         name: 'c.grade_now',
                         className: 'text-center',
+                        searchable: false,
                         render: function(data, type, row, meta) {
                             if (data > 12)
                                 return "Not High School";
@@ -398,6 +400,7 @@
                     {
                         data: 'program_names',
                         name: 'p.program_name',
+                        searchable: false,
                         // render: function(data, type, row, meta) {
                         //     return row.referral_type == "Out" ? row.additional_prog_name : row
                         //         .program_name
@@ -421,6 +424,7 @@
                     },
                     {
                         data: 'mentor_tutor_name',
+                        searchable: false,
                     },
                     {
                         data: 'prog_end_date',
@@ -440,7 +444,8 @@
                     },
                     {
                         data: 'conversion_lead_view',
-                        className: 'text-center'
+                        className: 'text-center',
+                        searchable: false,
                     },
                     {
                         data: 'referral_name',
@@ -457,6 +462,7 @@
                         data: 'status',
                         name: 'tbl_client_prog.status',
                         className: 'text-center',
+                        searchable: false,
                         render: function(data, type, row, meta) {
                             switch (parseInt(data)) {
                                 case 0:
@@ -502,6 +508,7 @@
                     },
                     {
                         data: 'pic_name',
+                        searchable: false,
                     },
                     {
                         data: 'initconsult_date',

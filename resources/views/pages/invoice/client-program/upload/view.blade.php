@@ -10,7 +10,7 @@
                 <div class="card shadow border-0">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
-                            <img src="{{ asset('img/logo.png') }}" alt="" class="w-25">
+                            <img loading="lazy"  src="{{ asset('img/logo.webp') }}" alt="" class="w-25">
                             <h3 class="p-0 m-0">INVOICE</h3>
                         </div>
                         <hr>

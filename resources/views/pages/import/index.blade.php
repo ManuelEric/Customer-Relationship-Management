@@ -33,7 +33,7 @@
                 <h4 class="card-header text-bg-primary text-center" style="padding: 12px; border-radius:5px 5px 55px 55px;">Parents</h4>
             </a>
             <div class="text-center">
-                <img src="{{ asset('img/form-embed/parent.webp') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
+                <img loading="lazy"  src="{{ asset('img/form-embed/parent.webp') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
             </div>
         </div>
     </div>
@@ -43,7 +43,7 @@
                 <h4 class="card-header text-bg-primary text-center" style="padding: 12px; border-radius:5px 5px 55px 55px;">Students</h4>
             </a>
             <div class="text-center">
-                <img src="{{ asset('img/form-embed/student.webp') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
+                <img loading="lazy"  src="{{ asset('img/form-embed/student.webp') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
             </div>
         </div>
     </div>
@@ -53,7 +53,7 @@
                 <h4 class="card-header text-bg-primary text-center" style="padding: 12px; border-radius:5px 5px 55px 55px;">Teachers</h4>
             </a>
             <div class="text-center">
-                <img src="{{ asset('img/form-embed/teacher.webp') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
+                <img loading="lazy"  src="{{ asset('img/form-embed/teacher.webp') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
             </div>
         </div>
     </div>
@@ -63,7 +63,7 @@
                 <h4 class="card-header text-bg-primary text-center" style="padding: 12px; border-radius:5px 5px 55px 55px;">Client Events</h4>
             </a>
             <div class="text-center">
-                <img src="{{ asset('img/profile.jpg') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
+                <img loading="lazy"  src="{{ asset('img/profile.webp') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
             </div>
         </div>
     </div>
@@ -73,7 +73,7 @@
                 <h4 class="card-header text-bg-primary text-center" style="padding: 12px; border-radius:5px 5px 55px 55px;">Client Programs</h4>
             </a>
             <div class="text-center">
-                <img src="{{ asset('img/program.webp') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
+                <img loading="lazy"  src="{{ asset('img/program.webp') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
             </div>
         </div>
     </div>

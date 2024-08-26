@@ -518,7 +518,7 @@ class ExtClientController extends Controller
         $rules = [
             'role' => 'required|in:parent,student,teacher/counsellor',
             'user' => 'nullable',
-            'fullname' => 'required|alpha_num:ascii',
+            'fullname' => 'required',
             'mail' => 'required|email',
             'phone' => 'required|different:secondary_phone',
             'secondary_name' => 'required_if:have_child,true',
@@ -784,7 +784,7 @@ class ExtClientController extends Controller
         # validation
         $rules = [
             'role' => 'required|in:parent,student',
-            'fullname' => 'required|alpha_num:ascii',
+            'fullname' => 'required',
             'mail' => 'required|email',
             'phone' => 'required',
             'school_id' => [

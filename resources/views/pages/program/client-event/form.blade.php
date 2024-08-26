@@ -10,7 +10,7 @@
         <div class="col-md-4 text-center">
             <div class="card rounded mb-3">
                 <div class="card-body">
-                    <img src="{{ asset('img/program.webp') }}" alt="" class="w-75">
+                    <img loading="lazy"  src="{{ asset('img/program.webp') }}" alt="" class="w-75">
                     @if (isset($clientEvent))
                         <div class="mt-3 d-flex flex-column justify-content-center">
                             <div class="mb-2">

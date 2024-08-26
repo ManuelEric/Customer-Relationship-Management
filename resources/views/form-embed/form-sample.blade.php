@@ -106,7 +106,7 @@
                                                         <label for="">You are a </label>
                                                         <div class="d-flex align-items-center gap-3 mt-2">
                                                             <div class="role">
-                                                                <img src="{{ asset('img/form-embed/student.avif') }}"
+                                                                <img loading="lazy"  src="{{ asset('img/form-embed/student.avif') }}"
                                                                     alt="">
                                                                 <input class="role-input" type="radio" name="role"
                                                                     v-model="registration.role" value="student"
@@ -116,7 +116,7 @@
                                                                 </label>
                                                             </div>
                                                             <div class="role">
-                                                                <img src="{{ asset('img/form-embed/parent.jpg') }}">
+                                                                <img loading="lazy"  src="{{ asset('img/form-embed/parent.webp') }}">
                                                                 <input class="role-input" type="radio" name="role"
                                                                     id="parentRole" v-model="registration.role"
                                                                     value="parent">
@@ -125,7 +125,7 @@
                                                                 </label>
                                                             </div>
                                                             <div class="role">
-                                                                <img src="{{ asset('img/form-embed/teacher.avif') }}">
+                                                                <img loading="lazy"  src="{{ asset('img/form-embed/teacher.avif') }}">
                                                                 <input class="role-input" type="radio"
                                                                     name="role" id="teacherRole"
                                                                     v-model="registration.role" value="teacher">

@@ -17,8 +17,8 @@
                         data-bs-auto-close="false" id="filter">
                         <i class="bi bi-funnel me-2"></i> Filter
                     </button>
-                    <form action="" class="dropdown-menu dropdown-menu-end pt-0 shadow advance-filter" style="width: 400px;"
-                        id="advanced-filter">
+                    <form action="" class="dropdown-menu dropdown-menu-end pt-0 shadow advance-filter"
+                        style="width: 400px;" id="advanced-filter">
                         <div class="dropdown-header bg-info text-dark py-2 d-flex justify-content-between">
                             Advanced Filter
                             <i class="bi bi-search"></i>
@@ -28,7 +28,11 @@
                                 <label for="">School Name</label>
                                 <select name="school_name[]" class="select form-select form-select-sm w-100" multiple
                                     id="school-name">
-
+                                    @foreach ($advanced_filter['schools'] as $school)
+                                        <option value="{{ $school->sch_name }}"
+                                            {{ Request::get('sch') == $school->sch_name && Request::get('sch') != '' && Request::get('sch') != null ? 'selected' : null }}>
+                                            {{ $school->sch_name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
 
@@ -36,18 +40,12 @@
                                 <label for="">Graduation Year</label>
                                 <select name="graduation_year[]" class="select form-select form-select-sm w-100" multiple
                                     id="graduation-year">
-
+                                    @for ($i = $advanced_filter['max_graduation_year']; $i >= 2016; $i--)
+                                        <option value="{{ $i }}">{{ $i }}</option>
+                                    @endfor
                                 </select>
                             </div>
 
-                            <div class="col-md-12 mt-3">
-                                <div class="d-flex justify-content-between">
-                                    <button type="button" class="btn btn-sm btn-outline-danger"
-                                        id="cancel">Cancel</button>
-                                    <button type="button" id="submit"
-                                        class="btn btn-sm btn-outline-success">Submit</button>
-                                </div>
-                            </div>
                         </div>
                     </form>
                 </div>
@@ -112,7 +110,13 @@
                     left: (widthView < 768) ? 1 : 2,
                     right: 1
                 },
-                ajax: '',
+                ajax: {
+                    url: '',
+                    data: function(params){
+                        params.school_name = $("#school-name").val()
+                        params.graduation_year = $("#graduation-year").val()
+                    }
+                },
                 columns: [{
                         data: 'id',
                         className: 'text-center',
@@ -159,8 +163,9 @@
                         // $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
                     }
 
-                    var newClientThisMonth = moment().format("MMM YY") == moment(data.created_at).format('MMM YY');
-                    
+                    var newClientThisMonth = moment().format("MMM YY") == moment(data.created_at).format(
+                        'MMM YY');
+
                     if (newClientThisMonth) {
                         $('td', row).addClass('table-success');
                     }
@@ -195,13 +200,24 @@
                 window.open("{{ url('client/alumni/') }}/" + type + "/" + data.id, "_blank");
             });
 
-             // Tooltip 
-             $('#clientTable tbody').on('mouseover', 'tr', function() {
+            // Tooltip 
+            $('#clientTable tbody').on('mouseover', 'tr', function() {
                 $('[data-bs-toggle="tooltip"]').tooltip({
                     trigger: 'hover',
                     html: true
                 });
             });
+
+            /* for advanced filter */
+            $("#school-name").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#graduation-year").on('change', function(e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
         });
     </script>
 @endsection

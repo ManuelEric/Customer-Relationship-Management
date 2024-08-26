@@ -78,7 +78,7 @@ class GoogleSheetController extends Controller
                 # validation
                 $rules = [
                     '*.No' => ['required'],
-                    '*.Full Name' => ['required', 'alpha_num:ascii'],
+                    '*.Full Name' => ['required'],
                     '*.Email' => ['required', 'email', New AlphaNumNoAt],
                     '*.Phone Number' => ['required', 'min:5', 'max:18'],
                     '*.Date of Birth' => ['nullable', 'date'],
@@ -160,7 +160,7 @@ class GoogleSheetController extends Controller
                 # validation
                 $rules = [
                     '*.No' => ['required'],
-                    '*.Full Name' => ['required', 'alpha_num:ascii'],
+                    '*.Full Name' => ['required'],
                     '*.Email' => ['required', 'email', New AlphaNumNoAt],
                     '*.Phone Number' => ['nullable', 'min:5', 'max:18'],
                     '*.Date of Birth' => ['nullable', 'date'],
@@ -245,7 +245,7 @@ class GoogleSheetController extends Controller
                 # validation
                 $rules = [
                     '*.No' => ['required'],
-                    '*.Full Name' => ['required', 'alpha_num:ascii'],
+                    '*.Full Name' => ['required'],
                     '*.Email' => ['required', 'email', New AlphaNumNoAt],
                     '*.Phone Number' => ['required', 'min:5', 'max:18'],
                     '*.Date of Birth' => ['nullable', 'date'],
@@ -325,7 +325,7 @@ class GoogleSheetController extends Controller
                     '*.Event Name' => ['required', 'exists:tbl_events,event_id'],
                     '*.Date' => ['required', 'date'],
                     '*.Audience' => ['required', 'in:Student,Parent,Teacher/Counselor'],
-                    '*.Name' => ['required', 'alpha_num:ascii'],
+                    '*.Name' => ['required'],
                     '*.Email' => ['required', 'email', New AlphaNumNoAt],
                     '*.Phone Number' => ['nullable'],
                     '*.Child or Parent Name' => ['nullable', 'different:*.name'],
@@ -414,7 +414,7 @@ class GoogleSheetController extends Controller
                     '*.Program Name' => ['required', 'exists:tbl_prog,prog_id'],
                     '*.Date' => ['required', 'date'],
                     '*.Audience' => ['required', 'in:Student,Parent'],
-                    '*.Name' => ['required', 'alpha_num:ascii'],
+                    '*.Name' => ['required'],
                     '*.Email' => ['required', 'email', New AlphaNumNoAt],
                     '*.Phone Number' => ['nullable'],
                     '*.Child or Parent Name' => ['nullable', 'different:*.name'],

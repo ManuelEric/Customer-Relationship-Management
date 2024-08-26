@@ -189,13 +189,13 @@
                         <th class="d-none">Score</th>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Name</th>
-                        @if ($st == 'new-leads')
-                        <th>Followup Status</th>
-                        @endif
-                        <th>Interested Program</th>
+                        <th>Assessment</th>
+                        <th>PIC</th>
                         <th>Program Suggest</th>
                         <th>Status Lead</th>
-                        <th>PIC</th>
+                        {{-- @if ($st == 'new-leads')
+                        <th>Followup Status</th>
+                        @endif --}}
                         <th>Mail</th>
                         <th>Phone</th>
                         <th>Parents Name</th>
@@ -204,23 +204,13 @@
                         <th>School</th>
                         <th>Graduation Year</th>
                         <th>Grade</th>
-                        {{-- <th>Instagram</th> --}}
                         <th>State/Region</th>
                         <th>City</th>
                         <th>Location</th>
                         <th>Lead</th>
                         <th>Referral From</th>
                         <th>Level of Interest</th>
-                        <th>Joined Event</th>
-                        {{-- <th>Success Program</th>
-                        <th>Mentor/Tutor</th> --}}
-                        <th>Year of Study Abroad</th>
                         <th>Country of Study Abroad</th>
-                        {{-- <th>University Destination</th> --}}
-                        <th>Interest Major</th>
-                        {{-- <th>Joined Date</th> --}}
-                        <th>Scholarship Eligible</th>
-                        <th>Assessment</th>
                         <th>Joined Date</th>
                         <th>Last Update</th>
                         <th>Is Active</th>
@@ -541,7 +531,7 @@
             var no = 1;
 
             var options = {
-                order: [[29, 'desc']],
+                order: [[23, 'desc']],
                 buttons: [button],
                 scrollX: true,
                 fixedColumns: {
@@ -584,45 +574,43 @@
                             return data
                         }
                     },
-                    @if ($st == 'new-leads')
                     {
-                        data: 'followup_status',
-                    },
-                    @endif
-                    {
-                        data: 'interest_prog',
+                        data: 'took_ia',
+                        className: 'text-center',
                         searchable: false,
-                        className: 'text-start',
-                        defaultContent: '-',
                         render: function(data, type, row, meta) {
-                            if (data == undefined && data == null) {
-                                return '-'
-                            } else {
-                                var arrayInterest = data.split(',');
-                                var arrayLength = arrayInterest.length > 1 ? (arrayInterest.length -
-                                    1) + ' More' : ''
-
-                                var interestProgram = ""
-
-                                for (i = 0; i < arrayInterest.length; i++) {
-                                    if (i != 0) {
-                                        interestProgram += arrayInterest[i] + '</br>'
-                                    }
+                            var link = '{{ env("EDUALL_ASSESSMENT_URL") }}' + 'api/report/' + row.uuid + '?is_preview=1';
+                            if(data !== 'error'){
+                                if(data == 0){
+                                    return '<h5><i class="bi bi-dash-square-fill text-danger" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Not yet"></i></h5>'
+                                }else{
+                                    return '<div class="container" style="padding-left:0;">'
+                                            + '<div class="row justify-content-center">'
+                                            + '<div class="col-1">'
+                                            + '<h5 onclick="copyLink(\''+ row.uuid +'\', \'ia-report\')" style="cursor: pointer;"><i class="bi bi-check-square-fill text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Report"></i></h5>' 
+                                            + '</div>'
+                                            + '<div class="col-1">'
+                                            + '<h5 onclick="copyLink(\''+ row.uuid +'\', \'ia-answer\')" style="cursor: pointer;"><i class="bi bi-zoom-in text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Answer"></i></h5>' 
+                                            + '</div>'
+                                            + '</div>'
+                                            + '</div>'
+                                            
                                 }
-
-                                var descProgram = arrayInterest.length > 1 ?
-                                    '<div class="badge badge-primary py-1 px-2" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-placement="right" data-bs-title="' +
-                                    interestProgram + '">' + arrayLength +
-                                    '</div>' : ''
-
-
-                                return arrayInterest[0] + " " + descProgram
+                            }else{
+                                return '<h5><i class="bi bi-dash-square-fill text-danger"  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Not yet"></i></h5>'
                             }
                         }
                     },
                     {
+                        data: 'pic_name',
+                        defaultContent: '-',
+                        searchable: false,
+                    },
+                  
+                    {
                         data: 'program_suggest',
-                        defaultContent: '-'
+                        defaultContent: '-',
+                        searchable: false,
                     },
                     {
                         data: 'status_lead',
@@ -656,10 +644,6 @@
 
                     },
                     {
-                        data: 'pic_name',
-                        defaultContent: '-'
-                    },
-                    {
                         data: 'mail',
                         defaultContent: '-'
                     },
@@ -687,11 +671,13 @@
                     {
                         data: 'school_name',
                         name: 'school_name',
+                        searchable: false,
                         defaultContent: '-'
                     },
                     {
                         data: 'graduation_year_real',
                         className: 'text-center',
+                        searchable: false,
                         defaultContent: '-'
                     },
                     {
@@ -702,11 +688,6 @@
                             return data > 12 ? 'Not high school' : data;
                         }
                     },
-                    // {
-                    //     data: 'insta',
-                    //     className: 'text-center',
-                    //     defaultContent: '-'
-                    // },
                     {
                         data: 'state',
                         defaultContent: '-'
@@ -722,6 +703,7 @@
                     {
                         data: 'lead_source',
                         className: 'text-center',
+                        searchable: false,
                         defaultContent: '-',
                     },
                     {
@@ -739,40 +721,6 @@
                     },
                     {
                         data: 'st_levelinterest',
-                        className: 'text-center',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'joined_event',
-                        className: 'text-center',
-                        render: function(data, type, row, meta) {
-                            if (data == undefined && data == null) {
-                                return '-'
-                            } else {
-                                var arrayInterest = data.split(',');
-                                var arrayLength = arrayInterest.length > 1 ? (arrayInterest.length -
-                                    1) + ' More' : ''
-
-                                var interestProgram = ""
-
-                                for (i = 0; i < arrayInterest.length; i++) {
-                                    if (i != 0) {
-                                        interestProgram += arrayInterest[i] + '</br>'
-                                    }
-                                }
-
-                                var descProgram = arrayInterest.length > 1 ?
-                                    '<div class="badge badge-primary py-1 px-2" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-placement="right" data-bs-title="' +
-                                    interestProgram + '">' + arrayLength +
-                                    '</div>' : ''
-
-
-                                return arrayInterest[0] + " " + descProgram
-                            }
-                        }
-                    },
-                    {
-                        data: 'st_abryear',
                         className: 'text-center',
                         defaultContent: '-'
                     },
@@ -802,59 +750,6 @@
 
 
                                 return arrayInterest[0] + " " + descProgram
-                            }
-                        }
-                    },
-                    // {
-                    //     data: 'dream_uni',
-                    //     className: 'text-center',
-                    //     defaultContent: '-'
-                    // },
-                    {
-                        data: 'dream_major',
-                        className: 'text-center',
-                        defaultContent: '-'
-                    },
-                    // {
-                    //     data: 'dream_major',
-                    //     className: 'text-center',
-                    //     defaultContent: '-'
-                    // },
-                    {
-                        data: 'scholarship',
-                        className: 'text-center',
-                        searchable: false,
-                        render: function(data, type, row, meta) {
-                            if (data == "Y")
-                                return "Yes"
-                            else
-                                return "No"
-                        }
-                    },
-                    {
-                        data: 'took_ia',
-                        className: 'text-center',
-                        searchable: false,
-                        render: function(data, type, row, meta) {
-                            var link = '{{ env("EDUALL_ASSESSMENT_URL") }}' + 'api/report/' + row.uuid + '?is_preview=1';
-                            if(data !== 'error'){
-                                if(data == 0){
-                                    return '<h5><i class="bi bi-dash-square-fill text-danger" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Not yet"></i></h5>'
-                                }else{
-                                    return '<div class="container" style="padding-left:0;">'
-                                            + '<div class="row justify-content-center">'
-                                            + '<div class="col-1">'
-                                            + '<h5 onclick="copyLink(\''+ row.uuid +'\', \'ia-report\')" style="cursor: pointer;"><i class="bi bi-check-square-fill text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Report"></i></h5>' 
-                                            + '</div>'
-                                            + '<div class="col-1">'
-                                            + '<h5 onclick="copyLink(\''+ row.uuid +'\', \'ia-answer\')" style="cursor: pointer;"><i class="bi bi-zoom-in text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Answer"></i></h5>' 
-                                            + '</div>'
-                                            + '</div>'
-                                            + '</div>'
-                                            
-                                }
-                            }else{
-                                return '<h5><i class="bi bi-dash-square-fill text-danger"  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Not yet"></i></h5>'
                             }
                         }
                     },

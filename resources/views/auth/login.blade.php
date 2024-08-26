@@ -15,8 +15,8 @@
                 <div class="d-none d-md-block col-md-6 h-100 bg-light">
                     <div class="d-flex align-items-center justify-content-center h-100">
                         <div class="text-center">
-                            <img src="{{ asset('img/logo.png') }}" alt="ALL-in Eduspace" class="w-25" loading="lazy">
-                            <img src="{{ asset('img/login.png') }}" alt="ALL-in Eduspace - Login" class="w-75" loading="lazy">
+                            <img loading="lazy"  src="{{ asset('img/logo.webp') }}" alt="ALL-in Eduspace" class="w-25" loading="lazy">
+                            <img loading="lazy"  src="{{ asset('img/login.webp') }}" alt="ALL-in Eduspace - Login" class="w-75" loading="lazy">
                         </div>
                     </div>
                 </div>

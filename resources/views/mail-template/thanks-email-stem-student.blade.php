@@ -1,6 +1,6 @@
 @extends('layout.email-stem')
 @section('banner')
-    <img src="{{ asset('img/makerspace/header_reminder_registration.jpg') }}" alt="STEM+ Wonderlab" width="2500"
+    <img loading="lazy"  src="{{ asset('img/makerspace/header_reminder_registration.jpg') }}" alt="STEM+ Wonderlab" width="2500"
         style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;">
 @endsection
 
@@ -25,7 +25,7 @@
 
                             <p style="text-align: center">
                                 <a href="https://immersion-program.all-inedu.com/">
-                                    <img src="{{ asset('img/makerspace/GIP.jpg') }}" width="350" alt="">
+                                    <img loading="lazy"  src="{{ asset('img/makerspace/GIP.jpg') }}" width="350" alt="">
                                 </a>
                             </p>
 
@@ -60,6 +60,6 @@
     </table>
 @endsection
 @section('footer')
-    <img src="{{ asset('img/makerspace/email_footer.jpg') }}" alt="STEM+ Wonderlab" width="2500"
+    <img loading="lazy"  src="{{ asset('img/makerspace/email_footer.jpg') }}" alt="STEM+ Wonderlab" width="2500"
         style="width:2500px;max-width:100%;height:auto;border:none;text-decoration:none;color:#ffffff;">
 @endsection

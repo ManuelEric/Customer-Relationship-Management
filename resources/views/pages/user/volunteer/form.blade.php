@@ -14,7 +14,7 @@
         <div class="col-md-3 mb-3">
             <div class="card rounded mb-3">
                 <div class="card-body">
-                    <img src="{{ asset('img/mentee.jpg') }}" class="w-100">
+                    <img loading="lazy"  src="{{ asset('img/mentee.webp') }}" class="w-100">
                     <h4 class="text-center">Add Volunteer</h4>
 
                     <div class="text-center mt-2">
