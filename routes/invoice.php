@@ -62,7 +62,7 @@ Route::resource('client-program', InvoiceProgramController::class, [
     ]
 ]);
 
-Route::prefix('client-program')->name('invoice.program.')->group(function () {
+Route::prefix('client-program')->name('invoice.client-program.')->group(function () {
     Route::post('{client_program}/remind/by/email', [InvoiceProgramController::class, 'remindParentsByEmail']);
     Route::post('{client_program}/remind/by/whatsapp', [InvoiceProgramController::class, 'remindParentsByWhatsapp']);
 

@@ -58,7 +58,7 @@
     </table>
     <br>
     <p>
-        After making payment, please <b>confirm</b> via email to emilia@all-inedu.com by attaching your proof of payment.
+        After making payment, please <b>confirm</b> via email to emilia@edu-all.com by attaching your proof of payment.
     </p>
     <p style="font-weight: bold;">
         If payment has been made, please ignore this email.

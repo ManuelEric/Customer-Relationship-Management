@@ -68,5 +68,6 @@ class Kernel extends HttpKernel
         'auth.expires' => \App\Http\Middleware\SessionExpired::class,
         'scopes' => \Laravel\Passport\Http\Middleware\CheckScopes::class,
         'scope' => \Laravel\Passport\Http\Middleware\CheckForAnyScope::class,
+        'timesheet.access' => \App\Http\Middleware\TimesheetAccess::class,
     ];
 }

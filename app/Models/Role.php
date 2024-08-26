@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\pivot\UserRole;
+use App\Models\pivot\UserSubject;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -29,5 +30,10 @@ class Role extends Model
     public function client()
     {
         return $this->belongsToMany(UserClient::class, 'tbl_client_roles', 'role_id', 'client_id');
+    }
+
+    public function subjects()
+    {
+        return $this->hasManyThrough(UserSubject::class, UserRole::class, 'role_id', 'user_role_id', 'id', 'id');
     }
 }

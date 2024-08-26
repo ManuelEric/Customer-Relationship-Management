@@ -477,6 +477,7 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                                     ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
                                     ->select(DB::raw('SUM(inv_totalprice_idr) as total'))
                                     ->where('tbl_main_prog.id', 1)
+                                    ->where('tbl_client_prog.status', 1)
                                     ->whereYear('tbl_inv.created_at', '=', $year)
                                     ->whereMonth('tbl_inv.created_at', '=', $month)
                                     ->get();

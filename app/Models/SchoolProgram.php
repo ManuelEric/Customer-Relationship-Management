@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use App\Models\pivot\SchoolCollaboratorFromSchoolProgram;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
 
 class SchoolProgram extends Model
 {
@@ -56,6 +58,18 @@ class SchoolProgram extends Model
 
     //     return $instance->newQuery()->where('id', $id)->first();
     // }
+
+    public function scopeSuccess(Builder $query): void
+    {
+        $query->where('status', 1)->where('end_program_date', '>=', Carbon::now());
+    }
+
+    public function scopeProgramIs(Builder $query, string $main_program_name): void
+    {
+        $query->whereHas('program.main_prog', function ($sub) use ($main_program_name) {
+            $sub->where('prog_name', $main_program_name);
+        });
+    }
 
     public function school()
     {

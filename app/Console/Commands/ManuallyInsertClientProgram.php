@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\ClientProgram;
 use App\Models\UserClient;
+use App\Models\v1\ClientProgram;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

@@ -24,9 +24,6 @@ use App\Models\Event;
 use App\Models\School;
 use App\Models\UserClient;
 use App\Repositories\ProgramRepository;
-use App\Rules\Event\DestinationCountryRequiredRule;
-use App\Rules\Event\DestinationCountryRule;
-use App\Rules\Event\DestinationCountryValidityRule;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
@@ -1894,13 +1891,46 @@ class ExtClientController extends Controller
     {   
         $incomingEmail = $request->get('email');
         
-        $query = \App\Models\User::with('roles')->whereHas('roles', function ($query) use ($incomingEmail) {
-            $query->whereIn('role_name', ['Mentor', 'Tutor']);
-        })->where('email', $incomingEmail);
+        $query = \App\Models\User::query()->
+            withAndWhereHas('roles', function ($query) {
+                $query->whereIn('role_name', ['Mentor', 'Tutor'])->select('role_name');
+            })->
+            where('email', $incomingEmail);
 
-        $result = $query->exists() ? $query->select(['id', 'uuid', 'first_name', 'last_name', 'email', 'password'])->first() : null;
+        $result = null;
+        if ( $query->exists() )
+        {
+            $result = $query->select('id', 'uuid', 'first_name', 'last_name', 'email', 'phone', 'password')->first();
 
-        return response()->json($result);
+            # fetch the roles
+            foreach ( $result->roles as $role) {
+
+                $mappedRoles[] = [
+                    'role_name' => $role->role_name,
+                    'subjects' => $result->user_subjects && $role->role_name == 'Tutor' ? $result->user_subjects->map(function ($item) {
+                                    return [
+                                        'id' => $item->id,
+                                        'subject' => $item->subject->name,
+                                        'year' => $item->year,
+                                        'agreement' => $item->agreement,
+                                        'head' => $item->head,
+                                        'additional_fee' => $item->additional_fee,
+                                        'grade' => $item->grade,
+                                        'fee_individual' => $item->fee_individual,
+                                        'fee_group' => $item->fee_group,
+                                    ];
+                                }) : null
+                ];
+
+            }
+
+            $resultInArray = $result->toArray();
+            $resultInArray['roles'] = $mappedRoles;
+
+            unset($resultInArray['user_subjects']);
+        }       
+
+        return response()->json($resultInArray);
     }
 
     public function validateCredentials(Request $request): JsonResponse
@@ -1922,55 +1952,84 @@ class ExtClientController extends Controller
         return response()->json($user);
     }
 
-    public function getMentorTutors(Request $request): JsonResponse 
+    public function getMentorTutors(Request $request, $authorization = null): JsonResponse 
     {
         /* Incoming request */
         $keyword = $request->get('keyword');
+        $paginate = $request->get('paginate'); # true will return paginate results, false will return all results 
+        $role = $request->get('role');
 
         $user = \App\Models\User::query()->
             select('id', 'uuid', 'first_name', 'last_name', 'email', 'phone')->
-            with(['roles' => function ($query) {
-                $query->select('role_name', 'tutor_subject', 'feehours');
-            }])->
-            whereHas('roles', function ($query) {
-                $query->whereIn('role_name', ['Mentor', 'Tutor']);
+            with([
+                'user_subjects' => function ($query) {
+                    $query->select('user_role_id', 'subject_id', 'year', 'agreement', 'head', 'additional_fee', 'grade', 'fee_individual', 'fee_group');
+                },
+                'user_subjects.subject',
+                'user_subjects.user_roles',
+                'user_subjects.user_roles.role',
+            ])->
+            whereHas('roles', function ($query) use ($role) {
+                $query->when($role, function ($sub) use ($role) {
+                    $sub->where('role_name', $role);
+                }, function ($sub) use ($role) {
+                    $sub->whereIn('role_name', ['Mentor', 'Tutor']);
+                });
             })->
             when($keyword, function ($query) use ($keyword) {
                 $query->
-                    whereRaw('CONCAT(first_name, " ", last_name) like ?', ['%'.$keyword.'%'])->
-                    orWhereRaw('email like ?', ['%'.$keyword.'%'])->
-                    orWhereRaw('phone like ?', ['%'.$keyword.'%']);
+                    where(function ($sub) use ($keyword) {
+                        $sub->whereRaw('CONCAT(first_name, " ", COALESCE(last_name)) like ?', ['%'.$keyword.'%'])->
+                        orWhereRaw('email like ?', ['%'.$keyword.'%'])->
+                        orWhereRaw('phone like ?', ['%'.$keyword.'%']);
+                    });
             })->
+            whereNotNull('email')->
             get();
         
         $mappedUser = $user->map(function ($data) {
-            $base = [
-                'uuid' => $data['uuid'],
-                'first_name' => $data['first_name'],
-                'last_name' => $data['last_name'],
-                'email' => $data['email'],
-                'phone' => $data['phone']
-            ];
 
-            foreach ($data['roles'] as $role) {
+            $userSubjects = $data->user_subjects;
+
+            $acceptedRole = [];
+
+            foreach ($userSubjects as $user_subject) {
+
+                $user_role = $user_subject['user_roles'];
+                $role = $user_role['role'];
 
                 if (!in_array($role['role_name'], ['Mentor', 'Tutor']))
                     continue;
 
-
-                $acceptedRole = [
+                $acceptedRole[] = [
                     'role' => $role['role_name'],
-                    'tutor_subject' => $role['tutor_subject'],
-                    'feehours' => $role['feehours'],
+                    'subjects' => [
+                        'name' => $user_subject['subject']['name'],
+                        'year' => $user_subject['year'],
+                        'head' => $user_subject['head'],
+                        'additional_fee' => $user_subject['additional_fee'],
+                        'grade' => $user_subject['grade'],
+                        'fee_individual' => $user_subject['fee_individual'],
+                        'fee_group' => $user_subject['fee_group'],
+                    ],
                 ];
             
             }
 
-            return array_merge($base, $acceptedRole);
+            return [
+                'uuid' => $data['uuid'],
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'],
+                'roles' => $acceptedRole
+            ];
+            
         });
 
-        $mappedUser = $mappedUser->paginate(10);
-
+        if ($paginate)
+            $mappedUser = $mappedUser->paginate(10);
+        
         return response()->json($mappedUser);
     }
 
@@ -2004,6 +2063,15 @@ class ExtClientController extends Controller
 
     }
 
+    public function getClientInformation($uuid): JsonResponse
+    {
+        $userClient = UserClient::where('uuid', $uuid)->
+            select('*')->
+            selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade')->
+            first();
+        return response()->json($userClient);
+    }
+    
     public function updateTookIA(Request $request){
         $uuid = $request->uuid;
 

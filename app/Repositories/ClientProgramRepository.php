@@ -211,8 +211,12 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         break;
 
                     case "All-In Partners":
-                        $partner_name = $clientProgram->partner->corp_name;
-                        $conv_lead = "EduALL Partners - {$partner_name}";
+                        $conv_lead = "EduALL Partners";
+                        if (isset($clientProgram->partner)) {
+                            $partner_name = $clientProgram->partner->corp_name;
+                            $conv_lead = "EduALL Partners - {$partner_name}";
+                        }
+
                         break;
 
                     default:

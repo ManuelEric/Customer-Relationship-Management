@@ -32,17 +32,20 @@ use Illuminate\Support\Facades\Session;
 
 # AUTH START --------------------------------
 
-Route::get('/', function () {
-    return view('auth.login');
-})->middleware('guest');
+Route::middleware('guest')->group(function () {
+    Route::get('/', function () {
+        return view('auth.login');
+    });
+    
+    Route::get('404', function () {
+        return view('auth.404');
+    })->name('auth.404');
+    
+    Route::get('login', function () {
+        return view('auth.login');
+    })->name('login');
+});
 
-Route::get('404', function () {
-    return view('auth.404');
-})->name('auth.404');
-
-Route::get('login', function () {
-    return view('auth.login');
-})->middleware('guest')->name('login');
 
 Route::post('auth/login', [AuthController::class, 'login'])->name('login.action');
 Route::get('login/expired', [AuthController::class, 'logoutFromExpirationTime'])->name('logout.expiration');

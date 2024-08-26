@@ -16,8 +16,13 @@ class UserTypeRepository implements UserTypeRepositoryInterface
 
     public function getActiveUserTypeByUserId($userId)
     {
-        $user = User::find($userId);
-        return $user->user_type()->orderBy('id', 'asc')->first();
+        $user = User::isActive()->
+                where('id', $userId)->
+                select([
+                    'id', 'first_name', 'last_name', 'email', 'phone'
+                ])->
+                first();
+        return $user->user_type()->wherePivot('status', 1)->latest('created_at')->first();
         
     }
 

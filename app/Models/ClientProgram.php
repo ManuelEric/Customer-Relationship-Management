@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 
 class ClientProgram extends Model
 {
@@ -162,7 +163,7 @@ class ClientProgram extends Model
     protected function stripTagNotes(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => substr(strip_tags($this->meeting_notes), 0, 50)
+            get: fn ($value) => mb_substr(strip_tags($this->meeting_notes), 0, 50)
         );
     }
 
@@ -173,6 +174,16 @@ class ClientProgram extends Model
         $instance = new static;
 
         return $instance->newQuery()->where('clientprog_id', $id)->first();
+    }
+
+    public function scopeSuccessAndPaid(Builder $query): void
+    {
+        $query->where('status', 1)->whereNot('prog_running_status', 2)->where('prog_end_date', '>=', Carbon::now())->
+            where(function ($query) {
+                $query->where(function ($query2) {
+                    $query2->has('invoice')->has('invoice.receipt');
+                });
+            });
     }
 
 
@@ -208,8 +219,8 @@ class ClientProgram extends Model
 
     public function getReferralNameFromRefCodeView($refCode)
     {
-        // return ViewClientRefCode::whereRaw('ref_code COLLATE utf8mb4_unicode_ci = (?)', $refCode)->first()->full_name;
-        return ViewClientRefCode::whereRaw('ref_code = (?)', $refCode)->first()->full_name;
+        return ViewClientRefCode::whereRaw('ref_code COLLATE utf8mb4_unicode_ci = (?)', $refCode)->first()->full_name;
+        // return ViewClientRefCode::whereRaw('ref_code = (?)', $refCode)->first()->full_name;
     }
 
     public function client()
