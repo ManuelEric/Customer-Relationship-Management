@@ -2,28 +2,19 @@
 
 namespace App\Providers;
 
-use App\Interfaces\MenuRepositoryInterface;
-use App\Models\Department;
 use App\Repositories\MenuRepository;
-use App\Models\User;
 use App\Repositories\AlarmRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\FollowupRepository;
-use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
-use PDO;
+use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -35,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        // Passport::ignoreMigrations();
         $this->app->bind('menu-repository-services', MenuRepository::class);
         $this->app->bind('alarm-repository-services', AlarmRepository::class);
         $this->app->bind('follow-up', FollowupRepository::class);

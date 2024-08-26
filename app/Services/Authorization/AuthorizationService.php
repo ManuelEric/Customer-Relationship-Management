@@ -56,14 +56,14 @@ class AuthorizationService
         foreach ( $user->roles()->orderBy('id', 'asc')->get() as $userRole )
         {
             $roleName = str_replace(' ', '-', strtolower($userRole->role_name));
-            if ( $roleName != 'Employee' || $roleName != 'Super Admin' || $roleName != 'Admin' )
-                continue;
-
-            # the scopes variables should between "employee", "super admin", "admin"
-            $scopes = $roleName;
+            if ( $roleName == 'employee' || $roleName == 'super-admin' || $roleName == 'admin' )
+            {
+                # the scopes variables should between "employee", "super admin", "admin"
+                $scopes = [$roleName];
+            }
         }
 
-        return '["'.$scopes.'"]';
+        return $scopes;
     }
 
     public function authorize($user, $scopes)
