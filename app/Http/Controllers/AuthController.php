@@ -40,10 +40,10 @@ class AuthController extends Controller
         ]);
 
         # check credentials
-        if (!Auth::attempt($credentials))
+        if (!Auth::attempt($credentials, true))
             return back()->withErrors([ 'password' => 'Wrong email or password' ]);
         
-        // try {
+        try {
 
             $user = Auth::user();
             $userId = $user->id;
@@ -55,18 +55,18 @@ class AuthController extends Controller
             $request->session()->put('access_token', $generatedToken);
             $request->session()->put('scope', $scopes);
             
-        // } catch (Exception $e) {
+        } catch (Exception $e) {
 
-        //     Log::debug('Error:'. $e->getMessage());
-        //     return back()->withError($e->getMessage());
+            Log::debug('Error:'. $e->getMessage());
+            return back()->withError($e->getMessage());
 
-        // }
+        }
 
 
         # login Success
         # create log success
         $this->logSuccess('auth', null, 'Login', $request->email);
-        // $request->session()->regenerate();
+        $request->session()->regenerate();
 
         
         return redirect()->intended('/dashboard2');
