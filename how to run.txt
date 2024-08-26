@@ -1,0 +1,10 @@
+1. clone repo dengan url: https://github.com/all-inedu/internal-operation-v2.git dan nama branch: hafidz
+   git clone -b <branchname> <remote-repo-url>
+2. buat database crm_v2 and import crm_v2.sql
+3. composer update terlebih dahulu
+4. migrate view / manual insert di sql
+5. username: admin@all-inedu.com
+   password: all-inedu04
+
+Please, don't share resources with others and keep confidential ya guyss !!
+Thank youu

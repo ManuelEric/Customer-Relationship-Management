@@ -1,0 +1,15 @@
+{{-- send to internal PIC  --}}
+{{-- cc to kak dev + emil  --}}
+
+@extends('layout.email')
+@section('header', 'Invoice')
+@section('content')
+    <p style="margin:0;">Dear Mr./Mrs. {{ ucwords($param['fullname']) }},</p>
+    <p>
+        Please find attached the invoice of <u>{{ $param['program_name'] }}</u> for your further action.
+    </p>
+    <p>
+        Thank you <br>
+        Regards
+    </p>
+@endsection
