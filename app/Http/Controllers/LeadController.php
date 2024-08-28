@@ -163,7 +163,7 @@ class LeadController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update lead failed : ' . $e->getMessage());
+            Log::error('Update lead failed : ' . $e->getMessage(). ' | Line: '. $e->getLine());
             return Redirect::to('master/lead')->withError('Failed to update lead');
         }
 

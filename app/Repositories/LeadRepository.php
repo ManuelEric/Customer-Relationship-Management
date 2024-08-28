@@ -16,6 +16,7 @@ class LeadRepository implements LeadRepositoryInterface
                     filterColumn('dept_name', function ($query, $keyword) {
                         $query->whereRaw('tbl_department.dept_name like ?', ["%{$keyword}%"]);
                     })->
+                    addIndexColumn()->
                     make(true);
     }
 

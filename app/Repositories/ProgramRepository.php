@@ -92,11 +92,13 @@ class ProgramRepository implements ProgramRepositoryInterface
             unset($programDetails['prog_sub']);
 
             $subProg = $this->subProgRepository->getSubProgById($programDetails['sub_prog_id']);
-            $programDetails['prog_sub'] = $subProg->sub_prog_name;
+            
+            // $programDetails['prog_sub'] = $subProg->sub_prog_name;
         }
 
         # fetch prog name & sub prog name
-        $programDetails['prog_main'] = $mainProg->prog_name;
+
+        // $programDetails['prog_main'] = $mainProg->prog_name;
 
         # disesuaikan dengan main_prog_id & sub_prog_id
         return Program::create($programDetails);
@@ -123,11 +125,13 @@ class ProgramRepository implements ProgramRepositoryInterface
             unset($newDetails['prog_sub']);
 
             $subProg = $this->subProgRepository->getSubProgById($newDetails['sub_prog_id']);
-            $newDetails['prog_sub'] = $subProg->sub_prog_name;
+            
+            // $newDetails['prog_sub'] = $subProg->sub_prog_name;
         }
 
         # fetch prog name & sub prog name
-        $newDetails['prog_main'] = $mainProg->prog_name;
+        
+        // $newDetails['prog_main'] = $mainProg->prog_name;
 
         # disesuaikan dengan main_prog_id & sub_prog_id
         return Program::whereProgId($programId)->update($newDetails);

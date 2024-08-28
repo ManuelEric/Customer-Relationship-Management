@@ -28,9 +28,9 @@ class TagRepository implements TagRepositoryInterface
         return Tag::where('name', 'like', '%'.$tagName.'%')->first();
     }
 
-    public function createTag(array $tags)
+    public function createTag(array $tag)
     {
-        return Tag::insert($tags);
+        return Tag::create($tag);
     }
 
     public function deleteTag($tagId)
@@ -38,8 +38,8 @@ class TagRepository implements TagRepositoryInterface
         return Tag::destroy($tagId);
     }
 
-    public function updateTag($tagId, array $tags)
+    public function updateTag($tagId, array $tag)
     {
-        return Tag::find($tagId)->update($tags);
+        return Tag::find($tagId)->update($tag);
     }
 }

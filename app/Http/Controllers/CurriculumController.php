@@ -47,7 +47,7 @@ class CurriculumController extends Controller
         DB::beginTransaction();
         try {
 
-            $curriculumCreated = $this->curriculumRepository->createCurriculum($curriculum);
+            $curriculumCreated = $this->curriculumRepository->createOneCurriculum($curriculum);
             DB::commit();
 
         } catch (Exception $e) {
