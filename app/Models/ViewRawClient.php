@@ -71,6 +71,6 @@ class ViewRawClient extends Authenticatable
 
     public function destinationCountries()
     {
-        return $this->belongsToMany(Tag::class, 'tbl_client_abrcountry', 'client_id', 'tag_id')->withTimestamps();
+        return $this->belongsToMany(Tag::class, 'tbl_client_abrcountry', 'client_id', 'country_id')->withTimestamps();
     }
 }
