@@ -1228,7 +1228,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getClientByUUID($clientUUID)
     {
-        return UserClient::where('uuid', $clientUUID)->first();
+        return UserClient::where('id', $clientUUID)->first();
     }
 
     public function getClientsById(array $clientIds)
@@ -1236,7 +1236,7 @@ class ClientRepository implements ClientRepositoryInterface
         return UserClient::whereIn('id', $clientIds)->get();
     }
 
-    public function findHandledClient(int $clientId)
+    public function findHandledClient(String $clientId)
     {
         return UserClient::where('id', $clientId)->filterBasedOnPIC()->exists();
     }
@@ -1274,7 +1274,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getViewClientByUUID($clientUUID)
     {
-        return Client::where('uuid', $clientUUID)->first();
+        return Client::where('id', $clientUUID)->first();
     }
 
     public function checkIfClientIsMentee($clientId)
@@ -1847,7 +1847,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function deleteRawClientByUUID($rawClientUUID)
     {
-        return RawClient::where('uuid', $rawClientUUID)->delete();
+        return RawClient::where('id', $rawClientUUID)->delete();
     }
 
     public function moveBulkToTrash($clientIds)
@@ -2093,12 +2093,12 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getClientByUUIDforAssessment($uuid)
     {
-        $child = UserClient::where('uuid', $uuid)->first();
+        $child = UserClient::where('id', $uuid)->first();
 
         return [
             'client' => [
-                'id' => $child->id,
-                'uuid_crm' => $child->uuid,
+                'id' => $child->secondary_id,
+                'uuid_crm' => $child->id,
                 'is_vip' => false,
                 'took_initial_assessment' => 0,
                 'full_name' => $child->full_name,
@@ -2137,7 +2137,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function updateClientByUUID($uuid, array $newDetails)
     {
-        return tap(UserClient::where('uuid', $uuid)->first())->update($newDetails);
+        return tap(UserClient::where('id', $uuid)->first())->update($newDetails);
     }
 
     public function countClientByCategory($category, $month = null)

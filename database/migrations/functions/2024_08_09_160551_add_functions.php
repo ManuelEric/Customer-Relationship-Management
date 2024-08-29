@@ -360,9 +360,9 @@ return new class extends Migration
 
                 SET multiplier = 
                     CASE 
-                        WHEN division = `Sales` THEN 2
-                        WHEN division = `Referral` THEN 1
-                        WHEN division = `Digital` THEN 5
+                        WHEN division = "Sales" THEN 2
+                        WHEN division = "Referral" THEN 1
+                        WHEN division = "Digital" THEN 5
                     END;
 
                 SET leads_needed = hot_leads_target * multiplier;

@@ -151,7 +151,6 @@ class ClientStudentController extends ClientController
 
             switch ($statusClient) {
 
-                    // client/student
                 case "new-leads":
                     $model = $this->clientRepository->getNewLeads($asDatatables, null, $advanced_filter);
                     break;

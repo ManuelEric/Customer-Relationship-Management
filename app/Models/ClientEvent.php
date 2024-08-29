@@ -77,6 +77,12 @@ class ClientEvent extends Model
         return $model;
     }
 
+    protected function eventId(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => strtoupper($value)
+        );
+    }
 
     public function joinedDate(): Attribute
     {
