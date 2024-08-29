@@ -8,7 +8,7 @@ interface TagRepositoryInterface
     public function getAllTags();
     public function getTagById($tagId);
     public function getTagByName($tagName);
-    public function createTag(array $tags);
+    public function createTag(array $tag);
     public function deleteTag($tagId);
-    public function updateTag($tagId, array $tags);
+    public function updateTag($tagId, array $tag);
 }

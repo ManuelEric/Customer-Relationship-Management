@@ -381,7 +381,7 @@
     </script>
 
     {{-- TinyMCE  --}}
-    //
+    
     <script>
         //     tinymce.init({
         //         strict_loading_mode : true,

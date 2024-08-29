@@ -13,6 +13,8 @@ class Lead extends Model
     use HasFactory;
 
     protected $table = 'tbl_lead';
+    protected $primaryKey = 'lead_id';
+    protected $keyType = 'string';
 
     /**
      * The attributes that should be visible in arrays.

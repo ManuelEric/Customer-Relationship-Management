@@ -254,6 +254,7 @@
             $('#formSalesTarget').attr('action', '{{ url('master/sales-target') }}')
         }
 
+        var existingProgId = null;
 
         function editById(id) {
             let link = "{{ url('master/sales-target') }}/" + id + "/edit"
@@ -265,6 +266,7 @@
                     // handle success
                     let data = response.data
                     progId = data.prog_id;
+                    existingProgId = progId;
                     // console.log(data)
 
                     $('#total_participant').val(data.total_participant)
@@ -288,51 +290,55 @@
         
 
         $("#main_prog").on('change', function() {
-        showLoading();
+            showLoading();
 
-        var mainProgId = $(this).val();
-        if (mainProgId == "") {
-            
-            $(".prog-name-cont").addClass('d-none');
-            $("#prog_id").html('<option></option>');
-            swal.close();
-            return;
-        }
+            var mainProgId = $(this).val();
+            if (mainProgId == "") {
+                
+                $(".prog-name-cont").addClass('d-none');
+                $("#prog_id").html('<option></option>');
+                swal.close();
+                return;
+            }
         
 
-        var baseUrl = "{{ url('/') }}/api/get/program/main/" + mainProgId;
+            var baseUrl = "{{ url('/') }}/api/get/program/main/" + mainProgId;
 
-        axios.get(baseUrl)
-            .then(function (response) {
+            axios.get(baseUrl)
+                .then(function (response) {
 
-                
-                let obj = response.data;
-                var html = '<option data-placeholder="true"></option>'
-                
-                for (var key in obj.data) {
-                    var selected = '';
                     
-                    if('{{ !empty(old("prog_id")) }}' && '{{ old("prog_id") }}' === obj.data[key].prog_id)
-                        selected = "selected";
-
-                    if(progId !== null && (progId == obj.data[key].prog_id))
-                        selected = "selected";
+                    let obj = response.data;
+                    console.log(obj);
                     
-                    html += "<option value='" + obj.data[key].prog_id + "' " + selected +">" + obj.data[key].prog_program + "</option>"
+                    var html = '<option data-placeholder="true"></option>'
                     
+                    for (var key in obj.data) {
+                        var selected = '';
+                        console.log(key);
                         
+                        
+                        if('{{ !empty(old("prog_id")) }}' && '{{ old("prog_id") }}' === obj.data[key].prog_id)
+                            selected = "selected";
 
-                }
+                        if(existingProgId !== null && (existingProgId == obj.data[key].prog_id))
+                            selected = "selected";
+                        
+                        html += "<option value='" + obj.data[key].prog_id + "' " + selected +">" + obj.data[key].prog_program + "</option>"
+                        
+                            
 
-                $("#prog_id").html(html)
-                $(".prog-name-cont").removeClass('d-none');
-                swal.close();
+                    }
 
-            })
-            .catch(function (error) {
-                console.log(error)
-            })
-    });
+                    $("#prog_id").html(html)
+                    $(".prog-name-cont").removeClass('d-none');
+                    swal.close();
+
+                })
+                .catch(function (error) {
+                    console.log(error)
+                })
+        });
     </script>
 
     @if (
