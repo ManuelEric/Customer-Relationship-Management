@@ -323,8 +323,7 @@ class UserClient extends Authenticatable
 
     public function getReferralNameFromRefCodeView($refCode)
     {
-        return ViewClientRefCode::whereRaw('ref_code COLLATE utf8mb4_unicode_ci = (?)', $refCode)->first()->full_name;
-        // return ViewClientRefCode::whereRaw('ref_code = (?)', $refCode)->first()->full_name;
+        return UserClient::where('secondary_id', $refCode)->first()->full_name ?? null;
     }
 
 
