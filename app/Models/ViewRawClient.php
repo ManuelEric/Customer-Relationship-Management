@@ -13,6 +13,7 @@ class ViewRawClient extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'raw_client';
+    protected $keyType = 'string';
 
     /**
      * The attributes that should be visible in arrays.

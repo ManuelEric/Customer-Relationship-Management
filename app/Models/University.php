@@ -26,7 +26,7 @@ class University extends Model
     protected $fillable = [
         'univ_id',
         'univ_name',
-        'tag',
+        // 'tag',
         'univ_address',
         'univ_country',
         'univ_email',
@@ -132,7 +132,7 @@ class University extends Model
 
     public function tags()
     {
-        return $this->belongsTo(Tag::class, 'tag', 'id');
+        return $this->belongsTo(Tag::class, 'univ_country', 'id');
     }
 
     public function asCollaboratorInPartnerProgram()

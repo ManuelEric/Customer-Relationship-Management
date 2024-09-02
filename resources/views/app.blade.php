@@ -328,6 +328,10 @@
             $('.leads' + id).val(old_status);
             $('#updateLeadStatus').modal('hide');
         }
+        
+        function singlequote(text) {
+            return `'${text}'`;
+        }
     </script>
 
     {{-- Notification by Session  --}}
@@ -410,6 +414,7 @@
             });
         }
     </script>
+
     @stack('scripts')
 </body>
 

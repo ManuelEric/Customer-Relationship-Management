@@ -14,7 +14,7 @@ class AcceptanceRepository implements AcceptanceRepositoryInterface
         return DB::table('tbl_client_acceptance')->find($id);
     }
 
-    public function getAcceptanceByClientId(int $clientId)
+    public function getAcceptanceByClientId(String $clientId)
     {
         $client = UserClient::find($clientId);
         return $client->universityAcceptance;

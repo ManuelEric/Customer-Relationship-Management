@@ -23,7 +23,7 @@
                 @endif
                 <div class="row flex-md-row flex-column align-items-center">
                     <div class="col-md-4 col text-center">
-                        <img loading="lazy"  src="{{ asset('img/mentee.webp') }}" class="w-50">
+                        <img loading="lazy" src="{{ asset('img/mentee.webp') }}" class="w-50">
                     </div>
                     <div class="col-md-8 col">
                         <div class="row gap-md-0 gap-2">
@@ -279,8 +279,9 @@
                     <div class="col-md-4" id="studentYear">
                         <div class="mb-2">
                             <label>Student Grade <i class="text-danger font-weight-bold">*</i></label>
-                            @if(isset($student))
-                            <small class="text-info ms-2">Input First Time ({{ date('M, dS Y', strtotime($student->created_at)) }})</small>
+                            @if (isset($student))
+                                <small class="text-info ms-2">Input First Time
+                                    ({{ date('M, dS Y', strtotime($student->created_at)) }})</small>
                             @endif
                             <select class="select w-100" id="grade" name="st_grade">
                                 <option data-placeholder="true"></option>
@@ -307,7 +308,9 @@
                     <div class="col-md-2" id="studentYear">
                         <div class="mb-2">
                             <label>Graduation Year</label>
-                            <input type="text" class="form-control form-control-sm" id="auto_grad_year" name="graduation_year" readonly value="{{isset($student) ? $student->graduation_year : old('graduation_year') }}">
+                            <input type="text" class="form-control form-control-sm" id="auto_grad_year"
+                                name="graduation_year" readonly
+                                value="{{ isset($student) ? $student->graduation_year : old('graduation_year') }}">
                             @error('graduation_year')
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
@@ -316,7 +319,8 @@
                     <div class="col-md-2">
                         <div class="mb-2">
                             <label>Gap Year</label>
-                            <input type="text" class="form-control form-control-sm" name="gap_year" value="{{isset($student) ? $student->gap_year : old('gap_year') }}">
+                            <input type="text" class="form-control form-control-sm" name="gap_year"
+                                value="{{ isset($student) ? $student->gap_year : old('gap_year') }}">
                             @error('gap_year')
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
@@ -346,14 +350,16 @@
                             @enderror
                         </div>
                     </div>
-                    
+
                     <div class="col-md-4 referral d-none">
                         <div class="mb-2">
                             <label>Referral Name <i class="text-danger font-weight-bold">*</i></label>
-                            <input type="hidden" name="old_refname" id="old_refname" value="{{ isset($student->referral_code) ? $student->referral_name : null }}">
+                            <input type="hidden" name="old_refname" id="old_refname"
+                                value="{{ isset($student->referral_code) ? $student->referral_name : null }}">
                             <select name="referral_code" id="referral_code" class="select w-100 select-referral">
-                                @if(isset($student->referral_code))
-                                    <option value="{{ $student->referral_code }}" selected="selected">{{ $student->referral_name }}</option>
+                                @if (isset($student->referral_code))
+                                    <option value="{{ $student->referral_code }}" selected="selected">
+                                        {{ $student->referral_name }}</option>
                                 @endif
                                 {{-- <option data-placeholder="true"></option> --}}
 
@@ -534,16 +540,7 @@
                                 <option data-placeholder="true"></option>
                                 @if (isset($majors))
                                     @foreach ($majors as $major)
-                                        <option value="{{ $major->id }}" @selected(
-    isset($student->interestMajor) &&
-        in_array(
-            $major->id,
-            $student
-                ->interestMajor()
-                ->pluck('tbl_major.id')
-                ->toArray(),
-        )
-)
+                                        <option value="{{ $major->id }}" @selected(isset($student->interestMajor) && in_array($major->id, $student->interestMajor()->pluck('tbl_major.id')->toArray()))
                                             @selected(old('st_abrmajor') == $major->id)>{{ $major->name }}</option>
                                     @endforeach
                                 @endif
@@ -580,248 +577,249 @@
 @endsection
 
 @push('scripts')
-<script>
+    <script>
+        function addSchool() {
+            var s = $('#schoolName').val();
 
-    function addSchool() {
-        var s = $('#schoolName').val();
-
-        if (s == 'add-new') {
-            $(".school").removeClass("d-none");
-        } else {
-            $(".school").addClass("d-none");
-        }
-    }
-
-    $("#leadSource").on('change', function() {
-        var lead = $(this).select2().find(":selected").data('lead')
-        if (lead.includes('All-In Event')) {
-
-            $(".program").removeClass("d-none")
-            $(".edufair").addClass("d-none")
-            $(".kol").addClass("d-none")
-            $(".referral").addClass("d-none")
-
-        } else if (lead.includes('External Edufair')) {
-
-            $(".program").addClass("d-none")
-            $(".edufair").removeClass("d-none")
-            $(".kol").addClass("d-none")
-            $(".referral").addClass("d-none")
-
-        } else if (lead.includes('KOL')) {
-
-            $(".program").addClass("d-none")
-            $(".edufair").addClass("d-none")
-            $(".kol").removeClass("d-none")
-            $(".referral").addClass("d-none")
-
-        } else if (lead.includes('Referral')) {
-
-            $(".program").addClass("d-none")
-            $(".edufair").addClass("d-none")
-            $(".kol").addClass("d-none")
-            $(".referral").removeClass("d-none")
-
-        } else {
-
-            $(".program").addClass("d-none")
-            $(".edufair").addClass("d-none")
-            $(".kol").addClass("d-none")
-            $(".referral").addClass("d-none")
-
-
-        }
-    })
-
-    $("#grade").on('change', async function() {
-        var grade = $(this).val()
-        var year = '{{isset($student) ? date("Y", strtotime($student->created_at)) : date("Y") }}'
-        var month = '{{isset($student) ? date("m", strtotime($student->created_at)) : date("m") }}'
-        
-        var graduation_year = parseInt(month) > 7 ? (12 - parseInt(grade)) + parseInt(year) + 1 : (12 - parseInt(grade)) + parseInt(year)
-        $('#auto_grad_year').val(graduation_year);
-    })
-
-    $('#referral_code').on('change', function(){
-        $('#old_refname').val($("option:selected", this).text())
-    })
-
-
-    const anotherDocument = () => {
-        @if (isset($student->interestUniversities))
-            var st_abruniv = new Array();
-            @foreach ($student->interestUniversities as $university)
-                st_abruniv.push("{{ $university->univ_id }}")
-            @endforeach
-
-            $("#univDestination").select2().val(st_abruniv).trigger('change')
-        @elseif (old('st_abruniv'))
-
-            var st_abruniv = new Array();
-            @foreach (old('st_abruniv') as $key => $val)
-                st_abruniv.push("{{ $val }}")
-            @endforeach
-
-            $("#univDestination").select2().val(st_abruniv).trigger('change')
-        @endif
-    }
-
-    $("#countryStudy").on('change', async function() {
-        var countries = $(this).val()
-        if (countries.length == 0) {
-            $("#univDestination").html('')
-            return
+            if (s == 'add-new') {
+                $(".school").removeClass("d-none");
+            } else {
+                $(".school").addClass("d-none");
+            }
         }
 
-        var get = ""
+        $("#leadSource").on('change', function() {
+            var lead = $(this).select2().find(":selected").data('lead')
+            if (lead.includes('All-In Event')) {
 
-        countries.forEach(function(currentValue, index, arr) {
-            if (index == 0)
-                get += "?country[]=" + currentValue
-            else
-                get += "&country[]=" + currentValue
+                $(".program").removeClass("d-none")
+                $(".edufair").addClass("d-none")
+                $(".kol").addClass("d-none")
+                $(".referral").addClass("d-none")
+
+            } else if (lead.includes('External Edufair')) {
+
+                $(".program").addClass("d-none")
+                $(".edufair").removeClass("d-none")
+                $(".kol").addClass("d-none")
+                $(".referral").addClass("d-none")
+
+            } else if (lead.includes('KOL')) {
+
+                $(".program").addClass("d-none")
+                $(".edufair").addClass("d-none")
+                $(".kol").removeClass("d-none")
+                $(".referral").addClass("d-none")
+
+            } else if (lead.includes('Referral')) {
+
+                $(".program").addClass("d-none")
+                $(".edufair").addClass("d-none")
+                $(".kol").addClass("d-none")
+                $(".referral").removeClass("d-none")
+
+            } else {
+
+                $(".program").addClass("d-none")
+                $(".edufair").addClass("d-none")
+                $(".kol").addClass("d-none")
+                $(".referral").addClass("d-none")
+
+
+            }
         })
 
-        // reset univ Destination html
-        $("#univDestination").html('');
+        $("#grade").on('change', async function() {
+            var grade = $(this).val()
+            var year = '{{ isset($student) ? date('Y', strtotime($student->created_at)) : date('Y') }}'
+            var month = '{{ isset($student) ? date('m', strtotime($student->created_at)) : date('m') }}'
 
-        var html = ""
-        var link = "{{ route('student.create') }}" + get
-        showLoading()
-        await axios.get(link)
-            .then(function(response) {
+            var graduation_year = parseInt(month) > 7 ? (12 - parseInt(grade)) + parseInt(year) + 1 : (12 -
+                parseInt(grade)) + parseInt(year)
+            $('#auto_grad_year').val(graduation_year);
+        })
 
-                // handle success
-                let data = response.data
-                data.forEach(function(currentValue, index, arr) {
-                    html += "<option value='" + arr[index].univ_id + "'>" + arr[index]
-                        .univ_name + " - " + arr[index].univ_country + "</option>"
-                })
-
-                $("#univDestination").append(html)
-                initSelect2("#univDestination")
-                Swal.close()
-            })
-            .catch(function(error) {
-                // handle error
-                Swal.close()
-                notification(error.response.data.success, error.response.data.message)
-            })
-
-        anotherDocument()
-
-    })
-
-    $(document).ready(function() {
-
-        var baseUrl = "{{ url('/') }}/api/get/referral/list";
-
-        $(".select-referral").select2({
-            placeholder: 'Referral Name...',
-            // width: '350px',
-            allowClear: true,
-            ajax: {
-                url: baseUrl,
-                dataType: 'json',
-                delay: 250,
-                data: function(params) {
-                    return {
-                        term: params.term || '',
-                        page: params.page || 1
-                    }
-                },
-                cache: true
-            }
-        });
-
-        const documentReady = () => {
+        $('#referral_code').on('change', function() {
+            $('#old_refname').val($("option:selected", this).text())
+        })
 
 
-            @if (old('sch_id') !== null && old('sch_id') == 'add-new')
-                $("#schoolName").select2().val("{{ old('sch_id') }}").trigger('change')
-
-                @if (!empty(old('sch_curriculum')) && count(old('sch_curriculum')) > 0)
-                    var sch_curriculum = new Array();
-                    @foreach (old('sch_curriculum') as $key => $val)
-                        sch_curriculum.push("{{ $val }}")
-                    @endforeach
-
-                    $("#schCurriculum").val(sch_curriculum).trigger('change')
-                @endif
-            @endif
-
-            @if (isset($student->st_abryear))
-                $("#year").select2().val("{{ $student->st_abryear }}").trigger('change')
-            @elseif (old('st_abryear') !== null)
-                $("#year").select2().val("{{ old('st_abryear') }}").trigger('change')
-            @endif
-
-            @if (isset($student->destinationCountries))
-                var st_abrcountry = new Array();
-                @foreach ($student->destinationCountries as $country)
-                    st_abrcountry.push("{{ $country->id }}")
+        const anotherDocument = () => {
+            @if (isset($student->interestUniversities))
+                var st_abruniv = new Array();
+                @foreach ($student->interestUniversities as $university)
+                    st_abruniv.push("{{ $university->univ_id }}")
                 @endforeach
 
-                $("#countryStudy").val(st_abrcountry).trigger('change')
-            @elseif (!empty(old('st_abrcountry')) && count(old('st_abrcountry')) > 0)
-                var st_abrcountry = new Array();
-                @foreach (old('st_abrcountry') as $key => $val)
-                    st_abrcountry.push("{{ $val }}")
+                $("#univDestination").select2().val(st_abruniv).trigger('change')
+            @elseif (old('st_abruniv'))
+
+                var st_abruniv = new Array();
+                @foreach (old('st_abruniv') as $key => $val)
+                    st_abruniv.push("{{ $val }}")
                 @endforeach
 
-                $("#countryStudy").val(st_abrcountry).trigger('change')
-            @endif
-
-            @if (old('st_abrmajor'))
-                var st_abrmajor = new Array();
-                @foreach (old('st_abrmajor') as $key => $val)
-                    st_abrmajor.push("{{ $val }}")
-                @endforeach
-
-                $("#major").val(st_abrmajor).trigger('change')
-            @endif
-
-            @if (old('referral_code'))
-                // Set the value, creating a new option if necessary
-                if ($('#referral_code').find("option[value= {{ old('referral_code') }} ]").length) {
-                    $('#referral_code').val('{{ old("referral_code") }}').trigger('change');
-                } else { 
-                    // Create a DOM Option and pre-select by default
-                    var newOption = new Option('{{ old("old_refname") }}', '{{ old("referral_code") }}', true, true);
-                    // Append it to the select
-                    $('#referral_code').append(newOption).trigger('change');
-                } 
-            @endif
-
-            // @if (isset($student->interestPrograms))
-            //     var prog_id = new Array();
-            //     @foreach ($student->interestPrograms as $program)
-            //         prog_id.push("{{ $program->prog_id }}")
-            //     @endforeach
-
-            //     $("#interestedProgram").val(prog_id).trigger('change')
-            // @elseif (old('prog_id') !== null && count(old('prog_id')) > 0)
-            //     var prog_id = new Array();
-            //     @foreach (old('prog_id') as $key => $val)
-            //         prog_id.push("{{ $val }}")
-            //     @endforeach
-
-            //     $("#interestedProgram").val(prog_id).trigger('change')
-            //     anotherDocument()
-            // @endif
-
-            @if (isset($student->lead_id))
-                @if ($student->lead->main_lead == 'KOL')
-                    $("#leadSource").select2().val("kol").trigger('change')
-                @else
-                    $("#leadSource").select2().val("{{ $student->lead_id }}").trigger('change')
-                @endif
-            @elseif (old('lead_id') !== null)
-                $("#leadSource").select2().val("{{ old('lead_id') }}").trigger('change')
+                $("#univDestination").select2().val(st_abruniv).trigger('change')
             @endif
         }
 
-        documentReady()
-    })
-</script>
+        $("#countryStudy").on('change', async function() {
+            var countries = $(this).val()
+            if (countries.length == 0) {
+                $("#univDestination").html('')
+                return
+            }
+
+            var get = ""
+
+            countries.forEach(function(currentValue, index, arr) {
+                if (index == 0)
+                    get += "?country[]=" + currentValue
+                else
+                    get += "&country[]=" + currentValue
+            })
+
+            // reset univ Destination html
+            $("#univDestination").html('');
+
+            var html = ""
+            var link = "{{ route('student.create') }}" + get
+            showLoading()
+            await axios.get(link)
+                .then(function(response) {
+
+                    // handle success
+                    let data = response.data
+                    data.forEach(function(currentValue, index, arr) {
+                        html += "<option value='" + arr[index].univ_id + "'>" + arr[index]
+                            .univ_name + " - " + arr[index]['tags'].name + "</option>"
+                    })
+
+                    $("#univDestination").append(html)
+                    initSelect2("#univDestination")
+                    Swal.close()
+                })
+                .catch(function(error) {
+                    // handle error
+                    Swal.close()
+                    notification(error.response.data.success, error.response.data.message)
+                })
+
+            anotherDocument()
+
+        })
+
+        $(document).ready(function() {
+
+            var baseUrl = "{{ url('/') }}/api/get/referral/list";
+
+            $(".select-referral").select2({
+                placeholder: 'Referral Name...',
+                // width: '350px',
+                allowClear: true,
+                ajax: {
+                    url: baseUrl,
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            term: params.term || '',
+                            page: params.page || 1
+                        }
+                    },
+                    cache: true
+                }
+            });
+
+            const documentReady = () => {
+
+
+                @if (old('sch_id') !== null && old('sch_id') == 'add-new')
+                    $("#schoolName").select2().val("{{ old('sch_id') }}").trigger('change')
+
+                    @if (!empty(old('sch_curriculum')) && count(old('sch_curriculum')) > 0)
+                        var sch_curriculum = new Array();
+                        @foreach (old('sch_curriculum') as $key => $val)
+                            sch_curriculum.push("{{ $val }}")
+                        @endforeach
+
+                        $("#schCurriculum").val(sch_curriculum).trigger('change')
+                    @endif
+                @endif
+
+                @if (isset($student->st_abryear))
+                    $("#year").select2().val("{{ $student->st_abryear }}").trigger('change')
+                @elseif (old('st_abryear') !== null)
+                    $("#year").select2().val("{{ old('st_abryear') }}").trigger('change')
+                @endif
+
+                @if (isset($student->destinationCountries))
+                    var st_abrcountry = new Array();
+                    @foreach ($student->destinationCountries as $country)
+                        st_abrcountry.push("{{ $country->id }}")
+                    @endforeach
+
+                    $("#countryStudy").val(st_abrcountry).trigger('change')
+                @elseif (!empty(old('st_abrcountry')) && count(old('st_abrcountry')) > 0)
+                    var st_abrcountry = new Array();
+                    @foreach (old('st_abrcountry') as $key => $val)
+                        st_abrcountry.push("{{ $val }}")
+                    @endforeach
+
+                    $("#countryStudy").val(st_abrcountry).trigger('change')
+                @endif
+
+                @if (old('st_abrmajor'))
+                    var st_abrmajor = new Array();
+                    @foreach (old('st_abrmajor') as $key => $val)
+                        st_abrmajor.push("{{ $val }}")
+                    @endforeach
+
+                    $("#major").val(st_abrmajor).trigger('change')
+                @endif
+
+                @if (old('referral_code'))
+                    // Set the value, creating a new option if necessary
+                    if ($('#referral_code').find("option[value= {{ old('referral_code') }} ]").length) {
+                        $('#referral_code').val('{{ old('referral_code') }}').trigger('change');
+                    } else {
+                        // Create a DOM Option and pre-select by default
+                        var newOption = new Option('{{ old('old_refname') }}', '{{ old('referral_code') }}',
+                            true, true);
+                        // Append it to the select
+                        $('#referral_code').append(newOption).trigger('change');
+                    }
+                @endif
+
+                // @if (isset($student->interestPrograms))
+                //     var prog_id = new Array();
+                //     @foreach ($student->interestPrograms as $program)
+                //         prog_id.push("{{ $program->prog_id }}")
+                //     @endforeach
+
+                //     $("#interestedProgram").val(prog_id).trigger('change')
+                // @elseif (old('prog_id') !== null && count(old('prog_id')) > 0)
+                //     var prog_id = new Array();
+                //     @foreach (old('prog_id') as $key => $val)
+                //         prog_id.push("{{ $val }}")
+                //     @endforeach
+
+                //     $("#interestedProgram").val(prog_id).trigger('change')
+                //     anotherDocument()
+                // @endif
+
+                @if (isset($student->lead_id))
+                    @if ($student->lead->main_lead == 'KOL')
+                        $("#leadSource").select2().val("kol").trigger('change')
+                    @else
+                        $("#leadSource").select2().val("{{ $student->lead_id }}").trigger('change')
+                    @endif
+                @elseif (old('lead_id') !== null)
+                    $("#leadSource").select2().val("{{ old('lead_id') }}").trigger('change')
+                @endif
+            }
+
+            documentReady()
+        })
+    </script>
 @endpush

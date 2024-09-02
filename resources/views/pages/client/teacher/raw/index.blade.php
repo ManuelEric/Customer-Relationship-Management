@@ -124,11 +124,13 @@
                         '</tr>';
 
                     clientSuggest.forEach(function(item, index) {
+                        var main_id = "'" + d.id + "'";
+                        var second_id = "'" + item.id + "'";
                         similar += '<tr onclick="comparison(' +
-                            d.id + ',' + item.id + ')" class="cursor-pointer">' +
+                            main_id + ',' + second_id + ')" class="cursor-pointer">' +
                             '<td><input type="radio" name="similar' + d.id +
                             '" class="form-check-input item-' + item.id + '" onclick="comparison(' +
-                            d.id + ',' + item.id + ')" /></td>' +
+                            main_id + ',' + second_id + ')" /></td>' +
                             '<td><i class="bi bi-person me-1"></i>' + item.first_name + ' ' + item.last_name + '</td>' +
                             '<td>' + (item.mail !== null ? item.mail : '-') + '</td>' +
                             '<td>' + (item.phone !== null ? item.phone : '-') + '</td>' +
@@ -248,6 +250,7 @@
                         className: 'text-center',
                         defaultContent: '<button type="button" class="btn btn-sm btn-outline-danger py-1 px-2 deleteRawClient"><i class="bi bi-eraser"></i></button>',
                         render: function(data, type, row, meta) {
+                            var id = "'" + row.id + "'";
                             return '<div class="d-flex gap-1 justify-content-center">' +
                                 '<small class="btn btn-sm btn-info px-1 pt-1 pb-0  cursor-pointer item-' +
                                 row
@@ -255,7 +258,7 @@
                                 '" data-bs-toggle="tooltip" data-bs-placement="top" ' +
                                 'data-bs-custom-class="custom-tooltip" ' +
                                 'data-bs-title="Convert to New Lead" onclick="newLeads(' +
-                                row.id + ')">' +
+                                id + ')">' +
                                 '<i class="bi bi-send-check-fill text-secondary"></i>' +
                                 '</small>' +
                                 '<small data-bs-toggle="tooltip" data-bs-placement="top" ' +
@@ -292,7 +295,7 @@
                         var arrSuggest = suggestion.split(',');
                         var intArrSuggest = [];
                         for (var i = 0; i < arrSuggest.length; i++)
-                            intArrSuggest.push(parseInt(arrSuggest[i]));
+                            intArrSuggest.push(arrSuggest[i]);
 
                         showLoading()
                         axios.get("{{ url('api/client/suggestion') }}", {
