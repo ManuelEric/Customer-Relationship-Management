@@ -205,12 +205,12 @@ class LeadController extends Controller
         if($request->ajax())
         {
             $filter['full_name'] = trim($request->term);
-            $listReferral = $this->clientRepository->getListReferral(['id', 'first_name', 'last_name'], $filter);
+            $listReferral = $this->clientRepository->getListReferral(['secondary_id', 'first_name', 'last_name'], $filter);
     
             $grouped = $listReferral->mapToGroups(function ($item, $key) {
                 return [
                     $item['data'] . 'results' => [
-                        'id' => isset($item['id']) ? $this->createReferralCode($item['first_name'], $item['id']) : null,
+                        'id' => isset($item['secondary_id']) ? $item['secondary_id'] : null,
                         'text' => isset($item['first_name']) ? $item['first_name'] . ' ' . $item['last_name'] : null
                     ],
                 ];
