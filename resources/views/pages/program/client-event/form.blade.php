@@ -330,7 +330,9 @@
                                     @if (isset($events) && count($events) > 0)
                                         @foreach ($events as $event)
                                             <option value="{{ $event->event_id }}"
-                                                {{ old('event_id') == $event->event_id ? 'selected' : null }}>
+                                                @if (isset($clientEvent->event_id)) {{ $clientEvent->event_id == $event->event_id ? 'selected' : null }}
+                                                @else
+                                                    {{ old('event_id') == $event->event_id ? 'selected' : null }} @endif>
                                                 {{ $event->event_title }}
                                             </option>
                                         @endforeach

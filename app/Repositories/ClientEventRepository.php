@@ -87,14 +87,14 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                         WHEN tbl_lead.main_lead = "KOL" THEN CONCAT(tbl_lead.sub_lead)
                         WHEN tbl_lead.main_lead = "External Edufair" THEN 
                             (CASE 
-                                WHEN tbl_eduf_lead.title COLLATE utf8mb4_unicode_ci != null THEN CONCAT(tbl_eduf_lead.title COLLATE utf8mb4_unicode_ci) 
+                                WHEN tbl_eduf_lead.title != null THEN CONCAT(tbl_eduf_lead.title) 
                                 ELSE 
                                 (CASE 
-                                    WHEN tbl_eduf_lead.sch_id IS NULL THEN ceduf.corp_name COLLATE utf8mb4_unicode_ci 
-                                    ELSE seduf.sch_name COLLATE utf8mb4_unicode_ci
+                                    WHEN tbl_eduf_lead.sch_id IS NULL THEN ceduf.corp_name 
+                                    ELSE seduf.sch_name
                                 END)
                             END)
-                        WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name COLLATE utf8mb4_unicode_ci)
+                        WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name)
                         ELSE tbl_lead.main_lead
                     END) AS conversion_lead'),
                     'client_ref_code_view.full_name as referral_from'
@@ -148,8 +148,8 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 function ($query, $keyword) {
                     $sql = '(CASE
                                 WHEN tbl_lead.main_lead = "KOL" THEN CONCAT(tbl_lead.sub_lead)
-                                WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT(tbl_eduf_lead.title COLLATE utf8mb4_unicode_ci)
-                                WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name COLLATE utf8mb4_unicode_ci)
+                                WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT(tbl_eduf_lead.title)
+                                WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name)
                                 ELSE tbl_lead.main_lead
                             END) like ? ';
                     $query->whereRaw($sql, ["%{$keyword}%"]);

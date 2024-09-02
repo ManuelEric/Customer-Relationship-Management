@@ -132,11 +132,11 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     
                     $datatable->filterColumn('conversion_lead', function ($query, $keyword) {
                         $sql = "(CASE 
-                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'KOL' THEN CONCAT('KOL - ', cpl.sub_lead COLLATE utf8mb4_unicode_ci)
-                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'External Edufair' THEN CONCAT('External Edufair - ', edl.title COLLATE utf8mb4_unicode_ci)
-                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'EduALL Event' THEN CONCAT('All-In Event - ', e.event_title COLLATE utf8mb4_unicode_ci)
-                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'EduALL Partners' THEN CONCAT('All-In Partner - ', corp.corp_name COLLATE utf8mb4_unicode_ci)
-                                    ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
+                                    WHEN cpl.main_lead = 'KOL' THEN CONCAT('KOL - ', cpl.sub_lead)
+                                    WHEN cpl.main_lead = 'External Edufair' THEN CONCAT('External Edufair - ', edl.title)
+                                    WHEN cpl.main_lead = 'EduALL Event' THEN CONCAT('All-In Event - ', e.event_title)
+                                    WHEN cpl.main_lead = 'EduALL Partners' THEN CONCAT('All-In Partner - ', corp.corp_name)
+                                    ELSE cpl.main_lead
                                 END) like ?";
                         $query->whereRaw($sql, ["%{$keyword}%"]);
                     });
