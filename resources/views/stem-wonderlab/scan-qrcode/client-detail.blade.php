@@ -53,10 +53,10 @@
 @endpush
 @section('body')
     @php
-        $isTeacher = $client->register_as == "teacher/counsellor" ? true : false;
-        $isParent = $client->register_as == "parent" ? true : false;
-        $isStudent = $client->register_as == "student" ? true : false;
-        $secondary_client_role = $client->register_as == "parent" ? "Child's" : "Parent's";
+        $isTeacher = $client->register_by == "teacher/counsellor" ? true : false;
+        $isParent = $client->register_by == "parent" ? true : false;
+        $isStudent = $client->register_by == "student" ? true : false;
+        $secondary_client_role = $client->register_by == "parent" ? "Child's" : "Parent's";
     @endphp
     <section>
         <div class="container-fluid my-3" style="height: 90vh">
@@ -66,7 +66,7 @@
                     <form action="{{ route("link-event-attend", ['clientevent' => $client_event->clientevent_id]) }}" method="POST">
                         @csrf
                         @method('PUT')
-                        <input type="hidden" name="role" value="{{ $client->register_as }}">
+                        <input type="hidden" name="role" value="{{ $client->register_by }}">
                         <div class="row">
                             <div @class([
                                     'col-12' => $isTeacher,
@@ -103,7 +103,7 @@
                                 <input type="hidden" id="phone1" name="fullnumber[]" value="{{ $client->phone }}">
                                 <input type="hidden" name="leadsource" value="{{ $leadsource }}">
                             </div>
-                            @switch ($client->register_as)
+                            @switch ($client->register_by)
                                 @case("parent")
                                 @case("student")
                                     <div class="col-4 mb-3">

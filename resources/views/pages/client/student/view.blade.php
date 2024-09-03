@@ -163,12 +163,12 @@
                     <div class="row mb-2 g-1">
                         <div class="col d-flex justify-content-between">
                             <label>
-                                Register As
+                                Register By
                             </label>
                             <label>:</label>
                         </div>
                         <div class="col-md-9 col-8">
-                            @switch($student->register_as)
+                            @switch($student->register_by)
                                 @case('student')
                                     Student
                                 @break

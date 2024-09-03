@@ -179,7 +179,7 @@
                         <th>School</th>
                         <th>Grade</th>
                         <th>Program Name</th>
-                        <th>Register As</th>
+                        <th>Register By</th>
                         <th>Parent Name</th>
                         <th>Parent Mail</th>
                         <th>Parent Phone</th>
@@ -407,8 +407,8 @@
                         // }
                     },
                     {
-                        data: 'register_as',
-                        name: 'c.register_as',
+                        data: 'register_by',
+                        name: 'c.register_by',
 
                     },
                     {

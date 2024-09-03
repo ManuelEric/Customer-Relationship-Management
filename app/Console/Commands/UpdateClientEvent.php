@@ -55,7 +55,7 @@ class UpdateClientEvent extends Command
             $clientEvents = $this->clientEventRepository->getAllClientEvents();
 
             foreach($clientEvents as $clientEvent){
-                if($clientEvent->client->register_as == 'parent'){
+                if($clientEvent->client->register_by == 'parent'){
 
                     if($clientEvent->client->parents->count() > 0){
                         $clientEventDetails = [
@@ -75,7 +75,7 @@ class UpdateClientEvent extends Command
                     }
 
                     $parentDetails = [
-                        'register_as' => 'parent'
+                        'register_by' => 'parent'
                     ];
 
                     $this->clientRepository->updateClient($clientEventDetails['client_id'], $parentDetails);

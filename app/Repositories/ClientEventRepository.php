@@ -36,7 +36,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     'client.id as client_id',
                     'client.lead_source',
                     'tbl_events.event_title as event_name',
-                    'client.register_as',
+                    'client.register_by',
                     'client.full_name as client_name',
                     'client.mail as client_mail',
                     'client.phone as client_phone',
@@ -87,20 +87,20 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                         WHEN tbl_lead.main_lead = "KOL" THEN CONCAT(tbl_lead.sub_lead)
                         WHEN tbl_lead.main_lead = "External Edufair" THEN 
                             (CASE 
-                                WHEN tbl_eduf_lead.title COLLATE utf8mb4_unicode_ci != null THEN CONCAT(tbl_eduf_lead.title COLLATE utf8mb4_unicode_ci) 
+                                WHEN tbl_eduf_lead.title != null THEN CONCAT(tbl_eduf_lead.title) 
                                 ELSE 
                                 (CASE 
-                                    WHEN tbl_eduf_lead.sch_id IS NULL THEN ceduf.corp_name COLLATE utf8mb4_unicode_ci 
-                                    ELSE seduf.sch_name COLLATE utf8mb4_unicode_ci
+                                    WHEN tbl_eduf_lead.sch_id IS NULL THEN ceduf.corp_name 
+                                    ELSE seduf.sch_name
                                 END)
                             END)
-                        WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name COLLATE utf8mb4_unicode_ci)
+                        WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name)
                         ELSE tbl_lead.main_lead
                     END) AS conversion_lead'),
                     'client_ref_code_view.full_name as referral_from'
                 )->
                 when(!empty($filter['audience']), function ($searchQuery) use ($filter) {
-                    $searchQuery->whereIn('client.register_as', $filter['audience']);
+                    $searchQuery->whereIn('client.register_by', $filter['audience']);
                 })->
                 when(!empty($filter['event_name']), function ($searchQuery) use ($filter) {
                     $searchQuery->where('event_title', $filter['event_name']);
@@ -148,8 +148,8 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 function ($query, $keyword) {
                     $sql = '(CASE
                                 WHEN tbl_lead.main_lead = "KOL" THEN CONCAT(tbl_lead.sub_lead)
-                                WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT(tbl_eduf_lead.title COLLATE utf8mb4_unicode_ci)
-                                WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name COLLATE utf8mb4_unicode_ci)
+                                WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT(tbl_eduf_lead.title)
+                                WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name)
                                 ELSE tbl_lead.main_lead
                             END) like ? ';
                     $query->whereRaw($sql, ["%{$keyword}%"]);
@@ -270,7 +270,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.client_id', '=', 'tbl_client.id')
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
             ->select(
-                'tbl_client.register_as',
+                'tbl_client.register_by',
                 'tbl_client_event.clientevent_id',
                 DB::raw('(CASE 
                     WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id 
@@ -415,7 +415,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.client_id', '=', 'tbl_client.id')
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
             ->select(
-                'tbl_client.register_as',
+                'tbl_client.register_by',
                 'tbl_client_event.clientevent_id',
                 DB::raw('(CASE 
                     WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id 
@@ -444,7 +444,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.client_id', '=', 'tbl_client.id')
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
             ->select(
-                'tbl_client.register_as',
+                'tbl_client.register_by',
                 'tbl_client_event.clientevent_id',
                 DB::raw('(CASE 
                     WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id 
@@ -481,7 +481,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.client_id', '=', 'tbl_client.id')
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
             ->select(
-                'tbl_client.register_as',
+                'tbl_client.register_by',
                 'tbl_client_event.clientevent_id',
                 DB::raw('(CASE 
                     WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id 

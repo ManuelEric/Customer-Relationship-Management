@@ -579,7 +579,7 @@
                         className: 'text-center',
                         searchable: false,
                         render: function(data, type, row, meta) {
-                            var link = '{{ env("EDUALL_ASSESSMENT_URL") }}' + 'api/report/' + row.uuid + '?is_preview=1';
+                            var link = '{{ env("EDUALL_ASSESSMENT_URL") }}' + 'api/report/' + row.id + '?is_preview=1';
                             if(data !== 'error'){
                                 if(data == 0){
                                     return '<h5><i class="bi bi-dash-square-fill text-danger" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Not yet"></i></h5>'
@@ -587,10 +587,10 @@
                                     return '<div class="container" style="padding-left:0;">'
                                             + '<div class="row justify-content-center">'
                                             + '<div class="col-1">'
-                                            + '<h5 onclick="copyLink(\''+ row.uuid +'\', \'ia-report\')" style="cursor: pointer;"><i class="bi bi-check-square-fill text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Report"></i></h5>' 
+                                            + '<h5 onclick="copyLink(\''+ row.id +'\', \'ia-report\')" style="cursor: pointer;"><i class="bi bi-check-square-fill text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Report"></i></h5>' 
                                             + '</div>'
                                             + '<div class="col-1">'
-                                            + '<h5 onclick="copyLink(\''+ row.uuid +'\', \'ia-answer\')" style="cursor: pointer;"><i class="bi bi-zoom-in text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Answer"></i></h5>' 
+                                            + '<h5 onclick="copyLink(\''+ row.id +'\', \'ia-answer\')" style="cursor: pointer;"><i class="bi bi-zoom-in text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Answer"></i></h5>' 
                                             + '</div>'
                                             + '</div>'
                                             + '</div>'
@@ -788,13 +788,13 @@
                         defaultContent: '',
                         render: function(data, type, row, meta) {
                             let content = '<div class="d-flex gap-1 justify-content-center">' +
-                                '<small class="btn btn-sm btn-outline-info cursor-pointer copyLinkAssessment" onclick="copyLink(\''+ row.uuid +'\', \'ia-link\')"><i class="bi bi-card-text"></i></small>' +
+                                '<small class="btn btn-sm btn-outline-info cursor-pointer copyLinkAssessment" onclick="copyLink(\''+ row.id +'\', \'ia-link\')"><i class="bi bi-card-text"></i></small>' +
                                 '<small class="btn btn-sm btn-outline-warning cursor-pointer editClient" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail"><i class="bi bi-eye"></i></small>'
                             '</div>';
 
                             if (get_st == 'new-leads' || get_st == 'potential') {
                                 content = '<div class="d-flex gap-1 justify-content-center">' +
-                                    '<small class="btn btn-sm btn-outline-info cursor-pointer copyLinkAssessment" onclick="copyLink(\''+ row.uuid +'\', \'ia-link\')" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Copy initial assessment link"><i class="bi bi-card-text"></i></small>'+
+                                    '<small class="btn btn-sm btn-outline-info cursor-pointer copyLinkAssessment" onclick="copyLink(\''+ row.id +'\', \'ia-link\')" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Copy initial assessment link"><i class="bi bi-card-text"></i></small>'+
                                     '<small data-bs-toggle="tooltip" data-bs-placement="top" ' +
                                     'data-bs-custom-class="custom-tooltip" ' +
                                     'data-bs-title="Delete" class="btn btn-sm btn-outline-danger cursor-pointer deleteClient">' +

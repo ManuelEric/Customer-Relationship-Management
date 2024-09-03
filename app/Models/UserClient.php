@@ -24,6 +24,7 @@ class UserClient extends Authenticatable
     protected $table = 'tbl_client';
     public $incrementing = false;
     protected $appends = ['lead_source', 'graduation_year_real', 'referral_name'];
+    protected $keyType = 'string';
 
     /**
      * The attributes that should be visible in arrays.
@@ -32,8 +33,9 @@ class UserClient extends Authenticatable
      */
     protected $fillable = [
         'id',
+        'secondary_id',
         'st_id',
-        'uuid',
+        // 'uuid',
         'first_name',
         'last_name',
         'mail',
@@ -66,7 +68,7 @@ class UserClient extends Authenticatable
         'is_funding',
         'scholarship',
         'is_verified',
-        'register_as',
+        'register_by',
         'referral_code',
         'category',
         'took_ia',
@@ -321,8 +323,7 @@ class UserClient extends Authenticatable
 
     public function getReferralNameFromRefCodeView($refCode)
     {
-        return ViewClientRefCode::whereRaw('ref_code COLLATE utf8mb4_unicode_ci = (?)', $refCode)->first()->full_name;
-        // return ViewClientRefCode::whereRaw('ref_code = (?)', $refCode)->first()->full_name;
+        return UserClient::where('secondary_id', $refCode)->first()->full_name ?? null;
     }
 
 
@@ -369,7 +370,7 @@ class UserClient extends Authenticatable
 
     public function destinationCountries()
     {
-        return $this->belongsToMany(Tag::class, 'tbl_client_abrcountry', 'client_id', 'tag_id')->withTimestamps();
+        return $this->belongsToMany(Tag::class, 'tbl_client_abrcountry', 'client_id', 'country_id')->withTimestamps();
     }
 
     public function interestUniversities()

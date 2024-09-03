@@ -103,7 +103,7 @@ class StoreClientStudentRequest extends FormRequest
             // 'pr_mail' => 'nullable|email',
             // 'pr_phone' => 'required_if:pr_id,add-new',
             'is_funding' => 'nullable|in:0,1',
-            'register_as' => 'nullable|in:student,parent',
+            'register_by' => 'nullable|in:student,parent',
         ];
 
         if ($this->input('lead_id') != "kol") {

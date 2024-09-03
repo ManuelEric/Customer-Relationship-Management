@@ -26,7 +26,7 @@ class RawClient extends Authenticatable
         'fullname',
         'mail',
         'phone',
-        'register_as',
+        'register_by',
         'role',
         'relation_key',
         'sch_id',

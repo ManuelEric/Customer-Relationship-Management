@@ -10,6 +10,7 @@ class ViewClientLead extends Model
     use HasFactory;
 
     protected $table = 'client_lead';
+    protected $keyType = 'string';
 
     public function interestPrograms()
     {

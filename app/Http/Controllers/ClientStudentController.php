@@ -151,7 +151,6 @@ class ClientStudentController extends ClientController
 
             switch ($statusClient) {
 
-                    // client/student
                 case "new-leads":
                     $model = $this->clientRepository->getNewLeads($asDatatables, null, $advanced_filter);
                     break;
@@ -275,7 +274,7 @@ class ClientStudentController extends ClientController
     {
         $parentId = NULL;
         $data = $this->initializeVariablesForStoreAndUpdate('student', $request);
-        $data['studentDetails']['register_as'] == null ? $data['studentDetails']['register_as'] = 'student' : $data['studentDetails']['register_as'];
+        $data['studentDetails']['register_by'] == null ? $data['studentDetails']['register_by'] = 'student' : $data['studentDetails']['register_by'];
 
         DB::beginTransaction();
         try {
@@ -1050,7 +1049,7 @@ class ClientStudentController extends ClientController
                             $student->parents()->count() > 0 ? $student->parents()->detach() : null;
                         } else {
                             $parentDetails['lead_id'] = $student->lead_id;
-                            $parentDetails['register_as'] = $student->register_as;
+                            $parentDetails['register_by'] = $student->register_by;
 
                             # Add relation new parent
                             $parent = $this->clientRepository->updateClient($parentId, $parentDetails);
@@ -1077,16 +1076,16 @@ class ClientStudentController extends ClientController
                 case 'new':
                     $rawStudent = $this->clientRepository->getViewRawClientById($rawclientId);
                     $lead_id = $rawStudent->lead_id;
-                    $register_as = $rawStudent->register_as;
+                    $register_by = $rawStudent->register_by;
 
                     $clientDetails['lead_id'] = $lead_id;
-                    $clientDetails['register_as'] = $register_as;
+                    $clientDetails['register_by'] = $register_by;
 
                     $student = $this->clientRepository->updateClient($rawclientId, $clientDetails);
 
                     if ($parentType == 'new' && $request->parentFinal != null) {
                         $parentDetails['lead_id'] = $lead_id;
-                        $parentDetails['register_as'] = $register_as;
+                        $parentDetails['register_by'] = $register_by;
 
                         # Add relation new parent
                         $this->clientRepository->updateClient($parentId, $parentDetails);

@@ -89,7 +89,7 @@ class ClientController extends Controller
                     'graduation_year' => $request->graduation_year,
                     'gap_year' => $request->gap_year,
                     'is_funding' => $request->is_funding ?? 0,
-                    'register_as' => $request->register_as,
+                    'register_by' => $request->register_by,
                     'referral_code' => $request->referral_code,
                     'is_verified' => 'Y'
                 ];
@@ -126,7 +126,7 @@ class ClientController extends Controller
                     'pr_id',
                     'pr_id_old',
                     // 'is_funding',
-                    'register_as',
+                    'register_by',
                     'referral_code'
                 ]);
 
@@ -298,7 +298,7 @@ class ClientController extends Controller
     //     return true;
     // }
 
-    public function createDestinationCountries(array $abroadCountries, int $newStudentId)
+    public function createDestinationCountries(array $abroadCountries, String $newStudentId)
     {
         if (isset($abroadCountries) && count($abroadCountries) > 0) {
 
@@ -315,7 +315,7 @@ class ClientController extends Controller
         return true;
     }
 
-    public function createInterestedUniversities(array $abroadUniversities, int $newStudentId)
+    public function createInterestedUniversities(array $abroadUniversities, String $newStudentId)
     {
         if (isset($abroadUniversities) && count($abroadUniversities) > 0) {
 
@@ -330,7 +330,7 @@ class ClientController extends Controller
         return true;
     }
 
-    public function createInterestedMajor(array $interestMajors, int $newStudentId)
+    public function createInterestedMajor(array $interestMajors, String $newStudentId)
     {
         if (isset($interestMajors) && count($interestMajors) > 0) {
 

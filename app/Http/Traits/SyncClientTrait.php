@@ -112,14 +112,14 @@ trait SyncClientTrait
             if (isset($tagFromDB)) {
                 
                 $destinationCountryDetails->push([
-                    'tag_id' => $tagFromDB->id,
+                    'country_id' => $tagFromDB->id,
                     'country_name' => $countryName,
                 ]);
     
             } else {
                 // $newCountry = Tag::create(['name' => $regionName]);
                 $destinationCountryDetails->push([
-                    'tag_id' => 7,
+                    'country_id' => 7,
                     'country_name' => $countryName,
                 ]);
             }

@@ -39,9 +39,9 @@ return new class extends Migration
          * 
          * H. Get Monthly Target. Used to create a lead signal view
          * 
-         * I. Get initial consult by total target. Used to create a lead signal view
+         * I. Get Contribution by total target. Used to create a lead signal view
          * 
-         * J. Get number of hot leads per division. Used to create a lead signal view
+         * J. Get initial consult by total target. Used to create a lead signal view
          * 
          * K. Get leads needed by division. Used to create a lead signal view
          * 
@@ -56,6 +56,8 @@ return new class extends Migration
          * P. Get Client Suggestions based on similarity of first name and last name
          * 
          * Q. Count Client Raw Client Relation
+         * 
+         * R. Get number of hot leads per division. Used to create a lead signal view
          * 
          */
         DB::statement('
@@ -333,7 +335,7 @@ return new class extends Migration
         DELIMITER //
 
         CREATE OR REPLACE FUNCTION SetInitialConsult ( contribution_to_target INTEGER, requested_division VARCHAR(20) COLLATE utf8mb4_general_ci )
-        RETURNS INTEGER
+        RETURNS INTEGER#
 
             BEGIN
                 DECLARE initial_consult_target INTEGER;
@@ -360,9 +362,9 @@ return new class extends Migration
 
                 SET multiplier = 
                     CASE 
-                        WHEN division = `Sales` THEN 2
-                        WHEN division = `Referral` THEN 1
-                        WHEN division = `Digital` THEN 5
+                        WHEN division = "Sales" THEN 2
+                        WHEN division = "Referral" THEN 1
+                        WHEN division = "Digital" THEN 5
                     END;
 
                 SET leads_needed = hot_leads_target * multiplier;
@@ -431,16 +433,17 @@ return new class extends Migration
         # O
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION GetRoleClient ( client_id INTEGER )
+        CREATE OR REPLACE FUNCTION GetRoleClient ( client_id VARCHAR(36) )
         RETURNS INTEGER
 
             BEGIN
                 DECLARE role_id INTEGER DEFAULT NULL; 
 
-                SELECT tbl_client_roles.role_id into role_id FROM tbl_client 
+                SELECT MAX(tbl_client_roles.role_id) into role_id FROM tbl_client 
                     LEFT JOIN tbl_client_roles ON tbl_client_roles.client_id = tbl_client.id 
                 where tbl_client.id = client_id 
-                GROUP by tbl_client.id;
+                GROUP by tbl_client.id
+                limit 1;
 
                 RETURN role_id;
             END; //
@@ -457,25 +460,25 @@ return new class extends Migration
 
             IF lname = "" THEN
                 SELECT GROUP_CONCAT(DISTINCT(tbl_client.id)) INTO id_similiar
-                FROM tbl_client
-                LEFT JOIN tbl_client_roles ON tbl_client_roles.client_id = tbl_client.id
-                WHERE tbl_client.is_verified = "Y"
-                AND tbl_client.deleted_at is null
-                AND tbl_client_roles.role_id = role_id
-                AND (first_name LIKE fname COLLATE utf8mb4_unicode_ci);
+                    FROM tbl_client
+                    LEFT JOIN tbl_client_roles ON tbl_client_roles.client_id = tbl_client.id
+                    WHERE tbl_client.is_verified = "Y"
+                    AND tbl_client.deleted_at is null
+                    AND tbl_client_roles.role_id = role_id
+                    AND (first_name LIKE fname);
             ELSE
-            SELECT GROUP_CONCAT(DISTINCT(tbl_client.id)) INTO id_similiar
-                FROM tbl_client
-                LEFT JOIN tbl_client_roles ON tbl_client_roles.client_id = tbl_client.id
-                WHERE tbl_client.is_verified = "Y"
-                AND tbl_client.deleted_at is null
-                AND tbl_client_roles.role_id = role_id
-                AND (first_name LIKE fname COLLATE utf8mb4_unicode_ci
-                    OR first_name LIKE mname COLLATE utf8mb4_unicode_ci
-                    OR first_name LIKE lname COLLATE utf8mb4_unicode_ci
-                    OR last_name LIKE fname COLLATE utf8mb4_unicode_ci
-                    OR last_name LIKE mname COLLATE utf8mb4_unicode_ci
-                    OR last_name LIKE lname COLLATE utf8mb4_unicode_ci);
+                SELECT GROUP_CONCAT(DISTINCT(tbl_client.id)) INTO id_similiar
+                    FROM tbl_client
+                    LEFT JOIN tbl_client_roles ON tbl_client_roles.client_id = tbl_client.id
+                    WHERE tbl_client.is_verified = "Y"
+                    AND tbl_client.deleted_at is null
+                    AND tbl_client_roles.role_id = role_id
+                    AND (first_name LIKE fname
+                        OR first_name LIKE mname
+                        OR first_name LIKE lname
+                        OR last_name LIKE fname
+                        OR last_name LIKE mname
+                        OR last_name LIKE lname);
             END IF;
 
             RETURN id_similiar;
@@ -505,6 +508,31 @@ return new class extends Migration
                 RETURN 0;
             END IF;
         END; //
+        DELIMITER ;
+
+        # R
+        DELIMITER //
+
+        CREATE OR REPLACE FUNCTION SetHotLeadsByDivision ( initial_consult_target INTEGER, division VARCHAR(20) )
+        RETURNS INTEGER
+        DETERMINISTIC
+
+            BEGIN
+                DECLARE hot_leads_target INTEGER;
+                DECLARE multiplier INTEGER;
+
+                SET multiplier = 
+                    CASE 
+                        WHEN division = "Sales" THEN 2
+                        WHEN division = "Referral" THEN 1
+                        WHEN division = "Digital" THEN 3
+                    END;
+
+                SET hot_leads_target = initial_consult_target * multiplier;
+
+            RETURN hot_leads_target;
+        END; //
+
         DELIMITER ;
         ');
     }

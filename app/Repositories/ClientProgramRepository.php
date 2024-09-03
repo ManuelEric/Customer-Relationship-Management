@@ -206,7 +206,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         break;
 
                     case "All-In Event":
-                        $event_title = $clientProgram->clientEvent->event->title;
+                        $event_title = isset($clientProgram->clientEvent) ? $clientProgram->clientEvent->event->title : '';
                         $conv_lead = "EduALL Event - {$event_title}";
                         break;
 
@@ -234,11 +234,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             })->
             filterColumn('conversion_lead', function ($query, $keyword) {
                 $sql = "(CASE 
-                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'KOL' THEN CONCAT('KOL - ', cpl.sub_lead COLLATE utf8mb4_unicode_ci)
-                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'External Edufair' THEN CONCAT('External Edufair - ', edl.title COLLATE utf8mb4_unicode_ci)
-                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'EduALL Event' THEN CONCAT('All-In Event - ', e.event_title COLLATE utf8mb4_unicode_ci)
-                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'EduALL Partners' THEN CONCAT('All-In Partner - ', corp.corp_name COLLATE utf8mb4_unicode_ci)
-                            ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
+                            WHEN cpl.main_lead = 'KOL' THEN CONCAT('KOL - ', cpl.sub_lead)
+                            WHEN cpl.main_lead = 'External Edufair' THEN CONCAT('External Edufair - ', edl.title)
+                            WHEN cpl.main_lead = 'EduALL Event' THEN CONCAT('All-In Event - ', e.event_title)
+                            WHEN cpl.main_lead = 'EduALL Partners' THEN CONCAT('All-In Partner - ', corp.corp_name)
+                            ELSE cpl.main_lead
                         END) like ?";
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             })->
@@ -351,7 +351,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         'sch.sch_name AS school_name',
                         'c.grade_now AS grade_now',
                         'p.program_name AS program_names',
-                        'c.register_as AS register_as',
+                        'c.register_by AS register_by',
                         DB::raw("CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, '')) AS parent_fullname"),
                         'parent.phone as parent_phone',
                         'parent.mail as parent_mail',
@@ -361,11 +361,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         'tbl_client_prog.prog_end_date',
                         'c.lead_source',
                         DB::raw('(CASE 
-                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead COLLATE utf8mb4_unicode_ci)
-                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "External Edufair" THEN (CASE WHEN tbl_client_prog.eduf_lead_id is not null THEN vedl.organizer_name ELSE "External Edufair" END) 
-                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title COLLATE utf8mb4_unicode_ci)
-                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name COLLATE utf8mb4_unicode_ci)
-                                    ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
+                                    WHEN cpl.main_lead = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead)
+                                    WHEN cpl.main_lead = "External Edufair" THEN (CASE WHEN tbl_client_prog.eduf_lead_id is not null THEN vedl.organizer_name ELSE "External Edufair" END) 
+                                    WHEN cpl.main_lead = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title)
+                                    WHEN cpl.main_lead = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name)
+                                    ELSE cpl.main_lead
                                 END) AS conversion_lead_view'),
                         'tbl_client_prog.status',
                         'tbl_client_prog.prog_running_status',
@@ -534,11 +534,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             })->filterColumn('conversion_lead_view', function ($query, $keyword) {
                 $sql = '(CASE 
-                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead COLLATE utf8mb4_unicode_ci)
-                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "External Edufair" THEN (CASE WHEN tbl_client_prog.eduf_lead_id is not null THEN vedl.organizer_name ELSE "External Edufair" END) 
-                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title COLLATE utf8mb4_unicode_ci)
-                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name COLLATE utf8mb4_unicode_ci)
-                        ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
+                            WHEN cpl.main_lead = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead)
+                            WHEN cpl.main_lead = "External Edufair" THEN (CASE WHEN tbl_client_prog.eduf_lead_id is not null THEN vedl.organizer_name ELSE "External Edufair" END) 
+                            WHEN cpl.main_lead = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title)
+                            WHEN cpl.main_lead = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name)
+                        ELSE cpl.main_lead
                         END) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             })->filterColumn('pic_name', function ($query, $keyword) {

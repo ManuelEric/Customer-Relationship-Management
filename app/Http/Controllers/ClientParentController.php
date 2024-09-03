@@ -524,10 +524,10 @@ class ClientParentController extends ClientController
                 case 'new':
                     $rawParent = $this->clientRepository->getViewRawClientById($rawclientId);
                     $lead_id = $rawParent->lead_id;
-                    $register_as = $rawParent->register_as;
+                    $register_by = $rawParent->register_by;
 
                     $clientDetails['lead_id'] = $lead_id;
-                    $clientDetails['register_as'] = $register_as;
+                    $clientDetails['register_by'] = $register_by;
 
                     $newParent = $this->clientRepository->updateClient($rawclientId, $clientDetails);
 

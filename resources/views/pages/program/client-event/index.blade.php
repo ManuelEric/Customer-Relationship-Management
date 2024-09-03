@@ -325,8 +325,8 @@
                                 .created_at).format('MMM Do YY');
 
                             var URL = '#';
-                            if (row.register_as != null){
-                                var clientRole = (row.register_as).toLowerCase();
+                            if (row.register_by != null){
+                                var clientRole = (row.register_by).toLowerCase();
                                 var intoURLParam = clientRole.replace("/", "-");
                                 var intoURLParam = intoURLParam.replace('counsellor', 'counselor');
                                 URL = "{{ url('/') }}/client/" + intoURLParam + "/" + row
@@ -351,8 +351,8 @@
                     //     className: 'text-center'
                     // },
                     {
-                        data: 'register_as',
-                        name: 'client.register_as',
+                        data: 'register_by',
+                        name: 'client.register_by',
                         searchable: false,
                         render: function(data, type, row, meta) {
                             if (data != null){

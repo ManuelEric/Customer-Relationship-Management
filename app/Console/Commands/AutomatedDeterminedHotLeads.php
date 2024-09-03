@@ -545,7 +545,7 @@ class AutomatedDeterminedHotLeads extends Command
                     # bisa dikonfirmasi kembali ke ka Hafidz
                     $field = "tbl_status_categorization_lead";
 
-                    switch ($client->register_as) {
+                    switch ($client->register_by) {
                         default:
                         case 'student':
                             $value_of_field = 1; # Student

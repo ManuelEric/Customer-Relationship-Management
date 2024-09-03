@@ -36,7 +36,7 @@ class DataNewClient implements FromArray, WithHeadings, WithTitle, WithColumnFor
             'Status', # default 'Qualified'
             '$ Fund', # default 'No'
             'Lead Source', # Referral / Other
-            'Register As', # default student
+            'Register By', # default student
             'Major', # decided / undecided
             'Already Joined', # default '-'
             'Is there any upcoming seasonal program?', # default 'no'

@@ -453,10 +453,10 @@ class ClientTeacherCounselorController extends ClientController
                 case 'new':
                     $rawTeacher = $this->clientRepository->getViewRawClientById($rawclientId);
                     $lead_id = $rawTeacher->lead_id;
-                    $register_as = $rawTeacher->register_as;
+                    $register_by = $rawTeacher->register_by;
 
                     $clientDetails['lead_id'] = $lead_id;
-                    $clientDetails['register_as'] = $register_as;
+                    $clientDetails['register_by'] = $register_by;
 
                     $newTeacher = $this->clientRepository->updateClient($rawclientId, $clientDetails);
 

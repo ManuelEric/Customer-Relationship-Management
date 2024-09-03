@@ -81,6 +81,6 @@ class Tag extends Model
 
     public function client()
     {
-        return $this->belongsToMany(UserClient::class, 'tbl_client_abrcountry', 'tag_id', 'client_id');
+        return $this->belongsToMany(UserClient::class, 'tbl_client_abrcountry', 'country_id', 'client_id');
     }
 }

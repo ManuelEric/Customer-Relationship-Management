@@ -61,11 +61,11 @@ class UniversityRepository implements UniversityRepositoryInterface
 
     public function getAllUniversitiesByTag(array $tags)
     {
-        $universities = University::whereIn('tag', $tags)->get();
+        $universities = University::with('tags')->whereIn('univ_country', $tags)->get();
 
         if (in_array('7', $tags)) { # 7 means Tag : Other
             $tags = ['1', '2', '3', '4', '5', '6'];
-            $other_universities = University::whereNotIn('tag', $tags)->orWhereNull('tag')->get();
+            $other_universities = University::with('tags')->whereNotIn('univ_country', $tags)->orWhereNull('univ_country')->get();
 
             if ($other_universities)
                 $universities = $universities->merge($other_universities);
