@@ -135,7 +135,7 @@
                                 <a href="tel:{{ $lead->phone }}">{{ $lead->phone }}</a>
                             </div>
                             <div>
-                                Register as: {{ $lead->register_by ?? 'unknown' }}
+                                Register By: {{ $lead->register_by ?? 'unknown' }}
                             </div>
                         </div>
                     

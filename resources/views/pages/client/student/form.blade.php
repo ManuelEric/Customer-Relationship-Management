@@ -122,7 +122,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-2">
-                                    <label>Register As</label>
+                                    <label>Register By</label>
                                     <select class="select w-100" name="register_by">
                                         <option data-placeholder="true"></option>
                                         <option value="student"

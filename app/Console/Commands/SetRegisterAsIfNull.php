@@ -22,7 +22,7 @@ class SetRegisterAsIfNull extends Command
      *
      * @var string
      */
-    protected $description = 'Automatically set register as to client table if the register as field is null';
+    protected $description = 'Automatically set register by to client table if the register by field is null';
 
 
     private ClientRepositoryInterface $clientRepository;

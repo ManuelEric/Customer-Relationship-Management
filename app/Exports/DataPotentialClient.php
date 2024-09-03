@@ -37,7 +37,7 @@ class DataPotentialClient implements FromArray, WithHeadings, WithTitle, WithCol
             'Status', # default 'Qualified'
             '$ Fund', # default 'No'
             'Lead Source', # Referral / Other
-            'Register As', # default student
+            'Register By', # default student
             'Major', # decided / undecided
             'Already Joined', # default '-'
             'Is there any upcoming seasonal program?', # default 'no'

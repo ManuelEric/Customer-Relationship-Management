@@ -163,7 +163,7 @@
                     <div class="row mb-2 g-1">
                         <div class="col d-flex justify-content-between">
                             <label>
-                                Register As
+                                Register By
                             </label>
                             <label>:</label>
                         </div>
