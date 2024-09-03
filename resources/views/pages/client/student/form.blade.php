@@ -123,13 +123,13 @@
                             <div class="col-md-6">
                                 <div class="mb-2">
                                     <label>Register As</label>
-                                    <select class="select w-100" name="register_as">
+                                    <select class="select w-100" name="register_by">
                                         <option data-placeholder="true"></option>
                                         <option value="student"
-                                            {{ old('register_as') == 'student' || (isset($student->register_as) && $student->register_as == 'student') ? 'selected' : null }}>
+                                            {{ old('register_by') == 'student' || (isset($student->register_by) && $student->register_by == 'student') ? 'selected' : null }}>
                                             Student</option>
                                         <option value="parent"
-                                            {{ old('register_as') == 'parent' || (isset($student->register_as) && $student->register_as == 'parent') ? 'selected' : null }}>
+                                            {{ old('register_by') == 'parent' || (isset($student->register_by) && $student->register_by == 'parent') ? 'selected' : null }}>
                                             Parent</option>
                                     </select>
                                     @error('is_funding')

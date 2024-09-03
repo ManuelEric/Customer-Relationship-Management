@@ -532,9 +532,9 @@
                                     <td>{{ $client->graduation_year_real ?? '-'}}</td>
                                 </tr>
                                 <tr>
-                                    <td>Register As</td>
+                                    <td>Register By</td>
                                     <td width="1%">:</td>
-                                    <td>{{ $client->register_as }}</td>
+                                    <td>{{ $client->register_by }}</td>
                                 </tr>
                                 <tr>
                                     <td>Have you ever participated ALL-in Event/Program?</td>

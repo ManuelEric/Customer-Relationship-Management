@@ -351,7 +351,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         'sch.sch_name AS school_name',
                         'c.grade_now AS grade_now',
                         'p.program_name AS program_names',
-                        'c.register_as AS register_as',
+                        'c.register_by AS register_by',
                         DB::raw("CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, '')) AS parent_fullname"),
                         'parent.phone as parent_phone',
                         'parent.mail as parent_mail',

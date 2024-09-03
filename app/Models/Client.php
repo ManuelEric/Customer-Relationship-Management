@@ -53,7 +53,7 @@ class Client extends Model
         'st_password',
         'preferred_program',
         'is_funding',
-        'register_as',
+        'register_by',
         'is_verified',
         'created_at',
         'updated_at',

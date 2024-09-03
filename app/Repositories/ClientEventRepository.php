@@ -36,7 +36,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     'client.id as client_id',
                     'client.lead_source',
                     'tbl_events.event_title as event_name',
-                    'client.register_as',
+                    'client.register_by',
                     'client.full_name as client_name',
                     'client.mail as client_mail',
                     'client.phone as client_phone',
@@ -100,7 +100,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     'client_ref_code_view.full_name as referral_from'
                 )->
                 when(!empty($filter['audience']), function ($searchQuery) use ($filter) {
-                    $searchQuery->whereIn('client.register_as', $filter['audience']);
+                    $searchQuery->whereIn('client.register_by', $filter['audience']);
                 })->
                 when(!empty($filter['event_name']), function ($searchQuery) use ($filter) {
                     $searchQuery->where('event_title', $filter['event_name']);
@@ -270,7 +270,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.client_id', '=', 'tbl_client.id')
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
             ->select(
-                'tbl_client.register_as',
+                'tbl_client.register_by',
                 'tbl_client_event.clientevent_id',
                 DB::raw('(CASE 
                     WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id 
@@ -415,7 +415,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.client_id', '=', 'tbl_client.id')
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
             ->select(
-                'tbl_client.register_as',
+                'tbl_client.register_by',
                 'tbl_client_event.clientevent_id',
                 DB::raw('(CASE 
                     WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id 
@@ -444,7 +444,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.client_id', '=', 'tbl_client.id')
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
             ->select(
-                'tbl_client.register_as',
+                'tbl_client.register_by',
                 'tbl_client_event.clientevent_id',
                 DB::raw('(CASE 
                     WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id 
@@ -481,7 +481,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.client_id', '=', 'tbl_client.id')
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
             ->select(
-                'tbl_client.register_as',
+                'tbl_client.register_by',
                 'tbl_client_event.clientevent_id',
                 DB::raw('(CASE 
                     WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id 

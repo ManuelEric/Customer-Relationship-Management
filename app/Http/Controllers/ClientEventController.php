@@ -824,7 +824,7 @@ class ClientEventController extends Controller
                 'name' => $request->fullname[$loop],
                 'email' => $request->email[$loop],
                 'phone' => $request->fullnumber[$loop],
-                'register_as' => $choosen_role,
+                'register_by' => $choosen_role,
             ];
 
             # check if the client exist in our databases
@@ -843,7 +843,7 @@ class ClientEventController extends Controller
                     'mail' => $newClientDetails[$loop]['email'],
                     'phone' => $newClientDetails[$loop]['phone'],
                     'lead_id' => "LS001", # hardcode for lead website
-                    'register_as' => $choosen_role,
+                    'register_by' => $choosen_role,
                 ];
 
                 # additional info that should be stored when role is student and parent
@@ -1279,7 +1279,7 @@ class ClientEventController extends Controller
             $schoolId = $school->sch_id;
         }
 
-        switch ($client->register_as) { # this is a choosen role
+        switch ($client->register_by) { # this is a choosen role
 
             case "parent":
                 $childId = $clientEvent->children->id;
@@ -1403,7 +1403,7 @@ class ClientEventController extends Controller
             return view('form-embed.response.error');
         }
 
-        return Redirect::to('form/registration/success?role=' . $client->register_as . '&name=' . $request->fullname[0]);
+        return Redirect::to('form/registration/success?role=' . $client->register_by . '&name=' . $request->fullname[0]);
     }
 
     public function updateAttendance($id, $status)
@@ -1467,7 +1467,7 @@ class ClientEventController extends Controller
 
             return Redirect::to('form/thanks');
         } else if ($dataRegister['success'] && $dataRegister['already_join']) {
-            return Redirect::to('form/already-join?role=' . $client->register_as . '&name=' . $client->full_name);
+            return Redirect::to('form/already-join?role=' . $client->register_by . '&name=' . $client->full_name);
         }
     }
 

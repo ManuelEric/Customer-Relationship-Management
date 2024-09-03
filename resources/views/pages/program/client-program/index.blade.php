@@ -407,8 +407,8 @@
                         // }
                     },
                     {
-                        data: 'register_as',
-                        name: 'c.register_as',
+                        data: 'register_by',
+                        name: 'c.register_by',
 
                     },
                     {

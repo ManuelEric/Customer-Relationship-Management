@@ -1960,7 +1960,7 @@ class ClientRepository implements ClientRepositoryInterface
                 'tbl_client.last_name',
                 'tbl_client.phone',
                 'tbl_client.mail',
-                'tbl_client.register_as',
+                'tbl_client.register_by',
                 'parent.mail as parent_mail',
                 'parent.phone as parent_phone',
             ])->

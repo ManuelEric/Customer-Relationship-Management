@@ -15,7 +15,7 @@ class SetRegisterAsIfNull extends Command
      *
      * @var string
      */
-    protected $signature = 'set:register_as';
+    protected $signature = 'set:register_by';
 
     /**
      * The console command description.
@@ -49,9 +49,9 @@ class SetRegisterAsIfNull extends Command
 
             foreach ($students as $student) {
                 $progressBar->advance();
-                if ($student->register_as == NULL) {
+                if ($student->register_by == NULL) {
 
-                    $this->clientRepository->updateClient($student->id, ['register_as' => 'student']);
+                    $this->clientRepository->updateClient($student->id, ['register_by' => 'student']);
                     // $student->save();
                 }
                 $progressBar->advance();
@@ -61,7 +61,7 @@ class SetRegisterAsIfNull extends Command
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::info('Failed to set register_as : ' . $e->getMessage() . ' on line ' . $e->getLine());
+            Log::info('Failed to set register_by : ' . $e->getMessage() . ' on line ' . $e->getLine());
         }
 
         return Command::SUCCESS;

@@ -113,7 +113,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8 col-8">
-                                {{ $student->register_as }}
+                                {{ $student->register_by }}
                             </div>
                         </div>
                     </div>

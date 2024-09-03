@@ -131,7 +131,7 @@ class ExportClientProgram implements ShouldQueue
                 $this->replaceNullValue($clientProg['school_name']),
                 $this->replaceNullValue($clientProg['grade_now']),
                 $this->replaceNullValue($clientProg['program_names']),
-                $this->replaceNullValue($clientProg['register_as']),
+                $this->replaceNullValue($clientProg['register_by']),
                 $this->replaceNullValue($clientProg['parent_fullname']),
                 $this->replaceNullValue($clientProg['parent_phone']),
                 $this->replaceNullValue($clientProg['parent_mail']),

@@ -68,7 +68,7 @@ class UserClient extends Authenticatable
         'is_funding',
         'scholarship',
         'is_verified',
-        'register_as',
+        'register_by',
         'referral_code',
         'category',
         'took_ia',

@@ -168,7 +168,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9 col-8">
-                            @switch($student->register_as)
+                            @switch($student->register_by)
                                 @case('student')
                                     Student
                                 @break

@@ -89,7 +89,7 @@ class ClientController extends Controller
                     'graduation_year' => $request->graduation_year,
                     'gap_year' => $request->gap_year,
                     'is_funding' => $request->is_funding ?? 0,
-                    'register_as' => $request->register_as,
+                    'register_by' => $request->register_by,
                     'referral_code' => $request->referral_code,
                     'is_verified' => 'Y'
                 ];
@@ -126,7 +126,7 @@ class ClientController extends Controller
                     'pr_id',
                     'pr_id_old',
                     // 'is_funding',
-                    'register_as',
+                    'register_by',
                     'referral_code'
                 ]);
 

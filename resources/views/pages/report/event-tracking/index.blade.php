@@ -197,8 +197,8 @@
                     name: 'tbl_events.event_title'
                 },
                 {
-                    data: 'register_as',
-                    name: 'client.register_as',
+                    data: 'register_by',
+                    name: 'client.register_by',
                     render: function(data, type, row, meta) {
                         if (data != null){
                             return data.charAt(0).toUpperCase() + data.slice(1);

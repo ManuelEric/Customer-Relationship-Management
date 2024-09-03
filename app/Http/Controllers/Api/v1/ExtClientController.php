@@ -763,7 +763,7 @@ class ExtClientController extends Controller
                     'email' => $storedClientEvent->client->mail,
                     'is_vip' => $storedClientEvent->notes == 'VIP' ? true : false,
                     'have_child' => $validated['have_child'],
-                    'register_as' => $this->getRole($storedClientEvent)['role']
+                    'register_by' => $this->getRole($storedClientEvent)['role']
                 ],
                 'clientevent' => [
                     'id' => $storedClientEvent->clientevent_id,
@@ -1045,7 +1045,7 @@ class ExtClientController extends Controller
                         'name' => $existing->client->full_name,
                         'email' => $existing->client->mail,
                         'is_vip' => $existing->notes == 'VIP' ? true : false,
-                        'register_as' => $this->getRole($existing)['role']
+                        'register_by' => $this->getRole($existing)['role']
                     ],
                     'clientevent' => [
                         'id' => $existing->clientevent_id,
@@ -1075,7 +1075,7 @@ class ExtClientController extends Controller
                         'name' => $existing->client->full_name,
                         'email' => $existing->client->mail,
                         'is_vip' => $existing->notes == 'VIP' ? true : false,
-                        'register_as' => $this->getRole($existing)['role']
+                        'register_by' => $this->getRole($existing)['role']
                     ],
                     'clientevent' => [
                         'id' => $existing->clientevent_id,
@@ -1116,7 +1116,7 @@ class ExtClientController extends Controller
             'last_name' => $splitNames['last_name'],
             'mail' => $incomingRequest['mail'],
             'phone' => $this->setPhoneNumber($incomingRequest['phone']),
-            'register_as' => $incomingRequest['role'],
+            'register_by' => $incomingRequest['role'],
             'st_grade' => $this->getGradeByGraduationYear($incomingRequest['graduation_year']),
             'graduation_year' => $incomingRequest['graduation_year'],
             'lead_id' => $incomingRequest['lead_source_id'],
@@ -1175,7 +1175,7 @@ class ExtClientController extends Controller
             'last_name' => $splitNames['last_name'],
             'mail' => $incomingRequest['mail'],
             'phone' => $this->setPhoneNumber($incomingRequest['phone']),
-            'register_as' => $incomingRequest['role'],
+            'register_by' => $incomingRequest['role'],
             'scholarship' => $incomingRequest['scholarship'],
             'lead_id' => $incomingRequest['lead_source_id'],
             'eduf_id' => isset($incomingRequest['eduf_id']) ? $incomingRequest['eduf_id'] : null,
@@ -1214,7 +1214,7 @@ class ExtClientController extends Controller
             'last_name' => $splitNames['last_name'],
             'mail' => $incomingRequest['mail'],
             'phone' => $this->setPhoneNumber($incomingRequest['phone']),
-            'register_as' => $incomingRequest['role'],
+            'register_by' => $incomingRequest['role'],
             'sch_id' => $schoolId,
             'lead_id' => $incomingRequest['lead_source_id'],
             'eduf_id' => isset($incomingRequest['eduf_id']) ? $incomingRequest['eduf_id'] : null,
@@ -1615,7 +1615,7 @@ class ExtClientController extends Controller
         DB::beginTransaction();
         try {
 
-            # update the data which depends on their register_as 
+            # update the data which depends on their register_by 
             switch ($requestUpdateClientEvent->client->roles->count() > 0) {
     
                 case $requestUpdateClientEvent->client->roles()->where('role_name', 'student')->exists():
@@ -1763,7 +1763,7 @@ class ExtClientController extends Controller
                     'email' => $updatedClientEvent->client->mail,
                     'is_vip' => $updatedClientEvent->notes == 'VIP' ? true : false,
                     'have_child' => $validated['have_child'],
-                    'register_as' => $updatedClientEvent->client->register_as
+                    'register_by' => $updatedClientEvent->client->register_by
                 ],
                 'clientevent' => [
                     'id' => $updatedClientEvent->clientevent_id,
@@ -1786,7 +1786,7 @@ class ExtClientController extends Controller
             'last_name' => $splitNames['last_name'],
             'mail' => $incomingRequest['mail'],
             'phone' => $this->setPhoneNumber($incomingRequest['phone']),
-            'register_as' => $incomingRequest['role'],
+            'register_by' => $incomingRequest['role'],
             'sch_id' => $schoolId,
             'lead_id' => 'LS001', # lead is hardcoded into website
         ];
@@ -1807,7 +1807,7 @@ class ExtClientController extends Controller
             'last_name' => $splitNames['last_name'],
             'mail' => $incomingRequest['mail'],
             'phone' => $this->setPhoneNumber($incomingRequest['phone']),
-            'register_as' => $incomingRequest['role'],
+            'register_by' => $incomingRequest['role'],
             'scholarship' => $incomingRequest['scholarship'],
             'lead_id' => 'LS001', # lead is hardcoded into website
         ];
@@ -1837,7 +1837,7 @@ class ExtClientController extends Controller
             'last_name' => $splitNames['last_name'],
             'mail' => $incomingRequest['mail'],
             'phone' => $this->setPhoneNumber($incomingRequest['phone']),
-            'register_as' => $incomingRequest['role'],
+            'register_by' => $incomingRequest['role'],
             'st_grade' => $this->getGradeByGraduationYear($incomingRequest['graduation_year']),
             'graduation_year' => $incomingRequest['graduation_year'],
             'lead_id' => 'LS001', # lead is hardcoded into website

@@ -29,7 +29,7 @@ class ViewRawClient extends Authenticatable
         'second_client_mail',
         'second_client_phone',
         'school',
-        'register_as',
+        'register_by',
         'sch_id',
         'interest_countries',
         'lead_source',
