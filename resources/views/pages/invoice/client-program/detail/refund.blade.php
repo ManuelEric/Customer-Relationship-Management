@@ -45,7 +45,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="{{ route('invoice.program.refund', ['client_program' => $clientProg->clientprog_id]) }}" method="POST">
+                <form action="{{ route('invoice.client-program.refund', ['client_program' => $clientProg->clientprog_id]) }}" method="POST">
                     @csrf
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -135,7 +135,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="{{ route('invoice.program.refund', ['client_program' => $clientProg->clientprog_id]) }}" method="POST">
+                <form action="{{ route('invoice.client-program.refund', ['client_program' => $clientProg->clientprog_id]) }}" method="POST">
                     @csrf
                     @method('delete')
                     <div class="text-center">
