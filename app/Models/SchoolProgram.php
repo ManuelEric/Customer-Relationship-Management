@@ -44,6 +44,7 @@ class SchoolProgram extends Model
         'accepted_date',
         'cancel_date',
         'reason_id',
+        'reason_notes',
         'refund_date',
         'refund_notes',
         'denied_date',

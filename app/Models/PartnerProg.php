@@ -32,6 +32,7 @@ class PartnerProg extends Model
         'end_date',
         'is_corporate_scheme',
         'reason_id',
+        'reason_notes',
         'total_fee',
         'success_date',
         'pending_date',

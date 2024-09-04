@@ -300,6 +300,17 @@
                                         </div>
     
                                 </div>
+                                <div class="col-md-6 refund_status d-none my-2">
+                                    <small>Reason Notes </small>
+                                    <input type="text" name="reason_notes_refund" id=""
+                                        class="form-control form-control-sm rounded"
+                                        value="{{ isset($schoolProgram->reason_notes) ? $schoolProgram->reason_notes :  old('reason_notes') }}"
+                                        {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}
+                                        >
+                                    @error('reason_notes_refund')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
                                 <div class="col-md-12 refund_status d-none my-2">
                                     <label for="">
                                        Refund  Notes
@@ -364,6 +375,17 @@
                                             </div>
                                         </div>              
                                     
+                                </div>
+                                <div class="col-md-6 reason d-none my-2">
+                                    <small>Reason Notes </small>
+                                    <input type="text" name="reason_notes" id=""
+                                        class="form-control form-control-sm rounded"
+                                        value="{{ isset($schoolProgram->reason_notes) ? $schoolProgram->reason_notes :  old('reason_notes') }}"
+                                        {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}
+                                        >
+                                    @error('reason_notes')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
