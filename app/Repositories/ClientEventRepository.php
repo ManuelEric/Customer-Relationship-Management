@@ -27,7 +27,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 // ->leftJoin('tbl_client_relation', 'tbl_client_relation.parent_id', '=', 'client.id')
                 ->leftJoin('client as child', 'child.id', '=', 'tbl_client_event.child_id')
                 // ->leftJoin('client as parent', 'parent.id', '=', 'tbl_client_event.parent_id')
-                ->leftJoin('client_ref_code_view', 'client_ref_code_view.id', '=', DB::raw('SUBSTR(tbl_client_event.referral_code, 4)'))
+                ->leftJoin('tbl_client as cref', 'cref.secondary_id', '=', 'tbl_client_event.referral_code')
                 ->select(
                     'tbl_client_event.clientevent_id',
                     'tbl_client_event.ticket_id',
@@ -97,7 +97,8 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                         WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name)
                         ELSE tbl_lead.main_lead
                     END) AS conversion_lead'),
-                    'client_ref_code_view.full_name as referral_from'
+                    DB::raw('CONCAT (cref.first_name, " ", COALESCE(cref.last_name, "")) AS referral_from')
+                    // 'client_ref_code_view.full_name as referral_from'
                 )->
                 when(!empty($filter['audience']), function ($searchQuery) use ($filter) {
                     $searchQuery->whereIn('client.register_by', $filter['audience']);
@@ -222,6 +223,13 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                                 WHEN tbl_roles.role_name = "Parent" THEN child.abr_country 
                                 WHEN tbl_roles.role_name != "Parent" THEN client.abr_country
                             END) like ?';
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                }
+            )->
+            filterColumn(
+                'referral_from',
+                function ($query, $keyword) {
+                    $sql = 'CONCAT (cref.first_name, " ", COALESCE(cref.last_name, "")) like ?';
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 }
             )

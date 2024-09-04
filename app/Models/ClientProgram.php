@@ -35,13 +35,14 @@ class ClientProgram extends Model
         'last_discuss_date',
         'followup_date',
         'meeting_date',
-        'meeting_notes',
+        // 'meeting_notes',
         'status',
         'statusprog_date',
         'initconsult_date',
         'assessmentsent_date',
         'negotiation_date',
         'reason_id',
+        'reason_notes',
         'test_date',
         'first_class',
         'last_class',
@@ -219,7 +220,7 @@ class ClientProgram extends Model
 
     public function getReferralNameFromRefCodeView($refCode)
     {
-        return ViewClientRefCode::whereRaw('ref_code COLLATE utf8mb4_unicode_ci = (?)', $refCode)->first()->full_name;
+        return UserClient::where('secondary_id', $refCode)->first()->full_name ?? null;
         // return ViewClientRefCode::whereRaw('ref_code = (?)', $refCode)->first()->full_name;
     }
 

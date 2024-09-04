@@ -409,7 +409,7 @@
                     },
                     {
                         data: 'referral_from',
-                        name: 'client_ref_code_view.full_name',
+                        // name: '',
                         className: 'text-center',
                         defaultContent: '-'
                     },

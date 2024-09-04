@@ -210,6 +210,7 @@ class StoreSchoolProgramRequest extends FormRequest
             'denied_date' => 'required|date',
             'reason_id' => 'required',
             'other_reason' => 'required_if:reason_id,other|nullable|unique:tbl_reason,reason_name',
+            'reason_notes' => 'nullable'
 
         ];
     }
@@ -271,6 +272,8 @@ class StoreSchoolProgramRequest extends FormRequest
             'other_reason_refund' => 'required_if:reason_refund_id,other_reason_refund|nullable|unique:tbl_reason,reason_name',
             'refund_date' => 'required|date',
             'refund_notes' => 'nullable',
+            'reason_notes' => 'nullable',
+            'reason_notes_refund' => 'nullable',
         ];
 
         return $rules;
@@ -324,6 +327,7 @@ class StoreSchoolProgramRequest extends FormRequest
             'cancel_date' => 'required|date',
             'reason_id' => 'required',
             'other_reason' => 'required_if:reason_id,other|nullable|unique:tbl_reason,reason_name',
+            'reason_notes' => 'nullable'
 
         ];
     }

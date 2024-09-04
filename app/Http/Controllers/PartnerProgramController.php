@@ -139,6 +139,7 @@ class PartnerProgramController extends Controller
 
             unset($partnerPrograms['other_reason_refund']);
             unset($partnerPrograms['reason_refund_id']);
+            unset($partnerPrograms['reason_notes_refund']);
         }
 
         if ($request->input('status') == '3') {
@@ -148,7 +149,9 @@ class PartnerProgramController extends Controller
             } else {
                 $partnerPrograms['reason_id'] = $request->input('reason_refund_id');
             }
+            $partnerPrograms['reason_notes'] = $partnerPrograms['reason_notes_refund'];
             unset($partnerPrograms['other_reason']);
+            unset($partnerPrograms['reason_notes_refund']);
         }
 
         DB::beginTransaction();
@@ -367,7 +370,7 @@ class PartnerProgramController extends Controller
             unset($partnerPrograms['other_reason_refund']);
             unset($partnerPrograms['other_reason']);
             unset($partnerPrograms['reason_refund_id']);
-            unset($partnerPrograms['reason_refund_id']);
+            unset($partnerPrograms['reason_notes_refund']);
         }
 
         if ($request->input('status') == '3') {
@@ -378,10 +381,13 @@ class PartnerProgramController extends Controller
             }else {
                 $partnerPrograms['reason_id'] = $request->input('reason_refund_id');
             }
+
+            $partnerPrograms['reason_notes'] = $partnerPrograms['reason_notes_refund'];
             unset($partnerPrograms['other_reason_refund']);
             unset($partnerPrograms['reason_refund_id']);
             unset($partnerPrograms['other_reason']);
             unset($partnerPrograms['reason_refund_id']);
+            unset($partnerPrograms['reason_notes_refund']);
         }
 
 

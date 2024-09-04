@@ -16,7 +16,7 @@
                             <strong>
                                 Invoice ID : {{ $clientProgram->invoice->inv_id }} 
                             </strong>
-                            <a href="{{ route('invoice.program.export', ['client_program' => $clientProgram->clientprog_id]) }}" title="See receipt" class="fs-6 text-end">
+                            <a href="{{ route('invoice.client-program.export', ['client_program' => $clientProgram->clientprog_id]) }}" title="See receipt" class="fs-6 text-end">
                                 <i class="bi bi-printer cursor-pointer"></i>
                             </a>
                         </div>

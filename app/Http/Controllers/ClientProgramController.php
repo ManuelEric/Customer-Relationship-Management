@@ -307,7 +307,7 @@ class ClientProgramController extends Controller
             'kol_lead_id',
             'partner_id',
             'first_discuss_date',
-            'meeting_notes',
+            // 'meeting_notes',
             'status',
             'referral_code',
             'empl_id'
@@ -441,6 +441,7 @@ class ClientProgramController extends Controller
                 $clientProgramDetails['failed_date'] = $request->failed_date;
                 $clientProgramDetails['reason_id'] = $request->reason_id;
                 $clientProgramDetails['other_reason'] = $request->other_reason;
+                $clientProgramDetails['reason_notes'] = $request->reason_notes;
 
                 break;
 
@@ -450,6 +451,7 @@ class ClientProgramController extends Controller
                 $clientProgramDetails['refund_notes'] = $request->refund_notes;
                 $clientProgramDetails['reason_id'] = $request->reason_id;
                 $clientProgramDetails['other_reason'] = $request->other_reason;
+                $clientProgramDetails['reason_notes'] = $request->reason_notes;
                 break;
         }
 
@@ -476,11 +478,6 @@ class ClientProgramController extends Controller
                     # add role mentee
                     if (in_array($progId, $this->admission_prog_list)) {
                         
-                        $last_id = UserClient::max('st_id');
-                        $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
-                        $stId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
-                        $this->clientRepository->updateClient($studentId, ['st_id' => $stId]);
-
                         $this->clientRepository->addRole($studentId, 'Mentee');
 
                         # upload the agreement
@@ -611,7 +608,7 @@ class ClientProgramController extends Controller
             'kol_lead_id',
             'partner_id',
             'first_discuss_date',
-            'meeting_notes',
+            // 'meeting_notes',
             'status',
             'empl_id',
             'referral_code'
@@ -708,8 +705,8 @@ class ClientProgramController extends Controller
                     $clientProgramDetails['installment_notes'] = $request->installment_notes;
                     $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
 
-                     # declare the variables for agreement
-                     if ($request->hasFile('agreement')) {
+                    # declare the variables for agreement
+                    if ($request->hasFile('agreement')) {
 
                         # setting up the agreement request file
                         $file_name = "agreement_".str_replace(' ', '_', trim($student->full_name))."_".$progId;
@@ -783,6 +780,7 @@ class ClientProgramController extends Controller
                 $clientProgramDetails['failed_date'] = $request->failed_date;
                 $clientProgramDetails['reason_id'] = $request->reason_id;
                 $clientProgramDetails['other_reason'] = $request->other_reason;
+                $clientProgramDetails['reason_notes'] = $request->reason_notes;
 
                 break;
 
@@ -792,6 +790,7 @@ class ClientProgramController extends Controller
                 $clientProgramDetails['refund_notes'] = $request->refund_notes;
                 $clientProgramDetails['reason_id'] = $request->reason_id;
                 $clientProgramDetails['other_reason'] = $request->other_reason;
+                $clientProgramDetails['reason_notes'] = $request->reason_notes;
                 break;
         };
 
@@ -821,10 +820,6 @@ class ClientProgramController extends Controller
                     # if he/she join admission mentoring program
                     # add role mentee
                     if (in_array($progId, $this->admission_prog_list)) {
-                        $last_id = UserClient::max('st_id');
-                        $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
-                        $stId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
-                        $this->clientRepository->updateClient($studentId, ['st_id' => $stId]);
 
                         $this->clientRepository->addRole($studentId, 'Mentee');
 
@@ -897,8 +892,10 @@ class ClientProgramController extends Controller
 
             # if failed storing the data into the database
             # remove the uploaded file from storage
-            if (Storage::exists('public/uploaded_file/agreement/'.$file_path) && $file_path !== null) {
-                Storage::delete('public/uploaded_file/agreement/'.$file_path);
+            if ($request->hasFile('agreement')) {
+                if (Storage::exists('public/uploaded_file/agreement/'.$file_path) && $file_path !== null) {
+                    Storage::delete('public/uploaded_file/agreement/'.$file_path);
+                }
             }
 
             return Redirect::back()->withError($e->getMessage());

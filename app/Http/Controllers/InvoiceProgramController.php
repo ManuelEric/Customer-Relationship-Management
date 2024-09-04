@@ -67,7 +67,7 @@ class InvoiceProgramController extends Controller
             return $this->invoiceProgramRepository->getAllInvoiceProgramDataTables($status);
         }
 
-        return view('pages.invoice.client-program.index', [
+        return view('pages.invoice.program.index', [
             'status' => $status,
             'isBundle' => $isBundle
         ]);

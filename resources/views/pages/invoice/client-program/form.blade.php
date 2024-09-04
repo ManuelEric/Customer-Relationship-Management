@@ -80,7 +80,7 @@
                             @else
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Print Invoice">
-                                    <a href="{{ route('invoice.program.print', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}"
+                                    <a href="{{ route('invoice.client-program.print', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}"
                                         class="text-info">
                                         <i class="bi bi-printer"></i>
                                     </a>
@@ -116,7 +116,7 @@
                                 @else
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Print Invoice">
-                                        <a href="{{ route('invoice.program.print', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}"
+                                        <a href="{{ route('invoice.client-program.print', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}"
                                             class="text-info">
                                             <i class="bi bi-printer"></i>
                                         </a>
@@ -355,7 +355,7 @@
 
                 <div class="card-body">
                     <form
-                        action="{{ isset($invoice) ? route('invoice.program.update', ['client_program' => $clientProg->clientprog_id]) : route('invoice.program.store') }}"
+                        action="{{ isset($invoice) ? route('invoice.program.update', ['client_program' => $clientProg->clientprog_id]) : route('invoice.client-program.store') }}"
                         method="POST" id="invoice-form">
                         @csrf
                         @if (isset($invoice))
@@ -1116,7 +1116,7 @@
             var curr = $(this).data('curr');
             curr = "'" + curr + "'";
             $('#sendToChoosenPic').attr("onclick",
-            "confirmRequestSign('{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', " +
+            "confirmRequestSign('{{ route('invoice.client-program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', " +
                 curr + ")");
         });
 
@@ -1215,7 +1215,7 @@
                 showLoading()
                 axios
                     .get(
-                        '{{ route('invoice.program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
+                        '{{ route('invoice.client-program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
                             responseType: 'arraybuffer',
                             params: {
                                 type: 'idr'
@@ -1246,7 +1246,7 @@
                 showLoading()
                 axios
                     .get(
-                        '{{ route('invoice.program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
+                        '{{ route('invoice.client-program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
                             responseType: 'arraybuffer',
                             params: {
                                 type: 'other'

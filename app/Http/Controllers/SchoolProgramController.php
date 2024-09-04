@@ -135,6 +135,7 @@ class SchoolProgramController extends Controller
 
             unset($schoolPrograms['other_reason_refund']);
             unset($schoolPrograms['reason_refund_id']);
+            unset($schoolPrograms['reason_notes_refund']);
         }
 
         if ($request->input('status') == '3') {
@@ -144,7 +145,9 @@ class SchoolProgramController extends Controller
             } else {
                 $schoolPrograms['reason_id'] = $request->input('reason_refund_id');
             }
+            $schoolPrograms['reason_notes'] = $schoolPrograms['reason_notes_refund'];
             unset($schoolPrograms['other_reason']);
+            unset($schoolPrograms['reason_notes_refund']);
         }
 
         DB::beginTransaction();
@@ -362,6 +365,7 @@ class SchoolProgramController extends Controller
             unset($schoolPrograms['other_reason']);
             unset($schoolPrograms['reason_refund_id']);
             unset($schoolPrograms['reason_refund_id']);
+            unset($schoolPrograms['reason_notes_refund']);
         }
 
         if ($request->input('status') == '3') {
@@ -371,10 +375,13 @@ class SchoolProgramController extends Controller
             } else {
                 $schoolPrograms['reason_id'] = $request->input('reason_refund_id');
             }
+            $schoolPrograms['reason_notes'] = $schoolPrograms['reason_notes_refund'];
             unset($schoolPrograms['other_reason_refund']);
             unset($schoolPrograms['reason_refund_id']);
             unset($schoolPrograms['other_reason']);
             unset($schoolPrograms['reason_refund_id']);
+            unset($schoolPrograms['reason_notes_refund']);
+
         }
 
         DB::beginTransaction();

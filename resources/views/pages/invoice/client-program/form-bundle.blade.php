@@ -82,7 +82,7 @@
                             @else
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Print Invoice">
-                                    <a href="{{ route('invoice.program.print_bundle', ['bundle' => $bundle->uuid, 'currency' => 'idr']) }}"
+                                    <a href="{{ route('invoice.client-program.print_bundle', ['bundle' => $bundle->uuid, 'currency' => 'idr']) }}"
                                         class="text-info">
                                         <i class="bi bi-printer"></i>
                                     </a>
@@ -118,7 +118,7 @@
                                 @else
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Print Invoice">
-                                        <a href="{{ route('invoice.program.print_bundle', ['bundle' => $bundle->uuid, 'currency' => 'other']) }}"
+                                        <a href="{{ route('invoice.client-program.print_bundle', ['bundle' => $bundle->uuid, 'currency' => 'other']) }}"
                                             class="text-info">
                                             <i class="bi bi-printer"></i>
                                         </a>
@@ -358,7 +358,7 @@
 
                 <div class="card-body">
                     <form
-                        action="{{ isset($invoice) ? route('invoice.program.update_bundle', ['bundle' => $bundle->uuid]) : route('invoice.program.store_bundle', ['bundle' => $bundle->uuid]) }}"
+                        action="{{ isset($invoice) ? route('invoice.client-program.update_bundle', ['bundle' => $bundle->uuid]) : route('invoice.client-program.store_bundle', ['bundle' => $bundle->uuid]) }}"
                         method="POST" id="invoice-form">
                         @csrf
                         @if (isset($invoice))
@@ -1082,7 +1082,7 @@
             var curr = $(this).data('curr');
             curr = "'" + curr + "'";
             $('#sendToChoosenPic').attr("onclick",
-            "confirmRequestSign('{{ route('invoice.program.request_sign_bundle', ['bundle' => $bundle->uuid]) }}', " +
+            "confirmRequestSign('{{ route('invoice.client-program.request_sign_bundle', ['bundle' => $bundle->uuid]) }}', " +
                 curr + ")");
         });
 
@@ -1183,7 +1183,7 @@
                 showLoading()
                 axios
                     .get(
-                        '{{ route('invoice.program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
+                        '{{ route('invoice.client-program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
                             responseType: 'arraybuffer',
                             params: {
                                 type: 'idr'
@@ -1214,7 +1214,7 @@
                 showLoading()
                 axios
                     .get(
-                        '{{ route('invoice.program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
+                        '{{ route('invoice.client-program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
                             responseType: 'arraybuffer',
                             params: {
                                 type: 'other'

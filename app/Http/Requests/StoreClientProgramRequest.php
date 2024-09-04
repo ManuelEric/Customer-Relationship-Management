@@ -221,7 +221,8 @@ class StoreClientProgramRequest extends FormRequest
                     ],
                     'failed_date' => 'required',
                     'reason_id' => 'required_if:other_reason,null',
-                    'other_reason' => 'required_if:reason_id,=,null'
+                    'other_reason' => 'required_if:reason_id,=,null',
+                    'reason_notes' => 'nullable',
                 ];
                 break;
 
@@ -276,7 +277,8 @@ class StoreClientProgramRequest extends FormRequest
                     'refund_date' => 'required',
                     'refund_notes' => 'nullable',
                     'reason_id' => 'required_if:other_reason,null',
-                    'other_reason' => 'required_if:reason_id,=,null'
+                    'other_reason' => 'required_if:reason_id,=,null',
+                    'reason_notes' => 'nullable',
                 ];
                 break;
         }

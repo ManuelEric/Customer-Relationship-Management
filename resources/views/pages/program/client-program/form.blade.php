@@ -97,7 +97,7 @@
                                             @if (!empty(old('prog_id')) && old('prog_id') == $program->prog_id) {{ 'selected' }}
                                             @elseif (isset($clientProgram) && $clientProgram->prog_id == $program->prog_id)
                                                 {{ 'selected' }} @endif>
-                                            {{ $program->prog_sub != '-' ? $program->prog_sub . ' - ' : '' }}
+                                            {{ isset($program->sub_prog->sub_prog_name) ? $program->sub_prog->sub_prog_name . ' - ' : '' }}
                                             {{ $program->prog_program }}</option>
                                     @endforeach
                                 </select>
@@ -256,7 +256,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row mb-3">
+                        {{-- <div class="row mb-3">
                             <div class="col-md-3">
                                 <label for="">
                                     Notes
@@ -268,7 +268,7 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <label for="">
@@ -325,7 +325,7 @@
                                     </div>
 
 
-                                    <div class="col-md-12 mt-2 program-detail d-none" id="reason">
+                                    <div class="col-md-6 mt-2 program-detail d-none" id="reason">
                                         <small>Reason <sup class="text-danger">*</sup></small>
                                         <div class="classReason">
                                             <select name="reason_id" class="select w-100" {{ $disabled }}
@@ -363,6 +363,15 @@
                                         @enderror
                                         {{-- <input type="text" name="" class="form-control form-control-sm"> --}}
 
+                                    </div>
+                                    <div class="col-md-6 mt-2 program-detail d-none" id="reason_notes">
+                                        <small>Reason Notes </small>
+                                        <input type="text" name="reason_notes" id="" {{ $disabled }}
+                                            class="form-control form-control-sm rounded"
+                                            value="{{ isset($clientProgram->reason_notes) ? $clientProgram->reason_notes : old('reason_notes') }}">
+                                        @error('reason_notes')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
                                     </div>
 
                                     <div class="col-md-12 mt-2 program-detail" id="refund_notes">
@@ -885,10 +894,12 @@
                 } else if (programStatus == 2) { // failed
                     $('#failed_date').removeClass('d-none')
                     $('#reason').removeClass('d-none')
+                    $('#reason_notes').removeClass('d-none')
                 } else if (programStatus == 3) { // refund
                     $('#refund_date').removeClass('d-none')
                     $('#refund_notes').removeClass('d-none')
                     $('#reason').removeClass('d-none')
+                    $('#reason_notes').removeClass('d-none')
                 }
             } else {
                 notification('warning', 'Please, select program name first!')

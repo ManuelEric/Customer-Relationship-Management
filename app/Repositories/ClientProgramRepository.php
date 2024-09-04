@@ -338,6 +338,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     leftJoin('tbl_reason as r', 'r.reason_id', '=', 'tbl_client_prog.reason_id')->
                     leftJoin('users as u', 'u.id', '=', 'tbl_client_prog.empl_id')->
                     leftJoin('eduf_lead as vedl', 'vedl.id', '=', 'edl.id')->
+                    leftJoin('tbl_client as cref', 'cref.secondary_id', '=', 'tbl_client_prog.referral_code')->
                     select([
                         'c.id as client_id', 
                         'tbl_client_prog.clientprog_id', 
@@ -377,6 +378,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         'tbl_client_prog.failed_date',
                         'tbl_client_prog.success_date',
                         'tbl_client_prog.created_at',
+                        DB::raw('CONCAT (cref.first_name, " ", COALESCE(cref.last_name, "")) AS referral_name')
                     ]);
 
                     if(!$asDatatables){
@@ -481,10 +483,6 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
         return Datatables::eloquent($model)->
             rawColumns(['strip_tag_notes'])->
-            addColumn('referral_name', function ($query) {
-                $referral = ViewClientRefCode::where('id', (int) filter_var($query->referral_code, FILTER_SANITIZE_NUMBER_INT))->first();
-                return isset($referral) ? $referral->full_name : '';
-            })->
             addColumn('custom_clientprog_id', function ($query) {
                 return 'CP-' . $query->clientprog_id;
             })->
@@ -544,6 +542,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             })->filterColumn('pic_name', function ($query, $keyword) {
                 $sql = 'CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->filterColumn('referral_name', function ($query, $keyword) {
+                $sql = 'CONCAT (cref.first_name, " ", COALESCE(cref.last_name, "")) like ?';
+                $query->whereRaw($sql, ["%{$keyword}%"]);
             })
             ->make(true);
     }
@@ -579,7 +580,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 })->whereHas('department', function ($query) use ($department) {
                     $query->where('dept_name', 'like', '%'.$department.'%');
                 })->where('active', 1)
-                ->select(DB::raw('id as empl_id'), DB::raw('CONCAT(users.first_name, " ", COALESCE(users.last_name, "")) as pic_name'), 'uuid')
+                ->select(DB::raw('id as empl_id'), DB::raw('CONCAT(users.first_name, " ", COALESCE(users.last_name, "")) as pic_name'), 'id')
                 ->orderBy('first_name', 'asc')->orderBy('last_name', 'asc')->get();
     }
 
@@ -763,7 +764,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 'eduf_lead_id'              => null,
                 'partner_id'                => null,
                 'first_discuss_date'        => null,
-                'meeting_notes'             => null,
+                // 'meeting_notes'             => null,
                 'status'                    => null,
                 'empl_id'                   => null,
                 'initconsult_date'          => null,
@@ -787,6 +788,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 'failed_date'               => null,
                 'reason_id'                 => null,
                 'refund_date'               => null,
+                'reason_notes'              => null,
             ];
         }
 
