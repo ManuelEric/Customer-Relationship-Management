@@ -315,7 +315,6 @@
                     },
                     {
                         data: 'client_name',
-                        name: 'client.full_name',
                         render: function(data, type, row, meta) {
 
                             var existing = moment(row.created_at).format('MMMM Do YYYY, h:mm') ==
@@ -352,7 +351,7 @@
                     // },
                     {
                         data: 'register_by',
-                        name: 'client.register_by',
+                        name: 'tbl_client.register_by',
                         searchable: false,
                         render: function(data, type, row, meta) {
                             if (data != null){
@@ -364,17 +363,16 @@
                     },
                     {
                         data: 'client_mail',
-                        name: 'client.mail',
+                        name: 'tbl_client.mail',
                         defaultContent: '-'
                     },
                     {
                         data: 'client_phone',
-                        name: 'client.phone',
+                        name: 'tbl_client.phone',
                         defaultContent: '-'
                     },
                     {
                         data: 'child_name',
-                        name: 'child.full_name',
                         defaultContent: '-'
                     },
                     {
@@ -389,15 +387,17 @@
                     },
                     {
                         data: 'participated',
-                        searchable: true
+                        searchable: false,
+                        orderable: false
                     },
                     {
                         data: 'school_name',
                         defaultContent: '-',
                         searchable: false,
+                        orderable: false
                     },
                     {
-                        data: 'graduation_year',
+                        data: 'graduation_year_real',
                         defaultContent: '-',
                         searchable: false,
                     },
@@ -415,7 +415,6 @@
                     },
                     {
                         data: 'abr_country',
-                        name: 'client.abr_country',
                         className: 'text-center',
                         defaultContent: '-'
                     },
