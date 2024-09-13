@@ -60,7 +60,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 $fColumns = [
                     'relation' => ['client', 'viewProgram', 'internalPic'],
                     'columns' => ['fullname', 'program_name', 'pic_name'],
-                    'realColumns' => [DB::raw('CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, ""))'), 'program_name', DB::raw('CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, ""))')]
+                    'realColumns' => [DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), 'program_name', DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))')]
                 ];
 
                 $datatable = DataTables::eloquent($query)->
@@ -162,7 +162,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 $fColumns = [
                     'relation' => ['viewProgram', 'client'],
                     'columns' => ['program_name', 'fullname'],
-                    'realColumns' => ['program_name', DB::raw('CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, ""))')]
+                    'realColumns' => ['program_name', DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))')]
                 ];
 
                 $datatable = DataTables::eloquent($query)->
