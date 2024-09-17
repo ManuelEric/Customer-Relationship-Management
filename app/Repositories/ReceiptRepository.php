@@ -107,7 +107,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
             $fColumns = [
                 'relation' => ['invoiceProgram', 'invoiceProgram.bundling.first_detail.client_program.client', 'invoiceProgram.bundling.first_detail.client_program.program'],
                 'columns' => ['created_at', 'client_fullname', 'program_name'],
-                'realColumns' => ['created_at', DB::raw('CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, ""))'), 'prog_program']
+                'realColumns' => ['created_at', DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), 'prog_program']
             ];
             $query = Receipt::where('receipt_status', 1)
                             ->whereNotNull('inv_id')
@@ -181,7 +181,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 return $query->invoiceProgram->clientprog->bundlingDetail()->count() > 0 ? $query->invoiceProgram->clientprog->bundlingDetail->bundling_id : null;
             })
             ->filterColumn('client_fullname', function ($query, $keyword) {
-                $sql = 'CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, "")) like ?';
+                $sql = 'CONCAT(first_name, " ", COALESCE(last_name, "")) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             })
             ->make(true);
