@@ -355,7 +355,7 @@
 
                 <div class="card-body">
                     <form
-                        action="{{ isset($invoice) ? route('invoice.program.update', ['client_program' => $clientProg->clientprog_id]) : route('invoice.client-program.store') }}"
+                        action="{{ isset($invoice) ? route('invoice.program.update', ['client_program' => $clientProg->clientprog_id]) : route('invoice.program.store') }}"
                         method="POST" id="invoice-form">
                         @csrf
                         @if (isset($invoice))

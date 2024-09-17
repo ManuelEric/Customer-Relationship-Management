@@ -236,7 +236,7 @@ class ClientProgram extends Model
 
     public function viewClient()
     {
-        return $this->belongsTo(Client::class, 'client_id', 'id');
+        return $this->belongsTo(Client::class, 'client_id', 'id')->withTrashed();
     }
 
     public function program()

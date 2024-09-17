@@ -92,7 +92,7 @@ class RefundRepository implements RefundRepositoryInterface
             case "list":
                 $query = Refund::leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_refund.inv_id')->leftJoin('tbl_invb2b', 'tbl_invb2b.invb2b_id', '=', 'tbl_refund.invb2b_id')->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')->leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')->leftJoin('tbl_reason as b2c_c_r', 'b2c_c_r.reason_id', '=', 'tbl_client_prog.reason_id')->leftJoin('tbl_reason as b2b_s_r', 'b2b_s_r.reason_id', '=', 'tbl_sch_prog.reason_id')->leftJoin('tbl_reason as b2b_p_r', 'b2b_p_r.reason_id', '=', 'tbl_partner_prog.reason_id')->leftJoin('users as b2c_c_u', 'b2c_c_u.id', '=', 'tbl_client_prog.empl_id')->leftJoin('users as b2b_s_u', 'b2b_s_u.id', '=', 'tbl_sch_prog.empl_id')->leftJoin('users as b2b_p_u', 'b2b_p_u.id', '=', 'tbl_partner_prog.empl_id')->leftJoin('program as b2c_c_p', 'b2c_c_p.prog_id', '=', 'tbl_client_prog.prog_id')->leftJoin('program as b2b_s_p', 'b2b_s_p.prog_id', '=', 'tbl_sch_prog.prog_id')->leftJoin('program as b2b_p_p', 'b2b_p_p.prog_id', '=', 'tbl_partner_prog.prog_id')->leftJoin('tbl_main_prog as b2c_c_mp', 'b2c_c_mp.id', '=', 'b2c_c_p.main_prog_id')->leftJoin('tbl_main_prog as b2b_s_mp', 'b2b_s_mp.id', '=', 'b2b_s_p.main_prog_id')->leftJoin('tbl_main_prog as b2b_p_mp', 'b2b_p_mp.id', '=', 'b2b_p_p.main_prog_id')->leftJoin('tbl_sub_prog as b2c_c_sp', 'b2c_c_sp.id', '=', 'b2c_c_p.sub_prog_id')->leftJoin('tbl_sub_prog as b2b_s_sp', 'b2b_s_sp.id', '=', 'b2b_s_p.sub_prog_id')->leftJoin('tbl_sub_prog as b2b_p_sp', 'b2b_p_sp.id', '=', 'b2b_p_p.sub_prog_id')->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')->leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_sch_prog.sch_id')->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')->leftJoin('tbl_receipt as b2c_receipt', 'b2c_receipt.inv_id', '=', 'tbl_inv.inv_id')->leftJoin('tbl_receipt as b2b_receipt', 'b2b_receipt.invb2b_id', '=', 'tbl_invb2b.invb2b_id')->select([
                     DB::raw('(CASE
-                                    WHEN tbl_refund.inv_id IS NOT NULL THEN CONCAT(tbl_client.first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(tbl_client.last_name COLLATE utf8mb4_unicode_ci, ""))
+                                    WHEN tbl_refund.inv_id IS NOT NULL THEN CONCAT(tbl_client.first_name, " ", COALESCE(tbl_client.last_name, ""))
                                     WHEN tbl_refund.invb2b_id IS NOT NULL THEN 
                                         CASE
                                             WHEN tbl_invb2b.schprog_id IS NOT NULL THEN tbl_sch.sch_name
@@ -140,7 +140,7 @@ class RefundRepository implements RefundRepositoryInterface
                 $query->whereRaw($sql, ["%{$keyword}%", "%{$keyword}%", "%{$keyword}%"]);
             })
             ->filterColumn('program_name', function ($query, $keyword) {
-                $sql = 'CONCAT(b2c_c_p.prog_program COLLATE utf8mb4_unicode_ci, " - ", COALESCE(b2c_c_mp.prog_name COLLATE utf8mb4_unicode_ci, "")) like ?';
+                $sql = 'CONCAT(b2c_c_p.prog_program, " - ", COALESCE(b2c_c_mp.prog_name, "")) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             })
             ->filterColumn('refund_date', function ($query, $keyword) {
