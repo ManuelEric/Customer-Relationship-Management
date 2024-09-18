@@ -40,7 +40,7 @@ class StoreUserRequest extends FormRequest
             $i < $total_roles
         ) {
             $rules = [
-                'emergency_contact' =>  'required_if:role.' . $i . ',1,8'
+                'emergency_contact_phone' =>  'required_if:role.' . $i . ',1,8'
             ];
             $i++;
         }
@@ -68,8 +68,9 @@ class StoreUserRequest extends FormRequest
             'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
 
             'curriculum_vitae' => 'nullable|mimes:pdf|max:5000',
-            'bankname' => 'required',
-            'bankacc' => 'required',
+            'bank_name' => 'required',
+            'account_name' => 'required',
+            'account_no' => 'required',
             'nik' => 'required',
             'idcard' => 'required|mimes:pdf,jpeg,jpg,png|max:5000',
             'npwp' => 'nullable',
@@ -85,7 +86,7 @@ class StoreUserRequest extends FormRequest
                     'agreement.*' => 'required|mimes:pdf|max:5000',
                     'subject_id.*' => 'required',
                     'year.*' => 'required',
-                    'grade.*.*' => 'required|in:[9-10],[11-12]',
+                    'grade.*.*' => 'required|in:9-10,11-12',
                     'fee_individual.*.*' => 'required',
                     'fee_group.*.*' => 'nullable',
                     'additional_fee.*.*' => 'nullable',
@@ -105,7 +106,7 @@ class StoreUserRequest extends FormRequest
             $i < $total_roles
         ) {
             $rules = [
-                'emergency_contact' =>  'required_if:role.' . $i . ',1,8'
+                'emergency_contact_phone' =>  'required_if:role.' . $i . ',1,8'
             ];
             $i++;
         }
@@ -132,8 +133,9 @@ class StoreUserRequest extends FormRequest
             'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
             
             'curriculum_vitae' => 'nullable|mimes:pdf|max:5000',
-            'bankname' => 'required',
-            'bankacc' => 'required',
+            'bank_name' => 'required',
+            'account_name' => 'required',
+            'account_no' => 'required',
             'nik' => 'required',
             'npwp' => 'nullable',
             'tax' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000',
@@ -163,7 +165,7 @@ class StoreUserRequest extends FormRequest
                     'agreement.*' => 'required|mimes:pdf|max:5000',
                     'subject_id.*' => 'required',
                     'year.*' => 'required',
-                    'grade.*.*' => 'required|in:[9-10],[11-12]',
+                    'grade.*.*' => 'required|in:9-10,11-12',
                     'fee_individual.*.*' => 'required',
                     'fee_group.*.*' => 'nullable',
                     'additional_fee.*.*' => 'nullable',

@@ -33,6 +33,7 @@ class Volunteer extends Model
         'volunt_idcard',
         'volunt_npwp',
         'volunt_cv',
+        'volunt_bank_name',
         'volunt_bank_accname',
         'volunt_bank_accnumber',
         'volunt_nik',

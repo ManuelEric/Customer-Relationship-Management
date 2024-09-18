@@ -143,9 +143,9 @@
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label for="">Emergency Contact {!! Request::route('user_role') == 'employee' || Request::route('user_role') == 'admin' ? '<sup class="text-danger">*</sup>' : '' !!}</label>
-                                <input type="text" name="emergency_contact" value="{{ isset($user->emergency_contact) ? $user->emergency_contact : old('emergency_contact') }}"
+                                <input type="text" name="emergency_contact_phone" value="{{ isset($user->emergency_contact_phone) ? $user->emergency_contact_phone : old('emergency_contact_phone') }}"
                                     class="form-control form-control-sm rounded">
-                                @error('emergency_contact')
+                                @error('emergency_contact_phone')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
