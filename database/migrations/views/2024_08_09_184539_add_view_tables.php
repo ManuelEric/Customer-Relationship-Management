@@ -231,8 +231,8 @@ return new class extends Migration
             cl.st_grade -12 as grade,
             sc.sch_id as school,
             cl.is_funding,
-            (SELECT GROUP_CONCAT(sqt.name) FROM tbl_client_abrcountry sqac
-                    JOIN tbl_tag sqt ON sqt.id = sqac.country_id
+            (SELECT GROUP_CONCAT(ct.name) FROM tbl_client_abrcountry sqac
+                    JOIN tbl_country ct ON ct.id = sqac.country_id
                     WHERE sqac.client_id = cl.id GROUP BY sqac.client_id) as interested_country,
             (SELECT GROUP_CONCAT(sqm.name) FROM tbl_dreams_major sqdm
                     JOIN tbl_major sqm ON sqm.id = sqdm.major_id
@@ -494,10 +494,10 @@ return new class extends Migration
             (SELECT ((SELECT second_client_grade_now) - 12)) AS second_client_year_gap,
             (SELECT YEAR((NOW() - INTERVAL (SELECT second_client_year_gap) YEAR) + INTERVAL 1 YEAR)) AS second_client_graduation_year_real,
             (SELECT GROUP_CONCAT(
-                sqt.name
+                ct.name
                 SEPARATOR ", "
             ) FROM tbl_client_abrcountry sqac
-                JOIN tbl_tag sqt ON sqt.id = sqac.country_id
+                JOIN tbl_country ct ON ct.id = sqac.country_id
                 WHERE sqac.client_id = second_client.id GROUP BY sqac.client_id) as second_client_interest_countries,
             (SELECT GROUP_CONCAT(evt.event_title
                 SEPARATOR ", "
@@ -533,10 +533,10 @@ return new class extends Migration
             ) AS referral_name,
             sch.sch_id,
             (SELECT GROUP_CONCAT(
-                sqt.name
+                ct.name
                 SEPARATOR ", "
             ) FROM tbl_client_abrcountry sqac
-                JOIN tbl_tag sqt ON sqt.id = sqac.country_id
+                JOIN tbl_country ct ON ct.id = sqac.country_id
                 WHERE sqac.client_id = rc.id GROUP BY sqac.client_id) as interest_countries,
             rc.created_at,
             rc.updated_at,
@@ -651,7 +651,8 @@ return new class extends Migration
                     ELSE 1 
                 END), 
                 (SELECT MAX(t.score) FROM tbl_client_abrcountry ab
-                    JOIN tbl_tag t ON t.id = ab.country_id
+                    JOIN tbl_country ct ON ct.id = ab.country_id
+                    JOIN tbl_tag t ON t.id = ct.tag
                     WHERE ab.client_id = c.id
                 )
             ) AS total_score,
@@ -685,9 +686,9 @@ return new class extends Migration
                     LEFT JOIN tbl_main_prog sqmp ON sqmp.id = sqp.main_prog_id
                     WHERE sqip.client_id = c.id GROUP BY sqip.client_id) as interest_prog,
             (SELECT GROUP_CONCAT(
-                        sqt.name
+                        ct.name
                     ) FROM tbl_client_abrcountry sqac
-                    JOIN tbl_tag sqt ON sqt.id = sqac.country_id
+                    JOIN tbl_country ct ON ct.id = sqac.country_id
                     WHERE sqac.client_id = c.id GROUP BY sqac.client_id) as abr_country,
             (SELECT GROUP_CONCAT(sqm.name) FROM tbl_dreams_major sqdm
                     JOIN tbl_major sqm ON sqm.id = sqdm.major_id
@@ -772,8 +773,9 @@ return new class extends Migration
                 ELSE 'Other'
             END) AS lead_source,
             cl.is_funding,
-            (SELECT GROUP_CONCAT(sqt.name ORDER BY FIELD(name, 'US','UK','Canada','Australia','Other','Asia')) FROM tbl_client_abrcountry sqac
-                    JOIN tbl_tag sqt ON sqt.id = sqac.country_id
+            (SELECT GROUP_CONCAT(sqt.name ORDER BY FIELD(sqt.name, 'US','UK','Canada','Australia','Other','Asia')) FROM tbl_client_abrcountry sqac
+                    JOIN tbl_country ct ON ct.id = sqac.country_id
+                    JOIN tbl_tag sqt ON sqt.id = ct.tag
                     WHERE sqac.client_id = cl.id GROUP BY sqac.client_id) as interested_country,
             (SELECT GROUP_CONCAT(sqm.name) FROM tbl_dreams_major sqdm
                     JOIN tbl_major sqm ON sqm.id = sqdm.major_id
@@ -800,7 +802,7 @@ return new class extends Migration
                     WHERE clrole.client_id = cl.id) as roles,
 
             GetClientType(cl.id) as type,
-            cl.register_as as register_as,
+            cl.register_by as register_as,
             cl.st_statusact as active
 
         FROM tbl_client cl

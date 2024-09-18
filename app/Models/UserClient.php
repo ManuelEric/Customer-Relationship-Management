@@ -370,7 +370,7 @@ class UserClient extends Authenticatable
 
     public function destinationCountries()
     {
-        return $this->belongsToMany(Tag::class, 'tbl_client_abrcountry', 'client_id', 'country_id')->withTimestamps();
+        return $this->belongsToMany(MasterCountry::class, 'tbl_client_abrcountry', 'client_id', 'country_id')->withTimestamps();
     }
 
     public function interestUniversities()
