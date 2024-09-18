@@ -132,7 +132,7 @@ class University extends Model
 
     public function tags()
     {
-        return $this->belongsTo(Tag::class, 'univ_country', 'id');
+        return $this->belongsTo(MasterCountry::class, 'univ_country', 'id');
     }
 
     public function asCollaboratorInPartnerProgram()
