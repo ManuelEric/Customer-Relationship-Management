@@ -357,7 +357,7 @@ class UserRepository implements UserRepositoryInterface
         }
     }
 
-    public function createOrUpdateUserSubject(User $user, $request, $user_id_with_label)
+    public function createOrUpdateUserSubject(User $user, $request)
     {
         $user_role_id = $user->roles()->where('role_name', 'Tutor')->first()->pivot->id;
         $subjectDetails = [];
@@ -374,7 +374,7 @@ class UserRepository implements UserRepositoryInterface
             if($request->hasFile('agreement.'.$i)){
                 $agreement_file_format = $request->file('agreement.'.$i)->getClientOriginalExtension();
                 $agreement_file_name = 'Agreement-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name . '-' . $request->subject_id[$i] .  '-' . date('Y'));
-                $agreement_file_path = $request->file('agreement.'.$i)->storeAs('public/uploaded_file/user/' . $user_id_with_label, $agreement_file_name . '.' . $agreement_file_format);
+                $agreement_file_path = $request->file('agreement.'.$i)->storeAs('public/uploaded_file/user/' . $user->id, $agreement_file_name . '.' . $agreement_file_format);
 
                 for($j = 0; $j < count($request->grade[$i]); $j++){
                     $subjectDetails =  [

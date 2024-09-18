@@ -98,15 +98,15 @@ class UserController extends Controller
         # generate extended_id
         // $last_id = User::where('extended_id', 'like', '%EMPL%')->max('extended_id');
         // $user_id_without_label = $this->remove_primarykey_label($last_id, 5);
-        // $user_id_with_label = 'EMPL-' . $this->add_digit((int)$user_id_without_label + 1, 4);
-        // $userDetails['extended_id'] = $user_id_with_label;
+        // $user->id = 'EMPL-' . $this->add_digit((int)$user_id_without_label + 1, 4);
+        // $userDetails['extended_id'] = $user->id;
 
         # when generated user id with label is exists on database
         # then generate a new one
-        // if ($this->userRepository->getUserByExtendedId($user_id_with_label)) {
-        //     $user_id_without_label = $this->remove_primarykey_label($user_id_with_label, 5);
-        //     $user_id_with_label = 'EMPL-' . $this->add_digit((int)$user_id_without_label + 1, 4);
-        //     $userDetails['extended_id'] = $user_id_with_label;
+        // if ($this->userRepository->getUserByExtendedId($user->id)) {
+        //     $user_id_without_label = $this->remove_primarykey_label($user->id, 5);
+        //     $user->id = 'EMPL-' . $this->add_digit((int)$user_id_without_label + 1, 4);
+        //     $userDetails['extended_id'] = $user->id;
         // }
 
         # variables for user educations
@@ -318,7 +318,7 @@ class UserController extends Controller
         $userId = $request->route('user');
         $user = $this->userRepository->getUserById($userId);
 
-        $user_id_with_label = $user->extended_id;
+        $user->id = $user->extended_id;
 
         $newDetails = $request->only([
             'first_name',
@@ -404,7 +404,7 @@ class UserController extends Controller
 
             if ($request->subject_id[0] != null) {
                 # update user subject to tbl_user_subjects
-                $checkUserSubject = $this->userRepository->createOrUpdateUserSubject($user, $request, $user_id_with_label);
+                $checkUserSubject = $this->userRepository->createOrUpdateUserSubject($user, $request);
                  
                 if($checkUserSubject[0]){
                     return back()->withErrors(["agreement.".$checkUserSubject[1]=> "The Agreement field is required"])->withInput();
@@ -447,7 +447,7 @@ class UserController extends Controller
             if ($request->hasFile('curriculum_vitae')) {
                 $CV_file_format = $request->file('curriculum_vitae')->getClientOriginalExtension();
                 $CV_file_name = 'CV-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $CV_file_path = $request->file('curriculum_vitae')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $CV_file_name . '.' . $CV_file_format);
+                $CV_file_path = $request->file('curriculum_vitae')->storeAs('public/uploaded_file/user/' . $user->id, $CV_file_name . '.' . $CV_file_format);
             }
 
             # upload KTP / idcard
@@ -455,7 +455,7 @@ class UserController extends Controller
             if ($request->hasFile('idcard')) {
                 $ID_file_format = $request->file('idcard')->getClientOriginalExtension();
                 $ID_file_name = 'ID-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $ID_file_path = $request->file('idcard')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $ID_file_name . '.' . $ID_file_format);
+                $ID_file_path = $request->file('idcard')->storeAs('public/uploaded_file/user/' . $user->id, $ID_file_name . '.' . $ID_file_format);
             }
 
             # upload tax
@@ -463,7 +463,7 @@ class UserController extends Controller
             if ($request->hasFile('tax')) {
                 $TX_file_format = $request->file('tax')->getClientOriginalExtension();
                 $TX_file_name = 'TAX-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $TX_file_path = $request->file('tax')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $TX_file_name . '.' . $TX_file_format);
+                $TX_file_path = $request->file('tax')->storeAs('public/uploaded_file/user/' . $user->id, $TX_file_name . '.' . $TX_file_format);
             }
 
             # upload bpjs kesehatan / health insurance
@@ -471,7 +471,7 @@ class UserController extends Controller
             if ($request->hasFile('health_insurance')) {
                 $HI_file_format = $request->file('health_insurance')->getClientOriginalExtension();
                 $HI_file_name = 'HI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $HI_file_path = $request->file('health_insurance')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $HI_file_name . '.' . $HI_file_format);
+                $HI_file_path = $request->file('health_insurance')->storeAs('public/uploaded_file/user/' . $user->id, $HI_file_name . '.' . $HI_file_format);
             }
 
             # upload bpjs ketenagakerjaan / empl insurance
@@ -479,7 +479,7 @@ class UserController extends Controller
             if ($request->hasFile('empl_insurance')) {
                 $EI_file_format = $request->file('empl_insurance')->getClientOriginalExtension();
                 $EI_file_name = 'EI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $EI_file_path = $request->file('empl_insurance')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $EI_file_name . '.' . $EI_file_format);
+                $EI_file_path = $request->file('empl_insurance')->storeAs('public/uploaded_file/user/' . $user->id, $EI_file_name . '.' . $EI_file_format);
             }
 
             # update uploaded data to user table
