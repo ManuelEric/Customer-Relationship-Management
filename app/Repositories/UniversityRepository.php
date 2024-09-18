@@ -15,9 +15,14 @@ class UniversityRepository implements UniversityRepositoryInterface
 {
     public function getAllUniversitiesDataTables()
     {
-        return Datatables::eloquent(University::leftJoin('tbl_tag', function ($join) {
-            $join->on('tbl_univ.univ_country', '=', 'tbl_tag.id');
-        })->select('tbl_univ.*', 'tbl_tag.name as tag_name'))
+        return Datatables::eloquent(University::
+        leftJoin('tbl_country', function ($join) {
+            $join->on('tbl_univ.univ_country', '=', 'tbl_country.id');
+        })->
+        leftJoin('tbl_tag', function ($join) {
+            $join->on('tbl_country.tag', '=', 'tbl_tag.id');
+        })
+        ->select('tbl_univ.*', 'tbl_country.name as country_name', 'tbl_tag.name as tag_name'))
             ->make(true);
     }
 

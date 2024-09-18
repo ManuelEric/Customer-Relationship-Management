@@ -80,7 +80,8 @@
                         data: 'univ_phone',
                     },
                     {
-                        data: 'univ_country',
+                        data: 'country_name',
+                        name: 'tbl_country.name',
                     },
                     {
                         data: 'tag_name',
