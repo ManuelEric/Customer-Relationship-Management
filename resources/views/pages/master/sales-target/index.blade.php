@@ -309,14 +309,11 @@
 
                     
                     let obj = response.data;
-                    console.log(obj);
                     
                     var html = '<option data-placeholder="true"></option>'
                     
                     for (var key in obj.data) {
-                        var selected = '';
-                        console.log(key);
-                        
+                        var selected = '';                        
                         
                         if('{{ !empty(old("prog_id")) }}' && '{{ old("prog_id") }}' === obj.data[key].prog_id)
                             selected = "selected";

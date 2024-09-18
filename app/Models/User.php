@@ -55,8 +55,9 @@ class User extends Authenticatable
         'nik',
         'idcard',
         'cv',
-        'bankname',
-        'bankacc',
+        'bank_name',
+        'account_name',
+        'account_no',
         'npwp',
         'tax',
         'active',
@@ -227,7 +228,7 @@ class User extends Authenticatable
      */
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'tbl_user_roles', 'user_id', 'role_id')->using(UserRole::class)->withTimestamps();
+        return $this->belongsToMany(Role::class, 'tbl_user_roles', 'user_id', 'role_id')->using(UserRole::class)->withPivot(['id'])->withTimestamps();
     }
 
     public function department()

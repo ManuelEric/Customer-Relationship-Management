@@ -57,8 +57,13 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $role = $request->route('user_role');
-        if ($request->ajax())
-            return $this->userRepository->getAllUsersByRoleDataTables($role);
+        try {
+            if ($request->ajax()){
+               return $this->userRepository->getAllUsersByRoleDataTables($role);
+            }
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+        }
 
         return view('pages.user.employee.index');
     }
@@ -71,37 +76,38 @@ class UserController extends Controller
             'last_name',
             'email',
             'phone',
-            'emergency_contact',
+            'emergency_contact_phone',
             'datebirth',
             'address',
             'hiredate',
             'nik',
-            'bankname',
-            'bankacc',
+            'bank_name',
+            'account_name',
+            'account_no',
             'npwp',
         ]);
         unset($userDetails['phone']);
-        unset($userDetails['emergency_contact']);
+        unset($userDetails['emergency_contact_phone']);
         $userDetails['phone'] = $this->setPhoneNumber($request->phone);
-        $userDetails['emergency_contact'] = $request->emergency_contact != null ? $this->setPhoneNumber($request->emergency_contact) : null;
+        $userDetails['emergency_contact_phone'] = $request->emergency_contact_phone != null ? $this->setPhoneNumber($request->emergency_contact_phone) : null;
 
         # generate default password which is 12345678
         $userDetails['password'] = Hash::make('12345678'); # update
         $userDetails['position_id'] = $request->position;
 
         # generate extended_id
-        $last_id = User::where('extended_id', 'like', '%EMPL%')->max('extended_id');
-        $user_id_without_label = $this->remove_primarykey_label($last_id, 5);
-        $user_id_with_label = 'EMPL-' . $this->add_digit((int)$user_id_without_label + 1, 4);
-        $userDetails['extended_id'] = $user_id_with_label;
+        // $last_id = User::where('extended_id', 'like', '%EMPL%')->max('extended_id');
+        // $user_id_without_label = $this->remove_primarykey_label($last_id, 5);
+        // $user_id_with_label = 'EMPL-' . $this->add_digit((int)$user_id_without_label + 1, 4);
+        // $userDetails['extended_id'] = $user_id_with_label;
 
         # when generated user id with label is exists on database
         # then generate a new one
-        if ($this->userRepository->getUserByExtendedId($user_id_with_label)) {
-            $user_id_without_label = $this->remove_primarykey_label($user_id_with_label, 5);
-            $user_id_with_label = 'EMPL-' . $this->add_digit((int)$user_id_without_label + 1, 4);
-            $userDetails['extended_id'] = $user_id_with_label;
-        }
+        // if ($this->userRepository->getUserByExtendedId($user_id_with_label)) {
+        //     $user_id_without_label = $this->remove_primarykey_label($user_id_with_label, 5);
+        //     $user_id_with_label = 'EMPL-' . $this->add_digit((int)$user_id_without_label + 1, 4);
+        //     $userDetails['extended_id'] = $user_id_with_label;
+        // }
 
         # variables for user educations
         $listGraduatedFrom = $request->graduated_from;
@@ -178,9 +184,9 @@ class UserController extends Controller
 
             if ($request->subject_id[0] != null) {
                 # store new user subject to tbl_user_subjects
-                $checkUserSubject = $this->userRepository->createOrUpdateUserSubject($newUser, $request, $user_id_with_label);
+                $checkUserSubject = $this->userRepository->createOrUpdateUserSubject($newUser, $request, $newUserId);
                 
-                if($checkUserSubject[0]){
+                if(isset($checkUserSubject[0]) && $checkUserSubject[0]){
                     return back()->withErrors(["agreement.".$checkUserSubject[1] => "The Agreement field is required"])->withInput();
                 }
             }
@@ -190,7 +196,7 @@ class UserController extends Controller
             if ($request->hasFile('curriculum_vitae')) {
                 $CV_file_format = $request->file('curriculum_vitae')->getClientOriginalExtension();
                 $CV_file_name = 'CV-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $CV_file_path = $request->file('curriculum_vitae')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $CV_file_name . '.' . $CV_file_format);
+                $CV_file_path = $request->file('curriculum_vitae')->storeAs('public/uploaded_file/user/' . $newUserId, $CV_file_name . '.' . $CV_file_format);
             }
 
 
@@ -199,7 +205,7 @@ class UserController extends Controller
             if ($request->hasFile('idcard')) {
                 $ID_file_format = $request->file('idcard')->getClientOriginalExtension();
                 $ID_file_name = 'ID-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $ID_file_path = $request->file('idcard')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $ID_file_name . '.' . $ID_file_format);
+                $ID_file_path = $request->file('idcard')->storeAs('public/uploaded_file/user/' . $newUserId, $ID_file_name . '.' . $ID_file_format);
             }
 
             # upload tax
@@ -207,7 +213,7 @@ class UserController extends Controller
             if ($request->hasFile('tax')) {
                 $TX_file_format = $request->file('tax')->getClientOriginalExtension();
                 $TX_file_name = 'TAX-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $TX_file_path = $request->file('tax')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $TX_file_name . '.' . $TX_file_format);
+                $TX_file_path = $request->file('tax')->storeAs('public/uploaded_file/user/' . $newUserId, $TX_file_name . '.' . $TX_file_format);
             }
 
             # upload bpjs kesehatan / health insurance
@@ -215,7 +221,7 @@ class UserController extends Controller
             if ($request->hasFile('health_insurance')) {
                 $HI_file_format = $request->file('health_insurance')->getClientOriginalExtension();
                 $HI_file_name = 'HI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $HI_file_path = $request->file('health_insurance')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $HI_file_name . '.' . $HI_file_format);
+                $HI_file_path = $request->file('health_insurance')->storeAs('public/uploaded_file/user/' . $newUserId, $HI_file_name . '.' . $HI_file_format);
             }
 
             # upload bpjs ketenagakerjaan / empl insurance
@@ -223,7 +229,7 @@ class UserController extends Controller
             if ($request->hasFile('empl_insurance')) {
                 $EI_file_format = $request->file('empl_insurance')->getClientOriginalExtension();
                 $EI_file_name = 'EI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $EI_file_path = $request->file('empl_insurance')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $EI_file_name . '.' . $EI_file_format);
+                $EI_file_path = $request->file('empl_insurance')->storeAs('public/uploaded_file/user/' . $newUserId, $EI_file_name . '.' . $EI_file_format);
             }
 
             # update uploaded data to user table
@@ -240,13 +246,13 @@ class UserController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store user ' . $request->route('user_role') . ' failed : ' . $e->getMessage());
+            Log::error('Store user ' . $request->route('user_role') . ' failed : ' . $e->getMessage() . ' | On Line: ' . $e->getLine());
             return Redirect::back()->withError('Failed to create a new ' . $request->route('user_role'));
         }
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'User', Auth::user()->first_name . ' '. Auth::user()->last_name, ['user_id' => $user_id_with_label]);
+        $this->logSuccess('store', 'Form Input', 'User', Auth::user()->first_name . ' '. Auth::user()->last_name, ['user_id' => $newUserId]);
 
         return Redirect::to('user/' . $request->route('user_role'))->withSuccess('New ' . $request->route('user_role') . ' has been created');
     }
@@ -319,19 +325,20 @@ class UserController extends Controller
             'last_name',
             'email',
             'phone',
-            'emergency_contact',
+            'emergency_contact_phone',
             'datebirth',
             'address',
             'hiredate',
             'nik',
-            'bankname',
-            'bankacc',
+            'bank_name',
+            'account_name',
+            'account_no',
             'npwp',
         ]);
         unset($newDetails['phone']);
-        unset($newDetails['emergency_contact']);
+        unset($newDetails['emergency_contact_phone']);
         $newDetails['phone'] = $this->setPhoneNumber($request->phone);
-        $newDetails['emergency_contact'] = $request->emergency_contact != null ? $this->setPhoneNumber($request->emergency_contact) : null;
+        $newDetails['emergency_contact_phone'] = $request->emergency_contact_phone != null ? $this->setPhoneNumber($request->emergency_contact_phone) : null;
 
         $newDetails['position_id'] = $request->position;
 
@@ -361,33 +368,33 @@ class UserController extends Controller
             # update user role to tbl_user_roles
             for ($i = 0; $i < count($request->role); $i++) {
 
-                $ext_id_with_label = null;
-                if ($request->role[$i] == 2) { # 2 means mentor
+                // $ext_id_with_label = null;
+                // if ($request->role[$i] == 2) { # 2 means mentor
 
-                    # if user has the requested role
-                    # then save the extended_id
-                    if ($existingRoleInfo = $user->roles()->where('tbl_roles.id', $request->role[$i])->first()) {
+                //     # if user has the requested role
+                //     # then save the extended_id
+                //     if ($existingRoleInfo = $user->roles()->where('tbl_roles.id', $request->role[$i])->first()) {
 
-                        $ext_id_with_label = $existingRoleInfo->pivot->extended_id;
-                        # just in case the extended id is null
-                        if ($ext_id_with_label == null) {
-                            # generate secondary extended_id 
-                            $last_id = UserRole::max('extended_id');
-                            $ext_id_without_label = $this->remove_primarykey_label($last_id, 3);
-                            $ext_id_with_label = 'MT-' . $this->add_digit((int)$ext_id_without_label + 1, 4);
-                        }
-                    } else {
-                        # generate secondary extended_id 
-                        $last_id = UserRole::max('extended_id');
-                        $ext_id_without_label = $this->remove_primarykey_label($last_id, 3);
-                        $ext_id_with_label = 'MT-' . $this->add_digit((int)$ext_id_without_label + 1, 4);
-                    }
-                }
+                //         $ext_id_with_label = $existingRoleInfo->pivot->extended_id;
+                //         # just in case the extended id is null
+                //         if ($ext_id_with_label == null) {
+                //             # generate secondary extended_id 
+                //             $last_id = UserRole::max('extended_id');
+                //             $ext_id_without_label = $this->remove_primarykey_label($last_id, 3);
+                //             $ext_id_with_label = 'MT-' . $this->add_digit((int)$ext_id_without_label + 1, 4);
+                //         }
+                //     } else {
+                //         # generate secondary extended_id 
+                //         $last_id = UserRole::max('extended_id');
+                //         $ext_id_without_label = $this->remove_primarykey_label($last_id, 3);
+                //         $ext_id_with_label = 'MT-' . $this->add_digit((int)$ext_id_without_label + 1, 4);
+                //     }
+                // }
 
 
                 $roleDetails[] = [
                     'role_id' => $request->role[$i],
-                    'extended_id' => $ext_id_with_label,
+                    // 'extended_id' => $ext_id_with_label,
                     'tutor_subject' => isset($request->tutor_subject) ? $request->tutor_subject : null,
                     'feehours' => isset($request->feehours) ? $request->feehours : null,
                     'feesession' => isset($request->feesession) ? $request->feesession : null,

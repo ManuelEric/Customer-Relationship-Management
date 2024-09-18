@@ -39,23 +39,25 @@ class UserRepository implements UserRepositoryInterface
             })
                 ->select([
                     'users.id as id',
-                    'extended_id',
                     'first_name',
                     'last_name',
                     DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as full_name'),
                     'email',
                     'phone',
                     'tbl_position.position_name',
-                    DB::raw('(SELECT GROUP_CONCAT(tbl_user_educations.graduation_date SEPARATOR ", ") FROM tbl_user_educations
-                WHERE user_id = users.id GROUP BY tbl_user_educations.user_id ORDER BY tbl_user_educations.degree ASC) as graduation_date_group'),
+                    DB::raw('(SELECT GROUP_CONCAT(tbl_univ.univ_name SEPARATOR ", ") FROM tbl_user_educations
+                        JOIN tbl_univ on tbl_univ.univ_id = tbl_user_educations.univ_id
+                        WHERE users.id = tbl_user_educations.user_id
+                        GROUP BY tbl_user_educations.user_id ORDER BY tbl_user_educations.degree ASC) as graduation_from'),
                     DB::raw('(SELECT GROUP_CONCAT(tbl_major.name SEPARATOR ", ") FROM tbl_user_educations
-                LEFT JOIN tbl_major ON tbl_major.id = tbl_user_educations.major_id
-                WHERE user_id = users.id GROUP BY tbl_user_educations.user_id ORDER BY tbl_user_educations.degree ASC) as major_group'),
+                        JOIN tbl_major ON tbl_major.id = tbl_user_educations.major_id
+                        WHERE users.id = tbl_user_educations.user_id
+                        GROUP BY tbl_user_educations.user_id ORDER BY tbl_user_educations.degree ASC) as major_group'),
                     'datebirth',
                     'nik',
                     'npwp',
-                    'bankacc',
-                    'emergency_contact',
+                    'account_no as bankacc',
+                    'emergency_contact_phone as emergency_contact',
                     'address',
                     'active',
 
@@ -65,15 +67,18 @@ class UserRepository implements UserRepositoryInterface
                 $sql = 'CONCAT(first_name, " ", COALESCE(last_name, "")) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             })
-            ->filterColumn('graduation_date_group', function ($query, $keyword) {
-                $sql = '(SELECT GROUP_CONCAT(tbl_user_educations.graduation_date SEPARATOR ", ") FROM tbl_user_educations
-            WHERE user_id = users.id GROUP BY tbl_user_educations.user_id ORDER BY tbl_user_educations.degree ASC) like ?';
+            ->filterColumn('graduation_from', function ($query, $keyword) {
+                $sql = '(SELECT GROUP_CONCAT(tbl_univ.univ_name SEPARATOR ", ") FROM tbl_user_educations
+                        LEFT JOIN tbl_univ on tbl_univ.univ_id = tbl_user_educations.univ_id
+                        WHERE users.id = tbl_user_educations.user_id
+                        GROUP BY tbl_user_educations.user_id ORDER BY tbl_user_educations.degree ASC) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             })
             ->filterColumn('major_group', function ($query, $keyword) {
                 $sql = '(SELECT GROUP_CONCAT(tbl_major.name SEPARATOR ", ") FROM tbl_user_educations
-            LEFT JOIN tbl_major ON tbl_major.id = tbl_user_educations.major_id
-            WHERE user_id = users.id GROUP BY tbl_user_educations.user_id ORDER BY tbl_user_educations.degree ASC) like ?';
+                        LEFT JOIN tbl_major ON tbl_major.id = tbl_user_educations.major_id
+                        WHERE users.id = tbl_user_educations.user_id
+                        GROUP BY tbl_user_educations.user_id ORDER BY tbl_user_educations.degree ASC) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             })
             ->rawColumns(['address'])
