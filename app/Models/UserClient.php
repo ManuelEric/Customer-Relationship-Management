@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Str;
 
 class UserClient extends Authenticatable
 {
@@ -82,6 +83,15 @@ class UserClient extends Authenticatable
      * @var array
      */
     protected $dates = ['deleted_at'];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->id = (string) Str::uuid();
+        });
+    }
 
     # Modify methods Model
     public function delete()

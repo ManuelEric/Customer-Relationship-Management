@@ -389,7 +389,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     when(Session::get('user_role') == 'Employee', function ($subQuery) {
                         $subQuery->whereHas('internalPic', function ($query2) {
                             $query2->where('users.id', auth()->user()->id);
-                        })->orWhere('pic_client', auth()->user()->id);
+                        })->orWhereHas('handledBy', function ($subQuery2){
+                            $subQuery2->where('user_id', auth()->user()->id);
+                        });
                     })->
                     when($searchQuery['clientId'], function ($query) use ($searchQuery) {
                         $query->where('client_id', $searchQuery['clientId']);

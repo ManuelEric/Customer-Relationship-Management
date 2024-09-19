@@ -510,7 +510,7 @@ class GoogleSheetController extends Controller
             case 'Student':
                 if (!$existClient['isExist'] && !$checkExistClientRelation['isExist']) {
                     
-                    $studentId = null;
+                    // $studentId = null;
         
                     if ($row['Class Of'] != null || $row['Class Of'] != '') {
                         $st_grade = 12 - ($row['Class Of'] - date('Y'));
@@ -518,7 +518,7 @@ class GoogleSheetController extends Controller
         
                     $dataClient = [
                         'sch_id' => $school->sch_id,
-                        'st_id' => isset($studentId) ? $studentId : null,
+                        // 'st_id' => isset($studentId) ? $studentId : null,
                         'last_name' => $lastname,
                         'first_name' => $firstname,
                         'mail' => $email,
