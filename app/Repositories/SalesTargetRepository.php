@@ -165,10 +165,10 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
         $pic = $additionalFilter['pic']; # filled with id employee
 
         $userId = null;
-        if (isset($filter['quuid'])) {
-            $user = User::where('uuid', $filter['quuid'])->first();
-            $userId = $user->id;
-        }
+        // if (isset($filter['quuid'])) {
+        //     $user = User::where('uuid', $filter['quuid'])->first();
+        //     $userId = $user->id;
+        // }
 
         // $usingProgramId = $programId ? true : false;
         $usingFilterDate = count($dateDetails) > 0 ? true : false;
@@ -202,7 +202,7 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
             })->
             select([
                 'cp_p.prog_id',
-                DB::raw('CONCAT(cp_mp.prog_name COLLATE utf8mb4_unicode_ci, ": ", cp_p.prog_program COLLATE utf8mb4_unicode_ci) as program_name_sales'),
+                DB::raw('CONCAT(cp_mp.prog_name, ": ", cp_p.prog_program) as program_name_sales'),
                 DB::raw('(SELECT COUNT(*) FROM tbl_client_prog as q_cp WHERE q_cp.prog_id = cp_p.prog_id AND q_cp.status = 1 AND q_cp.success_date between \'' .$dateDetails['startDate']. '\' AND \'' . $dateDetails['endDate'] . '\') as total_actual_participant'),
                 DB::raw('(SELECT SUM(q_i.inv_totalprice_idr) FROM tbl_client_prog as q_cp LEFT JOIN tbl_inv q_i ON q_i.clientprog_id = q_cp.clientprog_id WHERE q_cp.prog_id = cp_p.prog_id AND q_cp.status = 1 AND q_cp.success_date between \'' . $dateDetails['startDate'] . '\' AND  \'' . $dateDetails['endDate'] . '\') as total_actual_amount'),
             ])->groupBy('cp_p.prog_id', DB::raw('CONCAT(cp_mp.prog_name, ": ", cp_p.prog_program)'))->get();
