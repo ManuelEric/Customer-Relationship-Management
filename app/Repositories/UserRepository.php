@@ -92,7 +92,7 @@ class UserRepository implements UserRepositoryInterface
 
     public function getAllUsersWithoutUUID()
     {
-        return User::whereNull('uuid')->get();
+        return User::whereNull('id')->get();
     }
 
     public function getAllUsersByRole($role)
@@ -212,7 +212,7 @@ class UserRepository implements UserRepositoryInterface
 
     public function getUserByUUID($userUUID)
     {
-        return User::where('uuid', $userUUID)->first();
+        return User::where('id', $userUUID)->first();
     }
 
     public function getUserByExtendedId($extendedId)

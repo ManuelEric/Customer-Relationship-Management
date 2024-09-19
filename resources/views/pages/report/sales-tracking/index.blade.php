@@ -57,7 +57,7 @@
                             <select name="pic" id="pic_name" class="select w-100">
                                 <option value=""></option>
                                 @foreach ($pics as $pic)
-                                    <option value="{{ $pic->uuid }}" @selected($pic->uuid == Request::get('pic'))>{{ $pic->full_name }}</option>
+                                    <option value="{{ $pic->id }}" @selected($pic->id == Request::get('pic'))>{{ $pic->full_name }}</option>
                                 @endforeach
                             </select>
                         </div>

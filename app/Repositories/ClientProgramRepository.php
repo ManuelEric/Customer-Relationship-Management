@@ -477,7 +477,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     # search by pic uuid
                     ->when(isset($searchQuery['emplUUID']) && count($searchQuery['emplUUID']) > 0, function ($query) use ($searchQuery) {
                         $query->whereHas('internalPic', function ($query2) use ($searchQuery) {
-                            $query2->whereIn('users.uuid', $searchQuery['emplUUID']);
+                            $query2->whereIn('users.id', $searchQuery['emplUUID']);
                         });
                     });
 
@@ -1073,16 +1073,17 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $query->where('prog_id', $progName);
             })->
             when($pic, function ($query) use ($pic) {
+                $query->where('empl_id', $pic);
                 # check the client pic
-                $query->where(function ($sq_1) use ($pic) {
-                    $sq_1->whereHas('client', function ($sq_2) use ($pic) {
-                        $sq_2->whereHas('handledBy', function ($sq_3) use ($pic) {
-                            $sq_3->where('users.id', $pic);
-                        });
-                    })->
-                    # and check the pic client program
-                    orWhere('empl_id', $pic);
-                });
+                // $query->where(function ($sq_1) use ($pic) {
+                //     $sq_1->whereHas('client', function ($sq_2) use ($pic) {
+                //         $sq_2->whereHas('handledBy', function ($sq_3) use ($pic) {
+                //             $sq_3->where('users.id', $pic);
+                //         });
+                //     })->
+                //     # and check the pic client program
+                //     orWhere('empl_id', $pic);
+                // });
             })->
             count();
     }
@@ -1111,16 +1112,18 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $query->where('prog_id', $progName);
             })->
             when($pic, function ($query) use ($pic) {
+                $query->where('empl_id', $pic);
                 # check the client pic
-                $query->where(function ($sq_1) use ($pic) {
-                    $sq_1->whereHas('client', function ($sq_2) use ($pic) {
-                        $sq_2->whereHas('handledBy', function ($sq_3) use ($pic) {
-                            $sq_3->where('users.id', $pic);
-                        });
-                    })->
-                    # and check the pic client program
-                    orWhere('empl_id', $pic);
-                });
+                // $query->where(function ($sq_1) use ($pic) {
+                //     $sq_1->whereHas('client', function ($sq_2) use ($pic) {
+                //         $sq_2->whereHas('handledBy', function ($sq_3) use ($pic) {
+                //             $sq_3->where('users.id', $pic);
+                //         });
+                //     })->
+                //     # and check the pic client program
+                //     orWhere('empl_id', $pic);
+                // });
+
             })->
             get();
 
@@ -1158,8 +1161,8 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 AND scp.success_date IS NOT NULL AND scp.status = 1";
 
         if ($pic) {
-            $IC_query .= " AND (pc.user_id = ".$pic." OR empl_id = ".$pic.")";
-            $Success_query .= " AND (pc.user_id = ".$pic." OR empl_id = ".$pic.")";
+            $IC_query .= " AND (pc.user_id = '".$pic."' OR empl_id = '".$pic."')";
+            $Success_query .= " AND (pc.user_id = '".$pic."' OR empl_id = '".$pic."')";
         }
 
         return ClientProgram::

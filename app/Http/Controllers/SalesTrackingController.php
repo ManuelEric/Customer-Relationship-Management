@@ -47,9 +47,7 @@ class SalesTrackingController extends Controller
 
         $mainProg = $request->get('main') ?? null; # main_prog
         $progName = $request->get('program') ?? null; # prog_id
-        $picUUID = $request->get('pic') ?? null; # will be filled with employee uuid
-        $picId = $this->userRepository->getUserByUUID($picUUID)->id ?? null;
-
+        $picId = $request->get('pic') ?? null; # will be filled with employee uuid
         $dateDetails = [
             'startDate' => $startDate,
             'endDate' => $endDate
@@ -81,7 +79,8 @@ class SalesTrackingController extends Controller
         $conversionLead = $this->clientProgramRepository->getConversionLead($dateDetails);
         $averageConversionSuccessful = $this->clientProgramRepository->getConversionTimeSuccessfulPrograms($dateDetails);
         $mainPrograms = $this->mainProgRepository->getAllMainProg();
-        $pics = $this->userRepository->getPICs();
+        // $pics = $this->userRepository->getPICs();
+        $pics = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
         $salesDetail = $this->salesTargetRepository->getSalesDetailFromClientProgram($dateDetails, $additionalFilter);
 
         return view('pages.report.sales-tracking.index')->with(
