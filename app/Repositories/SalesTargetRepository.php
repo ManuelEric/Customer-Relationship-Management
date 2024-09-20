@@ -31,7 +31,7 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
     {
         $userId = null;
         if (isset($filter['quuid'])) {
-            $user = User::where('uuid', $filter['quuid'])->first();
+            $user = User::where('id', $filter['quuid'])->first();
             $userId = $user->id;
         }
 
@@ -92,7 +92,7 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
     {
         $userId = null;
         if (isset($filter['quuid'])) {
-            $user = User::where('uuid', $filter['quuid'])->first();
+            $user = User::where('id', $filter['quuid'])->first();
             $userId = $user->id;
         }
 

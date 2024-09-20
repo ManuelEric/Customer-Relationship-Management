@@ -212,7 +212,7 @@ class InvoicesRepository implements InvoicesRepositoryInterface
                                 WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_corp.corp_name
                                 WHEN tbl_invb2b.ref_id > 0 THEN tbl_corp.corp_name
                             ELSE NULL
-                            END) COLLATE utf8mb4_general_ci as full_name'),
+                            END) as full_name'),
                     DB::raw('(CASE 
                                 WHEN tbl_invb2b.schprog_id > 0 THEN tbl_invb2b.schprog_id
                                 WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_invb2b.partnerprog_id

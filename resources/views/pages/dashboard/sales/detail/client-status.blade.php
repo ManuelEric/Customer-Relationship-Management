@@ -445,7 +445,7 @@
 
             axios.get(url)
                 .then(function(response) {
-                    console.log(response)
+                    // console.log(response)
                     var obj = response.data.data
 
                     $(".client-status").each(function(index, value) {

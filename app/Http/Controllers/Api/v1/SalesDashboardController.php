@@ -696,7 +696,7 @@ class SalesDashboardController extends Controller
                 $type = 'Academic & Test Preparation';
                 break;
             case 'career-exploration':
-                $type = 'Career Exploration';
+                $type = 'Experiential Learning';
                 break;
             case 'admissions-mentoring':
                 $type = 'Admissions Mentoring';

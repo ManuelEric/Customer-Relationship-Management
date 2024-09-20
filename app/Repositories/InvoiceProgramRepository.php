@@ -1024,7 +1024,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                             return $bundle->details()->first()->client_program->client->phone;
                         })->
                         filterColumn('fullname', function ($query, $keyword) {
-                            $query->whereRelation('first_detail.client_program.client', DB::raw('CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, ""))'), 'like', "%{$keyword}%");
+                            $query->whereRelation('first_detail.client_program.client', DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), 'like', "%{$keyword}%");
                         })->
                         filterColumn('payment_method', function ($query, $keyword) {
                             $sql = '(CASE
@@ -1067,7 +1067,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 return implode(', ', $program_names);
             })->
             filterColumn('fullname', function ($query, $keyword) {
-                $query->whereRelation('first_detail.client_program.client', DB::raw('CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, ""))'), 'like', "%{$keyword}%");
+                $query->whereRelation('first_detail.client_program.client', DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), 'like', "%{$keyword}%");
             })->
             toJson();
     }
