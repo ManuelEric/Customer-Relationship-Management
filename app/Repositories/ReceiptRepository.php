@@ -379,16 +379,15 @@ class ReceiptRepository implements ReceiptRepositoryInterface
     # signature
     public function getReceiptsNeedToBeSigned($asDatatables = false)
     {
-        $response = Receipt::
+        $response = Receipt::with(['receiptAttachment'])->
             leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_receipt.inv_id')->
             leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')->
             leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')->
             leftJoin('client', 'client.id', '=', 'tbl_client_prog.client_id')->
-            leftJoin('tbl_receipt_attachment', 'tbl_receipt_attachment.receipt_id', '=', 'tbl_receipt.receipt_id')->
             where('receipt_status', 1)->
             whereNotNull('tbl_receipt.inv_id')->
-            whereNotNull('tbl_receipt_attachment.receipt_id')->
-            where('tbl_receipt_attachment.sign_status', 'not yet')->
+            whereRelation('receiptAttachment', 'receipt_id', '!=', null)->
+            whereRelation('receiptAttachment', 'sign_status', '=', 'not yet')->
             select([
                 'client.full_name as fullname',
                 'tbl_client_prog.clientprog_id',
@@ -396,7 +395,8 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 'tbl_receipt.receipt_id',
                 'program.program_name',
                 'tbl_inv.inv_id',
-                'tbl_inv.currency',
+                'tbl_inv.inv_category as currency_category',
+                'tbl_inv.currency as invoice_currency',
                 'tbl_receipt.receipt_method as payment_method',
                 'tbl_inv.created_at',
                 'tbl_receipt.receipt_date as due_date',
