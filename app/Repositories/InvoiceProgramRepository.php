@@ -815,6 +815,12 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                             WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
                             WHEN tbl_inv.inv_paymentmethod = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
                         END) like ?', "%{$keyword}%");
+            })->filterColumn('fullname', function ($query, $keyword) {
+                $sql = "CONCAT(child.first_name, ' ', COALESCE(child.last_name, '')) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->filterColumn('parent_fullname', function ($query, $keyword) {
+                $sql = "CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, '')) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
             })
             ->make(true);
     }
@@ -823,26 +829,26 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
     public function getInvoicesNeedToBeSigned($asDatatables = false)
     {
 
-        $response = ViewClientProgram::
-            leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')->
+        $response = ClientProgram::with(['invoice.invoiceAttachment'])->
+            leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')->
             leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')->
-            leftJoin('tbl_inv_attachment', 'tbl_inv_attachment.inv_id', '=', 'tbl_inv.inv_id')->
-            leftJoin('tbl_client as child', 'child.id', '=', 'clientprogram.client_id')->
+            leftJoin('program as p', 'p.prog_id', '=', 'tbl_client_prog.prog_id')->
+            leftJoin('tbl_client as child', 'child.id', '=', 'tbl_client_prog.client_id')->
             leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')->
             leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')->
             leftJoin('tbl_receipt as receipt', 'receipt.inv_id', '=', 'tbl_inv.inv_id')->
             select([
                 'tbl_inv.clientprog_id',
-                'clientprogram.fullname',
-                'clientprogram.parent_fullname',
-                'clientprogram.parent_phone',
+                DB::raw("CONCAT(child.first_name, ' ', COALESCE(child.last_name, '')) AS fullname"),
+                DB::raw("CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, '')) AS parent_fullname"),
+                'parent.phone as parent_phone',
                 'parent.id as parent_id',
                 'child.id as client_id',
                 'child.phone as child_phone',
-                'program_name',
+                'p.program_name',
                 'tbl_inv.inv_id',
                 'tbl_inv.inv_category as currency_category',
-                'tbl_inv.currency',
+                'tbl_inv.currency as invoice_currency',
                 DB::raw('
                         (CASE
                             WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_paymentmethod
@@ -881,8 +887,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     '),
             ])->
             whereNotNull('tbl_inv.inv_id')->
-            whereNotNull('tbl_inv_attachment.inv_id')->
-            where('tbl_inv_attachment.sign_status', 'not yet')->
+            whereRelation('invoice.invoiceAttachment', 'inv_id', '!=', null)->
+            whereRelation('invoice.invoiceAttachment', 'sign_status', '=', 'not yet')->
             where(DB::raw('
                 (CASE
                     WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
