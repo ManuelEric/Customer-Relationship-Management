@@ -78,7 +78,9 @@ class SyncData extends Command
                     
                     switch ($type) {
                         case 'tutor':
-                            $data[$key] = [$val->id, $val->fullname, $val->extended_id, $val->fullname . ' | ' . $val->id, $val->roles->first()->pivot->tutor_subject];
+                            # Info Adjustment:
+                            # deleted $val->extended_id
+                            $data[$key] = [$val->id, $val->fullname, $val->fullname . ' | ' . $val->id, $val->roles->first()->pivot->tutor_subject];
                             break;
                             
                         case 'school':
@@ -105,16 +107,22 @@ class SyncData extends Command
 
                         case 'sales':
                         case 'employee':
-                            $data[$key] = [$val->fullname, $val->id, $val->extended_id, $val->fullname . ' | ' . $val->id];
+                            # Info Adjustment:
+                            # deleted $val->extended_id
+                            $data[$key] = [$val->fullname, $val->id, $val->fullname . ' | ' . $val->id];
                             break;
 
                         case 'mentor':
-                            $data[$key] = [$val->id, $val->fullname, $val->extended_id, $val->fullname . ' | ' . $val->id];
+                            # Info Adjustment:
+                            # deleted $val->extended_id
+                            $data[$key] = [$val->id, $val->fullname, $val->fullname . ' | ' . $val->id];
                             break;
 
                         case 'lead':
                         case 'kol':
-                            $data[$key] = [$val->id, $val->lead_name, $val->lead_id, $val->department_name];
+                            # Info Adjustment:
+                            # deleted $val->id
+                            $data[$key] = [$val->lead_name, $val->lead_id, $val->department_name];
                             break;
 
                         case 'major':
@@ -126,7 +134,9 @@ class SyncData extends Command
                             break;
 
                         case 'university':
-                            $data[$key] = [$val->univ_id, $val->univ_name, $val->univ_country];
+                            # Info Adjustment:
+                            # Add relation to country
+                            $data[$key] = [$val->univ_id, $val->univ_name, $val->tags->name];
                             break;
 
                         case 'mentee':

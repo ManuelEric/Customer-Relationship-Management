@@ -44,6 +44,11 @@ class SendReminderInvoiceProgramToReferral extends Command
     public function handle()
     {
         $partner_have_no_pic = [];
+        $partner_have_no_pic = [];
+        $partner_pic_name = null;
+        $partner_pic_mail = null;
+        $invoiceB2bId = null;
+
         $invoice_master = $this->invoiceB2bRepository->getAllDueDateInvoiceReferralProgram(7);
 
         if (count($invoice_master) > 0) {
@@ -72,10 +77,14 @@ class SendReminderInvoiceProgramToReferral extends Command
                         'partner_name' => $partner_name,
                     ];
                     continue;
-                }
-                $partner_pic_name = $partner_pics[0]->pic_name; #if null then what happens?
-                $partner_pic_mail = $partner_pics[0]->pic_mail;
-    
+                }else{
+                    foreach ($partner_pics as $partner_pic) {
+                        if($partner_pic->is_pic == 1){
+                            $partner_pic_name = $partner_pic->pic_name;
+                            $partner_pic_mail = $partner_pic->pic_mail;
+                        }
+                    }
+                }    
     
                 $subject = '7 Days Left until the Payment Deadline for ' . $program_name;
     
