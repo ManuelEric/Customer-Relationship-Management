@@ -44,6 +44,9 @@ class SendReminderInvoiceProgramToSchool extends Command
     public function handle()
     {
         $school_have_no_pic = [];
+        $school_pic_name = null;
+        $school_pic_mail = null;
+        $school_pic_phone = null;
         $invoice_master = $this->invoiceB2bRepository->getAllDueDateInvoiceSchoolProgram(7);
 
         if (count($invoice_master) > 0) {
@@ -70,17 +73,21 @@ class SendReminderInvoiceProgramToSchool extends Command
                         'school_name' => $school_name,
                     ];
                     continue;
+                }else{
+                    foreach ($school_pics as $school_pic) {
+                        if($school_pic->is_pic == 1){
+                            $school_pic_name = $school_pic->schdetail_fullname;
+                            $school_pic_mail = $school_pic->schdetail_email;
+                            $school_pic_phone = $school_pic->schdetail_phone;
+                        }
+                    }
                 }
-                $school_pic_name = $school_pics[0]->schdetail_fullname;
-                $school_pic_mail = $school_pics[0]->schdetail_email;
 
-                if (!$school_pic_mail) {
-                    Log::info('Failed to send reminder to school refer to invoice : '.$invoiceB2bId.' because there is no pic email');
+
+                if ($school_pic_mail == null) {
+                    Log::error('Failed to send reminder to school refer to invoice : '.$invoiceB2bId.' because there is no pic email');
                     continue;
-                }
-    
-                $school_pic_phone = $school_pics[0]->schdetail_phone;
-    
+                }    
     
                 $subject = '7 Days Left until the Payment Deadline for ' . $program_name;
     

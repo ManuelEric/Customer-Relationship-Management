@@ -45,6 +45,10 @@ class SendReminderInvoiceProgramToPartner extends Command
     {
         Log::info('Send reminder invoice program to partner works fine');
         $partner_have_no_pic = [];
+        $partner_pic_name = null;
+        $partner_pic_mail = null;
+        $invoiceB2bId = null;
+
         $invoice_master = $this->invoiceB2bRepository->getAllDueDateInvoicePartnerProgram(7);
 
         if (count($invoice_master) > 0) {
@@ -64,17 +68,21 @@ class SendReminderInvoiceProgramToPartner extends Command
 
                 $partner_name = $data->corp_name;
                 $partner_pics = $data->partner_prog->corp->pic;
+
                 if ($partner_pics->count() == 0) {
                     # collect data parents that have no email
                     $partner_have_no_pic[] = [
                         'partner_name' => $partner_name,
                     ];
                     continue;
+                }else{
+                    foreach ($partner_pics as $partner_pic) {
+                        if($partner_pic->is_pic == 1){
+                            $partner_pic_name = $partner_pic->pic_name;
+                            $partner_pic_mail = $partner_pic->pic_mail;
+                        }
+                    }
                 }
-
-                # get the first pic
-                $partner_pic_name = $partner_pics[0]->pic_name;
-                $partner_pic_mail = $partner_pics[0]->pic_mail;
 
                 $subject = '7 Days Left until the Payment Deadline for ' . $program_name;
 

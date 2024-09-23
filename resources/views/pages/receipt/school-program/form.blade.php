@@ -16,7 +16,7 @@
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $invoiceSch->sch_prog->school->sch_name }}</h4>
-                    <a href="{{ route('school.detail.show', ['school' => $invoiceSch->sch_prog->school->sch_id, 'detail' => $invoiceSch->sch_prog->id]) }}"
+                    <a href="{{ route('school.program.detail.show', ['school' => $invoiceSch->sch_prog->school->sch_id, 'detail' => $invoiceSch->sch_prog->id]) }}"
                         class="text-primary text-decoration-none cursor-pointer" target="_blank">
                         <div class="card p-2">
                             <label class="text-muted mb-1">
