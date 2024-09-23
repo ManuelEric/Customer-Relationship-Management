@@ -315,6 +315,7 @@
                     },
                     {
                         data: 'client_name',
+                        name: 'client.full_name',
                         render: function(data, type, row, meta) {
 
                             var existing = moment(row.created_at).format('MMMM Do YYYY, h:mm') ==
@@ -346,12 +347,12 @@
                     },
                     // {
                     //     data: 'ticket_id',
-                    //     name: 'tbl_client_event.ticket_id',
+                    //     name: 'client_event.ticket_id',
                     //     className: 'text-center'
                     // },
                     {
                         data: 'register_by',
-                        name: 'tbl_client.register_by',
+                        name: 'client.register_by',
                         searchable: false,
                         render: function(data, type, row, meta) {
                             if (data != null){
@@ -363,12 +364,12 @@
                     },
                     {
                         data: 'client_mail',
-                        name: 'tbl_client.mail',
+                        name: 'client.mail',
                         defaultContent: '-'
                     },
                     {
                         data: 'client_phone',
-                        name: 'tbl_client.phone',
+                        name: 'client.phone',
                         defaultContent: '-'
                     },
                     {
@@ -408,7 +409,7 @@
                         className: 'text-center'
                     },
                     {
-                        data: 'referral_from',
+                        data: 'referral_name',
                         // name: '',
                         className: 'text-center',
                         defaultContent: '-'
