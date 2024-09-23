@@ -1349,7 +1349,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             })
             # filter by pic
             ->when(isset($filter['picUUID']), function ($q) use ($filter) {
-                $picId = User::where('uuid', $filter['picUUID'])->first()->id;
+                $picId = User::where('id', $filter['picUUID'])->first()->id;
 
                 $q->
                     where('tbl_client_prog.empl_id', $picId)->
@@ -1926,7 +1926,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         $userId = null;
         if (isset($cp_filter['quuid']) && $cp_filter['quuid'] !== null) {
             $uuid = $cp_filter['quuid'];
-            $user = User::where('uuid', $uuid)->first();
+            $user = User::where('id', $uuid)->first();
             $userId = $user->id;
         }
 

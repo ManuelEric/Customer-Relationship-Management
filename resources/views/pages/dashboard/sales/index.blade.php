@@ -28,16 +28,16 @@
         </li>
     </ul>
     @if (Session::get('user_role') != "Employee")
-    <select name="" id="cp_employee" class="select w-25">
-        <option value="all">All</option>
-        @foreach ($employees as $employee)
-            @if ($isSales && $loggedIn_user == $employee->uuid)
-                <option value="{{ $employee->uuid }}" @selected($employee->uuid == Request::get('quser'))>{{ $employee->full_name }}</option>
-            @elseif ($isSuperAdmin)
-                <option value="{{ $employee->uuid }}" @selected($employee->uuid == Request::get('quser'))>{{ $employee->full_name }}</option>
-            @endif
-        @endforeach
-    </select>
+        <select name="" id="cp_employee" class="select w-25">
+            <option value="all">All</option>
+            @foreach ($employees as $employee)
+                @if ($isSales && $loggedIn_user == $employee->id)
+                    <option value="{{ $employee->id }}" @selected($employee->id == Request::get('quser'))>{{ $employee->full_name }}</option>
+                @elseif ($isSuperAdmin)
+                    <option value="{{ $employee->id }}" @selected($employee->id == Request::get('quser'))>{{ $employee->full_name }}</option>
+                @endif
+            @endforeach
+        </select>
     @endif
 </div>
 
