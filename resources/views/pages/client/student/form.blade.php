@@ -510,9 +510,13 @@
                             <label>Country</label>
                             <select class="select w-100" id="countryStudy" name="st_abrcountry[]" multiple>
                                 <option data-placeholder="true"></option>
-                                @if (isset($countries))
-                                    @foreach ($countries as $country)
-                                        <option value="{{ $country->id }}">{{ $country->name }}</option>
+                                @if (isset($tags))
+                                    @foreach ($tags as $tag)
+                                        <optgroup label="{{ $tag->name }}">
+                                            @foreach ($tag->countries as $country)
+                                                <option value="{{ $country->id }}">{{ $country->name }}</option>
+                                            @endforeach
+                                        </optgroup>
                                     @endforeach
                                 @endif
                             </select>

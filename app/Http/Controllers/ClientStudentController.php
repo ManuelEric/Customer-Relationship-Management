@@ -420,7 +420,7 @@ class ClientStudentController extends ClientController
         $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C', true);
         $programsB2C = $this->programRepository->getAllProgramByType('B2C', true);
         $programs = $programsB2BB2C->merge($programsB2C)->sortBy('program_name');
-        $countries = $this->tagRepository->getAllTags();
+        $tags = $this->tagRepository->getAllTags();
         $majors = $this->majorRepository->getAllActiveMajors();
         $regions = $this->countryRepository->getAllRegionByLocale('en');
 
@@ -434,7 +434,7 @@ class ClientStudentController extends ClientController
                 'ext_edufair' => $ext_edufair,
                 'kols' => $kols,
                 'programs' => $programs,
-                'countries' => $countries,
+                'tags' => $tags,
                 'majors' => $majors,
                 'regions' => $regions,
             ]
@@ -463,7 +463,7 @@ class ClientStudentController extends ClientController
         $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C');
         $programsB2C = $this->programRepository->getAllProgramByType('B2C');
         $programs = $programsB2BB2C->merge($programsB2C);
-        $countries = $this->tagRepository->getAllTags();
+        $tags = $this->tagRepository->getAllTags();
         $majors = $this->majorRepository->getAllMajors();
 
         return view('pages.client.student.form')->with(
@@ -478,7 +478,7 @@ class ClientStudentController extends ClientController
                 'ext_edufair' => $ext_edufair,
                 'kols' => $kols,
                 'programs' => $programs,
-                'countries' => $countries,
+                'tags' => $tags,
                 'majors' => $majors,
             ]
         );

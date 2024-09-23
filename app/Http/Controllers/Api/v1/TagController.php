@@ -18,8 +18,8 @@ class TagController extends Controller
 
     public function getTags(Request $request)
     {
-        $tags = $this->tagRepository->getAllTags();
-        if (!$tags) {
+        $countries = $this->tagRepository->getAllCountries();
+        if (!$countries) {
             return response()->json([
                 'success' => true,
                 'message' => 'No destination country found.'
@@ -28,17 +28,18 @@ class TagController extends Controller
 
         # remove the `other` tag
         # map the data that being shown to the user
-        $mappedTags = $tags->where('name', '!=', 'Other')->map(function ($value) {
+        $mappedTags = $countries->where('name', '!=', 'other')->map(function ($value) {
             return [
                 'id' => $value->id,
-                'country' => $value->name
+                'country' => $value->name,
+                'tag' => $value->tagCountry->name
             ];
         });
 
         return response()->json([
             'success' => true,
             'message' => 'There are destination country found.',
-            'data' => $mappedTags
+            'data' => $mappedTags->values()
         ]);
     }
 }

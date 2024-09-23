@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Interfaces\TagRepositoryInterface;
+use App\Models\MasterCountry;
 use App\Models\Tag;
 use DataTables;
 
@@ -11,6 +12,11 @@ class TagRepository implements TagRepositoryInterface
     public function getAllTagsDataTables()
     {
         return Datatables::eloquent(Tag::query())->make(true);
+    }
+
+    public function getAllCountries()
+    {
+        return MasterCountry::all();
     }
 
     public function getAllTags()

@@ -21,5 +21,9 @@ class MasterCountry extends Model
         'tag'
     ];
 
+    public function tagCountry()
+    {
+        return $this->belongsTo(Tag::class, 'tag', 'id');
+    }
    
 }

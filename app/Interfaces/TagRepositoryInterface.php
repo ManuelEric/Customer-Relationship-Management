@@ -5,6 +5,7 @@ namespace App\Interfaces;
 interface TagRepositoryInterface 
 {
     public function getAllTagsDataTables();
+    public function getAllCountries();
     public function getAllTags();
     public function getTagById($tagId);
     public function getTagByName($tagName);
