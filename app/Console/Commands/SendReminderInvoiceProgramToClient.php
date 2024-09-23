@@ -74,9 +74,9 @@ class SendReminderInvoiceProgramToClient extends Command
                 $identifier = $data->identifier;
                 $payment_method = $data->master_paymentmethod;
 
-                $pic_email = $data->pic_mail;
+                $pic_email = $data->internalPic->email;
 
-                $program_name = ucwords(strtolower($data->program_name));
+                $program_name = ucwords(strtolower($data->program->program_name));
 
                 $parent_fullname = $data->parent_fullname;
                 $parent_mail = $data->parent_mail;

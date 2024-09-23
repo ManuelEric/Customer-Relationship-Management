@@ -91,13 +91,13 @@ Route::post('school', [SchoolProgramController::class, 'index']);
 Route::prefix('school')->name('school.')->group(function () {
     Route::resource('{school}/detail', SchoolProgramController::class, [
         'names' => [
-            'index' => 'school.program.detail.index',
-            'create' => 'school.program.detail.create',
-            'store' => 'school.program.detail.store',
-            'show' => 'school.program.detail.show',
-            'edit' => 'school.program.detail.edit',
-            'update' => 'school.program.detail.update',
-            'destroy' => 'school.program.detail.destroy',
+            'index' => 'program.detail.index',
+            'create' => 'program.detail.create',
+            'store' => 'program.detail.store',
+            'show' => 'program.detail.show',
+            'edit' => 'program.detail.edit',
+            'update' => 'program.detail.update',
+            'destroy' => 'program.detail.destroy',
         ]
     ]);
     Route::resource('{school}/detail/{sch_prog}/speaker', SchoolProgramSpeakerController::class);

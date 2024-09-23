@@ -287,23 +287,23 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 
     public function getAllDueDateInvoiceProgram(int $days)
     {
-        return ViewClientProgram::
-            leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')->
+        return ClientProgram::
+            leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')->
             leftJoin('tbl_inv_attachment', 'tbl_inv.inv_id', '=', 'tbl_inv_attachment.inv_id')->
             leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')->
-            leftJoin('tbl_client as child', 'child.id', '=', 'clientprogram.client_id')->
+            leftJoin('tbl_client as child', 'child.id', '=', 'tbl_client_prog.client_id')->
             leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')->
             leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')->
             leftJoin('tbl_receipt as r', 'r.inv_id', '=', 'tbl_inv.inv_id')->
             leftJoin('tbl_receipt as dr', 'dr.invdtl_id', '=', 'tbl_invdtl.invdtl_id')->
             select([
                 'tbl_inv.clientprog_id',
-                'clientprogram.fullname',
-                'clientprogram.parent_fullname',
-                'clientprogram.parent_phone',
-                'clientprogram.parent_mail',
-                'clientprogram.status',
-                'program_name',
+                DB::raw('CONCAT(child.first_name, " ", COALESCE(child.last_name, "")) as fullname'),
+                DB::raw('CONCAT(parent.first_name, " ", COALESCE(parent.last_name, "")) as parent_fullname'),
+                'parent.phone as parent_phone',
+                'parent.mail as parent_mail',
+                'tbl_client_prog.status',
+                'tbl_client_prog.prog_id',
                 'tbl_inv.currency',
                 'tbl_inv.inv_paymentmethod as master_paymentmethod',
                 'tbl_inv.inv_id',
@@ -348,7 +348,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     END) as inv_totalprice
                 '),
                 // 'tbl_inv.inv_totalprice_idr',
-                'pic_mail',
+                'tbl_client_prog.empl_id',
                 DB::raw('
                     (CASE
                         WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
@@ -381,7 +381,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             # not included refunded invoice
             whereIn('tbl_inv.inv_status', [0,1])->
             # not included status program failed
-            where('clientprogram.status', 1)->
+            where('tbl_client_prog.status', 1)->
             // where('tbl_inv.inv_status', 1)->
             orderBy('date_difference', 'asc')->
             groupBy('tbl_inv.inv_id')->
