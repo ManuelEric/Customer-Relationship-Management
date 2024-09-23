@@ -855,6 +855,7 @@ class ExtClientController extends Controller
                         $validatedStudent['mail'] = $validated['secondary_mail'] != null ? $validated['secondary_mail'] : null;
                         $validatedStudent['phone'] = $validated['secondary_phone'] != null ? $validated['secondary_phone'] : null;
                         $validatedStudent['scholarship'] = 'N';
+                        $validatedStudent['lead_source_id'] = 'LS001'; # Website
 
                         $student = $this->storeStudent($validatedStudent);
 
