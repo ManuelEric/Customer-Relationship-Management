@@ -177,7 +177,7 @@
                         <th>Child Name</th>
                         <th>Child Mail</th>
                         <th>Child Phone</th>
-                        <th>Have you ever participated in ALL-in Event/program before</th>
+                        <th>Have you ever participated in EduALL Event/program before</th>
                         <th>School Name</th>
                         <th>Graduation Year</th>
                         <th>Conversion Lead</th>
@@ -315,7 +315,6 @@
                     },
                     {
                         data: 'client_name',
-                        name: 'client.full_name',
                         render: function(data, type, row, meta) {
 
                             var existing = moment(row.created_at).format('MMMM Do YYYY, h:mm') ==
@@ -352,7 +351,7 @@
                     // },
                     {
                         data: 'register_by',
-                        name: 'client.register_by',
+                        name: 'tbl_client.register_by',
                         searchable: false,
                         render: function(data, type, row, meta) {
                             if (data != null){
@@ -364,12 +363,12 @@
                     },
                     {
                         data: 'client_mail',
-                        name: 'client.mail',
+                        name: 'tbl_client.mail',
                         defaultContent: '-'
                     },
                     {
                         data: 'client_phone',
-                        name: 'client.phone',
+                        name: 'tbl_client.phone',
                         defaultContent: '-'
                     },
                     {
@@ -393,6 +392,7 @@
                     },
                     {
                         data: 'school_name',
+                        name: 'tbl_sch.sch_name',
                         defaultContent: '-',
                         searchable: false,
                         orderable: false
@@ -420,17 +420,17 @@
                         defaultContent: '-'
                     },
                     {
-                        className: 'text-center',
                         data: 'joined_date',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
 
                             return moment(data).format('dddd, DD MMM YYYY');
                         }
                     },
                     {
-                        className: 'text-center',
                         data: 'notes',
-                        searchable: true,
+                        className: 'text-center',
+                        searchable: false,
                         defaultContent: '-'
                     },
                     {

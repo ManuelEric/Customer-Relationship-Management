@@ -189,7 +189,6 @@
                 },
                 {
                     data: 'client_name',
-                    name: 'client.full_name',
                     defaultContent: '-',
                 },
                 {
@@ -198,7 +197,7 @@
                 },
                 {
                     data: 'register_by',
-                    name: 'client.register_by',
+                    name: 'tbl_client.register_by',
                     render: function(data, type, row, meta) {
                         if (data != null){
                             return data.charAt(0).toUpperCase() + data.slice(1);
@@ -213,12 +212,12 @@
                 // },
                 {
                     data: 'client_mail',
-                    name: 'client.mail',
+                    name: 'tbl_client.mail',
                     defaultContent: '-',
                 },
                 {
                     data: 'client_phone',
-                    name: 'client.phone',
+                    name: 'tbl_client.phone',
                     defaultContent: '-',
                 },
                 {
@@ -233,7 +232,7 @@
                 },
                 {
                     data: 'school_name',
-                    name: 'school_name',
+                    name: 'tbl_sch.sch_name',
                     defaultContent: '-',
                 },
                 {
@@ -248,7 +247,6 @@
                 },
                 {
                     data: 'abr_country',
-                    name: 'client.abr_country',
                     defaultContent: '-',
                 },
                 {
@@ -257,8 +255,7 @@
                     defaultContent: '-',
                 },
                 {
-                    data: 'referral_from',
-                    name: 'client_ref_code_view.full_name',
+                    data: 'referral_name',
                     defaultContent: '-',
                     className: 'text-center',
                 },

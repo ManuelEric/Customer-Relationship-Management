@@ -161,6 +161,9 @@ class Kernel extends ConsoleKernel
         // $schedule->command('get:took_ia inactive')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
         // $schedule->command('get:took_ia alumni-mentee')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
         // $schedule->command('get:took_ia alumni-non-mentee')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
+
+        # Update grade and graduation year student every July
+        $schedule->command('update:grade_and_graduation_year')->cron('0 0 1 7 *');
     }
 
     /**
