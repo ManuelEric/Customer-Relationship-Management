@@ -174,9 +174,7 @@ return new class extends Migration
         
         BEGIN
         	DECLARE counted_event INTEGER DEFAULT 0;
-            SELECT COUNT(*) INTO counted_event FROM tbl_client_event ce
-                
-                    WHERE ce.client_id = requested_client_id;
+            SELECT EXISTS(SELECT clientevent_id FROM tbl_client_event ce WHERE ce.client_id = requested_client_id) INTO counted_event;
                    RETURN counted_event;
         END; //
         DELIMITER ;
