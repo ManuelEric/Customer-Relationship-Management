@@ -77,14 +77,14 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:reminder_followup')->withoutOverlapping()->daily(); # daily needed!
         $schedule->command('send:reminder_followup_client')->withoutOverlapping()->everyFiveMinutes()->onOneServer(); # daily needed!
         
-        // $schedule->command('send:reminder_expiration_contracts_probation')->daily(); # daily needed!
-        // $schedule->command('send:reminder_expiration_contracts_tutor')->daily(); # daily needed!
-        // $schedule->command('send:reminder_expiration_contracts_editor')->daily(); # daily needed!
-        // $schedule->command('send:reminder_expiration_contracts_external_mentor')->daily(); # daily needed!
-        // $schedule->command('send:reminder_expiration_contracts_internship')->daily(); # daily needed!
+        // $schedule->command('send:reminder_expiration_contracts editor')->daily(); # daily needed!
+        // $schedule->command('send:reminder_expiration_contracts external_mentor')->daily(); # daily needed!
+        // $schedule->command('send:reminder_expiration_contracts internship')->daily(); # daily needed!
+        // $schedule->command('send:reminder_expiration_contracts probation')->daily(); # daily needed!
+        // $schedule->command('send:reminder_expiration_contracts tutor')->daily(); # daily needed!
 
-        // $schedule->command('send:reminder_tutor_h1')->daily();
-        // $schedule->command('send:reminder_tutor_t3')->daily();
+        // $schedule->command('send:reminder_tutor H1')->daily();
+        // $schedule->command('send:reminder_tutor T3')->everyMinute();
 
         # cron for hot leads
         $schedule->command('automate:determine_hot_leads')->withoutOverlapping()->everyMinute()->onOneServer();
@@ -111,7 +111,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('send:thanks_mail_event')->everyFifteenMinutes();
         
         # queue worker
-        $schedule->command('run:worker')->everyMinute()->withoutOverlapping()->onOneServer();
+        // $schedule->command('run:worker')->everyMinute()->withoutOverlapping()->onOneServer();
 
         # This command is no longer used, because it already uses queue
         # run verifying raw data
@@ -143,15 +143,6 @@ class Kernel extends ConsoleKernel
         // $schedule->command('sync:data mentee')->withoutOverlapping()->hourlyAt(57)->onOneServer();
         // $schedule->command('sync:data alumni-mentee')->withoutOverlapping()->hourlyAt(32)->onOneServer();
         // $schedule->command('sync:data tutoring-student')->withoutOverlapping()->hourlyAt(47)->onOneServer();
-
-        # Get took IA
-        // $schedule->command('get:took_ia new-lead')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
-        // $schedule->command('get:took_ia potential')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
-        // $schedule->command('get:took_ia mentee')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
-        // $schedule->command('get:took_ia non-mentee')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
-        // $schedule->command('get:took_ia inactive')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
-        // $schedule->command('get:took_ia alumni-mentee')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
-        // $schedule->command('get:took_ia alumni-non-mentee')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
 
         # Update grade and graduation year student every July
         $schedule->command('update:grade_and_graduation_year')->cron('0 0 1 7 *');
