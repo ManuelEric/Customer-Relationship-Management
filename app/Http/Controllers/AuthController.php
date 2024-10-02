@@ -42,6 +42,7 @@ class AuthController extends Controller
         # check credentials
         if (!Auth::attempt($credentials, true))
             return back()->withErrors([ 'password' => 'Wrong email or password' ]);
+
         
         try {
 
@@ -57,19 +58,17 @@ class AuthController extends Controller
             
         } catch (Exception $e) {
 
-            Log::debug('Error:'. $e->getMessage());
-            return back()->withError($e->getMessage());
+            return $e->getMessage();
+            // Log::debug('Error:'. $e->getMessage());
+            // return back()->withError($e->getMessage());
 
         }
-
 
         # login Success
         # create log success
         $this->logSuccess('auth', null, 'Login', $request->email);
-        $request->session()->regenerate();
-
         
-        return redirect()->intended('/dashboard2');
+        return redirect()->intended('/dashboard');
     }
 
     public function logout(Request $request)

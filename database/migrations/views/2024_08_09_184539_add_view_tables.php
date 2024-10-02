@@ -134,7 +134,7 @@ return new class extends Migration
                 ELSE NULL
             END) AS referral_name,
             c.st_grade,
-            c.register_as,
+            c.register_by as register_as,
             UpdateGradeStudent (
                 year(CURDATE()),
                 year(c.created_at),
