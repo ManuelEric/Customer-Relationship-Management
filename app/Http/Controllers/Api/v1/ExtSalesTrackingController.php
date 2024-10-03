@@ -20,7 +20,7 @@ class ExtSalesTrackingController extends Controller
     {
         $params = $request->only('leadId', 'leadName', 'startDate', 'endDate', 'subLead', 'mainProgId', 'progId', 'picUUID');
 
-        if (!$leadSourceDetail = $this->clientProgramRepository->getLeadSourceDetails($params))
+        if (!$lead_source_detail = $this->clientProgramRepository->getLeadSourceDetails($params))
             return response()->json(['success' => false, 'data' => 'No data found.']);
         
         try {
@@ -33,7 +33,7 @@ class ExtSalesTrackingController extends Controller
                         </tr>
                     </thead>';
             $no = 1;
-            foreach ($leadSourceDetail as $data) {
+            foreach ($lead_source_detail as $data) {
     
                 $html .= '<tr>
                             <td>'.$no++.'.</td>

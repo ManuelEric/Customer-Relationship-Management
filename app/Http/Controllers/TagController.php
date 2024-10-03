@@ -48,7 +48,7 @@ class TagController extends Controller
         DB::beginTransaction();
         try {
 
-            $newTag = $this->tagRepository->createTag($tag);
+            $new_tag = $this->tagRepository->createTag($tag);
             DB::commit();
 
         } catch (Exception $e) {
@@ -63,7 +63,7 @@ class TagController extends Controller
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'University Tag', Auth::user()->first_name . ' '. Auth::user()->last_name, $newTag);
+        $this->logSuccess('store', 'Form Input', 'University Tag', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_tag);
 
 
         return Redirect::to('master/university-tags')->withSuccess('University tags successfully created');
@@ -78,13 +78,13 @@ class TagController extends Controller
 
         $tag['updated_at'] = Carbon::now();
 
-        $tagId = $request->route('university_tag');
-        $oldTag = $this->tagRepository->getTagById($tagId);
+        $tag_id = $request->route('university_tag');
+        $old_tag = $this->tagRepository->getTagById($tag_id);
 
         DB::beginTransaction();
         try {
 
-            $this->tagRepository->updateTag($tagId, $tag);
+            $this->tagRepository->updateTag($tag_id, $tag);
             DB::commit();
         } catch (Exception $e) {
 
@@ -95,7 +95,7 @@ class TagController extends Controller
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'University Tag', Auth::user()->first_name . ' '. Auth::user()->last_name, $tag, $oldTag);
+        $this->logSuccess('update', 'Form Input', 'University Tag', Auth::user()->first_name . ' '. Auth::user()->last_name, $tag, $old_tag);
 
         return Redirect::to('master/university-tags')->withSuccess('University tags successfully updated');
     }
@@ -104,8 +104,8 @@ class TagController extends Controller
     {
 
         if ($request->ajax()) {
-            $tagId = $request->route('university_tag');
-            $tag = $this->tagRepository->getTagById($tagId);
+            $tag_id = $request->route('university_tag');
+            $tag = $this->tagRepository->getTagById($tag_id);
 
             return response()->json(['tag' => $tag]);
         }
@@ -113,13 +113,13 @@ class TagController extends Controller
 
     public function destroy(Request $request)
     {
-        $tagId = $request->route('university_tag');
-        $tag = $this->tagRepository->getTagById($tagId);
+        $tag_id = $request->route('university_tag');
+        $tag = $this->tagRepository->getTagById($tag_id);
 
         DB::beginTransaction();
         try {
 
-            $this->tagRepository->deleteTag($tagId);
+            $this->tagRepository->deleteTag($tag_id);
             DB::commit();
         } catch (Exception $e) {
 

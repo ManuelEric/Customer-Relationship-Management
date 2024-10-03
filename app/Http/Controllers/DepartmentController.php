@@ -18,11 +18,11 @@ class DepartmentController extends Controller
 
     public function getEmployeeByDepartment(Request $request)
     {
-        $departmentId = $request->route('department');
+        $department_id = $request->route('department');
         try {
 
             $html = '';
-            $employees = $this->departmentRepository->getEmployeeByDepartment($departmentId);
+            $employees = $this->departmentRepository->getEmployeeByDepartment($department_id);
             if ($employees->count() > 0) {
                 foreach ($employees as $employee) {
     

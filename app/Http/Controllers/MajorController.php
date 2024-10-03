@@ -35,7 +35,7 @@ class MajorController extends Controller
 
     public function store(StoreMajorRequest $request)
     {
-        $majorDetails = $request->only([
+        $major_details = $request->only([
             'name',
             'active'
         ]);
@@ -43,7 +43,7 @@ class MajorController extends Controller
         DB::beginTransaction();
         try {
 
-            $newMajor = $this->majorRepository->createMajor($majorDetails);
+            $new_major = $this->majorRepository->createMajor($major_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -54,34 +54,34 @@ class MajorController extends Controller
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Major', Auth::user()->first_name . ' '. Auth::user()->last_name, $newMajor);
+        $this->logSuccess('store', 'Form Input', 'Major', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_major);
 
         return Redirect::to('master/major')->withSuccess('Major successfully created');
     }
 
     public function show(Request $request)
     {
-        $majorId = $request->route('major');
+        $major_id = $request->route('major');
 
-        $major = $this->majorRepository->getMajorById($majorId);
+        $major = $this->majorRepository->getMajorById($major_id);
 
         return response()->json(['major' => $major]);
     }
 
     public function update(StoreMajorRequest $request)
     {
-        $majorDetails = $request->only([
+        $major_details = $request->only([
             'name',
             'active'
         ]);
 
         $id = $request->route('major');
-        $oldMajor = $this->majorRepository->getMajorById($id);
+        $old_major = $this->majorRepository->getMajorById($id);
 
         DB::beginTransaction();
         try {
 
-            $this->majorRepository->updateMajor($id, $majorDetails);
+            $this->majorRepository->updateMajor($id, $major_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -92,7 +92,7 @@ class MajorController extends Controller
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Major', Auth::user()->first_name . ' '. Auth::user()->last_name, $majorDetails, $oldMajor);
+        $this->logSuccess('update', 'Form Input', 'Major', Auth::user()->first_name . ' '. Auth::user()->last_name, $major_details, $old_major);
 
         return Redirect::to('master/major')->withSuccess('Major successfully updated');
     }
