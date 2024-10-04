@@ -2113,4 +2113,17 @@ class ExtClientController extends Controller
 
         return response()->json($response);
     }
+
+    public function showMentorTutor($uuid)
+    {
+        $user = \App\Models\User::where('uuid', $uuid)->select('password')->first();
+        if ( !$user )
+        {
+            return response()->json([
+                'success' => false,
+                'error' => 'Cannot find the user.'
+            ]);
+        } 
+        return response()->json($user);
+    }
 }
