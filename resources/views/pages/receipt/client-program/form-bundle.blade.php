@@ -894,7 +894,7 @@
 
         $("#installment-list .detail").each(function() {
             $(this).click(function() {
-                var link = "{{ url('/') }}/receipt/client-program/" + $(this).data('recid')
+                var link = "{{ url('/') }}/receipt/client-program/" + $(this).data('recid') + "?b=1";
                 window.location = link
             })
         })

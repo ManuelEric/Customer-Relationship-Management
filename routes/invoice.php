@@ -65,7 +65,8 @@ Route::resource('client-program', InvoiceProgramController::class, [
 Route::prefix('client-program')->name('invoice.client-program.')->group(function () {
     Route::post('{client_program}/remind/by/email', [InvoiceProgramController::class, 'remindParentsByEmail']);
     Route::post('{client_program}/remind/by/whatsapp', [InvoiceProgramController::class, 'remindParentsByWhatsapp']);
-
+    Route::post('{client_program}/hold', [InvoiceProgramController::class, 'holdProgram']);
+    
     Route::get('{client_program}/print/{currency}', [InvoiceProgramController::class, 'print'])->name('print');
     Route::get('{client_program}/preview/{currency}', [InvoiceProgramController::class, 'preview'])->name('preview'); # new 
     Route::post('{client_program}/preview/{currency}', [InvoiceProgramController::class, 'upload'])->name('upload-signed'); # new
