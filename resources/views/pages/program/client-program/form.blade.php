@@ -498,7 +498,7 @@
                             <div class="row mb-3">
                                 <div class="col-md-3">
                                     <label for="">
-                                        Subject Specialist Mentor <sup class="text-danger">*</sup>
+                                        Subject Specialist Mentor
                                     </label>
                                 </div>
                                 <div class="col-md-9">
