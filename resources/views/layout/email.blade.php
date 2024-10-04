@@ -81,7 +81,7 @@
             <!--      Logo headder -->
             <tr>
               <td style="padding:40px 30px 30px 30px;text-align:center;font-size:1.5em;font-weight:bold;">
-                <img loading="lazy"  src="{{asset('img/logo.png')}}" alt="EduALL" alt="Doppler Health" style="width:250px;max-width:250px;height:auto;border:none;text-decoration:none;color:#ffffff;" >
+                <img loading="lazy"  src="{{asset('img/logo.png')}}" alt="EduALL" alt="Doppler Health" style="width:250px;max-width:250px;height:auto;border:none;text-decoration:none;color:#ffffff;" >                 
               </td>
             </tr>
             <!--      Intro Section -->
