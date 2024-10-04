@@ -23,7 +23,7 @@
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
-                    <h4>{{ $student->full_name }}</h4>
+                    <h4><a class="text-decoration-none" target="_blank" href="{{ route('student.show', ['student' => $student->id]) }}">{{ $student->full_name }}</a></h4>
                     @if (!request()->is('program/client/create*'))
                         <div class="mt-3 d-flex justify-content-center">
                             @if (!isset($clientProgram->invoice->refund))
@@ -489,6 +489,36 @@
                                                 @endforeach
                                             </select>
                                             @error('profile_building_mentor')
+                                                <small class="text-danger fw-light">{{ $message }}</small>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <label for="">
+                                        Subject Specialist Mentor <sup class="text-danger">*</sup>
+                                    </label>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <select name="subject_specialist_mentor" id="" class="select w-100"
+                                                {{ $disabled }}>
+                                                <option data-placeholder="true"></option>
+                                                @foreach ($mentors as $mentor)
+                                                    <option value="{{ $mentor->id }}"
+                                                        @if (old('subject_specialist_mentor') == $mentor->id) {{ 'selected' }}
+                                                        @elseif (isset($clientProgram->clientMentor) &&
+                                                                $clientProgram->clientMentor()->where('type', 6)->count() > 0)
+                                                            @if ($clientProgram->clientMentor()->where('type', 6)->first()->id == $mentor->id)
+                                                                {{ 'selected' }} @endif
+                                                        @endif
+                                                        >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('subject_specialist_mentor')
                                                 <small class="text-danger fw-light">{{ $message }}</small>
                                             @enderror
                                         </div>

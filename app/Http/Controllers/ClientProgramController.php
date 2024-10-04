@@ -410,8 +410,9 @@ class ClientProgramController extends Controller
 
                     $clientProgramDetails['supervising_mentor'] = $request->supervising_mentor;
                     $clientProgramDetails['profile_building_mentor'] = isset($request->profile_building_mentor) ? $request->profile_building_mentor : NULL;
+                    $clientProgramDetails['subject_specialist_mentor'] = isset($request->subject_specialist_mentor) ? $request->subject_specialist_mentor : NULL;
                     $clientProgramDetails['aplication_strategy_mentor'] = isset($request->aplication_strategy_mentor) ? $request->aplication_strategy_mentor : NULL;
-                    $clientProgramDetails['writing_mentor'] = isset($request->writing_mentor) ? $request->aplication_strategy_mentor : NULL;
+                    $clientProgramDetails['writing_mentor'] = isset($request->writing_mentor) ? $request->writing_mentor : NULL;
                     $clientProgramDetails['mentor_ic'] = $request->mentor_ic;
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
 
@@ -701,6 +702,7 @@ class ClientProgramController extends Controller
                     // $clientProgramDetails['backup_mentor'] = isset($request->backup_mentor) ? $request->backup_mentor : NULL;
                     $clientProgramDetails['supervising_mentor'] = $request->supervising_mentor;
                     $clientProgramDetails['profile_building_mentor'] = isset($request->profile_building_mentor) ? $request->profile_building_mentor : NULL;
+                    $clientProgramDetails['subject_specialist_mentor'] = isset($request->subject_specialist_mentor) ? $request->subject_specialist_mentor : NULL;
                     $clientProgramDetails['aplication_strategy_mentor'] = isset($request->aplication_strategy_mentor) ? $request->aplication_strategy_mentor : NULL;
                     $clientProgramDetails['writing_mentor'] = isset($request->writing_mentor) ? $request->writing_mentor : NULL;                    
                     $clientProgramDetails['installment_notes'] = $request->installment_notes;
@@ -893,11 +895,11 @@ class ClientProgramController extends Controller
 
             # if failed storing the data into the database
             # remove the uploaded file from storage
-            if ($request->hasFile('agreement')) {
-                if (Storage::exists('public/uploaded_file/agreement/'.$file_path) && $file_path !== null) {
-                    Storage::delete('public/uploaded_file/agreement/'.$file_path);
-                }
-            }
+            // if ($request->hasFile('agreement')) {
+            //     if (Storage::exists('public/uploaded_file/agreement/'.$file_path) && $file_path !== null) {
+            //         Storage::delete('public/uploaded_file/agreement/'.$file_path);
+            //     }
+            // }
 
             return Redirect::back()->withError($e->getMessage());
         }

@@ -662,6 +662,15 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $clientProgram->clientMentor()->attach($clientProgramDetails['profile_building_mentor'], ['type' => 2, 'status' => $status]);
             }
 
+            if (isset($clientProgramDetails['subject_specialist_mentor'])) {
+
+                # if program end date was less than today 
+                # then put status into 0 else 1
+                // $status = (strtotime($clientProgramDetails['prog_end_date']) < strtotime(date('Y-m-d'))) ? 0 : 1; # status mentoring [0: inactive, 1: active]
+                $status = 1;
+                $clientProgram->clientMentor()->attach($clientProgramDetails['subject_specialist_mentor'], ['type' => 6, 'status' => $status]);
+            }
+
             if (isset($clientProgramDetails['aplication_strategy_mentor'])) {
 
                 # if program end date was less than today 
@@ -805,6 +814,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
                 $additionalDetails['profile_building_mentor'] =  $clientProgramDetails['profile_building_mentor'];
             }
+
+            if (isset($clientProgramDetails['subject_specialist_mentor'])) {
+
+                $additionalDetails['subject_specialist_mentor'] =  $clientProgramDetails['subject_specialist_mentor'];
+            }
             
             if (isset($clientProgramDetails['aplication_strategy_mentor'])) {
 
@@ -818,6 +832,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
             unset($clientProgramDetails['supervising_mentor']);
             unset($clientProgramDetails['profile_building_mentor']);
+            unset($clientProgramDetails['subject_specialist_mentor']);
             unset($clientProgramDetails['aplication_strategy_mentor']);
             unset($clientProgramDetails['writing_mentor']);
         }
@@ -889,7 +904,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         # when supervising_mentor and profile_building_mentor is filled which is not null
         # then assumed the user want to input "admission mentoring" program
         # do attach main mentor and backup mentor as client mentor
-        if (array_key_exists('supervising_mentor', $additionalDetails) || array_key_exists('profile_building_mentor', $additionalDetails) || array_key_exists('aplication_strategy_mentor', $additionalDetails) || array_key_exists('writing_mentor', $additionalDetails)) {
+        if (array_key_exists('supervising_mentor', $additionalDetails) || array_key_exists('profile_building_mentor', $additionalDetails) || array_key_exists('subject_specialist_mentor', $additionalDetails) || array_key_exists('aplication_strategy_mentor', $additionalDetails) || array_key_exists('writing_mentor', $additionalDetails)) {
             $mentorInfo = [];
 
             # if program end date was less than today 
@@ -899,21 +914,34 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $mentorInfo[]=[
                     'user_id' => $additionalDetails['supervising_mentor'],
                     'type' => 1,
+                    'status' => $status,
                 ];
-
+                $clientProgram->clientMentor()->updateExistingPivot($additionalDetails['supervising_mentor'], ['type' => 1, 'status' => $status]); # Supervising mentor
             }
 
             if (array_key_exists('profile_building_mentor', $additionalDetails)) {
                 $mentorInfo[]=[
                     'user_id' => $additionalDetails['profile_building_mentor'],
                     'type' => 2,
+                    'status' => $status,
                 ];
+                $clientProgram->clientMentor()->updateExistingPivot($additionalDetails['profile_building_mentor'], ['type' => 2, 'status' => $status]); # Profile Building Mentor
+            }
+
+            if (array_key_exists('subject_specialist_mentor', $additionalDetails)) {
+                $mentorInfo[]=[
+                    'user_id' => $additionalDetails['subject_specialist_mentor'],
+                    'type' => 6,
+                    'status' => $status,
+                ];
+                $clientProgram->clientMentor()->updateExistingPivot($additionalDetails['subject_specialist_mentor'], ['type' => 6, 'status' => $status]); # Subject specialist mentor
             }
 
             if (array_key_exists('aplication_strategy_mentor', $additionalDetails)) {
                 $mentorInfo[]=[
                     'user_id' => $additionalDetails['aplication_strategy_mentor'],
                     'type' => 3,
+                    'status' => $status,
                 ];
                 $clientProgram->clientMentor()->updateExistingPivot($additionalDetails['aplication_strategy_mentor'], ['type' => 3, 'status' => $status]); # Aplication strategy mentor
             }
@@ -922,12 +950,14 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $mentorInfo[]=[
                     'user_id' => $additionalDetails['writing_mentor'],
                     'type' => 4,
+                    'status' => $status,
                 ];
                 $clientProgram->clientMentor()->updateExistingPivot($additionalDetails['writing_mentor'], ['type' => 4, 'status' => $status]); # Writing mentor
             }
 
-            if(count($mentorInfo) > 0)
+            if(count($mentorInfo) > 0){
                 $clientProgram->clientMentor()->sync($mentorInfo, ['status' => $status]);
+            }
         }
 
         # when tutor id is filled which is not null
