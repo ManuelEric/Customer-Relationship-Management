@@ -8,14 +8,14 @@
 @section('content')
 
 <div class="card bg-secondary mb-3 p-2">
-    <div class="row row-cols-md-2 row-cols-1 align-items-center justify-content-md-between justify-content-center g-3">
+    <div class="row row-cols-md-2 row-cols-1 align-items-center justify-content-md-between justify-content-start g-3">
         <div class="col">
             <h5 class="text-white m-0">
                 <i class="bi bi-tag me-1"></i>
                 Import Data
             </h5>
         </div>
-        <div class="col text-md-end text-center">
+        <div class="col text-md-end text-start">
             <a href="#" role="button" id="sync-btn" class="btn btn-sm btn-info"><i
                 class="bi bi-arrow-clockwise me-1"></i>
             Sync Data</a>
@@ -30,8 +30,8 @@
     <div class="mb-3">
         <div class="card card-body" id="parent">
             <div class="text-center">
-                <div class="position-relative overflow-hidden" style="height: 200px;">
-                    <img loading="lazy"  src="{{ asset('img/form-embed/parent.webp') }}" class="card-img-bottom w-100" style="object-fit:contain;">
+                <div class="position-relative overflow-hidden mb-2" style="height: 150px;">
+                    <img loading="lazy"  src="{{ asset('img/form-embed/parent.webp') }}" class="card-img-bottom w-100 h-100" style="object-fit:contain;">
                 </div>
                 <h5>Parents</h5>
             </div>
@@ -40,8 +40,8 @@
     <div class="mb-3">
         <div class="card card-body" id="student">
             <div class="text-center">
-                <div class="position-relative overflow-hidden" style="height: 200px;">
-                    <img loading="lazy"  src="{{ asset('img/form-embed/student.webp') }}" class="card-img-bottom w-100" style="object-fit:contain;">
+                <div class="position-relative overflow-hidden mb-2" style="height: 150px;">
+                    <img loading="lazy"  src="{{ asset('img/form-embed/student.webp') }}" class="card-img-bottom w-100 h-100" style="object-fit:contain;">
                 </div>
                 <h5>Students</h5>
             </div>
@@ -50,8 +50,8 @@
     <div class="mb-3">
         <div class="card card-body" id="teacher">
             <div class="text-center">
-                <div class="position-relative overflow-hidden" style="height: 200px;">
-                    <img loading="lazy"  src="{{ asset('img/form-embed/teacher.webp') }}" class="card-img-bottom w-100" style="object-fit:contain;">
+                <div class="position-relative overflow-hidden mb-2" style="height: 150px;">
+                    <img loading="lazy"  src="{{ asset('img/form-embed/teacher.webp') }}" class="card-img-bottom w-100 h-100" style="object-fit:contain;">
                 </div>
                 <h5>Teacher</h5>
             </div>
@@ -60,8 +60,8 @@
     <div class="mb-3">
         <div class="card card-body"  id="client-event">
             <div class="text-center">
-                <div class="position-relative overflow-hidden" style="height: 200px;">
-                    <img loading="lazy"  src="{{ asset('img/profile.webp') }}" class="card-img-bottom w-100" style="object-fit:contain;">
+                <div class="position-relative overflow-hidden mb-2" style="height: 150px;">
+                    <img loading="lazy"  src="{{ asset('img/profile.webp') }}" class="card-img-bottom w-100 h-100" style="object-fit:contain;">
                 </div>
                 <h5>Client Events</h5>
             </div>
@@ -70,8 +70,8 @@
     <div class="mb-3">
         <div class="card card-body" id="client-program">
             <div class="text-center">
-                <div class="position-relative overflow-hidden" style="height: 200px;">
-                    <img loading="lazy"  src="{{ asset('img/program.webp') }}" class="card-img-bottom w-100" style="object-fit:contain;">
+                <div class="position-relative overflow-hidden mb-2" style="height: 150px;">
+                    <img loading="lazy"  src="{{ asset('img/program.webp') }}" class="card-img-bottom w-100 h-100" style="object-fit:contain;">
                 </div>
                 <h5>Client Programs</h5>
             </div>
