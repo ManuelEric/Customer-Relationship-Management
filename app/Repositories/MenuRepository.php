@@ -52,13 +52,13 @@ class MenuRepository implements MenuRepositoryInterface
 
     public function getUserAccess($userId)
     {
-        $user = User::where('uuid', $userId)->first();
+        $user = User::where('id', $userId)->first();
         return $user->access_menus;
     }
 
     public function getUserAccessById($userId, $menuId)
     {
-        $user = User::where('uuid', $userId)->first();
+        $user = User::where('id', $userId)->first();
         return $user->access_menus()->where('tbl_menus.id', $menuId)->first();
     }
 

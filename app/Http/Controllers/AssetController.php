@@ -41,7 +41,7 @@ class AssetController extends Controller
 
     public function store(StoreAssetRequest $request)
     {
-        $assetDetails = $request->only([
+        $asset_details = $request->only([
             'asset_name',
             'asset_merktype',
             'asset_dateachieved',
@@ -58,7 +58,7 @@ class AssetController extends Controller
         DB::beginTransaction();
         try {
 
-            $assetCreated = $this->assetRepository->createAsset(['asset_id' => $asset_id_with_label] + $assetDetails);
+            $asset_created = $this->assetRepository->createAsset(['asset_id' => $asset_id_with_label] + $asset_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -69,7 +69,7 @@ class AssetController extends Controller
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Asset', Auth::user()->first_name . ' '. Auth::user()->last_name, $assetCreated);
+        $this->logSuccess('store', 'Form Input', 'Asset', Auth::user()->first_name . ' '. Auth::user()->last_name, $asset_created);
 
         return Redirect::to('master/asset/' . $asset_id_with_label)->withSuccess('Asset successfully created');
     }
@@ -85,9 +85,9 @@ class AssetController extends Controller
 
     public function show(Request $request)
     {
-        $assetId = $request->route('asset');
+        $asset_id = $request->route('asset');
 
-        $asset = $this->assetRepository->getAssetById($assetId);
+        $asset = $this->assetRepository->getAssetById($asset_id);
 
         $employees = $this->userRepository->getAllUsersByRole('employee');
 
@@ -103,10 +103,10 @@ class AssetController extends Controller
 
     public function edit(Request $request)
     {
-        $assetId = $request->route('asset');
+        $asset_id = $request->route('asset');
 
         # retrieve asset data by id
-        $asset = $this->assetRepository->getAssetById($assetId);
+        $asset = $this->assetRepository->getAssetById($asset_id);
         # put the link to update asset form below
         # example
 
@@ -120,8 +120,8 @@ class AssetController extends Controller
 
     public function update(StoreAssetRequest $request)
     {
-        $assetId = $request->route('asset');
-        $assetDetails = $request->only([
+        $asset_id = $request->route('asset');
+        $asset_details = $request->only([
             'asset_name',
             'asset_merktype',
             'asset_dateachieved',
@@ -132,37 +132,37 @@ class AssetController extends Controller
         ]);
 
         # retrieve asset id from url
-        $assetId = $request->route('asset');
-        $oldAsset = $this->assetRepository->getAssetById($assetId);
+        $asset_id = $request->route('asset');
+        $old_asset = $this->assetRepository->getAssetById($asset_id);
 
         DB::beginTransaction();
         try {
 
-            $this->assetRepository->updateAsset($assetId, $assetDetails);
+            $this->assetRepository->updateAsset($asset_id, $asset_details);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Update asset failed : ' . $e->getMessage());
-            return Redirect::to('master/asset/'.$assetId)->withError('Failed to update asset');
+            return Redirect::to('master/asset/'.$asset_id)->withError('Failed to update asset');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Asset', Auth::user()->first_name . ' '. Auth::user()->last_name, $assetDetails, $oldAsset);
+        $this->logSuccess('update', 'Form Input', 'Asset', Auth::user()->first_name . ' '. Auth::user()->last_name, $asset_details, $old_asset);
 
-        return Redirect::to('master/asset/'.$assetId)->withSuccess('Asset successfully updated');
+        return Redirect::to('master/asset/'.$asset_id)->withSuccess('Asset successfully updated');
     }
 
     public function destroy(Request $request)
     {
-        $assetId = $request->route('asset');
-        $asset = $this->assetRepository->getAssetById($assetId);
+        $asset_id = $request->route('asset');
+        $asset = $this->assetRepository->getAssetById($asset_id);
 
         DB::beginTransaction();
         try {
 
-            $this->assetRepository->deleteAsset($assetId);
+            $this->assetRepository->deleteAsset($asset_id);
             DB::commit();
         } catch (Exception $e) {
 

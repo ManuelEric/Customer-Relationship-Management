@@ -29,7 +29,7 @@ class AssetUsedController extends Controller
 
     public function store(StoreAssetUsedRequest $request)
     {
-        $usedDetails = $request->only([
+        $used_details = $request->only([
             'assetId',
             'user',
             'amount_used',
@@ -40,7 +40,7 @@ class AssetUsedController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->assetUsedRepository->createAssetUsed($usedDetails);
+            $this->assetUsedRepository->createAssetUsed($used_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -54,11 +54,11 @@ class AssetUsedController extends Controller
 
     public function show(Request $request): JsonResponse
     {
-        $assetId = $request->route('asset');
-        $usedId = $request->route('used');
+        $asset_id = $request->route('asset');
+        $used_id = $request->route('used');
 
-        $asset = $this->assetRepository->getAssetById($assetId);
-        $user = $asset->userUsedAsset()->where('tbl_asset_used.id', $usedId)->first();
+        $asset = $this->assetRepository->getAssetById($asset_id);
+        $user = $asset->userUsedAsset()->where('tbl_asset_used.id', $used_id)->first();
 
         $employees = $this->userRepository->getAllUsersByRole('employee');
 
@@ -67,7 +67,7 @@ class AssetUsedController extends Controller
             'asset' => $asset,
             'employees' => $employees,
             'user' => $user,
-            'usedId' => $usedId,
+            'usedId' => $used_id,
             'amount_returned' => $user->pivot->returned_detail()->sum('amount_returned'),
             'request' => $request
         ]);
@@ -75,13 +75,13 @@ class AssetUsedController extends Controller
 
     public function destroy(Request $request)
     {
-        $assetId = $request->route('asset');
-        $usedId = $request->route('used');
+        $asset_id = $request->route('asset');
+        $used_id = $request->route('used');
 
         DB::beginTransaction();
         try {
 
-            $this->assetUsedRepository->deleteAssetUsed($assetId, $usedId);
+            $this->assetUsedRepository->deleteAssetUsed($asset_id, $used_id);
             DB::commit();
         } catch (Exception $e) {
 

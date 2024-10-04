@@ -67,21 +67,21 @@ class EventController extends Controller
 
     public function show(Request $request)
     {
-        $eventId = $request->route('event');
-        $event = $this->eventRepository->getEventById($eventId);
-        $eventPic = $event->eventPic->pluck('id')->toArray();
+        $event_id = $request->route('event');
+        $event = $this->eventRepository->getEventById($event_id);
+        $event_pic = $event->eventPic->pluck('id')->toArray();
         $employees = $this->userRepository->getAllUsersByRole('employee');
         # universities
         $universities = $this->universityRepository->getAllUniversities();
-        $universityEvent = $this->universityEventRepository->getUniversityByEventId($eventId);
+        $university_event = $this->universityEventRepository->getUniversityByEventId($event_id);
         # schools
         $schools = $this->schoolRepository->getAllSchools();
-        $schoolEvent = $this->schoolEventRepository->getSchoolByEventId($eventId);
+        $school_event = $this->schoolEventRepository->getSchoolByEventId($event_id);
         # corporate / partner
         $partners = $this->corporateRepository->getAllCorporate();
-        $partnerEvent = $this->corporatePartnerRepository->getPartnerByEventId($eventId);
+        $partner_event = $this->corporatePartnerRepository->getPartnerByEventId($event_id);
 
-        $eventSpeakers = $this->agendaSpeakerRepository->getAllSpeakerByEvent($eventId);
+        $event_speakers = $this->agendaSpeakerRepository->getAllSpeakerByEvent($event_id);
 
         # retrieve program data
         $programs = $this->programRepository->getAllPrograms();
@@ -89,15 +89,15 @@ class EventController extends Controller
         return view('pages.master.event.form')->with(
             [
                 'event' => $event,
-                'eventPic' => $eventPic,
+                'eventPic' => $event_pic,
                 'employees' => $employees,
                 'universities' => $universities,
-                'universityEvent' => $universityEvent,
+                'universityEvent' => $university_event,
                 'schools' => $schools,
-                'schoolEvent' => $schoolEvent,
+                'schoolEvent' => $school_event,
                 'partners' => $partners,
-                'partnerEvent' => $partnerEvent,
-                'eventSpeakers' => $eventSpeakers,
+                'partnerEvent' => $partner_event,
+                'eventSpeakers' => $event_speakers,
                 'programs' => $programs
             ]
         );
@@ -105,7 +105,7 @@ class EventController extends Controller
 
     public function store(StoreEventRequest $request)
     {
-        $eventDetails = $request->only([
+        $event_details = $request->only([
             'event_title',
             'event_description',
             'event_location',
@@ -121,21 +121,21 @@ class EventController extends Controller
         $last_id = Event::max('event_id');
         $event_id_without_label = $this->remove_primarykey_label($last_id, 4);
         $event_id_with_label = 'EVT-' . $this->add_digit((int)$event_id_without_label + 1, 4);
-        $eventDetails['event_id'] = $event_id_with_label;
-        $fileName = null;
+        $event_details['event_id'] = $event_id_with_label;
+        $file_name = null;
 
         DB::beginTransaction();
         try {
 
             # upload banner 
             if ($request->file('event_banner')) {
-                $fileName = time() . '-' . $event_id_with_label . '.' . $request->event_banner->extension();
-                $request->event_banner->storeAs(null, $fileName, 'uploaded_file_event');
+                $file_name = time() . '-' . $event_id_with_label . '.' . $request->event_banner->extension();
+                $request->event_banner->storeAs(null, $file_name, 'uploaded_file_event');
             }
 
-            $eventDetails['event_banner'] = $fileName;
+            $event_details['event_banner'] = $file_name;
 
-            $newEvent = $this->eventRepository->createEvent($eventDetails);
+            $new_event = $this->eventRepository->createEvent($event_details);
 
             $this->eventRepository->addEventPic($event_id_with_label, $employee_id);
 
@@ -149,7 +149,7 @@ class EventController extends Controller
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Event', Auth::user()->first_name . ' ' . Auth::user()->last_name, $newEvent);
+        $this->logSuccess('store', 'Form Input', 'Event', Auth::user()->first_name . ' ' . Auth::user()->last_name, $new_event);
 
         return Redirect::to('master/event/' . $event_id_with_label)->withSuccess('Event successfully created');
     }
@@ -175,7 +175,7 @@ class EventController extends Controller
 
     public function update(StoreEventRequest $request)
     {
-        $newDetails = $request->only([
+        $new_details = $request->only([
             'event_title',
             'event_description',
             'event_location',
@@ -186,10 +186,10 @@ class EventController extends Controller
             'type'
         ]);
 
-        $eventId = $request->route('event');
-        $newPic = $request->user_id;
+        $event_id = $request->route('event');
+        $new_pic = $request->user_id;
 
-        $oldEvent = $this->eventRepository->getEventById($eventId);
+        $old_event = $this->eventRepository->getEventById($event_id);
 
         DB::beginTransaction();
         try {
@@ -201,45 +201,45 @@ class EventController extends Controller
             if (isset($request->change_banner)) {
 
                 # get existing banner as a file
-                if ($existingBannerName = $request->old_event_banner) {
-                    $existingImagePath = storage_path('app/public/uploaded_file/events') . '/' . $existingBannerName;
-                    if (File::exists($existingImagePath))
-                        File::delete($existingImagePath);
+                if ($existing_banner_name = $request->old_event_banner) {
+                    $existing_image_path = storage_path('app/public/uploaded_file/events') . '/' . $existing_banner_name;
+                    if (File::exists($existing_image_path))
+                        File::delete($existing_image_path);
                 }
 
                 # upload banner 
                 if ($request->file('event_banner')) {
-                    $fileName = time() . '-' . $eventId . '.' . $request->event_banner->extension();
-                    $request->event_banner->storeAs(null, $fileName, 'uploaded_file_event');
-                    $newDetails['event_banner'] = $fileName;
+                    $file_name = time() . '-' . $event_id . '.' . $request->event_banner->extension();
+                    $request->event_banner->storeAs(null, $file_name, 'uploaded_file_event');
+                    $new_details['event_banner'] = $file_name;
                 }
             }
 
-            $this->eventRepository->updateEvent($eventId, $newDetails);
+            $this->eventRepository->updateEvent($event_id, $new_details);
 
-            $this->eventRepository->updateEventPic($eventId, $newPic);
+            $this->eventRepository->updateEventPic($event_id, $new_pic);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Update event failed : ' . $e->getMessage());
-            return Redirect::to('master/event/' . $eventId)->withError('Failed to update new event');
+            return Redirect::to('master/event/' . $event_id)->withError('Failed to update new event');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Event', Auth::user()->first_name . ' ' . Auth::user()->last_name, $newDetails, $oldEvent);
+        $this->logSuccess('update', 'Form Input', 'Event', Auth::user()->first_name . ' ' . Auth::user()->last_name, $new_details, $old_event);
 
-        return Redirect::to('master/event/' . $eventId)->withSuccess('Event successfully updated');
+        return Redirect::to('master/event/' . $event_id)->withSuccess('Event successfully updated');
     }
 
     public function edit(Request $request)
     {
 
-        $eventId = $request->route('event');
-        $event = $this->eventRepository->getEventById($eventId);
-        $eventPic = $event->eventPic->pluck('id')->toArray();
+        $event_id = $request->route('event');
+        $event = $this->eventRepository->getEventById($event_id);
+        $event_pic = $event->eventPic->pluck('id')->toArray();
 
         $partnership = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
         $sales = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
@@ -248,15 +248,15 @@ class EventController extends Controller
 
         # universities
         $universities = $this->universityRepository->getAllUniversities();
-        $universityEvent = $this->universityEventRepository->getUniversityByEventId($eventId);
+        $university_event = $this->universityEventRepository->getUniversityByEventId($event_id);
         # schools
         $schools = $this->schoolRepository->getAllSchools();
-        $schoolEvent = $this->schoolEventRepository->getSchoolByEventId($eventId);
+        $school_event = $this->schoolEventRepository->getSchoolByEventId($event_id);
         # corporate / partner
         $partners = $this->corporateRepository->getAllCorporate();
-        $partnerEvent = $this->corporatePartnerRepository->getPartnerByEventId($eventId);
+        $partner_event = $this->corporatePartnerRepository->getPartnerByEventId($event_id);
 
-        $eventSpeakers = $this->agendaSpeakerRepository->getAllSpeakerByEvent($eventId);
+        $event_speakers = $this->agendaSpeakerRepository->getAllSpeakerByEvent($event_id);
 
         # retrieve program data
         $programs = $this->programRepository->getAllPrograms();
@@ -265,15 +265,15 @@ class EventController extends Controller
             [
                 'edit' => true,
                 'event' => $event,
-                'eventPic' => $eventPic,
+                'eventPic' => $event_pic,
                 'employees' => $employees,
                 'universities' => $universities,
-                'universityEvent' => $universityEvent,
+                'universityEvent' => $university_event,
                 'schools' => $schools,
-                'schoolEvent' => $schoolEvent,
+                'schoolEvent' => $school_event,
                 'partners' => $partners,
-                'partnerEvent' => $partnerEvent,
-                'eventSpeakers' => $eventSpeakers,
+                'partnerEvent' => $partner_event,
+                'eventSpeakers' => $event_speakers,
                 'programs' => $programs
             ]
         );
@@ -281,20 +281,20 @@ class EventController extends Controller
 
     public function destroy(Request $request)
     {
-        $eventId = $request->route('event');
+        $event_id = $request->route('event');
 
-        $event = $this->eventRepository->getEventById($eventId);
+        $event = $this->eventRepository->getEventById($event_id);
 
         DB::beginTransaction();
         try {
 
-            $this->eventRepository->deleteEvent($eventId);
+            $this->eventRepository->deleteEvent($event_id);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete event failed : ' . $e->getMessage());
-            return Redirect::to('master/event/' . $eventId)->withError('Failed to delete event');
+            return Redirect::to('master/event/' . $event_id)->withError('Failed to delete event');
         }
 
         # Delete success

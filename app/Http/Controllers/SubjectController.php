@@ -34,14 +34,14 @@ class SubjectController extends Controller
 
     public function store(StoreSubjectRequest $request)
     {
-        $subjectDetails = $request->only([
+        $subject_details = $request->only([
             'name',
         ]);
 
         DB::beginTransaction();
         try {
 
-            $subjectCreated = $this->subjectRepository->createSubject($subjectDetails);
+            $subject_created = $this->subjectRepository->createSubject($subject_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -52,18 +52,18 @@ class SubjectController extends Controller
         
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Subject', Auth::user()->first_name . ' '. Auth::user()->last_name, $subjectCreated);
+        $this->logSuccess('store', 'Form Input', 'Subject', Auth::user()->first_name . ' '. Auth::user()->last_name, $subject_created);
 
         return Redirect::to('master/subject')->withSuccess('Subject successfully created');
     }
 
     public function show(Request $request)
     {
-        $subjectId = $request->route('subject');
+        $subject_id = $request->route('subject');
 
         try {
             # retrieve subject
-            $subject = $this->subjectRepository->getSubjectById($subjectId);
+            $subject = $this->subjectRepository->getSubjectById($subject_id);
         } catch (Exception $e) {
             Log::error('Failed to show detail subject: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
@@ -75,18 +75,18 @@ class SubjectController extends Controller
 
     public function update(StoreSubjectRequest $request)
     {
-        $subjectDetails = $request->only([
+        $subject_details = $request->only([
             'name',
         ]);
 
         # retrieve vendor id from url
-        $subjectId = $request->route('subject');
-        $oldSubject = $this->subjectRepository->getSubjectById($subjectId);
+        $subject_id = $request->route('subject');
+        $old_subject = $this->subjectRepository->getSubjectById($subject_id);
 
         DB::beginTransaction();
         try {
 
-            $this->subjectRepository->updateSubject($subjectId, $subjectDetails);
+            $this->subjectRepository->updateSubject($subject_id, $subject_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -97,20 +97,20 @@ class SubjectController extends Controller
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Subject', Auth::user()->first_name . ' '. Auth::user()->last_name, $subjectDetails, $oldSubject);
+        $this->logSuccess('update', 'Form Input', 'Subject', Auth::user()->first_name . ' '. Auth::user()->last_name, $subject_details, $old_subject);
 
         return Redirect::to('master/subject')->withSuccess('Subject successfully updated');
     }
 
     public function destroy(Request $request)
     {
-        $subjectId = $request->route('subject');
-        $subject = $this->subjectRepository->getSubjectById($subjectId);
+        $subject_id = $request->route('subject');
+        $subject = $this->subjectRepository->getSubjectById($subject_id);
 
         DB::beginTransaction();
         try {
 
-            $this->subjectRepository->deleteSubject($subjectId);
+            $this->subjectRepository->deleteSubject($subject_id);
             DB::commit();
         } catch (Exception $e) {
 

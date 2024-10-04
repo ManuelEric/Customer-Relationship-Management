@@ -15,5 +15,5 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [MenuController::class, 'index']);
-Route::post('manage/department/access', [MenuController::class, 'updateDepartmentAccess']);
-Route::post('manage/user/access', [MenuController::class, 'updateUserAccess']);
+Route::post('manage/department/access', [MenuController::class, 'fnUpdateDepartmentAccess']);
+Route::post('manage/user/access', [MenuController::class, 'fnUpdateUserAccess']);

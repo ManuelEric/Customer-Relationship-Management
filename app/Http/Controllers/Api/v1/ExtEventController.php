@@ -27,7 +27,7 @@ class ExtEventController extends Controller
         }
 
         # map the data that being shown to the user
-        $mappedEvents = $events->map(function ($value) {
+        $mapped_events = $events->map(function ($value) {
             return [
                 'event_id' => $value->event_id,
                 'event_title' => $value->event_title,
@@ -42,7 +42,7 @@ class ExtEventController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'There are events available.',
-            'data' => $mappedEvents
+            'data' => $mapped_events
         ]);
     }
 }

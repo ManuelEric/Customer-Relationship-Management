@@ -140,7 +140,7 @@ Route::post('receipt-corp/{receipt}/upload/{currency}', [ReceiptPartnerControlle
 
 # menus
 Route::get('employee/department/{department}', [DepartmentController::class, 'getEmployeeByDepartment']);
-Route::get('department/access/{department}/{user?}', [MenuController::class, 'getDepartmentAccess']);
+Route::get('department/access/{department}/{user?}', [MenuController::class, 'fnGetMenuAccess']);
 
 # import student, # import client event
 Route::get('download/excel-template/{type}', [ExcelTemplateController::class, 'generateTemplate']);

@@ -55,7 +55,7 @@ class LeadController extends Controller
 
     public function store(StoreLeadRequest $request)
     {
-        $leadDetails = $request->only([
+        $lead_details = $request->only([
             'lead_name',
             'score',
             'kol',
@@ -68,11 +68,11 @@ class LeadController extends Controller
 
         if ($request->kol == true) {
 
-            $leadDetails['main_lead'] = "KOL";
-            $leadDetails['sub_lead'] = $request->lead_name;
+            $lead_details['main_lead'] = "KOL";
+            $lead_details['sub_lead'] = $request->lead_name;
         } else {
-            $leadDetails['main_lead'] = $request->lead_name;
-            $leadDetails['sub_lead'] = null;
+            $lead_details['main_lead'] = $request->lead_name;
+            $lead_details['sub_lead'] = null;
         }
 
         $lead_id_without_label = $this->remove_primarykey_label($last_id, 2);
@@ -81,7 +81,7 @@ class LeadController extends Controller
         DB::beginTransaction();
         try {
 
-            $newDataLead = $this->leadRepository->createLead(['lead_id' => $lead_id_with_label] + $leadDetails);
+            $new_data_lead = $this->leadRepository->createLead(['lead_id' => $lead_id_with_label] + $lead_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -92,7 +92,7 @@ class LeadController extends Controller
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Lead', Auth::user()->first_name . ' '. Auth::user()->last_name, $newDataLead);
+        $this->logSuccess('store', 'Form Input', 'Lead', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_data_lead);
 
         return Redirect::to('master/lead')->withSuccess('Lead successfully created');
     }
@@ -104,10 +104,10 @@ class LeadController extends Controller
 
     public function show(Request $request)
     {
-        $leadId = $request->route('lead');
+        $lead_id = $request->route('lead');
 
         # retrieve lead data by id
-        $lead = $this->leadRepository->getLeadById($leadId);
+        $lead = $this->leadRepository->getLeadById($lead_id);
 
         return response()->json(['lead' => $lead]);
     }
@@ -118,10 +118,10 @@ class LeadController extends Controller
             return $this->leadRepository->getAllLeadDataTables();
         }
 
-        $leadId = $request->route('lead');
+        $lead_id = $request->route('lead');
 
         # retrieve lead data by id
-        $lead = $this->leadRepository->getLeadById($leadId);
+        $lead = $this->leadRepository->getLeadById($lead_id);
         # put the link to update lead form below
         # example
 
@@ -134,7 +134,7 @@ class LeadController extends Controller
 
     public function update(StoreLeadRequest $request)
     {
-        $leadDetails = $request->only([
+        $lead_details = $request->only([
             'lead_name',
             'score',
             'kol',
@@ -142,23 +142,23 @@ class LeadController extends Controller
         ]);
 
         # retrieve lead id from url
-        $leadId = $request->route('lead');
+        $lead_id = $request->route('lead');
         
-        $oldLead = $this->leadRepository->getLeadById($leadId);
+        $oldLead = $this->leadRepository->getLeadById($lead_id);
 
         if ($request->kol == true) {
 
-            $leadDetails['main_lead'] = "KOL";
-            $leadDetails['sub_lead'] = $request->lead_name;
+            $lead_details['main_lead'] = "KOL";
+            $lead_details['sub_lead'] = $request->lead_name;
         } else {
-            $leadDetails['main_lead'] = $request->lead_name;
-            $leadDetails['sub_lead'] = null;
+            $lead_details['main_lead'] = $request->lead_name;
+            $lead_details['sub_lead'] = null;
         }
 
         DB::beginTransaction();
         try {
 
-            $this->leadRepository->updateLead($leadId, $leadDetails);
+            $this->leadRepository->updateLead($lead_id, $lead_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -169,20 +169,20 @@ class LeadController extends Controller
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Lead', Auth::user()->first_name . ' '. Auth::user()->last_name, $leadDetails, $oldLead);
+        $this->logSuccess('update', 'Form Input', 'Lead', Auth::user()->first_name . ' '. Auth::user()->last_name, $lead_details, $oldLead);
 
         return Redirect::to('master/lead')->withSuccess('Lead successfully updated');
     }
 
     public function destroy(Request $request)
     {
-        $leadId = $request->route('lead');
-        $lead = $this->leadRepository->getLeadById($leadId);
+        $lead_id = $request->route('lead');
+        $lead = $this->leadRepository->getLeadById($lead_id);
 
         DB::beginTransaction();
         try {
 
-            $this->leadRepository->deleteLead($leadId);
+            $this->leadRepository->deleteLead($lead_id);
             DB::commit();
         } catch (Exception $e) {
 
@@ -205,9 +205,9 @@ class LeadController extends Controller
         if($request->ajax())
         {
             $filter['full_name'] = trim($request->term);
-            $listReferral = $this->clientRepository->getListReferral(['secondary_id', 'first_name', 'last_name'], $filter);
+            $list_referral = $this->clientRepository->getListReferral(['secondary_id', 'first_name', 'last_name'], $filter);
     
-            $grouped = $listReferral->mapToGroups(function ($item, $key) {
+            $grouped = $list_referral->mapToGroups(function ($item, $key) {
                 return [
                     $item['data'] . 'results' => [
                         'id' => isset($item['secondary_id']) ? $item['secondary_id'] : null,
@@ -216,13 +216,13 @@ class LeadController extends Controller
                 ];
             });
     
-            $morePages=true;
-               if (empty($listReferral->nextPageUrl())){
-                $morePages=false;
+            $more_pages=true;
+               if (empty($list_referral->nextPageUrl())){
+                $more_pages=false;
                }
     
             $grouped['pagination'] = [
-                'more' => $morePages
+                'more' => $more_pages
             ];
     
             return $grouped;

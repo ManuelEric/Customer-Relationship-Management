@@ -32,7 +32,7 @@ class AssetReturnedController extends Controller
     public function store(StoreAssetReturnedRequest $request)
     {
 
-        $returnedDetails = $request->only([
+        $returned_details = $request->only([
             'usedId',
             'assetId',
             'user',
@@ -44,10 +44,10 @@ class AssetReturnedController extends Controller
         DB::beginTransaction();
         try {
 
-            $returnedDetails['asset_used_id'] = $request->usedId;
-            unset($returnedDetails['usedId']);
+            $returned_details['asset_used_id'] = $request->usedId;
+            unset($returned_details['usedId']);
 
-            $this->assetReturnedRepository->createAssetReturned($returnedDetails);
+            $this->assetReturnedRepository->createAssetReturned($returned_details);
             
             DB::commit();
 
@@ -55,20 +55,20 @@ class AssetReturnedController extends Controller
 
             DB::rollBack();
             Log::error('Store asset returned failed : ' . $e->getMessage());
-            return Redirect::to('master/asset/'.$request->assetId)->withError('Failed to create asset returned');
+            return Redirect::to('master/asset/'.$request->asset_id)->withError('Failed to create asset returned');
 
         }
 
-        return Redirect::to('master/asset/'.$request->assetId)->withSuccess('Asset returned was successfully noted');
+        return Redirect::to('master/asset/'.$request->asset_id)->withSuccess('Asset returned was successfully noted');
     }
 
     public function show(Request $request)
     {
-        $assetId = $request->route('asset');
-        $usedId = $request->route('used');
+        $asset_id = $request->route('asset');
+        $used_id = $request->route('used');
 
-        $asset = $this->assetRepository->getAssetById($assetId);
-        $user = $asset->userUsedAsset()->where('tbl_asset_used.id', $usedId)->first();
+        $asset = $this->assetRepository->getAssetById($asset_id);
+        $user = $asset->userUsedAsset()->where('tbl_asset_used.id', $used_id)->first();
         
         $employees = $this->userRepository->getAllUsersByRole('employee');
         
@@ -78,30 +78,30 @@ class AssetReturnedController extends Controller
                 'asset' => $asset,
                 'employees' => $employees,
                 'user' => $user,
-                'usedId' => $usedId
+                'usedId' => $used_id
             ]
         );
     }
 
     public function destroy(Request $request)
     {
-        $assetId = $request->route('asset');
-        $returnedId = $request->route('returned');
+        $asset_id = $request->route('asset');
+        $returned_id = $request->route('returned');
 
         DB::beginTransaction();
         try {
 
-            $this->assetReturnedRepository->deleteAssetReturned($assetId, $returnedId);
+            $this->assetReturnedRepository->deleteAssetReturned($asset_id, $returned_id);
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete asset returned failed : ' . $e->getMessage());
-            return Redirect::to('master/asset/'.$assetId)->withError('Failed to delete asset returned');
+            return Redirect::to('master/asset/'.$asset_id)->withError('Failed to delete asset returned');
 
         }
 
-        return Redirect::to('master/asset/'.$assetId)->withSuccess('Asset returned successfully deleted');
+        return Redirect::to('master/asset/'.$asset_id)->withSuccess('Asset returned successfully deleted');
     }
 }

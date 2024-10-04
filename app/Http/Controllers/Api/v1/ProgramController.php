@@ -17,9 +17,9 @@ class ProgramController extends Controller
 
     public function getProgramNameByMainProgramId(Request $request)
     {
-        $mainProgId = $request->route('mainProgId');
+        $main_prog_id = $request->route('mainProgId');
 
-        $programs = $this->programRepository->getProgramNameByMainProgId($mainProgId);
+        $programs = $this->programRepository->getProgramNameByMainProgId($main_prog_id);
 
         return response()->json([
             'success' => true,

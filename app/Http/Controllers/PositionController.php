@@ -34,14 +34,14 @@ class PositionController extends Controller
 
     public function store(StorePositionRequest $request)
     {
-        $positionDetails = $request->only([
+        $position_details = $request->only([
             'position_name',
         ]);
 
         DB::beginTransaction();
         try {
 
-            $newPosition = $this->positionRepository->createPosition($positionDetails);
+            $new_position = $this->positionRepository->createPosition($position_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -52,7 +52,7 @@ class PositionController extends Controller
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Position', Auth::user()->first_name . ' '. Auth::user()->last_name, $newPosition);
+        $this->logSuccess('store', 'Form Input', 'Position', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_position);
 
         return Redirect::to('master/position')->withSuccess('Position successfully created');
     }
@@ -68,17 +68,17 @@ class PositionController extends Controller
 
     public function update(StorePositionRequest $request)
     {
-        $positionDetails = $request->only([
+        $position_details = $request->only([
             'position_name',
         ]);
 
         $id = $request->route('position');
-        $oldPosition = $this->positionRepository->getPositionById($id);
+        $old_position = $this->positionRepository->getPositionById($id);
 
         DB::beginTransaction();
         try {
 
-            $this->positionRepository->updatePosition($id, $positionDetails);
+            $this->positionRepository->updatePosition($id, $position_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -89,7 +89,7 @@ class PositionController extends Controller
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Position', Auth::user()->first_name . ' '. Auth::user()->last_name, $positionDetails, $oldPosition);
+        $this->logSuccess('update', 'Form Input', 'Position', Auth::user()->first_name . ' '. Auth::user()->last_name, $position_details, $old_position);
 
         return Redirect::to('master/position')->withSuccess('Position successfully updated');
     }

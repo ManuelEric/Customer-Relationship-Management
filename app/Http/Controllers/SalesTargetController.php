@@ -43,13 +43,13 @@ class SalesTargetController extends Controller
         # retrieve program data
         $programs = $this->programRepository->getAllPrograms();
 
-        $mainPrograms = $this->mainProgRepository->getAllMainProg();
+        $main_programs = $this->mainProgRepository->getAllMainProg();
 
 
         return view('pages.master.sales-target.index')->with(
             [
                 'programs' => $programs,
-                'mainPrograms' => $mainPrograms,
+                'mainPrograms' => $main_programs,
             ]
         );
     }
@@ -57,7 +57,7 @@ class SalesTargetController extends Controller
 
     public function store(StoreSalesTargetRequest $request)
     {
-        $salesTargets = $request->only([
+        $sales_targets = $request->only([
             'main_prog_id',
             'prog_id',
             'total_participant',
@@ -65,12 +65,12 @@ class SalesTargetController extends Controller
             'month_year'
         ]);
 
-        $salesTargets['month_year'] .= '-01';
+        $sales_targets['month_year'] .= '-01';
 
         DB::beginTransaction();
         try {
 
-            $newSalesTarget = $this->salesTargetRepository->createSalesTarget($salesTargets);
+            $new_sales_target = $this->salesTargetRepository->createSalesTarget($sales_targets);
             
             # running command insert target tracking
             Artisan::call('insert:target_tracking_monthly');
@@ -86,14 +86,14 @@ class SalesTargetController extends Controller
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Sales Target', Auth::user()->first_name . ' '. Auth::user()->last_name, $newSalesTarget);
+        $this->logSuccess('store', 'Form Input', 'Sales Target', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_sales_target);
 
         return Redirect::to('master/sales-target')->withSuccess('Sales target successfully created');
     }
 
     public function update(StoreSalesTargetRequest $request)
     {
-        $salesTargets = $request->only([
+        $sales_targets = $request->only([
             'main_prog_id',
             'prog_id',
             'total_participant',
@@ -101,15 +101,15 @@ class SalesTargetController extends Controller
             'month_year'
         ]);
         
-        $salesTargets['month_year'] .= '-01';
+        $sales_targets['month_year'] .= '-01';
 
-        $salesTargetId = $request->route('sales_target');
-        $oldSalesTarget = $this->salesTargetRepository->getSalesTargetById($salesTargetId);
+        $sales_target_id = $request->route('sales_target');
+        $old_sales_target = $this->salesTargetRepository->getSalesTargetById($sales_target_id);
 
         DB::beginTransaction();
         try {
 
-            $this->salesTargetRepository->updateSalesTarget($salesTargetId, $salesTargets);
+            $this->salesTargetRepository->updateSalesTarget($sales_target_id, $sales_targets);
             
             ## Update target tracking
             # running command insert target tracking
@@ -125,7 +125,7 @@ class SalesTargetController extends Controller
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Sales Target', Auth::user()->first_name . ' '. Auth::user()->last_name, $salesTargets, $oldSalesTarget);
+        $this->logSuccess('update', 'Form Input', 'Sales Target', Auth::user()->first_name . ' '. Auth::user()->last_name, $sales_targets, $old_sales_target);
 
         return Redirect::to('master/sales-target')->withSuccess('Sales target successfully updated');
     }
@@ -134,8 +134,8 @@ class SalesTargetController extends Controller
     {
 
         if ($request->ajax()) {
-            $salesTargetId = $request->route('sales_target');
-            $sales_target = $this->salesTargetRepository->getSalesTargetById($salesTargetId);
+            $sales_target_id = $request->route('sales_target');
+            $sales_target = $this->salesTargetRepository->getSalesTargetById($sales_target_id);
             
             $date = Carbon::createFromFormat('Y-m-d', $sales_target->month_year);
             $month_year = $date->format('Y-m');
@@ -147,13 +147,13 @@ class SalesTargetController extends Controller
 
     public function destroy(Request $request)
     {
-        $salesTargetId = $request->route('sales_target');
-        $salesTarget = $this->salesTargetRepository->getSalesTargetById($salesTargetId);
+        $sales_target_id = $request->route('sales_target');
+        $sales_target = $this->salesTargetRepository->getSalesTargetById($sales_target_id);
 
         DB::beginTransaction();
         try {
 
-            $this->salesTargetRepository->deleteSalesTarget($salesTargetId);
+            $this->salesTargetRepository->deleteSalesTarget($sales_target_id);
             DB::commit();
         } catch (Exception $e) {
 
@@ -164,7 +164,7 @@ class SalesTargetController extends Controller
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Sales Target', Auth::user()->first_name . ' '. Auth::user()->last_name, $salesTarget);
+        $this->logSuccess('delete', null, 'Sales Target', Auth::user()->first_name . ' '. Auth::user()->last_name, $sales_target);
 
         return Redirect::to('master/sales-target')->withSuccess('Sales target successfully deleted');
     }
