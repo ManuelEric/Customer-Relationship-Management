@@ -113,7 +113,6 @@ class ReportController extends Controller
 
 
         $undefinedClients = $clients->whereNotIn('client_id', $id_nonMentee)->whereNotIn('client_id', $id_mentee)->unique('client_id');
-        // return count($undefinedClients);
 
         $checkClient = $this->checkExistingOrNewClientEvent($undefinedClients);
 

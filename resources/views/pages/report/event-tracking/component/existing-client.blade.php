@@ -70,18 +70,18 @@
                     <div class="">Parent Mentee</div>
                     <div class="dropdown">
                         <span class="badge badge-info dropdown-toggle"
-                            data-bs-toggle="dropdown">{{ $existingMentee->count() }}</span>
+                            data-bs-toggle="dropdown">{{ $existingMentee->where('register_as', 'parent')->count() }}</span>
                         <div class="dropdown-menu overflow-auto text-center px-2"
                             style="max-width: 450px; max-height:200px;">
                             {{ $existingMentee->count() > 0 ? '' : 'There is no data.' }}
                             <table class="table table-striped table-hover">
-                                @foreach ($existingMentee as $existMentee)
+                                @foreach ($existingMentee->where('register_as', 'parent') as $existMentee)
                                     <tr>
                                         <td>{{ $loop->index + 1 }}</td>
                                         <td>{{ $existMentee->parent_name ?? '-' }}</td>
                                         <td>{{ $existMentee->parent_mail ?? '-' }}</td>
                                         <td>{{ $existMentee->parent_phone ?? '-' }}</td>
-                                        <td>{{ $existMentee->register_as == 'student' ? 'Estimated as student' : '-' }}</td>
+                                        {{-- <td>{{ $existMentee->register_as == 'student' ? 'Estimated as student' : '-' }}</td> --}}
                                     </tr>
                                 @endforeach
                             </table>
@@ -92,18 +92,18 @@
                     <div class="">Parent Non Mentee</div>
                     <div class="dropdown">
                         <span class="badge badge-info dropdown-toggle"
-                            data-bs-toggle="dropdown">{{ $existingNonMentee->count() }}</span>
+                            data-bs-toggle="dropdown">{{ $existingNonMentee->where('register_as', 'parent')->count() }}</span>
                         <div class="dropdown-menu overflow-auto text-center px-2"
                             style="max-width: 450px; max-height:200px;">
                             {{ $existingNonMentee->count() > 0 ? '' : 'There is no data.' }}
                             <table class="table table-striped table-hover">
-                                @foreach ($existingNonMentee as $existNonMentee)
+                                @foreach ($existingNonMentee->where('register_as', 'parent') as $existNonMentee)
                                     <tr>
                                         <td>{{ $loop->index + 1 }}</td>
                                         <td>{{ $existNonMentee->parent_name ?? '-' }}</td>
                                         <td>{{ $existNonMentee->parent_mail ?? '-' }}</td>
                                         <td>{{ $existNonMentee->parent_phone ?? '-' }}</td>
-                                        <td>{{ $existNonMentee->register_as == 'student' ? 'Estimated as student' : '-' }}</td>
+                                        {{-- <td>{{ $existNonMentee->register_as == 'student' ? 'Estimated as student' : '-' }}</td> --}}
                                     </tr>
                                 @endforeach
                             </table>
