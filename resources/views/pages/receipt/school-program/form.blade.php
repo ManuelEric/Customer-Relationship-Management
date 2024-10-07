@@ -309,7 +309,7 @@
                             Receipt Progress
                         </h6>
                     </div>
-                    <div class="card-body position-relative h-auto pb-5">
+                    <div class="card-body position-relative h-auto pb-4 pb-md-5">
                         {{-- IDR  --}}
                         @php
                             $receiptHasBeenDownloaded = $receiptSch->receiptAttachment()->where('currency', 'idr')->where('request_status', 'not yet')->first();
@@ -352,8 +352,11 @@
                                         $receiptHasBeenSentToClient,
                                 ])
                                 >
-                                    <div class="step-icon">1</div>
-                                    <p>Download</p>
+                                    <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Download">
+                                        <i class="bi bi-download d-block d-md-none"></i>
+                                        <div class="d-none d-md-block">1</div>
+                                    </div>
+                                    <p class="d-none d-md-block">Download</p>
                                 </div>
                                 <div @class([
                                     'indicator-line',
@@ -374,8 +377,11 @@
                                         $receiptHasBeenSigned ||
                                         $receiptHasBeenSentToClient,
                                 ])>
-                                    <div class="step-icon">2</div>
-                                    <p>Upload</p>
+                                    <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Upload">
+                                        <i class="bi bi-upload d-block d-md-none"></i>
+                                        <div class="d-none d-md-block">2</div>
+                                    </div>
+                                    <p class="d-none d-md-block">Upload</p>
                                 </div>
                                 <div @class([
                                     'indicator-line',
@@ -394,8 +400,11 @@
                                         $receiptHasBeenSigned ||
                                         $receiptHasBeenSentToClient,
                                 ])>
-                                    <div class="step-icon">3</div>
-                                    <p>Request Sign</p>
+                                    <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Request Sign">
+                                        <i class="bi bi-pen-fill d-block d-md-none"></i>
+                                        <div class="d-none d-md-block">3</div>
+                                    </div>
+                                    <p class="d-none d-md-block">Request Sign</p>
                                 </div>
                                 <div @class([
                                     'indicator-line',
@@ -409,8 +418,11 @@
                                     'step4',
                                     'active' => $receiptHasBeenSigned || $receiptHasBeenSentToClient
                                 ])>
-                                    <div class="step-icon">4</div>
-                                    <p>Signed</p>
+                                    <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Signed">
+                                        <i class="bi bi-check-lg d-block d-md-none"></i>
+                                        <div class="d-none d-md-block">4</div>
+                                    </div>
+                                    <p class="d-none d-md-block">Signed</p>
                                 </div>
                                 <div @class([
                                     'indicator-line',
@@ -421,8 +433,11 @@
                                     'step5',
                                     'active' => $receiptHasBeenSentToClient
                                 ])>
-                                    <div class="step-icon">5</div>
-                                    <p>Print or Send to Client</p>
+                                    <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Send to Client">
+                                        <i class="bi bi-send d-block d-md-none"></i>
+                                        <div class="d-none d-md-block">5</div>
+                                    </div>
+                                    <p class="d-none d-md-block">Send to Client</p>
                                 </div>
                             </section>
                         </div>

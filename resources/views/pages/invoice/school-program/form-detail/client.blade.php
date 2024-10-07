@@ -1,4 +1,4 @@
-<div class="accordion accordion-flush shadow-sm">
+<div class="accordion accordion-flush shadow-sm mb-3 mb-md-0">
     <div class="accordion-item rounded">
         <h2 class="accordion-header">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#clientInfo" aria-expanded="true" aria-controls="clientInfo">

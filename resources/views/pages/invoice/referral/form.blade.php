@@ -207,18 +207,27 @@
                             <h6>IDR</h6>
                             <section class="step-indicator">
                                 <div class="step step1 {{ $invoiceHasRequested ? 'active' : '' }}">
-                                    <div class="step-icon">1</div>
-                                    <p>Request Sign</p>
+                                    <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Request Sign">
+                                        <i class="bi bi-pen-fill d-block d-md-none"></i>
+                                        <div class="d-none d-md-block">1</div>
+                                    </div>
+                                    <p class="d-none d-md-block">Request Sign</p>
                                 </div>
                                 <div class="indicator-line {{ $invoiceHasRequested ? 'active' : '' }}"></div>
                                 <div class="step step2 {{ $invoiceAttachment ? 'active' : '' }}">
-                                    <div class="step-icon">2</div>
-                                    <p>Signed</p>
+                                    <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Signed">
+                                        <i class="bi bi-check-lg d-block d-md-none"></i>
+                                        <div class="d-none d-md-block">2</div>
+                                    </div>
+                                    <p class="d-none d-md-block">Signed</p>
                                 </div>
                                 <div class="indicator-line {{ $invoiceAttachment ? 'active' : '' }}"></div>
                                 <div class="step step3 {{ $invoiceAttachmentSent ? 'active' : '' }}">
-                                    <div class="step-icon">3</div>
-                                    <p>Print or Send to Client</p>
+                                    <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Send to Client">
+                                        <i class="bi bi-send d-block d-md-none"></i>
+                                        <div class="d-none d-md-block">3</div>
+                                    </div>
+                                    <p class="d-none d-md-block">Send to Client</p>
                                 </div>
                             </section>
                         </div>
@@ -230,18 +239,27 @@
                                 <h6>Other Currency</h6>
                                 <section class="step-indicator">
                                     <div class="step step1 {{ $invoiceHasRequestedOther ? 'active' : '' }}">
-                                        <div class="step-icon">1</div>
-                                        <p>Request Sign</p>
+                                        <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Request Sign">
+                                            <i class="bi bi-pen-fill d-block d-md-none"></i>
+                                            <div class="d-none d-md-block">1</div>
+                                        </div>
+                                        <p class="d-none d-md-block">Request Sign</p>
                                     </div>
                                     <div class="indicator-line {{ $invoiceHasRequestedOther ? 'active' : '' }}"></div>
                                     <div class="step step2 {{ $invoiceAttachmentOther ? 'active' : '' }}">
-                                        <div class="step-icon">2</div>
-                                        <p>Signed</p>
+                                        <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Signed">
+                                            <i class="bi bi-check-lg d-block d-md-none"></i>
+                                            <div class="d-none d-md-block">2</div>
+                                        </div>
+                                        <p class="d-none d-md-block">Signed</p>
                                     </div>
                                     <div class="indicator-line {{ $invoiceAttachmentOther ? 'active' : '' }}"></div>
                                     <div class="step step3 {{ $invoiceAttachmentOtherSent ? 'active' : '' }}">
-                                        <div class="step-icon">3</div>
-                                        <p>Print or Send to Client</p>
+                                        <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Send to Client">
+                                            <i class="bi bi-send d-block d-md-none"></i>
+                                            <div class="d-none d-md-block">3</div>
+                                        </div>
+                                        <p class="d-none d-md-block">Send to Client</p>
                                     </div>
                                 </section>
                             </div>
