@@ -2172,9 +2172,10 @@ class ClientRepository implements ClientRepositoryInterface
             when($isRaw, function ($subQuery) {
                 $subQuery->where('tbl_client.is_verified', 'N');
             })->
-            where('st_statusact', 1)->
-            first();
+            where('deleted_at', null)->
+            where('st_statusact', 1);
+            // get();
 
-        return $client->client_count;
+        return $client->toSql();
     }
 }

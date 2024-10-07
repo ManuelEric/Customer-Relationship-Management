@@ -496,8 +496,7 @@ class UserController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update user ' . $request->route('user_role') . ' failed : ' . $e->getMessage());
-            return Redirect::back()->withError('Failed to update ' . $request->route('user_role') . ' | Line ' . $e->getLine());
+            Log::error('Update user ' . $request->route('user_role') . ' failed : ' . $e->getMessage() . ' in line ' . $e->getLine());            return Redirect::back()->withError('Failed to update ' . $request->route('user_role') . ' | Line ' . $e->getLine());
         }
 
         # Update success

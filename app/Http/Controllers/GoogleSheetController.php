@@ -67,68 +67,77 @@ class GoogleSheetController extends Controller
                 ]);
             }
 
-            $rawData = $this->setRawData('V', $start, $end, 'Parents');
+            try {
+                $rawData = $this->setRawData('V', $start, $end, 'Parents');
         
-            $response = [];
-           
-            if(count($rawData) > 0){
+                $response = [];
+            
+                if(count($rawData) > 0){
 
-                $arrInputData = $this->setDataForValidation($rawData, 'parent');
+                    $arrInputData = $this->setDataForValidation($rawData, 'parent');
 
-                # validation
-                $rules = [
-                    '*.No' => ['required'],
-                    '*.Full Name' => ['required'],
-                    '*.Email' => ['required', 'email', New AlphaNumNoAt],
-                    '*.Phone Number' => ['required', 'min:5', 'max:18'],
-                    '*.Date of Birth' => ['nullable', 'date'],
-                    '*.Instagram' => ['nullable', 'unique:tbl_client,insta'],
-                    '*.State' => ['nullable'],
-                    '*.City' => ['nullable'],
-                    '*.Address' => ['nullable'],
-                    '*.Lead' => ['required'],
-                    '*.Event' => ['required_if:lead,LS004', 'nullable', 'exists:tbl_events,event_id'],
-                    '*.Partner' => ['required_if:lead,LS015', 'nullable', 'exists:tbl_corp,corp_id'],
-                    '*.Edufair' => ['required_if:lead,LS018', 'nullable', 'exists:tbl_eduf_lead,id'],
-                    '*.KOL' => ['required_if:lead,KOL', 'nullable', 'exists:tbl_lead,lead_id'],
-                    '*.Level of Interest' => ['nullable', 'in:High,Medium,Low'],
-                    '*.Interested Program' => ['nullable'],
-                    '*.Children Name' => ['required'],
-                    '*.School' => ['nullable'],
-                    '*.Graduation Year' => ['nullable'],
-                    '*.Destination Country' => ['nullable'],
-                    '*.Joined Date' => ['nullable', 'date'],
-                ];
+                    # validation
+                    $rules = [
+                        '*.No' => ['required'],
+                        '*.Full Name' => ['required'],
+                        '*.Email' => ['required', 'email', New AlphaNumNoAt],
+                        '*.Phone Number' => ['required', 'min:5', 'max:18'],
+                        '*.Date of Birth' => ['nullable', 'date'],
+                        '*.Instagram' => ['nullable', 'unique:tbl_client,insta'],
+                        '*.State' => ['nullable'],
+                        '*.City' => ['nullable'],
+                        '*.Address' => ['nullable'],
+                        '*.Lead' => ['required'],
+                        '*.Event' => ['required_if:lead,LS004', 'nullable', 'exists:tbl_events,event_id'],
+                        '*.Partner' => ['required_if:lead,LS015', 'nullable', 'exists:tbl_corp,corp_id'],
+                        '*.Edufair' => ['required_if:lead,LS018', 'nullable', 'exists:tbl_eduf_lead,id'],
+                        '*.KOL' => ['required_if:lead,KOL', 'nullable', 'exists:tbl_lead,lead_id'],
+                        '*.Level of Interest' => ['nullable', 'in:High,Medium,Low'],
+                        '*.Interested Program' => ['nullable'],
+                        '*.Children Name' => ['required'],
+                        '*.School' => ['nullable'],
+                        '*.Graduation Year' => ['nullable'],
+                        '*.Destination Country' => ['nullable'],
+                        '*.Joined Date' => ['nullable', 'date'],
+                    ];
 
 
-                $validator = Validator::make($arrInputData, $rules);
+                    $validator = Validator::make($arrInputData, $rules);
 
-                # threw error if validation fails
-                if ($validator->fails()) {
-                    Log::warning($validator->errors());
+                    # threw error if validation fails
+                    if ($validator->fails()) {
+                        Log::warning($validator->errors());
 
-                    return response()->json([
-                        'success' => false,
-                        'error' => $validator->errors()
-                    ]);
+                        return response()->json([
+                            'success' => false,
+                            'error' => $validator->errors()
+                        ]);
+                    }
+
+                    $batchID = (new JobBatchService())->jobBatchFromCollection(Collect($arrInputData), 'import', 'parent', 10);
+
+                    JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
+
+                    $response = [
+                        'success' => true,
+                        'batch_id' => $batchID,
+                    ];
+                    
+                }else{
+                    $response = [
+                        'success' => true, 
+                        'total_imported' => 0,
+                        'message' => 'Data parents is uptodate'
+                    ];
                 }
-
-                $batchID = (new JobBatchService())->jobBatchFromCollection(Collect($arrInputData), 'import', 'parent', 10);
-
-                JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
-
-                $response = [
-                    'success' => true,
-                    'batch_id' => $batchID,
-                ];
-                
-            }else{
-                $response = [
-                    'success' => true, 
-                    'total_imported' => 0,
-                    'message' => 'Data parents is uptodate'
-                ];
+            } catch (Exception $e) {
+                Log::error('Failed to dispatch job import parent', $e->getMessage()  . ' On Line: ' .  $e->getLine());
+                return response()->json([
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ]);
             }
+            
         
         return response()->json($response);
 
@@ -149,71 +158,79 @@ class GoogleSheetController extends Controller
                 ]);
             }
 
-            $rawData = $this->setRawData('Z', $start, $end, 'Students');
+            try {
+                $rawData = $this->setRawData('Z', $start, $end, 'Students');
         
-            $response = [];
-           
-            if(count($rawData) > 0){
-
-                $arrInputData = $this->setDataForValidation($rawData, 'student');
-
-                # validation
-                $rules = [
-                    '*.No' => ['required'],
-                    '*.Full Name' => ['required'],
-                    '*.Email' => ['required', 'email', New AlphaNumNoAt],
-                    '*.Phone Number' => ['nullable', 'min:5', 'max:18'],
-                    '*.Date of Birth' => ['nullable', 'date'],
-                    '*.Parents Name' => ['nullable', 'different:*.Full Name'],
-                    '*.Parents Phone' => ['nullable', 'min:5', 'max:18', 'different:*.Phone_number'],
-                    '*.School' => ['required'],
-                    '*.Graduation Year' => ['nullable', 'integer'],
-                    '*.Grade' => ['nullable', 'integer'],
-                    '*.Instagram' => ['nullable'],
-                    '*.State' => ['nullable'],
-                    '*.City' => ['nullable'],
-                    '*.Address' => ['nullable'],
-                    '*.Lead' => ['required'],
-                    '*.Event' => ['required_if:lead,LS003', 'nullable', 'exists:tbl_events,event_id'],
-                    '*.Partner' => ['required_if:lead,LS010', 'nullable', 'exists:tbl_corp,corp_id'],
-                    '*.Edufair' => ['required_if:lead,LS017', 'nullable', 'exists:tbl_eduf_lead,id'],
-                    '*.KOL' => ['required_if:lead,KOL', 'nullable', 'exists:tbl_lead,lead_id'],
-                    '*.Level of Interest' => ['nullable', 'in:High,Medium,Low'],
-                    '*.Interested Program' => ['nullable'],
-                    '*.Year of Study Abroad' => ['nullable', 'integer'],
-                    '*.Country of Study Abroad' => ['nullable'],
-                    '*.Interest Major' => ['nullable'],
-                    '*.Joined Date' => ['nullable', 'date'],
-                ];
-
-
-                $validator = Validator::make($arrInputData, $rules);
-
-                # threw error if validation fails
-                if ($validator->fails()) {
-                    Log::warning($validator->errors());
-
-                    return response()->json([
-                        'success' => false,
-                        'error' => $validator->errors()
-                    ]);
+                $response = [];
+               
+                if(count($rawData) > 0){
+    
+                    $arrInputData = $this->setDataForValidation($rawData, 'student');
+    
+                    # validation
+                    $rules = [
+                        '*.No' => ['required'],
+                        '*.Full Name' => ['required'],
+                        '*.Email' => ['required', 'email', New AlphaNumNoAt],
+                        '*.Phone Number' => ['nullable', 'min:5', 'max:18'],
+                        '*.Date of Birth' => ['nullable', 'date'],
+                        '*.Parents Name' => ['nullable', 'different:*.Full Name'],
+                        '*.Parents Phone' => ['nullable', 'min:5', 'max:18', 'different:*.Phone_number'],
+                        '*.School' => ['required'],
+                        '*.Graduation Year' => ['nullable', 'integer'],
+                        '*.Grade' => ['nullable', 'integer'],
+                        '*.Instagram' => ['nullable'],
+                        '*.State' => ['nullable'],
+                        '*.City' => ['nullable'],
+                        '*.Address' => ['nullable'],
+                        '*.Lead' => ['required'],
+                        '*.Event' => ['required_if:lead,LS003', 'nullable', 'exists:tbl_events,event_id'],
+                        '*.Partner' => ['required_if:lead,LS010', 'nullable', 'exists:tbl_corp,corp_id'],
+                        '*.Edufair' => ['required_if:lead,LS017', 'nullable', 'exists:tbl_eduf_lead,id'],
+                        '*.KOL' => ['required_if:lead,KOL', 'nullable', 'exists:tbl_lead,lead_id'],
+                        '*.Level of Interest' => ['nullable', 'in:High,Medium,Low'],
+                        '*.Interested Program' => ['nullable'],
+                        '*.Year of Study Abroad' => ['nullable', 'integer'],
+                        '*.Country of Study Abroad' => ['nullable'],
+                        '*.Interest Major' => ['nullable'],
+                        '*.Joined Date' => ['nullable', 'date'],
+                    ];
+    
+    
+                    $validator = Validator::make($arrInputData, $rules);
+    
+                    # threw error if validation fails
+                    if ($validator->fails()) {
+                        Log::warning($validator->errors());
+    
+                        return response()->json([
+                            'success' => false,
+                            'error' => $validator->errors()
+                        ]);
+                    }
+    
+                    $batchID = (new JobBatchService())->jobBatchFromCollection(Collect($arrInputData), 'import', 'student', 10);
+    
+                    JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
+    
+                    $response = [
+                        'success' => true,
+                        'batch_id' => $batchID,
+                    ];
+                    
+                }else{
+                    $response = [
+                        'success' => true,
+                        'total_imported' => 0,
+                        'message' => 'Data students is uptodate'
+                    ];
                 }
-
-                $batchID = (new JobBatchService())->jobBatchFromCollection(Collect($arrInputData), 'import', 'student', 10);
-
-                JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
-
-                $response = [
-                    'success' => true,
-                    'batch_id' => $batchID,
-                ];
-                
-            }else{
-                $response = [
-                    'success' => true,
-                    'total_imported' => 0,
-                    'message' => 'Data students is uptodate'
-                ];
+            } catch (Exception $e) {
+                Log::error('Failed to dispatch job import student', $e->getMessage() . ' On Line: ' .  $e->getLine());
+                return response()->json([
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ]);
             }
          
         return response()->json($response);
@@ -234,65 +251,74 @@ class GoogleSheetController extends Controller
                 ]);
             }
 
-            $rawData = $this->setRawData('R', $start, $end, 'Teachers');
+            try {
+                $rawData = $this->setRawData('R', $start, $end, 'Teachers');
         
-            $response = [];
-           
-            if(count($rawData) > 0){
+                $response = [];
+            
+                if(count($rawData) > 0){
 
-                $arrInputData = $this->setDataForValidation($rawData, 'teacher');
+                    $arrInputData = $this->setDataForValidation($rawData, 'teacher');
 
-                # validation
-                $rules = [
-                    '*.No' => ['required'],
-                    '*.Full Name' => ['required'],
-                    '*.Email' => ['required', 'email', New AlphaNumNoAt],
-                    '*.Phone Number' => ['required', 'min:5', 'max:18'],
-                    '*.Date of Birth' => ['nullable', 'date'],
-                    '*.Instagram' => ['nullable', 'unique:tbl_client,insta'],
-                    '*.State' => ['nullable'],
-                    '*.City' => ['nullable'],
-                    '*.Address' => ['nullable'],
-                    '*.School' => ['required'],
-                    '*.Lead' => ['required'],
-                    '*.Event' => ['required_if:lead,LS003', 'nullable', 'exists:tbl_events,event_id'],
-                    '*.Partner' => ['required_if:lead,LS010', 'nullable', 'exists:tbl_corp,corp_id'],
-                    '*.Edufair' => ['required_if:lead,LS017', 'nullable', 'exists:tbl_eduf_lead,id'],
-                    '*.KOL' => ['required_if:lead,KOL', 'nullable', 'exists:tbl_lead,lead_id'],
-                    '*.Level of Interest' => ['nullable', 'in:High,Medium,Low'],
-                    '*.Joined Date' => ['nullable', 'date'],
-                ];
+                    # validation
+                    $rules = [
+                        '*.No' => ['required'],
+                        '*.Full Name' => ['required'],
+                        '*.Email' => ['required', 'email', New AlphaNumNoAt],
+                        '*.Phone Number' => ['required', 'min:5', 'max:18'],
+                        '*.Date of Birth' => ['nullable', 'date'],
+                        '*.Instagram' => ['nullable', 'unique:tbl_client,insta'],
+                        '*.State' => ['nullable'],
+                        '*.City' => ['nullable'],
+                        '*.Address' => ['nullable'],
+                        '*.School' => ['required'],
+                        '*.Lead' => ['required'],
+                        '*.Event' => ['required_if:lead,LS003', 'nullable', 'exists:tbl_events,event_id'],
+                        '*.Partner' => ['required_if:lead,LS010', 'nullable', 'exists:tbl_corp,corp_id'],
+                        '*.Edufair' => ['required_if:lead,LS017', 'nullable', 'exists:tbl_eduf_lead,id'],
+                        '*.KOL' => ['required_if:lead,KOL', 'nullable', 'exists:tbl_lead,lead_id'],
+                        '*.Level of Interest' => ['nullable', 'in:High,Medium,Low'],
+                        '*.Joined Date' => ['nullable', 'date'],
+                    ];
 
 
-                $validator = Validator::make($arrInputData, $rules);
+                    $validator = Validator::make($arrInputData, $rules);
 
-                # threw error if validation fails
-                if ($validator->fails()) {
-                    Log::warning($validator->errors());
+                    # threw error if validation fails
+                    if ($validator->fails()) {
+                        Log::warning($validator->errors());
 
-                    return response()->json([
-                        'success' => false,
-                        'error' => $validator->errors()
-                    ]);
+                        return response()->json([
+                            'success' => false,
+                            'error' => $validator->errors()
+                        ]);
+                    }
+
+        
+                    $batchID = (new JobBatchService())->jobBatchFromCollection(Collect($arrInputData), 'import', 'teacher', 10);
+
+                    JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
+
+                    $response = [
+                        'success' => true,
+                        'batch_id' => $batchID,
+                    ];
+                    
+                }else{
+                    $response = [
+                        'success' => true,
+                        'total_imported' => 0,
+                        'message' => 'Data teachers is uptodate'
+                    ];
                 }
-
-    
-                $batchID = (new JobBatchService())->jobBatchFromCollection(Collect($arrInputData), 'import', 'teacher', 10);
-
-                JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
-
-                $response = [
-                    'success' => true,
-                    'batch_id' => $batchID,
-                ];
-                
-            }else{
-                $response = [
-                    'success' => true,
-                    'total_imported' => 0,
-                    'message' => 'Data teachers is uptodate'
-                ];
+            } catch (Exception $e) {
+                Log::error('Failed to dispatch job import teacher', $e->getMessage() . ' On Line: ' .  $e->getLine());
+                return response()->json([
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ]);
             }
+            
          
         return response()->json($response);
     }
@@ -312,73 +338,82 @@ class GoogleSheetController extends Controller
                 ]);
             }
 
-            $rawData = $this->setRawData('Z', $start, $end, 'Client Events');
+            try {
+                $rawData = $this->setRawData('Z', $start, $end, 'Client Events');
         
-            $response = [];
-           
-            if(count($rawData) > 0){
-
-                $arrInputData = $this->setDataForValidation($rawData, 'client-event');
-
-                # validation
-                $rules = [
-                    '*.Event Name' => ['required', 'exists:tbl_events,event_id'],
-                    '*.Date' => ['required', 'date'],
-                    '*.Audience' => ['required', 'in:Student,Parent,Teacher/Counselor'],
-                    '*.Name' => ['required'],
-                    '*.Email' => ['required', 'email', New AlphaNumNoAt],
-                    '*.Phone Number' => ['nullable'],
-                    '*.Child or Parent Name' => ['nullable', 'different:*.name'],
-                    '*.Child or Parent Email' => ['nullable', 'different:*.email'],
-                    '*.Child or Parent Phone Number' => ['nullable', 'different:*.phone_number'],
-                    '*.Registration Type' => ['nullable', 'in:PR,OTS'],
-                    // '*.Existing_new_leads' => ['required', 'in:Existing,New'],
-                    // '*.mentee_non_mentee' => ['required', 'in:Mentee,Non-mentee'],
-                    '*.School' => ['required'],
-                    '*.Class Of' => ['nullable', 'integer'],
-                    '*.Lead' => ['required'],
-                    // '*.Event' => ['required_if:lead,LS003', 'nullable', 'exists:tbl_events,event_id'],
-                    '*.Partner' => ['required_if:lead,LS010', 'nullable', 'exists:tbl_corp,corp_id'],
-                    '*.Edufair' => ['required_if:lead,LS017', 'nullable', 'exists:tbl_eduf_lead,id'],
-                    '*.KOL' => ['required_if:lead,KOL', 'nullable', 'exists:tbl_lead,lead_id'],
-                    '*.Itended Major' => ['nullable'],
-                    '*.Destination Country' => ['nullable'],
-                    '*.Number Of Attend' => ['nullable'],
-                    '*.Referral Code' => ['nullable'],
-                    '*.Reason Join' => ['nullable'],
-                    '*.Expectation Join' => ['nullable'],
-                    '*.Status' => ['required', 'in:Join,Attend'],
-                ];
-
-
-                $validator = Validator::make($arrInputData, $rules);
-
-                # threw error if validation fails
-                if ($validator->fails()) {
-                    Log::warning($validator->errors());
-
-                    return response()->json([
-                        'success' => false,
-                        'error' => $validator->errors()
-                    ]);
+                $response = [];
+               
+                if(count($rawData) > 0){
+    
+                    $arrInputData = $this->setDataForValidation($rawData, 'client-event');
+    
+                    # validation
+                    $rules = [
+                        '*.Event Name' => ['required', 'exists:tbl_events,event_id'],
+                        '*.Date' => ['required', 'date'],
+                        '*.Audience' => ['required', 'in:Student,Parent,Teacher/Counselor'],
+                        '*.Name' => ['required'],
+                        '*.Email' => ['required', 'email', New AlphaNumNoAt],
+                        '*.Phone Number' => ['nullable'],
+                        '*.Child or Parent Name' => ['nullable', 'different:*.name'],
+                        '*.Child or Parent Email' => ['nullable', 'different:*.email'],
+                        '*.Child or Parent Phone Number' => ['nullable', 'different:*.phone_number'],
+                        '*.Registration Type' => ['nullable', 'in:PR,OTS'],
+                        // '*.Existing_new_leads' => ['required', 'in:Existing,New'],
+                        // '*.mentee_non_mentee' => ['required', 'in:Mentee,Non-mentee'],
+                        '*.School' => ['required'],
+                        '*.Class Of' => ['nullable', 'integer'],
+                        '*.Lead' => ['required'],
+                        // '*.Event' => ['required_if:lead,LS003', 'nullable', 'exists:tbl_events,event_id'],
+                        '*.Partner' => ['required_if:lead,LS010', 'nullable', 'exists:tbl_corp,corp_id'],
+                        '*.Edufair' => ['required_if:lead,LS017', 'nullable', 'exists:tbl_eduf_lead,id'],
+                        '*.KOL' => ['required_if:lead,KOL', 'nullable', 'exists:tbl_lead,lead_id'],
+                        '*.Itended Major' => ['nullable'],
+                        '*.Destination Country' => ['nullable'],
+                        '*.Number Of Attend' => ['nullable'],
+                        '*.Referral Code' => ['nullable'],
+                        '*.Reason Join' => ['nullable'],
+                        '*.Expectation Join' => ['nullable'],
+                        '*.Status' => ['required', 'in:Join,Attend'],
+                    ];
+    
+    
+                    $validator = Validator::make($arrInputData, $rules);
+    
+                    # threw error if validation fails
+                    if ($validator->fails()) {
+                        Log::warning($validator->errors());
+    
+                        return response()->json([
+                            'success' => false,
+                            'error' => $validator->errors()
+                        ]);
+                    }
+    
+                    $batchID = (new JobBatchService())->jobBatchFromCollection(Collect($arrInputData), 'import', 'client-event', 10);
+    
+                    JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
+    
+                    $response = [
+                        'success' => true,
+                        'batch_id' => $batchID,
+                    ];
+                    
+                }else{
+                    $response = [
+                        'success' => true,
+                        'total_imported' => 0,
+                        'message' => 'Data client events is uptodate'
+                    ];
                 }
-
-                $batchID = (new JobBatchService())->jobBatchFromCollection(Collect($arrInputData), 'import', 'client-event', 10);
-
-                JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
-
-                $response = [
-                    'success' => true,
-                    'batch_id' => $batchID,
-                ];
-                
-            }else{
-                $response = [
-                    'success' => true,
-                    'total_imported' => 0,
-                    'message' => 'Data client events is uptodate'
-                ];
+            } catch (Exception $e) {
+                Log::error('Failed to dispatch job import client event', $e->getMessage()  . ' On Line: ' .  $e->getLine());
+                return response()->json([
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ]);
             }
+           
          
         return response()->json($response);
 
@@ -399,70 +434,79 @@ class GoogleSheetController extends Controller
                 ]);
             }
 
-            $rawData = $this->setRawData('W', $start, $end, 'Client Programs');
+            try {
+                $rawData = $this->setRawData('W', $start, $end, 'Client Programs');
         
-            $response = [];
-           
-            if(count($rawData) > 0){
+                $response = [];
+            
+                if(count($rawData) > 0){
 
-                $arrInputData = $this->setDataForValidation($rawData, 'client-program');
-
-
-                # validation
-                $rules = [
-                    '*.No' => ['required'],
-                    '*.Program Name' => ['required', 'exists:tbl_prog,prog_id'],
-                    '*.Date' => ['required', 'date'],
-                    '*.Audience' => ['required', 'in:Student,Parent'],
-                    '*.Name' => ['required'],
-                    '*.Email' => ['required', 'email', New AlphaNumNoAt],
-                    '*.Phone Number' => ['nullable'],
-                    '*.Child or Parent Name' => ['nullable', 'different:*.name'],
-                    '*.Child or Parent Email' => ['nullable', 'different:*.email'],
-                    '*.Child or Parent Phone Number' => ['nullable', 'different:*.phone_number'],
-                    '*.School' => ['required'],
-                    '*.Class Of' => ['nullable', 'integer'],
-                    '*.Lead' => ['required'],
-                    '*.Event' => ['required_if:lead,LS003', 'nullable', 'exists:tbl_events,event_id'],
-                    '*.Partner' => ['required_if:lead,LS010', 'nullable', 'exists:tbl_corp,corp_id'],
-                    '*.Edufair' => ['required_if:lead,LS017', 'nullable', 'exists:tbl_eduf_lead,id'],
-                    '*.KOL' => ['required_if:lead,KOL', 'nullable', 'exists:tbl_lead,lead_id'],
-                    '*.Itended Major' => ['nullable'],
-                    '*.Destination Country' => ['nullable'],
-                    '*.Referral Code' => ['nullable'],
-                    '*.Reason Join' => ['nullable'],
-                    '*.Expectation Join' => ['nullable'],
-                ];
+                    $arrInputData = $this->setDataForValidation($rawData, 'client-program');
 
 
-                $validator = Validator::make($arrInputData, $rules);
+                    # validation
+                    $rules = [
+                        '*.No' => ['required'],
+                        '*.Program Name' => ['required', 'exists:tbl_prog,prog_id'],
+                        '*.Date' => ['required', 'date'],
+                        '*.Audience' => ['required', 'in:Student,Parent'],
+                        '*.Name' => ['required'],
+                        '*.Email' => ['required', 'email', New AlphaNumNoAt],
+                        '*.Phone Number' => ['nullable'],
+                        '*.Child or Parent Name' => ['nullable', 'different:*.name'],
+                        '*.Child or Parent Email' => ['nullable', 'different:*.email'],
+                        '*.Child or Parent Phone Number' => ['nullable', 'different:*.phone_number'],
+                        '*.School' => ['required'],
+                        '*.Class Of' => ['nullable', 'integer'],
+                        '*.Lead' => ['required'],
+                        '*.Event' => ['required_if:lead,LS003', 'nullable', 'exists:tbl_events,event_id'],
+                        '*.Partner' => ['required_if:lead,LS010', 'nullable', 'exists:tbl_corp,corp_id'],
+                        '*.Edufair' => ['required_if:lead,LS017', 'nullable', 'exists:tbl_eduf_lead,id'],
+                        '*.KOL' => ['required_if:lead,KOL', 'nullable', 'exists:tbl_lead,lead_id'],
+                        '*.Itended Major' => ['nullable'],
+                        '*.Destination Country' => ['nullable'],
+                        '*.Referral Code' => ['nullable'],
+                        '*.Reason Join' => ['nullable'],
+                        '*.Expectation Join' => ['nullable'],
+                    ];
 
-                # threw error if validation fails
-                if ($validator->fails()) {
-                    Log::warning($validator->errors());
 
-                    return response()->json([
-                        'success' => false,
-                        'error' => $validator->errors()
-                    ]);
+                    $validator = Validator::make($arrInputData, $rules);
+
+                    # threw error if validation fails
+                    if ($validator->fails()) {
+                        Log::warning($validator->errors());
+
+                        return response()->json([
+                            'success' => false,
+                            'error' => $validator->errors()
+                        ]);
+                    }
+
+                    $batchID = (new JobBatchService())->jobBatchFromCollection(Collect($arrInputData), 'import', 'client-program', 10);
+
+                    JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
+
+                    $response = [
+                        'success' => true,
+                        'batch_id' => $batchID,
+                    ];
+                    
+                }else{
+                    $response = [
+                        'success' => true,
+                        'total_imported' => 0,
+                        'message' => 'Data Client Programs is uptodate'
+                    ];
                 }
-
-                $batchID = (new JobBatchService())->jobBatchFromCollection(Collect($arrInputData), 'import', 'client-program', 10);
-
-                JobBatches::where('id', $batchID)->update(['total_data' => count($arrInputData)]);
-
-                $response = [
-                    'success' => true,
-                    'batch_id' => $batchID,
-                ];
-                
-            }else{
-                $response = [
-                    'success' => true,
-                    'total_imported' => 0,
-                    'message' => 'Data Client Programs is uptodate'
-                ];
+            } catch (Exception $e) {
+                Log::error('Failed to dispatch job import client program', $e->getMessage()  . ' On Line: ' .  $e->getLine());
+                return response()->json([
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ]);
             }
+            
          
         return response()->json($response);
 
@@ -512,9 +556,9 @@ class GoogleSheetController extends Controller
                     
                     // $studentId = null;
         
-                    if ($row['Class Of'] != null || $row['Class Of'] != '') {
-                        $st_grade = 12 - ($row['Class Of'] - date('Y'));
-                    }
+                    // if ($row['Class Of'] != null || $row['Class Of'] != '') {
+                    //     $st_grade = date('m') < 7 ? ($row['Class Of'] - date('Y')) - 12 + 1 : ($row['Class Of'] - date('Y')) - 12;
+                    // }
         
                     $dataClient = [
                         'sch_id' => $school->sch_id,

@@ -77,8 +77,8 @@
                                                     <label for="" class="text-muted">Grade <sup class="text-danger">*</sup></label>
                                                     <select name="grade[{{$key1}}][]" class="select w-100">
                                                         <option data-placeholder="true"></option>
-                                                        <option value="9-10" {{ $sub_user_subject->grade == '9-10' ? 'selected' : null }}>9-10</option>
-                                                        <option value="11-12" {{ $sub_user_subject->grade == '11-12' ? 'selected' : null }}>11-12</option>
+                                                        <option value="[9-10]" {{ $sub_user_subject->grade == '[9-10]' ? 'selected' : null }}>9-10</option>
+                                                        <option value="[11-12]" {{ $sub_user_subject->grade == '[11-12]' ? 'selected' : null }}>11-12</option>
                                                     </select>
                                                     @error('grade.'.$key1.'.'.$isub)
                                                         <small class="text-danger fw-light">{{ $message }}</small>
