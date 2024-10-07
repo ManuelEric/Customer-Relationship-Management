@@ -19,12 +19,10 @@ class TimesheetAccess
      */
     public function handle(Request $request, Closure $next)
     {
-        if ( $request->header('Header-ET') )
-        {
-            if ( \App\Models\TokenLib::where('header_name', 'Header-ET')->where('value', $request->header('Header-ET'))->where('expires_at', '>', Carbon::now())->exists() )
+        if ($request->header('Header-ET')) {
+            if (\App\Models\TokenLib::where('header_name', 'Header-ET')->where('value', $request->header('Header-ET'))->where('expires_at', '>', Carbon::now())->exists())
                 return $next($request);
         }
-
         throw new HttpResponseException(
             response()->json([
                 'errors' => 'Unauthorized.'

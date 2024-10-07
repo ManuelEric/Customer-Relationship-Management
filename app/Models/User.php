@@ -228,7 +228,7 @@ class User extends Authenticatable
      */
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'tbl_user_roles', 'user_id', 'role_id')->using(UserRole::class)->withPivot(['id'])->withTimestamps();
+        return $this->belongsToMany(Role::class, 'tbl_user_roles', 'user_id', 'role_id')->using(UserRole::class)->withTimestamps()->withPivot('id', 'user_id', 'role_id');
     }
 
     public function department()
