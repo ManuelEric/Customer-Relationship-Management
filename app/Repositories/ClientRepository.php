@@ -2156,7 +2156,7 @@ class ClientRepository implements ClientRepositoryInterface
     public function countClientByRole($role, $month = null, $isRaw = false)
     {
         $client = DB::table('tbl_client')
-            ->select(DB::raw('count(*) as client_count'))
+            ->select(DB::raw('count(tbl_client.id) as client_count'))
             ->join('tbl_client_roles', function ($q) {
                 $q->on('tbl_client_roles.client_id', '=', 'tbl_client.id');
             })
@@ -2173,9 +2173,8 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->where('tbl_client.is_verified', 'N');
             })->
             where('deleted_at', null)->
-            where('st_statusact', 1);
-            // get();
+            where('st_statusact', 1)->first();
 
-        return $client->toSql();
+        return $client->client_count;
     }
 }
