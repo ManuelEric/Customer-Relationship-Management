@@ -88,8 +88,8 @@ class UserController extends Controller
         ]);
         unset($userDetails['phone']);
         unset($userDetails['emergency_contact_phone']);
-        $userDetails['phone'] = $this->setPhoneNumber($request->phone);
-        $userDetails['emergency_contact_phone'] = $request->emergency_contact_phone != null ? $this->setPhoneNumber($request->emergency_contact_phone) : null;
+        $userDetails['phone'] = $this->tnSetPhoneNumber($request->phone);
+        $userDetails['emergency_contact_phone'] = $request->emergency_contact_phone != null ? $this->tnSetPhoneNumber($request->emergency_contact_phone) : null;
 
         # generate default password which is 12345678
         $userDetails['password'] = Hash::make('12345678'); # update
@@ -337,8 +337,8 @@ class UserController extends Controller
         ]);
         unset($newDetails['phone']);
         unset($newDetails['emergency_contact_phone']);
-        $newDetails['phone'] = $this->setPhoneNumber($request->phone);
-        $newDetails['emergency_contact_phone'] = $request->emergency_contact_phone != null ? $this->setPhoneNumber($request->emergency_contact_phone) : null;
+        $newDetails['phone'] = $this->tnSetPhoneNumber($request->phone);
+        $newDetails['emergency_contact_phone'] = $request->emergency_contact_phone != null ? $this->tnSetPhoneNumber($request->emergency_contact_phone) : null;
 
         $newDetails['position_id'] = $request->position;
 

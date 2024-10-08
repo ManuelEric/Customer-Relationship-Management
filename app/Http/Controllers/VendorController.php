@@ -59,7 +59,7 @@ class VendorController extends Controller
             'vendor_notes',
         ]);
         unset($vendor_details['vendor_phone']);
-        $vendor_details['vendor_phone'] = $this->setPhoneNumber($request->vendor_phone);
+        $vendor_details['vendor_phone'] = $this->tnSetPhoneNumber($request->vendor_phone);
 
         $last_id = Vendor::max('vendor_id');
         $vendor_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 3) : 000;
@@ -127,7 +127,7 @@ class VendorController extends Controller
             'vendor_notes',
         ]);
         unset($vendor_details['vendor_phone']);
-        $vendor_details['vendor_phone'] = $this->setPhoneNumber($request->vendor_phone);
+        $vendor_details['vendor_phone'] = $this->tnSetPhoneNumber($request->vendor_phone);
 
         # retrieve vendor id from url
         $vendor_id = $request->route('vendor');

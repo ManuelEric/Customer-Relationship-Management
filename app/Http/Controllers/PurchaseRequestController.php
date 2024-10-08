@@ -10,6 +10,7 @@ use App\Interfaces\PurchaseDetailRepositoryInterface;
 use App\Interfaces\PurchaseRequestRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Models\PurchaseRequest;
+use App\Services\FileUploadService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -49,7 +50,7 @@ class PurchaseRequestController extends Controller
         return view('pages.master.purchase.index');
     }
 
-    public function store(StorePurchaseReqRequest $request)
+    public function store(StorePurchaseReqRequest $request, FileUploadService $file_upload_service)
     {
 
         # create purchase id
@@ -74,7 +75,8 @@ class PurchaseRequestController extends Controller
 
                 $file_name = $purchase_id_with_label;
                 $file_format = $request->file('purchase_attachment')->getClientOriginalExtension();
-                $file_path = $request->file('purchase_attachment')->storeAs('public/uploaded_file/finance', $file_name . '.' . $file_format);
+                $file_upload_service->snUploadFile($request->file('purchase_attachment'), $file_name, $file_format);
+                // $file_path = $request->file('purchase_attachment')->storeAs('public/uploaded_file/finance', $file_name . '.' . $file_format);
                 unset($requestDetails['purchase_attachment']);
                 $requestDetails['purchase_attachment'] = $file_name . '.' . $file_format;
             }

@@ -241,7 +241,7 @@ class ClientEventController extends Controller
                 'st_password'
             ]);
             unset($clientDetails['phone']);
-            $clientDetails['phone'] = $this->setPhoneNumber($request->phone);
+            $clientDetails['phone'] = $this->tnSetPhoneNumber($request->phone);
 
             // Client as parent
             if ($request->status_client == 'Parent') {

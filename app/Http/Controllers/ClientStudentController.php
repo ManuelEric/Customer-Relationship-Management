@@ -888,7 +888,7 @@ class ClientStudentController extends ClientController
             'phone'
         ]);
 
-        $parentDetails['phone'] = $this->setPhoneNumber($request->phone);
+        $parentDetails['phone'] = $this->tnSetPhoneNumber($request->phone);
 
         DB::beginTransaction();
         try {
@@ -1011,7 +1011,7 @@ class ClientStudentController extends ClientController
             'first_name' => $name['firstname'],
             'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
             'mail' => $request->emailFinal,
-            'phone' => $this->setPhoneNumber($request->phoneFinal),
+            'phone' => $this->tnSetPhoneNumber($request->phoneFinal),
             'graduation_year' => $request->graduationFinal,
             'sch_id' => $request->schoolFinal,
             'is_verified' => 'Y',
@@ -1024,7 +1024,7 @@ class ClientStudentController extends ClientController
                 'first_name' => $parentName['firstname'],
                 'last_name' => isset($parentName['lastname']) ? $parentName['lastname'] : null,
                 'mail' => $request->parentMail,
-                'phone' => isset($request->parentPhone) ? $this->setPhoneNumber($request->parentPhone) : null,
+                'phone' => isset($request->parentPhone) ? $this->tnSetPhoneNumber($request->parentPhone) : null,
                 'is_verified' => 'Y'
             ];
             $parentId = $request->parentFinal;

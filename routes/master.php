@@ -36,7 +36,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('program/sub_program/{main_program}', [ProgramController::class, 'getSubProgram']);
+Route::get('program/sub_program/{main_program}', [ProgramController::class, 'fnGetSubProgram']);
 Route::resource('program', ProgramController::class);
 
 Route::resource('lead', LeadController::class);

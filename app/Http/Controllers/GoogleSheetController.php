@@ -523,14 +523,14 @@ class GoogleSheetController extends Controller
 
         switch ($type) {
             case 'main':
-                $phone = $this->setPhoneNumber($row['Phone Number']);
+                $phone = $this->tnSetPhoneNumber($row['Phone Number']);
                 $existClient = $this->checkExistingClientImport($phone, $row['Email']);
                 $email = $row['Email'];
                 $fullname = $row['Name'];
                 break;
                 
             case 'sub':
-                $phone = isset($row['Child or Parent Phone Number']) ? $this->setPhoneNumber($row['Child or Parent Phone Number']) : null;
+                $phone = isset($row['Child or Parent Phone Number']) ? $this->tnSetPhoneNumber($row['Child or Parent Phone Number']) : null;
                 $email = isset($row['Child or Parent Email']) ? $row['Child or Parent Email'] : null;
                 $existClient = $this->checkExistingClientImport($phone, $email);
                 $fullname = $row['Child or Parent Name'];

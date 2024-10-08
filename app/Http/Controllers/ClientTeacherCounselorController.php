@@ -218,7 +218,7 @@ class ClientTeacherCounselorController extends ClientController
             'referral_code'
         ]);
 
-        $newTeacherCounselorDetails['phone'] = $this->setPhoneNumber($request->phone);
+        $newTeacherCounselorDetails['phone'] = $this->tnSetPhoneNumber($request->phone);
 
         # set lead_id based on lead_id & kol_lead_id
         # when lead_id is kol
@@ -431,7 +431,7 @@ class ClientTeacherCounselorController extends ClientController
             'first_name' => $name['firstname'],
             'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
             'mail' => $request->emailFinal,
-            'phone' => $this->setPhoneNumber($request->phoneFinal),
+            'phone' => $this->tnSetPhoneNumber($request->phoneFinal),
             'sch_id' => $request->schoolFinal,
             'is_verified' => 'Y'
         ];
