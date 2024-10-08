@@ -662,10 +662,10 @@ class ClientProgramController extends Controller
 
         switch ($status) {
 
-                # when program status is pending
+            # when program status is pending
             case 0:
 
-                # and submitted prog_id is admission mentoring
+            # and submitted prog_id is admission mentoring
                 if (in_array($progId, $this->admission_prog_list)) {
 
                     # add additional values
@@ -680,7 +680,7 @@ class ClientProgramController extends Controller
 
                 break;
 
-                # when program status is active
+            # when program status is active
             case 1:
                 $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
                 $clientProgramDetails['success_date'] = $request->success_date;
@@ -777,7 +777,7 @@ class ClientProgramController extends Controller
 
                 break;
 
-                # when program status is failed
+            # when program status is failed
             case 2:
 
                 $clientProgramDetails['failed_date'] = $request->failed_date;
@@ -787,13 +787,20 @@ class ClientProgramController extends Controller
 
                 break;
 
-                # when program status is refund
+            # when program status is refund
             case 3:
                 $clientProgramDetails['refund_date'] = $request->refund_date;
                 $clientProgramDetails['refund_notes'] = $request->refund_notes;
                 $clientProgramDetails['reason_id'] = $request->reason_id;
                 $clientProgramDetails['other_reason'] = $request->other_reason;
                 $clientProgramDetails['reason_notes'] = $request->reason_notes;
+                break;
+
+            # when program status is hold
+            case 4:
+                $clientProgramDetails['reason_id'] = $request->reason_id;
+                $clientProgramDetails['other_reason'] = $request->other_reason;
+                $clientProgramDetails['hold_date'] = Carbon::now();
                 break;
         };
 

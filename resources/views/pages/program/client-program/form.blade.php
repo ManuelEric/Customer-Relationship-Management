@@ -291,6 +291,9 @@
                                                     {{ old('status') !== null && old('status') == 3 ? 'selected' : null }}>
                                                     Refund</option>
                                             @endif
+                                            @if (isset($clientProgram))
+                                                <option value="4">Hold</option>
+                                            @endif
                                         </select>
                                         @error('status')
                                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -916,6 +919,8 @@
                                 .includes('SAT') || programSubProg.includes('SAT')) {
                                 $('#tutoring').addClass('d-none')
                                 $('#sat-act').removeClass('d-none')
+                            } else if (programStatus == 4) { // hold
+                                $('#reason').removeClass('d-none')
 
                             }
                             break;

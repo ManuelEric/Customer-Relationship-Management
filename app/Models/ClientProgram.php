@@ -62,6 +62,7 @@ class ClientProgram extends Model
         'prog_start_date',
         'prog_end_date',
         'empl_id',
+        'hold_date',
         'success_date',
         'failed_date',
         'refund_date',
