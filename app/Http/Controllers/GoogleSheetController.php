@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Api\v1\ExtClientController;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\GetGradeAndGraduationYear;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\SyncClientTrait;
@@ -40,7 +41,7 @@ use Illuminate\Support\Facades\Bus;
 
 class GoogleSheetController extends Controller
 {
-    use SyncClientTrait, CreateCustomPrimaryKeyTrait, LoggingTrait, SyncClientTrait, StandardizePhoneNumberTrait;
+    use SyncClientTrait, CreateCustomPrimaryKeyTrait, LoggingTrait, SyncClientTrait, StandardizePhoneNumberTrait, GetGradeAndGraduationYear;
 
     private ClientRepositoryInterface $clientRepository;
     private ClientProgramRepositoryInterface $clientProgramRepository;
@@ -554,11 +555,11 @@ class GoogleSheetController extends Controller
             case 'Student':
                 if (!$existClient['isExist'] && !$checkExistClientRelation['isExist']) {
                     
-                    // $studentId = null;
+                    $st_grade = null;
         
-                    // if ($row['Class Of'] != null || $row['Class Of'] != '') {
-                    //     $st_grade = date('m') < 7 ? ($row['Class Of'] - date('Y')) - 12 + 1 : ($row['Class Of'] - date('Y')) - 12;
-                    // }
+                    if ($row['Class Of'] != null || $row['Class Of'] != '') {
+                        $st_grade = $this->getGradeByGraduationYear($row['class Of']);
+                    }
         
                     $dataClient = [
                         'sch_id' => $school->sch_id,
@@ -568,7 +569,7 @@ class GoogleSheetController extends Controller
                         'mail' => $email,
                         'phone' => $phone,
                         'graduation_year' => $row['Class Of'] != null || $row['Class Of'] != '' ? $row['Class Of'] : null,
-                        'st_grade' => $row['Class Of'] != null || $row['Class Of'] != '' ? $st_grade : null,
+                        'st_grade' => $st_grade,
                         'register_by' => $row['Audience'],
                         'lead_id' => isset($row['Lead']) ? $row['Lead'] : null,
                         'eduf_id' => isset($row['Edufair']) ? $row['Edufair'] : null,

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Traits\Modules\GetClientStatusTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
@@ -35,6 +36,8 @@ class AlarmController extends Controller
 
         $today = date('Y-m-d');
         $currMonth = date('m');
+        $currYear = date('Y');
+        $monthYear = CarbonImmutable::create($currYear, $currMonth);
         
         $allTarget = $this->targetTrackingRepository->getAllTargetTrackingMonthly($today);
         $dataSalesTarget = $this->alarmRepository->getDataTarget($today, 'Sales');
@@ -62,14 +65,14 @@ class AlarmController extends Controller
         $targetTrackingRevenue = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(2)->toDateString(), $today, 'revenue');
 
         # Chart lead
-        $last3month = $currMonth - 2;
+        $last3month = date('Y-m', strtotime($monthYear->subMonth(2)));
         for ($i = 2; $i >= 0; $i--) {
-            $dataLeadChart['target'][] = $targetTrackingLead->where('month', $last3month)->count() > 0 ? (int)$targetTrackingLead->where('month', $last3month)->first()->target : 0;
-            $dataLeadChart['actual'][] = $targetTrackingLead->where('month', $last3month)->count() > 0 ? (int)$targetTrackingLead->where('month', $last3month)->first()->actual : 0;
+            $dataLeadChart['target'][] = $targetTrackingLead->where('month_year', $last3month)->count() > 0 ? (int)$targetTrackingLead->where('month_year', $last3month)->first()->target : 0;
+            $dataLeadChart['actual'][] = $targetTrackingLead->where('month_year', $last3month)->count() > 0 ? (int)$targetTrackingLead->where('month_year', $last3month)->first()->actual : 0;
             $dataLeadChart['label'][] = Carbon::now()->startOfMonth()->subMonth($i)->format('F');
 
-            $dataRevenueChart['target'][] = $targetTrackingRevenue->where('month', $last3month)->count() > 0 ? (int)$targetTrackingRevenue->where('month', $last3month)->first()->target : 0;
-            $dataRevenueChart['actual'][] = $targetTrackingRevenue->where('month', $last3month)->count() > 0 ? (int)$targetTrackingRevenue->where('month', $last3month)->first()->actual : 0;
+            $dataRevenueChart['target'][] = $targetTrackingRevenue->where('month_year', $last3month)->count() > 0 ? (int)$targetTrackingRevenue->where('month_year', $last3month)->first()->target : 0;
+            $dataRevenueChart['actual'][] = $targetTrackingRevenue->where('month_year', $last3month)->count() > 0 ? (int)$targetTrackingRevenue->where('month_year', $last3month)->first()->actual : 0;
             $dataRevenueChart['label'][] = Carbon::now()->startOfMonth()->subMonth($i)->format('F');
             $last3month++;
         }
