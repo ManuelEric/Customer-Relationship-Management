@@ -140,6 +140,15 @@
                 </td>
             </tr>
         @endif
+        # Provision
+        <!--<tr>-->
+        <!--    <td colspan="3" align="right"><b>Inward Remittance Fee</b></td>-->
+        <!--    <td valign="middle" align="center">-->
+        <!--        <b>-->
+        <!--            (Rp. 79,000)-->
+        <!--        </b>-->
+        <!--    </td>-->
+        <!--</tr>-->
         <tr>
             <td colspan="3" align="right"><b>Total</b></td>
             <td valign="middle" align="center">
