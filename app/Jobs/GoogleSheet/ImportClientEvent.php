@@ -39,12 +39,14 @@ class ImportClientEvent implements ShouldQueue
     use IsMonitored;
 
     public $clientEventData;
+    public $is_many_request;
     /**
      * Create a new job instance.
      */
-    public function __construct($clientEvent)
+    public function __construct($clientEvent, $is_many_request = false)
     {
         $this->clientEventData = $clientEvent;
+        $this->is_many_request = $is_many_request;
     }
 
     /**
@@ -66,7 +68,7 @@ class ImportClientEvent implements ShouldQueue
 
             // Check existing school
             if (!$school = School::where('sch_name', $val['School'])->first())
-                $school = $this->createSchoolIfNotExists($val['School']);
+                $school = $this->createSchoolIfNotExists($val['School'], true);
 
             $roleSub = null;
             switch ($val['Audience']) {
@@ -113,6 +115,7 @@ class ImportClientEvent implements ShouldQueue
                 'registration_type' => isset($val['Registration Type']) ? $val['Registration Type'] : null,
                 'number_of_attend' => isset($val['Number Of Attend']) ? $val['Number Of Attend'] : 1,
                 'referral_code' => isset($val['Referral Code']) ? $val['Referral Code'] : null,
+                'is_many_request' => true
             ];
 
             // Generate ticket id (if event offline)
@@ -167,12 +170,12 @@ class ImportClientEvent implements ShouldQueue
         }
 
         # trigger to verifying client
-        count($childIds) > 0 ? ProcessVerifyClient::dispatch($childIds)->onQueue('verifying-client') : null;
-        count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent') : null;
-        count($teacherIds) > 0 ? ProcessVerifyClientTeacher::dispatch($teacherIds)->onQueue('verifying-client-teacher') : null;
+        count($childIds) > 0 ? ProcessVerifyClient::dispatch($childIds, true)->onQueue('verifying-client') : null;
+        count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds, true)->onQueue('verifying-client-parent') : null;
+        count($teacherIds) > 0 ? ProcessVerifyClientTeacher::dispatch($teacherIds, true)->onQueue('verifying-client-teacher') : null;
                
         # trigger to define category children
-        count($childIds) > 0 ? ProcessDefineCategory::dispatch($childIds)->onQueue('define-category-client') : null;
+        count($childIds) > 0 ? ProcessDefineCategory::dispatch($childIds, true)->onQueue('define-category-client') : null;
 
         Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Client Events')->range('Z'. $this->clientEventData->first()['No'] + 1)->update($imported_date);
         $dataJobBatches = JobBatches::find($this->batch()->id);

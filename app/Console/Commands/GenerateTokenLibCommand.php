@@ -1,13 +1,10 @@
 <?php
-
 namespace App\Console\Commands;
-
 use App\Models\TokenLib;
 use Database\Seeders\TokenLibSeeder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
-
 class GenerateTokenLibCommand extends Command
 {
     /**
@@ -16,14 +13,12 @@ class GenerateTokenLibCommand extends Command
      * @var string
      */
     protected $signature = 'refresh:token_lib';
-
     /**
      * The console command description.
      *
      * @var string
      */
     protected $description = 'Refresh token library.';
-
     /**
      * Execute the console command.
      *

@@ -22,7 +22,7 @@
 
     <div class="card bg-secondary mb-1 p-2">
         <div class="row align-items-center justify-content-between">
-            <div class="col-md-6">
+            <div class="col-md-6 mb-2 mb-md-0">
                 <h5 class="text-white m-0">
                     <i class="bi bi-tag me-1"></i>
                     Deleted Students
@@ -278,6 +278,7 @@
                     left: (widthView < 768) ? 1 : 2,
                     right: 1
                 },
+                pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 ajax: {
                     url: '',
                     data: function(params) {

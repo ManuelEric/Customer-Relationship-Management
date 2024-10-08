@@ -56,9 +56,14 @@ class ClientEvent extends Model
 
         $updated = parent::update($attributes);
 
-        // Custom logic after update
-        // Send to pusher
-        event(new MessageSent('rt_client_event', 'channel_datatable'));
+        if(isset($attributes['is_many_request']) && $attributes['is_many_request'])
+        {
+            unset($attributes['is_many_request']);
+        }else{
+            // Custom logic after update
+            // Send to pusher
+            event(new MessageSent('rt_client_event', 'channel_datatable'));
+        }
 
         return $updated;
     }
@@ -69,11 +74,14 @@ class ClientEvent extends Model
 
         $model = static::query()->create($attributes);
 
-        // Custom logic after creating the model
-
-        // Send to pusher
-        event(new MessageSent('rt_client_event', 'channel_datatable'));
-
+        if(isset($attributes['is_many_request']) && $attributes['is_many_request'])
+        {
+            unset($attributes['is_many_request']);
+        }else{
+            // Custom logic after create
+            // Send to pusher
+            event(new MessageSent('rt_client_event', 'channel_datatable'));
+        }
         return $model;
     }
 

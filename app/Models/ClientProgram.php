@@ -62,6 +62,7 @@ class ClientProgram extends Model
         'prog_start_date',
         'prog_end_date',
         'empl_id',
+        'hold_date',
         'success_date',
         'failed_date',
         'refund_date',
@@ -96,9 +97,14 @@ class ClientProgram extends Model
 
         $updated = parent::update($attributes);
 
-        // Custom logic after update
-        // Send to pusher
-        event(new MessageSent('rt_client_program', 'channel_datatable'));
+        if(isset($attributes['is_many_request']) && $attributes['is_many_request'])
+        {
+            unset($attributes['is_many_request']);
+        }else{
+            // Custom logic after update
+            // Send to pusher
+            event(new MessageSent('rt_client_program', 'channel_datatable'));
+        }
 
         return $updated;
     }
@@ -109,10 +115,14 @@ class ClientProgram extends Model
 
         $model = static::query()->create($attributes);
 
-        // Custom logic after creating the model
-
-        // Send to pusher
-        event(new MessageSent('rt_client_program', 'channel_datatable'));
+        if(isset($attributes['is_many_request']) && $attributes['is_many_request'])
+        {
+            unset($attributes['is_many_request']);
+        }else{
+            // Custom logic after create
+            // Send to pusher
+            event(new MessageSent('rt_client_program', 'channel_datatable'));
+        }
 
         return $model;
     }
@@ -180,11 +190,11 @@ class ClientProgram extends Model
     public function scopeSuccessAndPaid(Builder $query): void
     {
         $query->where('status', 1)->whereNot('prog_running_status', 2)->where('prog_end_date', '>=', Carbon::now())->
-            where(function ($query) {
-                $query->where(function ($query2) {
-                    $query2->has('invoice')->has('invoice.receipt');
-                });
+        where(function ($query) {
+            $query->where(function ($query2) {
+                $query2->has('invoice')->has('invoice.receipt');
             });
+        });
     }
 
 

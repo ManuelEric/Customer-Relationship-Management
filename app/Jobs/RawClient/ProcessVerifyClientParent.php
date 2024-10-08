@@ -21,15 +21,17 @@ class ProcessVerifyClientParent implements ShouldQueue
 
     protected ClientRepositoryInterface $clientRepository;
     protected $clientIds;
+    protected $is_many_request;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($clients)
+    public function __construct($clients, $is_many_request = false)
     {
         $this->clientIds = $clients;
+        $this->is_many_request = $is_many_request;
     }
 
     /**
@@ -84,7 +86,7 @@ class ProcessVerifyClientParent implements ShouldQueue
                 
                 if ($isVerified === true) {
 
-                    $clientRepository->updateClient($parent->id, ['is_verified' => 'Y']);
+                    $clientRepository->updateClient($parent->id, ['is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
 
                     # push into an array updatedParents
                     array_push($updatedParents, $parent->id);

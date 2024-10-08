@@ -13,6 +13,7 @@ use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Jobs\Invoice\ProcessEmailHoldProgramJob;
 use App\Jobs\Invoice\ProcessEmailRequestSignJob;
 use App\Jobs\Invoice\ProcessEmailToClientJob;
 use App\Models\InvoiceProgram;
@@ -986,6 +987,28 @@ class InvoiceProgramController extends Controller
         // echo "<script>window.open('" . $link . "', '_blank')</script>";
         // return redirect()->to($link);
         return response()->json(['link' => $link]);
+    }
+
+    # handler for hold program
+    public function holdProgram(Request $request)
+    {
+        $clientprog = $this->clientProgramRepository->getClientProgramById($request->clientprog_id_hold);
+        $parentId = $request->parent_id_hold;
+        $targetMail = $request->target_mail_hold;
+        $data = [
+            'parent_mail' => $targetMail,
+            'parent_id' => $parentId,
+            'clientProg' => $clientprog,
+            'inv_id' => $request->inv_id_hold,
+            'invdtl_id' => $request->invdtl_id_hold,
+        ];
+        try {
+            ProcessEmailHoldProgramJob::dispatch($this->clientProgramRepository, $this->clientRepository, $this->invoiceProgramRepository, $this->invoiceDetailRepository, $data, $request->clientprog_id_hold)->onQueue('send-hold-program');
+        } catch (Exception $e) {
+            Log::error('Failed to dispatch job send email hold mentoring '. $e->getMessage());
+        }
+            
+        return Redirect::to('dashboard')->withSuccess('Successfully sent email Hold Mentoring.');
     }
 
     public function updateMail(Request $request)

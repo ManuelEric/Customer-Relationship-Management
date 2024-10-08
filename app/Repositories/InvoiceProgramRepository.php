@@ -706,7 +706,9 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     'child.id as client_id',
                     DB::raw('CONCAT(child.first_name, " ", COALESCE(child.last_name, "")) as full_name'),
                     'child.phone as child_phone',
+                    'child.mail as child_mail',
                     'parent.phone as parent_phone',
+                    'parent.mail as parent_mail',
                     DB::raw('CONCAT(parent.first_name, " ", COALESCE(parent.last_name, "")) as parent_name'),
                     'parent.id as parent_id',
                     'program.program_name',
@@ -727,7 +729,9 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                                     tbl_inv.inv_duedate 
                                 WHEN tbl_inv.inv_paymentmethod = "Installment" THEN 
                                     tbl_invdtl.invdtl_duedate
-                            END) as invoice_duedate')
+                            END) as invoice_duedate'),
+                    //! new
+                    'tbl_client_prog.status',
                 ])
                 ->whereNull('tbl_receipt.id');
 
@@ -741,7 +745,10 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
         }
 
         $queryInv
-            ->whereRelation('clientprog', 'status', 1)
+            // ->whereRelation('clientprog', 'status', 1)
+            ->whereHas('clientprog', function ($sub) {
+                $sub->where('status', 1)->orWhere('status', 4);
+            })
             ->whereNull('tbl_inv.bundling_id')
         ->groupBy(DB::raw('(CASE WHEN tbl_invdtl.invdtl_id is null THEN tbl_inv.inv_id ELSE tbl_invdtl.invdtl_id END)'));
 

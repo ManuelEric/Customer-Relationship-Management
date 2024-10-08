@@ -410,8 +410,9 @@ class ClientProgramController extends Controller
 
                     $clientProgramDetails['supervising_mentor'] = $request->supervising_mentor;
                     $clientProgramDetails['profile_building_mentor'] = isset($request->profile_building_mentor) ? $request->profile_building_mentor : NULL;
+                    $clientProgramDetails['subject_specialist_mentor'] = isset($request->subject_specialist_mentor) ? $request->subject_specialist_mentor : NULL;
                     $clientProgramDetails['aplication_strategy_mentor'] = isset($request->aplication_strategy_mentor) ? $request->aplication_strategy_mentor : NULL;
-                    $clientProgramDetails['writing_mentor'] = isset($request->writing_mentor) ? $request->aplication_strategy_mentor : NULL;
+                    $clientProgramDetails['writing_mentor'] = isset($request->writing_mentor) ? $request->writing_mentor : NULL;
                     $clientProgramDetails['mentor_ic'] = $request->mentor_ic;
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
 
@@ -661,10 +662,10 @@ class ClientProgramController extends Controller
 
         switch ($status) {
 
-                # when program status is pending
+            # when program status is pending
             case 0:
 
-                # and submitted prog_id is admission mentoring
+            # and submitted prog_id is admission mentoring
                 if (in_array($progId, $this->admission_prog_list)) {
 
                     # add additional values
@@ -679,7 +680,7 @@ class ClientProgramController extends Controller
 
                 break;
 
-                # when program status is active
+            # when program status is active
             case 1:
                 $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
                 $clientProgramDetails['success_date'] = $request->success_date;
@@ -701,6 +702,7 @@ class ClientProgramController extends Controller
                     // $clientProgramDetails['backup_mentor'] = isset($request->backup_mentor) ? $request->backup_mentor : NULL;
                     $clientProgramDetails['supervising_mentor'] = $request->supervising_mentor;
                     $clientProgramDetails['profile_building_mentor'] = isset($request->profile_building_mentor) ? $request->profile_building_mentor : NULL;
+                    $clientProgramDetails['subject_specialist_mentor'] = isset($request->subject_specialist_mentor) ? $request->subject_specialist_mentor : NULL;
                     $clientProgramDetails['aplication_strategy_mentor'] = isset($request->aplication_strategy_mentor) ? $request->aplication_strategy_mentor : NULL;
                     $clientProgramDetails['writing_mentor'] = isset($request->writing_mentor) ? $request->writing_mentor : NULL;                    
                     $clientProgramDetails['installment_notes'] = $request->installment_notes;
@@ -775,7 +777,7 @@ class ClientProgramController extends Controller
 
                 break;
 
-                # when program status is failed
+            # when program status is failed
             case 2:
 
                 $clientProgramDetails['failed_date'] = $request->failed_date;
@@ -785,13 +787,20 @@ class ClientProgramController extends Controller
 
                 break;
 
-                # when program status is refund
+            # when program status is refund
             case 3:
                 $clientProgramDetails['refund_date'] = $request->refund_date;
                 $clientProgramDetails['refund_notes'] = $request->refund_notes;
                 $clientProgramDetails['reason_id'] = $request->reason_id;
                 $clientProgramDetails['other_reason'] = $request->other_reason;
                 $clientProgramDetails['reason_notes'] = $request->reason_notes;
+                break;
+
+            # when program status is hold
+            case 4:
+                $clientProgramDetails['reason_id'] = $request->reason_id;
+                $clientProgramDetails['other_reason'] = $request->other_reason;
+                $clientProgramDetails['hold_date'] = Carbon::now();
                 break;
         };
 
@@ -893,11 +902,11 @@ class ClientProgramController extends Controller
 
             # if failed storing the data into the database
             # remove the uploaded file from storage
-            if ($request->hasFile('agreement')) {
-                if (Storage::exists('public/uploaded_file/agreement/'.$file_path) && $file_path !== null) {
-                    Storage::delete('public/uploaded_file/agreement/'.$file_path);
-                }
-            }
+            // if ($request->hasFile('agreement')) {
+            //     if (Storage::exists('public/uploaded_file/agreement/'.$file_path) && $file_path !== null) {
+            //         Storage::delete('public/uploaded_file/agreement/'.$file_path);
+            //     }
+            // }
 
             return Redirect::back()->withError($e->getMessage());
         }

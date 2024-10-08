@@ -41,7 +41,7 @@
 @endif
 
 <div class="rounded bg-secondary mb-1 p-2">
-    <div class="row align-items-center justify-content-between">
+    <div class="row align-items-center justify-content-between gy-3">
         <div class="col-md-6">
             <h5 class="text-white m-0">
                 <i class="bi bi-tag me-1"></i>

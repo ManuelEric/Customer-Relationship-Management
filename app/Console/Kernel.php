@@ -87,7 +87,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('send:reminder_tutor T3')->everyMinute();
 
         # cron for hot leads
-        $schedule->command('automate:determine_hot_leads')->withoutOverlapping()->everyMinute()->onOneServer();
+        $schedule->command('automate:determine_hot_leads')->withoutOverlapping()->dailyAt('06:00')->onOneServer();
 
         # cron for target tracking
         $schedule->command('insert:target_tracking_monthly')->when(function() {
