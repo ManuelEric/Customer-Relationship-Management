@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tbl_client_prog', function (Blueprint $table) {
+            $table->int('status')->comment('0: pending, 1: success, 2: failed, 3: refund, 4: hold')->change();
             $table->datetime('hold_date')->comment('a date that created to inform when holding process started')->after('empl_id')->nullable();
         });
     }

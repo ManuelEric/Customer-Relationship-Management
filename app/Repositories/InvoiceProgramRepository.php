@@ -729,7 +729,9 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                                     tbl_inv.inv_duedate 
                                 WHEN tbl_inv.inv_paymentmethod = "Installment" THEN 
                                     tbl_invdtl.invdtl_duedate
-                            END) as invoice_duedate')
+                            END) as invoice_duedate'),
+                    //! new
+                    'tbl_client_prog.status',
                 ])
                 ->whereNull('tbl_receipt.id');
 
@@ -743,7 +745,10 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
         }
 
         $queryInv
-            ->whereRelation('clientprog', 'status', 1)
+            // ->whereRelation('clientprog', 'status', 1)
+            ->whereHas('clientprog', function ($sub) {
+                $sub->where('status', 1)->orWhere('status', 4);
+            })
             ->whereNull('tbl_inv.bundling_id')
         ->groupBy(DB::raw('(CASE WHEN tbl_invdtl.invdtl_id is null THEN tbl_inv.inv_id ELSE tbl_invdtl.invdtl_id END)'));
 

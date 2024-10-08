@@ -284,11 +284,13 @@ class FinanceDashboardController extends Controller
                         ];
                     }
 
+                    $holdButton = isset($unpaidPayment->status) && $unpaidPayment->status == 4 ? ($unpaidPayment->typeprog == 'client_prog' && $unpaidPayment->clientprog->program->main_prog_id == 1 ? '<button data-bs-toggle="modal" data-bs-target="#holdModal" class="mx-1 btn btn-sm btn-outline-success hold"><i class="bi bi-pause-fill"></i></button>' : '-') : "";
+
                     $html .= '<tr' . ($unpaidPayment->invoice_duedate == date('Y-m-d', strtotime("-3 days")) ?  ' class="table-danger"' : ' class="a"') . ' style="cursor:pointer">
                             <td class="detail" data-clientprog="' . $unpaidPayment->client_prog_id . '" data-typeprog="' . $unpaidPayment->typeprog . '" data-invid="' . $unpaidPayment->invoice_id . '" data-type="outstanding">' . $index++ . '</td>
                             <td class="detail" data-clientprog="' . $unpaidPayment->client_prog_id . '" data-typeprog="' . $unpaidPayment->typeprog . '" data-invid="' . $unpaidPayment->invoice_id . '" data-type="outstanding">' . $unpaidPayment->full_name . '</td>
                             <td class="reminder text-center" data-clientprog="' . $unpaidPayment->client_prog_id .  '">' . ($unpaidPayment->typeprog == 'client_prog' ? '<button data-bs-toggle="modal" data-bs-target="#reminderModal" class="mx-1 btn btn-sm btn-outline-success reminder"><i class="bi bi-whatsapp"></i></button>' : '-') . '</td>
-                             <td class="hold text-center" data-clientprog="' . $unpaidPayment->client_prog_id .  '">' . ($unpaidPayment->typeprog == 'client_prog' && $unpaidPayment->clientprog->program->main_prog_id == 1 ? '<button data-bs-toggle="modal" data-bs-target="#holdModal" class="mx-1 btn btn-sm btn-outline-success hold"><i class="bi bi-pause-fill"></i></button>' : '-') . '</td>
+                            <td class="hold text-center" data-clientprog="' . $unpaidPayment->client_prog_id .  '">' . $holdButton . '</td>
                             <td class="detail" data-clientprog="' . $unpaidPayment->client_prog_id . '" data-typeprog="' . $unpaidPayment->typeprog . '" data-invid="' . $unpaidPayment->invoice_id . '" data-type="outstanding">' . $unpaidPayment->invoice_id . '</td>
                             <td class="detail" data-clientprog="' . $unpaidPayment->client_prog_id . '" data-typeprog="' . $unpaidPayment->typeprog . '" data-invid="' . $unpaidPayment->invoice_id . '" data-type="outstanding">' . $unpaidPayment->type . '</td>
                             <td class="detail" data-clientprog="' . $unpaidPayment->client_prog_id . '" data-typeprog="' . $unpaidPayment->typeprog . '" data-invid="' . $unpaidPayment->invoice_id . '" data-type="outstanding">' . $unpaidPayment->program_name . '</td>
