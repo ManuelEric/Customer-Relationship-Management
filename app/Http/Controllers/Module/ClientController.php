@@ -56,7 +56,7 @@ class ClientController extends Controller
                 $parentDetails['first_name'] = $request->pr_firstname;
                 $parentDetails['last_name'] = $request->pr_lastname;
                 $parentDetails['mail'] = $request->pr_mail;
-                $parentDetails['phone'] = $this->setPhoneNumber($request->pr_phone);
+                $parentDetails['phone'] = $this->tnSetPhoneNumber($request->pr_phone);
                 $parentDetails['dob'] = $request->pr_dob;
                 $parentDetails['insta'] = $request->pr_insta;
                 $parentDetails['is_verified'] = 'Y';
@@ -75,7 +75,7 @@ class ClientController extends Controller
                     'first_name' => $request->first_name,
                     'last_name' => $request->last_name,
                     'mail' => $request->mail,
-                    'phone' => $this->setPhoneNumber($request->phone),
+                    'phone' => $this->tnSetPhoneNumber($request->phone),
                     'state' => $parentDetails['state'],
                     'city' => $parentDetails['city'],
                     'postal_code' => $parentDetails['postal_code'],
@@ -133,7 +133,7 @@ class ClientController extends Controller
                 if (isset($request->is_funding))
                     $studentDetails['is_funding'] = $request->is_funding;
 
-                $studentDetails['phone'] = $this->setPhoneNumber($request->phone);
+                $studentDetails['phone'] = $this->tnSetPhoneNumber($request->phone);
                 $studentDetails['is_verified'] = "Y";
                 // $studentDetails['st_abrcountry'] = json_encode($request->st_abrcountry);
 
@@ -151,7 +151,7 @@ class ClientController extends Controller
                 //     'first_name' => $request->pr_firstname,
                 //     'last_name' => $request->pr_lastname,
                 //     'mail' => $request->pr_mail,
-                //     'phone' => $this->setPhoneNumber($request->pr_phone),
+                //     'phone' => $this->tnSetPhoneNumber($request->pr_phone),
                 //     'state' => $studentDetails['state'],
                 //     'city' => $studentDetails['city'],
                 //     'postal_code' => $studentDetails['postal_code'],
@@ -189,7 +189,7 @@ class ClientController extends Controller
                     'st_levelinterest',
                     'referral_code'
                 ]);
-                $teacherDetails['phone'] = $this->setPhoneNumber($request->phone);
+                $teacherDetails['phone'] = $this->tnSetPhoneNumber($request->phone);
                 $teacherDetails['is_verified'] = 'Y';
 
                 # set lead_id based on lead_id & kol_lead_id

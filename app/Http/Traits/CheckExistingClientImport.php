@@ -58,7 +58,7 @@ trait CheckExistingClientImport {
             return [
                 'id' => $item['id'],
                 'mail' => $item['mail'],
-                'phone' => $this->setPhoneNumber($item['phone'])
+                'phone' => $this->tnSetPhoneNumber($item['phone'])
             ];
         });
 
@@ -72,7 +72,7 @@ trait CheckExistingClientImport {
                 return [
                     'id' => $item['client_id'],
                     'mail' => $item['category'] == 'mail' ? $item['value'] : null,
-                    'phone' => $this->setPhoneNumber($item['value'])
+                    'phone' => $this->tnSetPhoneNumber($item['value'])
                 ];
             });
 
@@ -97,7 +97,7 @@ trait CheckExistingClientImport {
                 return [
                     'id' => $item['client_id'],
                     'mail' => $item['category'] == 'mail' ? $item['value'] : null,
-                    'phone' => $this->setPhoneNumber($item['value'])
+                    'phone' => $this->tnSetPhoneNumber($item['value'])
                 ];
             });
 

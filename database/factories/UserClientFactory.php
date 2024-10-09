@@ -24,7 +24,7 @@ class UserClientFactory extends Factory
             'first_name' => fake()->name(),
             'last_name' => fake()->name(),
             'mail' => fake()->unique()->safeEmail(),
-            'phone' => $this->setPhoneNumber(Str::random(11)),
+            'phone' => $this->tnSetPhoneNumber(Str::random(11)),
             'st_grade' => rand(10, 12),
             'st_levelinterest' => array_rand(['Low', 'Medium', 'High'], 1),
             'graduation_year' => rand(2022, 2023),

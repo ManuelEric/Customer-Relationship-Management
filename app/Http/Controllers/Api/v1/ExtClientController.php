@@ -1107,7 +1107,7 @@ class ExtClientController extends Controller
     {
 
         # check if the client exists in crm database
-        $existingClient = $this->checkExistingClient($this->setPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
+        $existingClient = $this->checkExistingClient($this->tnSetPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
 
 
         # if the client is exists
@@ -1125,7 +1125,7 @@ class ExtClientController extends Controller
             'first_name' => $splitNames['first_name'],
             'last_name' => $splitNames['last_name'],
             'mail' => $incomingRequest['mail'],
-            'phone' => $this->setPhoneNumber($incomingRequest['phone']),
+            'phone' => $this->tnSetPhoneNumber($incomingRequest['phone']),
             'register_by' => $incomingRequest['role'],
             'st_grade' => $this->getGradeByGraduationYear($incomingRequest['graduation_year']),
             'graduation_year' => $incomingRequest['graduation_year'],
@@ -1168,7 +1168,7 @@ class ExtClientController extends Controller
     private function storeParent($incomingRequest)
     {
         # check if the client exists in crm database
-        $existingClient = $this->checkExistingClient($this->setPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
+        $existingClient = $this->checkExistingClient($this->tnSetPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
 
         # if the client is exists
         if ($existingClient['isExist'])
@@ -1182,7 +1182,7 @@ class ExtClientController extends Controller
             'first_name' => $splitNames['first_name'],
             'last_name' => $splitNames['last_name'],
             'mail' => $incomingRequest['mail'],
-            'phone' => $this->setPhoneNumber($incomingRequest['phone']),
+            'phone' => $this->tnSetPhoneNumber($incomingRequest['phone']),
             'register_by' => $incomingRequest['role'],
             'scholarship' => $incomingRequest['scholarship'],
             'lead_id' => $incomingRequest['lead_source_id'],
@@ -1206,7 +1206,7 @@ class ExtClientController extends Controller
     private function storeTeacher($incomingRequest)
     {
         # check if the client exists in crm database
-        $existingClient = $this->checkExistingClient($this->setPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
+        $existingClient = $this->checkExistingClient($this->tnSetPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
 
         # if the client is exists
         if ($existingClient['isExist'])
@@ -1221,7 +1221,7 @@ class ExtClientController extends Controller
             'first_name' => $splitNames['first_name'],
             'last_name' => $splitNames['last_name'],
             'mail' => $incomingRequest['mail'],
-            'phone' => $this->setPhoneNumber($incomingRequest['phone']),
+            'phone' => $this->tnSetPhoneNumber($incomingRequest['phone']),
             'register_by' => $incomingRequest['role'],
             'sch_id' => $schoolId,
             'lead_id' => $incomingRequest['lead_source_id'],
@@ -1801,7 +1801,7 @@ class ExtClientController extends Controller
             'first_name' => $splitNames['first_name'],
             'last_name' => $splitNames['last_name'],
             'mail' => $incomingRequest['mail'],
-            'phone' => $this->setPhoneNumber($incomingRequest['phone']),
+            'phone' => $this->tnSetPhoneNumber($incomingRequest['phone']),
             'register_by' => $incomingRequest['role'],
             'sch_id' => $schoolId,
             'lead_id' => 'LS001', # lead is hardcoded into website
@@ -1822,7 +1822,7 @@ class ExtClientController extends Controller
             'first_name' => $splitNames['first_name'],
             'last_name' => $splitNames['last_name'],
             'mail' => $incomingRequest['mail'],
-            'phone' => $this->setPhoneNumber($incomingRequest['phone']),
+            'phone' => $this->tnSetPhoneNumber($incomingRequest['phone']),
             'register_by' => $incomingRequest['role'],
             'scholarship' => $incomingRequest['scholarship'],
             'lead_id' => 'LS001', # lead is hardcoded into website
@@ -1852,7 +1852,7 @@ class ExtClientController extends Controller
             'first_name' => $splitNames['first_name'],
             'last_name' => $splitNames['last_name'],
             'mail' => $incomingRequest['mail'],
-            'phone' => $this->setPhoneNumber($incomingRequest['phone']),
+            'phone' => $this->tnSetPhoneNumber($incomingRequest['phone']),
             'register_by' => $incomingRequest['role'],
             'st_grade' => $this->getGradeByGraduationYear($incomingRequest['graduation_year']),
             'graduation_year' => $incomingRequest['graduation_year'],

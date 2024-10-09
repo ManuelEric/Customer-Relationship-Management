@@ -90,7 +90,7 @@ class VolunteerController extends Controller
             'last_name' => $volunteerDetails['volunt_lastname'],
         ];
 
-        $volunteerDetails['volunt_phone'] = $this->setPhoneNumber($request->volunt_phone);
+        $volunteerDetails['volunt_phone'] = $this->tnSetPhoneNumber($request->volunt_phone);
 
         $last_id = Volunteer::max('volunt_id');
         $volunteer_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 4) : '0000';
@@ -199,7 +199,7 @@ class VolunteerController extends Controller
         unset($volunteerDetails['volunt_major']);
         unset($volunteerDetails['volunt_position']);
 
-        $volunteerDetails['volunt_phone'] = $this->setPhoneNumber($request->volunt_phone);
+        $volunteerDetails['volunt_phone'] = $this->tnSetPhoneNumber($request->volunt_phone);
 
         $volunt_name = [
             'first_name' => $volunteerDetails['volunt_firstname'],

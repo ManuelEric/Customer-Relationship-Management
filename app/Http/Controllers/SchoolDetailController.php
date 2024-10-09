@@ -44,7 +44,7 @@ class SchoolDetailController extends Controller
         # using index 0
         # because there is only one data in the array
         unset($validated['schdetail_phone'][0]);
-        $validated['schdetail_phone'][0] = $this->setPhoneNumber($request->schdetail_phone[0]);
+        $validated['schdetail_phone'][0] = $this->tnSetPhoneNumber($request->schdetail_phone[0]);
 
 
         DB::beginTransaction();
@@ -114,7 +114,7 @@ class SchoolDetailController extends Controller
         ]);
 
         unset($validated['schdetail_phone'][0]);
-        $validated['schdetail_phone'][0] = $this->setPhoneNumber($request->schdetail_phone[0]);
+        $validated['schdetail_phone'][0] = $this->tnSetPhoneNumber($request->schdetail_phone[0]);
 
         $schoolDetailId = $request->route('detail');
 

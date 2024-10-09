@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreEdufairRequest;
 use App\Http\Traits\LoggingTrait;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\EdufLeadRepositoryInterface;
 use App\Interfaces\EdufReviewRepositoryInterface;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Redirect;
 
 class EdufLeadController extends Controller
 {
-    use LoggingTrait;
+    use LoggingTrait, StandardizePhoneNumberTrait;
 
     private EdufLeadRepositoryInterface $edufLeadRepository;
     private SchoolRepositoryInterface $schoolRepository;
@@ -87,25 +88,7 @@ class EdufLeadController extends Controller
         DB::beginTransaction();
         try {
 
-            $ext_pic_phone = $request->ext_pic_phone;
-
-            switch (substr($ext_pic_phone, 0, 1)) {
-
-                case 0:
-                    $ext_pic_phone = "+62" . substr($ext_pic_phone, 1);
-                    break;
-
-                case 6:
-                    $ext_pic_phone = "+" . $ext_pic_phone;
-                    break;
-
-                case "+":
-                    $ext_pic_phone = $ext_pic_phone;
-                    break;
-
-                default:
-                    $ext_pic_phone = "+62" . $ext_pic_phone;
-            }
+            $ext_pic_phone = $this->tnSetPhoneNumber($request->ext_pic_phone);
 
             unset($edufair_lead_details['ext_pic_phone']); # remove the phone number that hasn't been updated into +62
             $edufair_lead_details['ext_pic_phone'] = $ext_pic_phone; # add new phone number 

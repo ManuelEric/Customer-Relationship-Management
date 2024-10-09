@@ -52,7 +52,7 @@ class ImportParent implements ShouldQueue
 
         foreach ($this->parentData as $key => $val) {
             $parent = null;
-            $phoneNumber = $this->setPhoneNumber($val['Phone Number']);
+            $phoneNumber = $this->tnSetPhoneNumber($val['Phone Number']);
 
             $parent = $this->checkExistingClientImport($phoneNumber, $val['Email']);
 

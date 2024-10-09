@@ -54,7 +54,7 @@ class UniversityPicController extends Controller
             $picDetails['title'] = $request->other_title;
 
         $picDetails['univ_id'] = $universityId = $request->route('university');
-        $picDetails['phone'] = $this->setPhoneNumber($request->phone);
+        $picDetails['phone'] = $this->tnSetPhoneNumber($request->phone);
 
         DB::beginTransaction();
         try {
@@ -104,7 +104,7 @@ class UniversityPicController extends Controller
         $newDetails['univ_id'] = $universityId = $request->route('university');
         $picId = $request->route('detail');
         
-        $newDetails['phone'] = $this->setPhoneNumber($request->phone);
+        $newDetails['phone'] = $this->tnSetPhoneNumber($request->phone);
 
         DB::beginTransaction();
         try {

@@ -159,7 +159,7 @@ class ProgramController extends Controller
     }
 
     #
-    public function getSubProgram(Request $request)
+    public function fnGetSubProgram(Request $request)
     {
         $main_prog = $request->route('main_program');
         return json_encode($this->subProgRepository->getSubProgByMainProgId($main_prog));

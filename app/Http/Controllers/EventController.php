@@ -18,6 +18,7 @@ use App\Interfaces\UserRepositoryInterface;
 use App\Models\Agenda;
 use App\Models\Event;
 use App\Models\pivot\AgendaSpeaker;
+use App\Services\FileUploadService;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -103,7 +104,7 @@ class EventController extends Controller
         );
     }
 
-    public function store(StoreEventRequest $request)
+    public function store(StoreEventRequest $request, FileUploadService $file_upload_service)
     {
         $event_details = $request->only([
             'event_title',
@@ -130,7 +131,8 @@ class EventController extends Controller
             # upload banner 
             if ($request->file('event_banner')) {
                 $file_name = time() . '-' . $event_id_with_label . '.' . $request->event_banner->extension();
-                $request->event_banner->storeAs(null, $file_name, 'uploaded_file_event');
+                $file_upload_service->snUploadFile($request->file('event_banner'), null, $file_name);
+                // $request->event_banner->storeAs(null, $file_name, 'uploaded_file_event');
             }
 
             $event_details['event_banner'] = $file_name;
@@ -173,7 +175,7 @@ class EventController extends Controller
         );
     }
 
-    public function update(StoreEventRequest $request)
+    public function update(StoreEventRequest $request, FileUploadService $file_upload_service)
     {
         $new_details = $request->only([
             'event_title',
@@ -210,7 +212,8 @@ class EventController extends Controller
                 # upload banner 
                 if ($request->file('event_banner')) {
                     $file_name = time() . '-' . $event_id . '.' . $request->event_banner->extension();
-                    $request->event_banner->storeAs(null, $file_name, 'uploaded_file_event');
+                    $file_upload_service->snUploadFile($request->file('event_banner'), null, $file_name);
+                    // $request->event_banner->storeAs(null, $file_name, 'uploaded_file_event');
                     $new_details['event_banner'] = $file_name;
                 }
             }

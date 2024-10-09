@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreFollowupClientRequest;
 use App\Http\Requests\StoreFollowupRequest;
 use App\Http\Traits\LoggingTrait;
 use App\Interfaces\FollowupRepositoryInterface;
@@ -23,28 +24,12 @@ class FollowupClientController extends Controller
         $this->followupRepository = $followupRepository;
     }
     
-    public function store(Request $request)
+    public function store(StoreFollowupClientRequest $request)
     {
         if (!$clientId = $request->route('student'))
             abort(404);
 
-        $rules = [
-            'followup_date' => 'nullable',
-            'notes' => 'nullable',
-            'status' => 'required|in:0,1,2,3|integer'
-        ];
-
-        $incomingRequest = $request->only(['followup_date', 'notes', 'status']);
-
-        $validator = Validator::make($incomingRequest, $rules);
-        
-        # threw error if validation fails
-        if ($validator->fails()) {
-            return Redirect::back()->withError('Invalid request.');
-        }
-
-        # after validating incoming request data, then retrieve the incoming request data
-        $validated = $request->collect();
+        $validated = $request->only(['followup_date', 'notes', 'status']);
 
         DB::beginTransaction();
         try {
@@ -73,7 +58,7 @@ class FollowupClientController extends Controller
         return Redirect::to('client/board')->withSuccess('Appointment successfully processed.');
     }
 
-    public function update(Request $request)
+    public function update(StoreFollowupClientRequest $request)
     {
         if (!$clientId = $request->route('student'))
             abort(404);
@@ -81,22 +66,7 @@ class FollowupClientController extends Controller
         if (!$followupId = $request->route('followup'))
             abort(404);
 
-        $rules = [
-            'minutes_of_meeting' => 'nullable',
-            'status' => 'required|in:0,1,2,3|integer'
-        ];
-
-        $incomingRequest = $request->only(['minutes_of_meeting', 'status']);
-
-        $validator = Validator::make($incomingRequest, $rules);
-        
-        # threw error if validation fails
-        if ($validator->fails()) {
-            return Redirect::back()->withError('Cannot process the request.');
-        }
-
-        # after validating incoming request data, then retrieve the incoming request data
-        $validated = $request->collect();
+        $validated = $request->only(['minutes_of_meeting', 'status']);
 
         DB::beginTransaction();
         try {

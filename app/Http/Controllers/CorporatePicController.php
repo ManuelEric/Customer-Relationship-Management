@@ -48,7 +48,7 @@ class CorporatePicController extends Controller
             'is_pic',
         ]);
         unset($picDetails['pic_phone']);
-        $picDetails['pic_phone'] = $this->setPhoneNumber($request->pic_phone);
+        $picDetails['pic_phone'] = $this->tnSetPhoneNumber($request->pic_phone);
 
         $picDetails['corp_id'] = $corporateId = $request->route('corporate');
 
@@ -80,7 +80,7 @@ class CorporatePicController extends Controller
         ]);
 
         unset($newDetails['pic_phone']);
-        $picDetails['pic_phone'] = $this->setPhoneNumber($request->pic_phone);
+        $picDetails['pic_phone'] = $this->tnSetPhoneNumber($request->pic_phone);
 
         $newDetails['corp_id'] = $corporateId = $request->route('corporate');
         $picId = $request->route('detail');
