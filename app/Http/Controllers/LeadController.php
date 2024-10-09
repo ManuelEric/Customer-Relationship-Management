@@ -11,6 +11,7 @@ use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\DepartmentRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Models\Lead;
+use App\Services\Master\LeadService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -30,12 +31,14 @@ class LeadController extends Controller
     private LeadRepositoryInterface $leadRepository;
     private DepartmentRepositoryInterface $departmentRepository;
     private ClientRepositoryInterface $clientRepository;
+    private LeadService $leadService;
 
-    public function __construct(LeadRepositoryInterface $leadRepository, DepartmentRepositoryInterface $departmentRepository, ClientRepositoryInterface $clientRepository)
+    public function __construct(LeadRepositoryInterface $leadRepository, DepartmentRepositoryInterface $departmentRepository, ClientRepositoryInterface $clientRepository, LeadService $leadService)
     {
         $this->leadRepository = $leadRepository;
         $this->departmentRepository = $departmentRepository;
         $this->clientRepository = $clientRepository;
+        $this->leadService = $leadService;
     }
 
     public function index(Request $request)
@@ -66,14 +69,7 @@ class LeadController extends Controller
         if (!$last_id)
             $last_id = 'LS000';
 
-        if ($request->kol == true) {
-
-            $lead_details['main_lead'] = "KOL";
-            $lead_details['sub_lead'] = $request->lead_name;
-        } else {
-            $lead_details['main_lead'] = $request->lead_name;
-            $lead_details['sub_lead'] = null;
-        }
+        $lead_details = $this->leadService->snFormattingLeadBeforeInsertOrUpdate($request);
 
         $lead_id_without_label = $this->remove_primarykey_label($last_id, 2);
         $lead_id_with_label = 'LS' . $this->add_digit($lead_id_without_label + 1, 3);
@@ -146,14 +142,7 @@ class LeadController extends Controller
         
         $oldLead = $this->leadRepository->getLeadById($lead_id);
 
-        if ($request->kol == true) {
-
-            $lead_details['main_lead'] = "KOL";
-            $lead_details['sub_lead'] = $request->lead_name;
-        } else {
-            $lead_details['main_lead'] = $request->lead_name;
-            $lead_details['sub_lead'] = null;
-        }
+        $lead_details = $this->leadService->snSetMainLeadAndSubLead($request);
 
         DB::beginTransaction();
         try {
@@ -198,35 +187,8 @@ class LeadController extends Controller
         return Redirect::to('master/lead')->withSuccess('Lead successfully deleted');
     }
 
-    public function getListReferral(Request $request)
+    public function fnGetListReferral(Request $request)
     {
-        $grouped =  new Collection();
-
-        if($request->ajax())
-        {
-            $filter['full_name'] = trim($request->term);
-            $list_referral = $this->clientRepository->getListReferral(['secondary_id', 'first_name', 'last_name'], $filter);
-    
-            $grouped = $list_referral->mapToGroups(function ($item, $key) {
-                return [
-                    $item['data'] . 'results' => [
-                        'id' => isset($item['secondary_id']) ? $item['secondary_id'] : null,
-                        'text' => isset($item['first_name']) ? $item['first_name'] . ' ' . $item['last_name'] : null
-                    ],
-                ];
-            });
-    
-            $more_pages=true;
-               if (empty($list_referral->nextPageUrl())){
-                $more_pages=false;
-               }
-    
-            $grouped['pagination'] = [
-                'more' => $more_pages
-            ];
-    
-            return $grouped;
-         
-        }
+        $this->leadService->snGetListReferral($request);
     }
 }

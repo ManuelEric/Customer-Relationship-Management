@@ -247,7 +247,7 @@ Route::get('user/sales-team/', [UserController::class, 'getSalesTeam']); # basic
 Route::get('get/program/main/{mainProgId}', [APIProgramController::class, 'getProgramNameByMainProgramId']);
 
 # Get List referral / sub lead referral (All Client)
-Route::get('get/referral/list', [LeadController::class, 'getListReferral']);
+Route::get('get/referral/list', [LeadController::class, 'fnGetListReferral']);
 
 # Import From google sheet
 Route::group(['middleware' => 'auth:api', 'prefix' => 'import'], function () {
