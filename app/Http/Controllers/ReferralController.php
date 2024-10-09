@@ -9,6 +9,7 @@ use App\Interfaces\PartnerRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\ReferralRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Services\Program\ReferralService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,13 +25,15 @@ class ReferralController extends Controller
     private CorporateRepositoryInterface $corporateRepository;
     private ProgramRepositoryInterface $programRepository;
     private UserRepositoryInterface $userRepository;
+    private ReferralService $referralService;
 
-    public function __construct(ReferralRepositoryInterface $referralRepository, CorporateRepositoryInterface $corporateRepository, ProgramRepositoryInterface $programRepository, UserRepositoryInterface $userRepository)
+    public function __construct(ReferralRepositoryInterface $referralRepository, CorporateRepositoryInterface $corporateRepository, ProgramRepositoryInterface $programRepository, UserRepositoryInterface $userRepository, ReferralService $referralService)
     {
         $this->referralRepository = $referralRepository;
         $this->corporateRepository = $corporateRepository;
         $this->programRepository = $programRepository;
         $this->userRepository = $userRepository;
+        $this->referralService = $referralService;
     }
 
     public function index(Request $request)
@@ -58,15 +61,18 @@ class ReferralController extends Controller
             'notes'
         ]);
 
-        if ($referralDetails['currency'] != 'IDR') {
-            $referralDetails['revenue_other'] = $referralDetails['revenue'];
-            $referralDetails['revenue'] = $referralDetails['revenue_idr'];
-            unset($referralDetails['revenue_idr']);
-        } else {
-            unset($referralDetails['revenue_idr']);
-            unset($referralDetails['curs_rate']);
-        }
+        // if ($referralDetails['currency'] != 'IDR') {
+        //     $referralDetails['revenue_other'] = $referralDetails['revenue'];
+        //     $referralDetails['revenue'] = $referralDetails['revenue_idr'];
+        //     unset($referralDetails['revenue_idr']);
+        // } else {
+        //     unset($referralDetails['revenue_idr']);
+        //     unset($referralDetails['curs_rate']);
+        // }
 
+        $referralDetails = array_merge($referralDetails, $this->referralService->snSetRevenueByCurrency($referralDetails));
+
+        return $referralDetails;
         DB::beginTransaction();
         try {
 
@@ -142,20 +148,23 @@ class ReferralController extends Controller
             'curs_rate',
         ]);
 
-        if ($newDetails['currency'] != 'IDR') {
-            $newDetails['revenue_other'] = $newDetails['revenue'];
-            $newDetails['revenue'] = $newDetails['revenue_idr'];
-            unset($newDetails['revenue_idr']);
-        } else {
-            unset($newDetails['revenue_idr']);
-            unset($newDetails['curs_rate']);
-        }
+        // if ($newDetails['currency'] != 'IDR') {
+        //     $newDetails['revenue_other'] = $newDetails['revenue'];
+        //     $newDetails['revenue'] = $newDetails['revenue_idr'];
+        //     unset($newDetails['revenue_idr']);
+        // } else {
+        //     unset($newDetails['revenue_idr']);
+        //     unset($newDetails['curs_rate']);
+        // }
+        $newDetails = array_merge($newDetails, $this->referralService->snSetRevenueByCurrency($newDetails));
 
-        $referral_type = $request->referral_type;
-        if ($referral_type == "In")
-            $newDetails['additional_prog_name'] = null;
-        elseif ($referral_type == "Out")
-            $newDetails['prog_id'] = null;
+
+        // $referral_type = $request->referral_type;
+        // if ($referral_type == "In")
+        //     $newDetails['additional_prog_name'] = null;
+        // elseif ($referral_type == "Out")
+        //     $newDetails['prog_id'] = null;
+        $newDetails = array_merge($newDetails, $this->referralService->snSetProgramByReferralType($request->referral_type));
 
         DB::beginTransaction();
         try {
