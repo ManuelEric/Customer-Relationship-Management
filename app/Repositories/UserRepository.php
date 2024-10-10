@@ -2,7 +2,9 @@
 
 namespace App\Repositories;
 
+use App\Enum\ContractUserType;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\UploadFileTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Models\ClientEvent;
@@ -15,6 +17,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use DataTables;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -22,6 +25,7 @@ use Illuminate\Validation\ValidationException;
 
 class UserRepository implements UserRepositoryInterface
 {
+    use UploadFileTrait;
     use CreateCustomPrimaryKeyTrait;
     private ClientRepositoryInterface $clientRepository;
 
@@ -162,8 +166,6 @@ class UserRepository implements UserRepositoryInterface
 
     public function getAllUsersExternalMentorContracts()
     {
-        # make sure external mentor adalah yg part-time??
-
         $today = date('Y-m-d');
         $twoMonths = date('Y-m-d', strtotime('+2 months', strtotime($today)));
 
@@ -199,6 +201,37 @@ class UserRepository implements UserRepositoryInterface
             })->
             get();
     }
+
+    //! new methods start
+
+    public function rnFindExpiringContracts(ContractUserType $type)
+    {
+        return User::query()->
+            when(ContractUserType::EDITOR, function ($query) {
+                $expected_end_date = Carbon::now()->addMonth(2);
+                $query->editor()->partTime($expected_end_date);
+            })->
+            when(ContractUserType::EXTERNAL_MENTOR, function ($query) {
+                $expected_end_date = Carbon::now()->addMonth(2);
+                $query->externalMentor()->partTime($expected_end_date);
+            })->
+            when(ContractUserType::TUTOR, function ($query) {
+                $expected_end_date = Carbon::now()->addMonth(2);
+                $query->tutor()->partTime($expected_end_date);
+            })->
+            when(ContractUserType::INTERNSHIP, function ($query) {
+                $expected_end_date = Carbon::now()->addMonth(1);
+                $query->internship($expected_end_date);
+            })->
+            when(ContractUserType::PROBATION, function ($query) {
+                $expected_end_date = Carbon::now()->addWeek(2);
+                $query->partTime($expected_end_date);
+            })->
+            with(['user_type'])->
+            lazy();
+    }
+
+    //! new methods end
 
     public function getPICs()
     {
@@ -346,105 +379,109 @@ class UserRepository implements UserRepositoryInterface
         );
     }
 
-    public function createUserEducation(User $user, array $userEducationDetails)
+    public function createUserEducation(User $user, array $user_education_details)
     {
-        for ($i = 0; $i < count($userEducationDetails['listGraduatedFrom']); $i++) {
-            $user->educations()->attach($userEducationDetails['listGraduatedFrom'][$i], [
-                'major_id' => $userEducationDetails['listMajor'][$i],
-                'degree' => $userEducationDetails['listDegree'][$i],
-                'graduation_date' => $userEducationDetails['listGraduationDate'][$i] ?? null
-            ]);
+        if ( (array_key_exists('graduated_from', $user_education_details) && ($user_education_details['graduated_from'] !== [])) 
+            && (array_key_exists('major', $user_education_details) && ($user_education_details['major'] !== []))
+            && (array_key_exists('degree', $user_education_details) && ($user_education_details['degree'] !== []))
+            && (array_key_exists('graduation_date', $user_education_details) && ($user_education_details['graduation_date'] !== []))
+        )
+        {
+            for ($i = 0; $i < count($user_education_details['graduated_from']); $i++) 
+            {
+                $user->educations()->attach($user_education_details['graduated_from'][$i], [
+                    'major_id' => $user_education_details['major'][$i],
+                    'degree' => $user_education_details['degree'][$i],
+                    'graduation_date' => $user_education_details['graduation_date'][$i] ?? null
+                ]);
+            }
         }
+
     }
 
-    public function createOrUpdateUserSubject(User $user, $request)
+    public function createOrUpdateUserSubject(User $user, Request $request)
     {
-        $user_role_id = $user->roles()->where('role_name', 'Tutor')->first()->pivot->id;
-        $subjectDetails = [];
-        $agreement_file_path = null;
-        
-        $isErrorAgreement = [false, 0];
+        # recollect user with user subjects
+        $user = User::with(['roles', 'roles.subjects'])->find($user->id);
 
-        if($user_role_id == null){
-            Log::warning('Failed to create user subject!, User is not Tutor', ['id' => $user->id]);
+        # variables for tutor subject
+        $new_tutor_subject_details = $request->only([
+            'subject_id',
+            'grade',
+            'agreement',
+            'fee_individual',
+            'fee_group',
+            'additional_fee',
+            'head'
+        ]);
+
+
+        if ( (!array_key_exists('subject_id', $new_tutor_subject_details) && ($new_tutor_subject_details['subject_id'] !== []))
+            || (!array_key_exists('grade', $new_tutor_subject_details) && ($new_tutor_subject_details['grade'] !== []))
+            || (!array_key_exists('agreement', $new_tutor_subject_details) && ($new_tutor_subject_details['agreement'] !== []))
+            || (!array_key_exists('fee_individual', $new_tutor_subject_details) && ($new_tutor_subject_details['fee_individual'] !== []))
+            || (!array_key_exists('head', $new_tutor_subject_details) && ($new_tutor_subject_details['head'] !== []))
+        )
+        {
+            throw new Exception('Subject has to be provided.');
+        }
+
+        
+        if ( !$user_tutor_identity = $user->roles()->where('role_name', 'Tutor')->first() )
+        {
+            Log::warning('Failed to add a subject for tutor!, User is not Tutor', ['id' => $user->id]);
             return;
         }
+    
 
-        for ($i = 0; $i < count($request->subject_id); $i++) {
-            if($request->hasFile('agreement.'.$i)){
-                $agreement_file_format = $request->file('agreement.'.$i)->getClientOriginalExtension();
-                $agreement_file_name = 'Agreement-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name . '-' . $request->subject_id[$i] .  '-' . date('Y'));
-                $agreement_file_path = $request->file('agreement.'.$i)->storeAs('public/uploaded_file/user/' . $user->id, $agreement_file_name . '.' . $agreement_file_format);
+        for ($i = 0; $i < count($new_tutor_subject_details['subject_id']); $i++) 
+        {
 
-                for($j = 0; $j < count($request->grade[$i]); $j++){
-                    $subjectDetails =  [
-                        'fee_individual' => $request->fee_individual[$i][$j],
-                        'fee_group' => $request->fee_group[$i][$j],
-                        'additional_fee' => $request->additional_fee[$i][$j],
-                        'head' => $request->head[$i][$j],
-                        'agreement' => $agreement_file_path,
-                    ];
-                    $user->user_subjects()->updateOrCreate([
-                        'user_role_id' => $user_role_id,
-                        'subject_id' => $request->subject_id[$i],
-                        'grade' => $request->grade[$i][$j],
-                        'year' => $request->year[$i]
-                    ], $subjectDetails);
-                }
-            }else{
-                if($request->isMethod('POST')){
-                    return $isErrorAgreement = [true, $i];
-                }
-                for($j = 0; $j < count($request->grade[$i]); $j++){
-                    $subjectDetails =  [
-                        'fee_individual' => $request->fee_individual[$i][$j],
-                        'fee_group' => $request->fee_group[$i][$j],
-                        'additional_fee' => $request->additional_fee[$i][$j],
-                        'head' => $request->head[$i][$j],
-                        'agreement' => isset($request->agreement_text) && $request->agreement_text[$i] != null ? $request->agreement_text[$i] : null
-                    ];
-                    $user->user_subjects()->updateOrCreate([
-                        'user_role_id' => $user_role_id,
-                        'subject_id' => $request->subject_id[$i],
-                        'grade' => $request->grade[$i][$j],
-                        'year' => $request->year[$i]
-                    ], $subjectDetails);
-                }
-            }  
-        }
-        
-        return $isErrorAgreement;
-        
-    }
+            if ( $user_subject = UserSubject::find($user_tutor_identity->pivot->id) )
+                $agreement = $user_subject->agreement;
+            else
+                $agreement = $this->tnUploadFile($request, 'agreement.'.$i, 'Agreement-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name . '-' . $request->subject_id[$i] .  '-' . date('Y')), 'public/uploaded_file/user/' . $user->id);
 
-    public function createUserRole(User $user, array $userRoleDetails)
-    {
-        for ($i = 0; $i < count($userRoleDetails['listRoles']); $i++) {
-            $ext_id_with_label = null;
-            if ($userRoleDetails['listRoles'][$i] == 2) {
-                # generate secondary extended_id 
-                $last_id = UserRole::max('extended_id');
-                $ext_id_without_label = $this->remove_primarykey_label($last_id, 3);
-                $ext_id_with_label = 'MT-' . $this->add_digit((int)$ext_id_without_label + 1, 4);
+
+            for($j = 0; $j < count($new_tutor_subject_details['grade'][$i]); $j++){
+
+                $subjectDetails =  [
+                    'fee_individual' => $new_tutor_subject_details['fee_individual'][$i][$j],
+                    'fee_group' => $new_tutor_subject_details['fee_group'][$i][$j],
+                    'additional_fee' => $new_tutor_subject_details['additional_fee'][$i][$j],
+                    'head' => $new_tutor_subject_details['head'][$i][$j],
+                    'agreement' => $agreement,
+                ];
+                $user->user_subjects()->updateOrCreate([
+                    'user_role_id' => $user_tutor_identity->pivot->id,
+                    'subject_id' => $new_tutor_subject_details['subject_id'][$i],
+                    'grade' => $new_tutor_subject_details['grade'][$i][$j],
+                    'year' => $new_tutor_subject_details['year'][$i]
+                ], $subjectDetails);
             }
-
-            $roleDetails = [
-                'extended_id' => $ext_id_with_label,
-                'tutor_subject' => $userRoleDetails['tutorSubject'],
-                'feehours' => $userRoleDetails['feeHours'],
-                'feesession' => $userRoleDetails['feeSession'],
-            ];
-
-            $user->roles()->attach($userRoleDetails['listRoles'][$i], $roleDetails);
-        }
+        }        
     }
 
-    public function createUserType(User $user, array $userTypeDetails)
+    public function createUserRole(User $user, array $user_role_details)
     {
-        $user->user_type()->attach($userTypeDetails['listType'], [
-            'department_id' => $userTypeDetails['departmentThatUserWorkedIn'],
-            'start_date' => $userTypeDetails['startWorking'],
-            'end_date' => $userTypeDetails['stopWorking'],
+        if ( (!array_key_exists('role', $user_role_details) && ($user_role_details['role'] !== [])) )
+            throw new Exception('Role has to be provided.');
+        
+        $user->roles()->attach($user_role_details['role']);
+    }
+
+    public function createUserType(User $user, array $user_type_details)
+    {
+        if ( (!array_key_exists('type', $user_type_details) && ($user_type_details['type'] !== []))
+            || (!array_key_exists('department', $user_type_details) && ($user_type_details['department'] !== []))
+            || (!array_key_exists('start_period', $user_type_details) && ($user_type_details['start_period'] !== []))
+        )
+            throw new Exception('Contract has to be provided.');
+        
+        $user->user_type()->attach($user_type_details['type'], [
+            'department_id' => $user_type_details['department'],
+            'start_date' => $user_type_details['start_period'],
+            'end_date' => $user_type_details['end_period'],
         ]);
     }
 

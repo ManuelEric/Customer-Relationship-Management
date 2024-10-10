@@ -6,18 +6,17 @@ namespace App\Models;
 
 use App\Events\MessageSent;
 use App\Models\pivot\AgendaSpeaker;
-use App\Models\pivot\AssetReturned;
 use App\Models\pivot\AssetUsed;
 use App\Models\pivot\UserRole;
 use App\Models\pivot\UserSubject;
 use App\Models\pivot\UserTypeDetail;
-use App\Observers\UserObserver;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
@@ -172,7 +171,53 @@ class User extends Authenticatable
 
     /**
      * The scopes.
+     * 
      */
+    public function scopeTutor(Builder $query): void
+    {
+        $query->whereHas('roles', function ($sub) {
+            $sub->where('role_name', 'Tutor');
+        });
+    }
+
+    public function scopeEditor(Builder $query): void
+    {
+        $query->whereHas('roles', function ($sub) {
+            $sub->where('role_name', 'like', '%Editor');
+        });
+    }
+
+    public function scopeExternalMentor(Builder $query): void
+    {
+        $query->whereHas('roles', function ($sub) {
+            $sub->where('role_name', 'Mentor');
+        })->
+        whereDoesntHave('roles', function ($sub) {
+            $sub->where('role_name', 'Employee');
+        });
+    }
+
+    public function scopeInternship(Builder $query, Carbon $expected_end_date): void
+    {
+        $query->whereHas('user_type', function($sub) use ($expected_end_date) {
+            $sub->
+                where('tbl_user_type_detail.status', 1)-> # dimana status contractnya active
+                where('tbl_user_type_detail.end_date', $expected_end_date)-> # dimana end date nya sudah H-2 weeks
+                where('tbl_user_type.type_name', 'Internship');
+        });
+    }
+
+    public function scopePartTime(Builder $query, $expected_end_date): void
+    {
+        $query->whereHas('user_type', function($sub) use ($expected_end_date) {
+            $sub->
+                where('tbl_user_type_detail.status', 1)-> # dimana status contractnya active
+                where('tbl_user_type_detail.end_date', $expected_end_date)-> # dimana end date nya sudah H-2 weeks
+                where('tbl_user_type.type_name', 'Part-Time');
+        });
+    }
+
+
     public function scopeIsActive(Builder $query): void
     {
         $query->where('active', 1);

@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Users\CreateUserAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Http\Traits\UploadFileTrait;
 use App\Interfaces\DepartmentRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\PositionRepositoryInterface;
@@ -13,16 +16,12 @@ use App\Interfaces\SubjectRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\UserTypeRepositoryInterface;
-use App\Models\pivot\UserRole;
 use App\Models\pivot\UserSubject;
-use App\Models\pivot\UserTypeDetail;
-use App\Models\User;
-use App\Models\UserType;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -34,6 +33,7 @@ class UserController extends Controller
     use CreateCustomPrimaryKeyTrait;
     use StandardizePhoneNumberTrait;
     use LoggingTrait;
+    use UploadFileTrait;
 
     private UserRepositoryInterface $userRepository;
     private UniversityRepositoryInterface $universityRepository;
@@ -68,10 +68,14 @@ class UserController extends Controller
         return view('pages.user.employee.index');
     }
 
-    public function store(StoreUserRequest $request)
+    public function store(
+        StoreUserRequest $request,
+        CreateUserAction $createUserAction,
+        LogService $log_service,
+        )
     {
         # INITIALIZE VARIABLES START
-        $userDetails = $request->only([
+        $new_user_details = $request->safe()->only([
             'first_name',
             'last_name',
             'email',
@@ -85,174 +89,49 @@ class UserController extends Controller
             'account_name',
             'account_no',
             'npwp',
+            'password',
+            'position_id',
         ]);
-        unset($userDetails['phone']);
-        unset($userDetails['emergency_contact_phone']);
-        $userDetails['phone'] = $this->setPhoneNumber($request->phone);
-        $userDetails['emergency_contact_phone'] = $request->emergency_contact_phone != null ? $this->setPhoneNumber($request->emergency_contact_phone) : null;
 
-        # generate default password which is 12345678
-        $userDetails['password'] = Hash::make('12345678'); # update
-        $userDetails['position_id'] = $request->position;
-
-        # generate extended_id
-        // $last_id = User::where('extended_id', 'like', '%EMPL%')->max('extended_id');
-        // $user_id_without_label = $this->remove_primarykey_label($last_id, 5);
-        // $user->id = 'EMPL-' . $this->add_digit((int)$user_id_without_label + 1, 4);
-        // $userDetails['extended_id'] = $user->id;
-
-        # when generated user id with label is exists on database
-        # then generate a new one
-        // if ($this->userRepository->getUserByExtendedId($user->id)) {
-        //     $user_id_without_label = $this->remove_primarykey_label($user->id, 5);
-        //     $user->id = 'EMPL-' . $this->add_digit((int)$user_id_without_label + 1, 4);
-        //     $userDetails['extended_id'] = $user->id;
-        // }
 
         # variables for user educations
-        $listGraduatedFrom = $request->graduated_from;
-        $listMajor = $request->major;
-        $listDegree = $request->degree;
-        $listGraduationDate = $request->graduation_date;
-
-        $userEducationDetails = [];
-        if ($request->graduated_from[0] != null) {
-            $userEducationDetails = [
-                'listGraduatedFrom' => $listGraduatedFrom,
-                'listMajor' => $listMajor,
-                'listDegree' => $listDegree,
-                'listGraduationDate' => $listGraduationDate,
-            ];
-        }
+        $new_user_education_details = $request->safe()->only([
+            'graduated_from',
+            'major',
+            'degree',
+            'graduation_date',
+        ]);
         
-        $userSubjectDetails = [];
-        if ($request->subject_id[0] != null) {
-            $userSubjectDetails = [
-                'listSubjectId' => $request->subject_id,
-                'listGrade' => $request->grade,
-                'listAgreement' => $request->agreement,
-                'listFeeIndividual' => $request->fee_individual,
-                'listFeeGroup' => $request->fee_group,
-                'listAdditionalFee' => $request->additional_fee,
-                'listHead' => $request->head,
-            ];
-        }
-
         # variables for user roles
-        $listRoles = $request->role;
-        $tutorSubject = $request->tutor_subject ??= NULL;
-        $feeHours = $request->feehours ??= NULL;
-        $feeSession = $request->feesession ??= NULL;
-        $userRoleDetails = [
-            'listRoles' => $listRoles,
-            'tutorSubject' => $tutorSubject,
-            'feeHours' => $feeHours,
-            'feeSession' => $feeSession,
-        ];
+        $new_user_role_details = $request->safe()->only([
+            'role',
+        ]);
 
-        # variables for user types
+        # variables for user contract
         # user type more like full-time, probation, part-time, etc.
-        $listType = $request->type;
-        $departmentThatUserWorkedIn = $request->department;
-        $startWorking = $request->start_period;
-        $stopWorking = $request->end_period;
-        $userTypeDetails = [
-            'listType' => $listType,
-            'departmentThatUserWorkedIn' => $departmentThatUserWorkedIn,
-            'startWorking' => $startWorking,
-            'stopWorking' => $stopWorking
-        ];
+        $new_user_type_details = $request->safe()->only([
+            'type',
+            'department',
+            'start_period',
+            'end_period'
+        ]);
+        
         # INITIALIZE VARIABLES END
 
         DB::beginTransaction();
         try {
 
-            # store new user
-            $newUser = $this->userRepository->createUser($userDetails, $userEducationDetails);
-            $newUserId = $newUser->id;
-
-            if ($request->graduated_from[0] != null) {
-                # store new user education to tbl_user_education
-                $this->userRepository->createUserEducation($newUser, $userEducationDetails);
-            }
-
-            # store new user role to tbl_user_roles
-            $this->userRepository->createUserRole($newUser, $userRoleDetails);
-
-            # store new user type to tbl_user_type
-            $this->userRepository->createUserType($newUser, $userTypeDetails);
-
-            if ($request->subject_id[0] != null) {
-                # store new user subject to tbl_user_subjects
-                $checkUserSubject = $this->userRepository->createOrUpdateUserSubject($newUser, $request, $newUserId);
-                
-                if(isset($checkUserSubject[0]) && $checkUserSubject[0]){
-                    return back()->withErrors(["agreement.".$checkUserSubject[1] => "The Agreement field is required"])->withInput();
-                }
-            }
-
-            # upload curriculum vitae
-            $CV_file_path = null;
-            if ($request->hasFile('curriculum_vitae')) {
-                $CV_file_format = $request->file('curriculum_vitae')->getClientOriginalExtension();
-                $CV_file_name = 'CV-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $CV_file_path = $request->file('curriculum_vitae')->storeAs('public/uploaded_file/user/' . $newUserId, $CV_file_name . '.' . $CV_file_format);
-            }
-
-
-            # upload KTP / idcard
-            $ID_file_path = null;
-            if ($request->hasFile('idcard')) {
-                $ID_file_format = $request->file('idcard')->getClientOriginalExtension();
-                $ID_file_name = 'ID-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $ID_file_path = $request->file('idcard')->storeAs('public/uploaded_file/user/' . $newUserId, $ID_file_name . '.' . $ID_file_format);
-            }
-
-            # upload tax
-            $TX_file_path = null;
-            if ($request->hasFile('tax')) {
-                $TX_file_format = $request->file('tax')->getClientOriginalExtension();
-                $TX_file_name = 'TAX-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $TX_file_path = $request->file('tax')->storeAs('public/uploaded_file/user/' . $newUserId, $TX_file_name . '.' . $TX_file_format);
-            }
-
-            # upload bpjs kesehatan / health insurance
-            $HI_file_path = null;
-            if ($request->hasFile('health_insurance')) {
-                $HI_file_format = $request->file('health_insurance')->getClientOriginalExtension();
-                $HI_file_name = 'HI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $HI_file_path = $request->file('health_insurance')->storeAs('public/uploaded_file/user/' . $newUserId, $HI_file_name . '.' . $HI_file_format);
-            }
-
-            # upload bpjs ketenagakerjaan / empl insurance
-            $EI_file_path = null;
-            if ($request->hasFile('empl_insurance')) {
-                $EI_file_format = $request->file('empl_insurance')->getClientOriginalExtension();
-                $EI_file_name = 'EI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $EI_file_path = $request->file('empl_insurance')->storeAs('public/uploaded_file/user/' . $newUserId, $EI_file_name . '.' . $EI_file_format);
-            }
-
-            # update uploaded data to user table
-            if ($request->hasFile('curriculum_vitae') || $request->hasFile('idcard') || $request->hasFile('tax') || $request->hasFile('health_insurance') || $request->hasFile('empl_insurance')) {
-                $this->userRepository->updateUser($newUserId, [
-                    'idcard' => $ID_file_path,
-                    'cv' => $CV_file_path,
-                    'tax' => $TX_file_path,
-                    'health_insurance' => $HI_file_path,
-                    'empl_insurance' => $EI_file_path
-                ]);
-            }
+            $new_user = $createUserAction->execute($request, $new_user_details, $new_user_education_details, $new_user_role_details, $new_user_type_details);            
             DB::commit();
+            
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store user ' . $request->route('user_role') . ' failed : ' . $e->getMessage() . ' | On Line: ' . $e->getLine());
+            $log_service->createErrorLog(LogModule::STORE_USER, $e->getMessage(), $e->getLine(), $e->getFile(), ['email' => $new_user_details['email']]);
             return Redirect::back()->withError('Failed to create a new ' . $request->route('user_role'));
         }
 
-        # store Success
-        # create log success
-        $this->logSuccess('store', 'Form Input', 'User', Auth::user()->first_name . ' '. Auth::user()->last_name, ['user_id' => $newUserId]);
+        $log_service->createSuccessLog(LogModule::STORE_USER, 'New user has been added', $new_user);
 
         return Redirect::to('user/' . $request->route('user_role'))->withSuccess('New ' . $request->route('user_role') . ' has been created');
     }

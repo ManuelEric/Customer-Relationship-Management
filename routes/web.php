@@ -44,13 +44,14 @@ Route::middleware('guest')->group(function () {
     Route::get('login', function () {
         return view('auth.login');
     })->name('login');
+
+    Route::post('auth/login', [AuthController::class, 'login'])->name('login.action');
+    Route::get('login/expired', [AuthController::class, 'logoutFromExpirationTime'])->name('logout.expiration');
 });
 
 
-Route::post('auth/login', [AuthController::class, 'login'])->name('login.action');
-Route::get('login/expired', [AuthController::class, 'logoutFromExpirationTime'])->name('logout.expiration');
 
-// Route::group(['middleware' => ['auth', 'auth.department']], function () {
+Route::group(['middleware' => ['auth', 'auth.department']], function () {
     Route::get('auth/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('dashboard', [DashboardController::class, 'index'])->name('index');
@@ -58,7 +59,7 @@ Route::get('login/expired', [AuthController::class, 'logoutFromExpirationTime'])
     Route::get('import', function () {
         return view('pages.import.index');
     });
-// });
+});
 
 # AUTH END ------------------------------------
 

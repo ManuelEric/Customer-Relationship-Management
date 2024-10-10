@@ -18,7 +18,7 @@ class AuthenticateDepartment
      */
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::user() && (Auth::user()->department->count() > 0 || Auth::user()->roles()->where('role_name', 'Super Admin')->count() > 0)) {
+        if (Auth::check() && (Auth::user()->department->count() > 0 || Auth::user()->roles()->where('role_name', 'Super Admin')->count() > 0)) {
             return $next($request);
         }
 

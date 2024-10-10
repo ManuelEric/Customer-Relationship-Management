@@ -6,14 +6,10 @@ use App\Http\Traits\LoggingTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Interfaces\MenuRepositoryInterface;
-use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\UserTypeRepositoryInterface;
-use App\Models\User;
 use App\Services\Authorization\AuthorizationService;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
@@ -40,7 +36,7 @@ class AuthController extends Controller
         ]);
 
         # check credentials
-        if (!Auth::attempt($credentials, true))
+        if (!Auth::attempt($credentials, true)) 
             return back()->withErrors([ 'password' => 'Wrong email or password' ]);
 
         
@@ -58,9 +54,8 @@ class AuthController extends Controller
             
         } catch (Exception $e) {
 
-            return $e->getMessage();
-            // Log::debug('Error:'. $e->getMessage());
-            // return back()->withError($e->getMessage());
+            Log::debug('Error:'. $e->getMessage());
+            return back()->withError($e->getMessage());
 
         }
 

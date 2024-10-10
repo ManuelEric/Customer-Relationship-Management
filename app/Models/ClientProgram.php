@@ -180,10 +180,10 @@ class ClientProgram extends Model
     public function scopeSuccessAndPaid(Builder $query): void
     {
         $query->where('status', 1)->whereNot('prog_running_status', 2)->where('prog_end_date', '>=', Carbon::now())->
-            where(function ($query) {
-                $query->where(function ($query2) {
+            where(function ($query2) {
+                // $query->where(function ($query2) {
                     $query2->has('invoice')->has('invoice.receipt');
-                });
+                // });
             });
     }
 

@@ -516,11 +516,7 @@ return new class extends Migration
                 month(rc.created_at),
                 rc.st_grade
             ) AS real_grade,
-            (CASE
-                WHEN (SELECT real_grade IS NULL) AND rc.graduation_year IS NOT NULL THEN (12 - (rc.graduation_year - YEAR(NOW())))  
-                ELSE (SELECT real_grade)
-            END) as grade_now,
-            (SELECT ((SELECT grade_now) - 12)) AS year_gap,
+            (SELECT ((SELECT rc.grade_now) - 12)) AS year_gap,
             (SELECT YEAR((NOW() - INTERVAL (SELECT year_gap) YEAR) + INTERVAL 1 YEAR)) AS graduation_year_real,
             rc.graduation_year,
             rc.lead_id,
