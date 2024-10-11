@@ -28,6 +28,7 @@ use App\Models\Program;
 use App\Models\School;
 use App\Models\UserClient;
 use App\Models\ViewClientProgram;
+use App\Services\Program\ClientProgramService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -60,13 +61,14 @@ class ClientProgramController extends Controller
     private TagRepositoryInterface $tagRepository;
     private ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository;
     private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
+    private ClientProgramService $clientProgramService;
     private $admission_prog_list;
     private $tutoring_prog_list;
     private $satact_prog_list;
 
     use CreateCustomPrimaryKeyTrait;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository, TagRepositoryInterface $tagRepository, ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository, TagRepositoryInterface $tagRepository, ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ClientProgramService $clientProgramService)
     {
         $this->clientRepository = $clientRepository;
         $this->programRepository = $programRepository;
@@ -82,6 +84,7 @@ class ClientProgramController extends Controller
         $this->tagRepository = $tagRepository;
         $this->clientProgramLogMailRepository = $clientProgramLogMailRepository;
         $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
+        $this->clientProgramService = $clientProgramService;
 
         $this->admission_prog_list = Program::whereHas('main_prog', function ($query) {
             $query->where('prog_name', 'Admissions Mentoring');
@@ -314,198 +317,21 @@ class ClientProgramController extends Controller
             'empl_id'
         ]);
 
-        # set lead_id based on lead_id & kol_lead_id
-        # when lead_id is kol
-        # then put kol_lead_id to lead_id
-        # otherwise
-        # when lead_id is not kol 
-        # then lead_id is lead_id
-        if ($request->lead_id == "kol") {
-
-            unset($clientProgramDetails['lead_id']);
-            $clientProgramDetails['lead_id'] = $request->kol_lead_id;
-        }
-
-        switch ($status) {
-
-                # when program status is pending
-            case 0:
-
-                # and submitted prog_id is admission mentoring
-                if (in_array($progId, $this->admission_prog_list)) {
-
-                    # add additional values
-                    $clientProgramDetails['initconsult_date'] = $request->pend_initconsult_date;
-                    $clientProgramDetails['assessmentsent_date'] = $request->pend_assessmentsent_date;
-                    $clientProgramDetails['mentor_ic'] = $request->pend_mentor_ic;
-                } elseif (in_array($progId, $this->tutoring_prog_list)) {
-
-                    # add additional values
-                    $clientProgramDetails['trial_date'] = $request->pend_trial_date;
-                }
-
-                break;
-
-                # when program status is active
-            case 1:
-                # declare default variable
-                $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
-                $clientProgramDetails['success_date'] = $request->success_date;
-
-                # and submitted prog_id is admission mentoring
-                if (in_array($progId, $this->admission_prog_list)) {
-
-                    # add additional values
-                    $clientProgramDetails['success_date'] = $request->success_date;
-                    $clientProgramDetails['initconsult_date'] = $request->initconsult_date;
-                    $clientProgramDetails['assessmentsent_date'] = $request->assessmentsent_date;
-                    $clientProgramDetails['prog_end_date'] = $request->mentoring_prog_end_date;
-                    $clientProgramDetails['total_uni'] = $request->total_uni;
-                    $clientProgramDetails['total_foreign_currency'] = $request->total_foreign_currency;
-                    $clientProgramDetails['foreign_currency'] = $request->foreign_currency;
-                    $clientProgramDetails['foreign_currency_exchange'] = $request->foreign_currency_exchange;
-                    $clientProgramDetails['total_idr'] = $request->total_idr;
-                    $clientProgramDetails['installment_notes'] = $request->installment_notes;
-                    $clientProgramDetails['prog_running_status'] = (int) $request->prog_running_status;
-
-                    
-                    # declare the variables for agreement
-                    if ($request->hasFile('agreement')) {
-
-                        # setting up the agreement request file
-                        $file_name = "agreement_".str_replace(' ', '_', trim($student->full_name))."_".$progId;
-                        $file_format = $request->file('agreement')->getClientOriginalExtension();
-                        
-                        # generate the file path
-                        $file_path = $file_name.'.'.$file_format;
-
-                    }
-
-                } elseif (in_array($progId, $this->tutoring_prog_list)) {
-
-                    # add additional values
-                    $clientProgramDetails['success_date'] = $request->success_date;
-                    $clientProgramDetails['trial_date'] = $request->trial_date;
-                    // $clientProgramDetails['first_class'] = $request->first_class;
-                    $clientProgramDetails['prog_start_date'] = $request->prog_start_date;
-                    $clientProgramDetails['prog_end_date'] = $request->prog_end_date;
-                    $clientProgramDetails['timesheet_link'] = $request->timesheet_link;
-                    // $clientProgramDetails['tutor_id'] = $request->tutor_id;
-                    $clientProgramDetails['prog_running_status'] = (int) $request->prog_running_status;
-                } elseif (in_array($progId, $this->satact_prog_list)) {
-                    
-                    # add additional values
-                    $clientProgramDetails['success_date'] = $request->success_date;
-                    $clientProgramDetails['test_date'] = $request->test_date;
-                    $clientProgramDetails['first_class'] = $request->first_class;
-                    $clientProgramDetails['last_class'] = $request->last_class;
-                    $clientProgramDetails['diag_score'] = $request->diag_score;
-                    $clientProgramDetails['test_score'] = $request->test_score;
-                    // $clientProgramDetails['tutor_1'] = $request->tutor_1;
-                    // $clientProgramDetails['tutor_2'] = $request->tutor_2;
-                    $clientProgramDetails['prog_running_status'] = (int) $request->prog_running_status;
-                }
-
-                if (in_array($progId, $this->admission_prog_list)) {
-
-                    $clientProgramDetails['supervising_mentor'] = $request->supervising_mentor;
-                    $clientProgramDetails['profile_building_mentor'] = isset($request->profile_building_mentor) ? $request->profile_building_mentor : NULL;
-                    $clientProgramDetails['subject_specialist_mentor'] = isset($request->subject_specialist_mentor) ? $request->subject_specialist_mentor : NULL;
-                    $clientProgramDetails['aplication_strategy_mentor'] = isset($request->aplication_strategy_mentor) ? $request->aplication_strategy_mentor : NULL;
-                    $clientProgramDetails['writing_mentor'] = isset($request->writing_mentor) ? $request->writing_mentor : NULL;
-                    $clientProgramDetails['mentor_ic'] = $request->mentor_ic;
-                } elseif (in_array($progId, $this->tutoring_prog_list)) {
-
-                    $clientProgramDetails['tutor_id'] = $request->tutor_id;
-
-                    # if session tutor form doesn't exist then don't detail session tutor
-                    if (isset($request->session)) {
-
-                        $clientProgramDetails['session_tutor'] = $request->session; // how many session will applied
-                        $clientProgramDetails['session_tutor_detail'] = [
-                            'datetime' => $request->sessionDetail,
-                            'linkmeet' => $request->sessionLinkMeet
-                        ];
-                    }
-
-                } elseif (in_array($progId, $this->satact_prog_list)) {
-
-                    $clientProgramDetails['tutor_1'] = $request->tutor_1;
-                    $clientProgramDetails['tutor_2'] = $request->tutor_2;
-                    $clientProgramDetails['timesheet_1'] = $request->timesheet_1;
-                    $clientProgramDetails['timesheet_2'] = $request->timesheet_2;
-                }
-                break;
-
-                # when program status is failed
-            case 2:
-
-                $clientProgramDetails['failed_date'] = $request->failed_date;
-                $clientProgramDetails['reason_id'] = $request->reason_id;
-                $clientProgramDetails['other_reason'] = $request->other_reason;
-                $clientProgramDetails['reason_notes'] = $request->reason_notes;
-
-                break;
-
-                # when program status is refund
-            case 3:
-                $clientProgramDetails['refund_date'] = $request->failed_date;
-                $clientProgramDetails['refund_notes'] = $request->refund_notes;
-                $clientProgramDetails['reason_id'] = $request->reason_id;
-                $clientProgramDetails['other_reason'] = $request->other_reason;
-                $clientProgramDetails['reason_notes'] = $request->reason_notes;
-                break;
-        }
-
+        $clientProgramDetails = $this->clientProgramService->snSetAttributeLead($clientProgramDetails);
+        
         DB::beginTransaction();
         try {
 
+            $additional_attributes = $this->clientProgramService->snSetAdditionalAttributes($request, ['admission' => $this->admission_prog_list, 'tutoring' => $this->tutoring_prog_list, 'satact' => $this->satact_prog_list], $student, $clientProgramDetails);
+            $clientProgramDetails = $additional_attributes['client_program_details'];
+            $file_path = $additional_attributes['file_path'];
+
             $newClientProgram = $this->clientProgramRepository->createClientProgram(['client_id' => $studentId] + $clientProgramDetails);
-            $newClientProgramId = $newClientProgram->clientprog_id;
-            $newClientProgramSuccessDate = $newClientProgram->success_date;
-
-            # check the status of the new client program
-            switch ($clientProgramDetails['status']) {
-
-                # if client program has been submitted 
-                # then change status client to potential
-                case 0: # pending
-
-                    $this->clientRepository->updateClient($studentId, ['st_statuscli' => 1]);
-                    break;
-
-                case 1: # success
-
-                    # if he/she join admission mentoring program
-                    # add role mentee
-                    if (in_array($progId, $this->admission_prog_list)) {
-                        
-                        $this->clientRepository->addRole($studentId, 'Mentee');
-
-                        # upload the agreement
-                        # storing the file
-                        if (!$request->file('agreement')->storeAs('public/uploaded_file/agreement', $file_path))
-                            throw new Exception('The file cannot be uploaded.');
-
-                        
-                        # update the path into clientprogram table
-                        $this->clientProgramRepository->updateFewField($newClientProgramId, ['agreement' => $file_path]);
-
-                    }
-
-                    # when program running status was 2 which mean done
-                    # then check if client has other program running or done
-                    if ($clientProgramDetails['prog_running_status'] != 2)
-                        $this->clientRepository->updateClient($studentId, ['st_statuscli' => 2]);
-
-
-                    # when all program were done
-                    # change status client to completed (3)
-                    if ($this->clientRepository->checkAllProgramStatus($studentId) == "completed")
-                        $this->clientRepository->updateClient($studentId, ['st_statuscli' => 3]);
-
-                    break;
-            }
+       
+            # add or remove role mentee
+            # add role mentee when program is mentoring and status success then add role mentee
+            # remove role mentee Only for method update
+            $this->clientProgramService->snAddOrRemoveRoleMentee($progId, $studentId, $this->admission_prog_list, $clientProgramDetails['status']);
 
             $leadsTracking = $this->clientLeadTrackingRepository->getCurrentClientLead($studentId);
 
@@ -616,269 +442,21 @@ class ClientProgramController extends Controller
             'referral_code'
         ]);
 
-        switch ($request->lead_id) {
+        $clientProgramDetails = $this->clientProgramService->snSetAttributeLead($clientProgramDetails);
 
-            case "LS004": #All-In Event
-                $clientProgramDetails['eduf_lead_id'] = null;
-                // $clientProgramDetails['kol_lead_id'] = null;
-                $clientProgramDetails['partner_id'] = null;
-                break;
-
-            case "LS010": #ALL-In Partners
-                $clientProgramDetails['eduf_lead_id'] = null;
-                // $clientProgramDetails['kol_lead_id'] = null;
-                $clientProgramDetails['clientevent_id'] = null;
-                break;
-
-            case "LS018": #External Edufair
-                $clientProgramDetails['partner_id'] = null;
-                // $clientProgramDetails['kol_lead_id'] = null;
-                $clientProgramDetails['clientevent_id'] = null;
-                break;
-
-            case "kol": #External Edufair
-                $clientProgramDetails['partner_id'] = null;
-                // $clientProgramDetails['eduf_lead_id'] = null;
-                $clientProgramDetails['clientevent_id'] = null;
-                break;
-        }
-
-        # set lead_id based on lead_id & kol_lead_id
-        # when lead_id is kol
-        # then put kol_lead_id to lead_id
-        # otherwise
-        # when lead_id is not kol 
-        # then lead_id is lead_id
-        if ($request->lead_id == "kol") {
-
-            unset($clientProgramDetails['lead_id']);
-            $clientProgramDetails['lead_id'] = $request->kol_lead_id;
-        }
-
-        if ($request->lead_id != 'LS005') # Referral
-        {
-            $clientProgramDetails['referral_code'] = null;
-        }
-
-        switch ($status) {
-
-            # when program status is pending
-            case 0:
-
-            # and submitted prog_id is admission mentoring
-                if (in_array($progId, $this->admission_prog_list)) {
-
-                    # add additional values
-                    $clientProgramDetails['initconsult_date'] = $request->pend_initconsult_date;
-                    $clientProgramDetails['assessmentsent_date'] = $request->pend_assessmentsent_date;
-                    $clientProgramDetails['mentor_ic'] = $request->pend_mentor_ic;
-                } elseif (in_array($progId, $this->tutoring_prog_list)) {
-
-                    # add additional values
-                    $clientProgramDetails['trial_date'] = $request->pend_trial_date;
-                }
-
-                break;
-
-            # when program status is active
-            case 1:
-                $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
-                $clientProgramDetails['success_date'] = $request->success_date;
-
-                # and submitted prog_id is admission mentoring
-                if (in_array($progId, $this->admission_prog_list)) {
-
-                    # add additional values
-                    $clientProgramDetails['success_date'] = $request->success_date;
-                    $clientProgramDetails['initconsult_date'] = $request->initconsult_date;
-                    $clientProgramDetails['assessmentsent_date'] = $request->assessmentsent_date;
-                    $clientProgramDetails['prog_end_date'] = $request->mentoring_prog_end_date;
-                    $clientProgramDetails['total_uni'] = $request->total_uni;
-                    $clientProgramDetails['total_foreign_currency'] = $request->total_foreign_currency;
-                    $clientProgramDetails['foreign_currency'] = $request->foreign_currency;
-                    $clientProgramDetails['foreign_currency_exchange'] = $request->foreign_currency_exchange;
-                    $clientProgramDetails['total_idr'] = $request->total_idr;
-                    // $clientProgramDetails['main_mentor'] = $request->main_mentor;
-                    // $clientProgramDetails['backup_mentor'] = isset($request->backup_mentor) ? $request->backup_mentor : NULL;
-                    $clientProgramDetails['supervising_mentor'] = $request->supervising_mentor;
-                    $clientProgramDetails['profile_building_mentor'] = isset($request->profile_building_mentor) ? $request->profile_building_mentor : NULL;
-                    $clientProgramDetails['subject_specialist_mentor'] = isset($request->subject_specialist_mentor) ? $request->subject_specialist_mentor : NULL;
-                    $clientProgramDetails['aplication_strategy_mentor'] = isset($request->aplication_strategy_mentor) ? $request->aplication_strategy_mentor : NULL;
-                    $clientProgramDetails['writing_mentor'] = isset($request->writing_mentor) ? $request->writing_mentor : NULL;                    
-                    $clientProgramDetails['installment_notes'] = $request->installment_notes;
-                    $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
-
-                    # declare the variables for agreement
-                    if ($request->hasFile('agreement')) {
-
-                        # setting up the agreement request file
-                        $file_name = "agreement_".str_replace(' ', '_', trim($student->full_name))."_".$progId;
-                        $file_format = $request->file('agreement')->getClientOriginalExtension();
-                        
-                        # generate the file path
-                        $file_path = $file_name.'.'.$file_format;
-
-                    }
-
-                } elseif (in_array($progId, $this->tutoring_prog_list)) {
-
-                    # add additional values
-                    $clientProgramDetails['success_date'] = $request->success_date;
-                    $clientProgramDetails['trial_date'] = $request->trial_date;
-                    $clientProgramDetails['prog_start_date'] = $request->prog_start_date;
-                    $clientProgramDetails['prog_end_date'] = $request->prog_end_date;
-                    $clientProgramDetails['timesheet_link'] = $request->timesheet_link;
-                    // $clientProgramDetails['tutor_id'] = $request->tutor_id;
-                    $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
-                } elseif (in_array($progId, $this->satact_prog_list)) {
-
-                    # add additional values
-                    $clientProgramDetails['success_date'] = $request->success_date;
-                    $clientProgramDetails['test_date'] = $request->test_date;
-                    $clientProgramDetails['first_class'] = $request->first_class;
-                    $clientProgramDetails['last_class'] = $request->last_class;
-                    $clientProgramDetails['diag_score'] = $request->diag_score;
-                    $clientProgramDetails['test_score'] = $request->test_score;
-                    // $clientProgramDetails['tutor_1'] = $request->tutor_1;
-                    // $clientProgramDetails['tutor_2'] = $request->tutor_2;
-                    $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
-                }
-
-                if (in_array($progId, $this->admission_prog_list)) {
-
-                    // $clientProgramDetails['main_mentor'] = $request->main_mentor;
-                    // $clientProgramDetails['backup_mentor'] = isset($request->backup_mentor) ? $request->backup_mentor : NULL;
-                    $clientProgramDetails['supervising_mentor'] = $request->supervising_mentor;
-                    $clientProgramDetails['profile_building_mentor'] = isset($request->profile_building_mentor) ? $request->profile_building_mentor : NULL;
-                    $clientProgramDetails['aplication_strategy_mentor'] = isset($request->aplication_strategy_mentor) ? $request->aplication_strategy_mentor : NULL;
-                    $clientProgramDetails['writing_mentor'] = isset($request->writing_mentor) ? $request->writing_mentor : NULL;                    
-                    $clientProgramDetails['mentor_ic'] = $request->mentor_ic;
-                } elseif (in_array($progId, $this->tutoring_prog_list)) {
-
-                    $clientProgramDetails['tutor_id'] = $request->tutor_id;
-
-                    # if session tutor form doesn't exist then don't detail session tutor
-                    if (isset($request->session)) {
-                        
-                        $clientProgramDetails['session_tutor'] = $request->session; // how many session will applied
-                        $clientProgramDetails['session_tutor_detail'] = [
-                            'datetime' => $request->sessionDetail,
-                            'linkmeet' => $request->sessionLinkMeet
-                        ];
-                    }
-                } elseif (in_array($progId, $this->satact_prog_list)) {
-
-                    $clientProgramDetails['tutor_1'] = $request->tutor_1;
-                    $clientProgramDetails['tutor_2'] = $request->tutor_2;
-                    $clientProgramDetails['timesheet_1'] = $request->timesheet_1;
-                    $clientProgramDetails['timesheet_2'] = $request->timesheet_2;
-
-                }
-
-                break;
-
-            # when program status is failed
-            case 2:
-
-                $clientProgramDetails['failed_date'] = $request->failed_date;
-                $clientProgramDetails['reason_id'] = $request->reason_id;
-                $clientProgramDetails['other_reason'] = $request->other_reason;
-                $clientProgramDetails['reason_notes'] = $request->reason_notes;
-
-                break;
-
-            # when program status is refund
-            case 3:
-                $clientProgramDetails['refund_date'] = $request->refund_date;
-                $clientProgramDetails['refund_notes'] = $request->refund_notes;
-                $clientProgramDetails['reason_id'] = $request->reason_id;
-                $clientProgramDetails['other_reason'] = $request->other_reason;
-                $clientProgramDetails['reason_notes'] = $request->reason_notes;
-                break;
-
-            # when program status is hold
-            case 4:
-                $clientProgramDetails['reason_id'] = $request->reason_id;
-                $clientProgramDetails['other_reason'] = $request->other_reason;
-                $clientProgramDetails['hold_date'] = Carbon::now();
-                break;
-        };
+        $additional_attributes = $this->clientProgramService->snSetAdditionalAttributes($request, ['admission' => $this->admission_prog_list, 'tutoring' => $this->tutoring_prog_list, 'satact' => $this->satact_prog_list], $student, $clientProgramDetails, true);
+        $clientProgramDetails = $additional_attributes['client_program_details'];
+        $file_path = $additional_attributes['file_path'];
 
         DB::beginTransaction();
         try {
 
             $updatedClientProgram = $this->clientProgramRepository->updateClientProgram($clientProgramId, ['client_id' => $studentId] + $clientProgramDetails);
             $updatedClientProgramId = $updatedClientProgram->clientprog_id;
-
-            switch ($clientProgramDetails['status']) {
-
-                    # if client program has been submitted 
-                    # then change status client to potential
-                case 0: # pending
-
-                    # if he/she has already join admission mentoring program
-                    # remove role mentee
-                    if (in_array($progId, $this->admission_prog_list)) {
-                        $this->clientRepository->removeRole($studentId, 'Mentee');
-                    }
-
-                    $this->clientRepository->updateClient($studentId, ['st_statuscli' => 1]);
-                    break;
-
-                case 1: # success
-
-                    # if he/she join admission mentoring program
-                    # add role mentee
-                    if (in_array($progId, $this->admission_prog_list)) {
-
-                        $this->clientRepository->addRole($studentId, 'Mentee');
-
-                        # upload the agreement
-                        # storing the file
-                        if ($request->hasFile('agreement')) {
-                            if (!$request->file('agreement')->storeAs('public/uploaded_file/agreement', $file_path))
-                                throw new Exception('The file cannot be uploaded.');
-                            
-                            if ($old_agreement = $updatedClientProgram->agreement) {
-
-                                if (Storage::exists('public/uploaded_file/agreement/'.$old_agreement) && $file_path !== null) {
-                                    Storage::delete('public/uploaded_file/agreement/'.$old_agreement);
-                                }
-
-                            }
-                            
-                            # update the path into clientprogram table
-                            $this->clientProgramRepository->updateFewField($updatedClientProgramId, ['agreement' => $file_path]);
-                        }
-                    }
-
-                    # when program running status was 2 which mean done
-                    # then check if client has other program running or done
-                    if ((int) $clientProgramDetails['prog_running_status'] != 2) {
-                        $this->clientRepository->updateClient($studentId, ['st_statuscli' => 2]);
-                    }
-
-                    # when all program were done
-                    # change status client to completed (3)
-
-                    if ((int) $clientProgramDetails['prog_running_status'] == 2) {
-
-                        if ($this->clientRepository->checkAllProgramStatus($studentId) == "completed")
-                            $this->clientRepository->updateClient($studentId, ['st_statuscli' => 3]);
-                    }
-
-                    break;
-
-                case 2: # failed
-                case 3: # refund
-
-                    # if he/she has already join admission mentoring program
-                    # remove role mentee
-                    if (in_array($progId, $this->admission_prog_list)) {
-                        $this->clientRepository->removeRole($studentId, 'Mentee');
-                    }
-                    break;
-            }
+            # update the path into clientprogram table
+            $this->clientProgramRepository->updateFewField($updatedClientProgramId, ['agreement' => $file_path]);
+            
+            $this->clientProgramService->snAddOrRemoveRoleMentee($progId, $studentId, $this->admission_prog_list, $status, true);
 
             $leadsTracking = $this->clientLeadTrackingRepository->getCurrentClientLead($studentId);
 
@@ -899,14 +477,6 @@ class ClientProgramController extends Controller
 
             DB::rollBack();
             Log::error('Update a student program failed : ' . $e->getMessage().' on line '.$e->getLine().' '.$e->getFile());
-
-            # if failed storing the data into the database
-            # remove the uploaded file from storage
-            // if ($request->hasFile('agreement')) {
-            //     if (Storage::exists('public/uploaded_file/agreement/'.$file_path) && $file_path !== null) {
-            //         Storage::delete('public/uploaded_file/agreement/'.$file_path);
-            //     }
-            // }
 
             return Redirect::back()->withError($e->getMessage());
         }

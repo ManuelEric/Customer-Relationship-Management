@@ -9,7 +9,7 @@ use App\Interfaces\PartnerRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\ReferralRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
-use App\Services\Program\ReferralService;
+use App\Services\Program\ReferralProgramService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,15 +25,15 @@ class ReferralController extends Controller
     private CorporateRepositoryInterface $corporateRepository;
     private ProgramRepositoryInterface $programRepository;
     private UserRepositoryInterface $userRepository;
-    private ReferralService $referralService;
+    private ReferralProgramService $referralProgramService;
 
-    public function __construct(ReferralRepositoryInterface $referralRepository, CorporateRepositoryInterface $corporateRepository, ProgramRepositoryInterface $programRepository, UserRepositoryInterface $userRepository, ReferralService $referralService)
+    public function __construct(ReferralRepositoryInterface $referralRepository, CorporateRepositoryInterface $corporateRepository, ProgramRepositoryInterface $programRepository, UserRepositoryInterface $userRepository, ReferralProgramService $referralProgramService)
     {
         $this->referralRepository = $referralRepository;
         $this->corporateRepository = $corporateRepository;
         $this->programRepository = $programRepository;
         $this->userRepository = $userRepository;
-        $this->referralService = $referralService;
+        $this->referralProgramService = $referralProgramService;
     }
 
     public function index(Request $request)
@@ -47,7 +47,7 @@ class ReferralController extends Controller
 
     public function store(StoreReferralRequest $request)
     {
-        $referralDetails = $request->only([
+        $referral_details = $request->only([
             'partner_id',
             'prog_id',
             'empl_id',
@@ -60,23 +60,14 @@ class ReferralController extends Controller
             'ref_date',
             'notes'
         ]);
+        
+        # Update attribute revenue by currency
+        $referral_details_update_attribute_revenue = $this->referralProgramService->snUpdateAttributeRevenueByCurrency($referral_details);
 
-        // if ($referralDetails['currency'] != 'IDR') {
-        //     $referralDetails['revenue_other'] = $referralDetails['revenue'];
-        //     $referralDetails['revenue'] = $referralDetails['revenue_idr'];
-        //     unset($referralDetails['revenue_idr']);
-        // } else {
-        //     unset($referralDetails['revenue_idr']);
-        //     unset($referralDetails['curs_rate']);
-        // }
-
-        $referralDetails = array_merge($referralDetails, $this->referralService->snSetRevenueByCurrency($referralDetails));
-
-        return $referralDetails;
         DB::beginTransaction();
         try {
 
-            $referral = $this->referralRepository->createReferral($referralDetails);
+            $referral = $this->referralRepository->createReferral($referral_details_update_attribute_revenue);
             DB::commit();
         } catch (Exception $e) {
 
@@ -130,10 +121,10 @@ class ReferralController extends Controller
 
     public function update(StoreReferralRequest $request)
     {
-        $referralId = $request->route('referral');
-        $oldReferralProgram = $this->referralRepository->getReferralById($referralId);
+        $referral_id = $request->route('referral');
+        $old_referral_program = $this->referralRepository->getReferralById($referral_id);
 
-        $newDetails = $request->only([
+        $referral_details = $request->only([
             'partner_id',
             'prog_id',
             'empl_id',
@@ -147,42 +138,30 @@ class ReferralController extends Controller
             'notes',
             'curs_rate',
         ]);
+        
+        # Update attribute revenue by currency
+        $referral_details_updated_attribute_revenue = $this->referralProgramService->snUpdateAttributeRevenueByCurrency($referral_details);
 
-        // if ($newDetails['currency'] != 'IDR') {
-        //     $newDetails['revenue_other'] = $newDetails['revenue'];
-        //     $newDetails['revenue'] = $newDetails['revenue_idr'];
-        //     unset($newDetails['revenue_idr']);
-        // } else {
-        //     unset($newDetails['revenue_idr']);
-        //     unset($newDetails['curs_rate']);
-        // }
-        $newDetails = array_merge($newDetails, $this->referralService->snSetRevenueByCurrency($newDetails));
-
-
-        // $referral_type = $request->referral_type;
-        // if ($referral_type == "In")
-        //     $newDetails['additional_prog_name'] = null;
-        // elseif ($referral_type == "Out")
-        //     $newDetails['prog_id'] = null;
-        $newDetails = array_merge($newDetails, $this->referralService->snSetProgramByReferralType($request->referral_type));
+        # Update attribute program by referral type
+        $referral_details_updated_attribute_program = $this->referralProgramService->snUpdateAttributeProgramByReferralType($referral_details_updated_attribute_revenue);
 
         DB::beginTransaction();
         try {
 
-            $this->referralRepository->updateReferral($referralId, $newDetails);
+            $this->referralRepository->updateReferral($referral_id, $referral_details);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Update referral failed : ' . $e->getMessage());
-            return Redirect::to('program/referral/' . $referralId)->withError('Failed to update referral');
+            return Redirect::to('program/referral/' . $referral_id)->withError('Failed to update referral');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $newDetails, $oldReferralProgram);
+        $this->logSuccess('update', 'Form Input', 'Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $referral_details_updated_attribute_program, $old_referral_program);
 
-        return Redirect::to('program/referral/' . $referralId)->withSuccess('Referral successfully updated');
+        return Redirect::to('program/referral/' . $referral_id)->withSuccess('Referral successfully updated');
     }
 
     public function edit(Request $request)

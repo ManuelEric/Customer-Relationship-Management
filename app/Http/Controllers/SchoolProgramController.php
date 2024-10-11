@@ -19,6 +19,10 @@ use App\Interfaces\SchoolProgramCollaboratorsRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Models\Reason;
 use App\Models\SchoolProgram;
+use App\Services\Master\ProgramService;
+use App\Services\Master\ReasonService;
+use App\Services\Program\SchoolProgramService;
+use App\Services\Program\SchoolService;
 use Exception;
 use Faker\Calculator\Inn;
 use Illuminate\Database\Eloquent\Collection;
@@ -48,6 +52,9 @@ class SchoolProgramController extends Controller
     protected SchoolDetailRepositoryInterface $schoolDetailRepository;
     protected SchoolProgramCollaboratorsRepositoryInterface $schoolProgramCollaboratorsRepository;
     protected UniversityRepositoryInterface $universityRepository;
+    protected SchoolProgramService $schoolProgramService;
+    protected ProgramService $programService;
+    protected ReasonService $reasonService;
 
     public function __construct(
         SchoolRepositoryInterface $schoolRepository,
@@ -61,7 +68,10 @@ class SchoolProgramController extends Controller
         AgendaSpeakerRepositoryInterface $agendaSpeakerRepository,
         SchoolDetailRepositoryInterface $schoolDetailRepository,
         SchoolProgramCollaboratorsRepositoryInterface $schoolProgramCollaboratorsRepository,
-        UniversityRepositoryInterface $universityRepository
+        UniversityRepositoryInterface $universityRepository,
+        SchoolProgramService $schoolProgramService,
+        ProgramService $programService,
+        ReasonService $reasonService
     ) {
         $this->schoolRepository = $schoolRepository;
         $this->schoolProgramRepository = $schoolProgramRepository;
@@ -75,6 +85,9 @@ class SchoolProgramController extends Controller
         $this->schoolDetailRepository = $schoolDetailRepository;
         $this->schoolProgramCollaboratorsRepository = $schoolProgramCollaboratorsRepository;
         $this->universityRepository = $universityRepository;
+        $this->schoolProgramService = $schoolProgramService;
+        $this->programService = $programService;
+        $this->reasonService = $reasonService;
     }
 
     public function index(Request $request)
@@ -102,14 +115,11 @@ class SchoolProgramController extends Controller
         $schools = $this->schoolRepository->getAllSchools();
 
         # retrieve program data
-        $programsB2B = $this->programRepository->getAllProgramByType('B2B');
-        $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C');
-        $programs = $programsB2B->merge($programsB2BB2C);
+        $programs = $this->programService->snGetAllPrograms();
 
         # retrieve employee data
         $employees = $this->userRepository->getAllUsersByRole('Employee');
 
-        // dd($request->all());
 
         return view('pages.program.school-program.index')->with(
             [
@@ -125,43 +135,16 @@ class SchoolProgramController extends Controller
 
         $schoolId = strtoupper($request->route('school'));
 
-
         $schoolPrograms = $request->all();
-        if ($request->input('status') == '2') {
-            if ($request->input('reason_id') == 'other') {
-                $reason['reason_name'] = $request->input('other_reason');
-                $reason['type'] = 'Program';
-            }
-
-            unset($schoolPrograms['other_reason_refund']);
-            unset($schoolPrograms['reason_refund_id']);
-            unset($schoolPrograms['reason_notes_refund']);
-        }
-
-        if ($request->input('status') == '3') {
-            if ($request->input('reason_refund_id') == 'other'){
-                $reason['reason_name'] = $request->input('other_reason_refund');
-                $reason['type'] = 'Program';
-            } else {
-                $schoolPrograms['reason_id'] = $request->input('reason_refund_id');
-            }
-            $schoolPrograms['reason_notes'] = $schoolPrograms['reason_notes_refund'];
-            unset($schoolPrograms['other_reason']);
-            unset($schoolPrograms['reason_notes_refund']);
-        }
-
+    
         DB::beginTransaction();
-        $schoolPrograms['sch_id'] = $schoolId;
-
+        
         try {
-            # insert into reason
-            if ($request->input('reason_id') == 'other' || $request->input('reason_refund_id') == 'other') {
-                // $this->reasonRepository->createReason($reason);
-                $reason_created = $this->reasonRepository->createReason($reason);
-                $reason_id = $reason_created->reason_id;
-                $schoolPrograms['reason_id'] = $reason_id;
-            }
+            $schoolPrograms['sch_id'] = $schoolId;
 
+            # Set and create reason when user select other reason
+            $schoolPrograms = $this->reasonService->snSetAndCreateReasonProgram($schoolPrograms);
+            
             # insert into school program
             $sch_prog_created = $this->schoolProgramRepository->createSchoolProgram($schoolPrograms);
             $sch_progId = $sch_prog_created->id;
@@ -189,9 +172,7 @@ class SchoolProgramController extends Controller
         $school = $this->schoolRepository->getSchoolById($schoolId);
 
         # retrieve program data
-        $programsB2B = $this->programRepository->getAllProgramByType('B2B');
-        $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C');
-        $programs = $programsB2B->merge($programsB2BB2C);
+        $programs = $this->programService->snGetAllPrograms();
 
         # retrieve reason data
         $reasons = $this->reasonRepository->getReasonByType('Program');
@@ -227,9 +208,7 @@ class SchoolProgramController extends Controller
         $schoolDetail = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
 
         # retrieve program data
-        $programsB2B = $this->programRepository->getAllProgramByType('B2B');
-        $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C');
-        $programs = $programsB2B->merge($programsB2BB2C);
+        $programs = $this->programService->snGetAllPrograms();
 
         # retrieve reason data
         $reasons = $this->reasonRepository->getReasonByType('Program');
@@ -314,10 +293,7 @@ class SchoolProgramController extends Controller
         $schoolDetail = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
 
         # retrieve program data
-        $programsB2B = $this->programRepository->getAllProgramByType('B2B');
-        $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C');
-        $programs = $programsB2B->merge($programsB2BB2C);
-
+        $programs = $this->programService->snGetAllPrograms();
 
         # retrieve reason data
         $reasons = $this->reasonRepository->getReasonByType('Program');
@@ -355,50 +331,15 @@ class SchoolProgramController extends Controller
         $oldSchoolProgram = $this->schoolProgramRepository->getSchoolProgramById($sch_progId);
 
         $schoolPrograms = $request->all();
-        if ($request->input('status') == '2') {
-            if ($request->input('reason_id') == 'other') {
-                $reason['reason_name'] = $request->input('other_reason');
-                $reason['type'] = 'Program';
-            }
-
-            unset($schoolPrograms['other_reason_refund']);
-            unset($schoolPrograms['other_reason']);
-            unset($schoolPrograms['reason_refund_id']);
-            unset($schoolPrograms['reason_refund_id']);
-            unset($schoolPrograms['reason_notes_refund']);
-        }
-
-        if ($request->input('status') == '3') {
-            if ($request->input('reason_refund_id') == 'other_reason_refund'){
-                $reason['reason_name'] = $request->input('other_reason_refund');
-                $reason['type'] = 'Program';
-            } else {
-                $schoolPrograms['reason_id'] = $request->input('reason_refund_id');
-            }
-            $schoolPrograms['reason_notes'] = $schoolPrograms['reason_notes_refund'];
-            unset($schoolPrograms['other_reason_refund']);
-            unset($schoolPrograms['reason_refund_id']);
-            unset($schoolPrograms['other_reason']);
-            unset($schoolPrograms['reason_refund_id']);
-            unset($schoolPrograms['reason_notes_refund']);
-
-        }
 
         DB::beginTransaction();
-        $schoolPrograms['sch_id'] = $schoolId;
-        $schoolPrograms['updated_at'] = Carbon::now();
         try {
+            
+            $schoolPrograms['sch_id'] = $schoolId;
+            $schoolPrograms['updated_at'] = Carbon::now();
 
-            # update reason school program
-            if ($schoolPrograms['status'] == 2 || $schoolPrograms['status'] == 3) {
-                // return $request->input('reason_refund_id');
-                // exit;
-                if ($request->input('reason_id') == 'other' || $request->input('reason_refund_id') == 'other_reason_refund') {
-                    $reason_created = $this->reasonRepository->createReason($reason);
-                    $reason_id = $reason_created->reason_id;
-                    $schoolPrograms['reason_id'] = $reason_id;
-                }
-            }
+            # Set and create reason when user select other reason
+            $schoolPrograms = $this->reasonService->snSetAndCreateReasonProgram($schoolPrograms);
 
             # update school program
             $this->schoolProgramRepository->updateSchoolProgram($sch_progId, $schoolPrograms);
