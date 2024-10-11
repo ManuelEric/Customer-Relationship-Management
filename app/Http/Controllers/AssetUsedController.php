@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Assets\Used\CreateAssetUsedAction;
+use App\Actions\Assets\Used\DeleteAssetUsedAction;
 use App\Http\Requests\StoreAssetUsedRequest;
 use App\Interfaces\AssetRepositoryInterface;
 use App\Interfaces\AssetUsedRepositoryInterface;
@@ -27,9 +29,9 @@ class AssetUsedController extends Controller
         $this->userRepository = $userRepository;
     }
 
-    public function store(StoreAssetUsedRequest $request)
+    public function store(StoreAssetUsedRequest $request, CreateAssetUsedAction $createAssetUsedAction)
     {
-        $used_details = $request->only([
+        $used_details = $request->safe()->only([
             'assetId',
             'user',
             'amount_used',
@@ -40,7 +42,8 @@ class AssetUsedController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->assetUsedRepository->createAssetUsed($used_details);
+            $createAssetUsedAction->execute($used_details);
+
             DB::commit();
         } catch (Exception $e) {
 
@@ -73,7 +76,7 @@ class AssetUsedController extends Controller
         ]);
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteAssetUsedAction $deleteAssetUsedAction)
     {
         $asset_id = $request->route('asset');
         $used_id = $request->route('used');
@@ -81,7 +84,7 @@ class AssetUsedController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->assetUsedRepository->deleteAssetUsed($asset_id, $used_id);
+            $deleteAssetUsedAction->execute($asset_id, $used_id);
             DB::commit();
         } catch (Exception $e) {
 

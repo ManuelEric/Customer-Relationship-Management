@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Assets\DeleteAssetReturnedAction;
+use App\Actions\Assets\Returned\CreateAssetReturnedAction;
 use App\Http\Requests\StoreAssetReturnedRequest;
 use App\Interfaces\AssetRepositoryInterface;
 use App\Interfaces\AssetReturnedRepositoryInterface;
@@ -29,10 +31,10 @@ class AssetReturnedController extends Controller
         $this->assetRepository = $assetRepository;
     }
 
-    public function store(StoreAssetReturnedRequest $request)
+    public function store(StoreAssetReturnedRequest $request, CreateAssetReturnedAction $createAssetReturnedAction)
     {
 
-        $returned_details = $request->only([
+        $returned_details = $request->safe()->only([
             'usedId',
             'assetId',
             'user',
@@ -44,10 +46,7 @@ class AssetReturnedController extends Controller
         DB::beginTransaction();
         try {
 
-            $returned_details['asset_used_id'] = $request->usedId;
-            unset($returned_details['usedId']);
-
-            $this->assetReturnedRepository->createAssetReturned($returned_details);
+            $createAssetReturnedAction->execute($request, $returned_details);
             
             DB::commit();
 
@@ -83,7 +82,7 @@ class AssetReturnedController extends Controller
         );
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteAssetReturnedAction $deleteAssetReturnedAction)
     {
         $asset_id = $request->route('asset');
         $returned_id = $request->route('returned');
@@ -91,7 +90,8 @@ class AssetReturnedController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->assetReturnedRepository->deleteAssetReturned($asset_id, $returned_id);
+            $deleteAssetReturnedAction->execute($asset_id, $returned_id);
+            
             DB::commit();
 
         } catch (Exception $e) {

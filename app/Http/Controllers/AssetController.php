@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Assets\CreateAssetAction;
+use App\Actions\Assets\DeleteAssetAction;
+use App\Actions\Assets\UpdateAssetAction;
 use App\Http\Requests\StoreAssetRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
@@ -39,9 +42,9 @@ class AssetController extends Controller
         return view('pages.master.asset.index');
     }
 
-    public function store(StoreAssetRequest $request)
+    public function store(StoreAssetRequest $request, CreateAssetAction $createAssetAction)
     {
-        $asset_details = $request->only([
+        $new_asset_details = $request->safe()->only([
             'asset_name',
             'asset_merktype',
             'asset_dateachieved',
@@ -51,27 +54,24 @@ class AssetController extends Controller
             'asset_notes',
         ]);
 
-        $last_id = Asset::max('asset_id');
-        $asset_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 3) : '0000';
-        $asset_id_with_label = 'AS-' . $this->add_digit($asset_id_without_label + 1, 4);
         
         DB::beginTransaction();
         try {
 
-            $asset_created = $this->assetRepository->createAsset(['asset_id' => $asset_id_with_label] + $asset_details);
+            $new_asset = $createAssetAction->execute($new_asset_details);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Store asset failed : ' . $e->getMessage());
-            return Redirect::to('master/asset/' . $asset_id_with_label)->withError('Failed to create asset');
+            return Redirect::to('master/asset/' . $new_asset->id)->withError('Failed to create asset');
         }
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Asset', Auth::user()->first_name . ' '. Auth::user()->last_name, $asset_created);
+        // $this->logSuccess('store', 'Form Input', 'Asset', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_asset);
 
-        return Redirect::to('master/asset/' . $asset_id_with_label)->withSuccess('Asset successfully created');
+        return Redirect::to('master/asset/' . $new_asset->id)->withSuccess('Asset successfully created');
     }
 
     public function create()
@@ -118,10 +118,9 @@ class AssetController extends Controller
         );
     }
 
-    public function update(StoreAssetRequest $request)
+    public function update(StoreAssetRequest $request, UpdateAssetAction $updateAssetAction)
     {
-        $asset_id = $request->route('asset');
-        $asset_details = $request->only([
+        $new_asset_details = $request->safe()->only([
             'asset_name',
             'asset_merktype',
             'asset_dateachieved',
@@ -138,7 +137,8 @@ class AssetController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->assetRepository->updateAsset($asset_id, $asset_details);
+            $updated_asset = $updateAssetAction->execute($asset_id, $new_asset_details);
+
             DB::commit();
         } catch (Exception $e) {
 
@@ -149,12 +149,12 @@ class AssetController extends Controller
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Asset', Auth::user()->first_name . ' '. Auth::user()->last_name, $asset_details, $old_asset);
+        // $this->logSuccess('update', 'Form Input', 'Asset', Auth::user()->first_name . ' '. Auth::user()->last_name, $updated_asset, $old_asset);
 
         return Redirect::to('master/asset/'.$asset_id)->withSuccess('Asset successfully updated');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteAssetAction $deleteAssetAction)
     {
         $asset_id = $request->route('asset');
         $asset = $this->assetRepository->getAssetById($asset_id);
@@ -162,7 +162,7 @@ class AssetController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->assetRepository->deleteAsset($asset_id);
+            $deleted_asset = $deleteAssetAction->execute($asset_id);
             DB::commit();
         } catch (Exception $e) {
 
@@ -173,7 +173,7 @@ class AssetController extends Controller
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Asset', Auth::user()->first_name . ' '. Auth::user()->last_name, $asset);
+        // $this->logSuccess('delete', null, 'Asset', Auth::user()->first_name . ' '. Auth::user()->last_name, $asset);
 
         return Redirect::to('master/asset')->withSuccess('Asset successfully deleted');
     }

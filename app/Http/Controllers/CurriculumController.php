@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Assets\UpdateCurriculumAction;
+use App\Actions\Curriculums\CreateCurriculumAction;
+use App\Actions\Curriculums\DeleteCurriculumAction;
 use App\Http\Requests\StoreCurriculumRequest;
 use App\Http\Traits\LoggingTrait;
 use App\Interfaces\CurriculumRepositoryInterface;
@@ -35,19 +38,16 @@ class CurriculumController extends Controller
         return view('pages.master.curriculum.index');
     }
 
-    public function store(StoreCurriculumRequest $request)
+    public function store(StoreCurriculumRequest $request, CreateCurriculumAction $createCurriculumAction)
     {
-        $curriculum = $request->only([
+        $new_curriculum_details = $request->safe()->only([
             'name',
         ]);
-
-        $curriculum['created_at'] = Carbon::now();
-        $curriculum['updated_at'] = Carbon::now();
 
         DB::beginTransaction();
         try {
 
-            $curriculum_created = $this->curriculumRepository->createOneCurriculum($curriculum);
+            $new_curriculum = $createCurriculumAction->execute($new_curriculum_details);
             DB::commit();
 
         } catch (Exception $e) {
@@ -60,18 +60,16 @@ class CurriculumController extends Controller
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Curriculum', Auth::user()->first_name . ' '. Auth::user()->last_name, $curriculum_created);
+        $this->logSuccess('store', 'Form Input', 'Curriculum', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_curriculum);
 
         return Redirect::to('master/curriculum')->withSuccess('Curriculum successfully created');
     }
 
-    public function update(StoreCurriculumRequest $request)
+    public function update(StoreCurriculumRequest $request, UpdateCurriculumAction $updateCurriculumAction)
     {
-        $curriculum = $request->only([
+        $new_curriculum_details = $request->safe()->only([
             'name',
         ]);
-
-        $curriculum['updated_at'] = Carbon::now();
 
         $curriculum_id = $request->route('curriculum');
         $old_curriclum = $this->curriculumRepository->getCurriculumById($curriculum_id);
@@ -79,7 +77,7 @@ class CurriculumController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->curriculumRepository->updateCurriculum($curriculum_id, $curriculum);
+            $new_curriculum = $updateCurriculumAction->execute($curriculum_id, $new_curriculum_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -90,7 +88,7 @@ class CurriculumController extends Controller
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Curriculum', Auth::user()->first_name . ' '. Auth::user()->last_name, $curriculum, $old_curriclum);
+        $this->logSuccess('update', 'Form Input', 'Curriculum', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_curriculum, $old_curriclum);
 
         return Redirect::to('master/curriculum')->withSuccess('Curriculum successfully updated');
     }
@@ -106,7 +104,7 @@ class CurriculumController extends Controller
         }
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteCurriculumAction $deleteCurriculumAction)
     {
         $curriculum_id = $request->route('curriculum');
         $curriculum = $this->curriculumRepository->getCurriculumById($curriculum_id);
@@ -114,7 +112,7 @@ class CurriculumController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->curriculumRepository->deleteCurriculum($curriculum_id);
+            $deleteCurriculumAction->execute($curriculum_id);
             DB::commit();
         } catch (Exception $e) {
 
