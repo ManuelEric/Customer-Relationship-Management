@@ -25,6 +25,7 @@ class CreateUserAction
     )
     {
         # 1. store new user
+        array_merge($new_user_details, ['number' => \App\Models\User::max('number') + 1]);
         $new_user = $this->userRepository->createUser($new_user_details);
         $new_user_id = $new_user->id;
 

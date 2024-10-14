@@ -75,7 +75,7 @@ class UserController extends Controller
         )
     {
         # INITIALIZE VARIABLES START
-        $new_user_details = $request->safe()->only([
+        $new_user_details = $request->only([
             'first_name',
             'last_name',
             'email',
@@ -90,7 +90,7 @@ class UserController extends Controller
             'account_no',
             'npwp',
             'password',
-            'position_id',
+            'position_id'
         ]);
 
 
@@ -120,18 +120,18 @@ class UserController extends Controller
 
         DB::beginTransaction();
         try {
-
+            
             $new_user = $createUserAction->execute($request, $new_user_details, $new_user_education_details, $new_user_role_details, $new_user_type_details);            
             DB::commit();
             
         } catch (Exception $e) {
 
             DB::rollBack();
-            $log_service->createErrorLog(LogModule::STORE_USER, $e->getMessage(), $e->getLine(), $e->getFile(), ['email' => $new_user_details['email']]);
+            $log_service->createErrorLog(LogModule::STORE_USER, $e->getMessage(), $e->getLine(), $e->getFile(), $new_user_details);
             return Redirect::back()->withError('Failed to create a new ' . $request->route('user_role'));
         }
 
-        $log_service->createSuccessLog(LogModule::STORE_USER, 'New user has been added', $new_user);
+        $log_service->createSuccessLog(LogModule::STORE_USER, 'New user has been added', $new_user->toArray());
 
         return Redirect::to('user/' . $request->route('user_role'))->withSuccess('New ' . $request->route('user_role') . ' has been created');
     }

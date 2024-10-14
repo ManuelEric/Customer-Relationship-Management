@@ -16,11 +16,11 @@ class LogService
 
     public function createErrorLog(LogModule $module, String $message, String $line, String $file_location, Array $content = [])
     {
-        Log::error("{$module} : {$message} on {$file_location} line {$line} | done by {$this->auth}", $content);
+        Log::error("{$module->value} : {$message} on {$file_location} line {$line} | done by {$this->auth}", $content);
     }
 
     public function createSuccessLog(LogModule $module, String $message, Array $content = [])
     {
-        Log::success("{$module} : {$message} | done by {$this->auth}", $content);
+        Log::notice("{$module->value} : {$message} | done by {$this->auth}", $content);
     }
 }

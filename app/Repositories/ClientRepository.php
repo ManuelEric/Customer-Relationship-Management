@@ -663,7 +663,9 @@ class ClientRepository implements ClientRepositoryInterface
         })->
         when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
             $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
-        });
+        })->
+        isNotSalesAdmin()->
+        isUsingAPI();
 
         return $asDatatables === false ? $query->orderBy('first_name', 'asc')->get() : $query;
     }
@@ -919,6 +921,7 @@ class ClientRepository implements ClientRepositoryInterface
             when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
+            doesntHavePIC()->
             isStudent()->
             isNotActive();
 

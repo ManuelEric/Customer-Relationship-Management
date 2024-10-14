@@ -412,7 +412,8 @@ class UserRepository implements UserRepositoryInterface
             'fee_individual',
             'fee_group',
             'additional_fee',
-            'head'
+            'head',
+            'year',
         ]);
 
 
