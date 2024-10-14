@@ -154,4 +154,9 @@ class University extends Model
     {
         return $this->belongsToMany(Client::class, 'tbl_client_acceptance', 'univ_id', 'client_id');
     }
+
+    public function country()
+    {
+        return $this->belongsTo(UnivCountry::class, 'univ_country', 'id');
+    }
 }

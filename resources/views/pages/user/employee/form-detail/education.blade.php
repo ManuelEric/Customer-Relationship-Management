@@ -140,8 +140,8 @@
                             <select name="graduated_from[]" class="select w-100">
                                 <option data-placeholder="true"></option>
                                 @foreach ($univ_countries as $country)
-                                    <optgroup label="{{ $country->univ_country }}">
-                                        @foreach ($universities->where('univ_country', $country->univ_country) as $university)
+                                    <optgroup label="{{ $country->name }}">
+                                        @foreach ($universities->where('univ_country', $country->id) as $university)
                                             <option value="{{ $university->univ_id }}">{{ $university->univ_name }}</option>
                                         @endforeach
                                     </optgroup>

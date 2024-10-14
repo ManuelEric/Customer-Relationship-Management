@@ -44,39 +44,17 @@ Route::middleware('guest')->group(function () {
     Route::get('login', function () {
         return view('auth.login');
     })->name('login');
+
+    Route::post('auth/login', [AuthController::class, 'login'])->name('login.action');
+    Route::get('login/expired', [AuthController::class, 'logoutFromExpirationTime'])->name('logout.expiration');
 });
 
 
-Route::post('auth/login', [AuthController::class, 'login'])->name('login.action');
-Route::get('login/expired', [AuthController::class, 'logoutFromExpirationTime'])->name('logout.expiration');
 
 Route::group(['middleware' => ['auth', 'auth.department']], function () {
     Route::get('auth/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('dashboard', [DashboardController::class, 'index'])->name('index');
-    Route::get('dashboard2', function (Request $request) {
-
-        $endpoint = "https://api.quotable.io/quotes/random";
-        $alternate_endpoint = "https://dummyjson.com/quotes";
-
-        # create 
-        $response = Http::get($alternate_endpoint);
-
-        $data = null;
-
-        # check status
-        if ($response->successful()) {
-            if (count($response['quotes']) > 0) {
-                $decode = $response['quotes'];
-                $data['content'] = $decode[0]['quote'];
-                $data['author'] = $decode[0]['author'];
-            }
-        }
-
-        $data = compact('data');
-
-        return view('pages.dashboard.blank-page')->with(json_encode($data));
-    });
 
     Route::get('import', function () {
         return view('pages.import.index');
