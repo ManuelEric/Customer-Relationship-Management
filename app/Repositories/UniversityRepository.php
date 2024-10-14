@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Models\CountryTranslations;
+use App\Models\UnivCountry;
 use App\Models\University;
 use App\Models\v1\University as V1University;
 use Carbon\Carbon;
@@ -96,7 +97,7 @@ class UniversityRepository implements UniversityRepositoryInterface
 
     public function getCountryNameFromUniversity()
     {
-        return University::whereNotNull('univ_country')->select('univ_country')->groupBy('univ_country')->get();
+        return UnivCountry::has('universities')->select('id', 'name')->orderBy('name', 'ASC')->get();
     }
 
     public function deleteUniversity($universityId)

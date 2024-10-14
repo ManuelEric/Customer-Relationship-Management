@@ -2,11 +2,15 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\UserRepositoryInterface;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Hash;
 
 class StoreUserRequest extends FormRequest
 {
+    use StandardizePhoneNumberTrait;
+
     private UserRepositoryInterface $userRepository;
     /**
      * Determine if the user is authorized to make this request.
@@ -32,6 +36,16 @@ class StoreUserRequest extends FormRequest
         return $this->isMethod('POST') ? $this->store() : $this->update();
     }
 
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'phone' => $this->setPhoneNumber($this->phone),
+            'emergency_contact_phone' => $this->emergency_contact_phone != null ? $this->setPhoneNumber($this->emergency_contact_phone) : null,
+            'position_id' => $this->position,
+            'password' => Hash::make('12345678'),
+        ]);
+    }
+
     protected function store()
     {
         $i = 0;
@@ -50,8 +64,6 @@ class StoreUserRequest extends FormRequest
             'last_name' => 'nullable',
             'email' => 'required|email|unique:users,email',
             'phone' => 'required|unique:users,phone',
-
-            // 'emergency_contact' => 'required_if:role.*,1,8',
             'datebirth' => 'required',
             'address' => 'required',
 

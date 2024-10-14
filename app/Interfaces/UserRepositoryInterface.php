@@ -2,7 +2,9 @@
 
 namespace App\Interfaces;
 
+use App\Enum\ContractUserType;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 interface UserRepositoryInterface
 {
@@ -30,8 +32,11 @@ interface UserRepositoryInterface
     public function getUserRoles($userId, $roleName);
     public function cleaningUser();
     public function createUserEducation(User $user, array $userEducationDetails);
-    public function createOrUpdateUserSubject(User $user, $request);
+    public function createOrUpdateUserSubject(User $user, Request $request);
     public function createUserRole(User $user, array $userRoleDetails);
     public function createUserType(User $user, array $userTypeDetails);
     public function getUserSubjectById($user_subject_id);
+
+    //! new methods
+    public function rnFindExpiringContracts(ContractUserType $type);
 }
