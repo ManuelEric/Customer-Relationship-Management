@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\EdufLeads\CreateEdufLeadAction;
+use App\Actions\EdufLeads\DeleteEdufLeadAction;
+use App\Actions\EdufLeads\UpdateEdufLeadAction;
 use App\Http\Requests\StoreEdufairRequest;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
@@ -65,9 +68,9 @@ class EdufLeadController extends Controller
         );
     }
 
-    public function store(StoreEdufairRequest $request)
+    public function store(StoreEdufairRequest $request, CreateEdufLeadAction $createEdufLeadAction)
     {
-        $edufair_lead_details = $request->only([
+        $new_edufair_lead_details = $request->safe()->only([
             'organizer',
             'sch_id',
             'corp_id',
@@ -88,13 +91,7 @@ class EdufLeadController extends Controller
         DB::beginTransaction();
         try {
 
-            $ext_pic_phone = $this->tnSetPhoneNumber($request->ext_pic_phone);
-
-            unset($edufair_lead_details['ext_pic_phone']); # remove the phone number that hasn't been updated into +62
-            $edufair_lead_details['ext_pic_phone'] = $ext_pic_phone; # add new phone number 
-
-
-            $new_eduf = $this->edufLeadRepository->createEdufairLead($edufair_lead_details);
+            $new_eduf_lead = $createEdufLeadAction->execute($new_edufair_lead_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -105,14 +102,14 @@ class EdufLeadController extends Controller
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'External Edufair', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_eduf);
+        $this->logSuccess('store', 'Form Input', 'External Edufair', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_eduf_lead);
 
         return Redirect::to('master/edufair')->withSuccess('New Edufair successfully created');
     }
 
-    public function update(StoreEdufairRequest $request)
+    public function update(StoreEdufairRequest $request, UpdateEdufLeadAction $updateEdufLeadAction)
     {
-        $edufair_lead_details = $request->only([
+        $edufair_lead_details = $request->safe()->only([
             'organizer',
             'sch_id',
             'corp_id',
@@ -130,44 +127,13 @@ class EdufLeadController extends Controller
             'notes'
         ]);
 
-        $ext_pic_phone = $request->ext_pic_phone;
-
-        switch (substr($ext_pic_phone, 0, 1)) {
-
-            case 0:
-                $ext_pic_phone = "+62" . substr($ext_pic_phone, 1);
-                break;
-
-            case 6:
-                $ext_pic_phone = "+" . $ext_pic_phone;
-                break;
-
-            case "+":
-                $ext_pic_phone = $ext_pic_phone;
-                break;
-
-            default:
-                $ext_pic_phone = "+62" . $ext_pic_phone;
-        }
-
-        unset($edufair_lead_details['ext_pic_phone']); # remove the phone number that hasn't been updated into +62
-        $edufair_lead_details['ext_pic_phone'] = $ext_pic_phone; # add new phone number 
-
         $eduf_lead_id = $request->route('edufair');
-
-        $old_eduf_lead = $this->edufLeadRepository->getEdufairLeadById($eduf_lead_id);
-
-        if ($request->organizer == "school")
-            $edufair_lead_details['corp_id'] = NULL;
-        else
-            $edufair_lead_details['sch_id'] = NULL;
-
-        unset($edufair_lead_details['organizer']);
 
         DB::beginTransaction();
         try {
+            $old_eduf_lead = $this->edufLeadRepository->getEdufairLeadById($eduf_lead_id);
 
-            $this->edufLeadRepository->updateEdufairLead($eduf_lead_id, $edufair_lead_details);
+            $updateEdufLeadAction->execute($eduf_lead_id, $edufair_lead_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -241,15 +207,15 @@ class EdufLeadController extends Controller
         );
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteEdufLeadAction $deleteEdufLeadAction)
     {
-        $id = $request->route('edufair');
-        $eduf_lead = $this->edufLeadRepository->getEdufairLeadById($id);
+        $eduf_lead_id = $request->route('edufair');
+        $eduf_lead = $this->edufLeadRepository->getEdufairLeadById($eduf_lead_id);
 
         DB::beginTransaction();
         try {
 
-            $this->edufLeadRepository->deleteEdufairLead($id);
+            $deleteEdufLeadAction->execute($eduf_lead_id);
             DB::commit();
         } catch (Exception $e) {
 

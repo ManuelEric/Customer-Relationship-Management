@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\EdufLeads\Review\CreateEdufLeadReviewAction;
+use App\Actions\EdufLeads\Review\UpdateEdufLeadReviewAction;
 use App\Http\Requests\StoreEdufairReviewRequest;
 use App\Interfaces\EdufReviewRepositoryInterface;
 use Exception;
@@ -19,10 +21,10 @@ class EdufReviewController extends Controller
         $this->edufReviewRepository = $edufReviewRepository;
     }
 
-    public function store(StoreEdufairReviewRequest $request)
+    public function store(StoreEdufairReviewRequest $request, CreateEdufLeadReviewAction $createEdufLeadReviewAction)
     {
         $eduf_lead_id = $request->eduf_id;
-        $review_details = $request->only([
+        $new_review_details = $request->safe()->only([
             'reviewer_name',
             'score',
             'review'
@@ -31,7 +33,7 @@ class EdufReviewController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->edufReviewRepository->createEdufairReview($eduf_lead_id, $review_details);
+            $createEdufLeadReviewAction->execute($eduf_lead_id, $new_review_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -52,11 +54,11 @@ class EdufReviewController extends Controller
         return response()->json(['review' => $review]);
     }
 
-    public function update(StoreEdufairReviewRequest $request)
+    public function update(StoreEdufairReviewRequest $request, UpdateEdufLeadReviewAction $updateEdufLeadReviewAction)
     {
         $eduf_lead_id = $request->eduf_id;
-        $eduf_review_Id = $request->route('review');
-        $new_details = $request->only([
+        $eduf_review_id = $request->route('review');
+        $new_eduf_lead_review_details = $request->only([
             'reviewer_name',
             'score',
             'review'
@@ -65,7 +67,7 @@ class EdufReviewController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->edufReviewRepository->updateEdufairReview($eduf_lead_id, $eduf_review_Id, $new_details);
+            $updateEdufLeadReviewAction->execute($eduf_lead_id, $eduf_review_id, $new_eduf_lead_review_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -80,12 +82,12 @@ class EdufReviewController extends Controller
     public function destroy(Request $request)
     {
         $eduf_lead_id = $request->route('edufair');
-        $eduf_review_Id = $request->route('review');
+        $eduf_review_id = $request->route('review');
 
         DB::beginTransaction();
         try {
 
-            $this->edufReviewRepository->deleteEdufairReview($eduf_review_Id);
+            $this->edufReviewRepository->deleteEdufairReview($eduf_review_id);
             DB::commit();
         } catch (Exception $e) {
 
