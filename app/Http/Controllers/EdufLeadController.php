@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreEdufairRequest;
 use App\Http\Traits\LoggingTrait;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\EdufLeadRepositoryInterface;
 use App\Interfaces\EdufReviewRepositoryInterface;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Redirect;
 
 class EdufLeadController extends Controller
 {
-    use LoggingTrait;
+    use LoggingTrait, StandardizePhoneNumberTrait;
 
     private EdufLeadRepositoryInterface $edufLeadRepository;
     private SchoolRepositoryInterface $schoolRepository;
@@ -52,21 +53,21 @@ class EdufLeadController extends Controller
     {
         $schools = $this->schoolRepository->getAllSchools();
         $corporates = $this->corporateRepository->getAllCorporate();
-        $userFromClientDepartment = $this->userRepository->getAllUsersByRole('Client');
-        $userFromBizDevDepartment = $this->userRepository->getAllUsersByRole('BizDev');
+        $user_from_client_department = $this->userRepository->getAllUsersByRole('Client');
+        $user_from_biz_dev_department = $this->userRepository->getAllUsersByRole('BizDev');
 
         return view('pages.master.edufair.form')->with(
             [
                 'schools' => $schools,
                 'corporates' => $corporates,
-                'internal_pic' => $userFromClientDepartment->merge($userFromBizDevDepartment)->sortBy('first_name'),
+                'internal_pic' => $user_from_client_department->merge($user_from_biz_dev_department)->sortBy('first_name'),
             ]
         );
     }
 
     public function store(StoreEdufairRequest $request)
     {
-        $edufairLeadDetails = $request->only([
+        $edufair_lead_details = $request->only([
             'organizer',
             'sch_id',
             'corp_id',
@@ -87,31 +88,13 @@ class EdufLeadController extends Controller
         DB::beginTransaction();
         try {
 
-            $ext_pic_phone = $request->ext_pic_phone;
+            $ext_pic_phone = $this->tnSetPhoneNumber($request->ext_pic_phone);
 
-            switch (substr($ext_pic_phone, 0, 1)) {
-
-                case 0:
-                    $ext_pic_phone = "+62" . substr($ext_pic_phone, 1);
-                    break;
-
-                case 6:
-                    $ext_pic_phone = "+" . $ext_pic_phone;
-                    break;
-
-                case "+":
-                    $ext_pic_phone = $ext_pic_phone;
-                    break;
-
-                default:
-                    $ext_pic_phone = "+62" . $ext_pic_phone;
-            }
-
-            unset($edufairLeadDetails['ext_pic_phone']); # remove the phone number that hasn't been updated into +62
-            $edufairLeadDetails['ext_pic_phone'] = $ext_pic_phone; # add new phone number 
+            unset($edufair_lead_details['ext_pic_phone']); # remove the phone number that hasn't been updated into +62
+            $edufair_lead_details['ext_pic_phone'] = $ext_pic_phone; # add new phone number 
 
 
-            $newEduf = $this->edufLeadRepository->createEdufairLead($edufairLeadDetails);
+            $new_eduf = $this->edufLeadRepository->createEdufairLead($edufair_lead_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -122,14 +105,14 @@ class EdufLeadController extends Controller
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'External Edufair', Auth::user()->first_name . ' '. Auth::user()->last_name, $newEduf);
+        $this->logSuccess('store', 'Form Input', 'External Edufair', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_eduf);
 
         return Redirect::to('master/edufair')->withSuccess('New Edufair successfully created');
     }
 
     public function update(StoreEdufairRequest $request)
     {
-        $edufairLeadDetails = $request->only([
+        $edufair_lead_details = $request->only([
             'organizer',
             'sch_id',
             'corp_id',
@@ -167,64 +150,64 @@ class EdufLeadController extends Controller
                 $ext_pic_phone = "+62" . $ext_pic_phone;
         }
 
-        unset($edufairLeadDetails['ext_pic_phone']); # remove the phone number that hasn't been updated into +62
-        $edufairLeadDetails['ext_pic_phone'] = $ext_pic_phone; # add new phone number 
+        unset($edufair_lead_details['ext_pic_phone']); # remove the phone number that hasn't been updated into +62
+        $edufair_lead_details['ext_pic_phone'] = $ext_pic_phone; # add new phone number 
 
-        $edufLeadId = $request->route('edufair');
+        $eduf_lead_id = $request->route('edufair');
 
-        $oldEdufLead = $this->edufLeadRepository->getEdufairLeadById($edufLeadId);
+        $old_eduf_lead = $this->edufLeadRepository->getEdufairLeadById($eduf_lead_id);
 
         if ($request->organizer == "school")
-            $edufairLeadDetails['corp_id'] = NULL;
+            $edufair_lead_details['corp_id'] = NULL;
         else
-            $edufairLeadDetails['sch_id'] = NULL;
+            $edufair_lead_details['sch_id'] = NULL;
 
-        unset($edufairLeadDetails['organizer']);
+        unset($edufair_lead_details['organizer']);
 
         DB::beginTransaction();
         try {
 
-            $this->edufLeadRepository->updateEdufairLead($edufLeadId, $edufairLeadDetails);
+            $this->edufLeadRepository->updateEdufairLead($eduf_lead_id, $edufair_lead_details);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Update edufair failed : ' . $e->getMessage());
-            return Redirect::to('master/edufair/' . $edufLeadId)->withError('Failed to update edufair');
+            return Redirect::to('master/edufair/' . $eduf_lead_id)->withError('Failed to update edufair');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'External Edufair', Auth::user()->first_name . ' '. Auth::user()->last_name, $edufairLeadDetails, $oldEdufLead);
+        $this->logSuccess('update', 'Form Input', 'External Edufair', Auth::user()->first_name . ' '. Auth::user()->last_name, $edufair_lead_details, $old_eduf_lead);
 
         return Redirect::to('master/edufair')->withSuccess('Edufair successfully updated');
     }
 
     public function show(Request $request)
     {
-        $edufLeadId = $request->route('edufair');
-        $edufLead = $this->edufLeadRepository->getEdufairLeadById($edufLeadId);
-        $reviews = $this->edufReviewRepository->getAllEdufairReviewByEdufairId($edufLeadId);
-        $reviewFormData = [];
+        $eduf_lead_id = $request->route('edufair');
+        $eduf_lead = $this->edufLeadRepository->getEdufairLeadById($eduf_lead_id);
+        $reviews = $this->edufReviewRepository->getAllEdufairReviewByEdufairId($eduf_lead_id);
+        $review_form_data = [];
         if ($edufRId = $request->route('review'))
-            $reviewFormData = $this->edufReviewRepository->getEdufairReviewById($edufRId);
+            $review_form_data = $this->edufReviewRepository->getEdufairReviewById($edufRId);
 
         $schools = $this->schoolRepository->getAllSchools();
         $corporates = $this->corporateRepository->getAllCorporate();
-        $userFromClientDepartment = $this->userRepository->getAllUsersByRole('Client');
-        $userFromBizDevDepartment = $this->userRepository->getAllUsersByRole('BizDev');
+        $user_from_client_department = $this->userRepository->getAllUsersByRole('Client');
+        $user_from_biz_dev_department = $this->userRepository->getAllUsersByRole('BizDev');
         $employees = $this->userRepository->getAllUsersByRole('Employee');
-        $speakers = $this->agendaSpeakerRepository->getAllSpeakerByEdufair($edufLeadId);
+        $speakers = $this->agendaSpeakerRepository->getAllSpeakerByEdufair($eduf_lead_id);
 
 
         return view('pages.master.edufair.form')->with(
             [
-                'edufair' => $edufLead,
+                'edufair' => $eduf_lead,
                 'reviews' => $reviews,
-                'reviewFormData' => $reviewFormData,
+                'reviewFormData' => $review_form_data,
                 'schools' => $schools,
                 'corporates' => $corporates,
-                'internal_pic' => $userFromClientDepartment->merge($userFromBizDevDepartment)->sortBy('first_name'),
+                'internal_pic' => $user_from_client_department->merge($user_from_biz_dev_department)->sortBy('first_name'),
                 'employees' => $employees,
                 'speakers' => $speakers,
             ]
@@ -233,27 +216,27 @@ class EdufLeadController extends Controller
 
     public function edit(Request $request)
     {
-        $edufLeadId = $request->route('edufair');
-        $edufLead = $this->edufLeadRepository->getEdufairLeadById($edufLeadId);
-        $reviews = $this->edufReviewRepository->getAllEdufairReviewByEdufairId($edufLeadId);
-        $reviewFormData = [];
+        $eduf_lead_id = $request->route('edufair');
+        $eduf_lead = $this->edufLeadRepository->getEdufairLeadById($eduf_lead_id);
+        $reviews = $this->edufReviewRepository->getAllEdufairReviewByEdufairId($eduf_lead_id);
+        $review_form_data = [];
         if ($edufRId = $request->route('review'))
-            $reviewFormData = $this->edufReviewRepository->getEdufairReviewById($edufRId);
+            $review_form_data = $this->edufReviewRepository->getEdufairReviewById($edufRId);
 
         $schools = $this->schoolRepository->getAllSchools();
         $corporates = $this->corporateRepository->getAllCorporate();
-        $userFromClientDepartment = $this->userRepository->getAllUsersByRole('Client');
-        $userFromBizDevDepartment = $this->userRepository->getAllUsersByRole('BizDev');
+        $user_from_client_department = $this->userRepository->getAllUsersByRole('Client');
+        $user_from_biz_dev_department = $this->userRepository->getAllUsersByRole('BizDev');
 
         return view('pages.master.edufair.form')->with(
             [
                 'edit' => true,
-                'edufair' => $edufLead,
+                'edufair' => $eduf_lead,
                 'reviews' => $reviews,
-                'reviewFormData' => $reviewFormData,
+                'reviewFormData' => $review_form_data,
                 'schools' => $schools,
                 'corporates' => $corporates,
-                'internal_pic' => $userFromClientDepartment->merge($userFromBizDevDepartment)->sortBy('first_name'),
+                'internal_pic' => $user_from_client_department->merge($user_from_biz_dev_department)->sortBy('first_name'),
             ]
         );
     }
@@ -261,7 +244,7 @@ class EdufLeadController extends Controller
     public function destroy(Request $request)
     {
         $id = $request->route('edufair');
-        $edufLead = $this->edufLeadRepository->getEdufairLeadById($id);
+        $eduf_lead = $this->edufLeadRepository->getEdufairLeadById($id);
 
         DB::beginTransaction();
         try {
@@ -277,7 +260,7 @@ class EdufLeadController extends Controller
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'External Edufair', Auth::user()->first_name . ' '. Auth::user()->last_name, $edufLead);
+        $this->logSuccess('delete', null, 'External Edufair', Auth::user()->first_name . ' '. Auth::user()->last_name, $eduf_lead);
 
         return Redirect::to('master/edufair')->withSuccess('Edufair successfully deleted');
     }

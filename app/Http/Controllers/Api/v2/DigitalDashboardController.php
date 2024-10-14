@@ -95,12 +95,12 @@ class DigitalDashboardController extends Controller
 
             # Chart lead
             for ($i = 2; $i >= 0; $i--) {
-                $dataLeadChart['target'][] = $targetTrackingLead->where('month', date('m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingLead->where('month', date('m', strtotime($date->subMonth($i))))->first()->target : 0;
-                $dataLeadChart['actual'][] = $targetTrackingLead->where('month', date('m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingLead->where('month', date('m', strtotime($date->subMonth($i))))->first()->actual : 0;
+                $dataLeadChart['target'][] = $targetTrackingLead->where('month_year', date('Y-m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingLead->where('month_year', date('Y-m', strtotime($date->subMonth($i))))->first()->target : 0;
+                $dataLeadChart['actual'][] = $targetTrackingLead->where('month_year', date('Y-m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingLead->where('month_year', date('Y-m', strtotime($date->subMonth($i))))->first()->actual : 0;
                 $dataLeadChart['label'][] = date('F', strtotime($date->subMonth($i)));
 
-                $dataRevenueChart['target'][] = $targetTrackingRevenue->where('month', date('m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingRevenue->where('month', date('m', strtotime($date->subMonth($i))))->first()->target : 0;
-                $dataRevenueChart['actual'][] = $targetTrackingRevenue->where('month', date('m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingRevenue->where('month', date('m', strtotime($date->subMonth($i))))->first()->actual : 0;
+                $dataRevenueChart['target'][] = $targetTrackingRevenue->where('month_year', date('Y-m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingRevenue->where('month_year', date('Y-m', strtotime($date->subMonth($i))))->first()->target : 0;
+                $dataRevenueChart['actual'][] = $targetTrackingRevenue->where('month_year', date('Y-m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingRevenue->where('month_year', date('Y-m', strtotime($date->subMonth($i))))->first()->actual : 0;
                 $dataRevenueChart['label'][] = date('F', strtotime($date->subMonth($i)));
             }
 

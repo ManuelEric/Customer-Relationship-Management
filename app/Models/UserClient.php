@@ -116,13 +116,16 @@ class UserClient extends Authenticatable
 
         $updated = parent::update($attributes);
 
-        // Custom logic after update
-        // Send to pusher
-        event(New MessageSent('rt_client', 'channel_datatable'));
-        
-        // Delete cache birthDay
-        Cache::has('birthDay') ? Cache::forget('birthDay') : null;
-
+        if(isset($attributes['is_many_request']) && $attributes['is_many_request'])
+        {
+            unset($attributes['is_many_request']);
+        }else{
+            // Send to pusher
+            // Custom logic after creating the model
+            event(New MessageSent('rt_client', 'channel_datatable'));
+            // Delete cache birthDay
+            Cache::has('birthDay') ? Cache::forget('birthDay') : null;
+        }
 
         return $updated;
     }
@@ -133,13 +136,18 @@ class UserClient extends Authenticatable
 
         $model = static::query()->create($attributes);
 
-        // Custom logic after creating the model
+        if(isset($attributes['is_many_request']) && $attributes['is_many_request'])
+        {
+            unset($attributes['is_many_request']);
+        }else{
+            // Send to pusher
+            // Custom logic after creating the model
+            event(New MessageSent('rt_client', 'channel_datatable'));
 
-        // Send to pusher
-        event(New MessageSent('rt_client', 'channel_datatable'));
+            // Delete cache birthDay
+            Cache::has('birthDay') ? Cache::forget('birthDay') : null;
+        }
 
-        // Delete cache birthDay
-        Cache::has('birthDay') ? Cache::forget('birthDay') : null;
 
         return $model;
     }

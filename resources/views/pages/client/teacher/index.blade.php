@@ -37,7 +37,7 @@
                             data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span
                                 class="ms-1">Import</span></a>
                     </div> --}}
-                    <div class="col-md-4 offset-8">
+                    <div class="col-md-4 offset-lg-8">
                         <a href="{{ url('client/teacher-counselor/create') }}" class="btn btn-sm btn-info w-100"><i
                                 class="bi bi-plus-square me-1"></i> Add
                             Teacher</a>
@@ -137,6 +137,7 @@
                     right: 1
                 },
                 ajax: '',
+                pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
                         data: 'id',
                         className: 'text-center',

@@ -43,7 +43,7 @@ class Kernel extends ConsoleKernel
          * Lead scoring
          * 
          */
-        $schedule->command('automate:determine_hot_leads')->withoutOverlapping()->everyMinute()->onOneServer();
+        $schedule->command('automate:determine_hot_leads')->withoutOverlapping()->dailyAt('06:00')->onOneServer();
 
 
         /**

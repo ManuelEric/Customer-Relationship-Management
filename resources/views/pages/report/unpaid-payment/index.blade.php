@@ -54,7 +54,7 @@
             </div>
         </div>
 
-        <div class="col-md-9">
+        <div class="col-md-9 mt-3 mt-md-0">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="p-0 m-0">Invoice & Receipt Report</h6>

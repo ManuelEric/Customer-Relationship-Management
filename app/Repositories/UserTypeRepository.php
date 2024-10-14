@@ -16,7 +16,7 @@ class UserTypeRepository implements UserTypeRepositoryInterface
 
     public function getActiveUserTypeByUserId($userId)
     {
-        $user = User::isActive()->
+         $user = User::isActive()->
                 where('id', $userId)->
                 select([
                     'id', 'first_name', 'last_name', 'email', 'phone'

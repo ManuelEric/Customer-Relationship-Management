@@ -1619,7 +1619,7 @@ class ClientRepository implements ClientRepositoryInterface
             return [
                 'id' => $item['id'],
                 'mail' => $item['mail'],
-                'phone' => $this->setPhoneNumber($item['phone'])
+                'phone' => $this->tnSetPhoneNumber($item['phone'])
             ];
         });
 
@@ -1633,7 +1633,7 @@ class ClientRepository implements ClientRepositoryInterface
                 return [
                     'id' => $item['client_id'],
                     'mail' => $item['category'] == 'mail' ? $item['value'] : null,
-                    'phone' => $this->setPhoneNumber($item['value'])
+                    'phone' => $this->tnSetPhoneNumber($item['value'])
                 ];
             });
 
@@ -1658,7 +1658,7 @@ class ClientRepository implements ClientRepositoryInterface
                 return [
                     'id' => $item['client_id'],
                     'mail' => $item['category'] == 'mail' ? $item['value'] : null,
-                    'phone' => $this->setPhoneNumber($item['value'])
+                    'phone' => $this->tnSetPhoneNumber($item['value'])
                 ];
             });
 
@@ -2159,7 +2159,7 @@ class ClientRepository implements ClientRepositoryInterface
     public function countClientByRole($role, $month = null, $isRaw = false)
     {
         $client = DB::table('tbl_client')
-            ->select(DB::raw('count(*) as client_count'))
+            ->select(DB::raw('count(tbl_client.id) as client_count'))
             ->join('tbl_client_roles', function ($q) {
                 $q->on('tbl_client_roles.client_id', '=', 'tbl_client.id');
             })
@@ -2175,8 +2175,8 @@ class ClientRepository implements ClientRepositoryInterface
             when($isRaw, function ($subQuery) {
                 $subQuery->where('tbl_client.is_verified', 'N');
             })->
-            where('st_statusact', 1)->
-            first();
+            where('deleted_at', null)->
+            where('st_statusact', 1)->first();
 
         return $client->client_count;
     }

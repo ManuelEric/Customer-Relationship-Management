@@ -87,8 +87,8 @@ Route::prefix('corporate')->name('corporate_prog.')->group(function () {
 });
 
 Route::get('school', [SchoolProgramController::class, 'index'])->name('program.school.index');
-Route::post('school', [SchoolProgramController::class, 'index']);
-Route::prefix('school')->name('school.')->group(function () {
+Route::post('school', [SchoolProgramController::class, 'store'])->name('program.school.store');
+Route::prefix('school')->name('program.school.')->group(function () {
     Route::resource('{school}/detail', SchoolProgramController::class, [
         'names' => [
             'index' => 'program.detail.index',

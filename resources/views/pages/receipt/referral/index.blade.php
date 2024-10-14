@@ -77,6 +77,7 @@
                     right: 1
                 },
                 ajax: '',
+                pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
                         data: 'increment_receipt',
                         name: 'tbl_receipt.id',

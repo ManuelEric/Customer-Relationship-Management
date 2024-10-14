@@ -47,7 +47,7 @@ class SeasonalProgramController extends Controller
 
     public function store(StoreSeasonalProgramRequest $request)
     {
-        $seasonalProgramDetails = $request->only([
+        $seasonal_program_details = $request->only([
             'prog_id',
             'start',
             'end',
@@ -57,7 +57,7 @@ class SeasonalProgramController extends Controller
         DB::beginTransaction();
         try {
             
-            $newSeasonalProgram = $this->seasonalProgramRepository->storeSeasonalProgram($seasonalProgramDetails);
+            $new_seasonal_program = $this->seasonalProgramRepository->storeSeasonalProgram($seasonal_program_details);
             DB::commit();
 
         } catch (Exception $e) {
@@ -70,7 +70,7 @@ class SeasonalProgramController extends Controller
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Seasonal Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $newSeasonalProgram);
+        $this->logSuccess('store', 'Form Input', 'Seasonal Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_seasonal_program);
 
         return Redirect::to('master/seasonal-program')->withSuccess('A new seasonal program successfully created');
     }
@@ -78,30 +78,30 @@ class SeasonalProgramController extends Controller
     public function edit(Request $request)
     {
         if ($request->ajax()) {
-            $seasonalProgramId = $request->route('seasonal_program');
-            $seasonalProgram = $this->seasonalProgramRepository->getSeasonalProgramById($seasonalProgramId);
+            $seasonal_program_id = $request->route('seasonal_program');
+            $seasonal_program = $this->seasonalProgramRepository->getSeasonalProgramById($seasonal_program_id);
 
-            return response()->json($seasonalProgram);
+            return response()->json($seasonal_program);
         }
     }
 
     public function update(StoreSeasonalProgramRequest $request)
     {
-        $seasonalProgramId = $request->route('seasonal_program');
+        $seasonal_program_id = $request->route('seasonal_program');
 
-        $newDetails = $request->only([
+        $new_details = $request->only([
             'prog_id',
             'start',
             'end',
             'sales_date'
         ]);
 
-        $oldSeasonalProgram = $this->seasonalProgramRepository->getSeasonalProgramById($seasonalProgramId);
+        $old_seasonal_program = $this->seasonalProgramRepository->getSeasonalProgramById($seasonal_program_id);
 
         DB::beginTransaction();
         try {
             
-            $this->seasonalProgramRepository->updateSeasonalProgram($seasonalProgramId, $newDetails);
+            $this->seasonalProgramRepository->updateSeasonalProgram($seasonal_program_id, $new_details);
             DB::commit();
 
         } catch (Exception $e) {
@@ -114,21 +114,21 @@ class SeasonalProgramController extends Controller
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Seasonal Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $newDetails, $oldSeasonalProgram);
+        $this->logSuccess('update', 'Form Input', 'Seasonal Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_details, $old_seasonal_program);
 
         return Redirect::to('master/seasonal-program')->withSuccess('The seasonal program successfully updated');
     }
 
     public function destroy(Request $request)
     {
-        $seasonalProgramId = $request->route('seasonal_program');
+        $seasonal_program_id = $request->route('seasonal_program');
 
-        $seasonalProgram = $this->seasonalProgramRepository->getSeasonalProgramById($seasonalProgramId);
+        $seasonal_program = $this->seasonalProgramRepository->getSeasonalProgramById($seasonal_program_id);
 
         DB::beginTransaction();
         try {
 
-            $this->seasonalProgramRepository->deleteSeasonalProgram($seasonalProgramId);
+            $this->seasonalProgramRepository->deleteSeasonalProgram($seasonal_program_id);
             DB::commit();
         } catch (Exception $e) {
 
@@ -139,7 +139,7 @@ class SeasonalProgramController extends Controller
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Seasonal Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $seasonalProgram);
+        $this->logSuccess('delete', null, 'Seasonal Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $seasonal_program);
 
         return Redirect::to('master/seasonal-program')->withSuccess('Seasonal program successfully deleted');
     }

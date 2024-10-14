@@ -28,7 +28,7 @@ class TagController extends Controller
 
         # remove the `other` tag
         # map the data that being shown to the user
-        $mappedTags = $countries->where('name', '!=', 'other')->map(function ($value) {
+        $mapped_tags = $countries->where('name', '!=', 'other')->map(function ($value) {
             return [
                 'id' => $value->id,
                 'country' => $value->name,
@@ -39,7 +39,7 @@ class TagController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'There are destination country found.',
-            'data' => $mappedTags->values()
+            'data' => $mapped_tags->values()
         ]);
     }
 }

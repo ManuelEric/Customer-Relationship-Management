@@ -95,7 +95,7 @@ class ImportClientProgram implements ShouldQueue
                 }
             }
 
-            // Insert client event
+            // Insert client program
             $data = [
                 'prog_id' => $val['Program Name'],
                 'lead_id' => $val['Lead'],
@@ -103,6 +103,7 @@ class ImportClientProgram implements ShouldQueue
                 'status' => 0,
                 'registration_type' => 'I',
                 'referral_code' => isset($val['Referral Code']) ? $val['Referral Code'] : null,
+                'is_many_request' => true
             ];
 
             # add additional identification
@@ -150,11 +151,11 @@ class ImportClientProgram implements ShouldQueue
         }
 
         # trigger to verifying client
-        count($childIds) > 0 ? ProcessVerifyClient::dispatch($childIds)->onQueue('verifying-client') : null;
-        count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent') : null;
+        count($childIds) > 0 ? ProcessVerifyClient::dispatch($childIds, true)->onQueue('verifying-client') : null;
+        count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds, true)->onQueue('verifying-client-parent') : null;
 
         # trigger to define category children
-        count($childIds) > 0 ? ProcessDefineCategory::dispatch($childIds)->onQueue('define-category-client') : null;
+        count($childIds) > 0 ? ProcessDefineCategory::dispatch($childIds, true)->onQueue('define-category-client') : null;
 
         Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Client Programs')->range('W'. $this->clientProgData->first()['No'] + 1)->update($imported_date);
         $dataJobBatches = JobBatches::find($this->batch()->id);

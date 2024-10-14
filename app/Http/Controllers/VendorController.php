@@ -47,7 +47,7 @@ class VendorController extends Controller
 
     public function store(StoreVendorRequest $request)
     {
-        $vendorDetails = $request->only([
+        $vendor_details = $request->only([
             'vendor_name',
             'vendor_address',
             'vendor_phone',
@@ -58,8 +58,8 @@ class VendorController extends Controller
             'vendor_processingtime',
             'vendor_notes',
         ]);
-        unset($vendorDetails['vendor_phone']);
-        $vendorDetails['vendor_phone'] = $this->setPhoneNumber($request->vendor_phone);
+        unset($vendor_details['vendor_phone']);
+        $vendor_details['vendor_phone'] = $this->tnSetPhoneNumber($request->vendor_phone);
 
         $last_id = Vendor::max('vendor_id');
         $vendor_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 3) : 000;
@@ -68,7 +68,7 @@ class VendorController extends Controller
         DB::beginTransaction();
         try {
 
-            $newVendor = $this->vendorRepository->createVendor(['vendor_id' => $vendor_id_with_label] + $vendorDetails);
+            $new_vendor = $this->vendorRepository->createVendor(['vendor_id' => $vendor_id_with_label] + $vendor_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -79,7 +79,7 @@ class VendorController extends Controller
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Vendor', Auth::user()->first_name . ' '. Auth::user()->last_name, $newVendor);
+        $this->logSuccess('store', 'Form Input', 'Vendor', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_vendor);
 
         return Redirect::to('master/vendor')->withSuccess('Vendor successfully created');
     }
@@ -95,27 +95,27 @@ class VendorController extends Controller
 
     public function edit(Request $request)
     {
-        $vendorId = $request->route('vendor');
+        $vendor_id = $request->route('vendor');
 
         # retrieve vendor type data
-        $vendorType = $this->vendorTypeRepository->getAllVendorType();
+        $vendor_type = $this->vendorTypeRepository->getAllVendorType();
 
         # retrieve vendor data by id
-        $vendor = $this->vendorRepository->getVendorById($vendorId);
+        $vendor = $this->vendorRepository->getVendorById($vendor_id);
         # put the link to update vendor form below
         # example
 
         return view('pages.master.vendor.form')->with(
             [
                 'vendor' => $vendor,
-                'type' => $vendorType
+                'type' => $vendor_type
             ]
         );
     }
 
     public function update(StoreVendorRequest $request)
     {
-        $vendorDetails = $request->only([
+        $vendor_details = $request->only([
             'vendor_name',
             'vendor_address',
             'vendor_phone',
@@ -126,18 +126,18 @@ class VendorController extends Controller
             'vendor_processingtime',
             'vendor_notes',
         ]);
-        unset($vendorDetails['vendor_phone']);
-        $vendorDetails['vendor_phone'] = $this->setPhoneNumber($request->vendor_phone);
+        unset($vendor_details['vendor_phone']);
+        $vendor_details['vendor_phone'] = $this->tnSetPhoneNumber($request->vendor_phone);
 
         # retrieve vendor id from url
-        $vendorId = $request->route('vendor');
+        $vendor_id = $request->route('vendor');
 
-        $oldVendor = $this->vendorRepository->getVendorById($vendorId);
+        $old_vendor = $this->vendorRepository->getVendorById($vendor_id);
 
         DB::beginTransaction();
         try {
 
-            $this->vendorRepository->updateVendor($vendorId, $vendorDetails);
+            $this->vendorRepository->updateVendor($vendor_id, $vendor_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -148,20 +148,20 @@ class VendorController extends Controller
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Vendor', Auth::user()->first_name . ' '. Auth::user()->last_name, $vendorDetails, $oldVendor);
+        $this->logSuccess('update', 'Form Input', 'Vendor', Auth::user()->first_name . ' '. Auth::user()->last_name, $vendor_details, $old_vendor);
 
         return Redirect::to('master/vendor')->withSuccess('Vendor successfully updated');
     }
 
     public function destroy(Request $request)
     {
-        $vendorId = $request->route('vendor');
-        $vendor = $this->vendorRepository->getVendorById($vendorId);
+        $vendor_id = $request->route('vendor');
+        $vendor = $this->vendorRepository->getVendorById($vendor_id);
 
         DB::beginTransaction();
         try {
 
-            $this->vendorRepository->deleteVendor($vendorId);
+            $this->vendorRepository->deleteVendor($vendor_id);
             DB::commit();
         } catch (Exception $e) {
 

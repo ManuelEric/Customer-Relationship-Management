@@ -93,7 +93,6 @@ class UserController extends Controller
             'position_id'
         ]);
 
-
         # variables for user educations
         $new_user_education_details = $request->safe()->only([
             'graduated_from',
@@ -216,8 +215,8 @@ class UserController extends Controller
         ]);
         unset($newDetails['phone']);
         unset($newDetails['emergency_contact_phone']);
-        $newDetails['phone'] = $this->setPhoneNumber($request->phone);
-        $newDetails['emergency_contact_phone'] = $request->emergency_contact_phone != null ? $this->setPhoneNumber($request->emergency_contact_phone) : null;
+        $newDetails['phone'] = $this->tnSetPhoneNumber($request->phone);
+        $newDetails['emergency_contact_phone'] = $request->emergency_contact_phone != null ? $this->tnSetPhoneNumber($request->emergency_contact_phone) : null;
 
         $newDetails['position_id'] = $request->position;
 
@@ -375,8 +374,7 @@ class UserController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update user ' . $request->route('user_role') . ' failed : ' . $e->getMessage());
-            return Redirect::back()->withError('Failed to update ' . $request->route('user_role') . ' | Line ' . $e->getLine());
+            Log::error('Update user ' . $request->route('user_role') . ' failed : ' . $e->getMessage() . ' in line ' . $e->getLine());            return Redirect::back()->withError('Failed to update ' . $request->route('user_role') . ' | Line ' . $e->getLine());
         }
 
         # Update success

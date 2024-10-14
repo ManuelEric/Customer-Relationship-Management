@@ -18,8 +18,8 @@ class EventController extends Controller
 
     public function findEvent(Request $request)
     {
-        $requestedEventId = $request->event_id;
-        if (!$foundEvent = $this->eventRepository->getEventById($requestedEventId)) {
+        $requested_event_id = $request->event_id;
+        if (!$found_event = $this->eventRepository->getEventById($requested_event_id)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Could not find the event.'
@@ -31,9 +31,9 @@ class EventController extends Controller
             'success' => true,
             'message' => 'Event was found.',
             'data' => [
-                'event_id' => $foundEvent->event_id,
-                'event_name' => $foundEvent->event_title,
-                'event_banner' => $foundEvent->event_banner !== null ? url("/storage/uploaded_file/events/{$foundEvent->event_banner}") : null
+                'event_id' => $found_event->event_id,
+                'event_name' => $found_event->event_title,
+                'event_banner' => $found_event->event_banner !== null ? url("/storage/uploaded_file/events/{$found_event->event_banner}") : null
             ]
         ]);
     }

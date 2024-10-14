@@ -509,13 +509,6 @@ return new class extends Migration
                 WHERE sqip.client_id = second_client.id GROUP BY sqip.client_id) as second_client_interest_prog,
             second_client.created_at as second_client_created_at,
             second_client.st_statusact as second_client_statusact,
-            UpdateGradeStudent (
-                year(CURDATE()),
-                year(rc.created_at),
-                month(CURDATE()),
-                month(rc.created_at),
-                rc.st_grade
-            ) AS real_grade,
             (SELECT ((SELECT rc.grade_now) - 12)) AS year_gap,
             (SELECT YEAR((NOW() - INTERVAL (SELECT year_gap) YEAR) + INTERVAL 1 YEAR)) AS graduation_year_real,
             rc.graduation_year,
@@ -659,14 +652,10 @@ return new class extends Migration
                 month(c.created_at),
                 c.st_grade
             ) AS real_grade,
-            (CASE
-                WHEN (SELECT real_grade IS NULL) AND c.graduation_year IS NOT NULL THEN getGradeStudentByGraduationYear(c.graduation_year)  
-                ELSE (SELECT real_grade)
-            END) as grade_now,
-            (SELECT ((SELECT grade_now) - 12)) AS year_gap,
+            (SELECT ((SELECT c.grade_now) - 12)) AS year_gap,
             (CASE
                 WHEN (SELECT real_grade IS NULL) AND c.graduation_year IS NOT NULL THEN c.graduation_year  
-                ELSE getGraduationYearReal((SELECT grade_now))
+                ELSE getGraduationYearReal((SELECT c.grade_now))
             END) AS graduation_year_real,
             (SELECT YEAR((NOW() - INTERVAL (SELECT year_gap) YEAR) + INTERVAL 1 YEAR)) AS graduation_year_test,
             (SELECT GROUP_CONCAT(squ.univ_name) FROM tbl_dreams_uni sqdu

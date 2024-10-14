@@ -140,7 +140,7 @@ Route::post('receipt-corp/{receipt}/upload/{currency}', [ReceiptPartnerControlle
 
 # menus
 Route::get('employee/department/{department}', [DepartmentController::class, 'getEmployeeByDepartment']);
-Route::get('department/access/{department}/{user?}', [MenuController::class, 'getDepartmentAccess']);
+Route::get('department/access/{department}/{user?}', [MenuController::class, 'fnGetMenuAccess']);
 
 # import student, # import client event
 Route::get('download/excel-template/{type}', [ExcelTemplateController::class, 'generateTemplate']);
@@ -204,17 +204,17 @@ Route::prefix('v1')->group(function () {
     Route::get('get/user/by/UUID/{uuid}', [ExtClientController::class, 'getUserByUUID']);
 
     # timesheet
-    Route::middleware(['timesheet.access'])->group(function () {
+    // Route::middleware(['timesheet.access'])->group(function () {
         Route::get('auth/email/check', [ExtClientController::class, 'checkUserEmail']);
         Route::post('auth/token', [ExtClientController::class, 'validateCredentials']);
         Route::post('user/update', [ExtClientController::class, 'updateUser']);
 
         Route::get('user/mentor-tutors', [ExtClientController::class, 'getMentorTutors']);
-        
+        Route::get('user/mentor-tutors/{uuid}', [ExtClientController::class, 'showMentorTutor']);
 
         Route::get('program/list', [ExtClientProgramController::class, 'getSuccessPrograms']);
         Route::get('client/information/{uuid}', [ExtClientController::class, 'getClientInformation']);
-    });
+    // });
 });
 
 # Client Event Attendance
@@ -247,7 +247,7 @@ Route::get('user/sales-team/', [UserController::class, 'getSalesTeam']); # basic
 Route::get('get/program/main/{mainProgId}', [APIProgramController::class, 'getProgramNameByMainProgramId']);
 
 # Get List referral / sub lead referral (All Client)
-Route::get('get/referral/list', [LeadController::class, 'getListReferral']);
+Route::get('get/referral/list', [LeadController::class, 'fnGetListReferral']);
 
 # Import From google sheet
 Route::group(['middleware' => 'auth:api', 'prefix' => 'import'], function () {

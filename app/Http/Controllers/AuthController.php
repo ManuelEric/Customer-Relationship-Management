@@ -44,14 +44,17 @@ class AuthController extends Controller
 
             $user = Auth::user();
             $userId = $user->id;
-            $authorizationService->checkPermissionFromUserType($userId);
+             $authorizationService->checkPermissionFromUserType($userId);
             $scopes = $authorizationService->checkUserRole($user);
             [$generatedToken, $acceptableUserRole] = $authorizationService->authorize($user, $scopes);
     
             $request->session()->put('user_role', $acceptableUserRole);
             $request->session()->put('access_token', $generatedToken);
             $request->session()->put('scope', $scopes);
-            
+
+            $clientIP = $request->ip();
+            Log::alert($clientIP);
+
         } catch (Exception $e) {
 
             Log::debug('Error:'. $e->getMessage());

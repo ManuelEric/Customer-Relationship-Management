@@ -39,7 +39,7 @@
                             data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span
                                 class="ms-1">Import</span></a>
                     </div> --}}
-                    <div class="col-md-3 offset-6">
+                    <div class="col-md-3 offset-lg-6">
                         <div class="dropdown"> 
                             <button href="#" class="btn btn-sm btn-light text-dark dropdown-toggle w-100"
                                 data-bs-toggle="dropdown" data-bs-auto-close="false" id="filter">
@@ -552,6 +552,7 @@
                         params.end_joined_date = $("#end_joined_date").val()
                     }
                 },
+                pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
                         data: 'status_lead_score',
                         visible: false,

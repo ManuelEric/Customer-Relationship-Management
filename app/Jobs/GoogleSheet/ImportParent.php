@@ -3,6 +3,7 @@
 namespace App\Jobs\GoogleSheet;
 
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\GetGradeAndGraduationYear;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\SyncClientTrait;
@@ -26,7 +27,7 @@ use romanzipp\QueueMonitor\Traits\IsMonitored;
 class ImportParent implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    use SyncClientTrait, CreateCustomPrimaryKeyTrait, LoggingTrait, SyncClientTrait, StandardizePhoneNumberTrait;
+    use SyncClientTrait, CreateCustomPrimaryKeyTrait, LoggingTrait, SyncClientTrait, StandardizePhoneNumberTrait, GetGradeAndGraduationYear;
     use IsMonitored;
 
     public $parentData;
@@ -51,7 +52,7 @@ class ImportParent implements ShouldQueue
 
         foreach ($this->parentData as $key => $val) {
             $parent = null;
-            $phoneNumber = $this->setPhoneNumber($val['Phone Number']);
+            $phoneNumber = $this->tnSetPhoneNumber($val['Phone Number']);
 
             $parent = $this->checkExistingClientImport($phoneNumber, $val['Email']);
 
@@ -90,6 +91,7 @@ class ImportParent implements ShouldQueue
 
             $children = null;
             $checkExistChildren = null;
+            $st_grade = null;
             if (isset($val['Children Name'])) {
                 $checkExistChildren = $this->checkExistClientRelation('parent', $parent, $val['Children Name']);
                 
@@ -104,11 +106,16 @@ class ImportParent implements ShouldQueue
                         $school = $this->createSchoolIfNotExists($val['School']);
                     }
 
+                    if (isset($val['Graduation Year'])) {
+                        $st_grade = $this->getGradeByGraduationYear($val['Graduation Year']);
+                    }
+
                     $childrenDetails = [
                         'first_name' => $name['firstname'],
                         'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
                         'sch_id' => $school->sch_id,
                         'graduation_year' => isset($val['Graduation Year']) ? $val['Graduation Year'] : null,
+                        'st_grade' => $st_grade,
                         'lead_id' => $val['Lead'],
                         'event_id' => isset($val['Event']) && $val['Lead'] == 'LS003' ? $val['Event'] : null,
                         'eduf_id' => isset($val['Edufair'])  && $val['Lead'] == 'LS017' ? $val['Edufair'] : null,

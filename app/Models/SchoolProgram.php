@@ -64,7 +64,7 @@ class SchoolProgram extends Model
     {
         $query->where('status', 1)->where('end_program_date', '>=', Carbon::now());
     }
-
+    
     public function scopeProgramIs(Builder $query, string $main_program_name): void
     {
         $query->whereHas('program.main_prog', function ($sub) use ($main_program_name) {

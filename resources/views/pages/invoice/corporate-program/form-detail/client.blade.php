@@ -53,8 +53,7 @@
         </div>
     </div>
 </div>
-<div class="accordion accordion-flush shadow-sm">
-    <div class="accordion-item rounded">
+<div class="accordion accordion-flush shadow-sm my-3 my-md-0">    <div class="accordion-item rounded">
         <h2 class="accordion-header">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#picInfo" aria-expanded="true" aria-controls="picInfo">
                 <h6 class="m-0 p-0">

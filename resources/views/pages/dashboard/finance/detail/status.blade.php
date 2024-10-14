@@ -1,10 +1,10 @@
 @push('styles')
-<link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
-<style>
-    .iti {
-        display: block !important;
-    }
-</style>
+    <link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
+    <style>
+        .iti {
+            display: block !important;
+        }
+    </style>
 @endpush
 
 <div class="card mb-3">
@@ -20,10 +20,11 @@
             <div class="col-md-2">
                 <div class="card rounded border h-100 card-finance cursor-pointer" data-finance-type="invoice-needed">
                     <div class="card-body d-flex justify-content-between align-items-center">
-                        @if($invoiceNeededToday > 0)
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger today"
+                        @if ($invoiceNeededToday > 0)
+                            <span
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger today"
                                 style="font-size: 11px">
-                                {{$invoiceNeededToday}}
+                                {{ $invoiceNeededToday }}
                             </span>
                         @endif
                         <h5 class="m-0 p-0">Invoice Needed</h5>
@@ -43,7 +44,8 @@
                             <h4 class="m-0 p-0">
                                 {{ $totalInvoice[0]['count_invoice'] + $totalInvoice[1]['count_invoice'] }}
                             </h4>
-                            <h6 class="m-0">Rp. {{ number_format($totalInvoice[0]['total'] +  $totalInvoice[1]['total']) }}</h6>
+                            <h6 class="m-0">Rp.
+                                {{ number_format($totalInvoice[0]['total'] + $totalInvoice[1]['total']) }}</h6>
                         </div>
                     </div>
                 </div>
@@ -64,10 +66,11 @@
             <div class="col-md-2">
                 <div class="card rounded border h-100 card-finance cursor-pointer" data-finance-type="outstanding">
                     <div class="card-body d-flex justify-content-between align-items-center">
-                        @if($outstandingToday > 0)
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger today"
+                        @if ($outstandingToday > 0)
+                            <span
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger today"
                                 style="font-size: 11px">
-                                {{$outstandingToday}}
+                                {{ $outstandingToday }}
                             </span>
                         @endif
                         <h5 class="m-0 p-0">Outstanding Payment</h5>
@@ -82,10 +85,11 @@
             <div class="col-md-2">
                 <div class="card rounded border h-100 card-finance cursor-pointer" data-finance-type="refund-request">
                     <div class="card-body d-flex justify-content-between align-items-center">
-                        @if($refundRequestToday > 0)
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger today"
+                        @if ($refundRequestToday > 0)
+                            <span
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger today"
                                 style="font-size: 11px">
-                                {{$refundRequestToday}}
+                                {{ $refundRequestToday }}
                             </span>
                         @endif
                         <h5 class="m-0 p-0">Refund Request</h5>
@@ -102,7 +106,8 @@
 </div>
 
 <!-- Detail -->
-<div class="modal modal-lg fade" id="list-detail-finance" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal modal-lg fade" id="list-detail-finance" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -134,130 +139,189 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <span>
+                <span id="modal-title">
                     Reminder
                 </span>
                 <i class="bi bi-pencil-square"></i>
             </div>
             <div class="modal-body w-100 text-start">
                 {{-- <form action="" method="POST" id="reminderForm"> --}}
-                    @csrf
-                    {{-- @method('put') --}}
-                    <div class="form-phone">
+                @csrf
+                {{-- @method('put') --}}
+                <div class="form-phone">
 
-                        {{-- <label for="">Phone Number Parent</label>
+                    {{-- <label for="">Phone Number Parent</label>
                         <input type="text" name="phone" id="phone" class="form-control w-100"> --}}
-                    </div>
-                    <input type="hidden" name="client_id" id="client_id">
-                    <input type="hidden" name="clientprog_id" id="clientprog_id">
-                    <input type="hidden" name="program_name" id="program_name">
-                    <input type="hidden" name="invoice_duedate" id="invoice_duedate">
-                    <input type="hidden" name="total_payment" id="total_payment">
-                    <input type="hidden" name="payment_method" id="payment_method">
-                    <input type="hidden" name="parent_id" id="parent_id">
-                    <input type="hidden" name="send_to">
-                    <input type="hidden" name="target_phone">
-                    {{-- <hr> --}}
-                    <div class="d-flex justify-content-between">
-                        <button type="button" href="#" class="btn btn-outline-danger btn-sm"
-                          data-bs-dismiss="modal">
-                            <i class="bi bi-x-square me-1"></i>
-                            Cancel</button>
-                        <button type="submit" onclick="sendWhatsapp()" class="btn btn-primary btn-sm">
-                            <i class="bi bi-save2 me-1"></i>
-                            Send</button>
-                    </div>
+                </div>
+                <input type="hidden" name="client_id" id="client_id">
+                <input type="hidden" name="clientprog_id" id="clientprog_id">
+                <input type="hidden" name="program_name" id="program_name">
+                <input type="hidden" name="invoice_duedate" id="invoice_duedate">
+                <input type="hidden" name="total_payment" id="total_payment">
+                <input type="hidden" name="payment_method" id="payment_method">
+                <input type="hidden" name="parent_id" id="parent_id">
+                <input type="hidden" name="send_to">
+                <input type="hidden" name="target_phone">
+                <input type="hidden" name="type">
+                {{-- <hr> --}}
+                <div class="d-flex justify-content-between">
+                    <button type="button" href="#" class="btn btn-outline-danger btn-sm"
+                        data-bs-dismiss="modal">
+                        <i class="bi bi-x-square me-1"></i>
+                        Cancel</button>
+                    <button type="submit" id="submit-modal" onclick="sendWhatsapp()"
+                        class="btn btn-primary btn-sm">
+                        <i class="bi bi-save2 me-1"></i>
+                        Send</button>
+                </div>
                 {{-- </form> --}}
             </div>
         </div>
     </div>
- </div>
+</div>
+
+<div class="modal fade" id="holdModal" data-bs-backdrop="static" data-bs-keyboard="false"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="modal-title">
+                    Hold Mentoring
+                </span>
+                <i class="bi bi-pencil-square"></i>
+            </div>
+            <div class="modal-body w-100 text-start">
+                <form method="POST" id="holdForm">
+                @csrf
+                {{-- @method('put') --}}
+                <div class="form-mail">
+
+                </div>
+                <input type="hidden" name="client_id_hold" id="client_id_hold">
+                <input type="hidden" name="clientprog_id_hold" id="clientprog_id_hold">
+                <input type="hidden" name="parent_id_hold" id="parent_id_hold">
+                <input type="hidden" name="inv_id_hold" id="inv_id_hold">
+                <input type="hidden" name="invdtl_id_hold" id="invdtl_id_hold">
+                <input type="hidden" name="target_mail_hold">
+                <div class="d-flex justify-content-between">
+                    <button type="button" href="#" class="btn btn-outline-danger btn-sm"
+                        data-bs-dismiss="modal">
+                        <i class="bi bi-x-square me-1"></i>
+                        Cancel</button>
+                    <button type="submit" id="submit-modal"
+                        class="btn btn-primary btn-sm">
+                        <i class="bi bi-save2 me-1"></i>
+                        Send</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 @push('scripts')
-<script src="https://fastly.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
-<script>
-    function initiate()
-    {
-        var child = document.querySelector("#chPhone");
-        var count_parent = $('#count_parent').val();
-        var parent = number = [];
-        const parentInput = [];
+    <script src="https://fastly.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
+    <script>
 
-        const phoneInput1 = window.intlTelInput(child, {
-            utilsScript: "https://fastly.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
-            initialCountry: 'id',
-            onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
-        });
+        function initiate() {
+            var child = document.querySelector("#chPhone");
+            var count_parent = $('#count_parent').val();
+            var parent = number = [];
+            const parentInput = [];
 
-        $("#chPhone").on('keyup', function(e) {
-            var number1 = phoneInput1.getNumber();
-            $("#chPhoneR").val(number1);
-            $("input[name=target_phone]").val(number1);
-        });
-        
-        for(var i=0; i<count_parent; i++){
-            parent[i] = document.querySelector("#prPhone_"+ i);
-            
-            parentInput[i] = window.intlTelInput(parent[i], {
+            const phoneInput1 = window.intlTelInput(child, {
                 utilsScript: "https://fastly.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
                 initialCountry: 'id',
                 onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
             });
 
-            $("#prPhone_"+i).on('keyup', function(e) {
-                number[i] = parentInput[i].getNumber();
-                $("#prPhoneR_"+i).val(number[i]);
-                $("input[name=target_phone]").val(number[i]);
+            // Set value target_phone and chPhone when on keyup
+            $("#chPhone").on('keyup', function(e) {
+                var number1 = phoneInput1.getNumber();
+                $("#chPhoneR").val(number1);
+                $("input[name=target_phone]").val(number1);
             });
+
+            // Set value target_phone and prPhoneR when on keyup
+            for (var i = 0; i < count_parent; i++) {
+                parent[i] = document.querySelector("#prPhone_" + i);
+
+                parentInput[i] = window.intlTelInput(parent[i], {
+                    utilsScript: "https://fastly.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
+                    initialCountry: 'id',
+                    onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
+                });
+
+                $("#prPhone_" + i).on('keyup', function(e) {
+                    number[i] = parentInput[i].getNumber();
+                    $("#prPhoneR_" + i).val(number[i]);
+                    $("input[name=target_phone]").val(number[i]);
+                });
+            }
+
         }
 
-    }
-</script>
-<script>
-
-    $(document).on('click', '.prPhoneInput', function () {
-        sendTo('parent', $(this).data('index'), $(this).data('parentid'));
-    });
-
-    $(document).on('click', 'input[id=chPhoneInput]', function () {
-        sendTo('child', 0, null);
-    });
-
-    function sendTo(recipient, index, parentId)
-    {
-        var prPhoneStatus = chPhoneStatus = false;
-        switch (recipient) {
-            case "parent":
-                var phone = $("#prPhoneR_"+index).val();
-                prPhoneStatus = true;
-                $("#parent_id_checked").val(parentId);
-                break;
-
-            case "child":
-                var phone = $("#chPhoneR").val();
-                chPhoneStatus = true;
-                break;
-        }
-
-        $('#prPhoneInput_'+index).prop('checked', prPhoneStatus);
-        $('#chPhoneInput').prop('checked', chPhoneStatus);
-        $("input[name=send_to]").val(recipient);
-        $("input[name=target_phone]").val(phone);
-
-    }
-
-    $(".card-finance").each(function() {
-        $(this).click(function() {
-            // showLoading()
-
-            let type = $(this).data('finance-type')
-            let month = $('#finance_status_month').val()
+        function setMail(e){
+            var index = e.getAttribute('data-index');
+            e.setAttribute('value', e.value);
             
-            let url = window.location.origin + '/api/finance/detail/'+ month +'/'+ type;
-            var html;
+            $('#prEmailInput_'+index).prop('checked','checked');
+            var parent_id = $('#prEmailInput_'+index).data('parentid');
+            $("#parent_id_hold").val(parent_id);
+            $('input[name="target_mail_hold"]').val(e.value);
+        }
+    </script>
+    <script>
+        $(document).on('click', '.prPhoneInput', function() {
+            sendTo('parent', $(this).data('index'), $(this).data('parentid'));
+        });
 
-            switch (type) {
-                case 'invoice-needed':
+        $(document).on('click', 'input[id=chPhoneInput]', function() {
+            sendTo('child', 0, null);
+        });
+
+        $(document).on('click', 'input[name=recipients_hold]', function() {
+            var index = $(this).data('index');
+            var parentId = $(this).data('parentid');
+            
+            $('#parent_id_hold').val(parentId);
+            $('input[name="target_mail_hold"]').val($('#prMail_'+index).prop('value'));
+        });
+
+        function sendTo(recipient, index, parentId) {
+            var prPhoneStatus = chPhoneStatus = false;
+            switch (recipient) {
+                case "parent":
+                    var phone = $("#prPhoneR_" + index).val();
+                    prPhoneStatus = true;
+                    $("#parent_id_checked").val(parentId);
+                    break;
+
+                case "child":
+                    var phone = $("#chPhoneR").val();
+                    chPhoneStatus = true;
+                    break;
+            }
+
+            $('#prPhoneInput_' + index).prop('checked', prPhoneStatus);
+            $('#chPhoneInput').prop('checked', chPhoneStatus);
+            $("input[name=send_to]").val(recipient);
+            $("input[name=target_phone]").val(phone);
+
+        }
+
+        $(".card-finance").each(function() {
+            $(this).click(function() {
+                // showLoading()
+
+                let type = $(this).data('finance-type')
+                let month = $('#finance_status_month').val()
+
+                let url = window.location.origin + '/api/finance/detail/' + month + '/' + type;
+                var html;
+
+                switch (type) {
+                    case 'invoice-needed':
                         html = "<tr class='text-white'>"
                         html += "<th class='bg-secondary rounded border border-white'>No</th>"
                         html += "<th class='bg-secondary rounded border border-white'>Client Name</th>"
@@ -265,13 +329,14 @@
                         html += "<th class='bg-secondary rounded border border-white'>Success Date</th>"
                         html += "<th class='bg-secondary rounded border border-white'>PIC</th>"
                         html += "</tr>"
-                    break;
-                
-                case 'outstanding':
+                        break;
+
+                    case 'outstanding':
                         html = "<tr class='text-white'>"
                         html += "<th class='bg-secondary rounded border border-white'>No</th>"
                         html += "<th class='bg-secondary rounded border border-white'>Client Name</th>"
                         html += "<th class='bg-secondary rounded border border-white'>Reminder</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Hold</th>"
                         html += "<th class='bg-secondary rounded border border-white'>Invoice ID</th>"
                         html += "<th class='bg-secondary rounded border border-white'>Type</th>"
                         html += "<th class='bg-secondary rounded border border-white'>Program Name</th>"
@@ -279,9 +344,9 @@
                         html += "<th class='bg-secondary rounded border border-white'>Invoice Duedate</th>"
                         html += "<th class='bg-secondary rounded border border-white'>Amount</th>"
                         html += "</tr>"
-                    break;
+                        break;
 
-                case 'refund-request':
+                    case 'refund-request':
                         html = "<tr class='text-white'>"
                         html += "<th class='bg-secondary rounded border border-white'>No</th>"
                         html += "<th class='bg-secondary rounded border border-white'>Client Name</th>"
@@ -290,103 +355,224 @@
                         html += "<th class='bg-secondary rounded border border-white'>Refund Date</th>"
                         html += "<th class='bg-secondary rounded border border-white'>PIC</th>"
                         html += "</tr>"
-                    break;          
-            }
-            $('#thead-finance').html(html)
+                        break;
+                }
+                $('#thead-finance').html(html)
 
-            axios.get(url)
-                .then(function(response) {
-                    var result = response.data;
+                showLoading()
+                axios.get(url)
+                    .then(function(response) {
+                        var result = response.data;
 
-                    $('#list-detail-finance .modal-title').html(result.title)
-                    $('#listFinanceTable tbody').html(result.html_ctx)
+                        $('#list-detail-finance .modal-title').html(result.title)
+                        $('#listFinanceTable tbody').html(result.html_ctx)
 
-                    $('#phone').val('');
-                    $("#listFinanceTable .reminder").each(function() {
-                         $(this).click(function() {
-                            var clientprog_id = null;
-                            if($(this).data('clientprog') != undefined){
-                                clientprog_id = $(this).data('clientprog');
+                        $('#phone').val('');
+                        $("#listFinanceTable .reminder").each(function() {
+                            $(this).click(function() {
+                                $('#modal-title').html('Reminder');
 
-                                var parents = result.reminder[$(this).data('clientprog')].parents;
-                                var parent_phone = result.reminder[$(this).data('clientprog')].parent_phone;
-                                var child_phone = result.reminder[$(this).data('clientprog')].child_phone;
-                                var parent_id = result.reminder[$(this).data('clientprog')].parent_id;
-                                // $('#parent_id_checked').val(parents.length > 0 ? parents[0].id : null);
-                                $('input[name=target_phone]').val(parents.length > 0 ? parents[0].phone : child_phone);
-                                $('input[name=send_to]').val(parents.length > 0 ? 'parent' : 'child');
-                                
-                                $('#client_id').val($(this).data('clientprog').client_id)
-                                // $('#fullname').val(result.reminder[$(this).data('clientid')].parent_fullname) //no longer in use
-                                $('#program_name').val(result.reminder[$(this).data('clientprog')].program_name)
-                                $('#invoice_duedate').val(result.reminder[$(this).data('clientprog')].invoice_duedate)
-                                $('#total_payment').val(result.reminder[$(this).data('clientprog')].total_payment)
-                                $('#clientprog_id').val(result.reminder[$(this).data('clientprog')])
-                                $('#payment_method').val(result.reminder[$(this).data('clientprog')].payment_method)
-                                $('#parent_id').val(result.reminder[$(this).data('clientprog')].parent_id)
-                                $('#client_id').val(result.reminder[$(this).data('clientprog')].client_id)
+                                var clientprog_id = null;
+                                if ($(this).data('clientprog') != undefined) {
+                                    clientprog_id = $(this).data('clientprog');
 
-                                var form_phone = checked = '';
-                                if (parents.length > 0) {
+                                    var parents = result.reminder[$(this).data(
+                                        'clientprog')].parents;
+                                    var parent_phone = result.reminder[$(this).data(
+                                        'clientprog')].parent_phone;
+                                    var child_phone = result.reminder[$(this).data(
+                                        'clientprog')].child_phone;
+                                    var parent_id = result.reminder[$(this).data(
+                                        'clientprog')].parent_id;
+                                    // $('#parent_id_checked').val(parents.length > 0 ? parents[0].id : null);
+                                    $('input[name=target_phone]').val(parents.length >
+                                        0 ? parents[0].phone : child_phone);
+                                    $('input[name=send_to]').val(parents.length > 0 ?
+                                        'parent' : 'child');
+                                    $('input[name=type]').val('reminder');
 
-                                    form_phone += '<h5>Select a recipient</h5>' +
-                                                  '<input type="hidden" value="'+ parents.length +'" id="count_parent">'+
-                                                  '<input type="hidden" id="parent_id_checked" value="' + parents[0].id + '">';                             
-                                    
-                                    parents.forEach(function (item, index) {
-                                        form_phone += '<div class="form-check form-check-inline ms-4">'+
-                                                        '<input type="radio" class="form-check-input prPhoneInput" name="recipients" value="parent'+index+'" '+ (index === 0 ? 'checked="checked"' : null)  +' id="prPhoneInput_'+ index +'" data-index="'+ index +'" data-parentid="'+ item.id +'">' +
-                                                            '<label class="class="form-check-label" for="prPhoneInput[]">' +
-                                                                    '<div class="form-group">' +
-                                                                        '<label for="">(Parent) ' + item.first_name + ' ' + (item.last_name != null ? item.last_name : '') + '</label>' +
-                                                                        '<input type="text" name="pr_phone[]" class="form-control w-100" value="'+ item.phone +'" id="prPhone_'+ index +'">' +
-                                                                        '<input type="hidden" id="prPhoneR_'+index+'" name="pr_phone_r[]" value="'+ item.phone +'">' +
-                                                                    '</div>' +
-                                                            '</label>' +
-                                                    '</div>';
-                                    })                                    
-                                } else {
-                                    checked = 'checked';
-                                }
+                                    $('#client_id').val($(this).data('clientprog')
+                                        .client_id)
+                                    // $('#fullname').val(result.reminder[$(this).data('clientid')].parent_fullname) //no longer in use
+                                    $('#program_name').val(result.reminder[$(this).data(
+                                        'clientprog')].program_name)
+                                    $('#invoice_duedate').val(result.reminder[$(this)
+                                        .data('clientprog')].invoice_duedate)
+                                    $('#total_payment').val(result.reminder[$(this)
+                                        .data('clientprog')].total_payment)
+                                    $('#clientprog_id').val(result.reminder[$(this)
+                                        .data('clientprog')])
+                                    $('#payment_method').val(result.reminder[$(this)
+                                        .data('clientprog')].payment_method)
+                                    $('#parent_id').val(result.reminder[$(this).data(
+                                        'clientprog')].parent_id)
+                                    $('#client_id').val(result.reminder[$(this).data(
+                                        'clientprog')].client_id)
 
-                                form_phone += '<div class="form-check form-check-inline ms-4">' +
-                                            '<input type="radio" class="form-check-input" name="recipients" value="children" '+ checked +' id="chPhoneInput">' +
-                                            '<label class="class="form-check-label" for="chPhoneInput">' +
+                                    var form_phone = checked = '';
+                                    if (parents.length > 0) {
+
+                                        form_phone += '<h5>Select a recipient</h5>' +
+                                            '<input type="hidden" value="' + parents
+                                            .length + '" id="count_parent">' +
+                                            '<input type="hidden" id="parent_id_checked" value="' +
+                                            parents[0].id + '">';
+
+                                        parents.forEach(function(item, index) {
+                                            form_phone +=
+                                                '<div class="form-check form-check-inline ms-4">' +
+                                                '<input type="radio" class="form-check-input prPhoneInput" name="recipients" value="parent' +
+                                                index + '" ' + (index === 0 ?
+                                                    'checked="checked"' : null
+                                                    ) + ' id="prPhoneInput_' +
+                                                index + '" data-index="' +
+                                                index + '" data-parentid="' +
+                                                item.id + '">' +
+                                                '<label class="class="form-check-label" for="prPhoneInput[]">' +
                                                 '<div class="form-group">' +
-                                                    '<label for="">Child</label>' +
-                                                    '<input type="text" name="ch_phone" class="form-control w-100" value="'+ child_phone +'" id="chPhone">' +
-                                                    '<input type="hidden" id="chPhoneR" name="ch_phone_r" value="'+ child_phone +'">' +
+                                                '<label for="">(Parent) ' + item
+                                                .first_name + ' ' + (item
+                                                    .last_name != null ? item
+                                                    .last_name : '') +
+                                                '</label>' +
+                                                '<input type="text" name="pr_phone[]" class="form-control w-100" value="' +
+                                                item.phone + '" id="prPhone_' +
+                                                index + '">' +
+                                                '<input type="hidden" id="prPhoneR_' +
+                                                index +
+                                                '" name="pr_phone_r[]" value="' +
+                                                item.phone + '">' +
                                                 '</div>' +
-                                            '</label>' +
+                                                '</label>' +
+                                                '</div>';
+                                        })
+                                    } else {
+                                        checked = 'checked';
+                                    }
+
+                                    form_phone +=
+                                        '<div class="form-check form-check-inline ms-4">' +
+                                        '<input type="radio" class="form-check-input" name="recipients" value="children" ' +
+                                        checked + ' id="chPhoneInput">' +
+                                        '<label class="class="form-check-label" for="chPhoneInput">' +
+                                        '<div class="form-group">' +
+                                        '<label for="">Child</label>' +
+                                        '<input type="text" name="ch_phone" class="form-control w-100" value="' +
+                                        child_phone + '" id="chPhone">' +
+                                        '<input type="hidden" id="chPhoneR" name="ch_phone_r" value="' +
+                                        child_phone + '">' +
+                                        '</div>' +
+                                        '</label>' +
                                         '</div>';
 
-                                $(".form-phone").html(form_phone)
+                                    $(".form-phone").html(form_phone)
 
-                                initiate();
-                            }
-                            
+                                    initiate();
+                                }
 
-                            // $("#reminderForm").attr("action", '{{ url("/") }}/invoice/client-program/'+result.reminder[$(this).data('clientid')].clientprog_id+'/remind/by/whatsapp');
+
+                                // $("#reminderForm").attr("action", '{{ url('/') }}/invoice/client-program/'+result.reminder[$(this).data('clientid')].clientprog_id+'/remind/by/whatsapp');
+                            })
+                        });
+
+                        $("#listFinanceTable .hold").each(function() {
+                            $(this).click(function() {
+                                $('#modal-title').html('Hold');
+
+                                var clientprog_id = null;
+                                if ($(this).data('clientprog') != undefined) {
+                                    clientprog_id = $(this).data('clientprog');
+                                    $('#holdForm').attr('action', '{{url("invoice/client-program/" )}}/' + clientprog_id + '/hold');
+
+                                    var parents = result.reminder[$(this).data(
+                                        'clientprog')].parents;
+                                    var child_mail = result.reminder[$(this).data(
+                                        'clientprog')].child_mail;
+                                    var parent_id = result.reminder[$(this).data(
+                                        'clientprog')].parent_id;
+                                    // $('#parent_id_checked').val(parents.length > 0 ? parents[0].id : null);
+                                    $('input[name=target_mail_hold]').val(parents[0].mail);
+                                    $('input[name=type]').val('hold');
+
+                                    $('#clientprog_id_hold').val(result.reminder[$(this)
+                                        .data('clientprog')].clientprog_id)
+                                    $('#parent_id_hold').val(result.reminder[$(this).data(
+                                        'clientprog')].parent_id)
+                                    $('#inv_id_hold').val(result.reminder[$(this).data(
+                                        'clientprog')].invoice_id)
+                                    $('#invdtl_id_hold').val(result.reminder[$(this).data(
+                                        'clientprog')].invdtl_id)
+
+                                    var form_mail = checked = '';
+                                    if (parents.length > 0) {
+
+                                        form_mail += '<h5>Select a recipient</h5>' +
+                                            '<input type="hidden" value="' + parents
+                                            .length + '" id="count_parent">' +
+                                            '<input type="hidden" id="parent_id_checked" value="' +
+                                            parents[0].id + '">';
+
+                                        parents.forEach(function(item, index) {
+                                            form_mail +=
+                                                '<div class="form-check form-check-inline ms-4">' +
+                                                '<input type="radio" class="form-check-input prEmailInput" name="recipients_hold" value="parent' +
+                                                index + '" ' + (index === 0 ?
+                                                    'checked="checked"' : null
+                                                    ) + ' id="prEmailInput_' +
+                                                index + '" data-index="' +
+                                                index + '" data-parentid="' +
+                                                item.id + '">' +
+                                                '<label class="class="form-check-label" for="prEmailInput[]">' +
+                                                '<div class="form-group">' +
+                                                '<label for="">' + item
+                                                .first_name + ' ' + (item
+                                                    .last_name != null ? item
+                                                    .last_name : '') +
+                                                '</label>' +
+                                                '<input type="text" name="pr_mail[]" class="form-control w-100" id="prMail_' +
+                                                index + '" value="'+item.mail+'" data-index="'+index+'" onkeyup="setMail(this)">' +
+                                                '</div>' +
+                                                '</label>' +
+                                                '</div>';
+
+                                        })
+                                    } else {
+                                        checked = 'checked';
+                                    }
+
+
+                                    $(".form-mail").html(form_mail)
+
+                                }
+
+                                // $("#reminderForm").attr("action", '{{ url('/') }}/invoice/client-program/'+result.reminder[$(this).data('clientid')].clientprog_id+'/remind/by/whatsapp');
+                            })
                         })
-                    })
-                    
-                    $("#listFinanceTable .detail").each(function() {
-                        var link = '';
 
-                        switch ($(this).data('type')) {
+                        $("#listFinanceTable .detail").each(function() {
+                            var link = '';
+
+                            switch ($(this).data('type')) {
                                 case 'invoice-needed':
                                     switch ($(this).data('typeprog')) {
                                         case 'sch_prog':
-                                            link = "{{ url('/') }}/invoice/school-program/" + $(this).data('clientprog') + "/detail/create"
+                                            link =
+                                                "{{ url('/') }}/invoice/school-program/" +
+                                                $(this).data('clientprog') + "/detail/create"
                                             break;
                                         case 'partner_prog':
-                                            link = "{{ url('/') }}/invoice/corporate-program/" + $(this).data('clientprog') + "/detail/create"
+                                            link =
+                                                "{{ url('/') }}/invoice/corporate-program/" +
+                                                $(this).data('clientprog') + "/detail/create"
                                             break;
                                         case 'referral':
-                                            link = "{{ url('/') }}/invoice/referral/" + $(this).data('clientprog') + "/detail/create"
+                                            link = "{{ url('/') }}/invoice/referral/" + $(
+                                                this).data('clientprog') + "/detail/create"
                                             break;
                                         case 'client_prog':
-                                            link = "{{ url('/') }}/invoice/client-program/create?prog=" + $(this).data('clientprog')
+                                            link =
+                                                "{{ url('/') }}/invoice/client-program/create?prog=" +
+                                                $(this).data('clientprog')
                                             break;
                                     }
                                     break;
@@ -394,187 +580,205 @@
                                 case 'outstanding':
                                     switch ($(this).data('typeprog')) {
                                         case 'sch_prog':
-                                            link = "{{ url('/') }}/invoice/school-program/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
+                                            link =
+                                                "{{ url('/') }}/invoice/school-program/" +
+                                                $(this).data('clientprog') + "/detail/" + $(
+                                                    this).data('invid')
                                             break;
                                         case 'partner_prog':
-                                            link = "{{ url('/') }}/invoice/corporate-program/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
+                                            link =
+                                                "{{ url('/') }}/invoice/corporate-program/" +
+                                                $(this).data('clientprog') + "/detail/" + $(
+                                                    this).data('invid')
                                             break;
                                         case 'referral':
-                                            link = "{{ url('/') }}/invoice/referral/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
+                                            link = "{{ url('/') }}/invoice/referral/" + $(
+                                                this).data('clientprog') + "/detail/" + $(
+                                                this).data('invid')
                                             break;
                                         case 'client_prog':
-                                            link = "{{ url('/') }}/invoice/client-program/" + $(this).data('clientprog')
+                                            link =
+                                                "{{ url('/') }}/invoice/client-program/" +
+                                                $(this).data('clientprog')
                                             break;
                                     }
                                     break;
-                                break;
 
                                 case 'refund-request':
                                     switch ($(this).data('typeprog')) {
                                         case 'sch_prog':
-                                            link = "{{ url('/') }}/invoice/school-program/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
+                                            link =
+                                                "{{ url('/') }}/invoice/school-program/" +
+                                                $(this).data('clientprog') + "/detail/" + $(
+                                                    this).data('invid')
                                             break;
                                         case 'partner_prog':
-                                            link = "{{ url('/') }}/invoice/corporate-program/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
+                                            link =
+                                                "{{ url('/') }}/invoice/corporate-program/" +
+                                                $(this).data('clientprog') + "/detail/" + $(
+                                                    this).data('invid')
                                             break;
                                         case 'referral':
-                                            link = "{{ url('/') }}/invoice/referral/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
+                                            link = "{{ url('/') }}/invoice/referral/" + $(
+                                                this).data('clientprog') + "/detail/" + $(
+                                                this).data('invid')
                                             break;
                                         case 'client_prog':
-                                            link = "{{ url('/') }}/invoice/client-program/" + $(this).data('clientprog')
+                                            link =
+                                                "{{ url('/') }}/invoice/client-program/" +
+                                                $(this).data('clientprog')
                                             break;
                                     }
                                     break;
-                                break;
-                            
-                                
+
+
                             }
                             $(this).click(function() {
                                 window.open(link, '_blank')
                             })
                         })
-                    
+
                         swal.close()
 
                         $('#list-detail-finance').modal('show')
 
                     }).catch(function(error) {
-                        
-                        notification('error', 'There was an error while processing your request. Please try again or contact your administrator.');
+                        swal.close()
+                        notification('error',
+                            'There was an error while processing your request. Please try again or contact your administrator.'
+                            );
 
                     })
+            })
         })
-    })
 
-    function checkInvoiceStatusbyMonth() {
-        
-        let month = $('#finance_status_month').val()
+        function checkInvoiceStatusbyMonth() {
 
-        let today = moment().format('YYYY-MM')
-       
-        if(month != today){
-            $('.today').addClass('d-none')
-        }else{
-            $('.today').removeClass('d-none')
-        }
+            let month = $('#finance_status_month').val()
 
-        const rupiah = (number)=>{
-            return new Intl.NumberFormat("id-ID", {
-            style: "currency",
-            currency: "IDR",
-            minimumFractionDigits: 0
-            }).format(number);
-        }
+            let today = moment().format('YYYY-MM')
 
-        // Axios here...
-        let data = {
-            'invoiceNeeded':{
-                'total': 0,
-            },
-            'invoice': {
-                'total': 0,
-                'amount': 0
-            },
-            'receipt': {
-                'total': 0,
-                'amount': 0
-            },
-            'outstanding': {
-                'total': 0,
-            },
-            'refund':{
-                'total': 0
+            if (month != today) {
+                $('.today').addClass('d-none')
+            } else {
+                $('.today').removeClass('d-none')
             }
-        }
 
-        function total(arr) {
-            if(!Array.isArray(arr)) return;
-            return arr.reduce((a, v)=>a + v);
-        }
+            const rupiah = (number) => {
+                return new Intl.NumberFormat("id-ID", {
+                    style: "currency",
+                    currency: "IDR",
+                    minimumFractionDigits: 0
+                }).format(number);
+            }
 
-        axios.get('{{ url("api/finance/total/") }}/' + month)
-            .then((response) => {
-                var result = response.data.data
-                var html = '';
-                var no = 1;
+            // Axios here...
+            let data = {
+                'invoiceNeeded': {
+                    'total': 0,
+                },
+                'invoice': {
+                    'total': 0,
+                    'amount': 0
+                },
+                'receipt': {
+                    'total': 0,
+                    'amount': 0
+                },
+                'outstanding': {
+                    'total': 0,
+                },
+                'refund': {
+                    'total': 0
+                }
+            }
 
-                data['invoiceNeeded']['total'] = result.totalInvoiceNeeded
-                data['refund']['total'] = result.totalRefundRequest
-                data['outstanding']['total'] = parseInt(result.totalOutstanding)
+            function total(arr) {
+                if (!Array.isArray(arr)) return;
+                return arr.reduce((a, v) => a + v);
+            }
 
-                result.totalInvoice.forEach(function (item, index) {
-                    data['invoice']['total'] += parseInt(item.count_invoice)
-                    data['invoice']['amount'] += parseInt(item.total)
+            axios.get('{{ url('api/finance/total/') }}/' + month)
+                .then((response) => {
+                    var result = response.data.data
+                    var html = '';
+                    var no = 1;
+
+                    data['invoiceNeeded']['total'] = result.totalInvoiceNeeded
+                    data['refund']['total'] = result.totalRefundRequest
+                    data['outstanding']['total'] = parseInt(result.totalOutstanding)
+
+                    result.totalInvoice.forEach(function(item, index) {
+                        data['invoice']['total'] += parseInt(item.count_invoice)
+                        data['invoice']['amount'] += parseInt(item.total)
+                    })
+
+                    result.totalReceipt.forEach(function(item, index) {
+                        data['receipt']['total'] += parseInt(item.count_receipt)
+                        data['receipt']['amount'] += parseInt(item.total)
+                    })
+
+                    $('#invoice_needed').html(
+                        '<h3 class="m-0 p-0 text-warning">' +
+                        data.invoiceNeeded.total +
+                        '</h3>'
+                    )
+
+                    $('#tot_invoice').html(
+                        '<h4 class="m-0 mb-1 p-0 text-info">' +
+                        data.invoice.total +
+                        '</h4>' +
+                        '<h6 class = "m-0">' +
+                        rupiah(data.invoice.amount) +
+                        '</h6>'
+                    )
+
+                    $('#tot_receipt').html(
+                        '<h4 class="m-0 mb-1 p-0 text-info">' +
+                        data.receipt.total +
+                        '</h4>' +
+                        '<h6 class = "m-0">' +
+                        rupiah(data.receipt.amount) +
+                        '</h6>'
+                    )
+
+                    $('#tot_outstanding').html(data.outstanding.total)
+                    $('#tot_refund').html(data.refund.total)
+
+                    swal.close()
+                }, (error) => {
+                    console.log(error)
+                    swal.close()
                 })
 
-                result.totalReceipt.forEach(function (item, index) {
-                    data['receipt']['total'] += parseInt(item.count_receipt)
-                    data['receipt']['amount'] += parseInt(item.total)
-                })
+        }
 
-                $('#invoice_needed').html(
-                    '<h3 class="m-0 p-0 text-warning">' +
-                    data.invoiceNeeded.total +
-                    '</h3>' 
-                )
-
-                $('#tot_invoice').html(
-                    '<h4 class="m-0 mb-1 p-0 text-info">' +
-                    data.invoice.total +
-                    '</h4>' +
-                    '<h6 class = "m-0">' +
-                    rupiah(data.invoice.amount) +
-                    '</h6>'
-                )
-
-                $('#tot_receipt').html(
-                    '<h4 class="m-0 mb-1 p-0 text-info">' +
-                    data.receipt.total +
-                    '</h4>' +
-                    '<h6 class = "m-0">' +
-                    rupiah(data.receipt.amount) +
-                    '</h6>'
-                )
-
-                $('#tot_outstanding').html(data.outstanding.total)
-                $('#tot_refund').html(data.refund.total)
-
-                swal.close()
-            }, (error) => {
-                console.log(error)
-                swal.close()
-            })
-            
-    }
-
-    function sendWhatsapp()
-    {
-        var clientprog = $('#clientprog_id').val();
-        var link = '{{ url("/") }}/invoice/client-program/'+clientprog+'/remind/by/whatsapp';
+        function sendWhatsapp() {
+            var clientprog = $('#clientprog_id').val();
+            var link = '{{ url('/') }}/invoice/client-program/' + clientprog + '/remind/by/whatsapp';
             axios.post(link, {
-                parent_fullname : $('#fullname').val(),
-                phone : $('input[name=target_phone]').val(),
-                program_name : $('#program_name').val(),
-                invoice_duedate : $('#invoice_duedate').val(),
-                total_payment : $('#total_payment').val(),
-                payment_method : $('#payment_method').val(),
-                parent_id : $('#parent_id_checked').val(),
-                client_id : $('#client_id').val(),
-                sendTo : $('input[name=send_to]').val(),
-            })
-            .then(function(response) {
-                swal.close();
-                            
-                let obj = response.data;
-                var link = obj.link;
-                window.open(link)
-            })
-            .catch(function(error) {
-                swal.close();
-                notification('error', error)
-            })
-    }
-    // checkInvoiceStatusbyMonth()
+                    parent_fullname: $('#fullname').val(),
+                    phone: $('input[name=target_phone]').val(),
+                    program_name: $('#program_name').val(),
+                    invoice_duedate: $('#invoice_duedate').val(),
+                    total_payment: $('#total_payment').val(),
+                    payment_method: $('#payment_method').val(),
+                    parent_id: $('#parent_id_checked').val(),
+                    client_id: $('#client_id').val(),
+                    sendTo: $('input[name=send_to]').val(),
+                })
+                .then(function(response) {
+                    swal.close();
 
-</script>
+                    let obj = response.data;
+                    var link = obj.link;
+                    window.open(link)
+                })
+                .catch(function(error) {
+                    swal.close();
+                    notification('error', error)
+                })
+        }
+
+    </script>
 @endpush

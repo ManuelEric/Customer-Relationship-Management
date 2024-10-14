@@ -36,7 +36,7 @@ Route::resource('client/{target}', RecycleClientController::class, [
     'parameters' => [
         '{target}' => 'client'
     ]
-]);
+])->parameters(['{target}' => 'client']);
 
 
 # route for instance
@@ -53,4 +53,4 @@ Route::resource('instance/{target}', RecycleInstanceController::class, [
     'parameters' => [
         '{target}' => 'instance'
     ]
-]);
+])->parameters(['{target}' => 'instance']);

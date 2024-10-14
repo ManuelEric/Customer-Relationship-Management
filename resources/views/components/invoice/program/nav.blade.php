@@ -1,4 +1,4 @@
-<div class="d-flex align-items-center justify-content-between">
+<div class="d-flex flex-md-row flex-column align-items-center justify-content-between">
     <div>
         <ul class="nav nav-tabs flex-nowrap w-100 overflow-auto mb-3" style="overflow-y: hidden !important;">
             <li class="nav-item">

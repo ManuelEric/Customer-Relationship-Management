@@ -72,6 +72,8 @@
                         <th class="bg-info text-white">No</th>
                         <th class="bg-info text-white">Name</th>
                         <th>Parents Name</th>
+                        <th>Parent Email</th>
+                        <th>Parent Phone</th>
                         <th>School</th>
                         <th>Graduation Year</th>
                         <th class="bg-info text-white"># Action</th>
@@ -136,6 +138,17 @@
                         defaultContent: '-',
                         orderable: true,
                         searchable: true,
+                    },
+                    {
+                        data: 'parent_mail',
+                        name: 'parent_mail',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'parent_phone',
+                        name: 'parent_phone',
+                        className: 'text-center',
+                        defaultContent: '-'
                     },
                     {
                         data: 'school_name',

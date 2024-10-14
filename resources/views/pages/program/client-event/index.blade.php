@@ -45,7 +45,7 @@
                         'col-md-3',
                         'offset-6' => Session::get('user_role') == 'Employee',
                     ])> --}}
-                    <div class="col-md-3 offset-6">
+                    <div class="col-md-3 offset-lg-6">
                         <div class="dropdown">
                             <button href="#" class="btn btn-sm btn-light text-dark dropdown-toggle w-100"
                                 data-bs-toggle="dropdown" data-bs-auto-close="false" id="filter">

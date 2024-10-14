@@ -8,6 +8,7 @@ use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\TargetTrackingRepositoryInterface;
 use App\Models\Department;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -78,6 +79,8 @@ class AlarmRepository implements AlarmRepositoryInterface
         $midOfMonth = floor($fullDay / 2);
         $today = date('Y-m-d');
         $currMonth = date('m');
+        $currYear = date('Y');
+        $monthYear = CarbonImmutable::create($currYear, $currMonth);
 
         $dataSalesTarget = $this->getDataTarget($today, 'Sales');
         $dataReferralTarget = $this->getDataTarget($today, 'Referral');
@@ -103,16 +106,14 @@ class AlarmRepository implements AlarmRepositoryInterface
         $events = $this->eventRepository->getEventByMonthyear($today);
 
         # Chart lead
-        $last3month = $currMonth - 2;
             for ($i = 2; $i >= 0; $i--) {
-                $dataLeadChart['target'][] = $targetTrackingLead->where('month', $last3month)->count() > 0 ? (int)$targetTrackingLead->where('month', $last3month)->first()->target : 0;
-                $dataLeadChart['actual'][] = $targetTrackingLead->where('month', $last3month)->count() > 0 ? (int)$targetTrackingLead->where('month', $last3month)->first()->actual : 0;
+                $dataLeadChart['target'][] = $targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int)$targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->target : 0;
+                $dataLeadChart['actual'][] = $targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int)$targetTrackingLead->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->actual : 0;
                 $dataLeadChart['label'][] = Carbon::now()->startOfMonth()->subMonth($i)->format('F');
     
-                $dataRevenueChart['target'][] = $targetTrackingRevenue->where('month', $last3month)->count() > 0 ? (int)$targetTrackingRevenue->where('month', $last3month)->first()->target : 0;
-                $dataRevenueChart['actual'][] = $targetTrackingRevenue->where('month', $last3month)->count() > 0 ? (int)$targetTrackingRevenue->where('month', $last3month)->first()->actual : 0;
+                $dataRevenueChart['target'][] = $targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int)$targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->target : 0;
+                $dataRevenueChart['actual'][] = $targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->count() > 0 ? (int)$targetTrackingRevenue->where('month_year', $monthYear->subMonth($i)->format('Y-m'))->first()->actual : 0;
                 $dataRevenueChart['label'][] = Carbon::now()->startOfMonth()->subMonth($i)->format('F');
-                $last3month++;
             }
 
         # Day 1-14 (awal bulan)

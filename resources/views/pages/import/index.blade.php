@@ -8,14 +8,14 @@
 @section('content')
 
 <div class="card bg-secondary mb-3 p-2">
-    <div class="d-flex align-items-center justify-content-between">
-        <div>
+    <div class="row row-cols-md-2 row-cols-1 align-items-center justify-content-md-between justify-content-start g-3">
+        <div class="col">
             <h5 class="text-white m-0">
                 <i class="bi bi-tag me-1"></i>
                 Import Data
             </h5>
         </div>
-        <div>
+        <div class="col text-md-end text-start">
             <a href="#" role="button" id="sync-btn" class="btn btn-sm btn-info"><i
                 class="bi bi-arrow-clockwise me-1"></i>
             Sync Data</a>
@@ -26,58 +26,57 @@
     </div>
 </div>
 
-<div class="row align-items-center">
-    <div class="col-3 mb-3">
-        <div class="card">
-            <a href="#" role="button" id="parent">
-                <h4 class="card-header text-bg-primary text-center" style="padding: 12px; border-radius:5px 5px 55px 55px;">Parents</h4>
-            </a>
+<div class="row align-items-center row-cols-md-5 row-cols-2">
+    <div class="mb-3">
+        <div class="card card-body" id="parent">
             <div class="text-center">
-                <img loading="lazy"  src="{{ asset('img/form-embed/parent.webp') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
+                <div class="position-relative overflow-hidden mb-2" style="height: 150px;">
+                    <img loading="lazy"  src="{{ asset('img/form-embed/parent.webp') }}" class="card-img-bottom w-100 h-100" style="object-fit:contain;">
+                </div>
+                <h5>Parents</h5>
             </div>
         </div>
     </div>
-    <div class="col-3 mb-3">
-        <div class="card">
-            <a href="#" role="button" id="student">
-                <h4 class="card-header text-bg-primary text-center" style="padding: 12px; border-radius:5px 5px 55px 55px;">Students</h4>
-            </a>
+    <div class="mb-3">
+        <div class="card card-body" id="student">
             <div class="text-center">
-                <img loading="lazy"  src="{{ asset('img/form-embed/student.webp') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
+                <div class="position-relative overflow-hidden mb-2" style="height: 150px;">
+                    <img loading="lazy"  src="{{ asset('img/form-embed/student.webp') }}" class="card-img-bottom w-100 h-100" style="object-fit:contain;">
+                </div>
+                <h5>Students</h5>
             </div>
         </div>
     </div>
-    <div class="col-3 mb-3">
-        <div class="card">
-            <a href="#" role="button" id="teacher">
-                <h4 class="card-header text-bg-primary text-center" style="padding: 12px; border-radius:5px 5px 55px 55px;">Teachers</h4>
-            </a>
+    <div class="mb-3">
+        <div class="card card-body" id="teacher">
             <div class="text-center">
-                <img loading="lazy"  src="{{ asset('img/form-embed/teacher.webp') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
+                <div class="position-relative overflow-hidden mb-2" style="height: 150px;">
+                    <img loading="lazy"  src="{{ asset('img/form-embed/teacher.webp') }}" class="card-img-bottom w-100 h-100" style="object-fit:contain;">
+                </div>
+                <h5>Teacher</h5>
             </div>
         </div>
     </div>
-    <div class="col-3 mb-3">
-        <div class="card">
-            <a href="#" role="button" id="client-event">
-                <h4 class="card-header text-bg-primary text-center" style="padding: 12px; border-radius:5px 5px 55px 55px;">Client Events</h4>
-            </a>
+    <div class="mb-3">
+        <div class="card card-body"  id="client-event">
             <div class="text-center">
-                <img loading="lazy"  src="{{ asset('img/profile.webp') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
+                <div class="position-relative overflow-hidden mb-2" style="height: 150px;">
+                    <img loading="lazy"  src="{{ asset('img/profile.webp') }}" class="card-img-bottom w-100 h-100" style="object-fit:contain;">
+                </div>
+                <h5>Client Events</h5>
             </div>
         </div>
     </div>
-    <div class="col-3 mb-3">
-        <div class="card">
-            <a href="#" role="button" id="client-program">
-                <h4 class="card-header text-bg-primary text-center" style="padding: 12px; border-radius:5px 5px 55px 55px;">Client Programs</h4>
-            </a>
+    <div class="mb-3">
+        <div class="card card-body" id="client-program">
             <div class="text-center">
-                <img loading="lazy"  src="{{ asset('img/program.webp') }}" class="card-img-bottom" style="width:200px; height:200px; object-fit:contain;">
+                <div class="position-relative overflow-hidden mb-2" style="height: 150px;">
+                    <img loading="lazy"  src="{{ asset('img/program.webp') }}" class="card-img-bottom w-100 h-100" style="object-fit:contain;">
+                </div>
+                <h5>Client Programs</h5>
             </div>
         </div>
     </div>
-
   </div>
 
 

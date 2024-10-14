@@ -42,7 +42,7 @@ class ProgramController extends Controller
 
     public function store(StoreProgramRequest $request)
     {
-        $programDetails = $request->only([
+        $program_details = $request->only([
             'prog_id',
             'prog_main',
             'prog_name',
@@ -55,12 +55,12 @@ class ProgramController extends Controller
 
         # prog sub can be null
         if (isset($request->prog_sub))
-            $programDetails['prog_sub'] = $request->prog_sub;
+            $program_details['prog_sub'] = $request->prog_sub;
 
         DB::beginTransaction();
         try {
 
-            $newProgram = $this->programRepository->createProgram($programDetails);
+            $new_program = $this->programRepository->createProgram($program_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -71,7 +71,7 @@ class ProgramController extends Controller
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $newProgram);
+        $this->logSuccess('store', 'Form Input', 'Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_program);
 
         return Redirect::to('master/program')->withSuccess('Program successfully created');
     }
@@ -87,7 +87,7 @@ class ProgramController extends Controller
 
     public function update(StoreProgramRequest $request)
     {
-        $programDetails = $request->only([
+        $program_details = $request->only([
             'old_prog_id',
             'prog_id',
             'prog_main',
@@ -99,12 +99,12 @@ class ProgramController extends Controller
             'prog_scope',
             'active',
         ]);
-        $oldProgram = $this->programRepository->getProgramById($request->old_prog_id);
+        $old_program = $this->programRepository->getProgramById($request->old_prog_id);
 
         DB::beginTransaction();
         try {
 
-            $this->programRepository->updateProgram($request->old_prog_id, $programDetails);
+            $this->programRepository->updateProgram($request->old_prog_id, $program_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -115,7 +115,7 @@ class ProgramController extends Controller
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $programDetails, $oldProgram);
+        $this->logSuccess('update', 'Form Input', 'Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $program_details, $old_program);
 
         return Redirect::to('master/program')->withSuccess('Program successfully updated');
     }
@@ -159,9 +159,9 @@ class ProgramController extends Controller
     }
 
     #
-    public function getSubProgram(Request $request)
+    public function fnGetSubProgram(Request $request)
     {
-        $mainProg = $request->route('main_program');
-        return json_encode($this->subProgRepository->getSubProgByMainProgId($mainProg));
+        $main_prog = $request->route('main_program');
+        return json_encode($this->subProgRepository->getSubProgByMainProgId($main_prog));
     }
 }
