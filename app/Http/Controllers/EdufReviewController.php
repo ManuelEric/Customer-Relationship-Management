@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\EdufLeads\Review\CreateEdufLeadReviewAction;
+use App\Actions\EdufLeads\Review\DeleteEdufLeadReviewAction;
+use App\Actions\EdufLeads\Review\UpdateEdufLeadReviewAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreEdufairReviewRequest;
 use App\Interfaces\EdufReviewRepositoryInterface;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,10 +24,10 @@ class EdufReviewController extends Controller
         $this->edufReviewRepository = $edufReviewRepository;
     }
 
-    public function store(StoreEdufairReviewRequest $request)
+    public function store(StoreEdufairReviewRequest $request, CreateEdufLeadReviewAction $createEdufLeadReviewAction, LogService $log_service)
     {
         $eduf_lead_id = $request->eduf_id;
-        $review_details = $request->only([
+        $new_review_details = $request->safe()->only([
             'reviewer_name',
             'score',
             'review'
@@ -31,14 +36,17 @@ class EdufReviewController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->edufReviewRepository->createEdufairReview($eduf_lead_id, $review_details);
+            $new_review = $createEdufLeadReviewAction->execute($eduf_lead_id, $new_review_details);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store edufair review failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_EDUF_LEAD_REVIEW, $e->getMessage(), $e->getLine(), $e->getFile(), $new_review_details);
+
             return Redirect::to('master/edufair/' . $eduf_lead_id . '')->withError('Failed to create new review');
         }
+
+        $log_service->createSuccessLog(LogModule::STORE_EDUF_LEAD_REVIEW, 'New eduf lead review has been added', $new_review->toArray());
 
         return Redirect::to('master/edufair/' . $eduf_lead_id . '')->withSuccess('New review successfully created');
     }
@@ -52,11 +60,11 @@ class EdufReviewController extends Controller
         return response()->json(['review' => $review]);
     }
 
-    public function update(StoreEdufairReviewRequest $request)
+    public function update(StoreEdufairReviewRequest $request, UpdateEdufLeadReviewAction $updateEdufLeadReviewAction, LogService $log_service)
     {
         $eduf_lead_id = $request->eduf_id;
-        $eduf_review_Id = $request->route('review');
-        $new_details = $request->only([
+        $eduf_review_id = $request->route('review');
+        $new_eduf_lead_review_details = $request->only([
             'reviewer_name',
             'score',
             'review'
@@ -65,34 +73,41 @@ class EdufReviewController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->edufReviewRepository->updateEdufairReview($eduf_lead_id, $eduf_review_Id, $new_details);
+            $updated_eduf_lead_review = $updateEdufLeadReviewAction->execute($eduf_lead_id, $eduf_review_id, $new_eduf_lead_review_details);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update edufair review failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::UPDATE_EDUF_LEAD_REVIEW, $e->getMessage(), $e->getLine(), $e->getFile(), $new_eduf_lead_review_details);
+
             return Redirect::to('master/edufair/' . $eduf_lead_id . '')->withError('Failed to update review');
         }
+
+        $log_service->createSuccessLog(LogModule::UPDATE_EDUF_LEAD_REVIEW, 'New eduf lead review has been updated', $updated_eduf_lead_review->toArray());
 
         return Redirect::to('master/edufair/' . $eduf_lead_id . '')->withSuccess('Review successfully updated');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteEdufLeadReviewAction $deleteEdufLeadReviewAction, LogService $log_service)
     {
         $eduf_lead_id = $request->route('edufair');
-        $eduf_review_Id = $request->route('review');
+        $eduf_review_id = $request->route('review');
 
         DB::beginTransaction();
         try {
 
-            $this->edufReviewRepository->deleteEdufairReview($eduf_review_Id);
+            $deleteEdufLeadReviewAction->execute($eduf_review_id);
+
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete edufair review failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_EDUF_LEAD_REVIEW, $e->getMessage(), $e->getLine(), $e->getFile(), ['eduf_review_id' => $eduf_review_id]);
+
             return Redirect::to('master/edufair/' . $eduf_lead_id . '')->withError('Failed to delete reivew');
         }
+
+        $log_service->createSuccessLog(LogModule::DELETE_EDUF_LEAD_REVIEW, 'Eduf lead review has been deleted', ['eduf_review_id' => $eduf_review_id]);
 
         return Redirect::to('master/edufair/' . $eduf_lead_id . '')->withSuccess('Review successfully deleted');
     }

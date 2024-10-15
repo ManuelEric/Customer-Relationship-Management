@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Majors\CreateMajorAction;
+use App\Actions\Majors\DeleteMajorAction;
+use App\Actions\Majors\UpdateMajorAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreMajorRequest;
 use App\Http\Traits\LoggingTrait;
 use App\Interfaces\MajorRepositoryInterface;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -33,9 +38,9 @@ class MajorController extends Controller
         return view('pages.master.major.index');
     }
 
-    public function store(StoreMajorRequest $request)
+    public function store(StoreMajorRequest $request, CreateMajorAction $createMajorAction, LogService $log_service)
     {
-        $major_details = $request->only([
+        $new_major_details = $request->safe()->only([
             'name',
             'active'
         ]);
@@ -43,18 +48,19 @@ class MajorController extends Controller
         DB::beginTransaction();
         try {
 
-            $new_major = $this->majorRepository->createMajor($major_details);
+            $new_major = $createMajorAction->execute($new_major_details);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store major failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_MAJOR, $e->getMessage(), $e->getLine(), $e->getFile(), $new_major_details);
+
             return Redirect::to('master/major')->withError('Failed to create a new major');
         }
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Major', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_major);
+        $log_service->createSuccessLog(LogModule::STORE_MAJOR, 'New major has been Added', $new_major->toArray());
 
         return Redirect::to('master/major')->withSuccess('Major successfully created');
     }
@@ -68,55 +74,57 @@ class MajorController extends Controller
         return response()->json(['major' => $major]);
     }
 
-    public function update(StoreMajorRequest $request)
+    public function update(StoreMajorRequest $request, UpdateMajorAction $updateMajorAction, LogService $log_service)
     {
-        $major_details = $request->only([
+        $new_major_details = $request->safe()->only([
             'name',
             'active'
         ]);
 
-        $id = $request->route('major');
-        $old_major = $this->majorRepository->getMajorById($id);
+        $major_id = $request->route('major');
 
         DB::beginTransaction();
         try {
 
-            $this->majorRepository->updateMajor($id, $major_details);
+            $updated_major = $updateMajorAction->execute($major_id, $new_major_details);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update major failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::UPDATE_MAJOR, $e->getMessage(), $e->getLine(), $e->getFile(), $new_major_details);
+
             return Redirect::to('master/major')->withError('Failed to update a major');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Major', Auth::user()->first_name . ' '. Auth::user()->last_name, $major_details, $old_major);
+        $log_service->createSuccessLog(LogModule::UPDATE_MAJOR, 'Major has been updated', $updated_major->toArray());
 
         return Redirect::to('master/major')->withSuccess('Major successfully updated');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteMajorAction $deleteMajorAction, LogService $log_service)
     {
-        $id = $request->route('major');
-        $major = $this->majorRepository->getMajorById($id);
+        $major_id = $request->route('major');
+        $old_major = $this->majorRepository->getMajorById($major_id);
 
         DB::beginTransaction();
         try {
 
-            $this->majorRepository->deleteMajor($id);
+            $deleteMajorAction->execute($major_id);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete major failed : ' . $e->getMessage());
+
+            $log_service->createErrorLog(LogModule::DELETE_MAJOR, $e->getMessage(), $e->getLine(), $e->getFile(), $old_major->toArray());
+
             return Redirect::to('master/major')->withError('Failed to delete a major');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Curriculum', Auth::user()->first_name . ' '. Auth::user()->last_name, $major);
+        $log_service->createSuccessLog(LogModule::DELETE_MAJOR, 'Major has been deleted', $old_major->toArray());
 
         return Redirect::to('master/major')->withSuccess('Major successfully deleted');
     }

@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Events\Speaker\CreateEventSpeakerAction;
+use App\Actions\Events\Speaker\DeleteEventSpeakerAction;
+use App\Actions\Events\Speaker\UpdateEventSpeakerAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreSpeakerRequest;
 use App\Http\Traits\FindAgendaSpeakerPriorityTrait;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Models\AgendaSpeaker;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -24,11 +29,11 @@ class EventSpeakerController extends Controller
         $this->agendaSpeakerRepository = $agendaSpeakerRepository;
     }
 
-    public function store(StoreSpeakerRequest $request)
+    public function store(StoreSpeakerRequest $request, CreateEventSpeakerAction $createEventSpeakerAction, LogService $log_service)
     {
         $event_id = $request->route('event');
         
-        $agenda_details = $request->only([
+        $new_agenda_details = $request->only([
             'speaker_type',
             'allin_speaker',
             'partner_speaker',
@@ -38,54 +43,59 @@ class EventSpeakerController extends Controller
             'end_time',
         ]);
 
-        $agenda_details['event_id'] = $event_id;
-        $agenda_details['priority'] = (int) $this->maxAgendaSpeakerPriority('Event', $event_id, $agenda_details)+1;
-
         DB::beginTransaction();
         try {
 
-            $this->agendaSpeakerRepository->createAgendaSpeaker("Event", $event_id, $agenda_details);
+            $new_agenda = $createEventSpeakerAction->execute($event_id, $new_agenda_details);
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store event speaker failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_EVENT_SPEAKER, $e->getMessage(), $e->getLine(), $e->getFile(), $new_agenda_details);
+
             return Redirect::to('master/event/' . $event_id . '')->withError('Failed to add speaker');
 
         }
+
+        $log_service->createSuccessLog(LogModule::STORE_EVENT_SPEAKER, 'New event speaker has been added', $new_agenda->toArray());
 
         return Redirect::to('master/event/'.$event_id)->withSuccess('Event speaker successfully added');
     }
 
     # get request from event controller
-    public function update(StoreSpeakerRequest $request)
+    public function update(StoreSpeakerRequest $request, UpdateEventSpeakerAction $updateEventSpeakerAction, LogService $log_service)
     {
         $event_id = $request->route('event');
-        $agenda_id = $request->speaker;
-        $status = $request->status;
-        $notes = $request->notes;
+
+        $new_event_speaker_details = $request->safe()->only([
+            'status',
+            'notes'
+        ]);
 
         DB::beginTransaction();
         try {
 
-            $this->agendaSpeakerRepository->updateAgendaSpeaker($agenda_id, ['status' => $status, 'notes' => $notes]);
-            $responseMessage = ['status' => true, 'message' => 'Speaker status has successfully changed'];
+            $updated_event_speaker = $updateEventSpeakerAction->execute($request, $new_event_speaker_details);
+
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('update status speaker failed : ' . $e->getMessage());
+
+            $log_service->createErrorLog(LogModule::UPDATE_EVENT_SPEAKER, $e->getMessage(), $e->getLine(), $e->getFile(), $new_event_speaker_details);
+
             return Redirect::to('master/event/' . $event_id . '')->withError('Failed to update speaker');
 
         }
 
-        // return response()->json($responseMessage);
+        $log_service->createSuccessLog(LogModule::UPDATE_EVENT_SPEAKER, 'Event speaker has been updated', $updated_event_speaker->toArray());
+
         return Redirect::to('master/event/'.$event_id)->withSuccess('Event speaker successfully updated');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteEventSpeakerAction $deleteEventSpeakerAction, LogService $log_service)
     {
         $event_id = $request->route('event');
         $agenda_id = $request->route('speaker');
@@ -93,16 +103,20 @@ class EventSpeakerController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->agendaSpeakerRepository->deleteAgendaSpeaker($agenda_id);
+            $deleteEventSpeakerAction->execute($agenda_id);
+
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete event speaker failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_EVENT_SPEAKER, $e->getMessage(), $e->getLine(), $e->getFile(), ['agenda_id' => $agenda_id]);
+
             return Redirect::to('master/event/' . $event_id . '')->withError('Failed to remove speaker');
 
         }
+
+        $log_service->createSuccessLog(LogModule::DELETE_EVENT_SPEAKER, 'Event speaker has been updated', ['agenda_id' => $agenda_id]);
 
         return Redirect::to('master/event/'.$event_id)->withSuccess('Event speaker successfully removed');
     }

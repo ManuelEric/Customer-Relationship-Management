@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Programs\CreateProgramAction;
+use App\Actions\Programs\DeleteProgramAction;
+use App\Actions\Programs\UpdateProgramAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreProgramRequest;
 use App\Http\Traits\LoggingTrait;
 use App\Interfaces\MainProgRepositoryInterface;
@@ -9,6 +13,7 @@ use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SubProgRepositoryInterface;
 use App\Models\MainProg;
 use App\Models\SubProg;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -40,9 +45,9 @@ class ProgramController extends Controller
         return view('pages.master.program.index');
     }
 
-    public function store(StoreProgramRequest $request)
+    public function store(StoreProgramRequest $request, CreateProgramAction $createProgramAction, LogService $log_service)
     {
-        $program_details = $request->only([
+        $new_program_details = $request->safe()->only([
             'prog_id',
             'prog_main',
             'prog_name',
@@ -53,25 +58,22 @@ class ProgramController extends Controller
             'active',
         ]);
 
-        # prog sub can be null
-        if (isset($request->prog_sub))
-            $program_details['prog_sub'] = $request->prog_sub;
-
         DB::beginTransaction();
         try {
 
-            $new_program = $this->programRepository->createProgram($program_details);
+            $new_program = $createProgramAction->execute($new_program_details);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Create program failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $new_program_details);
+
             return Redirect::to('master/program')->withError('Failed to create a new program');
         }
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_program);
+        $log_service->createSuccessLog(LogModule::STORE_PROGRAM, 'New program has been added', $new_program->toArray());
 
         return Redirect::to('master/program')->withSuccess('Program successfully created');
     }
@@ -85,9 +87,9 @@ class ProgramController extends Controller
         );
     }
 
-    public function update(StoreProgramRequest $request)
+    public function update(StoreProgramRequest $request, UpdateProgramAction $updateProgramAction, LogService $log_service)
     {
-        $program_details = $request->only([
+        $new_program_details = $request->safe()->only([
             'old_prog_id',
             'prog_id',
             'prog_main',
@@ -99,23 +101,23 @@ class ProgramController extends Controller
             'prog_scope',
             'active',
         ]);
-        $old_program = $this->programRepository->getProgramById($request->old_prog_id);
-
+        
         DB::beginTransaction();
         try {
-
-            $this->programRepository->updateProgram($request->old_prog_id, $program_details);
+            
+            $updated_program = $updateProgramAction->execute($request->old_prog_id, $new_program_details);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Create program failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::UPDATE_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $new_program_details);
+
             return Redirect::to('master/program')->withError('Failed to update a program');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $program_details, $old_program);
+        $log_service->createSuccessLog(LogModule::UPDATE_PROGRAM, 'Program has been updated', $updated_program->toArray());
 
         return Redirect::to('master/program')->withSuccess('Program successfully updated');
     }
@@ -133,27 +135,27 @@ class ProgramController extends Controller
         );
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteProgramAction $deleteProgramAction, LogService $log_service)
     {
-        $id = $request->route('program');
+        $program_id = $request->route('program');
 
-        $program = $this->programRepository->getProgramById($id);
+        $old_program = $this->programRepository->getProgramById($program_id);
 
         DB::beginTransaction();
         try {
 
-            $this->programRepository->deleteProgram($id);
+            $deleteProgramAction->execute($program_id);
             DB::commit();
         } catch (Exception $e) {
-
+            
             DB::rollBack();
-            Log::error('Delete program failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $old_program->toArray());
             return Redirect::to('master/program')->withError('Failed to delete a program');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $program);
+        $log_service->createSuccessLog(LogModule::DELETE_PROGRAM, 'Program has been deleted', $old_program->toArray());
 
         return Redirect::to('master/program')->withSuccess('Program successfully deleted');
     }
