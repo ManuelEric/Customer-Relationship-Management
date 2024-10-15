@@ -64,4 +64,5 @@ enum LogModule: string
     case STORE_VENDOR = '[STORE VENDOR]';
     case UPDATE_VENDOR = '[UPDATE VENDOR]';
     case DELETE_VENDOR = '[DELETE VENDOR]';
+    case UPDATE_USER = '[UPDATE USER]';
 }

@@ -100,7 +100,7 @@
         <div class="col-md-9">
             <div class="card rounded mb-3">
                 <div class="card-header d-flex align-items-center">
-                    <h4 class="m-0 p-0">Employee Detail</h4>
+                    <h4 class="m-0 p-0"><i class="bi bi-file-person"></i> &nbsp; Employee Detail</h4>
                 </div>
                 <div class="card-body">
                     <form action="{{ isset($user) ? route('user.update', ['user_role' => Request::route('user_role'), 'user' => $user->id]) : route('user.store', ['user_role' => Request::route('user_role')]) }}" method="POST" enctype="multipart/form-data" id="user-form">
@@ -112,7 +112,7 @@
                             <div class="col-md-4 mb-3">
                                 <label for="">First Name <sup class="text-danger">*</sup></label>
                                 <input type="text" name="first_name" value="{{ isset($user->first_name) ? $user->first_name : old('first_name') }}"
-                                    class="form-control form-control-sm rounded">
+                                    class="form-control form-control-sm rounded" placeholder="John">
                                 @error('first_name')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
@@ -120,7 +120,7 @@
                             <div class="col-md-4 mb-3">
                                 <label for="">Last Name</label>
                                 <input type="text" name="last_name" value="{{ isset($user->last_name) ? $user->last_name : old('first_name') }}"
-                                    class="form-control form-control-sm rounded">
+                                    class="form-control form-control-sm rounded" placeholder="Doe">
                                 @error('last_name')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
@@ -128,28 +128,20 @@
                             <div class="col-md-4 mb-3">
                                 <label for="">Email <sup class="text-danger">*</sup></label>
                                 <input type="email" name="email" value="{{ isset($user->email) ? $user->email : old('email') }}"
-                                    class="form-control form-control-sm rounded">
+                                    class="form-control form-control-sm rounded" placeholder="johndoe@example.com">
                                 @error('email')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-6 mb-3">
                                 <label for="">Phone Number <sup class="text-danger">*</sup></label>
                                 <input type="text" name="phone" value="{{ isset($user->phone) ? $user->phone : old('phone') }}"
-                                    class="form-control form-control-sm rounded">
+                                    class="form-control form-control-sm rounded" placeholder="62821000000">
                                 @error('phone')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="">Emergency Contact {!! Request::route('user_role') == 'employee' || Request::route('user_role') == 'admin' ? '<sup class="text-danger">*</sup>' : '' !!}</label>
-                                <input type="text" name="emergency_contact_phone" value="{{ isset($user->emergency_contact_phone) ? $user->emergency_contact_phone : old('emergency_contact_phone') }}"
-                                    class="form-control form-control-sm rounded">
-                                @error('emergency_contact_phone')
-                                    <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror
-                            </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-6 mb-3">
                                 <label for="">Date of Birth <sup class="text-danger">*</sup></label>
                                 <input type="date" name="datebirth" value="{{ isset($user->datebirth) ? $user->datebirth : old('datebirth') }}" 
                                     class="form-control form-control-sm rounded">
@@ -163,6 +155,34 @@
                                 @error('address')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <div class="card">
+                                    <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                                        <h6 class="m-0 p-0"><i class="bi bi-exclamation-diamond"></i> &nbsp; Emergency Contact Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="">Phone Number {!! Request::route('user_role') == 'employee' || Request::route('user_role') == 'admin' ? '<sup class="text-danger">*</sup>' : '' !!}</label>
+                                                <input type="text" name="emergency_contact_phone" value="{{ isset($user->emergency_contact_phone) ? $user->emergency_contact_phone : old('emergency_contact_phone') }}"
+                                                    class="form-control form-control-sm rounded" placeholder="62821000000">
+                                                @error('emergency_contact_phone')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="">Relation {!! Request::route('user_role') == 'employee' || Request::route('user_role') == 'admin' ? '<sup class="text-danger">*</sup>' : '' !!}</label>
+                                                <input type="text" name="emergency_contact_relation_name" value="{{ isset($user->emergency_contact_relation_name) ? $user->emergency_contact_relation_name : old('emergency_contact_relation_name') }}"
+                                                    class="form-control form-control-sm rounded" placeholder="Brother / Mother / Father / etc">
+                                                @error('emergency_contact_phone')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-md-12 mb-3">
                                 @include('pages.user.employee.form-detail.education')
