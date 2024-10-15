@@ -25,7 +25,7 @@ class CreateUserAction
     )
     {
         # 1. store new user
-        array_merge($new_user_details, ['number' => \App\Models\User::max('number') + 1]);
+        $new_user_details += ['number' => \App\Models\User::max('number') + 1];
         $new_user = $this->userRepository->createUser($new_user_details);
         $new_user_id = $new_user->id;
 
@@ -33,7 +33,7 @@ class CreateUserAction
         # 2. store new user education to tbl_user_education
         $this->userRepository->createUserEducation($new_user, $new_user_education_details);
         
-
+        
         # 3. store new user role to tbl_user_roles
         $this->userRepository->createUserRole($new_user, $new_user_role_details);
 

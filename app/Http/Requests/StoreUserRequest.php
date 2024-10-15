@@ -39,8 +39,9 @@ class StoreUserRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'phone' => $this->setPhoneNumber($this->phone),
-            'emergency_contact_phone' => $this->emergency_contact_phone != null ? $this->setPhoneNumber($this->emergency_contact_phone) : null,
+            'phone' => $this->tnSetPhoneNumber($this->phone),
+            'emergency_contact_phone' => $this->emergency_contact_phone != null ? $this->tnSetPhoneNumber($this->emergency_contact_phone) : null,
+            'emergency_contact_relation_name' => $this->emergency_contact_relation_name,
             'position_id' => $this->position,
             'password' => Hash::make('12345678'),
         ]);
@@ -54,7 +55,8 @@ class StoreUserRequest extends FormRequest
             $i < $total_roles
         ) {
             $rules = [
-                'emergency_contact_phone' =>  'required_if:role.' . $i . ',1,8'
+                'emergency_contact_phone' =>  'required_if:role.' . $i . ',1,8',
+                'emergency_contact_relation_name' => 'required_if:role.' . $i . ',1,8'
             ];
             $i++;
         }
@@ -70,6 +72,7 @@ class StoreUserRequest extends FormRequest
             'graduated_from.*' => 'nullable',
             'degree.*' => 'nullable',
             'major.*' => 'nullable',
+            'graduation_date.*' => 'nullable',
 
             'role.*' => 'required|in:1,2,3,4,18',
             'department' => 'required',
@@ -118,7 +121,8 @@ class StoreUserRequest extends FormRequest
             $i < $total_roles
         ) {
             $rules = [
-                'emergency_contact_phone' =>  'required_if:role.' . $i . ',1,8'
+                'emergency_contact_phone' =>  'required_if:role.' . $i . ',1,8',
+                'emergency_contact_relation_name' => 'required_if:role.' . $i . ',1,8'
             ];
             $i++;
         }
@@ -128,13 +132,13 @@ class StoreUserRequest extends FormRequest
             'last_name' => 'nullable',
             'email' => 'required|email',
             'phone' => 'required',
-            // 'emergency_contact' => 'required_if:role,1,8|nullable',
             'datebirth' => 'required',
             'address' => 'required',
 
             'graduated_from.*' => 'nullable',
             'degree.*' => 'nullable',
             'major.*' => 'nullable',
+            'graduation_date.*' => 'nullable',
 
             'role.*' => 'required|in:1,2,3,4,18',
             'department' => 'required',
@@ -162,19 +166,31 @@ class StoreUserRequest extends FormRequest
         if ($user->idcard == null)
             $rules['idcard'] = 'required|mimes:pdf,jpeg,jpg,png|max:5000';
 
-        // if ($user->tax == null)
-        //     $rules['tax'] = 'required|mimes:pdf|max:5000';
+        if ( $total_roles > 0 )
+        {
+            if ( in_array(4, $this->input('role')) )
+            {
+                for ($i = 0; $i < count($this->subject_id) ; $i++)
+                {
+                    if ( !$tutor_role_information = $user->roles->where('id', 4)->first() )
+                    {
+                        $rules += ["agreement.*" => 'required|mimes:pdf|max:5000'];
+                        break;
+                    }
 
-        // if ($user->health_insurance == null)
-        //     $rules['health_insurance'] = 'required|mimes:pdf|max:5000';
+                    $user_role_id = $tutor_role_information->pivot->id;
+                    if ( $role_subject = $this->userRepository->getUserSubjectById($user_role_id) )
+                    {
+                        if ( $role_subject->agreement !== NULL )
+                        {
+                            $rules += [
+                                "agreement.{$i}" => 'nullable',
+                            ];
+                        }
+                    }
+                }
 
-        // if ($user->empl_insurance == null)
-        //     $rules['empl_insurance'] = 'required|mimes:pdf|max:5000';
-
-        if($total_roles > 0){
-            if(in_array(4, $this->input('role'))){
                 $rules += [
-                    'agreement.*' => 'required|mimes:pdf|max:5000',
                     'subject_id.*' => 'required',
                     'year.*' => 'required',
                     'grade.*.*' => 'required',

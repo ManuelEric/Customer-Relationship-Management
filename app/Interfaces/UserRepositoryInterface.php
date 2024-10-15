@@ -31,10 +31,13 @@ interface UserRepositoryInterface
     public function deleteUserType($userTypeId);
     public function getUserRoles($userId, $roleName);
     public function cleaningUser();
-    public function createUserEducation(User $user, array $userEducationDetails);
+    public function createUserEducation(User $user, array $user_education_details);
+    public function updateUserEducation(User $user, array $new_user_education_details);
     public function createOrUpdateUserSubject(User $user, Request $request);
-    public function createUserRole(User $user, array $userRoleDetails);
-    public function createUserType(User $user, array $userTypeDetails);
+    public function createUserRole(User $user, array $user_role_details);
+    public function updateUserRole(User $user, array $new_user_role_details);
+    public function createUserType(User $user, array $user_type_details);
+    public function updateUserType(User $user, array $new_user_type_details);
     public function getUserSubjectById($user_subject_id);
 
     //! new methods

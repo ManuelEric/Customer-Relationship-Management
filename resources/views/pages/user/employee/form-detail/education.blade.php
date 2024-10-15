@@ -12,16 +12,13 @@
                         <div class="col-md-12 education edu-{{ $loop->index }}">
                             <div class="row g-2">
                                 <div class="col-md-4 mb-3">
-                                    <label for="" class="text-muted">Graduated From</label>
+                                    <label for="" class="text-muted">Graduated From {{ $education->univ_id }}</label>
                                     <select name="graduated_from[]" class="select w-100">
                                         <option data-placeholder="true"></option>
                                         @foreach ($univ_countries as $country)
-                                            <optgroup label="{{ $country->univ_country }}">
-                                                @foreach ($universities->where('univ_country', $country->univ_country) as $university)
-                                                    <option value="{{ $university->univ_id }}"
-                                                        @if ($education->univ_id == $university->univ_id)
-                                                            {{ "selected" }}
-                                                        @endif
+                                            <optgroup label="{{ $country->name }}">
+                                                @foreach ($universities->where('univ_country', $country->id) as $university)
+                                                    <option value="{{ $university->univ_id }}" @selected($education->univ_id == $university->univ_id)
                                                         >{{ $university->univ_name }}</option>
                                                 @endforeach
                                             </optgroup>
@@ -84,12 +81,9 @@
                                     <select name="graduated_from[]" class="select w-100">
                                         <option data-placeholder="true"></option>
                                         @foreach ($univ_countries as $country)
-                                            <optgroup label="{{ $country->univ_country }}">
-                                                @foreach ($universities->where('univ_country', $country->univ_country) as $university)
-                                                    <option value="{{ $university->univ_id }}" 
-                                                        @if (old('graduated_from.'.$i) == $university->univ_id)
-                                                            {{ "selected" }}
-                                                        @endif
+                                            <optgroup label="{{ $country->name }}">
+                                                @foreach ($universities->where('univ_country', $country->id) as $university)
+                                                    <option value="{{ $university->univ_id }}" @selected(old('graduated_from.'.$i) == $university->univ_id)
                                                         >{{ $university->univ_name }}</option>
                                                 @endforeach
                                             </optgroup>
@@ -200,8 +194,8 @@
                     '<select name="graduated_from[]" id="" class="select w-100">' +
                     '<option data-placeholder="true"></option>' +
                     @foreach ($univ_countries as $country)
-                        '<optgroup label="{{ $country->univ_country }}">' +
-                            @foreach ($universities->where('univ_country', $country->univ_country) as $university)
+                        '<optgroup label="{{ $country->name }}">' +
+                            @foreach ($universities->where('univ_country', $country->id) as $university)
                                 '<option value="{{ $university->univ_id }}">{{ $university->univ_name }}</option>' +
                             @endforeach
                         '</optgroup>' +
