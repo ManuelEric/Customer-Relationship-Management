@@ -1,13 +1,11 @@
 <?php
 
-namespace App\Actions\Assets;
+namespace App\Actions\Curriculums;
 
-use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\CurriculumRepositoryInterface;
 
 class UpdateCurriculumAction
 {
-    use CreateCustomPrimaryKeyTrait;
     private CurriculumRepositoryInterface $curriculumRepository;
 
     public function __construct(CurriculumRepositoryInterface $curriculumRepository)

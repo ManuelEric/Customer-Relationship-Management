@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Assets\DeleteAssetReturnedAction;
 use App\Actions\Assets\Returned\CreateAssetReturnedAction;
+use App\Actions\Assets\Returned\DeleteAssetReturnedAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreAssetReturnedRequest;
 use App\Interfaces\AssetRepositoryInterface;
 use App\Interfaces\AssetReturnedRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Models\Asset;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Http\Request;
@@ -31,10 +33,10 @@ class AssetReturnedController extends Controller
         $this->assetRepository = $assetRepository;
     }
 
-    public function store(StoreAssetReturnedRequest $request, CreateAssetReturnedAction $createAssetReturnedAction)
+    public function store(StoreAssetReturnedRequest $request, CreateAssetReturnedAction $createAssetReturnedAction, LogService $log_service)
     {
 
-        $returned_details = $request->safe()->only([
+        $new_returned_details = $request->safe()->only([
             'usedId',
             'assetId',
             'user',
@@ -46,17 +48,20 @@ class AssetReturnedController extends Controller
         DB::beginTransaction();
         try {
 
-            $createAssetReturnedAction->execute($request, $returned_details);
+            $new_asset_returned = $createAssetReturnedAction->execute($request, $new_returned_details);
             
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store asset returned failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_ASSET_RETURNED, $e->getMessage(), $e->getLine(), $e->getFile(), $new_returned_details);
+
             return Redirect::to('master/asset/'.$request->asset_id)->withError('Failed to create asset returned');
 
         }
+
+        $log_service->createSuccessLog(LogModule::STORE_ASSET_RETURNED, 'New asset returned has been added', $new_asset_returned->toArray());
 
         return Redirect::to('master/asset/'.$request->asset_id)->withSuccess('Asset returned was successfully noted');
     }
@@ -82,7 +87,7 @@ class AssetReturnedController extends Controller
         );
     }
 
-    public function destroy(Request $request, DeleteAssetReturnedAction $deleteAssetReturnedAction)
+    public function destroy(Request $request, DeleteAssetReturnedAction $deleteAssetReturnedAction, LogService $log_service)
     {
         $asset_id = $request->route('asset');
         $returned_id = $request->route('returned');
@@ -97,10 +102,13 @@ class AssetReturnedController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete asset returned failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_ASSET_RETURNED, $e->getMessage(), $e->getLine(), $e->getFile(), ['returned_id' => $returned_id]);
+
             return Redirect::to('master/asset/'.$asset_id)->withError('Failed to delete asset returned');
 
         }
+
+        $log_service->createSuccessLog(LogModule::DELETE_ASSET_RETURNED, 'Asset returned has been deleted', ['returned_id' => $returned_id]);
 
         return Redirect::to('master/asset/'.$asset_id)->withSuccess('Asset returned successfully deleted');
     }

@@ -2,13 +2,10 @@
 
 namespace App\Actions\Curriculums;
 
-use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\CurriculumRepositoryInterface;
-use App\Models\Asset;
 
 class CreateCurriculumAction
 {
-    use CreateCustomPrimaryKeyTrait;
     private CurriculumRepositoryInterface $curriculumRepository;
 
     public function __construct(CurriculumRepositoryInterface $curriculumRepository)

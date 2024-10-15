@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\PurchaseReques\Detail\UpdatePurchaseRequestDetailAction;
+use App\Actions\PurchaseRequest\Detail\CreatePurchaseRequestDetailAction;
+use App\Actions\PurchaseRequest\Detail\DeletePurchaseRequestDetailAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StorePurchaseDetailRequest;
 use App\Interfaces\PurchaseDetailRepositoryInterface;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,9 +28,9 @@ class PurchaseDetailController extends Controller
 
     public function show(Request $request): JsonResponse
     {
-        $detailId = $request->route('detail');
+        $detail_id = $request->route('detail');
 
-        $detail = $this->purchaseDetailRepository->getPurchaseDetailById($detailId);
+        $detail = $this->purchaseDetailRepository->getPurchaseDetailById($detail_id);
 
         return response()->json(
             [
@@ -36,79 +41,87 @@ class PurchaseDetailController extends Controller
         );
     }
 
-    public function store(StorePurchaseDetailRequest $request)
+    public function store(StorePurchaseDetailRequest $request, CreatePurchaseRequestDetailAction $createPurchaseRequestDetailAction, LogService $log_service)
     {
-        $itemDetails = $request->only([
+        $new_item_details = $request->safe()->only([
             'item',
             'amount',
             'price_per_unit',
             'total',
         ]);
 
-        $itemDetails['purchase_id'] = $purchaseId = $request->route('purchase');
+        $new_item_details['purchase_id'] = $purchase_id = $request->route('purchase');
 
         DB::beginTransaction();
         try {
 
-            $this->purchaseDetailRepository->createOnePurchaseDetail($itemDetails);
+            $new_item = $createPurchaseRequestDetailAction->execute($new_item_details);
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store requested item of Purchase Request '.$purchaseId.' failed : ' . $e->getMessage());
-            return Redirect::to('master/purchase/'.$purchaseId)->withError('Failed to create a new requested item of Purchase Request '.$purchaseId);
+            $log_service->createErrorLog(LogModule::STORE_PURCHASE_REQUEST_DETAIL, $e->getMessage(), $e->getLine(), $e->getFile(), $new_item_details);
+
+            return Redirect::to('master/purchase/'.$purchase_id)->withError('Failed to create a new requested item of Purchase Request '.$purchase_id);
         }
 
-        return Redirect::to('master/purchase/'.$purchaseId)->withSuccess('Request Item of Purchase Request '.$purchaseId.' successfully added');
+        $log_service->createSuccessLog(LogModule::STORE_PURCHASE_REQUEST_DETAIL, 'Asset request detail has been added', $new_item->toArray());
+        return Redirect::to('master/purchase/'.$purchase_id)->withSuccess('Request Item of Purchase Request '.$purchase_id.' successfully added');
     }
 
-    public function update(StorePurchaseDetailRequest $request)
+    public function update(StorePurchaseDetailRequest $request, UpdatePurchaseRequestDetailAction $updatePurchaseRequestDetailAction, LogService $log_service)
     {
-        $newDetails = $request->only([
+        $new_item_details = $request->safe()->only([
             'item',
             'amount',
             'price_per_unit',
             'total',
         ]);
 
-        $purchaseId = $request->route('purchase');
-        $detailId = $request->route('detail');
+        $purchase_id = $request->route('purchase');
+        $detail_id = $request->route('detail');
 
         DB::beginTransaction();
         try {
 
-            $this->purchaseDetailRepository->updatePurchaseDetail($detailId, $newDetails);
+            $updated_purchase_request_detail = $updatePurchaseRequestDetailAction->execute($detail_id, $new_item_details);
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update requested item of Purchase Request '.$purchaseId.' failed : ' . $e->getMessage());
-            return Redirect::to('master/purchase/'.$purchaseId)->withError('Failed to update requested item of Purchase Request '.$purchaseId);
+            $log_service->createErrorLog(LogModule::UPDATE_PURCHASE_REQUEST_DETAIL, $e->getMessage(), $e->getLine(), $e->getFile(), $new_item_details);
+
+            return Redirect::to('master/purchase/'.$purchase_id)->withError('Failed to update requested item of Purchase Request '.$purchase_id);
         }
 
-        return Redirect::to('master/purchase/'.$purchaseId)->withSuccess('Request Item of Purchase Request '.$purchaseId.' successfully updated');
+        $log_service->createSuccessLog(LogModule::UPDATE_PURCHASE_REQUEST_DETAIL, 'Purchase request detail has been updated', $updated_purchase_request_detail->toArray());
+
+        return Redirect::to('master/purchase/'.$purchase_id)->withSuccess('Request Item of Purchase Request '.$purchase_id.' successfully updated');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeletePurchaseRequestDetailAction $deletePurchaseRequestDetailAction, LogService $log_service)
     {
-        $purchaseId = $request->route('purchase');
-        $detailId = $request->route('detail');
+        $purchase_id = $request->route('purchase');
+        $detail_id = $request->route('detail');
 
         DB::beginTransaction();
         try {
 
-            $this->purchaseDetailRepository->deletePurchaseDetail($detailId);
+            $deletePurchaseRequestDetailAction->execute($detail_id);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete requested item of Purchase Request '.$purchaseId.' failed : ' . $e->getMessage());
-            return Redirect::to('master/purchase/'.$purchaseId)->withError('Failed to delete requested item of Purchase Request '.$purchaseId);
+            $log_service->createErrorLog(LogModule::DELETE_PURCHASE_REQUEST_DETAIL, $e->getMessage(), $e->getLine(), $e->getFile(), ['detail_id' => $detail_id]);
+
+            return Redirect::to('master/purchase/'.$purchase_id)->withError('Failed to delete requested item of Purchase Request '.$purchase_id);
 
         }
+        
+        $log_service->createSuccessLog(LogModule::DELETE_PURCHASE_REQUEST_DETAIL, 'Purchase request detail has been deleted', ['detail_id' => $detail_id]);
 
-        return Redirect::to('master/purchase/'.$purchaseId)->withSuccess('Requested item of Purchase Request '.$purchaseId.' successfully deleted');
+        return Redirect::to('master/purchase/'.$purchase_id)->withSuccess('Requested item of Purchase Request '.$purchase_id.' successfully deleted');
     }
 }

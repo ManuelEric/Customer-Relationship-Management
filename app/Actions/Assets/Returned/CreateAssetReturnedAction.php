@@ -3,9 +3,7 @@
 namespace App\Actions\Assets\Returned;
 
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
-use App\Interfaces\AssetRepositoryInterface;
 use App\Interfaces\AssetReturnedRepositoryInterface;
-use App\Models\Asset;
 use Illuminate\Http\Request;
 
 class CreateAssetReturnedAction

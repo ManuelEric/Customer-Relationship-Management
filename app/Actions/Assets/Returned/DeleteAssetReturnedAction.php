@@ -3,7 +3,6 @@
 namespace App\Actions\Assets\Returned;
 
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
-use App\Interfaces\AssetRepositoryInterface;
 use App\Interfaces\AssetReturnedRepositoryInterface;
 
 class DeleteAssetReturnedAction

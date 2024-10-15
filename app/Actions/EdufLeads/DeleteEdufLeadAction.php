@@ -2,12 +2,10 @@
 
 namespace App\Actions\EdufLeads;
 
-use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\EdufLeadRepositoryInterface;
 
 class DeleteEdufLeadAction
 {
-    use CreateCustomPrimaryKeyTrait;
     private EdufLeadRepositoryInterface $edufLeadRepository;
 
     public function __construct(EdufLeadRepositoryInterface $edufLeadRepository)

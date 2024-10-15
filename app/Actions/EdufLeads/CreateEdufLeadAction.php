@@ -5,7 +5,6 @@ namespace App\Actions\EdufLeads;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\EdufLeadRepositoryInterface;
-use App\Models\Asset;
 
 class CreateEdufLeadAction
 {

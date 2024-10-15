@@ -2,13 +2,10 @@
 
 namespace App\Actions\Assets;
 
-use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\AssetRepositoryInterface;
-use App\Models\Asset;
 
 class DeleteAssetAction
 {
-    use CreateCustomPrimaryKeyTrait;
     private AssetRepositoryInterface $assetRepository;
 
     public function __construct(AssetRepositoryInterface $assetRepository)

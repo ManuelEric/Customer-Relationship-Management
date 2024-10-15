@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Actions\Assets\Used\CreateAssetUsedAction;
 use App\Actions\Assets\Used\DeleteAssetUsedAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreAssetUsedRequest;
 use App\Interfaces\AssetRepositoryInterface;
 use App\Interfaces\AssetUsedRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,7 +31,7 @@ class AssetUsedController extends Controller
         $this->userRepository = $userRepository;
     }
 
-    public function store(StoreAssetUsedRequest $request, CreateAssetUsedAction $createAssetUsedAction)
+    public function store(StoreAssetUsedRequest $request, CreateAssetUsedAction $createAssetUsedAction, LogService $log_service)
     {
         $used_details = $request->safe()->only([
             'assetId',
@@ -42,15 +44,18 @@ class AssetUsedController extends Controller
         DB::beginTransaction();
         try {
 
-            $createAssetUsedAction->execute($used_details);
+            $new_asset_used = $createAssetUsedAction->execute($used_details);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store asset user failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_ASSET_USED, $e->getMessage(), $e->getLine(), $e->getFile(), $used_details);
+
             return Redirect::to('master/asset/' . $request->assetId)->withError('Failed to store user asset');
         }
+
+        $log_service->createSuccessLog(LogModule::STORE_ASSET_USED, 'New asset used has been added', $new_asset_used->toArray());
 
         return Redirect::to('master/asset/' . $request->assetId)->withSuccess('Asset user was successfully noted');
     }
@@ -76,7 +81,7 @@ class AssetUsedController extends Controller
         ]);
     }
 
-    public function destroy(Request $request, DeleteAssetUsedAction $deleteAssetUsedAction)
+    public function destroy(Request $request, DeleteAssetUsedAction $deleteAssetUsedAction, LogService $log_service)
     {
         $asset_id = $request->route('asset');
         $used_id = $request->route('used');
@@ -89,9 +94,13 @@ class AssetUsedController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete asset used failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_ASSET_USED, $e->getMessage(), $e->getLine(), $e->getFile(), ['user_id' => $used_id]);
+
             return Redirect::to('master/asset/' . $request->asset)->withError('Failed to delete asset used');
         }
+
+
+        $log_service->createSuccessLog(LogModule::STORE_ASSET, 'New asset used has been deleted', ['user_id' => $used_id]);
 
         return Redirect::to('master/asset/' . $request->asset)->withSuccess('Asset used successfully deleted');
     }

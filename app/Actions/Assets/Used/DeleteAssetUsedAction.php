@@ -3,7 +3,6 @@
 namespace App\Actions\Assets\Used;
 
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
-use App\Interfaces\AssetRepositoryInterface;
 use App\Interfaces\AssetUsedRepositoryInterface;
 
 class DeleteAssetUsedAction
