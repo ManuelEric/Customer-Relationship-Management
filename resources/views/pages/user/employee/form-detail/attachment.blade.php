@@ -126,7 +126,7 @@
                 <div class="row ">
                     <div class="col-md-6 mb-2">
                         <small>NPWP Number</small>
-                        <input type="text" name="npwp" id="" class="form-control form-control-sm rounded"
+                        <input type="text" name="npwp" placeholder="12.345.678.9-123.456" id="" class="form-control form-control-sm rounded"
                             value="{{ isset($user->npwp) ? $user->npwp : old('npwp') }}">
                         @error('npwp')
                             <small class="text-danger fw-light">{{ $message }}</small>

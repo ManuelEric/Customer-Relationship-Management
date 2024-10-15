@@ -86,7 +86,8 @@ class AuthorizationService
 
 
         # by default user role will follow the scopes
-        $acceptableUserRole = str_replace(' ', '', $scopes[0]);
+        $acceptableUserRole = str_replace('-', ' ', $scopes[0]); # removing the symbol -
+        $acceptableUserRole = str_replace(' ', '', ucwords($acceptableUserRole)); # uppercase only the first letter of the words and remove the space
 
         # because role Admin could have came from many departments
         # so we need to check whether he/she is a sales admin / or any other department

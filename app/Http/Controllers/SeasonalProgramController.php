@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\SeasonalPrograms\CreateSeasonalProgramAction;
+use App\Actions\SeasonalPrograms\DeleteSeasonalProgramAction;
+use App\Actions\SeasonalPrograms\UpdateSeasonalProgramAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreSeasonalProgramRequest;
 use App\Http\Traits\LoggingTrait;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SeasonalProgramRepositoryInterface;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -45,9 +50,9 @@ class SeasonalProgramController extends Controller
         );
     }
 
-    public function store(StoreSeasonalProgramRequest $request)
+    public function store(StoreSeasonalProgramRequest $request, CreateSeasonalProgramAction $createSeasonalProgramAction, LogService $log_service)
     {
-        $seasonal_program_details = $request->only([
+        $seasonal_program_details = $request->safe()->only([
             'prog_id',
             'start',
             'end',
@@ -57,20 +62,21 @@ class SeasonalProgramController extends Controller
         DB::beginTransaction();
         try {
             
-            $new_seasonal_program = $this->seasonalProgramRepository->storeSeasonalProgram($seasonal_program_details);
+            $new_seasonal_program = $createSeasonalProgramAction->execute($seasonal_program_details);
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Failed to store seasonal program '.$e->getMessage().' | Line '.$e->getLine());
+            $log_service->createErrorLog(LogModule::STORE_SEASONAL_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $seasonal_program_details);
+
             return Redirect::to('master/seasonal-program')->withError('Failed to create a new seasonal program');
 
         }
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Seasonal Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_seasonal_program);
+        $log_service->createSuccessLog(LogModule::STORE_SEASONAL_PROGRAM, 'New seasonal program has been added', $new_seasonal_program->toArray());
 
         return Redirect::to('master/seasonal-program')->withSuccess('A new seasonal program successfully created');
     }
@@ -85,11 +91,11 @@ class SeasonalProgramController extends Controller
         }
     }
 
-    public function update(StoreSeasonalProgramRequest $request)
+    public function update(StoreSeasonalProgramRequest $request, UpdateSeasonalProgramAction $updateSeasonalProgramAction, LogService $log_service)
     {
         $seasonal_program_id = $request->route('seasonal_program');
 
-        $new_details = $request->only([
+        $new_seasonal_program_details = $request->only([
             'prog_id',
             'start',
             'end',
@@ -101,25 +107,26 @@ class SeasonalProgramController extends Controller
         DB::beginTransaction();
         try {
             
-            $this->seasonalProgramRepository->updateSeasonalProgram($seasonal_program_id, $new_details);
+            $updated_seasonal_program = $updateSeasonalProgramAction->execute($seasonal_program_id, $new_seasonal_program_details);
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Failed to update seasonal program '.$e->getMessage().' | Line '.$e->getLine());
+            $log_service->createErrorLog(LogModule::UPDATE_SEASONAL_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $new_seasonal_program_details);
+
             return Redirect::to('master/seasonal-program')->withError('Failed to update the seasonal program');
 
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Seasonal Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_details, $old_seasonal_program);
+        $log_service->createSuccessLog(LogModule::UPDATE_SEASONAL_PROGRAM, 'Seasonal program has been updated', $updated_seasonal_program->toArray());
 
         return Redirect::to('master/seasonal-program')->withSuccess('The seasonal program successfully updated');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteSeasonalProgramAction $deleteSeasonalProgramAction, LogService $log_service)
     {
         $seasonal_program_id = $request->route('seasonal_program');
 
@@ -128,18 +135,19 @@ class SeasonalProgramController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->seasonalProgramRepository->deleteSeasonalProgram($seasonal_program_id);
+            $deleteSeasonalProgramAction->execute($seasonal_program_id);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Failed to delete seasonal program : ' . $e->getMessage().' | Line '.$e->getLine());
+            $log_service->createErrorLog(LogModule::DELETE_SEASONAL_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $seasonal_program->toArray());
+
             return Redirect::to('master/seasonal-program')->withError('Failed to delete the seasonal program');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Seasonal Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $seasonal_program);
+        $log_service->createSuccessLog(LogModule::DELETE_SEASONAL_PROGRAM, 'Seasonal program has been deleted', $seasonal_program->toArray());
 
         return Redirect::to('master/seasonal-program')->withSuccess('Seasonal program successfully deleted');
     }

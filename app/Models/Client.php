@@ -126,6 +126,13 @@ class Client extends Model
         });
     }
 
+    public function scopeDoesntHavePIC($query)
+    {
+        return $query->when(Session::get('user_role') == 'Employee', function ($subQuery) {
+            $subQuery->where('client.pic_id', auth()->user()->id)->orWhereNull('client.pic_id');
+        });
+    }
+
     public function scopeIsUsingAPI($query)
     {
         return $query->when(auth()->guard('api')->user() && Session::get('user_role') == 'Employee', function ($subQuery) {

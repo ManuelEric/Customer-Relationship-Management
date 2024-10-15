@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Leads\CreateLeadAction;
+use App\Actions\Leads\DeleteLeadAction;
+use App\Actions\Leads\UpdateLeadAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreLeadRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\CreateReferralCodeTrait;
@@ -11,6 +15,7 @@ use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\DepartmentRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Models\Lead;
+use App\Services\Log\LogService;
 use App\Services\Master\LeadService;
 use Exception;
 use Illuminate\Http\Request;
@@ -56,39 +61,33 @@ class LeadController extends Controller
         );
     }
 
-    public function store(StoreLeadRequest $request)
+    public function store(StoreLeadRequest $request, CreateLeadAction $createLeadAction, LogService $log_service)
     {
-        $lead_details = $request->only([
+        $new_lead_details = $request->only([
             'lead_name',
             'score',
             'kol',
             'department_id',
         ]);
 
-        $last_id = Lead::max('lead_id');
-        if (!$last_id)
-            $last_id = 'LS000';
-
-        $lead_details = $this->leadService->snFormattingLeadBeforeInsertOrUpdate($request);
-
-        $lead_id_without_label = $this->remove_primarykey_label($last_id, 2);
-        $lead_id_with_label = 'LS' . $this->add_digit($lead_id_without_label + 1, 3);
-
         DB::beginTransaction();
         try {
 
-            $new_data_lead = $this->leadRepository->createLead(['lead_id' => $lead_id_with_label] + $lead_details);
+            $new_lead = $createLeadAction->execute($request, $new_lead_details);
+
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
+            $log_service->createErrorLog(LogModule::STORE_LEAD, $e->getMessage(), $e->getLine(), $e->getFile(), $new_lead_details);
+
             Log::error('Store lead failed : ' . $e->getMessage());
             return Redirect::to('master/lead')->withError('Failed to create a new lead');
         }
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Lead', Auth::user()->first_name . ' '. Auth::user()->last_name, $new_data_lead);
+        $log_service->createSuccessLog(LogModule::STORE_LEAD, 'New asset has been added', $new_lead->toArray());
 
         return Redirect::to('master/lead')->withSuccess('Lead successfully created');
     }
@@ -128,9 +127,9 @@ class LeadController extends Controller
         );
     }
 
-    public function update(StoreLeadRequest $request)
+    public function update(StoreLeadRequest $request, UpdateLeadAction $updateLeadAction, LogService $log_service)
     {
-        $lead_details = $request->only([
+        $new_lead_details = $request->only([
             'lead_name',
             'score',
             'kol',
@@ -140,30 +139,27 @@ class LeadController extends Controller
         # retrieve lead id from url
         $lead_id = $request->route('lead');
         
-        $oldLead = $this->leadRepository->getLeadById($lead_id);
-
-        $lead_details = $this->leadService->snSetMainLeadAndSubLead($request);
-
         DB::beginTransaction();
         try {
 
-            $this->leadRepository->updateLead($lead_id, $lead_details);
+            $updated_lead = $updateLeadAction->execute($request, $lead_id, $new_lead_details);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update lead failed : ' . $e->getMessage(). ' | Line: '. $e->getLine());
+            $log_service->createErrorLog(LogModule::UPDATE_LEAD, $e->getMessage(), $e->getLine(), $e->getFile(), $new_lead_details);
+
             return Redirect::to('master/lead')->withError('Failed to update lead');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Lead', Auth::user()->first_name . ' '. Auth::user()->last_name, $lead_details, $oldLead);
+        $log_service->createSuccessLog(LogModule::UPDATE_LEAD, 'Lead has been updated', $updated_lead->toArray());
 
         return Redirect::to('master/lead')->withSuccess('Lead successfully updated');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteLeadAction $deleteLeadAction, LogService $log_service)
     {
         $lead_id = $request->route('lead');
         $lead = $this->leadRepository->getLeadById($lead_id);
@@ -171,18 +167,20 @@ class LeadController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->leadRepository->deleteLead($lead_id);
+            $deleteLeadAction->execute($lead_id);
+
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete lead failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_LEAD, $e->getMessage(), $e->getLine(), $e->getFile(), $lead->toArray());
+
             return Redirect::to('master/lead')->withError('Failed to delete lead');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Curriculum', Auth::user()->first_name . ' '. Auth::user()->last_name, $lead);
+        $log_service->createSuccessLog(LogModule::DELETE_LEAD, 'Lead has been deleted', $lead->toArray());
 
         return Redirect::to('master/lead')->withSuccess('Lead successfully deleted');
     }

@@ -32,6 +32,9 @@ Route::resource('client/{target}', RecycleClientController::class, [
         'update' => 'recycle.client.update',
         'edit' => 'recycle.client.edit',
         'destroy' => 'recycle.client.destroy',
+    ],
+    'parameters' => [
+        '{target}' => 'client'
     ]
 ])->parameters(['{target}' => 'client']);
 
@@ -46,5 +49,8 @@ Route::resource('instance/{target}', RecycleInstanceController::class, [
         'update' => 'recycle.instance.update',
         'edit' => 'recycle.instance.edit',
         'destroy' => 'recycle.instance.destroy',
+    ],
+    'parameters' => [
+        '{target}' => 'instance'
     ]
 ])->parameters(['{target}' => 'instance']);
