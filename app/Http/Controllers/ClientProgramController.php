@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\ClientEvents\UpdateClientEventAction;
+use App\Actions\ClientPrograms\CreateClientProgramAction;
+use App\Actions\ClientPrograms\DeleteClientProgramAction;
+use App\Actions\ClientPrograms\UpdateClientProgramAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreClientProgramRequest;
 use App\Http\Requests\StoreFormProgramEmbedRequest;
 use App\Http\Traits\CheckExistingClient;
@@ -28,6 +33,8 @@ use App\Models\Program;
 use App\Models\School;
 use App\Models\UserClient;
 use App\Models\ViewClientProgram;
+use App\Services\Log\LogService;
+use App\Services\Master\ProgramService;
 use App\Services\Program\ClientProgramService;
 use Exception;
 use Illuminate\Http\Request;
@@ -62,13 +69,14 @@ class ClientProgramController extends Controller
     private ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository;
     private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
     private ClientProgramService $clientProgramService;
+    private ProgramService $programService;
     private $admission_prog_list;
     private $tutoring_prog_list;
     private $satact_prog_list;
 
     use CreateCustomPrimaryKeyTrait;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository, TagRepositoryInterface $tagRepository, ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ClientProgramService $clientProgramService)
+    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository, TagRepositoryInterface $tagRepository, ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ClientProgramService $clientProgramService, ProgramService $programService)
     {
         $this->clientRepository = $clientRepository;
         $this->programRepository = $programRepository;
@@ -85,6 +93,7 @@ class ClientProgramController extends Controller
         $this->clientProgramLogMailRepository = $clientProgramLogMailRepository;
         $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
         $this->clientProgramService = $clientProgramService;
+        $this->programService = $programService;
 
         $this->admission_prog_list = Program::whereHas('main_prog', function ($query) {
             $query->where('prog_name', 'Admissions Mentoring');
@@ -104,83 +113,36 @@ class ClientProgramController extends Controller
     public function index(Request $request)
     {
 
-        $data = $status = $emplUUID = [];
-        $status = $userId = $emplId = NULL;
-
-        $data['clientId'] = NULL;
-        $data['programName'] = !empty($request->get('program_name')) ? array_filter($request->get('program_name'), fn ($value) => !is_null($value)) ?? null : null;
-        $data['mainProgram'] = !empty($request->get('main_program')) ? array_filter($request->get('main_program'), fn ($value) => !is_null($value)) ?? null : null;
-        $data['schoolName'] = $request->get('school_name') ?? null;
-        $data['leadId'] = $request->get('conversion_lead') ?? null;
-        $data['grade'] = $request->get('grade') ?? null;
-        
-        if ($raw_program_status = $request->get('program_status')) {
-            
-            for ($i = 0; $i < count($raw_program_status); $i++) {
-                $raw_status = Crypt::decrypt($raw_program_status[$i]);
-                $status[] = $raw_status;
-            }
-            
-        }
-
-        $data['status'] = $status;
-
-        if ($request->get('mentor_tutor')) {
-            for ($i = 0; $i < count($request->get('mentor_tutor')); $i++) {
-                $raw_userId = Crypt::decrypt($request->get('mentor_tutor')[$i]);
-                $userId[] = $raw_userId;
-            }
-        }
-        $data['userId'] = $userId;
-
-        if ($request->get('pic')) {
-            for ($i = 0; $i < count($request->get('pic')); $i++) {
-                $emplUUID[] = $request->get('pic')[$i];
-            }
-        }
-        $data['emplUUID'] = array_filter($emplUUID, fn ($value) => !is_null($value)) ?? null;;
-        $data['startDate'] = $request->get('start_date') ?? null;
-        $data['endDate'] = $request->get('end_date') ?? null;
+        $data_filter = $this->clientProgramService->snSetFilterDataIndex($request);
 
         if ($request->ajax()) {
-            return $this->clientProgramRepository->getAllClientProgramDataTables($data);
+            return $this->clientProgramRepository->getAllClientProgramDataTables($data_filter);
         }
 
         # advanced filter data
         $programs = $this->clientProgramRepository->getAllProgramOnClientProgram();
-        $mainPrograms = $this->clientProgramRepository->getAllMainProgramOnClientProgram();
+        $main_programs = $this->clientProgramRepository->getAllMainProgramOnClientProgram();
         $schools = $this->schoolRepository->getAllSchools();
-        // $conversion_leads = $this->clientProgramRepository->getAllConversionLeadOnClientProgram();
         $mentor_tutors = $this->clientProgramRepository->getAllMentorTutorOnClientProgram();
         $pics = $this->clientProgramRepository->getAllPICOnClientProgram();
         $main_leads = $this->leadRepository->getAllMainLead();
-        $main_leads = $main_leads->map(function ($item) {
-            return [
-                'lead_id' => $item->lead_id,
-                'main_lead' => $item->main_lead
-            ];
-        });
+        $main_leads = $this->clientProgramService->snMappingLeads($main_leads, 'main_lead');
         $sub_leads = $this->leadRepository->getAllKOLlead();
-        $sub_leads = $sub_leads->map(function ($item) {
-            return [
-                'lead_id' => $item->lead_id,
-                'main_lead' => $item->sub_lead
-            ];
-        });
+        $sub_leads = $this->clientProgramService->snMappingLeads($sub_leads, 'sub_lead');
         $conversion_leads = $main_leads->merge($sub_leads);
 
         return view('pages.program.client-program.index')->with(
             [
                 'programs' => $programs,
-                'mainPrograms' => $mainPrograms,
+                'mainPrograms' => $main_programs,
                 'schools' => $schools,
                 'conversion_leads' => $conversion_leads,
                 'mentor_tutors' => $mentor_tutors,
                 'pics' => $pics,
                 'request' => $request,
-                'status_decrypted' => $status,
-                'mentor_tutor_decrypted' => $userId,
-                'picUUID_arr' => $emplUUID,
+                'status_decrypted' => $data_filter['status'],
+                'mentor_tutor_decrypted' => $data_filter['userId'],
+                'picUUID_arr' => $data_filter['emplUUID'],
             ]
         );
     }
@@ -188,47 +150,43 @@ class ClientProgramController extends Controller
     public function show(Request $request)
     {
         if ($request->route('student') !== null)
-            $studentID = $request->route('student');
+            $student_id = $request->route('student');
         elseif ($request->route('client') !== null)
-            $studentID = $request->route('client');
+            $student_id = $request->route('client');
         // $studentId = isset($request->route('student')) ? $request->route('student') : isset($request->route('client')) ? $request->route('client') : null;
-        $clientProgramId = $request->route('program');
+        $client_program_id = $request->route('program');
 
-        $student = $this->clientRepository->getClientById($studentID);
-        // $viewStudent = $this->clientRepository->getViewClientById($studentID);
-        $clientProgram = $this->clientProgramRepository->getClientProgramById($clientProgramId);
+        $student = $this->clientRepository->getClientById($student_id);
+        // $viewStudent = $this->clientRepository->getViewClientById($student_id);
+        $client_program = $this->clientProgramRepository->getClientProgramById($client_program_id);
 
         # programs
-        $b2cprograms = $this->programRepository->getAllProgramByType("B2C");
-        $b2bb2cprograms = $this->programRepository->getAllProgramByType("B2B/B2C");
-        $programs = $b2cprograms->merge($b2bb2cprograms);
+        $programs = $this->programService->snGetAllPrograms();
 
         # main leads
         $leads = $this->leadRepository->getAllMainLead();
-        $clientEvents = $this->clientEventRepository->getAllClientEventByClientId($studentID);
+        $client_events = $this->clientEventRepository->getAllClientEventByClientId($student_id);
         $external_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
         $partners = $this->corporateRepository->getAllCorporate();
-        $internalPic = $this->userRepository->getAllUsersByRole('Employee');
+        $internal_pic = $this->userRepository->getAllUsersByRole('Employee');
 
         $tutors = $this->userRepository->getAllUsersByRole('Tutor');
         $mentors = $this->userRepository->getAllUsersByRole('Mentor');
 
         $reasons = $this->reasonRepository->getReasonByType('Program');
-        // $reasons = $this->reasonRepository->getAllReasons();
 
         return view('pages.program.client-program.form')->with(
             [
                 'student' => $student,
-                // 'viewStudent' => $viewStudent,
-                'clientProgram' => $clientProgram,
+                'clientProgram' => $client_program,
                 'programs' => $programs,
                 'leads' => $leads,
-                'clientEvents' => $clientEvents,
+                'clientEvents' => $client_events,
                 'external_edufair' => $external_edufair,
                 'kols' => $kols,
                 'partners' => $partners,
-                'internalPIC' => $internalPic,
+                'internalPIC' => $internal_pic,
                 'tutors' => $tutors,
                 'mentors' => $mentors,
                 'reasons' => $reasons
@@ -241,43 +199,39 @@ class ClientProgramController extends Controller
         # identifier from interested program
         $p = $request->get('p') !== NULL ? $request->get('p') : null;
 
-        $studentId = $request->route('student');
-        $student = $this->clientRepository->getClientById($studentId);
-        $viewStudent = $this->clientRepository->getViewClientById($studentId);
+        $student_id = $request->route('student');
+        $student = $this->clientRepository->getClientById($student_id);
+        $view_student = $this->clientRepository->getViewClientById($student_id);
 
         # programs
-        $b2cprograms = $this->programRepository->getAllProgramByType("B2C");
-        $b2bb2cprograms = $this->programRepository->getAllProgramByType("B2B/B2C");
-        $programs = $b2cprograms->merge($b2bb2cprograms);
+        $programs = $this->programService->snGetAllPrograms();
 
         # main leads
         $leads = $this->leadRepository->getAllMainLead();
-        $clientEvents = $this->clientEventRepository->getAllClientEventByClientId($studentId);
+        $client_events = $this->clientEventRepository->getAllClientEventByClientId($student_id);
         $external_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
         $partners = $this->corporateRepository->getAllCorporate();
-        $internalPic = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $internal_pic = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
 
         $tutors = $this->userRepository->getAllUsersByRole('Tutor');
         $mentors = $this->userRepository->getAllUsersByRole('Mentor');
 
         $reasons = $this->reasonRepository->getReasonByType('Program');
-        // $reasons = $this->reasonRepository->getAllReasons();
-
 
         return view('pages.program.client-program.form')->with(
             [
                 'p' => $p,
                 'edit' => true,
                 'student' => $student,
-                'viewStudent' => $viewStudent,
+                'viewStudent' => $view_student,
                 'programs' => $programs,
                 'leads' => $leads,
-                'clientEvents' => $clientEvents,
+                'clientEvents' => $client_events,
                 'external_edufair' => $external_edufair,
                 'kols' => $kols,
                 'partners' => $partners,
-                'internalPIC' => $internalPic,
+                'internalPIC' => $internal_pic,
                 'tutors' => $tutors,
                 'mentors' => $mentors,
                 'reasons' => $reasons,
@@ -285,25 +239,18 @@ class ClientProgramController extends Controller
         );
     }
 
-    public function store(StoreClientProgramRequest $request)
+    public function store(StoreClientProgramRequest $request, CreateClientProgramAction $createClientProgramAction, LogService $log_service)
     {
-        $file_path = null;
-        // TODO: Perlu dicek function supervisor mentor
 
-        # p means program from interested program
-        $query = $request->queryP !== NULL ? "?p=" . $request->queryP : null;
-
-        $studentId = $request->route('student');
-        $student = $this->clientRepository->getClientById($studentId);
+        $student_id = $request->route('student');
+        $student = $this->clientRepository->getClientById($student_id);
         if ($student->st_statusact != 1)
             return Redirect::back()->withError('The student is no longer active');
 
-        $status = $request->status;
-
-        $progId = $request->prog_id;
+        $prog_id = $request->prog_id;
 
         # initialize
-        $clientProgramDetails = $request->only([
+        $client_program_details = $request->only([
             'lead_id',
             'prog_id',
             'clientevent_id',
@@ -311,50 +258,29 @@ class ClientProgramController extends Controller
             'kol_lead_id',
             'partner_id',
             'first_discuss_date',
-            // 'meeting_notes',
             'status',
             'referral_code',
             'empl_id'
         ]);
 
-        $clientProgramDetails = $this->clientProgramService->snSetAttributeLead($clientProgramDetails);
+        $client_program_details = $this->clientProgramService->snSetAttributeLead($client_program_details);
         
         DB::beginTransaction();
         try {
 
-            $additional_attributes = $this->clientProgramService->snSetAdditionalAttributes($request, ['admission' => $this->admission_prog_list, 'tutoring' => $this->tutoring_prog_list, 'satact' => $this->satact_prog_list], $student, $clientProgramDetails);
-            $clientProgramDetails = $additional_attributes['client_program_details'];
-            $file_path = $additional_attributes['file_path'];
-
-            $newClientProgram = $this->clientProgramRepository->createClientProgram(['client_id' => $studentId] + $clientProgramDetails);
-       
-            # add or remove role mentee
-            # add role mentee when program is mentoring and status success then add role mentee
-            # remove role mentee Only for method update
-            $this->clientProgramService->snAddOrRemoveRoleMentee($progId, $studentId, $this->admission_prog_list, $clientProgramDetails['status']);
-
-            $leadsTracking = $this->clientLeadTrackingRepository->getCurrentClientLead($studentId);
-
-            //! perlu nunggu 1 menit dlu sampai ada client lead tracking status yg 1
-            # update status client lead tracking
-            if($leadsTracking->count() > 0){
-                foreach($leadsTracking as $leadTracking){
-                    $this->clientLeadTrackingRepository->updateClientLeadTrackingById($leadTracking->id, ['status' => 0]);
-                }
-            }
-
-            # trigger to define category child
-            ProcessDefineCategory::dispatch([$studentId])->onQueue('define-category-client');
-
+            $client_program = $createClientProgramAction->execute($request, $client_program_details, $student, $this->admission_prog_list, $this->tutoring_prog_list, $this->satact_prog_list);
+            
+            $file_path = $client_program['file_path'];
+            $new_client_program = $client_program['new_client_program'];
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Create a student program failed : ' . $e->getMessage().' on '.$e->getFile().' line '.$e->getLine());
-
+            $log_service->createErrorLog(LogModule::STORE_CLIENT_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $client_program_details);
 
             # if failed storing the data into the database
             # remove the uploaded file from storage
+
             if (Storage::exists('public/uploaded_file/agreement/'.$file_path) && $file_path !== null) {
                 Storage::delete('public/uploaded_file/agreement/'.$file_path);
             }
@@ -364,9 +290,9 @@ class ClientProgramController extends Controller
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $newClientProgram);
+        $log_service->createSuccessLog(LogModule::STORE_CLIENT_PROGRAM, 'New client program has been added', $new_client_program->toArray());
 
-        return Redirect::to('client/student/' . $studentId)->withSuccess('A new program has been submitted for ' . $student->fullname);
+        return Redirect::to('client/student/' . $student_id)->withSuccess('A new program has been submitted for ' . $student->fullname);
     }
 
     public function edit(Request $request)
@@ -379,9 +305,7 @@ class ClientProgramController extends Controller
         $clientProgram = $this->clientProgramRepository->getClientProgramById($clientProgramId);
 
         # programs
-        $b2cprograms = $this->programRepository->getAllProgramByType("B2C");
-        $b2bb2cprograms = $this->programRepository->getAllProgramByType("B2B/B2C");
-        $programs = $b2cprograms->merge($b2bb2cprograms);
+        $programs = $this->programService->snGetAllPrograms();
 
         # main leads
         $leads = $this->leadRepository->getAllMainLead();
@@ -417,18 +341,14 @@ class ClientProgramController extends Controller
         );
     }
 
-    public function update(StoreClientProgramRequest $request)
+    public function update(StoreClientProgramRequest $request, UpdateClientProgramAction $updateClientProgramAction, LogService $log_service)
     {
-        $clientProgramId = $request->route('program');
-        $studentId = $request->route('student');
-        $student = $this->clientRepository->getClientById($studentId);
-        $oldClientProgram = $this->clientProgramRepository->getClientProgramById($clientProgramId);
-
-        $status = $request->status;
-        $progId = $request->prog_id;
+        $client_program_id = $request->route('program');
+        $student_id = $request->route('student');
+        $student = $this->clientRepository->getClientById($student_id);
 
         # initialize
-        $clientProgramDetails = $request->only([
+        $client_program_details = $request->only([
             'lead_id',
             'prog_id',
             'clientevent_id',
@@ -442,78 +362,53 @@ class ClientProgramController extends Controller
             'referral_code'
         ]);
 
-        $clientProgramDetails = $this->clientProgramService->snSetAttributeLead($clientProgramDetails);
-
-        $additional_attributes = $this->clientProgramService->snSetAdditionalAttributes($request, ['admission' => $this->admission_prog_list, 'tutoring' => $this->tutoring_prog_list, 'satact' => $this->satact_prog_list], $student, $clientProgramDetails, true);
-        $clientProgramDetails = $additional_attributes['client_program_details'];
-        $file_path = $additional_attributes['file_path'];
-
         DB::beginTransaction();
         try {
 
-            $updatedClientProgram = $this->clientProgramRepository->updateClientProgram($clientProgramId, ['client_id' => $studentId] + $clientProgramDetails);
-            $updatedClientProgramId = $updatedClientProgram->clientprog_id;
-            # update the path into clientprogram table
-            $this->clientProgramRepository->updateFewField($updatedClientProgramId, ['agreement' => $file_path]);
-            
-            $this->clientProgramService->snAddOrRemoveRoleMentee($progId, $studentId, $this->admission_prog_list, $status, true);
-
-            $leadsTracking = $this->clientLeadTrackingRepository->getCurrentClientLead($studentId);
-
-            //! perlu nunggu 1 menit dlu sampai ada client lead tracking status yg 1
-            # update status client lead tracking
-            if($leadsTracking->count() > 0){
-                foreach($leadsTracking as $leadTracking){
-                    $this->clientLeadTrackingRepository->updateClientLeadTrackingById($leadTracking->id, ['status' => 0]);
-                }
-            }
-
-            # trigger to define category child
-            ProcessDefineCategory::dispatch([$studentId])->onQueue('define-category-client');
-
+            $updated_client_program = $updateClientProgramAction->execute($request, $client_program_id, $client_program_details, $student, $this->admission_prog_list, $this->tutoring_prog_list, $this->satact_prog_list);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update a student program failed : ' . $e->getMessage().' on line '.$e->getLine().' '.$e->getFile());
+
+            $log_service->createErrorLog(LogModule::UPDATE_CLIENT_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $client_program_details);
 
             return Redirect::back()->withError($e->getMessage());
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['client_id' => $studentId] + $clientProgramDetails, $oldClientProgram);
+        $log_service->createSuccessLog(LogModule::UPDATE_CLIENT_PROGRAM, 'Client program has been updated', $updated_client_program->toArray());
 
-        return Redirect::to('client/student/' . $studentId . '/program/' . $clientProgramId)->withSuccess('A program has been updated for ' . $student->fullname);
+        return Redirect::to('client/student/' . $student_id . '/program/' . $client_program_id)->withSuccess('A program has been updated for ' . $student->fullname);
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteClientProgramAction $deleteClientProgramAction, LogService $log_service)
     {
-        $studentId = $request->route('student');
-        $clientProgramId = $request->route('program');
-        $clientProgram = $this->clientProgramRepository->getClientProgramById($clientProgramId);
+        $student_id = $request->route('student');
+        $client_program_id = $request->route('program');
+        $client_program = $this->clientProgramRepository->getClientProgramById($client_program_id);
 
         DB::beginTransaction();
         try {
 
-            $this->clientProgramRepository->deleteClientProgram($clientProgramId);
-            # trigger to define category child
-            ProcessDefineCategory::dispatch([$studentId])->onQueue('define-category-client');
+            $deleteClientProgramAction->execute($client_program_id, $student_id);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete client program failed : ' . $e->getMessage());
-            return Redirect::to('client/student/' . $studentId . '/program/' . $clientProgramId)->withError('Failed to delete client program');
-        }
+            $log_service->createErrorLog(LogModule::DELETE_CLIENT_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $client_program->toArray());
 
+            return Redirect::to('client/student/' . $student_id . '/program/' . $client_program_id)->withError('Failed to delete client program');
+        }
+    
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $clientProgram);
+        $log_service->createSuccessLog(LogModule::DELETE_CLIENT_PROGRAM, 'Client program has been deleted', $client_program->toArray());
 
-        return Redirect::to('client/student/' . $studentId)->withSuccess('Client program has been deleted');
+        return Redirect::to('client/student/' . $student_id)->withSuccess('Client program has been deleted');
     }
 
     public function createFormEmbed(Request $request)

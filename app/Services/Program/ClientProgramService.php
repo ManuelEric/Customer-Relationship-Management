@@ -8,6 +8,8 @@ use App\Interfaces\ClientRepositoryInterface;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -23,6 +25,59 @@ class ClientProgramService
         $this->clientProgramLogMailRepository = $clientProgramLogMailRepository;
         $this->clientRepository = $clientRepository;
         $this->clientProgramRepository = $clientProgramRepository;
+    }
+
+    public function snSetFilterDataIndex(Request $request)
+    {
+        $data = $status = $empl_uuid = [];
+        $status = $user_id = null;
+
+        $data['clientId'] = NULL;
+        $data['programName'] = !empty($request->get('program_name')) ? array_filter($request->get('program_name'), fn ($value) => !is_null($value)) ?? null : null;
+        $data['mainProgram'] = !empty($request->get('main_program')) ? array_filter($request->get('main_program'), fn ($value) => !is_null($value)) ?? null : null;
+        $data['schoolName'] = $request->get('school_name') ?? null;
+        $data['leadId'] = $request->get('conversion_lead') ?? null;
+        $data['grade'] = $request->get('grade') ?? null;
+        
+        if ($raw_program_status = $request->get('program_status')) {
+            for ($i = 0; $i < count($raw_program_status); $i++) {
+                $raw_status = Crypt::decrypt($raw_program_status[$i]);
+                $status[] = $raw_status;
+            }
+        }
+
+        $data['status'] = $status;
+
+        if ($request->get('mentor_tutor')) {
+            for ($i = 0; $i < count($request->get('mentor_tutor')); $i++) {
+                $raw_user_id = Crypt::decrypt($request->get('mentor_tutor')[$i]);
+                $user_id[] = $raw_user_id;
+            }
+        }
+        $data['userId'] = $user_id;
+
+        if ($request->get('pic')) {
+            for ($i = 0; $i < count($request->get('pic')); $i++) {
+                $empl_uuid[] = $request->get('pic')[$i];
+            }
+        }
+        $data['emplUUID'] = array_filter($empl_uuid, fn ($value) => !is_null($value)) ?? null;;
+        $data['startDate'] = $request->get('start_date') ?? null;
+        $data['endDate'] = $request->get('end_date') ?? null;
+
+        return $data;
+    }
+
+    public function snMappingLeads($leads, $type)
+    {
+        $leads = $leads->map(function ($item) use($type) {
+            return [
+                'lead_id' => $item->lead_id,
+                'main_lead' => $type == 'main_lead' ? $item->main_lead : $item->sub_lead
+            ];
+        });
+
+        return $leads;
     }
 
     public function snSetAttributeLead($clientProgramDetails)

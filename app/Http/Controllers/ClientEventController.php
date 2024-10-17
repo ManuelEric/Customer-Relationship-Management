@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\ClientEvents\CreateClientEventAction;
+use App\Actions\ClientEvents\DeleteClientEventAction;
+use App\Actions\ClientEvents\UpdateClientEventAction;
+use App\Enum\LogModule;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreClientEventRequest;
 use App\Http\Requests\StoreImportExcelRequest;
-use App\Http\Requests\StoreClientEventEmbedRequest;
 use App\Http\Requests\StoreFormEventEmbedRequest;
 use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\GenerateTicketIdTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\MailingEventOfflineTrait;
 use App\Http\Traits\SplitNameTrait;
@@ -21,10 +25,7 @@ use App\Imports\InvitationMailInfoImport;
 use App\Imports\InvitationMailVIPImport;
 use App\Imports\InvitationMailVVIPImport;
 use App\Imports\QuestCompleterMailImport;
-use App\Imports\ThankMailImport;
-use App\Imports\ReminderEventImport;
 use App\Imports\ReminderReferralImport;
-use App\Imports\ReminderRegisrationImport;
 use App\Imports\ReminderRegistrationImport;
 use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
@@ -42,28 +43,18 @@ use App\Interfaces\TagRepositoryInterface;
 use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\RawClient\ProcessVerifyClient;
 use App\Jobs\RawClient\ProcessVerifyClientParent;
-use App\Models\Client;
 use App\Models\School;
-use App\Models\UserClientAdditionalInfo;
-use App\Models\ViewClientRefCode;
+use App\Services\Log\LogService;
+use App\Services\Program\ClientEventService;
 use AshAllenDesign\ShortURL\Models\ShortURL;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Storage;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use BaconQrCode\Renderer\ImageRenderer;
-use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
-use BaconQrCode\Renderer\RendererStyle\RendererStyle;
-use BaconQrCode\Writer;
 use Illuminate\Support\Facades\Cache;
-use Maatwebsite\Excel\Facades\Excel;
 
 class ClientEventController extends Controller
 {
@@ -75,6 +66,7 @@ class ClientEventController extends Controller
     use MailingEventOfflineTrait;
     use LoggingTrait;
     use SyncClientTrait;
+    use GenerateTicketIdTrait;
     protected CurriculumRepositoryInterface $curriculumRepository;
     protected ClientRepositoryInterface $clientRepository;
     protected ClientEventRepositoryInterface $clientEventRepository;
@@ -120,7 +112,7 @@ class ClientEventController extends Controller
         $this->clientProgramRepository = $clientProgramRepository;
     }
 
-    public function index(Request $request)
+    public function index(Request $request, ClientEventService $clientEventService)
     {
         if ($request->ajax()) {
 
@@ -151,21 +143,13 @@ class ClientEventController extends Controller
 
         $events = $this->eventRepository->getAllEvents();
         $schools = $this->schoolRepository->getAllSchools();
-        // $conversion_leads = $this->clientProgramRepository->getAllConversionLeadOnClientProgram();
+
         $main_leads = $this->leadRepository->getAllMainLead();
-        $main_leads = $main_leads->map(function ($item) {
-            return [
-                'lead_id' => $item->lead_id,
-                'conversion_lead' => $item->main_lead
-            ];
-        });
+        $main_leads = $clientEventService->snMappingLeads($main_leads, 'main_lead');
+
         $sub_leads = $this->leadRepository->getAllKOLlead();
-        $sub_leads = $sub_leads->map(function ($item) {
-            return [
-                'lead_id' => $item->lead_id,
-                'conversion_lead' => $item->sub_lead
-            ];
-        });
+        $sub_leads = $clientEventService->snMappingLeads($sub_leads, 'sub_lead');
+
         $conversion_leads = $main_leads->merge($sub_leads);
 
         return view('pages.program.client-event.index')->with(
@@ -202,11 +186,11 @@ class ClientEventController extends Controller
         );
     }
 
-    public function store(StoreClientEventRequest $request)
+    public function store(StoreClientEventRequest $request, ClientEventService $clientEventService, CreateClientEventAction $createClientEventAction, LogService $log_service)
     {
 
-        // Client existing
-        $clientEvents = $request->only([
+        # Client existing
+        $new_client_event_details = $request->safe()->only([
             'client_id',
             'event_id',
             'lead_id',
@@ -217,12 +201,12 @@ class ClientEventController extends Controller
             'notes'
         ]);
 
-        // Client not existing
+        # Client not existing
         if ($request->existing_client == 0) {
 
 
-            // Client as student or teacher
-            $clientDetails = $request->only([
+            # Client as student or teacher
+            $new_client_details = $request->safe()->only([
                 'first_name',
                 'last_name',
                 'mail',
@@ -240,12 +224,12 @@ class ClientEventController extends Controller
                 'st_levelinterest',
                 'st_password'
             ]);
-            unset($clientDetails['phone']);
-            $clientDetails['phone'] = $this->tnSetPhoneNumber($request->phone);
+            unset($new_client_details['phone']);
+            $new_client_details['phone'] = $this->tnSetPhoneNumber($request->phone);
 
-            // Client as parent
+            # Client as parent
             if ($request->status_client == 'Parent') {
-                $clientDetails = $request->only([
+                $new_client_details = $request->only([
                     'first_name',
                     'last_name',
                     'mail',
@@ -261,113 +245,13 @@ class ClientEventController extends Controller
             }
         }
 
-        # set lead_id based on lead_id & kol_lead_id
-        # when lead_id is kol
-        # then put kol_lead_id to lead_id
-        # otherwise
-        # when lead_id is not kol
-        # then lead_id is lead_id
-        if ($request->lead_id == "kol") {
-
-            unset($clientEvents['lead_id']);
-            $clientEvents['eduf_id'] = null;
-            $clientEvents['partner_id'] = null;
-            $clientEvents['lead_id'] = $request->kol_lead_id;
-
-            # LS010 = partner
-        } else if ($request->lead_id == 'LS010') {
-            $clientEvents['eduf_id'] = null;
-        }
-        # LS017 = external edufair
-        else if ($request->lead_id != 'LS017' && $request->lead_id != 'kol') {
-
-            $clientEvents['eduf_id'] = null;
-            $clientEvents['partner_id'] = null;
-        }
-        # LS017 = external edufair
-        else if ($request->lead_id != "kol" && $request->lead_id == 'LS017') {
-
-            $clientEvents['partner_id'] = null;
-        }
+        $new_client_event_details = $clientEventService->snSetRequestDataLead($request, $new_client_event_details);
 
         DB::beginTransaction();
 
         try {
 
-            # case 1
-            # create new school
-            # when sch_id is "add-new"
-            if ($request->sch_id == "add-new") {
-
-                $schoolDetails = $request->only([
-                    'sch_name',
-                    // 'sch_location',
-                    'sch_type',
-                    'sch_score',
-                ]);
-
-                $last_id = School::max('sch_id');
-                $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
-                $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
-
-                if (!$school = $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails))
-                    throw new Exception('Failed to store new school', 1);
-
-                # insert school curriculum
-                if (!$this->schoolCurriculumRepository->createSchoolCurriculum($school_id_with_label, $request->sch_curriculum))
-                    throw new Exception('Failed to store school curriculum', 1);
-
-
-                # remove field sch_id from student detail if exist
-                unset($clientDetails['sch_id']);
-
-                # create index sch_id to student details
-                # filled with a new school id that was inserted before
-                $clientDetails['sch_id'] = $school->sch_id;
-            }
-
-            // Case 2
-            // Create new client
-            // When client not existing
-            if ($request->existing_client == 0) {
-
-                switch ($request->status_client) {
-                    case 'Student':
-                        if (!$clientCreated = $this->clientRepository->createClient('Student', $clientDetails))
-                            throw new Exception('Failed to store new client', 2);
-                        break;
-
-                    case 'Parent':
-                        if (!$clientCreated = $this->clientRepository->createClient('Parent', $clientDetails))
-                            throw new Exception('Failed to store new client', 2);
-                        break;
-
-                    case 'Teacher/Counsellor':
-                        if (!$clientCreated = $this->clientRepository->createClient('Teacher/Counselor', $clientDetails))
-                            throw new Exception('Failed to store new client', 2);
-                        break;
-                }
-
-                $clientEvents['client_id'] = $clientCreated->id;
-            }
-
-            // Case 3
-            // Create client event
-            # insert into client event
-            if (!$storedClientEvent = $this->clientEventRepository->createClientEvent($clientEvents))
-                throw new Exception('Failed to store new client event', 3);
-
-
-            # Case 4
-            # Generate ticket ID when the event is offline or hybrid
-            # Updated generate ticket ID for all events 
-
-            // if (in_array($storedClientEvent->event->type, ['offline', 'hybrid'])) {
-
-                $ticketID = app('App\Http\Controllers\Api\v1\ExtClientController')->generateTicketID();
-                $this->clientEventRepository->updateClientEvent($storedClientEvent->clientevent_id, ['ticket_id' => $ticketID]);
-            // }
-            
+            $new_client_event = $createClientEventAction->execute($request, $new_client_details, $new_client_event_details, $new_client_details);
 
             DB::commit();
         } catch (Exception $e) {
@@ -388,15 +272,14 @@ class ClientEventController extends Controller
                     break;
             }
 
-            Log::error('Store a new client event failed : ' . $e->getMessage());
-            // return $e->getMessage();
-            // exit;
+            $log_service->createErrorLog(LogModule::STORE_CLIENT_EVENT, $e->getMessage(), $e->getLine(), $e->getFile(), $new_client_event_details);
+
             return Redirect::to('program/event/create')->withError('Failed to create client event');
         }
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Client Event', Auth::user()->first_name . ' ' . Auth::user()->last_name, $clientEvents);
+        $log_service->createSuccessLog(LogModule::STORE_CLIENT_EVENT, 'New client event has been added', $new_client_event->toArray());
 
         return Redirect::to('program/event')->withSuccess('Client event successfully created');
     }
@@ -461,12 +344,11 @@ class ClientEventController extends Controller
         );
     }
 
-    public function update(StoreClientEventRequest $request)
+    public function update(StoreClientEventRequest $request, ClientEventService $clientEventService, UpdateClientEventAction $updateClientEventAction, LogService $log_service)
     {
         $clientevent_id = $request->route('event');
-        $oldClientEvent = $this->clientEventRepository->getClientEventById($clientevent_id);
 
-        $clientEvent = $request->only([
+        $new_client_event_details = $request->safe()->only([
             'client_id',
             'event_id',
             'lead_id',
@@ -476,110 +358,55 @@ class ClientEventController extends Controller
             'notes',
             'joined_date'
         ]);
-
-        # set lead_id based on lead_id & kol_lead_id
-        # when lead_id is kol
-        # then put kol_lead_id to lead_id
-        # otherwise
-        # when lead_id is not kol
-        # then lead_id is lead_id
-        if ($request->lead_id == "kol") { # lead = kol
-
-            unset($clientEvent['lead_id']);
-            $clientEvent['eduf_id'] = null;
-            $clientEvent['partner_id'] = null;
-            $clientEvent['lead_id'] = $request->kol_lead_id;
-        } else if ($request->lead_id == 'LS010') { # lead = All-In Partners
-            $clientEvents['eduf_id'] = null;
-        } else if ($request->lead_id != 'LS017' && $request->lead_id != 'kol') {
-
-            $clientEvent['eduf_id'] = null;
-            $clientEvent['partner_id'] = null;
-        } else if ($request->lead_id == 'LS017' && $request->lead_id != 'kol') { # lead = Edufair
-
-            $clientEvent['partner_id'] = null;
-        }
+        
+        $new_client_event_details = $clientEventService->snSetRequestDataLead($request, $new_client_event_details);
 
         DB::beginTransaction();
         try {
 
-            $newClientEvent = $this->clientEventRepository->updateClientEvent($clientevent_id, $clientEvent);
-
-            # Generate ticket ID when the event is offline or hybrid
-            # Updated generate ticket ID for all events 
+            $updated_client_event = $updateClientEventAction->execute($clientevent_id, $new_client_event_details);
             
-            // if (in_array($newClientEvent->event->type, ['offline', 'hybrid'])) {
-
-                $ticketID = app('App\Http\Controllers\Api\v1\ExtClientController')->generateTicketID();
-                $this->clientEventRepository->updateClientEvent($newClientEvent->clientevent_id, ['ticket_id' => $ticketID]);
-            // }
-            
-            //! it supposed to be a function to remove the ticket ID when the event was changed into online (yet to be developed)
-
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update client event failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::UPDATE_CLIENT_EVENT, $e->getMessage(), $e->getLine(), $e->getFile(), $new_client_event_details);
 
             return Redirect::to('program/event/' . $clientevent_id)->withError('Failed to update client event');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Client Event', Auth::user()->first_name . ' ' . Auth::user()->last_name, $clientEvent, $oldClientEvent);
+        $log_service->createSuccessLog(LogModule::UPDATE_CLIENT_EVENT, 'Client event has been updated', $updated_client_event->toArray());
 
         return Redirect::to('program/event')->withSuccess('Client event successfully updated');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteClientEventAction $deleteClientEventAction, LogService $log_service)
     {
         $clientevent_id = $request->route('event');
-        $clientEvent = $this->clientEventRepository->getClientEventById($clientevent_id);
+        $client_event = $this->clientEventRepository->getClientEventById($clientevent_id);
 
         DB::beginTransaction();
         try {
 
-            $this->clientEventRepository->deleteClientEvent($clientevent_id);
+            $deleteClientEventAction->execute($clientevent_id);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete client event failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_CLIENT_EVENT, $e->getMessage(), $e->getLine(), $e->getFile(), $client_event->toArray());
 
             return Redirect::to('program/event/' . $clientevent_id)->withError('Failed to delete client event');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Client Program', Auth::user()->first_name . ' ' . Auth::user()->last_name, $clientEvent);
+        $log_service->createSuccessLog(LogModule::DELETE_CLIENT_EVENT, 'Client event has been deleted', $client_event->toArray());
 
         return Redirect::to('program/event')->withSuccess('Client event successfully deleted');
     }
 
-    public function import(StoreImportExcelRequest $request)
-    {
-        Cache::put('auth', Auth::user());
-        Cache::put('import_id', Carbon::now()->timestamp . '-import-client-event');
-
-        $file = $request->file('file');
-
-        (new ClientEventImport())->queue($file)->allOnQueue('imports-client-event');
-
-        // try {
-        // Excel::queueImport(new ClientEventImport($this->clientRepository, Auth::user()), $file);
-        // $import = new ClientEventImport($this->clientRepository);
-        // $import->import($file);
-
-
-        // } catch (Exception $e) {
-
-        //     return back()->withError('Something went wrong while processing the data. Please try again or contact the administrator.');
-
-        // }
-
-        return back()->withSuccess('Import client events start progress');
-    }
 
     public function mailing(StoreImportExcelRequest $request)
     {
@@ -589,9 +416,6 @@ class ClientEventController extends Controller
 
         $import = '';
         switch ($type) {
-            case 'check_list_invitation':
-                $import = new CheckListInvitation;
-                break;
 
             case 'VVIP':
                 $import = new InvitationMailVVIPImport;
@@ -599,18 +423,6 @@ class ClientEventController extends Controller
 
             case 'VIP':
                 $import = new InvitationMailVIPImport;
-                break;
-
-            case 'reminder_registration':
-                $import = new ReminderRegistrationImport;
-                break;
-
-            case 'reminder_referral':
-                $import = new ReminderReferralImport;
-                break;
-
-            case 'quest_completer':
-                $import = new QuestCompleterMailImport;
                 break;
 
             case 'invitation_info':
@@ -647,7 +459,7 @@ class ClientEventController extends Controller
         );
     }
 
-
+    // ! Bisa dicek lagi, kemungkinan sudah tidak pakai
     public function storeFormEmbed(StoreFormEventEmbedRequest $request)
     {
         $clientEvent = [];
@@ -799,6 +611,7 @@ class ClientEventController extends Controller
         return Redirect::to('form/thanks');
     }
 
+    // ! Bisa dicek lagi, kemungkinan sudah tidak pakai
     private function createClient($choosen_role, $schoolId, $request)
     {
 
@@ -967,6 +780,7 @@ class ClientEventController extends Controller
         return $response;
     }
 
+    // ! Bisa dicek lagi, kemungkinan sudah tidak pakai
     private function getRoleName($roleName)
     {
         switch ($roleName) {
