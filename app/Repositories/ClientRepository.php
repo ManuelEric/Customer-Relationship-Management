@@ -1885,7 +1885,7 @@ class ClientRepository implements ClientRepositoryInterface
         return PicClient::insert($picDetails);
     }
 
-    public function updatePicClient($picClientId, array $picDetails)
+    public function updatePicClient($pic_client_id, array $pic_details)
     {
 
         $picDetails['status'] = 0;

@@ -4,7 +4,20 @@ namespace App\Enum;
 
 enum LogModule: string
 {   
+    /**
+     * Users
+     */
     case STORE_USER = '[STORE USER]';
+    case UPDATE_USER = '[UPDATE USER]';
+    case DELETE_USER = '[DELETE USER]';
+    case CHANGE_USER_ACTIVE_STATUS = '[CHANGE USER ACTIVE STATUS]';
+    case DOWNLOAD_USER_DOCUMENT = '[DOWNLOAD USER DOCUMENT]';
+    case DELETE_USER_CONTRACT = '[DELETE USER CONTRACT]';
+    case SET_USER_PASSWORD = '[SET USER PASSWORD]';
+
+    /**
+     * Assets
+     */
     case STORE_ASSET = '[STORE ASSET]';
     case UPDATE_ASSET = '[UPDATE ASSET]';
     case DELETE_ASSET = '[DELETE ASSET]';
@@ -12,9 +25,17 @@ enum LogModule: string
     case DELETE_ASSET_RETURNED = '[DELETE ASSET RETURNED]';
     case STORE_ASSET_USED = '[STORE ASSET USED]';
     case DELETE_ASSET_USED = '[DELETE ASSET USED]';
+
+    /**
+     * Curriculums
+     */
     case STORE_CURRICULUM = '[STORE CURRICULUM]';
     case UPDATE_CURRICULUM = '[UPDATE CURRICULUM]';
     case DELETE_CURRICULUM = '[DELETE CURRICULUM]';
+
+    /**
+     * External Edufair
+     */
     case STORE_EDUF_LEAD = '[STORE EDUF LEAD]';
     case UPDATE_EDUF_LEAD = '[UPDATE EDUF LEAD]';
     case DELETE_EDUF_LEAD = '[DELETE EDUF LEAD]';
@@ -24,24 +45,48 @@ enum LogModule: string
     case STORE_EDUF_LEAD_REVIEW = '[STORE EDUF LEAD REVIEW]';
     case UPDATE_EDUF_LEAD_REVIEW = '[UPDATE EDUF LEAD REVIEW]';
     case DELETE_EDUF_LEAD_REVIEW = '[DELETE EDUF LEAD REVIEW]';
+
+    /**
+     * Events
+     */
     case STORE_EVENT = '[STORE EVENT]';
     case UPDATE_EVENT = '[UPDATE EVENT]';
     case DELETE_EVENT = '[DELETE EVENT]';
     case STORE_EVENT_SPEAKER = '[STORE EVENT SPEAKER]';
     case UPDATE_EVENT_SPEAKER = '[UPDATE EVENT SPEAKER]';
     case DELETE_EVENT_SPEAKER = '[DELETE EVENT SPEAKER]';
+
+    /**
+     * Leads
+     */
     case STORE_LEAD = '[STORE LEAD]';
     case UPDATE_LEAD = '[UPDATE LEAD]';
     case DELETE_LEAD = '[DELETE LEAD]';
+
+    /**
+     * Majors
+     */
     case STORE_MAJOR = '[STORE MAJOR]';
     case UPDATE_MAJOR = '[UPDATE MAJOR]';
     case DELETE_MAJOR = '[DELETE MAJOR]';
+
+    /**
+     * Positions
+     */
     case STORE_POSITION = '[STORE POSITION]';
     case UPDATE_POSITION = '[UPDATE POSITION]';
     case DELETE_POSITION = '[DELETE POSITION]';
+
+    /**
+     * Programs
+     */
     case STORE_PROGRAM = '[STORE PROGRAM]';
     case UPDATE_PROGRAM = '[UPDATE PROGRAM]';
     case DELETE_PROGRAM = '[DELETE PROGRAM]';
+
+    /**
+     * Purchase Request
+     */
     case STORE_PURCHASE_REQUEST = '[STORE PURCHASE REQUEST]';
     case UPDATE_PURCHASE_REQUEST = '[UPDATE PURCHASE REQUEST]';
     case DELETE_PURCHASE_REQUEST = '[DELETE PURCHASE REQUEST]';
@@ -49,20 +94,39 @@ enum LogModule: string
     case STORE_PURCHASE_REQUEST_DETAIL = '[STORE PURCHASE REQUEST DETAIL]';
     case UPDATE_PURCHASE_REQUEST_DETAIL = '[UPDATE PURCHASE REQUEST DETAIL]';
     case DELETE_PURCHASE_REQUEST_DETAIL = '[DELETE PURCHASE REQUEST DETAIL]';
+
+    /**
+     * Sales Target
+     */
     case STORE_SALES_TARGET = '[STORE SALES TARGET]';
     case UPDATE_SALES_TARGET = '[UPDATE SALES TARGET]';
     case DELETE_SALES_TARGET = '[DELETE SALES TARGET]';
+
+    /**
+     * Seasonal Program
+     */
     case STORE_SEASONAL_PROGRAM = '[STORE SEASONAL PROGRAM]';
     case UPDATE_SEASONAL_PROGRAM = '[UPDATE SEASONAL PROGRAM]';
     case DELETE_SEASONAL_PROGRAM = '[DELETE SEASONAL PROGRAM]';
+
+    /**
+     * Subjects
+     */
     case STORE_SUBJECT = '[STORE SUBJECT]';
     case UPDATE_SUBJECT = '[UPDATE SUBJECT]';
     case DELETE_SUBJECT = '[DELETE SUBJECT]';
+
+    /**
+     * Tags
+     */
     case STORE_TAG = '[STORE TAG]';
     case UPDATE_TAG = '[UPDATE TAG]';
     case DELETE_TAG = '[DELETE TAG]';
+
+    /**
+     * Vendor
+     */
     case STORE_VENDOR = '[STORE VENDOR]';
     case UPDATE_VENDOR = '[UPDATE VENDOR]';
     case DELETE_VENDOR = '[DELETE VENDOR]';
-    case UPDATE_USER = '[UPDATE USER]';
 }

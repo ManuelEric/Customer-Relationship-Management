@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Actions\Users\CreateUserAction;
 use App\Actions\Users\UpdateUserAction;
+use App\Actions\Users\UserDocumentDownloadAction;
 use App\Enum\LogModule;
+use App\Http\Requests\ChangeUserStatusRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
@@ -162,38 +164,6 @@ class UserController extends Controller
         );
     }
 
-    public function changeStatus(Request $request)
-    {
-        $userId = $request->route('user');
-        $user = $this->userRepository->getUserById($userId);
-        $data = $request->params;
-        $status = $data['new_status'];
-        $newStatus = $status == "activate" ? 1 : 0;
-
-        $detail = [
-            'status' => $newStatus,
-            'deativated_at' => $data['deactivated_at'],
-            'new_pic' => $data['new_pic'],
-            'department' => $data['department']
-        ];
-
-
-        DB::beginTransaction();
-        try {
-
-            # update on users table
-            $this->userRepository->updateStatusUser($userId, $detail);
-            DB::commit();
-        } catch (Exception $e) {
-
-            DB::rollBack();
-            Log::error(ucfirst($status) . ' ' . $user->full_name . ' failed : ' . $e->getMessage());
-            return response()->json(['message' => 'Failed to ' . $status . ' ' . $user->full_name], 422);
-        }
-
-        return response()->json(['message' => ucwords($user->full_name) . ' has been ' . $status], 200);
-    }
-
     public function update(
         StoreUserRequest $request,
         UpdateUserAction $updateUserAction,
@@ -290,48 +260,16 @@ class UserController extends Controller
         );
     }
 
-    public function download(Request $request)
+    public function destroy(
+        Request $request,
+        LogService $log_service,
+        )
     {
-        $userId = $request->route('user');
-        $user = $this->userRepository->getUserById($userId);
+        $user_id = $request->user;
+        $new_status = 0; # inactive
 
-        switch ($request->route('filetype')) {
-
-            case "CV":
-                $file = Storage::disk('local')->get($user->cv);
-                break;
-
-            case "ID":
-                $file = Storage::disk('local')->get($user->idcard);
-                break;
-
-            case "TX":
-                $file = Storage::disk('local')->get($user->tax);
-                break;
-
-            case "HI":
-                $file = Storage::disk('local')->get($user->health_insurance);
-                break;
-
-            case "EI":
-                $file = Storage::disk('local')->get($user->empl_insurance);
-                break;
-        }
-
-        # Download success
-        # create log success
-        $this->logSuccess('download', null, 'User', Auth::user()->first_name . ' '. Auth::user()->last_name, ['user' => $user, 'file' => $request->route('filetype')]);
-
-        return response($file)->header('Content-Type', 'application/pdf');
-    }
-
-    public function destroy(Request $request)
-    {
-        $userId = $request->user;
-        $newStatus = 0; # inactive
-
-        $detail = [
-            'status' => $newStatus,
+        $new_status_detail = [
+            'status' => $new_status,
             'deativated_at' => Carbon::now(),
             'new_pic' => null,
             'department' => null
@@ -340,64 +278,126 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->userRepository->updateStatusUser($userId, $detail);
+            $the_user = $this->userRepository->updateStatusUser($user_id, $new_status_detail);
             DB::commit();
+
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Deactive user failed : ' . $e->getMessage());
-            return Redirect::back()->withError('Failed to deactive user');
+            $log_service->createErrorLog(LogModule::DELETE_USER, $e->getMessage(), $e->getLine(), $e->getFile(), $new_status_detail);
+            return Redirect::back()->withError('Failed to temporarily delete the user');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'User', Auth::user()->first_name . ' '. Auth::user()->last_name, ['user_id' => $userId]);
-
-        return Redirect::back()->withSuccess('User successfully deactivated');
+        $log_service->createSuccessLog(LogModule::DELETE_USER, 'The user has been temporarily deleted', $the_user->toArray());
+        return Redirect::back()->withSuccess('User successfully temporarily deleted');
     }
 
-    public function destroyUserType(Request $request)
+    
+    /**
+     * below are functions outside of resources functions
+     */
+
+    public function changeStatus(
+        ChangeUserStatusRequest $request,
+        LogService $log_service)
     {
-        $userId = $request->route('user');
-        $userTypeId = $request->route('user_type');
-
-        DB::beginTransaction();
-        try {
-
-            $this->userRepository->deleteUserType($userTypeId);
-            DB::commit();
-        } catch (Exception $e) {
-
-            DB::rollBack();
-            Log::error('Delete user type failed : ' . $e->getMessage());
-            return Redirect::back()->withError('Failed to delete user type');
-        }
-
-        # Delete success
-        # create log success
-        $this->logSuccess('delete', null, 'User Type', Auth::user()->first_name . ' '. Auth::user()->last_name, ['user_id' => $userId, 'user_type_id' => $userTypeId]);
-
-        return Redirect::to('user/' . $request->route('user_role') . '/' . $userId . '/edit')->withSuccess(ucfirst($request->route('user_role')) . ' has been updated');
-    }
-
-    public function setPassword(Request $request)
-    {
-        $userId = $request->route('user');
-        $userDetails['password'] = Hash::make('12345678');
+        $selected_user_id = $request->route('user');
+        $selected_user = $this->userRepository->getUserById($selected_user_id);
+        $new_status_details = $request->only(['active', 'deactivated_at', 'new_pic', 'department']);
 
         DB::beginTransaction();
         try {
 
             # update on users table
-            $this->userRepository->updateUser($userId, $userDetails);
+            $this->userRepository->updateStatusUser($selected_user, $new_status_details);
+            DB::commit();
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            $log_service->createErrorLog(LogModule::CHANGE_USER_ACTIVE_STATUS, $e->getMessage(), $e->getLine(), $e->getFile(), $new_status_details);
+            return response()->json(['message' => 'Failed to update user active status of ' . $selected_user->full_name], 422);
+        }
+
+        $log_service->createSuccessLog(LogModule::CHANGE_USER_ACTIVE_STATUS, 'The user status has been updated', $selected_user->toArray());
+        return response()->json(['message' => 'The user active status of ' . ucwords($selected_user->full_name) . ' has been updated']);
+    }
+
+    public function download(
+        Request $request,
+        UserDocumentDownloadAction $document_download_action,
+        LogService $log_service,
+        )
+    {
+        $user_id = $request->route('user');
+        $file_type = $request->route('filetype');
+        try {
+
+            [$file_path, $file_name] = $document_download_action->execute($user_id, $file_type);
+
+        } catch (Exception $e) {
+
+            $log_service->createErrorLog(LogModule::DOWNLOAD_USER_DOCUMENT, $e->getMessage(), $e->getLine(), $e->getFile(), compact('user_id', 'file_type'));
+            return response()->json([
+                'Cannot download the document.'
+            ], 400);
+
+        }
+
+        $log_service->createSuccessLog(LogModule::DOWNLOAD_USER_DOCUMENT, 'The user document has been downloaded', compact('user_id', 'file_type'));
+        return Storage::download($file_path, $file_name, [
+            'Content-Type' => 'application/pdf'
+        ]);
+        
+    }
+
+    public function destroyUserType(
+        Request $request,
+        LogService $log_service,
+        )
+    {
+        $user_id = $request->route('user');
+        $user_type_id = $request->route('user_type');
+
+        DB::beginTransaction();
+        try {
+
+            $deleted_user_type = $this->userRepository->deleteUserType($user_type_id);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('failed to set password' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_USER_CONTRACT, $e->getMessage(), $e->getLine(), $e->getFile(), compact('user_id', 'user_type_id'));
+            return Redirect::back()->withError('Failed to delete user contract');
+        }
+
+        $log_service->createSuccessLog(LogModule::DELETE_USER_CONTRACT, 'The user contract has been deleted', $deleted_user_type);
+        return Redirect::to('user/' . $request->route('user_role') . '/' . $user_id . '/edit')->withSuccess(ucfirst($request->route('user_role')) . ' has been updated');
+    }
+
+    public function setPassword(
+        Request $request,
+        LogService $log_service
+        )
+    {
+        $user_id = $request->route('user');
+        $new_password = ['password' => Hash::make('12345678')];
+
+        DB::beginTransaction();
+        try {
+
+            $updated_user = $this->userRepository->updateUser($user_id, $new_password);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            $log_service->createErrorLog(LogModule::SET_USER_PASSWORD, $e->getMessage(), $e->getLine(), $e->getFile(), compact('user_id', 'new_password'));
             return response()->json(['message' => 'Failed to set password'], 422);
         }
 
+        $log_service->createSuccessLog(LogModule::SET_USER_PASSWORD, 'The user password has been reset', $updated_user);
         return response()->json(['message' => 'Password has been set'], 200);
     }
 

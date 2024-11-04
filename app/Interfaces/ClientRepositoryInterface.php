@@ -130,7 +130,7 @@ interface ClientRepositoryInterface
     # Pic Client
     public function checkActivePICByClient($clientId);
     public function insertPicClient($picDetails);
-    public function updatePicClient($picClientId, array $picDetails);
+    public function updatePicClient($pic_client_id, array $pic_details);
     public function inactivePreviousPIC(UserClient $picDetails);
 
     # CRM
