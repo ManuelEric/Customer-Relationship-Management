@@ -285,64 +285,65 @@ class UserRepository implements UserRepositoryInterface
         return User::create($userDetails);
     }
 
-    public function updateUser($userId, array $newDetails)
+    public function updateUser($user_id, array $new_details)
     {
-        return tap(User::find($userId))->update($newDetails);
+        return tap(User::find($user_id))->update($new_details);
     }
 
-    public function updateStatusUser($userId, array $detail)
+    public function updateStatusUser(User $user, array $new_status_details)
     {
         # update status users
-        $user = User::find($userId)->update(['active' => $detail]);
+        $user->update(['active' => $new_status_details['active']]);
 
         # update status user type detail
-        switch ($detail['status']) {
+        switch ($new_status_details['active']) {
 
             case 0: # deactivate
-                if($detail['department'] != null && $detail['department'] == 'Client Management')
+                if($new_status_details['department'] != null && $new_status_details['department'] == 'Client Management')
                 {
-                    $picClients = PicClient::where('user_id', $userId)->get();
+                    $pic_clients = PicClient::where('user_id', $user->id)->get();
     
-                    foreach ($picClients as $picClient) {
-                        $picDetail = [
-                            'client_id' => $picClient->client_id,
-                            'user_id' => $detail['new_pic'],
-                            'created_at' => $detail['deativated_at'],
-                            'updated_at' => $detail['deativated_at'],
+                    foreach ($pic_clients as $pic_client) {
+                        $pic_detail = [
+                            'client_id' => $pic_client->client_id,
+                            'user_id' => $new_status_details['new_pic'],
+                            'created_at' => $new_status_details['deactivated_at'],
+                            'updated_at' => $new_status_details['deactivated_at'],
                         ];
     
-                        $this->clientRepository->updatePicClient($picClient->id, $picDetail);
+                        $this->clientRepository->updatePicClient($pic_client->id, $pic_detail);
                     }
 
                 }
 
-                $this->updateUser($userId, ['active' => 0]);
-
-                return UserTypeDetail::where('user_id', $userId)->where('status', 1)->update([
+                UserTypeDetail::where('user_id', $user->id)->where('status', 1)->update([
                     'status' => 0,
-                    'deactivated_at' => $detail['deativated_at']
+                    'deactivated_at' => $new_status_details['deactivated_at']
                 ]);
                 break;
 
             case 1: # activate
-                
-                $this->updateUser($userId, ['active' => 1]);
 
-                return UserTypeDetail::where('user_id', $userId)->where('status', 0)->update([
+                UserTypeDetail::where('user_id', $user->id)->where('status', 0)->update([
                     'status' => 1,
                     'deactivated_at' => null
                 ]);
                 break;
         }
+
+        return $user;
     }
 
     public function updateExtendedId($newDetails)
     {
     }
 
-    public function deleteUserType($userTypeId)
+    public function deleteUserType($user_type_id)
     {
-        return UserTypeDetail::destroy($userTypeId);
+        # store the soon deleted user type variable and returned it
+        $user_type_detail = UserTypeDetail::find($user_type_id);
+        UserTypeDetail::destroy($user_type_id);
+        return $user_type_detail;
     }
 
     public function getUserRoles($userId, $roleName)
