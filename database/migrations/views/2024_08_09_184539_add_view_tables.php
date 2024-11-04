@@ -493,12 +493,18 @@ return new class extends Migration
             END) as second_client_grade_now,
             (SELECT ((SELECT second_client_grade_now) - 12)) AS second_client_year_gap,
             (SELECT YEAR((NOW() - INTERVAL (SELECT second_client_year_gap) YEAR) + INTERVAL 1 YEAR)) AS second_client_graduation_year_real,
-            (SELECT GROUP_CONCAT(
-                ct.name
-                SEPARATOR ", "
-            ) FROM tbl_client_abrcountry sqac
-                JOIN tbl_country ct ON ct.id = sqac.country_id
-                WHERE sqac.client_id = second_client.id GROUP BY sqac.client_id) as second_client_interest_countries,
+            (SELECT 
+                GROUP_CONCAT(
+                    (CASE
+                        WHEN sqtag.name = "Other" THEN sqcountry.name
+                        ELSE sqtag.name 
+                    END)
+                    SEPARATOR ", "
+                ) FROM tbl_client_abrcountry sqac
+                    JOIN tbl_country sqcountry ON sqcountry.id = sqac.country_id
+                    LEFT JOIN tbl_tag sqtag ON sqtag.id = sqcountry.tag
+                    WHERE sqac.client_id = second_client.id GROUP BY sqac.client_id
+            ) as second_client_interest_countries,
             (SELECT GROUP_CONCAT(evt.event_title
                 SEPARATOR ", "
             ) FROM tbl_client_event ce
@@ -509,7 +515,14 @@ return new class extends Migration
                 WHERE sqip.client_id = second_client.id GROUP BY sqip.client_id) as second_client_interest_prog,
             second_client.created_at as second_client_created_at,
             second_client.st_statusact as second_client_statusact,
-            (SELECT ((SELECT rc.grade_now) - 12)) AS year_gap,
+            UpdateGradeStudent (
+                year(CURDATE()),
+                year(rc.created_at),
+                month(CURDATE()),
+                month(rc.created_at),
+                rc.st_grade
+            ) AS real_grade,
+            (SELECT (rc.grade_now - 12)) AS year_gap,
             (SELECT YEAR((NOW() - INTERVAL (SELECT year_gap) YEAR) + INTERVAL 1 YEAR)) AS graduation_year_real,
             rc.graduation_year,
             rc.lead_id,
@@ -517,20 +530,25 @@ return new class extends Migration
                 WHEN l.main_lead = "KOL" THEN CONCAT("KOL - ", l.sub_lead)
                 ELSE l.main_lead
             END) AS lead_source,
-            (SELECT CONCAT (cref.first_name, " ", COALESCE(cref.last_name, "")) FROM tbl_client cref
-                    WHERE cref.secondary_id = rc.referral_code
-            ) AS referral_name,
+            (CASE 
+                WHEN rc.referral_code is not null THEN GetReferralNameByRefCode (rc.referral_code)
+                ELSE NUll
+            END) AS referral_name,
             sch.sch_id,
             (SELECT GROUP_CONCAT(
-                ct.name
+                (CASE
+                    WHEN sqtag.name = "Other" THEN sqcountry.name
+                    ELSE sqtag.name 
+                END)
                 SEPARATOR ", "
             ) FROM tbl_client_abrcountry sqac
-                JOIN tbl_country ct ON ct.id = sqac.country_id
+                JOIN tbl_country sqcountry ON sqcountry.id = sqac.country_id
+                LEFT JOIN tbl_tag sqtag ON sqtag.id = sqcountry.tag
                 WHERE sqac.client_id = rc.id GROUP BY sqac.client_id) as interest_countries,
             rc.created_at,
             rc.updated_at,
             (SELECT GROUP_CONCAT(sr.role_name SEPARATOR ", ") FROM tbl_client_roles scr
-                LEFT JOIN tbl_roles sr ON sr.id = scr.role_id
+                LEFT JOIN tbl_roles sr ON scr.role_id = sr.id AND sr.role_name != "mentee" AND sr.role_name != "alumni"
                 WHERE scr.client_id = rc.id) as roles,
             (CASE 
                 WHEN (SELECT roles) = "Parent" THEN scsch.sch_name 
@@ -552,13 +570,18 @@ return new class extends Migration
             (SELECT pic.user_id 
                     FROM tbl_pic_client pic
                 LEFT JOIN users u on u.id = pic.user_id
-                WHERE pic.client_id = rc.id AND pic.status = 1)
-             as pic
+                WHERE pic.client_id = rc.id AND pic.status = 1 LIMIT 1)
+             as pic,
+             (SELECT CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) 
+                        FROM tbl_pic_client pic
+                    LEFT JOIN users u on u.id = pic.user_id
+                    WHERE pic.client_id = rc.id AND pic.status = 1 LIMIT 1)
+             as pic_name
             
             
         FROM tbl_client rc
             INNER JOIN tbl_client_roles crl ON crl.client_id = rc.id
-            INNER JOIN tbl_roles rl ON rl.id = crl.role_id
+            INNER JOIN tbl_roles rl ON rl.id = crl.role_id AND rl.role_name != "mentee" AND rl.role_name != "alumni"
 
             LEFT JOIN tbl_client_relation cr
                 ON (CASE 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ClientEventController;
+use App\Http\Controllers\LeadTrackerController;
 use App\Http\Controllers\PartnerProgramController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SalesTrackingController;
@@ -42,6 +43,4 @@ Route::get('invoice', [ReportController::class, 'invoice_receipt'])->name('repor
 
 Route::get('unpaid', [ReportController::class, 'unpaid_payment'])->name('report.unpaid');
 
-// Route::get('unpaid', function () {
-//     return view('pages.report.unpaid-payment.index');
-// });
+Route::get('lead', [LeadTrackerController::class, 'index'])->name('report.lead');

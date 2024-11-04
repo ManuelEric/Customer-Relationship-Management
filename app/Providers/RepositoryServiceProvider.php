@@ -16,6 +16,7 @@ use App\Interfaces\ClientLeadRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\ClientLeadTrackingRepositoryInterface;
+use App\Interfaces\ClientLogRepositoryInterface;
 use App\Interfaces\ClientProgramLogMailRepositoryInterface;
 use App\Interfaces\CorporatePartnerEventRepositoryInterface;
 use App\Interfaces\CorporatePicRepositoryInterface;
@@ -95,6 +96,7 @@ use App\Repositories\ClientLeadRepository;
 use App\Repositories\ClientProgramRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\ClientLeadTrackingRepository;
+use App\Repositories\ClientLogRepository;
 use App\Repositories\ClientProgramLogMailRepository;
 use App\Repositories\CorporatePartnerEventRepository;
 use App\Repositories\CorporatePicRepository;
@@ -239,6 +241,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(GeneralMailLogRepositoryInterface::class, GeneralMailLogRepository::class);
         $this->app->bind(AcceptanceRepositoryInterface::class, AcceptanceRepository::class);
         $this->app->bind(InvoicesRepositoryInterface::class, InvoicesRepository::class);
+        $this->app->bind(ClientLogRepositoryInterface::class, ClientLogRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);
