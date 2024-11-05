@@ -101,8 +101,8 @@ class SubMenuSeeder extends Seeder
 
             case "Report":
                 return [
-                    'submenus' => ['Sales Tracking', 'Event Tracking', 'Partnership', 'Invoice & Receipt', 'Unpaid Payment'],
-                    'sublink' => ['report/sales', 'report/event', 'report/partnership', 'report/invoice', 'report/unpaid'],
+                    'submenus' => ['Sales Tracking', 'Event Tracking', 'Partnership', 'Invoice & Receipt', 'Unpaid Payment', 'Lead Tracking'],
+                    'sublink' => ['report/sales', 'report/event', 'report/partnership', 'report/invoice', 'report/unpaid', 'report/lead'],
                 ];
 
             case "Recycle":

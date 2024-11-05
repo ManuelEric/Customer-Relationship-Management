@@ -16,10 +16,12 @@ interface ClientProgramRepositoryInterface
     public function getClientProgramByDetail(array $detail);
     public function createClientProgram(array $clientProgramDetails);
     public function updateClientProgram($clientProgramId, array $clientProgramDetails);
+    public function updateClientPrograms($clientprogram_ids, array $clientprogram_details);
     public function updateFewField(int $clientprog_id, array $newDetails);
     public function endedClientProgram(int $clientprog_id, array $newDetails);
     public function endedClientPrograms(array $clientprog_ids, array $newDetails);
     public function deleteClientProgram($clientProgramId);
+    public function checkProgramIsAdmission($clientprog_id);
 
     # bundling
     public function getBundleProgramByUUID($uuid);

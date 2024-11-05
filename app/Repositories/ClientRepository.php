@@ -7,7 +7,6 @@ use App\Http\Traits\FindSchoolYearLeftScoreTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Models\Client;
-use App\Models\Tag;
 use App\Models\UserClient;
 use App\Models\UserClientAdditionalInfo;
 use App\Models\v1\Student as CRMStudent;
@@ -16,20 +15,15 @@ use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Models\ClientAcceptance;
 use App\Models\ClientEvent;
-use App\Models\ClientLeadTracking;
-use App\Models\FollowupClient;
+use App\Models\ClientLog;
 use App\Models\PicClient;
-use App\Models\University;
 use App\Models\User;
 use App\Models\ViewRawClient;
-use Exception;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Str;
 
 class ClientRepository implements ClientRepositoryInterface
 {
@@ -1229,6 +1223,11 @@ class ClientRepository implements ClientRepositoryInterface
         return UserClient::with(['childrens'])->withTrashed()->find($clientId);
     }
 
+    public function getClientWithTrashedByUUID($clientUUID)
+    {
+        return UserClient::where('uuid', $clientUUID)->withTrashed()->first();
+    }
+
     public function getClientByUUID($clientUUID)
     {
         return UserClient::where('id', $clientUUID)->first();
@@ -2163,9 +2162,13 @@ class ClientRepository implements ClientRepositoryInterface
             ->join('tbl_client_roles', function ($q) {
                 $q->on('tbl_client_roles.client_id', '=', 'tbl_client.id');
             })
+            ->join('tbl_pic_client', function ($q) {
+                $q->on('tbl_pic_client.client_id', '=', 'tbl_client.id');
+            })
             ->join('tbl_roles', function ($q) use($role) {
                 $q->on('tbl_roles.id', '=', 'tbl_client_roles.role_id');
-            })->where('tbl_roles.role_name', '=', $role)->
+            })
+            ->where('tbl_roles.role_name', '=', $role)->
             when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('tbl_client.created_at', date('m', strtotime($month)))->whereYear('tbl_client.created_at', date('Y', strtotime($month)));
             })->
@@ -2174,10 +2177,143 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             when($isRaw, function ($subQuery) {
                 $subQuery->where('tbl_client.is_verified', 'N');
+            })
+            # scope Is not sales admin
+            ->when(Session::get('user_role') == 'Employee', function ($subQuery) {
+                $subQuery->where('tbl_pic_client.user_id', auth()->user()->id);
+            })
+            ->when(auth()->guard('api')->user(), function ($subQuery) {
+                $subQuery->where('tbl_pic_client.user_id', auth()->guard('api')->user()->id);
             })->
             where('deleted_at', null)->
-            where('st_statusact', 1)->first();
+            where('st_statusact', 1)->
+            first();
 
         return $client->client_count;
+    }
+
+    public function defineCategoryClient($clients_data, $is_many_request = false)
+    {
+        # New leads
+        /*
+            - Doesnt have clientprogram
+            - Or have clientprogram but status failed (2) or refund (3)
+        */
+
+        # Potential
+        /*
+            - Have clienprogram and status pending (0)
+        */
+
+        # Mentee
+        /*
+            - Have clientprogram & (join admission with status success (1) where prog running status != done (2))
+            - Or have clientprogram & (join admission with status success (1) where prog running status == done (2) and join another program with status pending(0))
+        */
+
+        # Non mentee
+        /*
+            - Have clientprogram & (Not join admission with status success (1) where prog running status != done (2))
+            - Or have clientprogram & (Not join admission with status success (1) and join another program with status pending(0))
+        */
+
+        # Alumni mentee
+        /*
+            - Have clientprogram & (join admission with status success (1) where prog running status == done (2))
+        */
+
+        # Alumni non mentee
+        /*
+            - Have clientprogram & (not join admission with status success (1) where prog running status == done (2))
+        */
+
+        $client = $this->getClientByUUID($clients_data['client_uuid']);
+
+
+        // if ($client->is_verified == 'N') {
+        //     Log::warning('Client with id ' . $client->id . ', failed to determine its category because it has not been verified yet');
+            
+        //     $clients_data['category'] = null;
+        //     return $clients_data;
+        // }
+
+       
+
+        $categories = new Collection;
+        $isMentee = false;
+
+        # check if client have clientprogram
+        # then looping client program and check status program
+        # else set category to new_lead
+        if ($client->clientProgram->count() > 0) {
+            foreach ($client->clientProgram as $clientProg) {
+
+                # status = 0 pending, 1 success, 2 failed, 3 refund
+                if ($clientProg->status == 0) {
+                    $categories->push(['category' => 'potential', 'id' => $client->id]);
+                } else if ($clientProg->status == 2 || $clientProg->status == 3) { # jika programnya cuma 1
+                    $categories->push(['category' => 'new_lead', 'id' => $client->id]);
+                } else if ($clientProg->status == 1 || $clientProg->status == 4) {
+                    if ($clientProg->program->main_prog_id == 1) {
+                        $isMentee = true;
+                    }
+                    if (($clientProg->prog_end_date != null && date('Y-m-d') > $clientProg->prog_end_date) || $clientProg->prog_running_status == 2) {
+                        $categories->push(['category' => 'alumni', 'id' => $client->id]);
+                    } else {
+                        $categories->push(['category' => 'active', 'id' => $client->id]);
+                    }
+                }
+
+                # check if data from trash
+                # if true, then update status all client program to failed
+                if($client->deleted_at != null){
+                    $clientProgramRepository = new ClientProgramRepositoryInterface;
+                    $clientProgramRepository->updateClientProgram($clientProg->clientprog_id, ['status' => 2]);
+                }
+
+            }
+        } else {
+            $categories->push(['category' => 'new_lead', 'id' => $client->id]);
+        }
+
+        $active = $categories->where('id', $client->id)->where('category', 'active')->count();
+        $alumni = $categories->where('id', $client->id)->where('category', 'alumni')->count();
+        $potential = $categories->where('id', $client->id)->where('category', 'potential')->count();
+
+        if ($active > 0) {
+            $category = 'mentee';
+            if (!$isMentee) {
+                $category = 'non-mentee';
+            }
+        } else if ($potential > 0) {
+            $category = 'potential';
+        } else if ($alumni > 0) {
+            $category = 'alumni-mentee';
+            if (!$isMentee) {
+                $category = 'alumni-non-mentee';
+            } 
+        } else {
+            $category = 'new-lead';
+        }
+
+        # check if data from trash
+        # if true, then set category raw
+        if($client->deleted_at != null){
+            $category = 'raw';
+        }
+
+        $this->updateClientByUUID($client->uuid, ['category' => $category, 'is_many_request' => $is_many_request]);
+        
+        $clients_data['category'] = $category;
+
+        return $clients_data;
+
+    }
+
+    public function createClientLog(Array $client_log_details)
+    {
+        $created_client_log = ClientLog::create($client_log_details);
+
+        return $created_client_log;
     }
 }

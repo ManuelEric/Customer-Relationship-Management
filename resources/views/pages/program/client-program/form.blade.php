@@ -800,7 +800,7 @@
             let programName = program.text()
 
             if (programName) {
-                if (lead.includes('All-In Event')) {
+                if (lead.includes('EduALL Event')) {
 
                     $("#event").removeClass('d-none')
                     $("#edufair").addClass("d-none")
@@ -824,7 +824,7 @@
                     $("#partner").addClass("d-none")
                     $("#referral").addClass("d-none")
 
-                } else if (lead.includes('All-In Partners')) {
+                } else if (lead.includes('EduALL Partners')) {
 
                     $("#event").addClass("d-none")
                     $("#edufair").addClass("d-none")

@@ -17,6 +17,7 @@ use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Jobs\Client\ProcessDefineCategory;
+use App\Jobs\Client\ProcessInsertLogClient;
 use App\Jobs\RawClient\ProcessVerifyClient;
 use App\Jobs\RawClient\ProcessVerifyClientParent;
 use App\Models\ClientEvent;
@@ -1135,14 +1136,33 @@ class ExtClientController extends Controller
             'sch_id' => $schoolId
         ];
 
+        $data_client_for_log_client[0] = [
+            'first_name' => $newClientDetails['first_name'],
+            'last_name' => $newClientDetails['last_name'],
+            'lead_source' => $incomingRequest['lead_source_id'],
+            'inputted_from' => 'form-embed'
+        ];
+
+        # if the client is exists
+        if ($existingClient['isExist']){
+            $client = $this->clientRepository->getClientById($existingClient['id']);
+            
+            $data_client_for_log_client[0]['client_uuid'] = $client->uuid;
+            # trigger insert log client
+            ProcessInsertLogClient::dispatch($data_client_for_log_client)->onQueue('insert-log-client');
+            
+            return $client;
+        }
+
+
         $client = $this->clientRepository->createClient('Student', $newClientDetails);
-        $clientId = $client->id;
-
+        
         # trigger to verify student / children
-        ProcessVerifyClient::dispatch([$clientId])->onQueue('verifying_client');
+        // ProcessVerifyClient::dispatch([$clientId])->onQueue('verifying_client');
 
-        # trigger define category client
-        ProcessDefineCategory::dispatch([$clientId])->onQueue('define-category-client');
+        $data_client_for_log_client[0]['client_uuid'] = $client->uuid;
+        # trigger insert log client
+        ProcessInsertLogClient::dispatch($data_client_for_log_client)->onQueue('insert-log-client');
 
         return $client;
     }

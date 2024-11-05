@@ -73,6 +73,7 @@ class ClientProgram extends Model
         'registration_type',
         'referral_code',
         'agreement',
+        'agreement_uploaded_at',
         'created_at',
         'updated_at'
     ];
@@ -231,6 +232,80 @@ class ClientProgram extends Model
     {
         return UserClient::where('secondary_id', $refCode)->first()->full_name ?? null;
         // return ViewClientRefCode::whereRaw('ref_code = (?)', $refCode)->first()->full_name;
+    }
+
+    /**
+     * Scopes
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return void
+     */
+    public function scopeOnlinePaid(Builder $query): void
+    {
+        $query->whereHas('lead', function ($sub) {
+            $sub->where('type', 'paid')->where('is_online', true);
+        });
+    }
+
+    public function scopeOnlineOrganic(Builder $query): void
+    {
+        $query->whereHas('lead', callback: function ($sub) {
+            $sub->where('type', 'organic')->where('is_online', true);
+        });
+    }
+
+    public function scopeOffline(Builder $query): void
+    {
+        $lead_of_referral = ['LS005', 'LS058', 'LS060', 'LS061'];
+        $query->whereHas('lead', function ($sub) use ($lead_of_referral) {
+            $sub->where('is_online', false)->whereNotIn('lead_id', $lead_of_referral);
+        });
+    }
+
+
+    public function scopeReferral(Builder $query): void
+    {
+        $lead_of_referral = ['LS005', 'LS058', 'LS060', 'LS061']; # manually select lead from referral
+        $query->whereHas('lead', function ($sub) use ($lead_of_referral) {
+            $sub->whereIn('lead_id', $lead_of_referral);
+        });
+    }
+
+    public function scopeMentoring(Builder $query): void
+    {
+        $query->whereHas('program.main_prog', function ($sub) {
+            $sub->where('prog_name', 'Admissions Mentoring');
+        });
+    }
+
+    public function scopeTutoring(Builder $query): void
+    {
+        $query->whereHas('program.main_prog', function ($sub) {
+            $sub->where('prog_name', 'Academic & Test Preparation');
+        });
+    }
+
+    public function scopeGIP(Builder $query): void
+    {
+        $query->whereHas('program.sub_prog', function ($sub) {
+            $sub->where('sub_prog_name', 'Global Immersion Program');
+        });
+    }
+
+    public function scopeDealLeads(Builder $query, Carbon $start_date, Carbon $end_date): void
+    {
+        $query->whereIn('status', [1, 4])->whereBetween('success_date', [$start_date, $end_date]);
+    }
+
+    public function scopeHasAgreement(Builder $query, Carbon $start_date, Carbon $end_date): void
+    {
+        $query->whereNotNull('agreement')->whereBetween('success_date', [$start_date, $end_date]);
+    }
+
+    public function scopeAlreadyPaidTheProgram(Builder $query, Carbon $start_date, Carbon $end_date): void
+    {
+        $query->whereHas('invoice.firstReceipt', function ($sub) use ($start_date, $end_date) {
+            $sub->whereBetween('receipt_date', [$start_date, $end_date]);
+        });
     }
 
     public function client()

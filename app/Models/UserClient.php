@@ -411,6 +411,41 @@ class UserClient extends Authenticatable
         return $this->hasMany(ClientProgram::class, 'client_id', 'id');
     }
 
+    public function latestOfferedProgram()
+    {
+        return $this->hasOne(ClientProgram::class, 'client_id', 'id')->ofMany([
+            'clientprog_id' => 'max',
+        ], function ($query) {
+            $query->where('status', 0); # pending
+        });
+    }
+
+    public function latestAdmissionProgram()
+    {
+        return $this->hasOne(ClientProgram::class, 'client_id', 'id')->ofMany([
+            'clientprog_id' => 'max',
+        ], function ($query) {
+            $query->
+            whereHas('program.main_prog', function ($sub) {
+                $sub->where('prog_name', 'Admissions Mentoring');
+            })->
+            whereIn('status', [1, 4]); # success
+        });
+    }
+
+    public function latestNonAdmissionProgram()
+    {
+        return $this->hasOne(ClientProgram::class, 'client_id', 'id')->ofMany([
+            'clientprog_id' => 'max',
+        ], function ($query) {
+            $query->
+            whereHas('program.main_prog', function ($sub) {
+                $sub->whereNot('prog_name', 'Admissions Mentoring');
+            })->
+            whereIn('status', [1, 4]); # success
+        });
+    }
+
     public function clientEvent()
     {
         return $this->hasMany(ClientEvent::class, 'client_id', 'id');

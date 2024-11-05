@@ -51,6 +51,8 @@ interface ClientRepositoryInterface
     public function updateClientByUUID($uuid, array $newDetails);
     public function countClientByCategory($category, $month = NULL);
     public function countClientByRole($role, $month = null);
+    public function defineCategoryClient($client_ids, $is_many_request = false);
+    public function createClientLog(Array $client_log_details);
 
 
     /* ~ END */
@@ -75,6 +77,7 @@ interface ClientRepositoryInterface
     public function getAllClientByRoleAndStatus($roleName, $statusClient);
     public function getAllChildrenWithNoParents($parentId);
     public function getClientById($clientId);
+    public function getClientWithTrashedByUUID($clientUUID);
     public function getClientByUUID($clientUUID);
     public function getClientsById(array $clientIds);
     public function findHandledClient(String $clientId);

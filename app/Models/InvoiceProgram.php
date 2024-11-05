@@ -222,6 +222,11 @@ class InvoiceProgram extends Model
         return $this->hasOne(Receipt::class, 'inv_id', 'inv_id');
     }
 
+    public function firstReceipt()
+    {
+        return $this->hasOne(Receipt::class, 'inv_id', 'inv_id')->oldestOfMany();
+    }
+
 
     public function refund()
     {
