@@ -40,7 +40,7 @@ class GenerateClientLogCommand extends Command
             [$created_at, $updated_at] = $this->getDateBasedOnTypeClient($category, $value);
 
             return [
-                'client_uuid' => $value->uuid,
+                'client_id' => $value->id,
                 'first_name' => $value->first_name,
                 'last_name' => $value->last_name,
                 'category' => $category,
@@ -79,7 +79,9 @@ class GenerateClientLogCommand extends Command
 
             case "potential":
                 # get the latest client program of his/her by status 0
-                $created_at = $updated_at = $user_client->latestOfferedProgram->created_at;
+                //! there is case when latestOfferedProgram is null resulting fetching created_at goes error
+                //! in this case, we need to put extra condition 
+                $created_at = $updated_at = $user_client->latestOfferedProgram->created_at ?? null;
                 break;
 
             case "mentee":
