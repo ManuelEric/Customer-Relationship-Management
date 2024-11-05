@@ -22,6 +22,7 @@ use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\ClientProgramLogMailRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Jobs\Client\ProcessDefineCategory;
+use App\Jobs\Client\ProcessInsertLogClient;
 use App\Models\Bundling;
 use App\Models\BundlingDetail;
 use App\Models\Program;
@@ -517,8 +518,19 @@ class ClientProgramController extends Controller
                 }
             }
 
-            # trigger to define category child
-            ProcessDefineCategory::dispatch([$studentId])->onQueue('define-category-client');
+            $client_data_for_log_client[] = [
+                'client_uuid' => $student->uuid,
+                'first_name' => $student->first_name,
+                'last_name' => $student->last_name,
+                'lead_source' => $student->lead_id,
+                'inputted_from' => 'create-client-program',
+                'clientprog_id' => $newClientProgramId,
+                'status_program' => $clientProgramDetails['status'],
+            ];
+
+            # trigger to insert log client
+            ProcessInsertLogClient::dispatch($client_data_for_log_client)->onQueue('insert-log-client');
+
 
             DB::commit();
         } catch (Exception $e) {
@@ -655,7 +667,7 @@ class ClientProgramController extends Controller
             $clientProgramDetails['lead_id'] = $request->kol_lead_id;
         }
 
-        if ($request->lead_id != 'LS005') # Referral
+        if (!in_array($request->lead_id, ['LS005', 'LS058', 'LS060', 'LS061'])) # lead from referral-ish
         {
             $clientProgramDetails['referral_code'] = null;
         }
@@ -890,8 +902,19 @@ class ClientProgramController extends Controller
                 }
             }
 
-            # trigger to define category child
-            ProcessDefineCategory::dispatch([$studentId])->onQueue('define-category-client');
+            $client_data_for_log_client[] = [
+                'client_uuid' => $student->uuid,
+                'first_name' => $student->first_name,
+                'last_name' => $student->last_name,
+                'lead_source' => $student->lead_id,
+                'inputted_from' => 'update-client-program',
+                'clientprog_id' => $clientProgramId,
+                'status_program' => $clientProgramDetails['status'],
+                'old_status_program' => $oldClientProgram->status
+            ];
+
+            # trigger to insert log client
+            ProcessInsertLogClient::dispatch($client_data_for_log_client)->onQueue('insert-log-client');
 
 
             DB::commit();
@@ -927,9 +950,18 @@ class ClientProgramController extends Controller
         DB::beginTransaction();
         try {
 
+            $client_data_for_log_client[] = [
+                'client_uuid' => $clientProgram->client->uuid,
+                'first_name' => $clientProgram->client->first_name,
+                'last_name' => $clientProgram->client->last_name,
+                'lead_source' => $clientProgram->client->lead_id,
+                'inputted_from' => 'delete-client-program',
+                'clientprog_id' => $clientProgramId,
+            ];
+
             $this->clientProgramRepository->deleteClientProgram($clientProgramId);
-            # trigger to define category child
-            ProcessDefineCategory::dispatch([$studentId])->onQueue('define-category-client');
+            # trigger to insert log client
+            ProcessInsertLogClient::dispatch($client_data_for_log_client)->onQueue('insert-log-client');
 
             DB::commit();
         } catch (Exception $e) {
