@@ -7,7 +7,6 @@ use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
-use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
@@ -17,10 +16,10 @@ use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\SchoolVisitRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\ReferralRepositoryInterface;
-use App\Models\ClientEvent;
-use App\Models\UserClient;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class ReportController extends Controller
 {
@@ -263,6 +262,25 @@ class ReportController extends Controller
                 'remaining' => $totalUnpaid
             ]
         );
+    }
+
+    public function program_tracking(Request $request)
+    {
+        $start_month = $request->get('start_month') ?? date('Y-m');
+        $end_month = $request->get('end_month') ?? date('Y-m');
+
+        try {
+            $programTracking = $this->invoiceProgramRepository->getProgramTracker($start_month, $end_month);
+        } catch (Exception $e) {
+            Log::error('Failed get data program tracking : ' . $e->getMessage() . ' | On Line: ' . $e->getLine());
+        }
+
+        return view('pages.report.program-tracking.index')->with(
+            [
+                'programTracking' => $programTracking,
+            ]
+        );
+
     }
 
     protected function getIdClient($data)
