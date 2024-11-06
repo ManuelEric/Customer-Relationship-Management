@@ -27,6 +27,7 @@ use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\ClientProgramLogMailRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Jobs\Client\ProcessDefineCategory;
+use App\Jobs\Client\ProcessInsertLogClient;
 use App\Models\Bundling;
 use App\Models\BundlingDetail;
 use App\Models\Program;

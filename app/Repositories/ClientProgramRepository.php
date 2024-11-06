@@ -20,6 +20,7 @@ use App\Models\ViewClientProgram;
 use App\Models\ViewClientRefCode;
 use App\Models\ViewProgram;
 use DataTables;
+use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
@@ -891,8 +892,8 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             unset($clientProgramDetails['session_tutor_detail']);
         }
 
-        $clientProgram = ClientProgram::where('clientprog_id', $clientProgramId)->update(array_merge($fullDetails, $clientProgramDetails));
         $clientProgram = ClientProgram::whereClientProgramId($clientProgramId);
+        $clientProgram->update(array_merge($fullDetails, $clientProgramDetails));
 
         # delete the client mentor when status client program changed to pending
         if ($clientProgram->status == 0 && $clientProgram->clientMentor()->count() > 0) {
@@ -1037,6 +1038,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
 
         return $clientProgram;
+    }
+
+    public function updateClientPrograms($clientprogram_ids, array $clientprogram_details)
+    {
+        return ClientProgram::whereIn('clientprog_id', $clientprogram_ids)->update($clientprogram_details);
     }
 
     public function updateFewField(int $clientprog_id, array $newCDetails)
@@ -1989,6 +1995,25 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         }
 
         return $searched_column;
+    }
+
+    public function checkProgramIsAdmission($clientprog_id)
+    {
+        $is_admission = false;
+
+        $clientprog = ClientProgram::whereClientProgramId($clientprog_id);
+
+        if(!isset($clientprog))
+            throw new Exception ('Client program not found!');
+        
+        if(!isset($clientprog->program))
+            throw new Exception ('failed to get detail program from this client program!');
+        
+        
+        if($clientprog->program->main_prog_id == 1)
+            $is_admission = true;
+
+        return $is_admission;
     }
 
     # CRM

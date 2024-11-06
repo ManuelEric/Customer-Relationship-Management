@@ -36,6 +36,7 @@ use App\Imports\MasterStudentImport;
 use App\Imports\StudentImport;
 use App\Interfaces\UserRepositoryInterface;
 use App\Jobs\Client\ProcessDefineCategory;
+use App\Jobs\Client\ProcessInsertLogClient;
 use App\Models\ClientLeadTracking;
 use App\Models\Lead;
 use App\Models\School;
@@ -298,10 +299,21 @@ class ClientStudentController extends ClientController
                 throw new Exception('Failed to store new student', 3);
 
             $newStudentId = $newStudentDetails->id;
-            
-            # trigger define category client
-            ProcessDefineCategory::dispatch([$newStudentId])->onQueue('define-category-client');
 
+            # initiate variable for client log
+            $clients_data_for_log_client[] = [
+                'client_uuid' => $newStudentDetails->uuid,
+                'first_name' => $data['studentDetails']['first_name'],
+                'last_name' => $data['studentDetails']['last_name'],
+                'lead_source' => $data['studentDetails']['lead_id'],
+                'inputted_from' => 'manual',
+                'clientprog_id' => null,
+                
+            ];
+            
+            # trigger to insert log client
+            ProcessInsertLogClient::dispatch($clients_data_for_log_client)->onQueue('insert-log-client');
+            
             # case 4 (optional)
             # add relation between parent and student
             # if they didn't insert parents which parentId = NULL
@@ -541,9 +553,6 @@ class ClientStudentController extends ClientController
             if (!$student = $this->clientRepository->updateClient($studentId, $data['studentDetails']))
                 throw new Exception('Failed to update student information', 3);
 
-
-            # trigger define category client
-            ProcessDefineCategory::dispatch([$studentId])->onQueue('define-category-client');
 
             # case 4
             # add relation between parent and student
@@ -1071,6 +1080,18 @@ class ClientStudentController extends ClientController
                     if ($rawStudent->destinationCountries->count() > 0)
                         $this->syncDestinationCountry($rawStudent->destinationCountries, $student);
 
+                    # insert to client log
+                    $client_data_for_log[] = [
+                        'client_uuid' => $student->uuid,
+                        'first_name' => $clientDetails['first_name'],
+                        'last_name' => $clientDetails['last_name'],
+                        'inputted_from' => 'verified',
+                        'old_client_uuid' => $rawStudent->uuid,
+                        'select_existing' => true
+                    ];
+    
+                    ProcessInsertLogClient::dispatch($client_data_for_log)->onQueue('insert-log-client');
+    
                     break;
 
                 case 'new':
@@ -1097,13 +1118,24 @@ class ClientStudentController extends ClientController
                         $this->clientRepository->createClientRelation($parentId, $rawclientId);
                     }
 
+                    # insert to client log
+                    $client_data_for_log[] = [
+                        'client_uuid' => $rawStudent->uuid,
+                        'first_name' => $clientDetails['first_name'],
+                        'last_name' => $clientDetails['last_name'],
+                        'inputted_from' => 'verified',
+                        'old_client_uuid' => null,
+                        'select_existing' => false
+                    ];
+
+                    ProcessInsertLogClient::dispatch($client_data_for_log)->onQueue('insert-log-client');
+
                     break;
             }
 
             
             # Delete raw parent
             // $rawStudent->parent_uuid != null ? $this->clientRepository->deleteRawClientByUUID($rawStudent->parent_uuid) : null;
-
           
 
             DB::commit();
@@ -1128,7 +1160,19 @@ class ClientStudentController extends ClientController
             if (!isset($client))
                 return Redirect::to('client/student?st=new-leads')->withError('Data does not exist');
 
+            # insert to client log
+            $clients_data_for_log_client[] = [
+                'client_uuid' => $client->uuid,
+                'first_name' => $client->first_name,
+                'last_name' => $client->last_name,
+                'inputted_from' => 'trash',                    
+            ];
+    
+            # trigger to insert log client
+            ProcessInsertLogClient::dispatch($clients_data_for_log_client)->onQueue('insert-log-client');
+    
             $this->clientRepository->deleteClient($client_id);
+
             DB::commit();
         } catch (Exception $e) {
 
@@ -1166,6 +1210,17 @@ class ClientStudentController extends ClientController
             if (!isset($rawStudent))
                 return Redirect::to('client/student/raw')->withError('Data does not exist');
 
+            $clients_data_for_log_client[] = [
+                'client_uuid' => $rawStudent->uuid,
+                'first_name' => $rawStudent->first_name,
+                'last_name' => $rawStudent->last_name,
+                'inputted_from' => 'trash',                    
+            ];
+    
+            # trigger to insert log client
+            ProcessInsertLogClient::dispatch($clients_data_for_log_client)->onQueue('insert-log-client');
+    
+
             $this->clientRepository->deleteClient($rawclientId);
             DB::commit();
         } catch (Exception $e) {
@@ -1189,6 +1244,26 @@ class ClientStudentController extends ClientController
 
         DB::beginTransaction();
         try {
+
+            foreach ($rawClientIds as $rawClientId) {
+                $client = $this->clientRepository->getClientById($rawClientId);
+                
+                if (!isset($client))
+                {
+                    Log::warning('Failed destroy client: data client with id ('.$rawClientId.') not found!');
+                    continue;
+                }
+
+                $clients_data_for_log_client[] = [
+                    'client_uuid' => $client->uuid,
+                    'first_name' => $client->first_name,
+                    'last_name' => $client->last_name,
+                    'inputted_from' => 'trash',                    
+                ];
+        
+                # trigger to insert log client
+                ProcessInsertLogClient::dispatch($clients_data_for_log_client, true)->onQueue('insert-log-client');
+            }
 
             $this->clientRepository->moveBulkToTrash($rawClientIds);
             DB::commit();

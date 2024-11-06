@@ -268,15 +268,13 @@
             
             axios.post('{{ route('user.update.status', ['user_role' => Request::route('user_role'), 'user' => $user->id]) }}', {
                     _token: '{{ csrf_token() }}',
-                    params: {
-                        new_status: status,
-                        deactivated_at: deactivated_at,
-                        new_pic: pic_id ?? null,
-                        department: '{{ $departmentThisUser != null ? $departmentThisUser->dept_name : "" }}'
-                    },
+                    new_status: status,
+                    deactivated_at: deactivated_at,
+                    new_pic: pic_id ?? null,
+                    department: '{{ $departmentThisUser != null ? $departmentThisUser->dept_name : "" }}'
+                    
                 })
                 .then((response) => {
-                    console.log(response);
                     
                     Swal.close()
                     $('#modalDeactive').modal('hide');
