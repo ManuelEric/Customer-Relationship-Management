@@ -1078,4 +1078,25 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             })->
             toJson();
     }
+
+    ###############################################################
+    ######################### END BUNDLING ############################
+    ###############################################################
+
+    public function getProgramTracker($start_month, $end_month)
+    {
+        $start_month = date('Y-m-01', strtotime($start_month));
+        $end_month = date('Y-m-t', strtotime($end_month));
+
+        return InvoiceProgram::whereHas('clientprog', function($subQuery) use ($start_month, $end_month) {
+            $subQuery->whereIn('status', [1,3,4])
+                    ->whereBetween(
+                        DB::raw('CASE 
+                                    WHEN status = 1 THEN success_date
+                                    WHEN status = 3 THEN refund_date
+                                    WHEN status = 4 THEN hold_date
+                                END'), [$start_month, $end_month]);
+        })->get();
+
+    }
 }
