@@ -66,13 +66,13 @@ Route::group(['middleware' => ['auth', 'auth.department']], function () {
 
 # FORM EVENT EMBED START ------------------------
 
-Route::get('form/event', [ClientEventController::class, 'createFormEmbed'])->name('form.event.create');
+Route::get('form/event', [ClientEventController::class, 'fnCreateFormEmbed'])->name('form.event.create');
 Route::post('form/events', [ClientEventController::class, 'storeFormEmbed'])->name('form.event.store');
 
 // Route::get('form/event/{event_slug}/client/attend/{clientevent}', [ClientEventController::class, 'handlerScanQrCodeForAttend'])->name('link-event-attend');
 Route::put('form/event/attend/{clientevent}', [ClientEventController::class, 'handlerScanQrCodeForAttend'])->name('link-event-attend')->withoutMiddleware(['auth', 'auth.department']);
 
-Route::get('form/program', [ClientProgramController::class, 'createFormEmbed']);
+Route::get('form/program', [ClientProgramController::class, 'fnCreateFormEmbed']);
 Route::post('form/program', [ClientProgramController::class, 'storeFormEmbed'])->withoutMiddleware(['auth', 'auth.department']);
 
 Route::get('form/registration', [PublicRegistrationController::class, 'register']);

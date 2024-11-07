@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Actions\PartnerPrograms\CreatePartnerProgramAction;
+use App\Actions\PartnerPrograms\DeletePartnerProgramAction;
+use App\Actions\PartnerPrograms\UpdatePartnerProgramAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StorePartnerProgramRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
@@ -21,6 +24,7 @@ use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\UniversityPicRepositoryInterface;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Interfaces\PartnerProgramCollaboratorsRepositoryInterface;
+use App\Services\Log\LogService;
 use App\Services\Master\ProgramService;
 use App\Services\Master\ReasonService;
 use Exception;
@@ -131,38 +135,32 @@ class PartnerProgramController extends Controller
         );
     }
 
-    public function store(StorePartnerProgramRequest $request)
+    public function store(StorePartnerProgramRequest $request, CreatePartnerProgramAction $createPartnerProgramAction, LogService $log_service)
     {
 
-        $corpId = strtoupper($request->route('corp'));
+        $corp_id = strtoupper($request->route('corp'));
 
-        $partnerPrograms = $request->all();
+        $partner_program_details = $request->all();
     
         DB::beginTransaction();
         try {
 
-            $partnerPrograms['corp_id'] = $corpId;
-
-            # Set and create reason when user select other reason
-            $partnerPrograms = $this->reasonService->snSetAndCreateReasonProgram($partnerPrograms);
-
-            # insert into partner program
-            $partner_prog_created = $this->partnerProgramRepository->createPartnerProgram($partnerPrograms);
-            $partner_progId = $partner_prog_created->id;
+            $new_partner_program = $createPartnerProgramAction->execute($corp_id, $partner_program_details);
+            $partner_prog_id = $new_partner_program->id;
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store partner program failed : ' . $e->getMessage());
-            return Redirect::to('program/corporate/' . strtolower($corpId) . '/detail/create')->withError('Failed to create partner program' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_PARTNER_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $partner_program_details);
+
+            return Redirect::to('program/corporate/' . strtolower($corp_id) . '/detail/create')->withError('Failed to create partner program' . $e->getMessage());
         }
 
-        # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $partner_prog_created);
+        $log_service->createSuccessLog(LogModule::STORE_PARTNER_PROGRAM, 'New partner program has been added', $new_partner_program->toArray());
 
-        return Redirect::to('program/corporate/' . strtolower($corpId) . '/detail/' . $partner_progId)->withSuccess('Partner program successfully created');
+        return Redirect::to('program/corporate/' . strtolower($corp_id) . '/detail/' . $partner_prog_id)->withSuccess('Partner program successfully created');
     }
 
     public function create(Request $request)
@@ -196,8 +194,8 @@ class PartnerProgramController extends Controller
 
     public function show(Request $request)
     {
-        $corpId = strtoupper($request->route('corp'));
-        $corp_ProgId = $request->route('detail');
+        $corp_id = strtoupper($request->route('corp'));
+        $corp_prog_id = $request->route('detail');
 
         // # retrieve school data by id
         // $school = $this->schoolRepository->getSchoolById($schoolId);
@@ -218,36 +216,36 @@ class PartnerProgramController extends Controller
         // $reasons = $this->reasonRepository->getAllReasons();
 
         # retrieve partner data
-        $partner = $this->corporateRepository->getCorporateById($corpId);
+        $partner = $this->corporateRepository->getCorporateById($corp_id);
         $partners = $this->corporateRepository->getAllCorporate();
 
         # retrieve partner program data
-        $partnerProgram = $this->partnerProgramRepository->getPartnerProgramById($corp_ProgId);
+        $partner_program = $this->partnerProgramRepository->getPartnerProgramById($corp_prog_id);
 
         # retrieve partner Program Attach data by corpProgId
-        $partnerProgramAttachs = $this->partnerProgramAttachRepository->getAllPartnerProgramAttachsByPartnerProgId($corp_ProgId);
+        $partner_program_attachs = $this->partnerProgramAttachRepository->getAllPartnerProgramAttachsByPartnerProgId($corp_prog_id);
 
         # retrieve employee data
         $employees = $this->userRepository->getAllUsersByRole('Employee');
 
         # retrieve speaker data
-        $speakers = $this->agendaSpeakerRepository->getAllSpeakerByPartnerProgram($corp_ProgId);
+        $speakers = $this->agendaSpeakerRepository->getAllSpeakerByPartnerProgram($corp_prog_id);
 
         # retrieve collaborators
-        $collaborators_school = $this->partnerProgramCollaboratorsRepository->getSchoolCollaboratorsByPartnerProgId($corp_ProgId);
-        $collaborators_univ = $this->partnerProgramCollaboratorsRepository->getUnivCollaboratorsByPartnerProgId($corp_ProgId);
-        $colaborators_partner = $this->partnerProgramCollaboratorsRepository->getPartnerCollaboratorsByPartnerProgId($corp_ProgId);
+        $collaborators_school = $this->partnerProgramCollaboratorsRepository->getSchoolCollaboratorsByPartnerProgId($corp_prog_id);
+        $collaborators_univ = $this->partnerProgramCollaboratorsRepository->getUnivCollaboratorsByPartnerProgId($corp_prog_id);
+        $colaborators_partner = $this->partnerProgramCollaboratorsRepository->getPartnerCollaboratorsByPartnerProgId($corp_prog_id);
 
         return view('pages.program.corporate-program.form')->with(
             [
-                'corpId' => $corpId,
-                'corp_ProgId' => $corp_ProgId,
+                'corpId' => $corp_id,
+                'corp_ProgId' => $corp_prog_id,
                 'employees' => $employees,
                 'programs' => $programs,
                 'reasons' => $reasons,
                 'partner' => $partner,
-                'partnerProgram' => $partnerProgram,
-                'partnerProgramAttachs' => $partnerProgramAttachs,
+                'partnerProgram' => $partner_program,
+                'partnerProgramAttachs' => $partner_program_attachs,
                 'partners' => $partners,
                 'speakers' => $speakers,
                 'schools' => $schools,
@@ -280,8 +278,8 @@ class PartnerProgramController extends Controller
             }
         }
 
-        $corpId = strtoupper($request->route('corp'));
-        $partner_progId = $request->route('detail');
+        $corp_id = strtoupper($request->route('corp'));
+        $partner_prog_id = $request->route('detail');
 
         # retrieve school data by id
         // $school = $this->schoolRepository->getSchoolById($schoolId);
@@ -300,14 +298,14 @@ class PartnerProgramController extends Controller
 
         # retrieve Partner Program data by id
         // $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($sch_progId);
-        $partnerProgram = $this->partnerProgramRepository->getPartnerProgramById($partner_progId);
+        $partner_program = $this->partnerProgramRepository->getPartnerProgramById($partner_prog_id);
 
         # retrieve employee data
         $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
         # retrieve corporate / partner
         $partners = $this->corporateRepository->getAllCorporate();
-        $partner = $this->corporateRepository->getCorporateById($corpId);
+        $partner = $this->corporateRepository->getCorporateById($corp_id);
 
         return view('pages.program.corporate-program.form')->with(
             [
@@ -318,67 +316,62 @@ class PartnerProgramController extends Controller
                 'schools' => $schools,
                 'partners' => $partners,
                 'partner' => $partner,
-                'partnerProgram' => $partnerProgram,
+                'partnerProgram' => $partner_program,
             ]
         );
     }
 
-    public function update(StorePartnerProgramRequest $request)
+    public function update(StorePartnerProgramRequest $request, UpdatePartnerProgramAction $updatePartnerProgramAction, LogService $log_service)
     {
 
-        $corpId = strtoupper($request->route('corp'));
-        $partner_progId = $request->route('detail');
-        $oldPartnerProgram = $this->partnerProgramRepository->getPartnerProgramById($partner_progId);
+        $corp_id = strtoupper($request->route('corp'));
+        $partner_prog_id = $request->route('detail');
 
-        $partnerPrograms = $request->all();
+        $partner_program_details = $request->all();
 
         DB::beginTransaction();
-        try {
-            $partnerPrograms['corp_id'] = $corpId;
-            $partnerPrograms['updated_at'] = Carbon::now();
+        try {   
 
-            # Set and create reason when user select other reason
-            $partnerPrograms = $this->reasonService->snSetAndCreateReasonProgram($partnerPrograms);
-
-            # update partner program
-            $this->partnerProgramRepository->updatePartnerProgram($partner_progId, $partnerPrograms);
+            $updated_partner_program = $updatePartnerProgramAction->execute($partner_prog_id, $partner_program_details);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update partner program failed : ' . $e->getMessage());
-            return Redirect::to('program/corporate/' . strtolower($corpId) . '/detail/' . $partner_progId . '/edit')->withError('Failed to update partner program' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::UPDATE_CLIENT_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $partner_program_details);
+            
+            return Redirect::to('program/corporate/' . strtolower($corp_id) . '/detail/' . $partner_prog_id . '/edit')->withError('Failed to update partner program' . $e->getMessage());
         }
 
-        # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $partnerPrograms, $oldPartnerProgram);
+        $log_service->createSuccessLog(LogModule::UPDATE_PARTNER_PROGRAM, 'Partner program has been updated', $updated_partner_program->toArray());
 
-        return Redirect::to('program/corporate/' . strtolower($corpId) . '/detail/' . $partner_progId)->withSuccess('Partner program successfully updated');
+        return Redirect::to('program/corporate/' . strtolower($corp_id) . '/detail/' . $partner_prog_id)->withSuccess('Partner program successfully updated');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeletePartnerProgramAction $deletePartnerProgramAction, LogService $log_service)
     {
-        $corpId = strtoupper($request->route('corp'));
-        $corp_progId = $request->route('detail');
-        $partnerProg = $this->partnerProgramRepository->getPartnerProgramById($corp_progId);
+        $corp_id = strtoupper($request->route('corp'));
+        $partner_prog_id = $request->route('detail');
+        $partner_prog = $this->partnerProgramRepository->getPartnerProgramById($partner_prog_id);
 
         DB::beginTransaction();
         try {
 
-            $this->partnerProgramRepository->deletePartnerProgram($corp_progId);
+            $deletePartnerProgramAction->execute($partner_prog_id);
+
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete partner program failed : ' . $e->getMessage());
-            return Redirect::to('program/corporate/' . strtolower($corpId) . '/detail/' . $corp_progId)->withError('Failed to delete partner program');
+            $log_service->createErrorLog(LogModule::DELETE_PARTNER_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $partner_prog->toArray());
+
+            return Redirect::to('program/corporate/' . strtolower($corp_id) . '/detail/' . $partner_prog_id)->withError('Failed to delete partner program');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $partnerProg);
+        $log_service->createSuccessLog(LogModule::DELETE_PARTNER_PROGRAM, 'Partner program has been deleted', $partner_prog->toArray());
 
         return Redirect::to('program/corporate/')->withSuccess('Partner program successfully deleted');
     }

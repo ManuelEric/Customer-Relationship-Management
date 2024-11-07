@@ -287,7 +287,7 @@ class ClientEventController extends Controller
     public function show(Request $request)
     {
         $clientevent_id = $request->route('event');
-        $clientEvent = $this->clientEventRepository->getClientEventById($clientevent_id);
+        $client_event = $this->clientEventRepository->getClientEventById($clientevent_id);
 
         $curriculums = $this->curriculumRepository->getAllCurriculums();
         $clients = $this->clientRepository->getAllClients();
@@ -300,7 +300,7 @@ class ClientEventController extends Controller
 
         return view('pages.program.client-event.form')->with(
             [
-                'clientEvent' => $clientEvent,
+                'clientEvent' => $client_event,
                 'curriculums' => $curriculums,
                 'clients' => $clients,
                 'events' => $events,
@@ -317,7 +317,7 @@ class ClientEventController extends Controller
     {
         $clientevent_id = $request->route('event');
 
-        $clientEvent = $this->clientEventRepository->getClientEventById($clientevent_id);
+        $client_event = $this->clientEventRepository->getClientEventById($clientevent_id);
 
         $curriculums = $this->curriculumRepository->getAllCurriculums();
         $clients = $this->clientRepository->getAllClients();
@@ -331,7 +331,7 @@ class ClientEventController extends Controller
         return view('pages.program.client-event.form')->with(
             [
                 'edit' => true,
-                'clientEvent' => $clientEvent,
+                'clientEvent' => $client_event,
                 'curriculums' => $curriculums,
                 'clients' => $clients,
                 'events' => $events,
@@ -434,7 +434,7 @@ class ClientEventController extends Controller
         return back()->withSuccess('Successfully send mail');
     }
 
-    public function createFormEmbed(Request $request)
+    public function fnCreateFormEmbed(Request $request)
     {
         if ($request->get('event_name') == null) {
             abort(404);
@@ -460,457 +460,460 @@ class ClientEventController extends Controller
     }
 
     // ! Bisa dicek lagi, kemungkinan sudah tidak pakai
-    public function storeFormEmbed(StoreFormEventEmbedRequest $request)
-    {
-        $clientEvent = [];
-        $existClientParent = $existClientStudent = $existClientTeacher = ['isExist' => false];
-        $childDetails = [];
-        $schoolId = null;
-        $childId = null;
+    // public function storeFormEmbed(StoreFormEventEmbedRequest $request)
+    // {
+    //     $clientEvent = [];
+    //     $existClientParent = $existClientStudent = $existClientTeacher = ['isExist' => false];
+    //     $childDetails = [];
+    //     $schoolId = null;
+    //     $childId = null;
 
-        $requested_event_name = urldecode(str_replace('&quot;', '"', $request->event_name));
-        $requested_event_name = str_replace('&amp;', '&', $requested_event_name);
+    //     $requested_event_name = urldecode(str_replace('&quot;', '"', $request->event_name));
+    //     $requested_event_name = str_replace('&amp;', '&', $requested_event_name);
 
-        $event = $this->eventRepository->getEventByName($requested_event_name);
+    //     $event = $this->eventRepository->getEventByName($requested_event_name);
 
-        # attend status
-        # 1 is attending
-        # 0 is join the event
-        $attend_status = $request->attend_status == "attend" ? 1 : 0;
+    //     # attend status
+    //     # 1 is attending
+    //     # 0 is join the event
+    //     $attend_status = $request->attend_status == "attend" ? 1 : 0;
 
-        # type of event
-        # if the event helds offline then the value will be "offline"
-        # otherwise it will be null
-        # the difference is if event type is "offline" then system will send barcode via mails
-        $event_type = $request->event_type;
+    //     # type of event
+    //     # if the event helds offline then the value will be "offline"
+    //     # otherwise it will be null
+    //     # the difference is if event type is "offline" then system will send barcode via mails
+    //     $event_type = $request->event_type;
 
-        # number of attend
-        # only for the people that register on the spot
-        $number_of_attend = isset($request->attend) ? $request->attend : 1;
+    //     # number of attend
+    //     # only for the people that register on the spot
+    //     $number_of_attend = isset($request->attend) ? $request->attend : 1;
 
-        # notes
-        # for stem+ wonderlab is for VIP & VVIP
-        $notes = $request->client_type;
+    //     # notes
+    //     # for stem+ wonderlab is for VIP & VVIP
+    //     $notes = $request->client_type;
 
-        # referral code
-        $referral_code = $request->referral;
+    //     # referral code
+    //     $referral_code = $request->referral;
 
-        # registration type
-        # will be "ots" or "pr"
-        $registration_type = $request->status;
+    //     # registration type
+    //     # will be "ots" or "pr"
+    //     $registration_type = $request->status;
 
-        // Check existing client by phone number and email
-        $choosen_role = $request->role;
+    //     // Check existing client by phone number and email
+    //     $choosen_role = $request->role;
 
-        # prevent data be stored if
-        # choosen role is student and parent name is null or -
-        $parentNameIsNull = false;
-        if ($choosen_role == "student" && ($request->fullname[1] == "-" || $request->fullname[1] === NULL))
-            $parentNameIsNull = true;
+    //     # prevent data be stored if
+    //     # choosen role is student and parent name is null or -
+    //     $parentNameIsNull = false;
+    //     if ($choosen_role == "student" && ($request->fullname[1] == "-" || $request->fullname[1] === NULL))
+    //         $parentNameIsNull = true;
 
-        # scholarship eligibility
-        $scholarship_eligibility = $request->scholarship_eligibility;
+    //     # scholarship eligibility
+    //     $scholarship_eligibility = $request->scholarship_eligibility;
 
-        DB::beginTransaction();
-        try {
+    //     DB::beginTransaction();
+    //     try {
 
-            # when sch_id is "add-new"
-            // $choosen_school = $request->school;
-            if (!$this->schoolRepository->getSchoolById($request->school) && $request->school !== NULL) {
+    //         # when sch_id is "add-new"
+    //         // $choosen_school = $request->school;
+    //         if (!$this->schoolRepository->getSchoolById($request->school) && $request->school !== NULL) {
 
-                $last_id = School::max('sch_id');
-                $school_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 4) : '0000';
-                $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
+    //             $last_id = School::max('sch_id');
+    //             $school_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 4) : '0000';
+    //             $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
 
-                $school = [
-                    'sch_id' => $school_id_with_label,
-                    'sch_name' => $request->school,
-                ];
+    //             $school = [
+    //                 'sch_id' => $school_id_with_label,
+    //                 'sch_name' => $request->school,
+    //             ];
 
-                # create a new school
-                $school = $this->schoolRepository->createSchool($school);
-                $schoolId = $school->sch_id;
-            }
+    //             # create a new school
+    //             $school = $this->schoolRepository->createSchool($school);
+    //             $schoolId = $school->sch_id;
+    //         }
 
-            # store a new client
-            $createdClient = $this->createClient($choosen_role, $schoolId, $request);
+    //         # store a new client
+    //         $createdClient = $this->createClient($choosen_role, $schoolId, $request);
 
-            # initialize variable for client event
-            $clientEventDetails = [
-                'client_id' => $createdClient['clientId'],
-                'event_id' => $event->event_id,
-                'lead_id' => isset($referral_code) ? "LS005" : $request->leadsource, # if using referral code then lead source will be "referral" which is "LS005"
-                'number_of_attend' => $number_of_attend,
-                'notes' => $notes,
-                'referral_code' => $referral_code,
-                'status' => $attend_status,
-                'scholarship' => $scholarship_eligibility,
-                'joined_date' => Carbon::now(),
-            ];
+    //         # initialize variable for client event
+    //         $clientEventDetails = [
+    //             'client_id' => $createdClient['clientId'],
+    //             'event_id' => $event->event_id,
+    //             'lead_id' => isset($referral_code) ? "LS005" : $request->leadsource, # if using referral code then lead source will be "referral" which is "LS005"
+    //             'number_of_attend' => $number_of_attend,
+    //             'notes' => $notes,
+    //             'referral_code' => $referral_code,
+    //             'status' => $attend_status,
+    //             'scholarship' => $scholarship_eligibility,
+    //             'joined_date' => Carbon::now(),
+    //         ];
 
-            $newly_registrant = $createdClient['clientId'];
+    //         $newly_registrant = $createdClient['clientId'];
 
-            if ($choosen_role == "parent")
-                $clientEventDetails['child_id'] = $createdClient['childId'];
+    //         if ($choosen_role == "parent")
+    //             $clientEventDetails['child_id'] = $createdClient['childId'];
 
-            if ($choosen_role == "student" && !$parentNameIsNull)
-                $clientEventDetails['parent_id'] = $createdClient['parentId'];
+    //         if ($choosen_role == "student" && !$parentNameIsNull)
+    //             $clientEventDetails['parent_id'] = $createdClient['parentId'];
 
-            # if registration_type is exist
-            # add the registration_type into the clientEventDetails that will be stored
-            if (isset($registration_type))
-                $clientEventDetails['registration_type'] = $registration_type;
+    //         # if registration_type is exist
+    //         # add the registration_type into the clientEventDetails that will be stored
+    //         if (isset($registration_type))
+    //             $clientEventDetails['registration_type'] = $registration_type;
 
-            # get data created user
-            $newly_registrant_user = $this->clientRepository->getClientById($newly_registrant);
+    //         # get data created user
+    //         $newly_registrant_user = $this->clientRepository->getClientById($newly_registrant);
 
-            # check if client has already join the event
-            if ($this->clientEventRepository->getClientEventByClientIdAndEventId($createdClient['clientId'], $event->event_id))
-                return Redirect::to('form/already-join?role=' . $choosen_role . '&name=' . $newly_registrant_user->full_name);
+    //         # check if client has already join the event
+    //         if ($this->clientEventRepository->getClientEventByClientIdAndEventId($createdClient['clientId'], $event->event_id))
+    //             return Redirect::to('form/already-join?role=' . $choosen_role . '&name=' . $newly_registrant_user->full_name);
 
-            # store a new client event
-            if ($clientEvent = $this->clientEventRepository->createClientEvent($clientEventDetails)) {
+    //         # store a new client event
+    //         if ($clientEvent = $this->clientEventRepository->createClientEvent($clientEventDetails)) {
 
-                $storedClientEventId = $clientEvent->clientevent_id;
+    //             $storedClientEventId = $clientEvent->clientevent_id;
 
-                # when client event has successfully stored
-                # continue to send an email
-                # but if the event type is "offline"
+    //             # when client event has successfully stored
+    //             # continue to send an email
+    //             # but if the event type is "offline"
 
-                if (isset($event_type) && $event_type == "offline") {
+    //             if (isset($event_type) && $event_type == "offline") {
 
-                    $this->sendMailQrCode($storedClientEventId, $requested_event_name, ['clientDetails' => ['mail' => $createdClient['clientMail'], 'name' => $createdClient['clientName']]]);
-                } else {
+    //                 $this->sendMailQrCode($storedClientEventId, $requested_event_name, ['clientDetails' => ['mail' => $createdClient['clientMail'], 'name' => $createdClient['clientName']]]);
+    //             } else {
 
-                    # send thanks mail
-                    // $this->sendMailThanks($storedClientEventId, $requested_event_name, ['clientDetails' => ['mail' => $createdClient['clientMail'], 'name' => $createdClient['clientName']]]);
+    //                 # send thanks mail
+    //                 // $this->sendMailThanks($storedClientEventId, $requested_event_name, ['clientDetails' => ['mail' => $createdClient['clientMail'], 'name' => $createdClient['clientName']]]);
 
-                }
-            }
-
-
-            DB::commit();
-        } catch (Exception $e) {
-
-            DB::rollBack();
-            Log::error('Store client event embed failed : ' . $e->getMessage() . ' on line ' . $e->getLine());
-
-            return Redirect::to('form/event?event_name=' . $request->get('event_name'))->withErrors('Something went wrong. Please try again or contact our administrator.');
-        }
-
-        # store Success
-        # create log success
-        $this->logSuccess('store', 'Form Embed', 'Client Event', 'Guest', $clientEvent);
+    //             }
+    //         }
 
 
-        # if they regist on the spot then should return view success
-        if (isset($registration_type) && $registration_type == "ots")
-            return Redirect::to('form/registration/success?role=' . $choosen_role . '&name=' . $newly_registrant_user->full_name);
+    //         DB::commit();
+    //     } catch (Exception $e) {
+
+    //         DB::rollBack();
+    //         Log::error('Store client event embed failed : ' . $e->getMessage() . ' on line ' . $e->getLine());
+
+    //         return Redirect::to('form/event?event_name=' . $request->get('event_name'))->withErrors('Something went wrong. Please try again or contact our administrator.');
+    //     }
+
+    //     # store Success
+    //     # create log success
+    //     $this->logSuccess('store', 'Form Embed', 'Client Event', 'Guest', $clientEvent);
 
 
-        return Redirect::to('form/thanks');
-    }
+    //     # if they regist on the spot then should return view success
+    //     if (isset($registration_type) && $registration_type == "ots")
+    //         return Redirect::to('form/registration/success?role=' . $choosen_role . '&name=' . $newly_registrant_user->full_name);
+
+
+    //     return Redirect::to('form/thanks');
+    // }
 
     // ! Bisa dicek lagi, kemungkinan sudah tidak pakai
-    private function createClient($choosen_role, $schoolId, $request)
-    {
+    // private function createClient($choosen_role, $schoolId, $request)
+    // {
 
-        $relation = count(array_filter($request->fullname)); # this is the parameter that has maximum length of the requested client (ex: for parent and student the value would be 2 but teacher the value would be 1
-        $loop = 0;
-        $parentNameIsNull = false;
+    //     $relation = count(array_filter($request->fullname)); # this is the parameter that has maximum length of the requested client (ex: for parent and student the value would be 2 but teacher the value would be 1
+    //     $loop = 0;
+    //     $parentNameIsNull = false;
 
-        # prevent data be stored if
-        # choosen role is student and parent name is null or -
-        if ($choosen_role == "student" && ($request->fullname[1] == "-" || $request->fullname[1] === NULL)) {
+    //     # prevent data be stored if
+    //     # choosen role is student and parent name is null or -
+    //     if ($choosen_role == "student" && ($request->fullname[1] == "-" || $request->fullname[1] === NULL)) {
 
-            $relation = 1;
-            $parentNameIsNull = true;
-        }
+    //         $relation = 1;
+    //         $parentNameIsNull = true;
+    //     }
 
-        while ($loop < $relation) {
+    //     while ($loop < $relation) {
 
-            # initialize raw variable
-            # why newClientDetails[$loop] should be array?
-            # because to make easier for system to differentiate between parents and students like for example if user registered as a parent
-            # then index 0 is for parent data and index 1 is for children data, otherwise
-            $newClientDetails[$loop] = [
-                'name' => $request->fullname[$loop],
-                'email' => $request->email[$loop],
-                'phone' => $request->fullnumber[$loop],
-                'register_by' => $choosen_role,
-            ];
+    //         # initialize raw variable
+    //         # why newClientDetails[$loop] should be array?
+    //         # because to make easier for system to differentiate between parents and students like for example if user registered as a parent
+    //         # then index 0 is for parent data and index 1 is for children data, otherwise
+    //         $newClientDetails[$loop] = [
+    //             'name' => $request->fullname[$loop],
+    //             'email' => $request->email[$loop],
+    //             'phone' => $request->fullnumber[$loop],
+    //             'register_by' => $choosen_role,
+    //         ];
 
-            # check if the client exist in our databases
-            $existingClient = $this->checkExistingClient($newClientDetails[$loop]['phone'], $newClientDetails[$loop]['email']);
-            if (!$existingClient['isExist']) {
+    //         # check if the client exist in our databases
+    //         $existingClient = $this->checkExistingClient($newClientDetails[$loop]['phone'], $newClientDetails[$loop]['email']);
+    //         if (!$existingClient['isExist']) {
 
-                # get firstname & lastname from fullname
-                $splitName = $this->split($newClientDetails[$loop]['name']);
-                $firstname = $splitName['first_name'];
-                $lastname = $splitName['last_name'];
+    //             # get firstname & lastname from fullname
+    //             $splitName = $this->split($newClientDetails[$loop]['name']);
+    //             $firstname = $splitName['first_name'];
+    //             $lastname = $splitName['last_name'];
 
-                # all client basic info (whatever their role is)
-                $clientDetails = [
-                    'first_name' => $firstname,
-                    'last_name' => $lastname,
-                    'mail' => $newClientDetails[$loop]['email'],
-                    'phone' => $newClientDetails[$loop]['phone'],
-                    'lead_id' => "LS001", # hardcode for lead website
-                    'register_by' => $choosen_role,
-                ];
+    //             # all client basic info (whatever their role is)
+    //             $clientDetails = [
+    //                 'first_name' => $firstname,
+    //                 'last_name' => $lastname,
+    //                 'mail' => $newClientDetails[$loop]['email'],
+    //                 'phone' => $newClientDetails[$loop]['phone'],
+    //                 'lead_id' => "LS001", # hardcode for lead website
+    //                 'register_by' => $choosen_role,
+    //             ];
 
-                # additional info that should be stored when role is student and parent
-                # because all of the additional info are for the student
-                if ($choosen_role == 'parent' && $loop == 1) {
+    //             # additional info that should be stored when role is student and parent
+    //             # because all of the additional info are for the student
+    //             if ($choosen_role == 'parent' && $loop == 1) {
 
-                    $additionalInfo = [
-                        'st_grade' => $this->getGradeByGraduationYear($request->graduation_year),
-                        'graduation_year' => $request->graduation_year,
-                        'lead' => $request->leadsource,
-                        'sch_id' => $schoolId != null ? $schoolId : $request->school,
-                    ];
+    //                 $additionalInfo = [
+    //                     'st_grade' => $this->getGradeByGraduationYear($request->graduation_year),
+    //                     'graduation_year' => $request->graduation_year,
+    //                     'lead' => $request->leadsource,
+    //                     'sch_id' => $schoolId != null ? $schoolId : $request->school,
+    //                 ];
 
-                    $clientDetails = array_merge($clientDetails, $additionalInfo);
-                } else if ($choosen_role == 'student' && $loop == 0) {
+    //                 $clientDetails = array_merge($clientDetails, $additionalInfo);
+    //             } else if ($choosen_role == 'student' && $loop == 0) {
 
-                    $additionalInfo = [
-                        'st_grade' => $this->getGradeByGraduationYear($request->graduation_year),
-                        'graduation_year' => $request->graduation_year,
-                        'lead' => $request->leadsource,
-                        'sch_id' => $schoolId != null ? $schoolId : $request->school,
-                    ];
+    //                 $additionalInfo = [
+    //                     'st_grade' => $this->getGradeByGraduationYear($request->graduation_year),
+    //                     'graduation_year' => $request->graduation_year,
+    //                     'lead' => $request->leadsource,
+    //                     'sch_id' => $schoolId != null ? $schoolId : $request->school,
+    //                 ];
 
-                    $clientDetails = array_merge($clientDetails, $additionalInfo);
-                }
+    //                 $clientDetails = array_merge($clientDetails, $additionalInfo);
+    //             }
 
-                # additional info that should be stored when role is teacher
-                if ($choosen_role == 'teacher/counsellor') {
+    //             # additional info that should be stored when role is teacher
+    //             if ($choosen_role == 'teacher/counsellor') {
 
-                    $additionalInfo = [
-                        'sch_id' => $schoolId != null ? $schoolId : $request->school,
-                    ];
+    //                 $additionalInfo = [
+    //                     'sch_id' => $schoolId != null ? $schoolId : $request->school,
+    //                 ];
 
-                    $clientDetails = array_merge($clientDetails, $additionalInfo);
-                }
+    //                 $clientDetails = array_merge($clientDetails, $additionalInfo);
+    //             }
 
-                switch ($choosen_role) {
+    //             switch ($choosen_role) {
 
-                    case "parent":
-                        $role = $loop == 0 ? 'parent' : 'student';
-                        break;
+    //                 case "parent":
+    //                     $role = $loop == 0 ? 'parent' : 'student';
+    //                     break;
 
-                    case "student":
-                        $role = $loop == 1 ? 'parent' : 'student';
-                        break;
+    //                 case "student":
+    //                     $role = $loop == 1 ? 'parent' : 'student';
+    //                     break;
 
-                    case "teacher/counsellor":
-                        $role = $choosen_role;
-                        break;
-                }
+    //                 case "teacher/counsellor":
+    //                     $role = $choosen_role;
+    //                     break;
+    //             }
 
-                # stored a new client information
-                $newClient[$loop] = $this->clientRepository->createClient($this->getRoleName($role), $clientDetails);
-            }
+    //             # stored a new client information
+    //             $newClient[$loop] = $this->clientRepository->createClient($this->getRoleName($role), $clientDetails);
+    //         }
 
-            $clientArrayIds[$loop] = $existingClient['isExist'] ? $existingClient['id'] : $newClient[$loop]->id;
+    //         $clientArrayIds[$loop] = $existingClient['isExist'] ? $existingClient['id'] : $newClient[$loop]->id;
 
-            $loop++;
-        }
+    //         $loop++;
+    //     }
 
-        # the indexes
-        # the idea is assuming the index 0 as the main user that will be added into tbl_client_event
-        if ($choosen_role == 'parent') {
-            $parentId = $newClientDetails[0]['id'] = $clientArrayIds[0];
-            $childId = $clientArrayIds[1];
-            # trigger to verifying parent
-            ProcessVerifyClientParent::dispatch([$parentId])->onQueue('verifying-client-parent');
-            # trigger to verifying children
-            ProcessVerifyClient::dispatch([$childId])->onQueue('verifying-client');
-            # trigger define category client
-            ProcessDefineCategory::dispatch([$childId])->onQueue('define-category-client');
+    //     # the indexes
+    //     # the idea is assuming the index 0 as the main user that will be added into tbl_client_event
+    //     if ($choosen_role == 'parent') {
+    //         $parentId = $newClientDetails[0]['id'] = $clientArrayIds[0];
+    //         $childId = $clientArrayIds[1];
+    //         # trigger to verifying parent
+    //         ProcessVerifyClientParent::dispatch([$parentId])->onQueue('verifying-client-parent');
+    //         # trigger to verifying children
+    //         ProcessVerifyClient::dispatch([$childId])->onQueue('verifying-client');
+    //         # trigger define category client
+    //         ProcessDefineCategory::dispatch([$childId])->onQueue('define-category-client');
 
             
-        } else if ($choosen_role == 'student') {
-            # to prevent empty parent name being stored into database
-            if (!$parentNameIsNull)
-                $parentId = $clientArrayIds[1];
-                # trigger to verifying parent
-                ProcessVerifyClientParent::dispatch([$parentId])->onQueue('verifying-client-parent');
+    //     } else if ($choosen_role == 'student') {
+    //         # to prevent empty parent name being stored into database
+    //         if (!$parentNameIsNull)
+    //             $parentId = $clientArrayIds[1];
+    //             # trigger to verifying parent
+    //             ProcessVerifyClientParent::dispatch([$parentId])->onQueue('verifying-client-parent');
 
-            $childId = $newClientDetails[0]['id'] = $clientArrayIds[0];
-            # trigger to verifying children
-            ProcessVerifyClient::dispatch([$childId])->onQueue('verifying-client');
-            # trigger define category client
-            ProcessDefineCategory::dispatch([$childId])->onQueue('define-category-client');
+    //         $childId = $newClientDetails[0]['id'] = $clientArrayIds[0];
+    //         # trigger to verifying children
+    //         ProcessVerifyClient::dispatch([$childId])->onQueue('verifying-client');
+    //         # trigger define category client
+    //         ProcessDefineCategory::dispatch([$childId])->onQueue('define-category-client');
 
 
-        } else {
-            $teacherId = $newClientDetails[0]['id'] = $clientArrayIds[0];
-            # trigger to verifying teacher
-            ProcessVerifyClient::dispatch([$teacherId])->onQueue('verifying-client-teacher');
+    //     } else {
+    //         $teacherId = $newClientDetails[0]['id'] = $clientArrayIds[0];
+    //         # trigger to verifying teacher
+    //         ProcessVerifyClient::dispatch([$teacherId])->onQueue('verifying-client-teacher');
 
-        }
+    //     }
 
-        # store the destination country if registrant either parent or student
-        if ($choosen_role == 'parent' || $choosen_role == 'student') {
+    //     # store the destination country if registrant either parent or student
+    //     if ($choosen_role == 'parent' || $choosen_role == 'student') {
 
-            $client = $this->clientRepository->getClientById($childId);
-            isset($request->category) ? $client->interestPrograms()->syncWithoutDetaching(['prog_id' => $request->category]) : null;
-            isset($request->destination_country) ? $this->clientRepository->createDestinationCountry($childId, $request->destination_country) : null;
-        }
+    //         $client = $this->clientRepository->getClientById($childId);
+    //         isset($request->category) ? $client->interestPrograms()->syncWithoutDetaching(['prog_id' => $request->category]) : null;
+    //         isset($request->destination_country) ? $this->clientRepository->createDestinationCountry($childId, $request->destination_country) : null;
+    //     }
 
-        $response = [
-            'clientId' => $newClientDetails[0]['id'],
-            'clientName' => $newClientDetails[0]['name'],
-            'clientMail' => $newClientDetails[0]['email'],
-        ];
+    //     $response = [
+    //         'clientId' => $newClientDetails[0]['id'],
+    //         'clientName' => $newClientDetails[0]['name'],
+    //         'clientMail' => $newClientDetails[0]['email'],
+    //     ];
 
-        if ($choosen_role == "parent")
-            $response['childId'] = $childId;
+    //     if ($choosen_role == "parent")
+    //         $response['childId'] = $childId;
 
-        if ($choosen_role == "student" && !$parentNameIsNull)
-            $response['parentId'] = $parentId;
+    //     if ($choosen_role == "student" && !$parentNameIsNull)
+    //         $response['parentId'] = $parentId;
 
-        # attaching parent and student
-        if (($choosen_role == 'parent' || $choosen_role == 'student') && !$parentNameIsNull) {
+    //     # attaching parent and student
+    //     if (($choosen_role == 'parent' || $choosen_role == 'student') && !$parentNameIsNull) {
 
-            $this->clientRepository->createManyClientRelation($parentId, $childId);
-        }
+    //         $this->clientRepository->createManyClientRelation($parentId, $childId);
+    //     }
 
-        return $response;
-    }
+    //     return $response;
+    // }
 
     // ! Bisa dicek lagi, kemungkinan sudah tidak pakai
-    private function getRoleName($roleName)
-    {
-        switch ($roleName) {
+    // private function getRoleName($roleName)
+    // {
+    //     switch ($roleName) {
 
-            case "teacher/counsellor":
-                $role = "Teacher/Counselor";
-                break;
+    //         case "teacher/counsellor":
+    //             $role = "Teacher/Counselor";
+    //             break;
 
-            default:
-                $role = ucwords($roleName);
-        }
+    //         default:
+    //             $role = ucwords($roleName);
+    //     }
 
-        return $role;
-    }
+    //     return $role;
+    // }
 
-    public function successPage(Request $request)
-    {
-        $choosen_role = $request->get('role');
-        $name = $request->get('name');
+    // ! Bisa dicek lagi, kemungkinan sudah tidak pakai
+    // public function successPage(Request $request)
+    // {
+    //     $choosen_role = $request->get('role');
+    //     $name = $request->get('name');
 
-        return view('form-embed.response.success')->with([
-            'choosen_role' => $choosen_role,
-            'name' => $name
-        ]);
-    }
+    //     return view('form-embed.response.success')->with([
+    //         'choosen_role' => $choosen_role,
+    //         'name' => $name
+    //     ]);
+    // }
 
-    public function alreadyJoinPage(Request $request)
-    {
-        $choosen_role = $request->get('role');
-        $name = $request->get('name');
+    // ! Bisa dicek lagi, kemungkinan sudah tidak pakai
+    // public function alreadyJoinPage(Request $request)
+    // {
+    //     $choosen_role = $request->get('role');
+    //     $name = $request->get('name');
 
-        return view('form-embed.response.already-join')->with([
-            'choosen_role' => $choosen_role,
-            'name' => $name
-        ]);
-    }
+    //     return view('form-embed.response.already-join')->with([
+    //         'choosen_role' => $choosen_role,
+    //         'name' => $name
+    //     ]);
+    // }
 
-    public function sendMailQrCode($clientEventId, $eventName, $client, $update = false)
-    {
-        # initiate variables
+    // ! Bisa dicek lagi, kemungkinan sudah tidak pakai
+    // public function sendMailQrCode($clientEventId, $eventName, $client, $update = false)
+    // {
+    //     # initiate variables
         
-        $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
+    //     $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
 
-        $clientEvent->event_id == 'EVT-0008' ? $eventName = "STEM+ Wonderlab" : null;
+    //     $clientEvent->event_id == 'EVT-0008' ? $eventName = "STEM+ Wonderlab" : null;
 
-        $subject = 'Welcome to the ' . $eventName . '!';
-        // $mail_resources = 'mail-template.event-registration-success';
-        $mail_resources = 'mail-template.thanks-email-reg';
+    //     $subject = 'Welcome to the ' . $eventName . '!';
+    //     // $mail_resources = 'mail-template.event-registration-success';
+    //     $mail_resources = 'mail-template.thanks-email-reg';
 
-        $recipientDetails = $client['clientDetails'];
+    //     $recipientDetails = $client['clientDetails'];
 
-        $url = route('program.event.qr-page', [
-            'event_slug' => urlencode($eventName),
-            'clientevent' => $clientEventId
-        ]);
+    //     $url = route('program.event.qr-page', [
+    //         'event_slug' => urlencode($eventName),
+    //         'clientevent' => $clientEventId
+    //     ]);
 
-        # for eduall 2024 the system has changed
-        # because of that, the url has changed as well into the api route
-        $url = url("/api/v1/client-event/CE/{$clientEventId}");
+    //     # for eduall 2024 the system has changed
+    //     # because of that, the url has changed as well into the api route
+    //     $url = url("/api/v1/client-event/CE/{$clientEventId}");
 
 
-        $event = [
+    //     $event = [
             
-            'eventDate_start' => date('l, d M Y', strtotime($clientEvent->event->event_startdate)),
-            'eventDate_end' => date('M d, Y', strtotime($clientEvent->event->event_enddate)),
-            'eventTime_start' => date('g A', strtotime($clientEvent->event->event_startdate)),
-            'eventTime_end' => date('H:i', strtotime($clientEvent->event->event_enddate)),
-            'eventLocation' => $clientEvent->event->event_location,
-        ];
+    //         'eventDate_start' => date('l, d M Y', strtotime($clientEvent->event->event_startdate)),
+    //         'eventDate_end' => date('M d, Y', strtotime($clientEvent->event->event_enddate)),
+    //         'eventTime_start' => date('g A', strtotime($clientEvent->event->event_startdate)),
+    //         'eventTime_end' => date('H:i', strtotime($clientEvent->event->event_enddate)),
+    //         'eventLocation' => $clientEvent->event->event_location,
+    //     ];
 
-        try {
-            Mail::send($mail_resources, 
-                    [
-                        'qr' => $url, 
-                        'client' => $client['clientDetails'], 
-                        'event' => $event
-                    ],
-                    function ($message) use ($subject, $recipientDetails) {
-                        $message->to($recipientDetails['mail'], $recipientDetails['name'])
-                            ->subject($subject);
-                    }
-            );
-            $sent_mail = 1;
-        } catch (Exception $e) {
+    //     try {
+    //         Mail::send($mail_resources, 
+    //                 [
+    //                     'qr' => $url, 
+    //                     'client' => $client['clientDetails'], 
+    //                     'event' => $event
+    //                 ],
+    //                 function ($message) use ($subject, $recipientDetails) {
+    //                     $message->to($recipientDetails['mail'], $recipientDetails['name'])
+    //                         ->subject($subject);
+    //                 }
+    //         );
+    //         $sent_mail = 1;
+    //     } catch (Exception $e) {
 
-            $sent_mail = 0;
-            Log::error('Failed send email qr code to participant of Event ' . $eventName . ' | error : ' . $e->getMessage() . ' on file '.$e->getFile().' | Line ' . $e->getLine());
-        }
+    //         $sent_mail = 0;
+    //         Log::error('Failed send email qr code to participant of Event ' . $eventName . ' | error : ' . $e->getMessage() . ' on file '.$e->getFile().' | Line ' . $e->getLine());
+    //     }
 
-        # if update is true
-        # meaning that this function being called from scheduler
-        # that updating the client event log mail, so the system no longer have to create the client event log mail
-        if ($update === true) {
-            return true;
-        }
+    //     # if update is true
+    //     # meaning that this function being called from scheduler
+    //     # that updating the client event log mail, so the system no longer have to create the client event log mail
+    //     if ($update === true) {
+    //         return true;
+    //     }
 
-        $logDetails = [
-            'clientevent_id' => $clientEventId,
-            'sent_status' => $sent_mail,
-            'category' => 'qrcode-mail'
-        ];
+    //     $logDetails = [
+    //         'clientevent_id' => $clientEventId,
+    //         'sent_status' => $sent_mail,
+    //         'category' => 'qrcode-mail'
+    //     ];
 
-        return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
-    }
+    //     return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
+    // }
 
-    public function sendMailThanks($clientEventId, $eventName, $client, $update = false)
+    public function fnSendMailThanks($client_event_id, $event_name, $client, $update = false)
     {
-        $subject = 'Welcome to the ' . $eventName . '!';
+        $subject = 'Welcome to the ' . $event_name . '!';
         $mail_resources = 'mail-template.thanks-email';
 
-        $recipientDetails = $client['clientDetails'];
+        $recipient_details = $client['clientDetails'];
 
-        $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
+        $client_event = $this->clientEventRepository->getClientEventById($client_event_id);
 
         $event = [
-            'eventName' => $eventName,
-            'eventDate' => date('l, d M Y', strtotime($clientEvent->event->event_startdate)),
-            'eventLocation' => $clientEvent->event->event_location
+            'eventName' => $event_name,
+            'eventDate' => date('l, d M Y', strtotime($client_event->event->event_startdate)),
+            'eventLocation' => $client_event->event->event_location
         ];
 
         try {
-            Mail::send($mail_resources, ['client' => $client['clientDetails'], 'event' => $event], function ($message) use ($subject, $recipientDetails) {
-                $message->to($recipientDetails['mail'], $recipientDetails['name'])
+            Mail::send($mail_resources, ['client' => $client['clientDetails'], 'event' => $event], function ($message) use ($subject, $recipient_details) {
+                $message->to($recipient_details['mail'], $recipient_details['name'])
                     ->subject($subject);
             });
             $sent_mail = 1;
         } catch (Exception $e) {
 
             $sent_mail = 0;
-            Log::error('Failed send email thanks to participant of Event ' . $eventName . ' | error : ' . $e->getMessage() . ' | Line ' . $e->getLine());
+            Log::error('Failed send email thanks to participant of Event ' . $event_name . ' | error : ' . $e->getMessage() . ' | Line ' . $e->getLine());
         }
 
         # if update is true
@@ -920,433 +923,439 @@ class ClientEventController extends Controller
             return true;
         }
 
-        $logDetails = [
-            'clientevent_id' => $clientEventId,
+        $log_details = [
+            'clientevent_id' => $client_event_id,
             'sent_status' => $sent_mail,
             'category' => 'thanks-mail'
         ];
 
-        return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
+        return $this->clientEventLogMailRepository->createClientEventLogMail($log_details);
     }
 
-    public function sendMailClaim($clientEventId, $eventName, $client, $update = false)
-    {
-        $subject = 'Claim Lorem ipsum dolor sit amet';
-        $mail_resources = 'mail-template.claim-email';
-
-        $recipientDetails = $client['clientDetails'];
-
-        $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
-
-
-        $event = [
-            'eventName' => $eventName,
-            'eventDate' => date('l, d M Y', strtotime($clientEvent->event->event_startdate)),
-            'eventLocation' => $clientEvent->event->event_location
-        ];
-
-        try {
-            Mail::send($mail_resources, ['client' => $client['clientDetails'], 'event' => $event], function ($message) use ($subject, $recipientDetails) {
-                $message->to($recipientDetails['mail'], $recipientDetails['name'])
-                    ->subject($subject);
-            });
-            $sent_mail = 1;
-        } catch (Exception $e) {
-
-            $sent_mail = 0;
-            Log::error('Failed send email claim to participant of Event ' . $eventName . ' | error : ' . $e->getMessage() . ' | Line ' . $e->getLine());
-        }
-
-        # if update is true
-        # meaning that this function being called from scheduler
-        # that updating the client event log mail, so the system no longer have to create the client event log mail
-        if ($update === true) {
-            return true;
-        }
-
-        $logDetails = [
-            'clientevent_id' => $clientEventId,
-            'sent_status' => $sent_mail,
-            'category' => 'thanks-mail'
-        ];
-
-        return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
-    }
-
-    public function previewClientInformation(Request $request)
-    {
-        $screening_type = $request->route('screening_type');
-        switch ($screening_type) {
-
-            case "qr":
-                $clientEventId = $request->route('identifier');
-                $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
-                $client = $clientEvent->client;
-                break;
-
-            case "phone":
-                $phoneNumber = $request->route('identifier');
-                if (!$client = $this->clientRepository->getClientByPhoneNumber($phoneNumber))
-                    return view('stem-wonderlab.scan-qrcode.error')->with(['message' => "We're sorry, but your data was not found"]);
-
-                # for now
-                # event id is hardcoded for STEM+ Wonderlab
-                $clientEvent = $client->clientEvent()->where('event_id', "EVT-0008")->first();
-                if (!$clientEvent)
-                    return view('stem-wonderlab.scan-qrcode.error')->with(['message' => 'We\'re sorry, but you haven\'t joined our event.']);
-
-                break;
-        }
-
-        $clientFullname = $client->full_name;
-        $eventName = $clientEvent->event->event_title;
-
-        $secondaryClientInfo = $responseAdditionalInfo = array();
-        switch ($client->roles->first()->role_name) { # this is a choosen role
-
-            case "Parent":
-                $secondaryClientInfo = $clientEvent->children;
-                $responseAdditionalInfo = [
-                    'sch_id' => isset($secondaryClientInfo->school) ? $secondaryClientInfo->school->sch_id : null,
-                    'school' => isset($secondaryClientInfo->school->sch_name) ? $secondaryClientInfo->school->sch_name : null,
-                    'graduation_year' => isset($secondaryClientInfo->graduation_year) ? $secondaryClientInfo->graduation_year : null,
-                    'abr_country' => isset($secondaryClientInfo->destinationCountries) ? $secondaryClientInfo->destinationCountries()->pluck('tbl_tag.id')->toArray() : null
-                ];
-                break;
-
-            case "Student":
-                $secondaryClientInfo = $clientEvent->parent;
-                $responseAdditionalInfo = [
-                    'sch_id' => isset($client->school) ? $client->school->sch_id : null,
-                    'school' => isset($client->school->sch_name) ? $client->school->sch_name : null,
-                    'graduation_year' => isset($client->graduation_year) ? $client->graduation_year : null,
-                    'abr_country' => isset($client->destinationCountries) ? $client->destinationCountries()->pluck('tbl_tag.id')->toArray() : null
-                ];
-                break;
-
-            case "Teacher/Counselor":
-                $secondaryClientInfo = $clientEvent->client;
-                $responseAdditionalInfo = [
-                    'sch_id' => isset($client->school) ? $client->school->sch_id : null,
-                    'school' => isset($client->school->sch_name) ? $client->school->sch_name : null,
-                ];
-                break;
-        }
-
-        // if (!isset($secondaryClientInfo))
-        //     return view('stem-wonderlab.scan-qrcode.error')->with(['message' => 'Something went wrong. <br>Please contact our staff to help you scan the QR.']);
-
-        $tags = $this->tagRepository->getAllTags();
-
-        $response = [
-            'leadsource' => $clientEvent->lead_id,
-            'client' => $client,
-            'client_event' => $clientEvent,
-            'secondary_client' => [
-                'personal_info' => $secondaryClientInfo,
-            ] + $responseAdditionalInfo,
-            'schools' => $this->schoolRepository->getAllSchools(),
-            'tags' => $tags->where('name', '!=', 'Other')
-        ];
-
-        return view('stem-wonderlab.scan-qrcode.client-detail')->with($response);
-    }
-
-    public function handlerScanQrCodeForAttend(StoreFormEventEmbedRequest $request)
-    {
-        # nambahin validasi number of attend tidak boleh 0
-        $request->validate([
-            'how_many_people_attended' => 'required|min:1'
-        ], $request->all(), ['how_many_people_attended' => 'number of party field']);
-
-        # get request
-        $event = $request->event; # not used for now because there is no event slug
-        $clientEventId = $request->route('clientevent');
-
-        $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
-        $client = $clientEvent->client;
-
-        $clientFullname = $client->full_name;
-
-        $eventName = $clientEvent->event->event_title;
-
-        # initiate variables in order to
-        # update student information details
-        $isParent = $isStudent = $isTeacher = false;
-
-        $schoolId = $request->school; # can be id when they pick existing school / string when they write a new one
-
-        # when sch_id is "add-new"
-        if (!$this->schoolRepository->getSchoolById($schoolId) && $schoolId !== NULL) {
-
-            $last_id = School::max('sch_id');
-            $school_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 4) : '0000';
-            $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
-
-            $school = [
-                'sch_id' => $school_id_with_label,
-                'sch_name' => $request->school,
-            ];
-
-            # create a new school
-            $school = $this->schoolRepository->createSchool($school);
-            $schoolId = $school->sch_id;
-        }
-
-        switch ($client->register_by) { # this is a choosen role
-
-            case "parent":
-                $childId = $clientEvent->children->id;
-                $isParent = true;
-
-                $splitParentName = $this->split($request->fullname[0]);
-                $splitChildName = $this->split($request->fullname[1]);
-
-                $newParentInformation = [
-                    'first_name' => $splitParentName['first_name'],
-                    'last_name' => $splitParentName['last_name'],
-                    'mail' => $request->email[0],
-                    'phone' => $request->fullnumber[0]
-                ];
-
-                $newChildInformation = [
-                    'first_name' => $splitChildName['first_name'],
-                    'last_name' => $splitChildName['last_name'],
-                    'mail' => $request->email[1],
-                    'phone' => $request->fullnumber[1],
-                    'sch_id' => $schoolId,
-                    'graduation_year' => $request->graduation_year
-                ];
-
-                $child = $this->clientRepository->getClientById($childId);
-                $parent = $this->clientRepository->getClientById($client->id);
-
-                break;
-
-            case "student":
-                $childId = $client->id;
-                $isStudent = true;
-
-                $splitChildName = $this->split($request->fullname[0]);
-                $splitParentName = $this->split($request->fullname[1]);
-
-                $newChildInformation = [
-                    'first_name' => $splitChildName['first_name'],
-                    'last_name' => $splitChildName['last_name'],
-                    'mail' => $request->email[0],
-                    'phone' => $request->fullnumber[0],
-                    'sch_id' => $schoolId,
-                    'graduation_year' => $request->graduation_year
-                ];
-
-                $newParentInformation = [
-                    'first_name' => $splitParentName['first_name'],
-                    'last_name' => $splitParentName['last_name'],
-                    'mail' => $request->email[1],
-                    'phone' => $request->fullnumber[1]
-                ];
-
-                $child = $this->clientRepository->getClientById($client->id);
-                if (isset($clientEvent->parent)) {
-                    $parent = $this->clientRepository->getClientById($clientEvent->parent->id);
-                } else {
-                    $parent = null;
-                }
-
-                break;
-
-            case "teacher/counsellor":
-                $isTeacher = true;
-
-                $splitTeacherName = $this->split($request->fullname[0]);
-
-                $newTeacherInformation = [
-                    'first_name' => $splitTeacherName['first_name'],
-                    'last_name' => $splitTeacherName['last_name'],
-                    'mail' => $request->email[0],
-                    'phone' => $request->fullnumber[0]
-                ];
-
-                $teacher = $this->clientRepository->getClientById($client->id);
-
-                break;
-        }
-
-        # initiate variable in order to update client event
-        $newDetails = [
-            'number_of_attend' => $request->how_many_people_attended,
-            'status' => 1 # they came to the event
-        ];
-
-        DB::beginTransaction();
-        try {
-
-            # when the client parent or student 
-            # they need to complete the email or phone for index 1 which is secondary data
-            if ($isParent || $isStudent) {
-
-                # update master client information
-                if ($parent == null) {
-                    $parent = $this->clientRepository->createClient('Parent', $newParentInformation);
-                    $this->clientRepository->createManyClientRelation($parent->id, [$child->id]);
-                    $this->clientEventRepository->updateClientEvent($clientEventId, ['parent_id' => $parent->id]);
-                } else {
-                    $parent->update($newParentInformation);
-                }
-                $child->update($newChildInformation);
-
-                # update childs school information
-                $destination_countries = $request->destination_country;
-                $child->destinationCountries()->sync($destination_countries);
-            }
-
-            if ($isTeacher)
-                $teacher->update($newTeacherInformation);
-
-            # update client event
-            $this->clientEventRepository->updateClientEvent($clientEventId, $newDetails);
-
-            // if ($clientEvent->status == 0)
-            //     $this->sendMailClaim($clientEventId, $eventName, ['clientDetails' => ['mail' => $client->mail, 'name' => $client->full_name]], $update = false);
-
-            DB::commit();
-        } catch (Exception $e) {
-
-            DB::rollBack();
-            Log::error('Failed to process the attending request from ' . $clientFullname . ' ( ' . $eventName . ' ) | error : ' . $e->getMessage() . ' ' . $e->getLine());
-            return view('form-embed.response.error');
-        }
-
-        return Redirect::to('form/registration/success?role=' . $client->register_by . '&name=' . $request->fullname[0]);
-    }
-
-    public function updateAttendance($id, $status)
-    {
-        $clientEvent = $this->clientEventRepository->getClientEventById($id);
-
-        DB::beginTransaction();
-        try {
-            $clientEvent['status'] = $status;
-            $clientEvent->save();
-            $data = [
-                'name' => $clientEvent->client->full_name,
-                'status' => $clientEvent->status
-            ];
-            DB::commit();
-        } catch (Exception $e) {
-            DB::rollBack();
-            Log::error('Update attendance client event failed : ' . $e->getMessage());
-        }
-        return response()->json($data);
-    }
-
-    public function updateNumberOfParty(int $id, int $number_of_party)
-    {
-        $clientEvent = $this->clientEventRepository->getClientEventById($id);
-
-        DB::beginTransaction();
-        try {
-            $clientEvent->number_of_attend = $number_of_party;
-            $clientEvent->save();
-            DB::commit();
-
-            $success = true;
-        } catch (Exception $e) {
-            DB::rollBack();
-            Log::error('Update number of party client event failed : ' . $e->getMessage());
-            $success = false;
-        }
-
-        return response()->json([
-            'success' => $success,
-            'message' => 'Information updated'
-        ]);
-    }
-
-    public function registerExpress(Request $request)
-    {
-
-        $clientId = $request->route('client');
-        $client = $this->clientRepository->getClientById($clientId);
-        $eventId = $request->route('event');
-        $notes = $request->route('notes');
-        $indexChild = $request->route('index_child');
-
-        $dataRegister = $this->register($client->mail, $eventId, $notes, $indexChild);
-
-        if ($dataRegister['success'] && !$dataRegister['already_join']) {
-            # store Success
-            # create log success
-            $this->logSuccess('store', 'Register Express', 'Client Event', 'Guest', ['client_id' => $clientId, 'event_id' => $eventId, 'notes' => $notes]);
-
-            return Redirect::to('form/thanks');
-        } else if ($dataRegister['success'] && $dataRegister['already_join']) {
-            return Redirect::to('form/already-join?role=' . $client->register_by . '&name=' . $client->full_name);
-        }
-    }
-
-    public function referralPage(Request $request)
-    {
-        $refcode = $request->route('refcode');
-        $event_slug = $request->route('event_slug');
-        $noteEncrypt = $request->route('notes');
-        switch ($noteEncrypt) {
-            case 'VIP':
-            case 'WxSFs0LGh': # Mean VIP
-                $notes = 'VIP';
-                break;
-
-            case 'VVIP':
-            case 'BtSF0x1hK': # Mean VVIP
-                $notes = 'VVIP';
-                break;
-        }
-        $event_slug = $request->route('event_slug');
-
-        $shortUrl = ShortURL::where('url_key', $refcode)->first();
-
-        $slug = str_replace('-', ' ', $event_slug);
-        if (!$event = $this->eventRepository->getEventByName($slug))
-            abort(404);
-
-        $link = 'https://makerspace.all-inedu.com';
-        $query = '?ref=' . $refcode;
-
-        return view('stem-wonderlab.referral-link.index')->with([
-            'link' => $link . $query,
-            'event' => $event,
-            'notes' => $notes
-        ]);
-    }
-
+    // ! Bisa dicek lagi, kemungkinan sudah tidak pakai
+    // public function sendMailClaim($clientEventId, $eventName, $client, $update = false)
+    // {
+    //     $subject = 'Claim Lorem ipsum dolor sit amet';
+    //     $mail_resources = 'mail-template.claim-email';
+
+    //     $recipientDetails = $client['clientDetails'];
+
+    //     $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
+
+
+    //     $event = [
+    //         'eventName' => $eventName,
+    //         'eventDate' => date('l, d M Y', strtotime($clientEvent->event->event_startdate)),
+    //         'eventLocation' => $clientEvent->event->event_location
+    //     ];
+
+    //     try {
+    //         Mail::send($mail_resources, ['client' => $client['clientDetails'], 'event' => $event], function ($message) use ($subject, $recipientDetails) {
+    //             $message->to($recipientDetails['mail'], $recipientDetails['name'])
+    //                 ->subject($subject);
+    //         });
+    //         $sent_mail = 1;
+    //     } catch (Exception $e) {
+
+    //         $sent_mail = 0;
+    //         Log::error('Failed send email claim to participant of Event ' . $eventName . ' | error : ' . $e->getMessage() . ' | Line ' . $e->getLine());
+    //     }
+
+    //     # if update is true
+    //     # meaning that this function being called from scheduler
+    //     # that updating the client event log mail, so the system no longer have to create the client event log mail
+    //     if ($update === true) {
+    //         return true;
+    //     }
+
+    //     $logDetails = [
+    //         'clientevent_id' => $clientEventId,
+    //         'sent_status' => $sent_mail,
+    //         'category' => 'thanks-mail'
+    //     ];
+
+    //     return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
+    // }
+
+    // public function previewClientInformation(Request $request)
+    // {
+    //     $screening_type = $request->route('screening_type');
+    //     switch ($screening_type) {
+
+    //         case "qr":
+    //             $clientEventId = $request->route('identifier');
+    //             $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
+    //             $client = $clientEvent->client;
+    //             break;
+
+    //         case "phone":
+    //             $phoneNumber = $request->route('identifier');
+    //             if (!$client = $this->clientRepository->getClientByPhoneNumber($phoneNumber))
+    //                 return view('stem-wonderlab.scan-qrcode.error')->with(['message' => "We're sorry, but your data was not found"]);
+
+    //             # for now
+    //             # event id is hardcoded for STEM+ Wonderlab
+    //             $clientEvent = $client->clientEvent()->where('event_id', "EVT-0008")->first();
+    //             if (!$clientEvent)
+    //                 return view('stem-wonderlab.scan-qrcode.error')->with(['message' => 'We\'re sorry, but you haven\'t joined our event.']);
+
+    //             break;
+    //     }
+
+    //     $clientFullname = $client->full_name;
+    //     $eventName = $clientEvent->event->event_title;
+
+    //     $secondaryClientInfo = $responseAdditionalInfo = array();
+    //     switch ($client->roles->first()->role_name) { # this is a choosen role
+
+    //         case "Parent":
+    //             $secondaryClientInfo = $clientEvent->children;
+    //             $responseAdditionalInfo = [
+    //                 'sch_id' => isset($secondaryClientInfo->school) ? $secondaryClientInfo->school->sch_id : null,
+    //                 'school' => isset($secondaryClientInfo->school->sch_name) ? $secondaryClientInfo->school->sch_name : null,
+    //                 'graduation_year' => isset($secondaryClientInfo->graduation_year) ? $secondaryClientInfo->graduation_year : null,
+    //                 'abr_country' => isset($secondaryClientInfo->destinationCountries) ? $secondaryClientInfo->destinationCountries()->pluck('tbl_tag.id')->toArray() : null
+    //             ];
+    //             break;
+
+    //         case "Student":
+    //             $secondaryClientInfo = $clientEvent->parent;
+    //             $responseAdditionalInfo = [
+    //                 'sch_id' => isset($client->school) ? $client->school->sch_id : null,
+    //                 'school' => isset($client->school->sch_name) ? $client->school->sch_name : null,
+    //                 'graduation_year' => isset($client->graduation_year) ? $client->graduation_year : null,
+    //                 'abr_country' => isset($client->destinationCountries) ? $client->destinationCountries()->pluck('tbl_tag.id')->toArray() : null
+    //             ];
+    //             break;
+
+    //         case "Teacher/Counselor":
+    //             $secondaryClientInfo = $clientEvent->client;
+    //             $responseAdditionalInfo = [
+    //                 'sch_id' => isset($client->school) ? $client->school->sch_id : null,
+    //                 'school' => isset($client->school->sch_name) ? $client->school->sch_name : null,
+    //             ];
+    //             break;
+    //     }
+
+    //     // if (!isset($secondaryClientInfo))
+    //     //     return view('stem-wonderlab.scan-qrcode.error')->with(['message' => 'Something went wrong. <br>Please contact our staff to help you scan the QR.']);
+
+    //     $tags = $this->tagRepository->getAllTags();
+
+    //     $response = [
+    //         'leadsource' => $clientEvent->lead_id,
+    //         'client' => $client,
+    //         'client_event' => $clientEvent,
+    //         'secondary_client' => [
+    //             'personal_info' => $secondaryClientInfo,
+    //         ] + $responseAdditionalInfo,
+    //         'schools' => $this->schoolRepository->getAllSchools(),
+    //         'tags' => $tags->where('name', '!=', 'Other')
+    //     ];
+
+    //     return view('stem-wonderlab.scan-qrcode.client-detail')->with($response);
+    // }
+
+    // public function handlerScanQrCodeForAttend(StoreFormEventEmbedRequest $request)
+    // {
+    //     # nambahin validasi number of attend tidak boleh 0
+    //     $request->validate([
+    //         'how_many_people_attended' => 'required|min:1'
+    //     ], $request->all(), ['how_many_people_attended' => 'number of party field']);
+
+    //     # get request
+    //     $event = $request->event; # not used for now because there is no event slug
+    //     $clientEventId = $request->route('clientevent');
+
+    //     $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
+    //     $client = $clientEvent->client;
+
+    //     $clientFullname = $client->full_name;
+
+    //     $eventName = $clientEvent->event->event_title;
+
+    //     # initiate variables in order to
+    //     # update student information details
+    //     $isParent = $isStudent = $isTeacher = false;
+
+    //     $schoolId = $request->school; # can be id when they pick existing school / string when they write a new one
+
+    //     # when sch_id is "add-new"
+    //     if (!$this->schoolRepository->getSchoolById($schoolId) && $schoolId !== NULL) {
+
+    //         $last_id = School::max('sch_id');
+    //         $school_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 4) : '0000';
+    //         $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
+
+    //         $school = [
+    //             'sch_id' => $school_id_with_label,
+    //             'sch_name' => $request->school,
+    //         ];
+
+    //         # create a new school
+    //         $school = $this->schoolRepository->createSchool($school);
+    //         $schoolId = $school->sch_id;
+    //     }
+
+    //     switch ($client->register_by) { # this is a choosen role
+
+    //         case "parent":
+    //             $childId = $clientEvent->children->id;
+    //             $isParent = true;
+
+    //             $splitParentName = $this->split($request->fullname[0]);
+    //             $splitChildName = $this->split($request->fullname[1]);
+
+    //             $newParentInformation = [
+    //                 'first_name' => $splitParentName['first_name'],
+    //                 'last_name' => $splitParentName['last_name'],
+    //                 'mail' => $request->email[0],
+    //                 'phone' => $request->fullnumber[0]
+    //             ];
+
+    //             $newChildInformation = [
+    //                 'first_name' => $splitChildName['first_name'],
+    //                 'last_name' => $splitChildName['last_name'],
+    //                 'mail' => $request->email[1],
+    //                 'phone' => $request->fullnumber[1],
+    //                 'sch_id' => $schoolId,
+    //                 'graduation_year' => $request->graduation_year
+    //             ];
+
+    //             $child = $this->clientRepository->getClientById($childId);
+    //             $parent = $this->clientRepository->getClientById($client->id);
+
+    //             break;
+
+    //         case "student":
+    //             $childId = $client->id;
+    //             $isStudent = true;
+
+    //             $splitChildName = $this->split($request->fullname[0]);
+    //             $splitParentName = $this->split($request->fullname[1]);
+
+    //             $newChildInformation = [
+    //                 'first_name' => $splitChildName['first_name'],
+    //                 'last_name' => $splitChildName['last_name'],
+    //                 'mail' => $request->email[0],
+    //                 'phone' => $request->fullnumber[0],
+    //                 'sch_id' => $schoolId,
+    //                 'graduation_year' => $request->graduation_year
+    //             ];
+
+    //             $newParentInformation = [
+    //                 'first_name' => $splitParentName['first_name'],
+    //                 'last_name' => $splitParentName['last_name'],
+    //                 'mail' => $request->email[1],
+    //                 'phone' => $request->fullnumber[1]
+    //             ];
+
+    //             $child = $this->clientRepository->getClientById($client->id);
+    //             if (isset($clientEvent->parent)) {
+    //                 $parent = $this->clientRepository->getClientById($clientEvent->parent->id);
+    //             } else {
+    //                 $parent = null;
+    //             }
+
+    //             break;
+
+    //         case "teacher/counsellor":
+    //             $isTeacher = true;
+
+    //             $splitTeacherName = $this->split($request->fullname[0]);
+
+    //             $newTeacherInformation = [
+    //                 'first_name' => $splitTeacherName['first_name'],
+    //                 'last_name' => $splitTeacherName['last_name'],
+    //                 'mail' => $request->email[0],
+    //                 'phone' => $request->fullnumber[0]
+    //             ];
+
+    //             $teacher = $this->clientRepository->getClientById($client->id);
+
+    //             break;
+    //     }
+
+    //     # initiate variable in order to update client event
+    //     $newDetails = [
+    //         'number_of_attend' => $request->how_many_people_attended,
+    //         'status' => 1 # they came to the event
+    //     ];
+
+    //     DB::beginTransaction();
+    //     try {
+
+    //         # when the client parent or student 
+    //         # they need to complete the email or phone for index 1 which is secondary data
+    //         if ($isParent || $isStudent) {
+
+    //             # update master client information
+    //             if ($parent == null) {
+    //                 $parent = $this->clientRepository->createClient('Parent', $newParentInformation);
+    //                 $this->clientRepository->createManyClientRelation($parent->id, [$child->id]);
+    //                 $this->clientEventRepository->updateClientEvent($clientEventId, ['parent_id' => $parent->id]);
+    //             } else {
+    //                 $parent->update($newParentInformation);
+    //             }
+    //             $child->update($newChildInformation);
+
+    //             # update childs school information
+    //             $destination_countries = $request->destination_country;
+    //             $child->destinationCountries()->sync($destination_countries);
+    //         }
+
+    //         if ($isTeacher)
+    //             $teacher->update($newTeacherInformation);
+
+    //         # update client event
+    //         $this->clientEventRepository->updateClientEvent($clientEventId, $newDetails);
+
+    //         // if ($clientEvent->status == 0)
+    //         //     $this->sendMailClaim($clientEventId, $eventName, ['clientDetails' => ['mail' => $client->mail, 'name' => $client->full_name]], $update = false);
+
+    //         DB::commit();
+    //     } catch (Exception $e) {
+
+    //         DB::rollBack();
+    //         Log::error('Failed to process the attending request from ' . $clientFullname . ' ( ' . $eventName . ' ) | error : ' . $e->getMessage() . ' ' . $e->getLine());
+    //         return view('form-embed.response.error');
+    //     }
+
+    //     return Redirect::to('form/registration/success?role=' . $client->register_by . '&name=' . $request->fullname[0]);
+    // }
+
+    // public function updateAttendance($id, $status)
+    // {
+    //     $clientEvent = $this->clientEventRepository->getClientEventById($id);
+
+    //     DB::beginTransaction();
+    //     try {
+    //         $clientEvent['status'] = $status;
+    //         $clientEvent->save();
+    //         $data = [
+    //             'name' => $clientEvent->client->full_name,
+    //             'status' => $clientEvent->status
+    //         ];
+    //         DB::commit();
+    //     } catch (Exception $e) {
+    //         DB::rollBack();
+    //         Log::error('Update attendance client event failed : ' . $e->getMessage());
+    //     }
+    //     return response()->json($data);
+    // }
+
+    // ! Bisa dicek lagi, kemungkinan sudah tidak pakai
+    // public function updateNumberOfParty(int $id, int $number_of_party)
+    // {
+    //     $clientEvent = $this->clientEventRepository->getClientEventById($id);
+
+    //     DB::beginTransaction();
+    //     try {
+    //         $clientEvent->number_of_attend = $number_of_party;
+    //         $clientEvent->save();
+    //         DB::commit();
+
+    //         $success = true;
+    //     } catch (Exception $e) {
+    //         DB::rollBack();
+    //         Log::error('Update number of party client event failed : ' . $e->getMessage());
+    //         $success = false;
+    //     }
+
+    //     return response()->json([
+    //         'success' => $success,
+    //         'message' => 'Information updated'
+    //     ]);
+    // }
+
+    // ! Bisa dicek lagi, kemungkinan sudah tidak pakai
+    // public function registerExpress(Request $request)
+    // {
+
+    //     $clientId = $request->route('client');
+    //     $client = $this->clientRepository->getClientById($clientId);
+    //     $eventId = $request->route('event');
+    //     $notes = $request->route('notes');
+    //     $indexChild = $request->route('index_child');
+
+    //     $dataRegister = $this->register($client->mail, $eventId, $notes, $indexChild);
+
+    //     if ($dataRegister['success'] && !$dataRegister['already_join']) {
+    //         # store Success
+    //         # create log success
+    //         $this->logSuccess('store', 'Register Express', 'Client Event', 'Guest', ['client_id' => $clientId, 'event_id' => $eventId, 'notes' => $notes]);
+
+    //         return Redirect::to('form/thanks');
+    //     } else if ($dataRegister['success'] && $dataRegister['already_join']) {
+    //         return Redirect::to('form/already-join?role=' . $client->register_by . '&name=' . $client->full_name);
+    //     }
+    // }
+
+    // ! Bisa dicek lagi, kemungkinan sudah tidak pakai
+    // public function referralPage(Request $request)
+    // {
+    //     $refcode = $request->route('refcode');
+    //     $event_slug = $request->route('event_slug');
+    //     $noteEncrypt = $request->route('notes');
+    //     switch ($noteEncrypt) {
+    //         case 'VIP':
+    //         case 'WxSFs0LGh': # Mean VIP
+    //             $notes = 'VIP';
+    //             break;
+
+    //         case 'VVIP':
+    //         case 'BtSF0x1hK': # Mean VVIP
+    //             $notes = 'VVIP';
+    //             break;
+    //     }
+    //     $event_slug = $request->route('event_slug');
+
+    //     $shortUrl = ShortURL::where('url_key', $refcode)->first();
+
+    //     $slug = str_replace('-', ' ', $event_slug);
+    //     if (!$event = $this->eventRepository->getEventByName($slug))
+    //         abort(404);
+
+    //     $link = 'https://makerspace.all-inedu.com';
+    //     $query = '?ref=' . $refcode;
+
+    //     return view('stem-wonderlab.referral-link.index')->with([
+    //         'link' => $link . $query,
+    //         'event' => $event,
+    //         'notes' => $notes
+    //     ]);
+    // }
+
+    // ! Bisa dicek lagi, kemungkinan sudah tidak pakai
     # for API User
-    public function trackReferralURL(Request $request)
-    {
-        $refcode = $request->route('referral');
-        $shortURL = ShortURL::findByKey($refcode);
-        $shortURL->trackingEnabled();
+    // public function trackReferralURL(Request $request)
+    // {
+    //     $refcode = $request->route('referral');
+    //     $shortURL = ShortURL::findByKey($refcode);
+    //     $shortURL->trackingEnabled();
 
-        return response()->json(
-            [
-                'success' => true,
-                'data' => $shortURL
-            ]
-        );
-    }
+    //     return response()->json(
+    //         [
+    //             'success' => true,
+    //             'data' => $shortURL
+    //         ]
+    //     );
+    // }
     # end
 
-    public function qrPage(Request $request)
-    {
-        $event_slug = $request->route('event_slug');
-        $clientEventId = $request->route('clientevent');
+    // ! Bisa dicek lagi, kemungkinan sudah tidak pakai
+    // public function qrPage(Request $request)
+    // {
+    //     $event_slug = $request->route('event_slug');
+    //     $clientEventId = $request->route('clientevent');
 
-        $url =  route('link-event-attend', [
-            // 'event_slug' => $event_slug,
-            'clientevent' => $clientEventId
-        ]);
+    //     $url =  route('link-event-attend', [
+    //         // 'event_slug' => $event_slug,
+    //         'clientevent' => $clientEventId
+    //     ]);
 
-        return view('stem-wonderlab.scan-qrcode.qrcode')->with([
-            'url' => $url
-        ]);
-    }
+    //     return view('stem-wonderlab.scan-qrcode.qrcode')->with([
+    //         'url' => $url
+    //     ]);
+    // }
 }

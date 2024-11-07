@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\ClientEvents\UpdateClientEventAction;
+use App\Actions\ClientPrograms\CreateBundleProgramAction;
 use App\Actions\ClientPrograms\CreateClientProgramAction;
 use App\Actions\ClientPrograms\DeleteClientProgramAction;
 use App\Actions\ClientPrograms\UpdateClientProgramAction;
@@ -96,19 +97,11 @@ class ClientProgramController extends Controller
         $this->clientProgramService = $clientProgramService;
         $this->programService = $programService;
 
-        $this->admission_prog_list = Program::whereHas('main_prog', function ($query) {
-            $query->where('prog_name', 'Admissions Mentoring');
-        })->orWhereHas('sub_prog', function ($query) {
-            $query->where('sub_prog_name', 'Admissions Mentoring');
-        })->pluck('prog_id')->toArray();
+        $this->admission_prog_list = Program::admissionProgList()->pluck('prog_id')->toArray();
 
-        $this->tutoring_prog_list = Program::whereHas('sub_prog', function ($query) {
-            $query->where('sub_prog_name', 'like', '%Tutoring%');
-        })->pluck('prog_id')->toArray();
+        $this->tutoring_prog_list = Program::tutoringProgList()->pluck('prog_id')->toArray();
 
-        $this->satact_prog_list = Program::whereHas('sub_prog', function ($query) {
-            $query->where('sub_prog_name', 'like', '%SAT%')->orWhere('sub_prog_name', 'like', '%ACT%');
-        })->pluck('prog_id')->toArray();
+        $this->satact_prog_list = Program::SATACTProgList()->pluck('prog_id')->toArray();
     }
 
     public function index(Request $request)
@@ -298,23 +291,23 @@ class ClientProgramController extends Controller
 
     public function edit(Request $request)
     {
-        $studentId = $request->route('student');
-        $clientProgramId = $request->route('program');
+        $student_id = $request->route('student');
+        $client_program_id = $request->route('program');
 
-        $student = $this->clientRepository->getClientById($studentId);
-        $viewStudent = $this->clientRepository->getViewClientById($studentId);
-        $clientProgram = $this->clientProgramRepository->getClientProgramById($clientProgramId);
+        $student = $this->clientRepository->getClientById($student_id);
+        $view_student = $this->clientRepository->getViewClientById($student_id);
+        $client_program = $this->clientProgramRepository->getClientProgramById($client_program_id);
 
         # programs
         $programs = $this->programService->snGetAllPrograms();
 
         # main leads
         $leads = $this->leadRepository->getAllMainLead();
-        $clientEvents = $this->clientEventRepository->getAllClientEventByClientId($studentId);
+        $client_events = $this->clientEventRepository->getAllClientEventByClientId($student_id);
         $external_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
         $partners = $this->corporateRepository->getAllCorporate();
-        $internalPic = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $internal_pic = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
 
         $tutors = $this->userRepository->getAllUsersByRole('Tutor');
         $mentors = $this->userRepository->getAllUsersByRole('Mentor');
@@ -326,15 +319,15 @@ class ClientProgramController extends Controller
             [
                 'edit' => true,
                 'student' => $student,
-                'viewStudent' => $viewStudent,
-                'clientProgram' => $clientProgram,
+                'viewStudent' => $view_student,
+                'clientProgram' => $client_program,
                 'programs' => $programs,
                 'leads' => $leads,
-                'clientEvents' => $clientEvents,
+                'clientEvents' => $client_events,
                 'external_edufair' => $external_edufair,
                 'kols' => $kols,
                 'partners' => $partners,
-                'internalPIC' => $internalPic,
+                'internalPIC' => $internal_pic,
                 'tutors' => $tutors,
                 'mentors' => $mentors,
                 'reasons' => $reasons
@@ -412,13 +405,13 @@ class ClientProgramController extends Controller
         return Redirect::to('client/student/' . $student_id)->withSuccess('Client program has been deleted');
     }
 
-    public function createFormEmbed(Request $request)
+    public function fnCreateFormEmbed(Request $request)
     {
-        $programName = $request->get('program_name');
-        if ($programName == null)
+        $program_name = $request->get('program_name');
+        if ($program_name == null)
             abort(404);
         
-        if (!$program = $this->programRepository->getProgramByName($programName))
+        if (!$program = $this->programRepository->getProgramByName($program_name))
             abort(404);
 
         $leads = $this->leadRepository->getLeadForFormEmbedEvent();
@@ -435,262 +428,244 @@ class ClientProgramController extends Controller
         );
     }
 
-    public function storeFormEmbed(StoreFormProgramEmbedRequest $request)
-    {
-        $programId = $request->program;
-        $program = $this->programRepository->getProgramById($programId);
-        $leadId = $request->leadsource;
-        $schoolId = $request->school;
-        $choosen_role = $request->role;
+    // ! Bisa dicek lagi, kemungkinan sudah tidak pakai
+    // public function storeFormEmbed(StoreFormProgramEmbedRequest $request)
+    // {
+    //     $programId = $request->program;
+    //     $program = $this->programRepository->getProgramById($programId);
+    //     $leadId = $request->leadsource;
+    //     $schoolId = $request->school;
+    //     $choosen_role = $request->role;
 
-        DB::beginTransaction();
-        try {
+    //     DB::beginTransaction();
+    //     try {
 
-            # when sch_id is "add-new" 
-            // $choosen_school = $request->school;
-            if (!$this->schoolRepository->getSchoolById($request->school) && $request->school !== NULL) {
+    //         # when sch_id is "add-new" 
+    //         // $choosen_school = $request->school;
+    //         if (!$this->schoolRepository->getSchoolById($request->school) && $request->school !== NULL) {
 
-                $last_id = School::max('sch_id');
-                $school_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 4) : '0000';
-                $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
+    //             $last_id = School::max('sch_id');
+    //             $school_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 4) : '0000';
+    //             $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
 
-                $school = [
-                    'sch_id' => $school_id_with_label,
-                    'sch_name' => $request->school,
-                ];
+    //             $school = [
+    //                 'sch_id' => $school_id_with_label,
+    //                 'sch_name' => $request->school,
+    //             ];
 
-                # create a new school
-                $school = $this->schoolRepository->createSchool($school);
-                $schoolId = $school->sch_id;
-            }
+    //             # create a new school
+    //             $school = $this->schoolRepository->createSchool($school);
+    //             $schoolId = $school->sch_id;
+    //         }
 
-            $index = 0;
-            while($index < 2) 
-            {   
-                # initialize raw variable
-                # why newClientDetails[$loop] should be array?
-                # because to make easier for system to differentiate between parents and students like for example if user registered as a parent 
-                # then index 0 is for parent data and index 1 is for children data, otherwise 
-                $newClientDetails[$index] = [
-                    'name' => $request->fullname[$index],
-                    'email' => $request->email[$index],
-                    'phone' => $request->fullnumber[$index]
-                ];
+    //         $index = 0;
+    //         while($index < 2) 
+    //         {   
+    //             # initialize raw variable
+    //             # why newClientDetails[$loop] should be array?
+    //             # because to make easier for system to differentiate between parents and students like for example if user registered as a parent 
+    //             # then index 0 is for parent data and index 1 is for children data, otherwise 
+    //             $newClientDetails[$index] = [
+    //                 'name' => $request->fullname[$index],
+    //                 'email' => $request->email[$index],
+    //                 'phone' => $request->fullnumber[$index]
+    //             ];
 
-                # check if the client exist in our databases
-                $existingClient = $this->checkExistingClient($newClientDetails[$index]['phone'], $newClientDetails[$index]['email']);
-                if (!$existingClient['isExist']) {
+    //             # check if the client exist in our databases
+    //             $existingClient = $this->checkExistingClient($newClientDetails[$index]['phone'], $newClientDetails[$index]['email']);
+    //             if (!$existingClient['isExist']) {
 
-                    # get firstname & lastname from fullname
-                    $fullname = explode(' ', $newClientDetails[$index]['name']);
-                    $fullname_words = count($fullname);
+    //                 # get firstname & lastname from fullname
+    //                 $fullname = explode(' ', $newClientDetails[$index]['name']);
+    //                 $fullname_words = count($fullname);
 
-                    $firstname = $lastname = null;
-                    if ($fullname_words > 1) {
-                        $lastname = $fullname[$fullname_words - 1];
-                        unset($fullname[$fullname_words - 1]);
-                        $firstname = implode(" ", $fullname);
-                    } else {
-                        $firstname = implode(" ", $fullname);
-                    }
+    //                 $firstname = $lastname = null;
+    //                 if ($fullname_words > 1) {
+    //                     $lastname = $fullname[$fullname_words - 1];
+    //                     unset($fullname[$fullname_words - 1]);
+    //                     $firstname = implode(" ", $fullname);
+    //                 } else {
+    //                     $firstname = implode(" ", $fullname);
+    //                 }
 
-                    # all client basic info (whatever their role is)
-                    $clientDetails = [
-                        'first_name' => $firstname,
-                        'last_name' => $lastname,
-                        'mail' => $newClientDetails[$index]['email'],
-                        'phone' => $newClientDetails[$index]['phone'],
-                        'lead_id' => "LS001", # hardcode for lead website
-                        'register_by' => $choosen_role
-                    ];
+    //                 # all client basic info (whatever their role is)
+    //                 $clientDetails = [
+    //                     'first_name' => $firstname,
+    //                     'last_name' => $lastname,
+    //                     'mail' => $newClientDetails[$index]['email'],
+    //                     'phone' => $newClientDetails[$index]['phone'],
+    //                     'lead_id' => "LS001", # hardcode for lead website
+    //                     'register_by' => $choosen_role
+    //                 ];
 
-                    switch ($choosen_role) {
+    //                 switch ($choosen_role) {
 
-                        case "parent":
-                            $role = $index == 0 ? 'parent' : 'student';
-                            break;
+    //                     case "parent":
+    //                         $role = $index == 0 ? 'parent' : 'student';
+    //                         break;
 
-                        case "student":
-                            $role = $index == 1 ? 'parent' : 'student';
-                            break;
+    //                     case "student":
+    //                         $role = $index == 1 ? 'parent' : 'student';
+    //                         break;
 
 
-                    }
+    //                 }
 
-                    # additional info that should be stored when role is student and parent
-                    # because all of the additional info are for the student
-                    if ($choosen_role == 'parent' && $index == 1) {
+    //                 # additional info that should be stored when role is student and parent
+    //                 # because all of the additional info are for the student
+    //                 if ($choosen_role == 'parent' && $index == 1) {
 
-                        $additionalInfo = [
-                            'st_grade' => 12 - ($request->graduation_year - date('Y')),
-                            'graduation_year' => $request->graduation_year,
-                            'lead' => $request->leadsource,
-                            'sch_id' => $schoolId != null ? $schoolId : $request->school,
-                        ];
+    //                     $additionalInfo = [
+    //                         'st_grade' => 12 - ($request->graduation_year - date('Y')),
+    //                         'graduation_year' => $request->graduation_year,
+    //                         'lead' => $request->leadsource,
+    //                         'sch_id' => $schoolId != null ? $schoolId : $request->school,
+    //                     ];
 
-                        $clientDetails = array_merge($clientDetails, $additionalInfo);
+    //                     $clientDetails = array_merge($clientDetails, $additionalInfo);
                     
-                    } else if ($choosen_role == 'student' && $index == 0) {
+    //                 } else if ($choosen_role == 'student' && $index == 0) {
 
-                        $additionalInfo = [
-                            'st_grade' => 12 - ($request->graduation_year - date('Y')),
-                            'graduation_year' => $request->graduation_year,
-                            'lead' => $request->leadsource,
-                            'sch_id' => $schoolId != null ? $schoolId : $request->school,
-                        ];
+    //                     $additionalInfo = [
+    //                         'st_grade' => 12 - ($request->graduation_year - date('Y')),
+    //                         'graduation_year' => $request->graduation_year,
+    //                         'lead' => $request->leadsource,
+    //                         'sch_id' => $schoolId != null ? $schoolId : $request->school,
+    //                     ];
 
-                        $clientDetails = array_merge($clientDetails, $additionalInfo);
+    //                     $clientDetails = array_merge($clientDetails, $additionalInfo);
 
-                    }
+    //                 }
 
-                    # stored a new client information
-                    $newClient[$index] = $this->clientRepository->createClient($role, $clientDetails);
+    //                 # stored a new client information
+    //                 $newClient[$index] = $this->clientRepository->createClient($role, $clientDetails);
                     
-                }
+    //             }
 
-                $clientArrayIds[$index] = $existingClient['isExist'] ? $existingClient['id'] : $newClient[$index]->id;
-                $index++;
-            }
+    //             $clientArrayIds[$index] = $existingClient['isExist'] ? $existingClient['id'] : $newClient[$index]->id;
+    //             $index++;
+    //         }
 
-            switch ($choosen_role) {
+    //         switch ($choosen_role) {
 
-                case "parent":
-                    $parentId = $newClientDetails[0]['id'] = $clientArrayIds[0];
-                    $childId = $clientArrayIds[1];
-                    break;
+    //             case "parent":
+    //                 $parentId = $newClientDetails[0]['id'] = $clientArrayIds[0];
+    //                 $childId = $clientArrayIds[1];
+    //                 break;
 
-                case "student":
-                    $parentId = $clientArrayIds[1];
-                    $childId = $newClientDetails[0]['id'] = $clientArrayIds[0];
-                    break;
+    //             case "student":
+    //                 $parentId = $clientArrayIds[1];
+    //                 $childId = $newClientDetails[0]['id'] = $clientArrayIds[0];
+    //                 break;
 
-            }
+    //         }
 
-            # store the destination country if registrant either parent or student
-            $this->clientRepository->createDestinationCountry($childId, $request->destination_country);
+    //         # store the destination country if registrant either parent or student
+    //         $this->clientRepository->createDestinationCountry($childId, $request->destination_country);
             
-            # attaching parent and student
-            $this->clientRepository->createManyClientRelation($parentId, $childId);
+    //         # attaching parent and student
+    //         $this->clientRepository->createManyClientRelation($parentId, $childId);
 
-            # initiate variables for client program
-            $clientProgramDetails = [
-                'client_id' => $childId,
-                'prog_id' => $programId,
-                'lead_id' => $leadId,
-                'first_discuss_date' => Carbon::now(),
-                'status' => 0,
-                'registration_type' => 'FE'
-            ];
+    //         # initiate variables for client program
+    //         $clientProgramDetails = [
+    //             'client_id' => $childId,
+    //             'prog_id' => $programId,
+    //             'lead_id' => $leadId,
+    //             'first_discuss_date' => Carbon::now(),
+    //             'status' => 0,
+    //             'registration_type' => 'FE'
+    //         ];
             
-            # store to client program
-            if ($storedClientProgram = $this->clientProgramRepository->createClientProgram($clientProgramDetails))
-            {
+    //         # store to client program
+    //         if ($storedClientProgram = $this->clientProgramRepository->createClientProgram($clientProgramDetails))
+    //         {
 
-                # send thanks mail
-                $this->sendMailThanks($storedClientProgram, $parentId, $childId);
-            }
+    //             # send thanks mail
+    //             $this->sendMailThanks($storedClientProgram, $parentId, $childId);
+    //         }
 
-            # trigger define category client
-            ProcessDefineCategory::dispatch([$childId])->onQueue('define-category-client');
+    //         # trigger define category client
+    //         ProcessDefineCategory::dispatch([$childId])->onQueue('define-category-client');
 
-            DB::commit();
+    //         DB::commit();
         
-        } catch (Exception $e) {
+    //     } catch (Exception $e) {
 
-            DB::rollBack();
-            Log::error('Failed to register client from form program embed | error : '.$e->getMessage().' | Line : '.$e->getLine());
-            return Redirect::to('form/program?program_name='.$program->prog_program)->withErrors('Something went wrong. Please try again or contact our administrator.');
+    //         DB::rollBack();
+    //         Log::error('Failed to register client from form program embed | error : '.$e->getMessage().' | Line : '.$e->getLine());
+    //         return Redirect::to('form/program?program_name='.$program->prog_program)->withErrors('Something went wrong. Please try again or contact our administrator.');
         
-        }
+    //     }
 
-        # store Success
-        # create log success
-        $this->logSuccess('store', 'Form Embed', 'Client Program', 'Guest', $storedClientProgram);
+    //     # store Success
+    //     # create log success
+    //     $this->logSuccess('store', 'Form Embed', 'Client Program', 'Guest', $storedClientProgram);
 
-        return Redirect::to('form/thanks');
-    }    
+    //     return Redirect::to('form/thanks');
+    // }    
 
-    public function sendMailThanks($clientProgram, $parentId, $childId, $update = false)
-    {
-        $subject = 'Your registration is confirmed';
-        $mail_resources = 'mail-template.thanks-email-program';
+    // ! Bisa dicek lagi, kemungkinan sudah tidak pakai
+    // public function sendMailThanks($clientProgram, $parentId, $childId, $update = false)
+    // {
+    //     $subject = 'Your registration is confirmed';
+    //     $mail_resources = 'mail-template.thanks-email-program';
 
-        $parent = $this->clientRepository->getClientById($parentId);
-        $children = $this->clientRepository->getClientById($childId);
+    //     $parent = $this->clientRepository->getClientById($parentId);
+    //     $children = $this->clientRepository->getClientById($childId);
         
-        $recipientDetails = [
-            'name' => $parent->mail != null ? $parent->full_name : $children->full_name,  
-            'mail' => $parent->mail != null ? $parent->mail : $children->mail,
-            'children_details' => [
-                'name' => $children->full_name
-            ]
-        ];
+    //     $recipientDetails = [
+    //         'name' => $parent->mail != null ? $parent->full_name : $children->full_name,  
+    //         'mail' => $parent->mail != null ? $parent->mail : $children->mail,
+    //         'children_details' => [
+    //             'name' => $children->full_name
+    //         ]
+    //     ];
         
-        $program = [
-            'name' => $clientProgram->program->program_name
-        ];
+    //     $program = [
+    //         'name' => $clientProgram->program->program_name
+    //     ];
 
-        try {
-            Mail::send($mail_resources, ['client' => $recipientDetails, 'program' => $program], function ($message) use ($subject, $recipientDetails) {
-                $message->to($recipientDetails['mail'], $recipientDetails['name'])
-                    ->subject($subject);
-            });
-            $sent_mail = 1;
+    //     try {
+    //         Mail::send($mail_resources, ['client' => $recipientDetails, 'program' => $program], function ($message) use ($subject, $recipientDetails) {
+    //             $message->to($recipientDetails['mail'], $recipientDetails['name'])
+    //                 ->subject($subject);
+    //         });
+    //         $sent_mail = 1;
             
-        } catch (Exception $e) {
+    //     } catch (Exception $e) {
             
-            $sent_mail = 0;
-            Log::error('Failed send email thanks to client that register using form program | error : '.$e->getMessage().' | Line '.$e->getLine());
+    //         $sent_mail = 0;
+    //         Log::error('Failed send email thanks to client that register using form program | error : '.$e->getMessage().' | Line '.$e->getLine());
 
-        }
+    //     }
 
-        # if update is true 
-        # meaning that this function being called from scheduler
-        # that updating the client event log mail, so the system no longer have to create the client event log mail
-        if ($update === true) {
-            return true;    
-        }
+    //     # if update is true 
+    //     # meaning that this function being called from scheduler
+    //     # that updating the client event log mail, so the system no longer have to create the client event log mail
+    //     if ($update === true) {
+    //         return true;    
+    //     }
 
-        $logDetails = [
-            'clientprog_id' => $clientProgram->clientprog_id,
-            'sent_status' => $sent_mail
-        ];
+    //     $logDetails = [
+    //         'clientprog_id' => $clientProgram->clientprog_id,
+    //         'sent_status' => $sent_mail
+    //     ];
 
-        return $this->clientProgramLogMailRepository->createClientProgramLogMail($logDetails);
-    }
+    //     return $this->clientProgramLogMailRepository->createClientProgramLogMail($logDetails);
+    // }
 
-    public function addBundleProgram(Request $request)
+    public function addBundleProgram(Request $request, ClientProgramService $clientProgramService, LogService $log_service)
     {
         DB::beginTransaction();
 
         try {
-            $clientProgram = $clientProgramDetails = [];
+            $client_program = $client_program_details = [];
             $uuid = (string) Str::uuid();
     
-            foreach ($request->choosen as $key => $clientprog_id) {
-                // fetch data client program
-                $clientprog_db = $this->clientProgramRepository->getClientProgramById($clientprog_id);
-                
-                // check there is an invoice 
-                $hasInvoiceStd = isset($clientprog_db->invoice) ? $clientprog_db->invoice()->count() : 0;
-                $hasBundling = isset($clientprog_db->bundlingDetail) ? $clientprog_db->bundlingDetail()->count() : 0;
-    
-                $clientProgram[$request->number[$key]] = [
-                    'clientprog_id' => $clientprog_id,
-                    'status' => $clientprog_db->status,
-                    'program' => $clientprog_db->prog_id,
-                    'HasInvoice' => $hasInvoiceStd,
-                    'HasBundling' => $hasBundling,
-                ];
-                
-                $clientProgramDetails[] = [
-                    'clientprog_id' => $clientprog_id,
-                    'bundling_id' => $uuid,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                ];
-            }
-    
+            $set_data_bundle_program_before_create = $clientProgramService->snSetDataBundleProgramBeforeCreate($request, $client_program, $client_program_details, $uuid);
+            $client_program = $set_data_bundle_program_before_create['client_program'];
+            $client_program_details = $set_data_bundle_program_before_create['client_program_details'];
+          
             $rules = [
                 '*.clientprog_id' => ['required', 'exists:tbl_client_prog,clientprog_id'],
                 '*.status' => ['required', 'in:1'],
@@ -704,11 +679,10 @@ class ClientProgramController extends Controller
                         $fail('This program is already in the bundle package');
                     }
                 },
-                // '*.program' => ['required', 'distinct']
 
             ];
     
-            $validator = Validator::make($clientProgram, $rules);
+            $validator = Validator::make($client_program, $rules);
     
             # threw error if validation fails
             if ($validator->fails()) {
@@ -720,52 +694,39 @@ class ClientProgramController extends Controller
                 ]);
             }
     
-            $bundleProgram = $this->clientProgramRepository->createBundleProgram($uuid, $clientProgramDetails);
+            $bundle_program = $this->clientProgramRepository->createBundleProgram($uuid, $client_program_details);
     
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
 
-            Log::error($e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_BUNDLE_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $client_program_details);
             return response()->json([
                 'success' => false,
                 'error' => 'Something went wrong. Please try again'
             ], 500);
         }
      
-        
+        # create log success
+        $log_service->createSuccessLog(LogModule::STORE_BUNDLE_PROGRAM, 'New bundle program has been added', $bundle_program->toArray());
+
         return response()->json([
             'success' => true,
-            'data' => $bundleProgram
+            'data' => $bundle_program
         ]);
 
     }
 
-    public function cancelBundleProgram(Request $request){
+    public function cancelBundleProgram(Request $request, ClientProgramService $clientProgramService, LogService $log_service){
 
         DB::beginTransaction();
 
         try {
-            $clientProgram = $clientProgramDetails = [];
-            $bundlingId = $request->bundlingId;
+            $client_program = [];
+            $bundling_id = $request->bundlingId;
     
-            foreach ($request->choosen as $key => $clientprog_id) {
-                // fetch data client program
-                $clientprog_db = $this->clientProgramRepository->getClientProgramById($clientprog_id);
-                
-                // check there is an invoice 
-                $hasInvoiceStd = isset($clientprog_db->invoice) ? $clientprog_db->invoice()->count() : 0;
-               
-                $hasBundling = isset($clientprog_db->bundlingDetail) ? $clientprog_db->bundlingDetail()->count() : 0;
-
-                $clientProgram[$request->number[$key]] = [
-                    'clientprog_id' => $clientprog_id,
-                    'status' => $clientprog_db->status,
-                    'HasInvoice' => $hasInvoiceStd,
-                    'HasBundling' => $hasBundling,
-                ];
-                
-            }
+            $set_data_bundle_program_before_delete = $clientProgramService->snSetDataBundleProgramBeforeDelete($request, $client_program);
+            $client_program = $set_data_bundle_program_before_delete['client_program'];
     
             $rules = [
                 '*.clientprog_id' => ['required', 'exists:tbl_client_prog,clientprog_id'],
@@ -782,7 +743,7 @@ class ClientProgramController extends Controller
                 },
             ];
     
-            $validator = Validator::make($clientProgram, $rules);
+            $validator = Validator::make($client_program, $rules);
     
             # threw error if validation fails
             if ($validator->fails()) {
@@ -794,23 +755,26 @@ class ClientProgramController extends Controller
                 ]);
             }
     
-            $deletedBundleProgram = $this->clientProgramRepository->deleteBundleProgram($bundlingId);
+            $deleted_bundle_program = $this->clientProgramRepository->deleteBundleProgram($bundling_id);
     
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
 
-            Log::error($e->getMessage() . 'Line: '. $e->getLine());
+            $log_service->createErrorLog(LogModule::DELETE_BUNDLE_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $client_program);
+
             return response()->json([
                 'success' => false,
                 'error' => 'Something went wrong. Please try again'
             ], 500);
         }
      
-        
+        # create log success
+        $log_service->createSuccessLog(LogModule::DELETE_BUNDLE_PROGRAM, 'Bundle program has been deleted', $deleted_bundle_program->toArray());
+
         return response()->json([
             'success' => true,
-            'data' => $deletedBundleProgram
+            'data' => $deleted_bundle_program
         ]);
     }
 }

@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\ReferralPrograms\CreateReferralProgramAction;
+use App\Actions\ReferralPrograms\DeleteReferralProgramAction;
+use App\Actions\ReferralPrograms\UpdateReferralProgramAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreReferralRequest;
 use App\Http\Traits\LoggingTrait;
 use App\Interfaces\CorporateRepositoryInterface;
@@ -9,6 +13,7 @@ use App\Interfaces\PartnerRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\ReferralRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Services\Log\LogService;
 use App\Services\Program\ReferralProgramService;
 use Exception;
 use Illuminate\Http\Request;
@@ -45,9 +50,9 @@ class ReferralController extends Controller
         return view('pages.program.referral.index');
     }
 
-    public function store(StoreReferralRequest $request)
+    public function store(StoreReferralRequest $request, CreateReferralProgramAction $createReferralProgramAction, LogService $log_service)
     {
-        $referral_details = $request->only([
+        $referral_details = $request->safe()->only([
             'partner_id',
             'prog_id',
             'empl_id',
@@ -61,26 +66,24 @@ class ReferralController extends Controller
             'notes'
         ]);
         
-        # Update attribute revenue by currency
-        $referral_details_update_attribute_revenue = $this->referralProgramService->snUpdateAttributeRevenueByCurrency($referral_details);
-
         DB::beginTransaction();
         try {
 
-            $referral = $this->referralRepository->createReferral($referral_details_update_attribute_revenue);
+            $created_referral_program = $createReferralProgramAction->execute($referral_details);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store referral failed : ' . $e->getMessage());
-            return Redirect::to('program/referral/' . $referral->id)->withError('Failed to create new referral');
+            $log_service->createErrorLog(LogModule::STORE_REFERRAL_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $referral_details);
+
+            return Redirect::to('program/referral/' . $created_referral_program->id)->withError('Failed to create new referral');
         }
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $referral);
+        $log_service->createSuccessLog(LogModule::STORE_REFERRAL_PROGRAM, 'New referral program has been deleted', $created_referral_program->toArray());
 
-        return Redirect::to('program/referral/' . $referral->id)->withSuccess('Referral successfully created');
+        return Redirect::to('program/referral/' . $created_referral_program->id)->withSuccess('Referral successfully created');
     }
 
     public function create()
@@ -101,9 +104,9 @@ class ReferralController extends Controller
 
     public function show(Request $request)
     {
-        $referralId = $request->route('referral');
+        $referral_id = $request->route('referral');
 
-        $referral = $this->referralRepository->getReferralById($referralId);
+        $referral = $this->referralRepository->getReferralById($referral_id);
         $partners = $this->corporateRepository->getAllCorporate();
         $programs = $this->programRepository->getAllPrograms();
 
@@ -119,12 +122,11 @@ class ReferralController extends Controller
         );
     }
 
-    public function update(StoreReferralRequest $request)
+    public function update(StoreReferralRequest $request, UpdateReferralProgramAction $updateReferralProgramAction, LogService $log_service)
     {
         $referral_id = $request->route('referral');
-        $old_referral_program = $this->referralRepository->getReferralById($referral_id);
 
-        $referral_details = $request->only([
+        $referral_details = $request->safe()->only([
             'partner_id',
             'prog_id',
             'empl_id',
@@ -139,36 +141,33 @@ class ReferralController extends Controller
             'curs_rate',
         ]);
         
-        # Update attribute revenue by currency
-        $referral_details_updated_attribute_revenue = $this->referralProgramService->snUpdateAttributeRevenueByCurrency($referral_details);
-
-        # Update attribute program by referral type
-        $referral_details_updated_attribute_program = $this->referralProgramService->snUpdateAttributeProgramByReferralType($referral_details_updated_attribute_revenue);
 
         DB::beginTransaction();
         try {
 
-            $this->referralRepository->updateReferral($referral_id, $referral_details);
+            $updated_referral_program = $updateReferralProgramAction->execute($referral_id, $referral_details);
+            
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update referral failed : ' . $e->getMessage());
+
+            $log_service->createErrorLog(LogModule::UPDATE_REFERRAL_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $referral_details);
             return Redirect::to('program/referral/' . $referral_id)->withError('Failed to update referral');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $referral_details_updated_attribute_program, $old_referral_program);
+        $log_service->createSuccessLog(LogModule::UPDATE_REFERRAL_PROGRAM, 'Referral program has been updated', $updated_referral_program->toArray());
 
         return Redirect::to('program/referral/' . $referral_id)->withSuccess('Referral successfully updated');
     }
 
     public function edit(Request $request)
     {
-        $referralId = $request->route('referral');
+        $referral_id = $request->route('referral');
 
-        $referral = $this->referralRepository->getReferralById($referralId);
+        $referral = $this->referralRepository->getReferralById($referral_id);
         $partners = $this->corporateRepository->getAllCorporate();
         $programs = $this->programRepository->getAllPrograms();
         $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
@@ -184,26 +183,27 @@ class ReferralController extends Controller
         );
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteReferralProgramAction $deleteReferralProgramAction, LogService $log_service)
     {
-        $referralId = $request->route('referral');
-        $referral = $this->referralRepository->getReferralById($referralId);
+        $referral_id = $request->route('referral');
+        $old_referral = $this->referralRepository->getReferralById($referral_id);
 
         DB::beginTransaction();
         try {
 
-            $this->referralRepository->deleteReferral($referralId);
+            $deleteReferralProgramAction->execute($referral_id);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete referral failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_REFERRAL_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $old_referral->toArray());
+
             return Redirect::to('program/referral')->withError('Failed to delete referral');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $referral);
+        $log_service->createSuccessLog(LogModule::DELETE_REFERRAL_PROGRAM, 'Referral program has been deleted', $old_referral->toArray());
 
         return Redirect::to('program/referral')->withSuccess('Referral successfully deleted');
     }

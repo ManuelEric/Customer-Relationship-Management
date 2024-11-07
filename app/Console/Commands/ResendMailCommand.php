@@ -104,7 +104,7 @@ class ResendMailCommand extends Command
                                 ]
                             ];
                             
-                            $con = app('App\Http\Controllers\ClientEventController')->sendMailThanks($clientEventId, $eventName, $clientDetails, true);
+                            $con = app('App\Http\Controllers\ClientEventController')->fnSendMailThanks($clientEventId, $eventName, $clientDetails, true);
                         }
                         break;
 
