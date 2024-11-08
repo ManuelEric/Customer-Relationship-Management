@@ -65,37 +65,37 @@ class SalesDashboardController extends Controller
 
         switch ($type) {
             case "new-leads":
-                $clients = $this->clientRepository->getNewLeads($asDatatables, $month);
+                $clients = $this->clientRepository->getClientListByCategoryBasedOnClientLogs('new-lead', $month);
                 if ($month != null) {
                     $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
-                    $clients = $clients->merge($this->clientRepository->getNewLeads($asDatatables, $last_month));
+                    $clients = $clients->merge($this->clientRepository->getClientListByCategoryBasedOnClientLogs('new-lead', $last_month));
                 }
                 $clientType = 0;
                 break;
 
             case "potential":
-                $clients = $this->clientRepository->getPotentialClients($asDatatables, $month);
+                $clients = $this->clientRepository->getClientListByCategoryBasedOnClientLogs('potential', $month);
                 if ($month != null) {
                     $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
-                    $clients = $clients->merge($this->clientRepository->getPotentialClients($asDatatables, $last_month));
+                    $clients = $clients->merge($this->clientRepository->getClientListByCategoryBasedOnClientLogs('potential', $last_month));
                 }
                 $clientType = 1;
                 break;
 
             case "existing-mentees":
-                $clients = $this->clientRepository->getExistingMentees($asDatatables, $month);
+                $clients = $this->clientRepository->getClientListByCategoryBasedOnClientLogs('mentee', $month);
                 if ($month != null) {
                     $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
-                    $clients = $clients->merge($this->clientRepository->getExistingMentees($asDatatables, $last_month));
+                    $clients = $clients->merge($this->clientRepository->getClientListByCategoryBasedOnClientLogs('mentee', $last_month));
                 }
                 $clientType = 2;
                 break;
 
             case "existing-non-mentees":
-                $clients = $this->clientRepository->getExistingNonMentees($asDatatables, $month);
+                $clients = $this->clientRepository->getClientListByCategoryBasedOnClientLogs('non-mentee', $month);
                 if ($month != null) {
                     $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
-                    $clients = $clients->merge($this->clientRepository->getExistingNonMentees($asDatatables, $last_month));
+                    $clients = $clients->merge($this->clientRepository->getClientListByCategoryBasedOnClientLogs('non-mentee', $last_month));
                 }
                 $clientType = 3;
                 break;
@@ -103,17 +103,25 @@ class SalesDashboardController extends Controller
                 # both alumni-mentee & alumni-non-mentee
                 # never find alumni by month
             case "alumni-mentee":
-                $clients = $this->clientRepository->getAlumniMentees($groupBy, $asDatatables);
+                $clients = $this->clientRepository->getClientListByCategoryBasedOnClientLogs('alumni-mentee', $month);
+                if ($month != null) {
+                    $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
+                    $clients = $clients->merge($this->clientRepository->getClientListByCategoryBasedOnClientLogs('alumni-mentee', $last_month));
+                }
                 $clientType = 'alumni';
                 break;
 
             case "alumni-non-mentee":
-                $clients = $this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables);
+                $clients = $this->clientRepository->getClientListByCategoryBasedOnClientLogs('alumni-non-mentee', $month);
+                if ($month != null) {
+                    $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
+                    $clients = $clients->merge($this->clientRepository->getClientListByCategoryBasedOnClientLogs('alumni-non-mentee', $last_month));
+                }
                 $clientType = 'alumni';
                 break;
 
             case "parent":
-                $clients = $this->clientRepository->getParents($asDatatables, $month);
+                $clients = $this->clientRepository->getParents($asDatatables, $month, []);
                 $clientType = 'parent';
                 break;
 
@@ -131,57 +139,27 @@ class SalesDashboardController extends Controller
         if ($clients->count() == 0)
             return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $title)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $title) . ' data</td></tr>']);
 
-        # when is mentee    
-        # special case because already grouped by year
-        # so we need to extract as they are
-        if ($clientType == 'alumni') {
+        foreach ($clients as $client) {
 
-            foreach ($clients as $key => $value) {
-                $html .= '<tr>
-                            <td colspan="5">' . $key . '</td>
-                        </tr>';
+            $client_register_date = date('Y-m', strtotime($client->created_at));
 
-                foreach ($value as $client) {
-                    $client_register_date = date('Y-m', strtotime($client->created_at));
-                    $now = date('Y-m');
-                    $styling = $client_register_date == $now ? 'class="bg-primary text-white popup-modal-detail-client"' : 'class="popup-modal-detail-client"';
+            if ($month == null)
+                $month = date('Y-m-d');
 
-                    $pic_name = isset($client->handleBy) ? $client->handledBy()->first()->full_name : null;
+            $now = date('Y-m', strtotime($month));
+            $styling = $client_register_date == $now ? 'class="bg-primary text-white popup-modal-detail-client"' : 'class="popup-modal-detail-client"';
 
-                    $html .= '<tr ' . $styling . ' data-detail="' . $client->id . '">
-                                <td>' . $index++ . '</td>
-                                <td>' . $client->full_name . '</td>
-                                <td>' . $pic_name .'</td>
-                                <td>' . $client->mail . '</td>
-                                <td>' . $client->phone . '</td>
-                                <td>' . $client->graduation_year_real . '</td>
-                                <td>' . date('d F Y H:i', strtotime($client->created_at)) . '</td>
-                            </tr>';
-                }
-            }
-        } else {
-            foreach ($clients as $client) {
-
-                $client_register_date = date('Y-m', strtotime($client->created_at));
-
-                if ($month == null)
-                    $month = date('Y-m-d');
-
-                $now = date('Y-m', strtotime($month));
-                $styling = $client_register_date == $now ? 'class="bg-primary text-white popup-modal-detail-client"' : 'class="popup-modal-detail-client"';
-
-                $clientsPic = $client->handledBy->first()->fullname ?? "-";
-
-                $html .= '<tr ' . $styling . ' data-detail="' . $client->id . '">
+            $html .= '<tr ' . $styling . ' data-detail="' . $client->id . '">
                             <td>' . $index++ . '</td>
                             <td>' . $client->full_name . '</td>
-                            <td class="text-center">' . $clientsPic . '</td>
+                            <td class="text-center">' . $client->pic_name . '</td>
                             <td>' . $client->mail . '</td>
                             <td>' . $client->phone . '</td>
                             <td>' . $client->graduation_year_real . '</td>
+                            <td>' . $client->triggered_by . '</td>
+                            <td>' . $client->lead_source_log . '</td>
                             <td>' . date('D, d M Y', strtotime($client->created_at))  . '</td>
                         </tr>';
-            }
         }
 
         return response()->json(
@@ -221,11 +199,11 @@ class SalesDashboardController extends Controller
             $last_month_completed_client = $this->clientRepository->countClientByCategory('non-mentee', $last_month);
             $monthly_new_completed_client =  $this->clientRepository->countClientByCategory('non-mentee', $month);
 
-            $last_month_alumniMentees = $this->clientRepository->countClientByCategory('alumni-mentee', $last_month);
-            $monthly_new_alumniMentees = $this->clientRepository->countClientByCategory('alumni-mentee', $month);
+            // $last_month_alumniMentees = $this->clientRepository->countClientByCategory('alumni-mentee', $last_month);
+            // $monthly_new_alumniMentees = $this->clientRepository->countClientByCategory('alumni-mentee', $month);
 
-            $last_month_alumniNonMentees = $this->clientRepository->countClientByCategory('alumni-non-mentee', $last_month);
-            $monthly_new_alumniNonMentees = $this->clientRepository->getAlumniNonMentees('alumni-non-mentee', $month);
+            // $last_month_alumniNonMentees = $this->clientRepository->countClientByCategory('alumni-non-mentee', $last_month);
+            // $monthly_new_alumniNonMentees = $this->clientRepository->getAlumniNonMentees('alumni-non-mentee', $month);
 
             $last_month_parent = $this->clientRepository->countClientByRole('Parent', $last_month);
             $monthly_new_parent = $this->clientRepository->countClientByRole('Parent', $month);

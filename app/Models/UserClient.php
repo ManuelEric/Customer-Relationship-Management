@@ -491,4 +491,9 @@ class UserClient extends Authenticatable
     {
         return $this->hasMany(FollowupClient::class, 'client_id', 'id');
     }
+
+    public function client_log()
+    {
+        return $this->hasMany(ClientLog::class, 'client_id', 'id');
+    }
 }

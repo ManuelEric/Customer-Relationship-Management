@@ -2144,11 +2144,23 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function countClientByCategory($category, $month = null)
     {
-        $client = DB::table('tbl_client')
+        $client = DB::table('tbl_client_log')
             ->select(DB::raw('count(*) as client_count'))
-            ->where('category', $category)
+            ->leftJoin('tbl_client', function ($q) {
+                $q->on('tbl_client.id', '=', 'tbl_client_log.client_id');
+            })
+            ->leftJoin('tbl_pic_client', function ($q) {
+                $q->on('tbl_pic_client.client_id', '=', DB::raw('tbl_client.id AND tbl_pic_client.status = 1'));
+            })
+            ->where('tbl_client_log.category', $category)
             ->when($month, function ($subQuery) use ($month) {
-                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+                $subQuery->whereMonth('tbl_client_log.created_at', date('m', strtotime($month)))->whereYear('tbl_client_log.created_at', date('Y', strtotime($month)));
+            })
+            ->when(Session::get('user_role') == 'Employee', function ($subQuery) {
+                $subQuery->where('tbl_pic_client.user_id', auth()->user()->id);
+            })
+            ->when(auth()->guard('api')->user(), function ($subQuery) {
+                $subQuery->where('tbl_pic_client.user_id', auth()->guard('api')->user()->id);
             })
             ->first();
 
@@ -2158,25 +2170,25 @@ class ClientRepository implements ClientRepositoryInterface
     public function countClientByRole($role, $month = null, $isRaw = false)
     {
         $client = DB::table('tbl_client')
-            ->select(DB::raw('count(tbl_client.id) as client_count'))
-            ->join('tbl_client_roles', function ($q) {
+            ->select('tbl_client.id', 'tbl_roles.role_name', DB::raw('count(tbl_client.id) as client_count'))
+            ->leftJoin('tbl_pic_client', function ($q) {
+                $q->on('tbl_pic_client.client_id', '=', DB::raw('tbl_client.id AND tbl_pic_client.status = 1'));
+            })
+            ->leftJoin('tbl_client_roles', function ($q) {
                 $q->on('tbl_client_roles.client_id', '=', 'tbl_client.id');
             })
-            ->join('tbl_pic_client', function ($q) {
-                $q->on('tbl_pic_client.client_id', '=', 'tbl_client.id');
-            })
-            ->join('tbl_roles', function ($q) use($role) {
-                $q->on('tbl_roles.id', '=', 'tbl_client_roles.role_id');
+            ->leftJoin('tbl_roles', function ($q) use($role) {
+                $q->on('tbl_roles.id', '=', DB::raw('tbl_client_roles.role_id AND tbl_roles.role_name != "mentee" AND tbl_roles.role_name != "alumni"'));
             })
             ->where('tbl_roles.role_name', '=', $role)->
             when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('tbl_client.created_at', date('m', strtotime($month)))->whereYear('tbl_client.created_at', date('Y', strtotime($month)));
             })->
-            when(!$isRaw, function ($subQuery) {
-                $subQuery->where('tbl_client.is_verified', 'Y');
-            })->
+            // where('tbl_client.is_verified', 'N')
             when($isRaw, function ($subQuery) {
                 $subQuery->where('tbl_client.is_verified', 'N');
+            }, function($subQuery) {
+                $subQuery->where('tbl_client.is_verified', 'Y');
             })
             # scope Is not sales admin
             ->when(Session::get('user_role') == 'Employee', function ($subQuery) {
@@ -2190,6 +2202,20 @@ class ClientRepository implements ClientRepositoryInterface
             first();
 
         return $client->client_count;
+    }
+
+    public function getClientListByCategoryBasedOnClientLogs(String $category, $month_year = null)
+    {
+        $clients = ClientLog::leftJoin('client', 'client.uuid', '=', 'tbl_client_log.client_uuid')
+                    ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client_log.lead_source')
+                    ->select('client.full_name', 'client.mail', 'client.phone', 'client.graduation_year_real', 'client.pic_name', 'tbl_client_log.inputted_from as triggered_by', 'tbl_lead.main_lead as lead_source_log', 'tbl_client_log.created_at')
+                    ->where('tbl_client_log.category', $category)
+                    ->when($month_year, function ($subQuery) use ($month_year) {
+                        $subQuery->whereMonth('tbl_client_log.created_at', date('m', strtotime($month_year)))->whereYear('tbl_client_log.created_at', date('Y', strtotime($month_year)));
+                    })
+                    ->get();
+
+        return $clients;
     }
 
     public function defineCategoryClient($clients_data, $is_many_request = false)

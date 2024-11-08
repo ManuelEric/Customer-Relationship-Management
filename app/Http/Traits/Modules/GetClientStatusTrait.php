@@ -73,7 +73,7 @@ trait GetClientStatusTrait {
                 'percentage' => $this->calculatePercentage($total_teacher, $monthly_new_teacher)
             ],
             'raw' => [
-                'student' => $this->clientRepository->countClientByRole('Student', null, true),
+                'student' => $this->clientRepository->countClientByCategory('raw'),
                 'parent' => $this->clientRepository->countClientByRole('Parent', null, true),
                 'teacher' => $this->clientRepository->countClientByRole('Teacher/Counselor', null, true),
             ],
