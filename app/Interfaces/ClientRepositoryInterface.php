@@ -112,6 +112,8 @@ interface ClientRepositoryInterface
     public function checkExistingByEmail($email);
     public function storeUniversityAcceptance($client, array $acceptanceDetails);
     public function getClientHasUniversityAcceptance();
+    public function getClientListByCategoryBasedOnClientLogs(String $category, $month_year = null);
+
 
     # dashboard
     public function getCountTotalClientByStatus($status, $month = null);

@@ -115,14 +115,14 @@ class ClientLog extends Model
 
     public function scopeOnlinePaid(Builder $query): void
     {
-        $query->whereHas('lead_source', function ($sub) {
+        $query->whereHas('lead_source_log', function ($sub) {
             $sub->where('type', 'paid')->where('is_online', true);
         });
     }
 
     public function scopeOnlineOrganic(Builder $query): void
     {
-        $query->whereHas('lead_source', callback: function ($sub) {
+        $query->whereHas('lead_source_log', callback: function ($sub) {
             $sub->where('type', 'organic')->where('is_online', true);
         });
     }
@@ -130,7 +130,7 @@ class ClientLog extends Model
     public function scopeOffline(Builder $query): void
     {
         $lead_of_referral = ['LS005', 'LS058', 'LS060', 'LS061'];
-        $query->whereHas('lead_source', function ($sub) use ($lead_of_referral) {
+        $query->whereHas('lead_source_log', function ($sub) use ($lead_of_referral) {
             $sub->where('is_online', false)->whereNotIn('lead_id', $lead_of_referral);
         });
     }
@@ -139,7 +139,7 @@ class ClientLog extends Model
     public function scopeReferral(Builder $query): void
     {
         $lead_of_referral = ['LS005', 'LS058', 'LS060', 'LS061']; # manually select lead from referral
-        $query->whereHas('lead_source', function ($sub) use ($lead_of_referral) {
+        $query->whereHas('lead_source_log', function ($sub) use ($lead_of_referral) {
             $sub->whereIn('lead_id', $lead_of_referral);
         });
     }
@@ -333,7 +333,7 @@ class ClientLog extends Model
         return $this->belongsTo(UserClient::class, 'client_id', 'id');
     }
 
-    public function lead_source()
+    public function lead_source_log()
     {
         return $this->belongsTo(Lead::class, 'lead_source', 'lead_id');
     }

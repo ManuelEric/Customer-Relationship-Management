@@ -803,7 +803,8 @@ class ExtClientController extends Controller
             'graduation_year' => 'required',
             'destination_country' => 'required|array',
             'destination_country.*' => 'exists:tbl_tag,id',
-            'interest_prog' => 'required|exists:tbl_prog,prog_id'
+            'interest_prog' => 'required|exists:tbl_prog,prog_id',
+            'lead_id' => 'required|exists:tbl_lead,lead_id',
         ];
 
         $incomingRequest = $request->only([
@@ -818,14 +819,17 @@ class ExtClientController extends Controller
             'interest_prog',
             'secondary_name',
             'secondary_mail',
-            'secondary_phone'
+            'secondary_phone',
+            'lead_id'
         ]);
 
         $messages = [
             'secondary_name.required_if' => 'The child name field is required.',
             'school_id.required_if' => 'The school field is required.',
             'school_id.exists' => 'The school field is not valid.',
-            'destination_country.*.exists' => 'The destination country must be one of the following values.'
+            'destination_country.*.exists' => 'The destination country must be one of the following values.',
+            'lead_id.required' => 'Something is not right.', # we hide the lead_id because lead_id comes from get parameter so user should not know
+            'lead_id.exists' => 'Something is not right.', # we hide the lead_id because lead_id comes from get parameter so user should not know
         ];
 
 
@@ -844,7 +848,7 @@ class ExtClientController extends Controller
         # after validating incoming request data, then retrieve the incoming request data
         $validated = $request->collect();
         $validated['scholarship'] = 'N';
-        $validated['lead_source_id'] = 'LS001'; # Website
+        $validated['lead_source_id'] = $request->lead_id;
 
         # declaration of default variables that will be used 
         $client = null;

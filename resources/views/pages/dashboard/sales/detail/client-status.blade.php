@@ -34,7 +34,7 @@
                                 <div class="d-flex">
                                     {{-- <h5 class="p-0 m-0">Prospective <br> Client</h5> --}}
                                     <h5 class="p-0 m-0">New <br> Leads</h5>
-                                    <h3 class="p-0 client-status ms-auto">
+                                    <h3 class="p-0 client-status ms-auto" data-client-type='new-lead'>
                                         {{ $totalClientInformation['newLeads']['old'] }}
                                         @if ($totalClientInformation['newLeads']['new'] != 0)
                                             <sup>
@@ -63,7 +63,7 @@
                                 data-f-date="all" data-f-client-type="potential">
                                 <div class="d-flex">
                                     <h5 class="p-0 m-0">Potential <br> Client</h5>
-                                    <h3 class="p-0 m-0 client-status ms-auto">
+                                    <h3 class="p-0 m-0 client-status ms-auto" data-client-type='potential'>
                                         {{ $totalClientInformation['potential']['old'] }}
                                         @if ($totalClientInformation['potential']['new'] != 0)
                                             <sup>
@@ -92,7 +92,7 @@
                                 data-f-date="all" data-f-client-type="existing-mentees">
                                 <div class="d-flex">
                                     <h5 class="p-0 m-0">Existing <br> Mentee</h5>
-                                    <h3 class="p-0 client-status ms-auto">
+                                    <h3 class="p-0 client-status ms-auto" data-client-type='existing-mentee'>
                                         {{ $totalClientInformation['existingMentees']['old'] }}
                                         @if ($totalClientInformation['existingMentees']['new'] != 0)
                                             <sup>
@@ -122,7 +122,7 @@
                                 data-f-date="all" data-f-client-type="existing-non-mentees">
                                 <div class="d-flex">
                                     <h5 class="p-0 m-0">Existing <br> Non-Mentee</h5>
-                                    <h3 class="p-0 client-status ms-auto">
+                                    <h3 class="p-0 client-status ms-auto" data-client-type='existing-non-mentee'>
                                         {{ $totalClientInformation['existingNonMentees']['old'] }}
                                         @if ($totalClientInformation['existingNonMentees']['new'] != 0)
                                             <sup>
@@ -152,7 +152,7 @@
                                 data-f-date="all" data-f-client-type="alumni-mentee">
                                 <div class="d-flex">
                                     <h5 class="p-0 m-0">Alumni <br> Mentee</h5>
-                                    <h3 class="p-0 ms-auto">
+                                    <h3 class="p-0 ms-auto client-status" data-client-type='alumni-mentee'>
                                         {{ $totalClientInformation['alumniMentees']['old'] }}
                                         @if ($totalClientInformation['alumniMentees']['new'] != 0)
                                             <sup class="d-none">
@@ -182,7 +182,7 @@
                                 data-f-date="all" data-f-client-type="alumni-non-mentee">
                                 <div class="d-flex">
                                     <h5 class="p-0 m-0">Alumni <br> Non-Mentee</h5>
-                                    <h3 class="p-0 ms-auto">
+                                    <h3 class="p-0 ms-auto client-status" data-client-type='alumni-non-mentee'>
                                         {{ $totalClientInformation['alumniNonMentees']['old'] }}
                                         @if ($totalClientInformation['alumniNonMentees']['new'] != 0)
                                             <sup>
@@ -213,7 +213,7 @@
                                     data-f-date="all" data-f-client-type="parent">
                                     <div class="d-flex">
                                         <h5 class="p-0 m-0">Parents <br> Total</h5>
-                                        <h3 class="p-0 client-status ms-auto">
+                                        <h3 class="p-0 client-status ms-auto" data-client-type='parent'>
                                             {{ $totalClientInformation['parent']['old'] }}
                                             @if ($totalClientInformation['parent']['new'] != 0)
                                                 <sup>
@@ -243,7 +243,7 @@
                                     data-f-date="all" data-f-client-type="teacher-counselor">
                                     <div class="d-flex">
                                         <h5 class="p-0 m-0">Teacher <br> Total</h5>
-                                        <h3 class="p-0 client-status ms-auto">
+                                        <h3 class="p-0 client-status ms-auto" data-client-type='teacher'>
                                             {{ $totalClientInformation['teacher_counselor']['old'] }}
                                             @if ($totalClientInformation['teacher_counselor']['new'] != 0)
                                                 <sup>
@@ -276,7 +276,7 @@
                         <div class="card-body">
                             <div class="d-flex align-items-center h-100">
                                 <h5 class="p-0 m-0">Raw Data Client <br> Total</h5>
-                                <h3 class="p-0 client-status ms-auto">
+                                <h3 class="p-0 ms-auto total-raw" data-client-type='raw-client'>
                                     {{ array_sum($totalClientInformation['raw']) }}
                                 </h3>
                             </div>
@@ -284,15 +284,15 @@
                         <div class="card-footer bg-primary">
                             <div class="row row-cols-3">
                                 <div class="col text-center text-white">
-                                    <h5 class="m-0">{{ $totalClientInformation['raw']['student'] }}</h5>
+                                    <h5 class="m-0 raw-student" data-raw-st={{ $totalClientInformation['raw']['student'] }}>{{ $totalClientInformation['raw']['student'] }}</h5>
                                     <small>Students</small>
                                 </div>
                                 <div class="col text-center text-white">
-                                    <h5 class="m-0">{{ $totalClientInformation['raw']['parent'] }}</h5>
+                                    <h5 class="m-0 raw-parent" data-raw-pr={{ $totalClientInformation['raw']['parent'] }}>{{ $totalClientInformation['raw']['parent'] }}</h5>
                                     <small>Parents</small>
                                 </div>
                                 <div class="col text-center text-white">
-                                    <h5 class="m-0">{{ $totalClientInformation['raw']['teacher'] }}</h5>
+                                    <h5 class="m-0 raw-teacher" data-raw-tc={{ $totalClientInformation['raw']['teacher'] }}>{{ $totalClientInformation['raw']['teacher'] }}</h5>
                                     <small>Teachers</small>
                                 </div>
                             </div>
@@ -301,7 +301,7 @@
                         <div class="card-body">
                             <div class="d-flex align-items-center h-100">
                                 <h5 class="p-0 m-0">Inactive Client <br> Total</h5>
-                                <h3 class="p-0 client-status ms-auto">
+                                <h3 class="p-0  ms-auto">
                                     {{ array_sum($totalClientInformation['inactive']) }}
                                 </h3>
                             </div>
@@ -357,6 +357,8 @@
                                 <th class='bg-secondary rounded border border-white'>Client's Mail</th>
                                 <th class='bg-secondary rounded border border-white'>Client's Phone</th>
                                 <th class='bg-secondary rounded border border-white'>Graduation Year</th>
+                                <th class='bg-secondary rounded border border-white'>Triggered By</th>
+                                <th class='bg-secondary rounded border border-white'>Lead Source</th>
                                 <th class='bg-secondary rounded border border-white'>Register Date</th>
                             </tr>
                         </thead>
@@ -460,6 +462,16 @@
                         $(this).html(title)
 
                     })
+
+                    $(".raw-student").html(obj[8]['current_raw']);
+                    $(".raw-student").data('raw-st', obj[8]['current_raw']);
+                    
+                    var raw_student = $(".raw-student").data('raw-st');
+                    var raw_parent = $(".raw-parent").data('raw-pr');
+                    var raw_teacher = $(".raw-teacher").data('raw-tc');
+                    
+                    $(".total-raw").html(raw_parent + raw_student + raw_teacher);
+
 
                     $(".client-status-detail").each(function(index) {
                         if (response.data.type == "all") {
