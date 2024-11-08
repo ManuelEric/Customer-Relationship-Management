@@ -158,4 +158,28 @@ class Program extends Model
     {
         return $this->hasMany(SeasonalProgram::class, 'prog_id', 'prog_id');
     }
+
+    public function scopeAdmissionProgList($query)
+    {
+        return $query->whereHas('main_prog', function ($query) {
+            $query->where('prog_name', 'Admissions Mentoring');
+        })->orWhereHas('sub_prog', function ($query) {
+            $query->where('sub_prog_name', 'Admissions Mentoring');
+        });
+    }
+
+    public function scopeTutoringProgList($query)
+    {
+        return $query->whereHas('sub_prog', function ($query) {
+            $query->where('sub_prog_name', 'like', '%Tutoring%');
+        });
+    }
+
+    public function scopeSATACTProgList($query)
+    {
+        return $query->whereHas('sub_prog', function ($query) {
+            $query->where('sub_prog_name', 'like', '%SAT%')->orWhere('sub_prog_name', 'like', '%ACT%');
+        });
+    }
+
 }

@@ -547,6 +547,7 @@ return new class extends Migration
                 WHERE sqac.client_id = rc.id GROUP BY sqac.client_id) as interest_countries,
             rc.created_at,
             rc.updated_at,
+            rc.deleted_at,
             (SELECT GROUP_CONCAT(sr.role_name SEPARATOR ", ") FROM tbl_client_roles scr
                 LEFT JOIN tbl_roles sr ON scr.role_id = sr.id AND sr.role_name != "mentee" AND sr.role_name != "alumni"
                 WHERE scr.client_id = rc.id) as roles,
@@ -668,19 +669,6 @@ return new class extends Migration
                     WHERE ab.client_id = c.id
                 )
             ) AS total_score,
-            UpdateGradeStudent (
-                year(CURDATE()),
-                year(c.created_at),
-                month(CURDATE()),
-                month(c.created_at),
-                c.st_grade
-            ) AS real_grade,
-            (SELECT ((SELECT c.grade_now) - 12)) AS year_gap,
-            (CASE
-                WHEN (SELECT real_grade IS NULL) AND c.graduation_year IS NOT NULL THEN c.graduation_year  
-                ELSE getGraduationYearReal((SELECT c.grade_now))
-            END) AS graduation_year_real,
-            (SELECT YEAR((NOW() - INTERVAL (SELECT year_gap) YEAR) + INTERVAL 1 YEAR)) AS graduation_year_test,
             (SELECT GROUP_CONCAT(squ.univ_name) FROM tbl_dreams_uni sqdu
                     LEFT JOIN tbl_univ squ ON squ.univ_id = sqdu.univ_id
                     WHERE sqdu.client_id = c.id GROUP BY sqdu.client_id) as dream_uni,
