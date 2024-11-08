@@ -121,7 +121,7 @@ class SchoolProgramController extends Controller
         $programs = $this->programService->snGetAllPrograms();
 
         # retrieve employee data
-        $employees = $this->userRepository->getAllUsersByRole('Employee');
+        $employees = $this->userRepository->rnGetAllUsersByRole('Employee');
 
 
         return view('pages.program.school-program.index')->with(
@@ -176,7 +176,7 @@ class SchoolProgramController extends Controller
         // $reasons = $this->reasonRepository->getAllReasons();
 
         # retrieve employee data
-        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
+        $employees = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
 
         return view('pages.program.school-program.form')->with(
@@ -218,7 +218,7 @@ class SchoolProgramController extends Controller
         $school_program_attachs = $this->schoolProgramAttachRepository->getAllSchoolProgramAttachsBySchprogId($sch_prog_id);
 
         # retrieve employee data
-        $employees = $this->userRepository->getAllUsersByRole('Employee');
+        $employees = $this->userRepository->rnGetAllUsersByRole('Employee');
 
         # retrieve corporate / partner
         $partners = $this->corporateRepository->getAllCorporate();
@@ -300,7 +300,7 @@ class SchoolProgramController extends Controller
         $school_program = $this->schoolProgramRepository->getSchoolProgramById($sch_prog_id);
 
         # retrieve employee data
-        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
+        $employees = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
         # retrieve corporate / partner
         $partners = $this->corporateRepository->getAllCorporate();

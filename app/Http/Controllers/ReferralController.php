@@ -90,7 +90,7 @@ class ReferralController extends Controller
     {
         $partners = $this->corporateRepository->getAllCorporate();
         $programs = $this->programRepository->getAllPrograms();
-        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
+        $employees = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
         return view('pages.program.referral.form')->with(
             [
@@ -110,7 +110,7 @@ class ReferralController extends Controller
         $partners = $this->corporateRepository->getAllCorporate();
         $programs = $this->programRepository->getAllPrograms();
 
-        $employees = $this->userRepository->getAllUsersByRole('Employee');
+        $employees = $this->userRepository->rnGetAllUsersByRole('Employee');
 
         return view('pages.program.referral.form')->with(
             [
@@ -170,7 +170,7 @@ class ReferralController extends Controller
         $referral = $this->referralRepository->getReferralById($referral_id);
         $partners = $this->corporateRepository->getAllCorporate();
         $programs = $this->programRepository->getAllPrograms();
-        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
+        $employees = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
         return view('pages.program.referral.form')->with(
             [

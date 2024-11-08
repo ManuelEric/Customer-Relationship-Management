@@ -69,7 +69,7 @@ class EventController extends Controller
         $event_id = $request->route('event');
         $event = $this->eventRepository->getEventById($event_id);
         $event_pic = $event->eventPic->pluck('id')->toArray();
-        $employees = $this->userRepository->getAllUsersByRole('employee');
+        $employees = $this->userRepository->rnGetAllUsersByRole('employee');
         # universities
         $universities = $this->universityRepository->getAllUniversities();
         $university_event = $this->universityEventRepository->getUniversityByEventId($event_id);
@@ -138,9 +138,9 @@ class EventController extends Controller
 
     public function create()
     {
-        $partnership = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
-        $sales = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
-        $digital = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Digital');
+        $partnership = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Business Development');
+        $sales = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $digital = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Digital');
         $employees = $partnership->merge($sales)->merge($digital);
 
         # retrieve program data
@@ -196,9 +196,9 @@ class EventController extends Controller
         $event = $this->eventRepository->getEventById($event_id);
         $event_pic = $event->eventPic->pluck('id')->toArray();
 
-        $partnership = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
-        $sales = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
-        $digital = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Digital');
+        $partnership = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Business Development');
+        $sales = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $digital = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Digital');
         $employees = $partnership->merge($sales)->merge($digital);
 
         # universities

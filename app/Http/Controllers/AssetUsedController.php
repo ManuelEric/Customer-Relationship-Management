@@ -68,7 +68,7 @@ class AssetUsedController extends Controller
         $asset = $this->assetRepository->getAssetById($asset_id);
         $user = $asset->userUsedAsset()->where('tbl_asset_used.id', $used_id)->first();
 
-        $employees = $this->userRepository->getAllUsersByRole('employee');
+        $employees = $this->userRepository->rnGetAllUsersByRole('employee');
 
 
         return response()->json([

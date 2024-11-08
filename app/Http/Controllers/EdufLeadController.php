@@ -58,8 +58,8 @@ class EdufLeadController extends Controller
     {
         $schools = $this->schoolRepository->getAllSchools();
         $corporates = $this->corporateRepository->getAllCorporate();
-        $user_from_client_department = $this->userRepository->getAllUsersByRole('Client');
-        $user_from_biz_dev_department = $this->userRepository->getAllUsersByRole('BizDev');
+        $user_from_client_department = $this->userRepository->rnGetAllUsersByRole('Client');
+        $user_from_biz_dev_department = $this->userRepository->rnGetAllUsersByRole('BizDev');
 
         return view('pages.master.edufair.form')->with(
             [
@@ -163,9 +163,9 @@ class EdufLeadController extends Controller
 
         $schools = $this->schoolRepository->getAllSchools();
         $corporates = $this->corporateRepository->getAllCorporate();
-        $user_from_client_department = $this->userRepository->getAllUsersByRole('Client');
-        $user_from_biz_dev_department = $this->userRepository->getAllUsersByRole('BizDev');
-        $employees = $this->userRepository->getAllUsersByRole('Employee');
+        $user_from_client_department = $this->userRepository->rnGetAllUsersByRole('Client');
+        $user_from_biz_dev_department = $this->userRepository->rnGetAllUsersByRole('BizDev');
+        $employees = $this->userRepository->rnGetAllUsersByRole('Employee');
         $speakers = $this->agendaSpeakerRepository->getAllSpeakerByEdufair($eduf_lead_id);
 
 
@@ -194,8 +194,8 @@ class EdufLeadController extends Controller
 
         $schools = $this->schoolRepository->getAllSchools();
         $corporates = $this->corporateRepository->getAllCorporate();
-        $user_from_client_department = $this->userRepository->getAllUsersByRole('Client');
-        $user_from_biz_dev_department = $this->userRepository->getAllUsersByRole('BizDev');
+        $user_from_client_department = $this->userRepository->rnGetAllUsersByRole('Client');
+        $user_from_biz_dev_department = $this->userRepository->rnGetAllUsersByRole('BizDev');
 
         return view('pages.master.edufair.form')->with(
             [

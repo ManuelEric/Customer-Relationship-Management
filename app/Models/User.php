@@ -173,6 +173,25 @@ class User extends Authenticatable
      * The scopes.
      * 
      */
+    public function scopeActive(Builder $query): void
+    {
+        $query->where('active', 1);
+    }
+
+    public function scopeRole(Builder $query, String $role): void
+    {
+        $query->whereHas('roles', function ($sub) use ($role) {
+            $sub->where('role_name', 'like', '%'.$role);
+        });
+    }
+
+    public function scopeDepartment(Builder $query, String $department): void
+    {
+        $query->whereHas('department', function ($sub) use ($department) {
+            $sub->where('dept_name', 'like', '%'.$department.'%');
+        });
+    }
+
     public function scopeTutor(Builder $query): void
     {
         $query->whereHas('roles', function ($sub) {

@@ -242,7 +242,7 @@ class ClientStudentController extends ClientController
         $programsB2C = $this->programRepository->getAllProgramByType('B2C', true);
         $programs = $programsB2BB2C->merge($programsB2C)->sortBy('program_name');
         
-        $salesTeams = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $salesTeams = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
 
         $initialPrograms = $this->initialProgramRepository->getAllInitProg();
         $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);

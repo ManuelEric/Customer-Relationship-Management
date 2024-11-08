@@ -26,24 +26,24 @@ class CreateUserAction
     {
         # 1. store new user
         $new_user_details += ['number' => \App\Models\User::max('number') + 1];
-        $new_user = $this->userRepository->createUser($new_user_details);
+        $new_user = $this->userRepository->rnCreateUser($new_user_details);
         $new_user_id = $new_user->id;
 
 
         # 2. store new user education to tbl_user_education
-        $this->userRepository->createUserEducation($new_user, $new_user_education_details);
+        $this->userRepository->rnCreateUserEducation($new_user, $new_user_education_details);
         
         
         # 3. store new user role to tbl_user_roles
-        $this->userRepository->createUserRole($new_user, $new_user_role_details);
+        $this->userRepository->rnCreateUserRole($new_user, $new_user_role_details);
 
 
         # 4. store new user contract to tbl_user_type
-        $this->userRepository->createUserType($new_user, $new_user_type_details);
+        $this->userRepository->rnCreateUserType($new_user, $new_user_type_details);
 
 
         # 5. store/update new tutor subject
-        $this->userRepository->createOrUpdateUserSubject($new_user, $request);
+        $this->userRepository->rnCreateOrUpdateUserSubject($new_user, $request);
         
 
         # 6. upload curriculum vitae
@@ -68,7 +68,7 @@ class CreateUserAction
 
         # update uploaded data to user table
         if ($request->hasFile('curriculum_vitae') || $request->hasFile('idcard') || $request->hasFile('tax') || $request->hasFile('health_insurance') || $request->hasFile('empl_insurance')) {
-            $this->userRepository->updateUser($new_user_id, [
+            $this->userRepository->rnUpdateUser($new_user_id, [
                 'idcard' => $ID_file_path,
                 'cv' => $CV_file_path,
                 'tax' => $TX_file_path,

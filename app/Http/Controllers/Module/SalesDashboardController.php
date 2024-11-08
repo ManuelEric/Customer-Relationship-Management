@@ -68,7 +68,7 @@ class SalesDashboardController extends Controller
         $response_ofClientStatus = $this->clientStatus($month);
 
         # fetching all employee data
-        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('employee', 'Client Management');
+        $employees = $this->userRepository->rnGetAllUsersByDepartmentAndRole('employee', 'Client Management');
 
         # fetching chart data by no program (all)
         $totalAllClientProgramByStatus = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => null] + $cp_filter);

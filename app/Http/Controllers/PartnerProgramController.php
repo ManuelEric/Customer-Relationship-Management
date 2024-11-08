@@ -124,7 +124,7 @@ class PartnerProgramController extends Controller
         $programs = $this->programService->snGetAllPrograms();
 
         # retrieve employee data
-        $employees = $this->userRepository->getAllUsersByRole('Employee');
+        $employees = $this->userRepository->rnGetAllUsersByRole('Employee');
 
         return view('pages.program.corporate-program.index')->with(
             [
@@ -179,7 +179,7 @@ class PartnerProgramController extends Controller
 
         # retrieve employee data
         # because for now 29/03/2023 there aren't partnership team, so we use client management
-        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
+        $employees = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
         return view('pages.program.corporate-program.form')->with(
             [
@@ -226,7 +226,7 @@ class PartnerProgramController extends Controller
         $partner_program_attachs = $this->partnerProgramAttachRepository->getAllPartnerProgramAttachsByPartnerProgId($corp_prog_id);
 
         # retrieve employee data
-        $employees = $this->userRepository->getAllUsersByRole('Employee');
+        $employees = $this->userRepository->rnGetAllUsersByRole('Employee');
 
         # retrieve speaker data
         $speakers = $this->agendaSpeakerRepository->getAllSpeakerByPartnerProgram($corp_prog_id);
@@ -301,7 +301,7 @@ class PartnerProgramController extends Controller
         $partner_program = $this->partnerProgramRepository->getPartnerProgramById($partner_prog_id);
 
         # retrieve employee data
-        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
+        $employees = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
         # retrieve corporate / partner
         $partners = $this->corporateRepository->getAllCorporate();

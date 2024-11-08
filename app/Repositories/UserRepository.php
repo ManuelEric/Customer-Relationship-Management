@@ -34,7 +34,7 @@ class UserRepository implements UserRepositoryInterface
         $this->clientRepository = $clientRepository;
     }
 
-    public function getAllUsersByRoleDataTables($role)
+    public function rnGetAllUsersByRoleDataTables($role)
     {
         return DataTables::eloquent(
             User::leftJoin('tbl_position', 'tbl_position.id', '=', 'users.position_id')->
@@ -89,208 +89,37 @@ class UserRepository implements UserRepositoryInterface
             ->make(true);
     }
 
-    public function getAllUsers()
+    public function rnGetAllUsers()
     {
         return User::all();
     }
 
-    public function getAllUsersWithoutUUID()
+    public function rnGetAllUsersByRole($role)
     {
-        return User::whereNull('id')->get();
+        return User::with('department')->role($role)->active()->orderBy('first_name', 'asc')->orderBy('last_name', 'asc')->get();
     }
 
-    public function getAllUsersByRole($role)
+    public function rnGetAllUsersByDepartmentAndRole($role, $department)
     {
-        return User::with('department')->whereHas('roles', function ($query) use ($role) {
-            $query->where('role_name', 'like', '%'.$role);
-        })->where('active', 1)->orderBy('first_name', 'asc')->orderBy('last_name', 'asc')->get();
+        return User::role($role)->department($department)->active()->orderBy('first_name', 'asc')->orderBy('last_name', 'asc')->get();
     }
-
-    public function getAllUsersByDepartmentAndRole($role, $department)
-    {
-        return User::whereHas('roles', function ($query) use ($role) {
-            $query->where('role_name', 'like', '%'.$role);
-        })->whereHas('department', function ($query) use ($department) {
-            $query->where('dept_name', 'like', '%'.$department.'%');
-        })->where('active', 1)->orderBy('first_name', 'asc')->orderBy('last_name', 'asc')->get();
-    }
-
-    public function getAllUsersProbationContracts()
-    {
-        $today = date('Y-m-d');
-        $twoWeeks = date('Y-m-d', strtotime('+2 weeks', strtotime($today)));
-
-        return User::whereHas('user_type', function($query) use ($twoWeeks) {
-                $query->
-                    where('tbl_user_type_detail.status', 1)-> # dimana status contractnya active
-                    where('tbl_user_type_detail.end_date', $twoWeeks)-> # dimana end date nya sudah H-2 weeks
-                    where('tbl_user_type.type_name', 'Probation'); 
-            })->get();
-    }
-
-    public function getAllUsersTutorContracts()
-    {
-        $today = date('Y-m-d');
-        $twoMonths = date('Y-m-d', strtotime('+2 months', strtotime($today)));
-
-        return User::
-            whereHas('roles', function ($query) {
-                $query->
-                    where('role_name', 'Tutor');
-            })->
-            whereHas('user_type', function($query) use ($twoMonths) {
-                $query->
-                    where('tbl_user_type_detail.status', 1)-> # dimana status contractnya active
-                    where('tbl_user_type_detail.end_date', $twoMonths)-> # dimana end date nya sudah H-2 weeks
-                    where('tbl_user_type.type_name', 'Part-Time');
-            })->get();
-    }
-
-    public function getAllUsersEditorContracts()
-    {
-        $today = date('Y-m-d');
-        $twoMonths = date('Y-m-d', strtotime('+2 months', strtotime($today)));
-
-        return User::
-            whereHas('roles', function ($query) {
-                $query->
-                    where('role_name', 'like', '%Editor');
-            })->
-            whereHas('user_type', function($query) use ($twoMonths) {
-                $query->
-                    where('tbl_user_type_detail.status', 1)-> # dimana status contractnya active
-                    where('tbl_user_type_detail.end_date', $twoMonths)-> # dimana end date nya sudah H-2 weeks
-                    where('tbl_user_type.type_name', 'Part-Time');
-            })->get();
-    }
-
-    public function getAllUsersExternalMentorContracts()
-    {
-        $today = date('Y-m-d');
-        $twoMonths = date('Y-m-d', strtotime('+2 months', strtotime($today)));
-
-        return User::
-            whereHas('roles', function ($query) {
-                $query->
-                    where('role_name', 'Mentor');
-            })->
-            whereDoesntHave('roles', function ($query) {
-                $query->
-                    where('role_name', 'Employee');
-            })->
-            whereHas('user_type', function($query) use ($twoMonths) {
-                $query->
-                    where('tbl_user_type_detail.status', 1)-> # dimana status contractnya active
-                    where('tbl_user_type_detail.end_date', $twoMonths)-> # dimana end date nya sudah H-2 weeks
-                    where('tbl_user_type.type_name', 'Part-Time');
-            })->
-            get();
-    }
-
-    public function getAllUsersInternshipContracts()
-    {
-        $today = date('Y-m-d');
-        $oneMonth = date('Y-m-d', strtotime('+1 months', strtotime($today)));
-
-        return User::
-            whereHas('user_type', function($query) use ($oneMonth) {
-                $query->
-                    where('tbl_user_type_detail.status', 1)-> # dimana status contractnya active
-                    where('tbl_user_type_detail.end_date', $oneMonth)-> # dimana end date nya sudah H-2 weeks
-                    where('tbl_user_type.type_name', 'Internship');
-            })->
-            get();
-    }
-
-    //! new methods start
-
-    public function rnFindExpiringContracts(ContractUserType $type)
-    {
-        return User::query()->
-            when(ContractUserType::EDITOR, function ($query) {
-                $expected_end_date = Carbon::now()->addMonth(2);
-                $query->editor()->partTime($expected_end_date);
-            })->
-            when(ContractUserType::EXTERNAL_MENTOR, function ($query) {
-                $expected_end_date = Carbon::now()->addMonth(2);
-                $query->externalMentor()->partTime($expected_end_date);
-            })->
-            when(ContractUserType::TUTOR, function ($query) {
-                $expected_end_date = Carbon::now()->addMonth(2);
-                $query->tutor()->partTime($expected_end_date);
-            })->
-            when(ContractUserType::INTERNSHIP, function ($query) {
-                $expected_end_date = Carbon::now()->addMonth(1);
-                $query->internship($expected_end_date);
-            })->
-            when(ContractUserType::PROBATION, function ($query) {
-                $expected_end_date = Carbon::now()->addWeek(2);
-                $query->partTime($expected_end_date);
-            })->
-            with(['user_type'])->
-            lazy();
-    }
-
-    //! new methods end
-
-    public function getPICs()
-    {
-        return User::isPic();
-    }
-
-    public function getUserById($userId)
+    
+    public function rnGetUserById($userId)
     {
         return User::with('roles')->findOrFail($userId);
     }
 
-    public function getUserByUUID($userUUID)
-    {
-        return User::where('id', $userUUID)->first();
-    }
-
-    public function getUserByExtendedId($extendedId)
-    {
-        return User::whereExtendedId($extendedId);
-    }
-
-    public function getUserByFullNameOrEmail($userName, $userEmail)
-    {
-        $userName = explode(' ', $userName);
-
-        return User::where(function ($extquery) use ($userName) {
-
-            # search word by word 
-            # and loop based on name length
-            for ($i = 0; $i < count($userName); $i++) {
-
-                # looping at least two times
-                if ($i <= 1)
-                    $extquery = $extquery->whereRaw("CONCAT(first_name, ' ', last_name) like ?", ['%' . $userName[$i] . '%']);
-            }
-        })->orWhere('email', $userEmail)->first();
-    }
-
-    public function getUserByfirstName($first_name)
-    {
-        return User::where(DB::raw("SUBSTRING_INDEX(first_name, ' ', 1)"), $first_name)->first();
-    }
-
-    public function createUsers(array $userDetails)
-    {
-        return User::insert($userDetails);
-    }
-
-    public function createUser(array $userDetails)
+    public function rnCreateUser(array $userDetails)
     {
         return User::create($userDetails);
     }
 
-    public function updateUser($user_id, array $new_details)
+    public function rnUpdateUser($user_id, array $new_details)
     {
         return tap(User::find($user_id))->update($new_details);
     }
 
-    public function updateStatusUser(User $user, array $new_status_details)
+    public function rnUpdateStatusUser(User $user, array $new_status_details)
     {
         # update status users
         $user->update(['active' => $new_status_details['active']]);
@@ -334,11 +163,7 @@ class UserRepository implements UserRepositoryInterface
         return $user;
     }
 
-    public function updateExtendedId($newDetails)
-    {
-    }
-
-    public function deleteUserType($user_type_id)
+    public function rnDeleteUserType($user_type_id)
     {
         # store the soon deleted user type variable and returned it
         $user_type_detail = UserTypeDetail::find($user_type_id);
@@ -346,41 +171,7 @@ class UserRepository implements UserRepositoryInterface
         return $user_type_detail;
     }
 
-    public function getUserRoles($userId, $roleName)
-    {
-        return User::where('id', $userId)->whereHas('roles', function (Builder $query) use ($roleName) {
-            $query->where('role_name', '=', $roleName);
-        })->first();
-    }
-
-    public function cleaningUser()
-    {
-        User::where('last_name', '=', '')->update(
-            [
-                'last_name' => null
-            ]
-        );
-
-        User::where('address', '=', '')->update(
-            [
-                'address' => null
-            ]
-        );
-
-        User::where('emergency_contact', '=', '')->orWhere('emergency_contact', '=', '-')->update(
-            [
-                'emergency_contact' => null
-            ]
-        );
-
-        User::where('password', '=', '')->update(
-            [
-                'password' => null
-            ]
-        );
-    }
-
-    public function createUserEducation(User $user, array $user_education_details)
+    public function rnCreateUserEducation(User $user, array $user_education_details)
     {
         if ( (array_key_exists('graduated_from', $user_education_details) && ($user_education_details['graduated_from'] !== [])) 
             && (array_key_exists('major', $user_education_details) && ($user_education_details['major'] !== []))
@@ -400,7 +191,7 @@ class UserRepository implements UserRepositoryInterface
 
     }
     
-    public function updateUserEducation(User $user, array $new_user_education_details)
+    public function rnUpdateUserEducation(User $user, array $new_user_education_details)
     {
         if ( (array_key_exists('graduated_from', $new_user_education_details) && ($new_user_education_details['graduated_from'] !== [])) 
             && (array_key_exists('major', $new_user_education_details) && ($new_user_education_details['major'] !== []))
@@ -421,7 +212,7 @@ class UserRepository implements UserRepositoryInterface
         }
     }
 
-    public function createOrUpdateUserSubject(User $user, Request $request)
+    public function rnCreateOrUpdateUserSubject(User $user, Request $request)
     {
         # recollect user with user subjects
         $user = User::with('roles')->find($user->id);
@@ -485,7 +276,7 @@ class UserRepository implements UserRepositoryInterface
         }        
     }
 
-    public function createUserRole(User $user, array $user_role_details)
+    public function rnCreateUserRole(User $user, array $user_role_details)
     {
         if ( (!array_key_exists('role', $user_role_details) && ($user_role_details['role'] !== [])) )
             throw new Exception('Role has to be provided.');
@@ -493,12 +284,12 @@ class UserRepository implements UserRepositoryInterface
         $user->roles()->attach($user_role_details['role']);
     }
 
-    public function updateUserRole(User $user, array $new_user_role_details)
+    public function rnUpdateUserRole(User $user, array $new_user_role_details)
     {
         /**
          * Developers notes:
          * we are not using sync method from laravel built-in functions
-         * because if we are using sync method, the user_role_id will be changed and it will disrupt the process of createOrUpdateUserSubject
+         * because if we are using sync method, the user_role_id will be changed and it will disrupt the process of rnCreateOrUpdateUserSubject
          */
         
         if ( (!array_key_exists('role', $new_user_role_details) && ($new_user_role_details['role'] !== [])) )
@@ -532,7 +323,7 @@ class UserRepository implements UserRepositoryInterface
         }
     }
 
-    public function createUserType(User $user, array $user_type_details)
+    public function rnCreateUserType(User $user, array $user_type_details)
     {
         if ( (!array_key_exists('type', $user_type_details) && ($user_type_details['type'] !== []))
             || (!array_key_exists('department', $user_type_details) && ($user_type_details['department'] !== []))
@@ -547,7 +338,7 @@ class UserRepository implements UserRepositoryInterface
         ]);
     }
 
-    public function updateUserType(User $user, array $new_user_type_details)
+    public function rnUpdateUserType(User $user, array $new_user_type_details)
     {
         if ( (!array_key_exists('type', $new_user_type_details) && ($new_user_type_details['type'] !== []))
             || (!array_key_exists('department', $new_user_type_details) && ($new_user_type_details['department'] !== []))
@@ -584,8 +375,40 @@ class UserRepository implements UserRepositoryInterface
         }
     }
 
-    public function getUserSubjectById($user_subject_id)
+    public function rnGetUserSubjectById($user_subject_id)
     {
         return UserSubject::where('id', $user_subject_id)->first();
     }
+
+    
+    //! new methods start
+
+    public function rnFindExpiringContracts(ContractUserType $type)
+    {
+        return User::query()->
+            when(ContractUserType::EDITOR, function ($query) {
+                $expected_end_date = Carbon::now()->addMonth(2);
+                $query->editor()->partTime($expected_end_date);
+            })->
+            when(ContractUserType::EXTERNAL_MENTOR, function ($query) {
+                $expected_end_date = Carbon::now()->addMonth(2);
+                $query->externalMentor()->partTime($expected_end_date);
+            })->
+            when(ContractUserType::TUTOR, function ($query) {
+                $expected_end_date = Carbon::now()->addMonth(2);
+                $query->tutor()->partTime($expected_end_date);
+            })->
+            when(ContractUserType::INTERNSHIP, function ($query) {
+                $expected_end_date = Carbon::now()->addMonth(1);
+                $query->internship($expected_end_date);
+            })->
+            when(ContractUserType::PROBATION, function ($query) {
+                $expected_end_date = Carbon::now()->addWeek(2);
+                $query->partTime($expected_end_date);
+            })->
+            with(['user_type'])->
+            lazy();
+    }
+
+    //! new methods end
 }

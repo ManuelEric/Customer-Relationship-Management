@@ -25,7 +25,7 @@ class ExtUserController extends Controller
         $decodedDepartment = urldecode($department);
         
         # only select the active users
-        $usersFromDepartment = $this->userRepository->getAllUsersByDepartmentAndRole('employee', $decodedDepartment);
+        $usersFromDepartment = $this->userRepository->rnGetAllUsersByDepartmentAndRole('employee', $decodedDepartment);
 
         # when user not found
         if (!$usersFromDepartment) {
@@ -57,7 +57,7 @@ class ExtUserController extends Controller
     
     public function getEmployees(Request $request)
     {
-        $employees = $this->userRepository->getAllUsersByRole('Employee');
+        $employees = $this->userRepository->rnGetAllUsersByRole('Employee');
         if (!$employees) {
             return response()->json([
                 'success' => true,

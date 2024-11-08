@@ -21,7 +21,7 @@ class UserDocumentDownloadAction
     public function execute(string $user_id, string $file_type)
     {
         
-        $user = $this->userRepository->getUserById($user_id);
+        $user = $this->userRepository->rnGetUserById($user_id);
         switch ($file_type) {
             case "CV":
                 $file_path = $user->cv;

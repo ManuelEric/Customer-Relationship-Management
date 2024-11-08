@@ -83,7 +83,7 @@ class PurchaseRequestController extends Controller
     public function create()
     {
         $departments = $this->departmentRepository->getAllDepartment();
-        $employees = $this->userRepository->getAllUsersByRole('employee');
+        $employees = $this->userRepository->rnGetAllUsersByRole('employee');
         $request_status = ['Urgent', 'Immediately', 'Can Wait', 'Done'];
 
         return view('pages.master.purchase.form')->with(
@@ -104,7 +104,7 @@ class PurchaseRequestController extends Controller
         $purchase_request = $this->purchaseRequestRepository->getPurchaseRequestById($purchase_id);
 
         $departments = $this->departmentRepository->getAllDepartment();
-        $employees = $this->userRepository->getAllUsersByRole('employee');
+        $employees = $this->userRepository->rnGetAllUsersByRole('employee');
         $request_status = ['Urgent', 'Immediately', 'Can Wait', 'Done'];
 
 
@@ -159,7 +159,7 @@ class PurchaseRequestController extends Controller
         $purchase_request = $this->purchaseRequestRepository->getPurchaseRequestById($purchase_id);
 
         $departments = $this->departmentRepository->getAllDepartment();
-        $employees = $this->userRepository->getAllUsersByRole('employee');
+        $employees = $this->userRepository->rnGetAllUsersByRole('employee');
         $request_status = ['Urgent', 'Immediately', 'Can Wait', 'Done'];
 
         return view('pages.master.purchase.form')->with(

@@ -27,23 +27,23 @@ class UpdateUserAction
         $user_id = $request->route('user');
 
         # 1. update the user
-        $the_user = $this->userRepository->updateUser($user_id, $new_user_details);
+        $the_user = $this->userRepository->rnUpdateUser($user_id, $new_user_details);
 
 
         # 2. update the user education
-        $this->userRepository->updateUserEducation($the_user, $new_user_education_details);
+        $this->userRepository->rnUpdateUserEducation($the_user, $new_user_education_details);
 
 
         # 3. update the user role
-        $this->userRepository->updateUserRole($the_user, $new_user_role_details);
+        $this->userRepository->rnUpdateUserRole($the_user, $new_user_role_details);
 
 
         # 4. update the user contract
-        $this->userRepository->updateUserType($the_user, $new_user_type_details);
+        $this->userRepository->rnUpdateUserType($the_user, $new_user_type_details);
 
 
         # 5. store/update new tutor subject
-        $this->userRepository->createOrUpdateUserSubject($the_user, $request);
+        $this->userRepository->rnCreateOrUpdateUserSubject($the_user, $request);
     
 
         # 6. upload curriculum vitae
@@ -68,7 +68,7 @@ class UpdateUserAction
 
         # update uploaded data to user table
         if ($request->hasFile('curriculum_vitae') || $request->hasFile('idcard') || $request->hasFile('tax') || $request->hasFile('health_insurance') || $request->hasFile('empl_insurance')) {
-            $this->userRepository->updateUser($user_id, [
+            $this->userRepository->rnUpdateUser($user_id, [
                 'idcard' => $ID_file_path,
                 'cv' => $CV_file_path,
                 'tax' => $TX_file_path,

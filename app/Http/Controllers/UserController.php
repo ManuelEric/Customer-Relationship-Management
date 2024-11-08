@@ -62,13 +62,8 @@ class UserController extends Controller
     public function index(Request $request): mixed
     {
         $role = $request->route('user_role');
-        try {
-            if ($request->ajax()){
-               return $this->userRepository->getAllUsersByRoleDataTables($role);
-            }
-        } catch (Exception $e) {
-            Log::error($e->getMessage());
-        }
+        if ($request->ajax())
+            return $this->userRepository->rnGetAllUsersByRoleDataTables($role);
 
         return view('pages.user.employee.index');
     }
@@ -231,7 +226,7 @@ class UserController extends Controller
     public function edit(Request $request): View
     {
         $userId = $request->route('user');
-        $user = $this->userRepository->getUserById($userId);
+        $user = $this->userRepository->rnGetUserById($userId);
 
         $universities = $this->universityRepository->getAllUniversities();
         $univ_countries = $this->universityRepository->getCountryNameFromUniversity();
@@ -239,7 +234,7 @@ class UserController extends Controller
         $departments = $this->departmentRepository->getAllDepartment();
         $positions = $this->positionRepository->getAllPositions();
         $user_types = $this->userTypeRepository->getAllUserType();
-        $salesTeams = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $salesTeams = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
         $subjects = $this->subjectRepository->getAllSubjects();
         $is_tutor = $user->roles()->where('role_name', 'Tutor')->first() != null ? true : false;
 
@@ -278,7 +273,7 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
 
-            $the_user = $this->userRepository->updateStatusUser($user_id, $new_status_detail);
+            $the_user = $this->userRepository->rnUpdateStatusUser($user_id, $new_status_detail);
             DB::commit();
 
         } catch (Exception $e) {
@@ -304,14 +299,14 @@ class UserController extends Controller
         LogService $log_service)
     {
         $selected_user_id = $request->route('user');
-        $selected_user = $this->userRepository->getUserById($selected_user_id);
+        $selected_user = $this->userRepository->rnGetUserById($selected_user_id);
         $new_status_details = $request->only(['active', 'deactivated_at', 'new_pic', 'department']);
 
         DB::beginTransaction();
         try {
 
             # update on users table
-            $this->userRepository->updateStatusUser($selected_user, $new_status_details);
+            $this->userRepository->rnUpdateStatusUser($selected_user, $new_status_details);
             DB::commit();
 
         } catch (Exception $e) {
@@ -364,7 +359,7 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
 
-            $deleted_user_type = $this->userRepository->deleteUserType($user_type_id);
+            $deleted_user_type = $this->userRepository->rnDeleteUserType($user_type_id);
             DB::commit();
         } catch (Exception $e) {
 
@@ -388,7 +383,7 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
 
-            $updated_user = $this->userRepository->updateUser($user_id, $new_password);
+            $updated_user = $this->userRepository->rnUpdateUser($user_id, $new_password);
             DB::commit();
         } catch (Exception $e) {
 
@@ -407,7 +402,7 @@ class UserController extends Controller
         try {
 
             # update on users table
-            $salesTeam = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+            $salesTeam = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
             DB::commit();
         } catch (Exception $e) {
 
@@ -427,10 +422,10 @@ class UserController extends Controller
     public function downloadAgreement(Request $request)
     {
         $userId = $request->route('user');
-        $user = $this->userRepository->getUserById($userId);
+        $user = $this->userRepository->rnGetUserById($userId);
 
         $userSubjectId = $request->route('user_subject');
-        $userSubject = $this->userRepository->getUserSubjectById($userSubjectId);
+        $userSubject = $this->userRepository->rnGetUserSubjectById($userSubjectId);
 
         $file = Storage::disk('local')->get($userSubject->agreement);
 

@@ -89,7 +89,7 @@ class ClientMenteeController extends Controller
             $picActive = $student->picClient->where('status', 1)->first();
         }
 
-        $salesTeams = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $salesTeams = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
 
         return view('pages.client.student.view')->with(
             [

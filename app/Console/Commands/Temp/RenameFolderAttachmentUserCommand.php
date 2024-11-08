@@ -48,7 +48,7 @@ class RenameFolderAttachmentUserCommand extends Command
         DB::beginTransaction();
         try {
 
-            $users = $this->userRepository->getAllUsers();
+            $users = $this->userRepository->rnGetAllUsers();
 
             foreach($users as $user){
                if($user->idcard != null || $user->cv != null || $user->tax != null || $user->health_insurance != null || $user->empl_insurance != null){

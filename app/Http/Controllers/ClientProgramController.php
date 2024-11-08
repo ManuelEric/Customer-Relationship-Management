@@ -163,10 +163,10 @@ class ClientProgramController extends Controller
         $external_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
         $partners = $this->corporateRepository->getAllCorporate();
-        $internal_pic = $this->userRepository->getAllUsersByRole('Employee');
+        $internal_pic = $this->userRepository->rnGetAllUsersByRole('Employee');
 
-        $tutors = $this->userRepository->getAllUsersByRole('Tutor');
-        $mentors = $this->userRepository->getAllUsersByRole('Mentor');
+        $tutors = $this->userRepository->rnGetAllUsersByRole('Tutor');
+        $mentors = $this->userRepository->rnGetAllUsersByRole('Mentor');
 
         $reasons = $this->reasonRepository->getReasonByType('Program');
 
@@ -206,10 +206,10 @@ class ClientProgramController extends Controller
         $external_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
         $partners = $this->corporateRepository->getAllCorporate();
-        $internal_pic = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $internal_pic = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
 
-        $tutors = $this->userRepository->getAllUsersByRole('Tutor');
-        $mentors = $this->userRepository->getAllUsersByRole('Mentor');
+        $tutors = $this->userRepository->rnGetAllUsersByRole('Tutor');
+        $mentors = $this->userRepository->rnGetAllUsersByRole('Mentor');
 
         $reasons = $this->reasonRepository->getReasonByType('Program');
 
@@ -307,10 +307,10 @@ class ClientProgramController extends Controller
         $external_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
         $partners = $this->corporateRepository->getAllCorporate();
-        $internal_pic = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $internal_pic = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
 
-        $tutors = $this->userRepository->getAllUsersByRole('Tutor');
-        $mentors = $this->userRepository->getAllUsersByRole('Mentor');
+        $tutors = $this->userRepository->rnGetAllUsersByRole('Tutor');
+        $mentors = $this->userRepository->rnGetAllUsersByRole('Mentor');
 
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();

@@ -161,7 +161,7 @@ class StoreUserRequest extends FormRequest
         ];
 
         $userId = $this->route('user');
-        $user = $this->userRepository->getUserById($userId);
+        $user = $this->userRepository->rnGetUserById($userId);
 
         if ($user->idcard == null)
             $rules['idcard'] = 'required|mimes:pdf,jpeg,jpg,png|max:5000';
@@ -179,7 +179,7 @@ class StoreUserRequest extends FormRequest
                     }
 
                     $user_role_id = $tutor_role_information->pivot->id;
-                    if ( $role_subject = $this->userRepository->getUserSubjectById($user_role_id) )
+                    if ( $role_subject = $this->userRepository->rnGetUserSubjectById($user_role_id) )
                     {
                         if ( $role_subject->agreement !== NULL )
                         {

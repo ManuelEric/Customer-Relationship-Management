@@ -91,7 +91,7 @@ class AssetController extends Controller
 
         $asset = $this->assetRepository->getAssetById($asset_id);
 
-        $employees = $this->userRepository->getAllUsersByRole('employee');
+        $employees = $this->userRepository->rnGetAllUsersByRole('employee');
 
         # put view detail asset below
         return view('pages.master.asset.form')->with(

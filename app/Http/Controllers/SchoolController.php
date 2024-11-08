@@ -160,7 +160,7 @@ class SchoolController extends Controller
         $leads = $this->leadRepository->getAllLead();
 
         # retrieve employee data
-        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
+        $employees = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
         # retrieve school detail data by school Id
         $schoolDetails = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
@@ -203,7 +203,7 @@ class SchoolController extends Controller
         $leads = $this->leadRepository->getAllLead();
 
         # retrieve employee data
-        $employees = $this->userRepository->getAllUsersByRole('Employee');
+        $employees = $this->userRepository->rnGetAllUsersByRole('Employee');
 
         # retrieve school data by id
         $school = $this->schoolRepository->getSchoolById($schoolId);
