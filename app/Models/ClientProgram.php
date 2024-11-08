@@ -210,7 +210,7 @@ class ClientProgram extends Model
         $firstDiscussDate = Carbon::parse($this->first_discuss_date);
 
         return Attribute::make(
-            get: fn ($value) => $successDate->diffInDays($firstDiscussDate),
+            get: fn ($value) => $firstDiscussDate->diffInDays($successDate),
         );
     }
 
@@ -320,6 +320,7 @@ class ClientProgram extends Model
 
     public function viewClient()
     {
+        //! withTrashed() > could be deleted
         return $this->belongsTo(Client::class, 'client_id', 'id')->withTrashed();
     }
 
@@ -407,6 +408,11 @@ class ClientProgram extends Model
     public function bundlingDetail()
     {
         return $this->hasOne(BundlingDetail::class, 'clientprog_id', 'clientprog_id');
+    }
+
+    public function client_log()
+    {
+        return $this->hasMany(ClientLog::class, 'clientprog_id', 'clientprog_id');
     }
 
 }

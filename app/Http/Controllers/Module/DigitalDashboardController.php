@@ -41,15 +41,19 @@ class DigitalDashboardController extends Controller
         
         # List Lead Source 
         $leads = $this->leadRepository->getAllLead();
-        $dataLead = $this->leadTargetRepository->getLeadDigital($today, null);
-        $programsDigital = $this->programRepository->getAllPrograms();
-        // $dataConversionLead = $this->leadTargetRepository->getConversionLeadDigital($today);
+        
+        $dataLeadDigtal = $this->leadTargetRepository->getLeadDigital($today, $prog_id ?? null);
+        // $dataLeadDigtalSource = $this->leadTargetRepository->getLeadDigital($today, false, $prog_id ?? null);
+        // $dataConversionLead = $this->leadTargetRepository->getLeadDigital($today, true, $prog_id ?? null);
 
+        // $mergeLeadSourceAndConversionLead = $dataConversionLead->merge($dataLeadDigtalSource);
+
+        $programsDigital = $this->programRepository->getAllPrograms();
 
         $response = [
-            'leadsDigital' => $this->mappingDataLead($leads->where('department_id', 7), $dataLead, 'Lead Source'),
-            'leadsAllDepart' => $this->mappingDataLead($leads, $dataLead, 'Conversion Lead'),
-            'dataLead' => $dataLead,
+            'leadsDigital' => $this->mappingDataLead($leads, $dataLeadDigtal, 'Lead Source'),
+            'leadsAllDepart' => $this->mappingDataLead($leads, $dataLeadDigtal, 'Conversion Lead'),
+            'dataLead' => $dataLeadDigtal,
             'programsDigital' => $programsDigital,
 
         ];

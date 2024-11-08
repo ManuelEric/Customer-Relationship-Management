@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\LeadTargetRepositoryInterface;
 use App\Models\Client;
+use App\Models\ClientLog;
 use App\Models\ClientProgram;
 use App\Models\Invb2b;
 use App\Models\InvoiceProgram;
@@ -68,26 +69,25 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $month = date('m', strtotime($now));
         $year = date('Y', strtotime($now));
 
-        return UserClient::withTrashed()->
-                    isStudent()->
-                    whereHas('lead', function ($query) {
-                        $query->where('note', 'Sales')->where('main_lead', '!=', 'Referral');    
-                    })->
-                    where(function ($q) use ($month, $year) {
-                        $q->
-                            whereMonth('tbl_client.created_at', $month)->
-                            whereYear('tbl_client.created_at', $year)->
-                            orWhere(function ($q_2) use ($month, $year) {
-                                $q_2->
-                                whereHas('interestPrograms', function ($subQuery) use ($month, $year) {
+        return ClientLog::with(['master_client', 'lead_source_log'])->
+                whereHas('lead_source_log', function ($query) {
+                    $query->where('note', 'Sales')->where('main_lead', '!=', 'Referral');    
+                })->
+                where(function ($q) use ($month, $year) {
+                    $q->
+                        whereMonth('tbl_client_log.created_at', $month)->
+                        whereYear('tbl_client_log.created_at', $year)->
+                        orWhere(function ($q_2) use ($month, $year) {
+                            $q_2->
+                            whereHas('master_client', function ($q_3) use ($month, $year) {
+                                $q_3->whereHas('interestPrograms', function ($subQuery) use ($month, $year) {
                                     $subQuery->
                                         whereMonth('tbl_interest_prog.created_at', $month)->
                                         whereYear('tbl_interest_prog.created_at', $year);
                                 });
                             });
-                    })->
-                    groupBy('tbl_client.id')->
-                    get();
+                        });
+                })->get();
     }
 
     public function getAchievedHotLeadSalesByMonth($now)
@@ -95,50 +95,35 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $month = date('m', strtotime($now));
         $year = date('Y', strtotime($now));
 
-        return UserClient::withTrashed()->
-                    isStudent()->
-                    whereHas('lead', function ($query) {
+        return ClientLog::with(['master_client', 'lead_source_log'])->
+                    whereHas('lead_source_log', function ($query) {
                         $query->where('note', 'Sales')->where('main_lead', '!=', 'Referral');    
                     })->
                     where(function ($q) use ($month, $year) {
                         $q->
-                            whereMonth('tbl_client.created_at', $month)->
-                            whereYear('tbl_client.created_at', $year)->
+                            whereMonth('tbl_client_log.created_at', $month)->
+                            whereYear('tbl_client_log.created_at', $year)->
                             orWhere(function ($q_2) use ($month, $year) {
                                 $q_2->
-                                whereHas('interestPrograms', function ($subQuery) use ($month, $year) {
-                                    $subQuery->
-                                        whereMonth('tbl_interest_prog.created_at', $month)->
-                                        whereYear('tbl_interest_prog.created_at', $year);
+                                whereHas('master_client', function ($q_3) use ($month, $year) {
+                                    $q_3->whereHas('interestPrograms', function ($subQuery) use ($month, $year) {
+                                        $subQuery->
+                                            whereMonth('tbl_interest_prog.created_at', $month)->
+                                            whereYear('tbl_interest_prog.created_at', $year);
+                                    });
                                 });
                             });
                     })->
-                    whereHas('leadStatus', function ($query) use ($month, $year) {
-                        $query->
-                            // whereMonth('tbl_client_lead_tracking.updated_at', $month)->
-                            // whereYear('tbl_client_lead_tracking.updated_at', $year)->
-                            where('tbl_initial_program_lead.name', 'Admissions Mentoring')->
-                            where('tbl_client_lead_tracking.type', 'Lead')->
-                            where('tbl_client_lead_tracking.total_result', '>=', 0.65); # >= 0.65 means HOT
-                    })->
-                    groupBy('tbl_client.id')->
-                    get();
+                    whereHas('master_client', function ($query) {
 
-        # this was used to get hot leads 
-        # from leads including recalculate data
-        // return UserClient::
-        //             whereHas('lead', function ($query) {
-        //                 $query->where('note', 'Sales')->where('main_lead', '!=', 'Referral');    
-        //             })->
-        //             whereHas('leadStatus', function ($query) use ($month, $year) {
-        //                 $query->
-        //                     whereMonth('tbl_client_lead_tracking.updated_at', $month)->
-        //                     whereYear('tbl_client_lead_tracking.updated_at', $year)->
-        //                     where('tbl_initial_program_lead.name', 'Admissions Mentoring')->
-        //                     where('tbl_client_lead_tracking.type', 'Lead')->
-        //                     where('tbl_client_lead_tracking.total_result', '>=', 0.65); # >= 0.65 means HOT
-        //             })->
-        //             get();
+                        $query->whereHas('leadStatus', function ($sub_query) {
+                            $sub_query->
+                                where('tbl_initial_program_lead.name', 'Admissions Mentoring')->
+                                where('tbl_client_lead_tracking.type', 'Lead')->
+                                where('tbl_client_lead_tracking.total_result', '>=', 0.65); # >= 0.65 means HOT
+                        });
+                    })->
+                    get();
     }
 
     public function getAchievedInitConsultSalesByMonth($now)
@@ -490,11 +475,23 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $month = date('m', strtotime($monthYear));
         $year = date('Y', strtotime($monthYear));
 
-        $query = ClientProgram::with(['client'])->whereMonth('success_date', $month)->whereYear('success_date', $year)->whereHas('client', function ($subQuery){
-            $subQuery->whereHas('lead', function ($subQuery2) {
-                $subQuery2->where('department_id', 7);
-            });
-        });
+        $query = ClientProgram::with([
+                'client', 
+                'client_log' => function($subQuery){
+                    $subQuery->where('category', 'non-mentee')->orWhere('category', 'mentee')->limit(1);
+                }
+            ])->
+            where('status', 1)->
+            whereMonth('success_date', $month)->
+            whereYear('success_date', $year)->
+            whereHas('client', function ($subQuery){
+                $subQuery->whereHas('client_log', function ($subQuery2) {
+                    $subQuery2->whereHas('lead_source_log', function ($subQuery3){
+                        $subQuery3->where('department_id', 7);
+                    });
+                });
+            });   
+        
         if ($prog_id != null){
             $query->where('prog_id', $prog_id);
         }
