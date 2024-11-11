@@ -14,7 +14,7 @@
         </div>
     @else
         <div class="alert alert-primary" role="alert">
-            Report period between <u>{{ date('F, dS Y', strtotime($dateDetails['startDate'])) }}</u> and <u>{{ date('F, dS Y', strtotime($dateDetails['endDate'])) }}</u>
+            Report period between <u>{{ date('F, dS Y', strtotime($date_details['start'])) }}</u> and <u>{{ date('F, dS Y', strtotime($date_details['end'])) }}</u>
         </div>
     @endif
 
@@ -30,19 +30,19 @@
                         <div class="mb-2">
                             <label>Start Date</label>
                             <input type="date" name="start" class="form-control form-control-sm rounded"
-                                value="{{ Request::get('start') ?? $dateDetails['startDate'] }}">
+                                value="{{ Request::get('start') ?? $date_details['start'] }}">
                         </div>
                         <div class="mb-2">
                             <label>End Date</label>
                             <input type="date" name="end" class="form-control form-control-sm rounded"
-                                value="{{ Request::get('end') ?? $dateDetails['endDate'] }}">
+                                value="{{ Request::get('end') ?? $date_details['end'] }}">
                         </div>
                         <div class="mb-2">
                             <label>Main Program</label>
                             <select name="main" id="main_prog" class="select w-100">
-                                <option value=""></option>
-                                @foreach ($mainPrograms as $mainProgram)
-                                    <option value="{{ $mainProgram->id }}">{{ $mainProgram->prog_name }}</option>
+                                <option value="">All Program</option>
+                                @foreach ($list_of_main_program as $main_program)
+                                    <option value="{{ $main_program->id }}">{{ $main_program->prog_name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -56,7 +56,7 @@
                             <label>PIC</label>
                             <select name="pic" id="pic_name" class="select w-100">
                                 <option value=""></option>
-                                @foreach ($pics as $pic)
+                                @foreach ($list_of_pic as $pic)
                                     <option value="{{ $pic->id }}" @selected($pic->id == Request::get('pic'))>{{ $pic->full_name }}</option>
                                 @endforeach
                             </select>

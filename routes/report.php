@@ -20,11 +20,8 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::get('sales', [SalesTrackingController::class, 'index'])->name('report.sales.tracking');
-
-// Route::get('event', function () {
-//     return view('pages.report.event-tracking.index');
-// });
+// Route::get('sales', [SalesTrackingController::class, 'index'])->name('report.sales.tracking');
+Route::get('sales', [ReportController::class, 'sales'])->name('report.sales.tracking');
 
 Route::get('event', [ReportController::class, 'event'])->name('report.client.event');
 

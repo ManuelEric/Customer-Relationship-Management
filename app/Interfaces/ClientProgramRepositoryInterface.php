@@ -30,14 +30,15 @@ interface ClientProgramRepositoryInterface
     public function deleteBundleProgram($bundling_id);
 
     # sales tracking
-    public function getCountProgramByStatus($status, array $dateDetails, array $additionalFilter = []);
-    public function getSummaryProgramByStatus($status, array $dateDetails, array $additionalFilter);
-    public function getInitAssessmentProgress($dateDetails, array $additionalFilter);
-    public function getConversionLead($dateDetails, $cp_filter = null);
+    public function rnSummarySalesTracking(array $date_details, array $additional_filter = []): Array;
+    public function getCountProgramByStatus($status, array $date_details, array $additional_filter = []);
+    public function getSummaryProgramByStatus($status, array $date_details, array $additional_filter = []);
+    public function rnGetInitAssessmentProgress(array $date_details, array $additional_filter = []);
+    public function rnGetConversionLead(array $date_details, $cp_filter = null);
     public function getConversionLeadDetails($filter);
-    public function getLeadSource($dateDetails, $cp_filter = null);
+    public function rnGetLeadSource($date_details, $cp_filter = null);
     public function getLeadSourceDetails($filter);
-    public function getConversionTimeSuccessfulPrograms($dateDetails);
+    public function rnGetConversionTimeSuccessfulPrograms($date_details);
 
     # dashboard
     public function getClientProgramGroupByStatusAndUserArray($cp_filter);

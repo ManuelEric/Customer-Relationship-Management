@@ -1067,7 +1067,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
     private function getStatusId($status)
     {
-        switch ($status) {
+        switch (ucfirst($status)) {
 
             case "Pending":
                 $statusId = 0;
@@ -1089,6 +1089,44 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     }
 
     # sales tracking
+    public function rnSummarySalesTracking(array $date_details, array $additional_filter = []): Array
+    {
+        $status = ['pending', 'failed', 'refund', 'success'];
+        for ($i = 0 ; $i < 4 ; $i++)
+        {
+            $searched_column = $this->getSearchedColumn($status[$i]);        
+            $statusId = $this->getStatusId($status[$i]);
+            $query = ClientProgram::has('cleanClient')->
+                    where('status', $statusId)->
+                    whereBetween($searched_column, [$date_details['start'], $date_details['end']])->
+                    when($additional_filter['main_prog_id'], function ($sub) use ($additional_filter) {
+                        $sub->whereHas('program.main_prog', function ($sub) use ($additional_filter) {
+                            $sub->where('id', $additional_filter['main_prog_id']);
+                        });
+                    })->
+                    when($additional_filter['prog_id'], function ($sub) use ($additional_filter) {
+                        $sub->where('prog_id', $additional_filter['prog_id']);
+                    })->
+                    when($additional_filter['pic'], function ($sub) use ($additional_filter) {
+                        $sub->where('empl_id', $additional_filter['pic']);
+                    })->get();
+            
+            $no = 0;
+            $mapped = [];
+            foreach ($query as $item) {
+                $mapped[$item->program->main_prog->prog_name][$item->program->prog_program][$item->program->prog_id][] = $no++;
+            }
+
+            $report['data'][$status[$i]] = $mapped;
+            $report['count'][$status[$i]] = $query->count();
+        }
+        
+        # the function above will produce these kind of array
+        # ["data"] => ["pending" => [], "failed" => [], "refund" => [], "success" => []]
+        # ["count"] => ["pending" => 0, "failed" => 0, "refund" => 0, "success" => 0]
+        return $report;
+    }
+
     public function getCountProgramByStatus($status, array $dateDetails, array $additionalFilter = [])
     {
         # array of additional filter is filled with [mainProg, progName, pic]
@@ -1174,18 +1212,18 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         return $data;
     }
 
-    public function getInitAssessmentProgress($dateDetails, $additionalFilter = []) # startDate, endDate
+    public function rnGetInitAssessmentProgress(array $date_details, array $additionalFilter = []) # startDate, endDate
     {
-        # array of additional filter is filled with [mainProg, progName, pic]
-        $mainProg = $additionalFilter['mainProg']; # filled with id main prog
-        $progName = $additionalFilter['progName']; # filled with id
-        $pic = $additionalFilter['pic']; # filled with id employee
+        # array of additional filter is filled with [main_prog_id, prog_id, pic]
+        $main_prog_id = $additionalFilter['main_prog_id'];
+        $prog_id = $additionalFilter['prog_id'];
+        $pic = $additionalFilter['pic'];
 
         $IC_query = "SELECT COUNT(*) FROM tbl_client_prog scp 
                 LEFT JOIN tbl_client c ON c.id = scp.client_id
                 LEFT JOIN tbl_pic_client pc ON pc.client_id = c.id
                 WHERE scp.prog_id = tbl_client_prog.prog_id
-                AND scp.created_at BETWEEN '".$dateDetails['startDate']."' AND '".$dateDetails['endDate']."'
+                AND scp.created_at BETWEEN '".$date_details['start']."' AND '".$date_details['end']."'
                 AND (CASE 
                     WHEN scp.initconsult_date IS NOT NULL THEN scp.initconsult_date
                     ELSE scp.first_discuss_date
@@ -1195,7 +1233,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 LEFT JOIN tbl_client c ON c.id = scp.client_id
                 LEFT JOIN tbl_pic_client pc ON pc.client_id = c.id
                 WHERE scp.prog_id = tbl_client_prog.prog_id
-                AND scp.created_at BETWEEN '".$dateDetails['startDate']."' AND '".$dateDetails['endDate']."'
+                AND scp.created_at BETWEEN '".$date_details['start']."' AND '".$date_details['end']."'
                 AND scp.success_date IS NOT NULL AND scp.status = 1";
 
         if ($pic) {
@@ -1223,19 +1261,19 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 });
             })
             ->where('status', 1)
-            ->whereBetween('tbl_client_prog.success_date', [$dateDetails['startDate'], $dateDetails['endDate']])->
+            ->whereBetween('tbl_client_prog.success_date', [$date_details['start'], $date_details['end']])->
             
             # added new features
             # filter by main prog 
-            // when($mainProg, function ($query) use ($mainProg) {
-            //     $query->whereHas('program.main_prog', function ($subQuery) use ($mainProg) {
-            //         $subQuery->where('id', $mainProg);
-            //     });
-            // })->
-            // # filter by prog Id
-            // when($progName, function ($query) use ($progName) {
-            //     $query->where('tbl_prog.prog_id', $progName);
-            // })->
+            when($main_prog_id, function ($query) use ($main_prog_id) {
+                $query->whereHas('program.main_prog', function ($subQuery) use ($main_prog_id) {
+                    $subQuery->where('id', $main_prog_id);
+                });
+            })->
+            # filter by prog Id
+            when($prog_id, function ($query) use ($prog_id) {
+                $query->where('tbl_prog.prog_id', $prog_id);
+            })->
             # filter by pic
             when($pic, function ($query) use ($pic) {
                 # check the client pic
@@ -1253,7 +1291,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->get();
     }
 
-    public function getLeadSource($dateDetails, $cp_filter = null)
+    public function rnGetLeadSource($date_details, $cp_filter = null)
     {
         $userId = $this->getUser($cp_filter);
 
@@ -1314,8 +1352,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->when(isset($cp_filter['qdate']), function ($q) use ($cp_filter) {
                 $q->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])));
             })
-            ->when(!empty($dateDetails), function ($q) use ($dateDetails) {
-                // $q->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']]);
+            ->when(!empty($date_details), function ($q) use ($date_details) {
                 $q->whereBetween(DB::raw('
                     (CASE
                         WHEN tbl_client_prog.status = 0 THEN tbl_client_prog.created_at
@@ -1323,7 +1360,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         WHEN tbl_client_prog.status = 2 THEN tbl_client_prog.failed_date
                         WHEN tbl_client_prog.status = 3 THEN tbl_client_prog.refund_date
                     END)
-                '), [$dateDetails['startDate'], $dateDetails['endDate']]);
+                '), [$date_details['start'], $date_details['end']]);
             })
             
             ->groupBy('lead_source')
@@ -1396,7 +1433,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->get();
     }
 
-    public function getConversionLead($dateDetails, $cp_filter = null)
+    public function rnGetConversionLead($date_details, $cp_filter = null)
     {
         $userId = $this->getUser($cp_filter);
         $program = isset($cp_filter['prog']) ? $cp_filter['prog'] : null;
@@ -1466,7 +1503,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->when(isset($cp_filter['qdate']), function ($q) use ($cp_filter) {
                 $q->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])));
             })
-            ->when(!empty($dateDetails), function ($q) use ($dateDetails) {
+            ->when(!empty($date_details), function ($q) use ($date_details) {
                 $q->whereBetween(DB::raw('
                     (CASE
                         WHEN tbl_client_prog.status = 0 THEN tbl_client_prog.created_at
@@ -1474,7 +1511,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         WHEN tbl_client_prog.status = 2 THEN tbl_client_prog.failed_date
                         WHEN tbl_client_prog.status = 3 THEN tbl_client_prog.refund_date
                     END)
-                '), [$dateDetails['startDate'], $dateDetails['endDate']]);
+                '), [$date_details['start'], $date_details['end']]);
             })
             ->groupBy('conversion_lead')
             ->get();
@@ -1531,7 +1568,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->get();
     }
 
-    public function getConversionTimeSuccessfulPrograms($dateDetails)
+    public function rnGetConversionTimeSuccessfulPrograms($date_details)
     {
         return ClientProgram::has('cleanClient')->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
             ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
@@ -1550,7 +1587,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 });
             })
             ->where('status', 1)
-            ->whereBetween('tbl_client_prog.success_date', [$dateDetails['startDate'], $dateDetails['endDate']])
+            ->whereBetween('tbl_client_prog.success_date', [$date_details['start'], $date_details['end']])
             ->groupBy('program_name_st')
             ->get();
     }

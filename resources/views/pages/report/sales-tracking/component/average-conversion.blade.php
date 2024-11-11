@@ -4,7 +4,7 @@
             Average Conversion Time to Successful Programs</h6>
     </div>
     <div class="card-body">
-        @if (count($averageConversionSuccessful) > 0)
+        @if (count($average_conversion_success) > 0)
         <div class="table-responsive">
             <table class="table mb-3">
                 <thead>
@@ -15,7 +15,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($averageConversionSuccessful as $detail)
+                    @foreach ($average_conversion_success as $detail)
                         @php
                             $average_time = (int) $detail->average_time == 0 ? 'less than a day' : (int) $detail->average_time. ' days';
                         @endphp

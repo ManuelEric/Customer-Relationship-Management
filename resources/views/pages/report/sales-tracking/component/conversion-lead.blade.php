@@ -9,11 +9,11 @@
                     <strong>Lead Source</strong>
                 </div>
                 <ul class="list-group list-group-flush" style="font-size:11px;">
-                    @forelse ($leadSource as $detail)
+                    @forelse ($list_of_lead_source_being_used as $detail)
                         <a href="#"
                             class="list-group-item list-group-item-action d-flex justify-content-between align-items-center lead-source-item cursor-pointer"
                             data-leadname="{{ $detail->lead_source }}" data-lead="{{ $detail->lead_id }}" data-sublead="{{ $detail->sub_lead_id }}"
-                            data-sdate="{{ $dateDetails['startDate'] }}" data-edate="{{ $dateDetails['endDate'] }}">
+                            data-sdate="{{ $date_details['start'] }}" data-edate="{{ $date_details['end'] }}">
                             <div class="">
                                 {{ $detail->lead_source }}
                             </div>
@@ -31,11 +31,11 @@
                     <strong>Conversion Lead</strong>
                 </div>
                 <ul class="list-group list-group-flush" style="font-size:11px;">
-                    @forelse ($conversionLead as $detail)
+                    @forelse ($list_of_conversion_lead_being_used as $detail)
                         <a href="#"
                             class="list-group-item list-group-item-action d-flex justify-content-between align-items-center conversion-lead-item cursor-pointer"
                             data-leadname="{{ $detail->conversion_lead }}" data-lead="{{ $detail->lead_id }}" data-sublead="{{ $detail->sub_lead_id }}"
-                            data-sdate="{{ $dateDetails['startDate'] }}" data-edate="{{ $dateDetails['endDate'] }}">
+                            data-sdate="{{ $date_details['start'] }}" data-edate="{{ $date_details['end'] }}">
                             <div class="">
                                 {{ $detail->conversion_lead }}
                             </div>

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Actions\Report\Sales\SalesReportAction;
+use App\Http\Requests\ReportSalesRequest;
 use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
+use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
@@ -18,6 +20,7 @@ use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\ReferralRepositoryInterface;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
@@ -37,6 +40,8 @@ class ReportController extends Controller
     protected InvoiceDetailRepositoryInterface $invoiceDetailRepository;
     protected ReferralRepositoryInterface $referralRepository;
 
+    protected ClientProgramRepositoryInterface $clientProgramRepository;
+
     public function __construct(
         ClientEventRepositoryInterface $clientEventRepository,
         EventRepositoryInterface $eventRepository,
@@ -50,7 +55,8 @@ class ReportController extends Controller
         ReceiptRepositoryInterface $receiptRepository,
         SchoolVisitRepositoryInterface $schoolVisitRepository,
         InvoiceDetailRepositoryInterface $invoiceDetailRepository,
-        ReferralRepositoryInterface $referralRepository
+        ReferralRepositoryInterface $referralRepository,
+        ClientProgramRepositoryInterface $clientProgramRepository
     ) {
         $this->clientEventRepository = $clientEventRepository;
         $this->eventRepository = $eventRepository;
@@ -65,6 +71,28 @@ class ReportController extends Controller
         $this->schoolVisitRepository = $schoolVisitRepository;
         $this->invoiceDetailRepository = $invoiceDetailRepository;
         $this->referralRepository = $referralRepository;
+        $this->clientProgramRepository = $clientProgramRepository;
+    }
+
+    /**
+     * Sales tracking
+     */
+    public function sales(
+        ReportSalesRequest $request,
+        SalesReportAction $salesReportAction,
+    ) 
+    {
+        # initialize
+        $validated = $request->safe()->only([
+            'start', 
+            'end',
+            'main',
+            'program',
+            'pic',
+        ]);
+
+        $sales_report = $salesReportAction->execute($validated);
+        return view('pages.report.sales-tracking.index')->with($sales_report);
     }
 
     public function event(Request $request)
