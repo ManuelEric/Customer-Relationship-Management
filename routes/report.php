@@ -1,10 +1,7 @@
 <?php
 
-use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\LeadTrackerController;
-use App\Http\Controllers\PartnerProgramController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\SalesTrackingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,18 +18,9 @@ use Illuminate\Support\Facades\Route;
 
 
 // Route::get('sales', [SalesTrackingController::class, 'index'])->name('report.sales.tracking');
-Route::get('sales', [ReportController::class, 'sales'])->name('report.sales.tracking');
+Route::get('sales', [ReportController::class, 'fnSalesTracking'])->name('report.sales.tracking');
 
 Route::get('event', [ReportController::class, 'event'])->name('report.client.event');
-
-
-// Route::get('invoice', function () {
-//     return view('pages.report.invoice.index');
-// });
-
-// Route::get('partnership', function () {
-//     return view('pages.report.partnership.index');
-// });
 
 Route::get('partnership', [ReportController::class, 'partnership'])->name('report.partnership');
 

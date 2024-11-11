@@ -77,7 +77,7 @@ class ReportController extends Controller
     /**
      * Sales tracking
      */
-    public function sales(
+    public function fnSalesTracking(
         ReportSalesRequest $request,
         SalesReportAction $salesReportAction,
     ) 
