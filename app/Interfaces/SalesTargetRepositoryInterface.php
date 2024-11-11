@@ -7,7 +7,7 @@ interface SalesTargetRepositoryInterface
     public function getMonthlySalesTarget($programId, $filter);
     public function getMonthlySalesActual($programId, $filter);
     public function getSalesDetail($programId, $filter);
-    public function getSalesDetailFromClientProgram(array $dateDetails, array $additionalFilter = []);
+    public function rnGetSalesDetailFromClientProgram(array $date_details, array $additional_filter = []);
     public function getAllSalesTargetDataTables();
     public function getAllSalesTarget();
     public function getSalesTargetById($salesTargetId);

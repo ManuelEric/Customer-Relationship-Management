@@ -48,7 +48,7 @@ class SalesTargetController extends Controller
         # retrieve program data
         $programs = $this->programRepository->getAllPrograms();
 
-        $main_programs = $this->mainProgRepository->getAllMainProg();
+        $main_programs = $this->mainProgRepository->rnGetAllMainProg();
 
 
         return view('pages.master.sales-target.index')->with(

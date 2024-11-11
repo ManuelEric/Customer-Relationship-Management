@@ -7,7 +7,7 @@ use App\Models\MainProg;
 
 class MainProgRepository implements MainProgRepositoryInterface 
 {
-    public function getAllMainProg()
+    public function rnGetAllMainProg()
     {
         return MainProg::all();
     }

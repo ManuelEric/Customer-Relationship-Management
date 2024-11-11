@@ -3,7 +3,7 @@
         <h6 class="p-0 m-0">Admissions Mentoring Progress</h6>
     </div>
     <div class="card-body">
-        @if (count($initAssessmentProgress) > 0)
+        @if (count($init_assessment_progress) > 0)
             <div class="table-responsive">
                 <table class="table table-bordered mb-3">
                     <thead>
@@ -21,7 +21,7 @@
                         @php
                             $IC_total = $success_total = $conversion_total = $initialMaking_total = $converted_total = 0;
                         @endphp
-                        @foreach ($initAssessmentProgress as $detail)
+                        @foreach ($init_assessment_progress as $detail)
                             @php
                                 $initialMaking = (int) $detail->initialMaking == 0 ? "less than a day" : (int) $detail->initialMaking . " day";
                                 $converted = (int) $detail->converted == 0 ? "less than a day" : (int) $detail->converted . " day";
@@ -50,7 +50,7 @@
                     </tbody>
                     <tfoot>
                         @php
-                            $benchmark = (count($initAssessmentProgress))*100;
+                            $benchmark = (count($init_assessment_progress))*100;
                             $avg_conversion = round(($conversion_total/$benchmark)*100);
                             $avg_initMaking = $initialMaking_total == 0 ? 0 : round(($initialMaking_total/$benchmark)*100) . ' days';
                             $avg_converted = $converted_total == 0 ? 0 : round(($converted_total/$benchmark)*100) . ' days';

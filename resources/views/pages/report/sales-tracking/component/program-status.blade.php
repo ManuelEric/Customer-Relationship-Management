@@ -8,7 +8,7 @@
                 <a href="{{ url('program/client?start_date=' . (Request::get('start') ?? date('Y-m-01')) . '&end_date=' . (Request::get('end') ?? date('Y-m-t')) . '&program_status[]=' . encrypt('0').'&program_name[]=' . Request::get('program') . '&pic[]=' . Request::get('pic')) }}"
                     class="text-decoration-none" target="_blank">
                     <div class="border p-2 shadow-sm rounded text-warning">
-                        <h3>{{ $countClientProgram['pending'] }}</h3>
+                        <h3>{{ $sales_report_by_status['count']['pending'] }}</h3>
                         <h6 class="m-0 p-0">Pending</h6>
                     </div>
                 </a>
@@ -17,7 +17,7 @@
                 <a href="{{ url('program/client?start_date=' . (Request::get('start') ?? date('Y-m-01')) . '&end_date=' . (Request::get('end') ?? date('Y-m-t')) . '&program_status[]=' . encrypt('2') .'&program_name[]=' . Request::get('program') . '&pic[]=' . Request::get('pic')) }}"
                     class="text-decoration-none" target="_blank">
                     <div class="border p-2 shadow-sm rounded text-danger">
-                        <h3>{{ $countClientProgram['failed'] }}</h3>
+                        <h3>{{ $sales_report_by_status['count']['failed'] }}</h3>
                         <h6 class="m-0 p-0">Failed</h6>
                     </div>
                 </a>
@@ -26,7 +26,7 @@
                 <a href="{{ url('program/client?start_date=' . (Request::get('start') ?? date('Y-m-01')) . '&end_date=' . (Request::get('end') ?? date('Y-m-t')) . '&program_status[]=' . encrypt('3') .'&program_name[]=' . Request::get('program') . '&pic[]=' . Request::get('pic')) }}"
                     class="text-decoration-none" target="_blank">
                     <div class="border p-2 shadow-sm rounded text-info">
-                        <h3>{{ $countClientProgram['refund'] }}</h3>
+                        <h3>{{ $sales_report_by_status['count']['refund'] }}</h3>
                         <h6 class="m-0 p-0">Refund</h6>
                     </div>
                 </a>
@@ -35,7 +35,7 @@
                 <a href="{{ url('program/client?start_date=' . (Request::get('start') ?? date('Y-m-01')) . '&end_date=' . (Request::get('end') ?? date('Y-m-t')) . '&program_status[]=' . encrypt('1') .'&program_name[]=' . Request::get('program') . '&pic[]=' . Request::get('pic')) }}"
                     class="text-decoration-none" target="_blank">
                     <div class="border p-2 shadow-sm rounded text-success">
-                        <h3>{{ $countClientProgram['success'] }}</h3>
+                        <h3>{{ $sales_report_by_status['count']['success'] }}</h3>
                         <h6 class="m-0 p-0">Success</h6>
                     </div>
                 </a>
