@@ -55,6 +55,12 @@ class SalesDashboardController extends Controller
             'endDate' => $cp_filter['qdate'] . '-31'
         ];
 
+        # temporary variables
+        $date_details = [
+            'start' => $cp_filter['qdate'] . '-01',
+            'end' => $cp_filter['qdate'] . '-31',
+        ];
+
         $programId = null; # means all programs
 
         $cp_filter['queryParams_year1'] = date('Y') - 1;
@@ -119,19 +125,19 @@ class SalesDashboardController extends Controller
         $totalRevenueCareerExplorationByMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Career Exploration'] + $cp_filter);
 
         # fetching chart data of lead source as a whole (admission mentoring, academic & test preparation, career exploration)
-        $leadSource = $this->clientProgramRepository->getLeadSource($dateDetails, $cp_filter);
+        $leadSource = $this->clientProgramRepository->rnGetLeadSource($date_details, $cp_filter);
 
         # fetching chart data of conversion leads as a whole (admission mentoring, academic & test preparation, career exploration)
-        $conversionLeads = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter);
+        $conversionLeads = $this->clientProgramRepository->rnGetConversionLead($date_details, $cp_filter);
 
         # fetching chart data of conversion lead by admission mentoring program
-        $admissionMentoringConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter + ['prog' => 'Admissions Mentoring']);
+        $admissionMentoringConvLead = $this->clientProgramRepository->rnGetConversionLead($date_details, $cp_filter + ['prog' => 'Admissions Mentoring']);
 
         # fetching chart data of conversion lead by academic & test preparation program
-        $academicTestPrepConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter + ['prog' => 'Academic & Test Preparation']);
+        $academicTestPrepConvLead = $this->clientProgramRepository->rnGetConversionLead($date_details, $cp_filter + ['prog' => 'Academic & Test Preparation']);
 
         # fetching chart data of conversion lead by career exploration program
-        $careerExplorationConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter + ['prog' => 'Career Exploration']);
+        $careerExplorationConvLead = $this->clientProgramRepository->rnGetConversionLead($date_details, $cp_filter + ['prog' => 'Career Exploration']);
 
         # fetching the target sales
         $salesTarget = $this->salesTargetRepository->getMonthlySalesTarget($programId, $cp_filter);
