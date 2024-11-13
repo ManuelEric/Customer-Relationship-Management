@@ -144,10 +144,7 @@ class ProcessInsertLogClient implements ShouldQueue
 
                     case 'restore':
                         $latest_client_log = $this->fnGetLatestClientLog($clientRepository, $client_data);
-                        if($latest_client_log){
-                            $client_data['unique_key'] = $latest_client_log->unique_key;
-                            $client_data['lead_source'] = $latest_client_log->lead_source;
-                        }
+                        $client_data = $this->fnSetLeadSourceAndUniqueKey($clientRepository, $client_data, $latest_client_log);
 
                         # add log client with category raw
                         $client_data['category'] = 'raw';
@@ -165,10 +162,8 @@ class ProcessInsertLogClient implements ShouldQueue
                     
                     case 'verified':                        
                         $latest_client_log = $this->fnGetLatestClientLog($clientRepository, $client_data);
-                        if($latest_client_log){
-                            $client_data['unique_key'] = $latest_client_log->unique_key;
-                            $client_data['lead_source'] = $latest_client_log->lead_source;
-                        }
+                        $client_data = $this->fnSetLeadSourceAndUniqueKey($clientRepository, $client_data, $latest_client_log);
+
                         # if when verified select existing 
                         # then update client_uuid log client to client_uuid existing
                         if($client_data['select_existing']){                            
@@ -200,12 +195,7 @@ class ProcessInsertLogClient implements ShouldQueue
                     # create or client program
                     case 'create-client-program':
                         $latest_client_log = $this->fnGetLatestClientLog($clientRepository, $client_data);
-                        if($latest_client_log){
-                            $client_data['unique_key'] = $latest_client_log->unique_key;
-                            $client_data['lead_source'] = $latest_client_log->lead_source;
-                        }
-
-                        $latest_client_log ? $client_data['unique_key'] = $latest_client_log->unique_key : null;
+                        $client_data = $this->fnSetLeadSourceAndUniqueKey($clientRepository, $client_data, $latest_client_log);
 
                         $is_admission = $clientProgramRepository->checkProgramIsAdmission($client_data['clientprog_id']);
                         
@@ -255,10 +245,7 @@ class ProcessInsertLogClient implements ShouldQueue
 
                     case 'update-client-program':
                         $latest_client_log = $this->fnGetLatestClientLog($clientRepository, $client_data);
-                        if($latest_client_log){
-                            $client_data['unique_key'] = $latest_client_log->unique_key;
-                            $client_data['lead_source'] = $latest_client_log->lead_source;
-                        }
+                        $client_data = $this->fnSetLeadSourceAndUniqueKey($clientRepository, $client_data, $latest_client_log);
 
                         $is_admission = $clientProgramRepository->checkProgramIsAdmission($client_data['clientprog_id']);
 
@@ -315,10 +302,7 @@ class ProcessInsertLogClient implements ShouldQueue
 
                     case 'trash':
                         $latest_client_log = $this->fnGetLatestClientLog($clientRepository, $client_data);
-                        if($latest_client_log){
-                            $client_data['unique_key'] = $latest_client_log->unique_key;
-                            $client_data['lead_source'] = $latest_client_log->lead_source;
-                        }
+                        $client_data = $this->fnSetLeadSourceAndUniqueKey($clientRepository, $client_data, $latest_client_log);
 
                         # add log client with category trash
                         $client_data['category'] = 'trash';
@@ -369,10 +353,22 @@ class ProcessInsertLogClient implements ShouldQueue
                 $latest_client_log = $get_client->client_log->where('category', 'raw')->sortByDesc('updated_at')->first();
         }
 
-        // if($latest_client_log == null){
-        //     throw new Exception('Failed to insert log client, no last log data found!');
-        // }
-
         return $latest_client_log;
+    }
+
+    protected function fnSetLeadSourceAndUniqueKey($clientRepository, $client_data, $latest_client_log)
+    {
+        if($latest_client_log){
+            $client_data['unique_key'] = $latest_client_log->unique_key;
+            $client_data['lead_source'] = $latest_client_log->lead_source;
+        }else{
+            # only temporarily and will be removed in crm adjusted
+            $get_client = $clientRepository->getClientByUUID($client_data['client_uuid']);
+            
+            # if client no have log then set lead_source from lead_id tbl_client
+            $client_data['lead_source'] = $get_client->lead_id;
+        }
+
+        return $client_data;
     }
 }
