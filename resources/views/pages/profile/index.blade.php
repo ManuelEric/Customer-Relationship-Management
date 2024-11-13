@@ -36,7 +36,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('profile.update', ['profile' => $my_info->uuid ]) }}" method="POST">
+                    <form action="{{ route('profile.update', ['profile' => $my_info->id ]) }}" method="POST">
                         @csrf
                         @method('PUT')
                         <div class="row">
@@ -105,7 +105,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('profile.update', ['profile' => $my_info->uuid ]) }}" method="POST">
+                    <form action="{{ route('profile.update', ['profile' => $my_info->id ]) }}" method="POST">
                         @csrf
                         @method('PUT')
                         <input type="hidden" name="form:password" value="true">
