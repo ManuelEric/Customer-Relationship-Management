@@ -27,9 +27,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_client_event.partner_id')
                 ->leftJoin('tbl_corp as ceduf', 'ceduf.corp_id', '=', 'tbl_eduf_lead.corp_id')
                 ->leftJoin('tbl_sch as seduf', 'seduf.sch_id', '=', 'tbl_eduf_lead.sch_id')
-                // ->leftJoin('tbl_client_relation', 'tbl_client_relation.parent_id', '=', 'client.id')
                 ->leftJoin('tbl_client as child', 'child.id', '=', 'tbl_client_event.child_id')
-                // ->leftJoin('client as parent', 'parent.id', '=', 'tbl_client_event.parent_id')
                 ->leftJoin('client_ref_code_view', 'client_ref_code_view.id', '=', DB::raw('SUBSTR(tbl_client_event.referral_code, 4)'))
                 ->leftJoin('tbl_client as cref', 'cref.secondary_id', '=', 'tbl_client_event.referral_code')
                 ->leftJoin('tbl_lead as cllead', 'cllead.lead_id', '=', 'tbl_client.lead_id')
@@ -139,8 +137,6 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                         ELSE cllead.main_lead
                     END) AS lead_source'),
                     DB::raw('CONCAT (cref.first_name, " ", COALESCE(cref.last_name, "")) AS referral_name'),
-                    
-                    
                 )->
                 when(!empty($filter['audience']), function ($searchQuery) use ($filter) {
                     $searchQuery->whereIn('tbl_client.register_as', $filter['audience']);
@@ -177,11 +173,8 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 })->
                 when(empty($filter['start_date']) && !empty($filter['end_date']), function ($searchQuery) use ($filter) {
                     $searchQuery->where('joined_date', '<=', $filter['end_date']);
-                })
-                // ->when(Session::get('user_role') == 'Employee', function ($sub) {
-                //     $sub->where('client.pic_id', auth()->user()->id);
-                // })
-                ->groupBy('tbl_client_event.clientevent_id');
+                })->
+                groupBy('tbl_client_event.clientevent_id');
 
             return DataTables::eloquent($query)->
             filterColumn(
