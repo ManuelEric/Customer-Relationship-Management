@@ -1,4 +1,4 @@
-@if (count($existingMentee) > 0 && count($existingNonMentee) > 0 && count($existingNonClient) > 0)
+@if (count($existing_mentee) > 0 && count($existing_non_mentee) > 0 && count($existing_non_client) > 0)
     <div class="card mb-3">
         <div class="card-header  d-flex justify-content-between align-items-center">
             <h6 class="p-0 m-0">Existing Client</h6>
@@ -10,16 +10,16 @@
                     <div class="">Mentee</div>
                     <div class="dropdown">
                         <span class="badge badge-info dropdown-toggle"
-                            data-bs-toggle="dropdown">{{ $existingMentee->count() }}</span>
+                            data-bs-toggle="dropdown">{{ $existing_mentee->count() }}</span>
                         <div class="dropdown-menu overflow-auto text-center px-2"
                             style="max-width: 450px; max-height:200px;">
-                            {{ $existingMentee->count() > 0 ? '' : 'There is no data.' }}
+                            {{ $existing_mentee->count() > 0 ? '' : 'There is no data.' }}
                             <table class="table table-striped table-hover">
-                                @foreach ($existingMentee as $existMentee)
+                                @foreach ($existing_mentee as $mentee)
                                     <tr>
                                         <td>{{ $loop->index + 1 }}</td>
-                                        <td>{{ $existMentee->client->full_name ?? '-' }}</td>
-                                        <td>{{ $existMentee->client->school->sch_name ?? '-' }}</td>
+                                        <td>{{ $mentee->client->full_name ?? '-' }}</td>
+                                        <td>{{ $mentee->client->school->sch_name ?? '-' }}</td>
                                     </tr>
                                 @endforeach
                             </table>
@@ -30,16 +30,16 @@
                     <div class="">Non Mentee</div>
                     <div class="dropdown">
                         <span class="badge badge-info dropdown-toggle"
-                            data-bs-toggle="dropdown">{{ $existingNonMentee->count() }}</span>
+                            data-bs-toggle="dropdown">{{ $existing_non_mentee->count() }}</span>
                         <div class="dropdown-menu overflow-auto text-center px-2"
                             style="max-width: 450px; max-height:200px;">
-                            {{ $existingNonMentee->count() > 0 ? '' : 'There is no data.' }}
+                            {{ $existing_non_mentee->count() > 0 ? '' : 'There is no data.' }}
                             <table class="table table-striped table-hover">
-                                @foreach ($existingNonMentee as $item)
+                                @foreach ($existing_non_mentee as $non_mentee)
                                     <tr>
                                         <td>{{ $loop->index + 1 }}</td>
-                                        <td>{{ $item->client->full_name ?? '-' }}</td>
-                                        <td>{{ $item->client->school->sch_name ?? '-' }}</td>
+                                        <td>{{ $non_mentee->client->full_name ?? '-' }}</td>
+                                        <td>{{ $non_mentee->client->school->sch_name ?? '-' }}</td>
                                     </tr>
                                 @endforeach
                             </table>
@@ -50,16 +50,16 @@
                     <div class="">Non Client</div>
                     <div class="dropdown">
                         <span class="badge badge-info dropdown-toggle"
-                            data-bs-toggle="dropdown">{{ $existingNonClient->count() }}</span>
+                            data-bs-toggle="dropdown">{{ $existing_non_client->count() }}</span>
                         <div class="dropdown-menu overflow-auto text-center px-2"
                             style="max-width: 450px; max-height:200px;">
-                            {{ $existingNonClient->count() > 0 ? '' : 'There is no data.' }}
+                            {{ $existing_non_client->count() > 0 ? '' : 'There is no data.' }}
                             <table class="table table-striped table-hover">
-                                @foreach ($existingNonClient as $item)
+                                @foreach ($existing_non_client as $non_client)
                                     <tr>
                                         <td>{{ $loop->index + 1 }}</td>
-                                        <td>{{ $item->client->full_name ?? '-' }}</td>
-                                        <td>{{ $item->client->school->sch_name ?? '-' }}</td>
+                                        <td>{{ $non_client->client->full_name ?? '-' }}</td>
+                                        <td>{{ $non_client->client->school->sch_name ?? '-' }}</td>
                                     </tr>
                                 @endforeach
                             </table>
@@ -70,12 +70,12 @@
                     <div class="">Parent Mentee</div>
                     <div class="dropdown">
                         <span class="badge badge-info dropdown-toggle"
-                            data-bs-toggle="dropdown">{{ $existingMentee->where('register_as', 'parent')->count() }}</span>
+                            data-bs-toggle="dropdown">{{ $existing_mentee->where('register_as', 'parent')->count() }}</span>
                         <div class="dropdown-menu overflow-auto text-center px-2"
                             style="max-width: 450px; max-height:200px;">
-                            {{ $existingMentee->count() > 0 ? '' : 'There is no data.' }}
+                            {{ $existing_mentee->count() > 0 ? '' : 'There is no data.' }}
                             <table class="table table-striped table-hover">
-                                @foreach ($existingMentee->where('register_as', 'parent') as $existMentee)
+                                @foreach ($existing_mentee->where('register_as', 'parent') as $existMentee)
                                     <tr>
                                         <td>{{ $loop->index + 1 }}</td>
                                         <td>{{ $existMentee->parent_name ?? '-' }}</td>
@@ -92,18 +92,17 @@
                     <div class="">Parent Non Mentee</div>
                     <div class="dropdown">
                         <span class="badge badge-info dropdown-toggle"
-                            data-bs-toggle="dropdown">{{ $existingNonMentee->where('register_as', 'parent')->count() }}</span>
+                            data-bs-toggle="dropdown">{{ $existing_non_mentee->where('register_as', 'parent')->count() }}</span>
                         <div class="dropdown-menu overflow-auto text-center px-2"
                             style="max-width: 450px; max-height:200px;">
-                            {{ $existingNonMentee->count() > 0 ? '' : 'There is no data.' }}
+                            {{ $existing_non_mentee->count() > 0 ? '' : 'There is no data.' }}
                             <table class="table table-striped table-hover">
-                                @foreach ($existingNonMentee->where('register_as', 'parent') as $existNonMentee)
+                                @foreach ($existing_non_mentee->where('register_as', 'parent') as $non_mentee)
                                     <tr>
                                         <td>{{ $loop->index + 1 }}</td>
-                                        <td>{{ $existNonMentee->parent_name ?? '-' }}</td>
-                                        <td>{{ $existNonMentee->parent_mail ?? '-' }}</td>
-                                        <td>{{ $existNonMentee->parent_phone ?? '-' }}</td>
-                                        {{-- <td>{{ $existNonMentee->register_as == 'student' ? 'Estimated as student' : '-' }}</td> --}}
+                                        <td>{{ $non_mentee->parent_name ?? '-' }}</td>
+                                        <td>{{ $non_mentee->parent_mail ?? '-' }}</td>
+                                        <td>{{ $non_mentee->parent_phone ?? '-' }}</td>
                                     </tr>
                                 @endforeach
                             </table>
