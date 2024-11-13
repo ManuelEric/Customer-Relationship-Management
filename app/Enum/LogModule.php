@@ -208,5 +208,78 @@ enum LogModule: string
     case STORE_REFERRAL_PROGRAM = '[STORE REFERRAL PROGRAM]';
     case UPDATE_REFERRAL_PROGRAM = '[UPDATE REFERRAL PROGRAM]';
     case DELETE_REFERRAL_PROGRAM = '[DELETE REFERRAL PROGRAM]';
+    
+    /**
+     * Corporate
+     */
+    case STORE_CORPORATE = '[STORE CORPORATE]';
+    case UPDATE_CORPORATE = '[UPDATE CORPORATE]';
+    case DELETE_CORPORATE = '[DELETE CORPORATE]';
+
+    /**
+     * Corporate PIC
+     */
+    case STORE_CORPORATE_PIC = '[STORE CORPORATE PIC]';
+    case UPDATE_CORPORATE_PIC = '[UPDATE CORPORATE PIC]';
+    case DELETE_CORPORATE_PIC = '[DELETE CORPORATE PIC]';
+    
+    /**
+     * Corporate Event
+     */
+    case STORE_CORPORATE_EVENT = '[STORE CORPORATE EVENT]';
+    case DELETE_CORPORATE_EVENT = '[DELETE CORPORATE EVENT]';
+    
+    /**
+     * Partner Agreement
+     */
+    case STORE_PARTNER_AGREEMENT = '[STORE PARTNER AGREEMENT]';
+    case DELETE_PARTNER_AGREEMENT = '[DELETE PARTNER AGREEMENT]';
+    
+    /**
+     * School
+     */
+    case STORE_SCHOOL = '[STORE SCHOOL]';
+    case UPDATE_SCHOOL = '[UPDATE SCHOOL]';
+    case DELETE_SCHOOL = '[DELETE SCHOOL]';
+    
+    /**
+     * School Detail
+     */
+    case STORE_SCHOOL_DETAIL = '[STORE SCHOOL DETAIL]';
+    case UPDATE_SCHOOL_DETAIL = '[UPDATE SCHOOL DETAIL]';
+    case DELETE_SCHOOL_DETAIL = '[DELETE SCHOOL DETAIL]';
+    
+    /**
+     * School Event
+     */
+    case STORE_SCHOOL_EVENT = '[STORE SCHOOL EVENT]';
+    case DELETE_SCHOOL_EVENT = '[DELETE SCHOOL EVENT]';
+    
+    /**
+     * School Raw
+     */
+    case UPDATE_SCHOOL_RAW = '[UPDATE SCHOOL RAW]';
+    case DELETE_SINGLE_SCHOOL_RAW = '[DELETE SINGLE SCHOOL RAW]';
+    case DELETE_BULK_SCHOOL_RAW = '[DELETE BULK SCHOOL RAW]';
+    
+    /**
+     * School Visit
+     */
+    case STORE_SCHOOL_VISIT = '[STORE SCHOOL VISIT]';
+    case UPDATE_SCHOOL_VISIT = '[UPDATE SCHOOL VISIT]';
+    case DELETE_SCHOOL_VISIT = '[DELETE SCHOOL VISIT]';
+    
+    /**
+     * School Alias
+     */
+    case STORE_SCHOOL_ALIAS = '[STORE SCHOOL ALIAS]';
+    case DELETE_SCHOOL_ALIAS = '[DELETE SCHOOL ALIAS]';
+
+    /**
+     * University
+     */
+    case STORE_UNIVERSITY = '[STORE UNIVERSITY]';
+    case UPDATE_UNIVERSITY = '[UPDATE UNIVERSITY]';
+    case DELETE_UNIVERSITY = '[DELETE UNIVERSITY]';
 
 }

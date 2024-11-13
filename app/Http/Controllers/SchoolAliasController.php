@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Schools\Alias\CreateSchoolAliasAction;
+use App\Actions\Schools\Alias\DeleteSchoolAliasAction;
+use App\Enum\LogModule;
 use App\Http\Requests\SchoolAliasRequest;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Jobs\RawClient\ProcessVerifyClient;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,19 +28,19 @@ class SchoolAliasController extends Controller
         $this->clientRepository = $clientRepository;
     }
 
-    public function store(SchoolAliasRequest $request)
+    public function store(SchoolAliasRequest $request, CreateSchoolAliasAction $createSchoolAliasAction, LogService $log_service)
     {
-        $schoolId = $request->route('school');
-        if (!$this->schoolRepository->getSchoolById($schoolId))
+        $school_id = $request->route('school');
+        if (!$this->schoolRepository->getSchoolById($school_id))
             return Redirect::back()->withError('There is no such school');
-
-        $alias = $request->alias;
 
         DB::beginTransaction();
         try {
 
+            $alias = $request->alias;
+
             $details = [
-                'sch_id' => $schoolId,
+                'sch_id' => $school_id,
                 'alias' => $alias
             ];
 
@@ -45,64 +49,55 @@ class SchoolAliasController extends Controller
                 $details['sch_id'] = $main_school;
             }
 
-            $this->schoolRepository->createNewAlias($details);
-
-            # if is_convert is true
-            # meaning that they store from form-alias on list school
-            # meaning the raw school must be deleted
-            if ($request->is_convert) {
-                $rawSchId = $request->raw_sch_id;
-
-                # getting all client that has deleted (soon) school
-                $clientIds = $this->clientRepository->getClientBySchool($rawSchId)->pluck('id')->toArray();
-                $this->clientRepository->updateClients($clientIds, ['sch_id' => $details['sch_id']]);
-
-                # delete raw school
-                $this->schoolRepository->deleteSchool($rawSchId);
-
-
-                # trigger to verifying client
-                ProcessVerifyClient::dispatch($clientIds)->onQueue('verifying-client');
-            }
-            # end process from convert to alias
+            $created_new_alias = $createSchoolAliasAction->execute($request, $details);
             
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Failed to store new alias : '.$e->getMessage().' on line '.$e->getLine());
+            $log_service->createErrorLog(LogModule::STORE_SCHOOL_ALIAS, $e->getMessage(), $e->getLine(), $e->getFile(), $details);
+
             return Redirect::back()->withError('Failed to store new alias');
 
         }
 
-        $schools = $this->schoolRepository->getSchoolById($details['sch_id']);
+        $school = $this->schoolRepository->getSchoolById($details['sch_id']);
 
-        return redirect()->route('school.index')->withSuccess('New alias has been added to '.$schools->sch_name);
+        # create log success
+        $log_service->createSuccessLog(LogModule::STORE_SCHOOL_ALIAS, 'New school alias has been added', $created_new_alias->toArray());
+
+        return redirect()->route('school.index')->withSuccess('New alias has been added to '.$school->sch_name);
 
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteSchoolAliasAction $deleteSchoolAliasAction, LogService $log_service)
     {
-        $schoolId = $request->route('school');
-        if (!$this->schoolRepository->getSchoolById($schoolId))
+        $school_id = $request->route('school');
+        if (!$this->schoolRepository->getSchoolById($school_id))
             return Redirect::back()->withError('There is no such school');
         
-        $aliasId = $request->route('alias');
+        $alias_id = $request->route('alias');
 
         DB::beginTransaction();
         try {
 
-            $this->schoolRepository->deleteAlias($aliasId);
+            $deleted_school_alias = $deleteSchoolAliasAction->execute($alias_id);
+
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Failed to delete alias : '.$e->getMessage().' on line '.$e->getLine());
+
+            $log_service->createErrorLog(LogModule::DELETE_SCHOOL_ALIAS, $e->getMessage(), $e->getLine(), $e->getFile(), $deleted_school_alias->toArray);
+
             return response()->json(['message' => 'Failed to delete alias'], 500);
 
         }
+
+        # create log success
+        $log_service->createSuccessLog(LogModule::DELETE_SCHOOL_ALIAS, 'School alias has been deleted', $deleted_school_alias->toArray());
 
         return response()->json(['message' => 'The alias has been removed']);
 

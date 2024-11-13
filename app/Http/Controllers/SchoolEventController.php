@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Schools\Event\CreateSchoolEventAction;
+use App\Actions\Schools\Event\DeleteSchoolEventAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreSchoolEventRequest;
 use App\Interfaces\SchoolEventRepositoryInterface;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Interfaces\SchoolDetailRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Models\Event;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,59 +33,63 @@ class SchoolEventController extends Controller
         $this->schoolRepository = $schoolRepository;
     }
 
-    public function store(StoreSchoolEventRequest $request)
+    public function store(StoreSchoolEventRequest $request, CreateSchoolEventAction $createSchoolEventAction, LogService $log_service)
     {
-        $schoolDetails = $request->only([
+        $school_details = $request->safe()->only([
             'sch_id'
         ]);
 
-        $eventId = $request->route('event');
+        $event_id = $request->route('event');
 
         DB::beginTransaction();
         try {
 
-            $this->schoolEventRepository->addSchoolEvent($eventId, $schoolDetails);
+            $created_school_event = $createSchoolEventAction->execute($event_id, $school_details);
+
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Add school event failed : ' . $e->getMessage());
-            return Redirect::to('master/event/' . $eventId . '')->withError('Failed to add new school to event');
+
+            $log_service->createErrorLog(LogModule::STORE_SCHOOL_EVENT, $e->getMessage(), $e->getLine(), $e->getFile(), $school_details);
+
+            return Redirect::to('master/event/' . $event_id . '')->withError('Failed to add new school to event');
         }
 
-        return Redirect::to('master/event/' . $eventId)->withSuccess('School successfully added to event');
+        # create log success
+        $log_service->createSuccessLog(LogModule::STORE_SCHOOL_EVENT, 'New school event has been added', $created_school_event->toArray());
+
+        return Redirect::to('master/event/' . $event_id)->withSuccess('School successfully added to event');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteSchoolEventAction $deleteSchoolEventAction, LogService $log_service)
     {
-        $eventId = $request->route('event');
-        $schoolId = $request->route('school');
+        $event_id = $request->route('event');
+        $school_id = $request->route('school');
 
-        if ($this->agendaSpeakerRepository->getAllSpeakersByEventAndSchool($eventId, $schoolId))
+        if ($this->agendaSpeakerRepository->getAllSpeakersByEventAndSchool($event_id, $school_id))
         {
-            $schoolInfo = $this->schoolRepository->getSchoolById($schoolId);
+            $schoolInfo = $this->schoolRepository->getSchoolById($school_id);
             return Redirect::back()->withError('You cannot remove the "'.$schoolInfo->sch_name.'" because there are speakers from the school. Do double check the agenda.');
         }
 
         DB::beginTransaction();
         try {
 
-            $event = Event::whereEventId($eventId);
-
-            if (count($event->school_speaker()->where('sch_id', $schoolId)->get()) > 0) {
-                $this->schoolDetailRepository->deleteAgendaSpeaker($schoolId, $eventId);
-            }
-
-            $this->schoolEventRepository->destroySchoolEvent($eventId, $schoolId);
+            $deleted_school_event = $deleteSchoolEventAction->execute($event_id, $school_id);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Remove school event failed : ' . $e->getMessage());
-            return Redirect::to('master/event/' . $eventId)->withError('Failed to remove school from event');
+            $log_service->createErrorLog(LogModule::DELETE_SCHOOL_EVENT, $e->getMessage(), $e->getLine(), $e->getFile(), $deleted_school_event->toArray());
+
+            return Redirect::to('master/event/' . $event_id)->withError('Failed to remove school from event');
         }
 
-        return Redirect::to('master/event/' . $eventId)->withSuccess('School successfully removed from event');
+        # create log success
+        $log_service->createSuccessLog(LogModule::DELETE_SCHOOL_EVENT, 'School event has been deleted', $deleted_school_event->toArray());
+
+        return Redirect::to('master/event/' . $event_id)->withSuccess('School successfully removed from event');
     }
 }

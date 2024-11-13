@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Schools\CreateSchoolAction;
+use App\Actions\Schools\DeleteSchoolAction;
+use App\Actions\Schools\UpdateSchoolAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Requests\StoreSchoolRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
@@ -18,6 +22,7 @@ use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\SchoolVisitRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Models\School;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -63,7 +68,7 @@ class SchoolController extends Controller
         
         
         $duplicates_schools = $this->schoolRepository->getDuplicateSchools();
-        $duplicates_schools_string = $this->convertDuplicatesSchoolAsString($duplicates_schools);
+        $duplicates_schools_string = $this->fnConvertDuplicatesSchoolAsString($duplicates_schools);
 
         return view('pages.instance.school.index')->with(
             [
@@ -73,7 +78,7 @@ class SchoolController extends Controller
         );
     }
 
-    private function convertDuplicatesSchoolAsString($schools)
+    private function fnConvertDuplicatesSchoolAsString($schools)
     {
         $response = '';
         foreach ($schools as $school) {
@@ -85,10 +90,10 @@ class SchoolController extends Controller
         return $response;
     }
 
-    public function store(StoreSchoolRequest $request)
+    public function store(StoreSchoolRequest $request, CreateSchoolAction $createSchoolAction, LogService $log_service)
     {
 
-        $schoolDetails = $request->only([
+        $school_details = $request->safe()->only([
             'sch_name',
             'sch_type',
             'sch_insta',
@@ -100,35 +105,26 @@ class SchoolController extends Controller
             'status'
         ]);
 
-        $last_id = School::max('sch_id');
-        $school_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 4) : '0000';
-        $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
-        
-
         DB::beginTransaction();
         try {
 
             # insert into school
-            $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails);
-
-            # insert into sch curriculum
-            $schoolCurriculumDetails = $request->sch_curriculum;
-
-            $schoolCreated = $this->schoolCurriculumRepository->createSchoolCurriculum($school_id_with_label, $schoolCurriculumDetails);
+            $created_school = $createSchoolAction->execute($request, $school_details);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store school failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_SCHOOL, $e->getMessage(), $e->getLine(), $e->getFile(), $school_details);
+
             return Redirect::to('instance/school')->withError('Failed to create school');
         }
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'School', Auth::user()->first_name . ' '. Auth::user()->last_name, $schoolCreated);
+        $log_service->createSuccessLog(LogModule::STORE_SCHOOL, 'New school has been added', $created_school->toArray());
 
-        return Redirect::to('instance/school/' . $school_id_with_label)->withSuccess('School successfully created');
+        return Redirect::to('instance/school/' . $created_school->sch_id)->withSuccess('School successfully created');
     }
 
     public function create()
@@ -144,14 +140,14 @@ class SchoolController extends Controller
 
     public function show(Request $request)
     {
-        $schoolId = $request->route('school');
+        $school_id = $request->route('school');
         $sch_progId = $request->route('detail');
 
         # retrieve curriculum data
         $curriculums = $this->curriculumRepository->getAllCurriculums();
 
         # retrieve school data by id
-        $school = $this->schoolRepository->getSchoolById($schoolId);
+        $school = $this->schoolRepository->getSchoolById($school_id);
 
         # retrieve program data
         $programs = $this->programRepository->getAllPrograms();
@@ -163,16 +159,16 @@ class SchoolController extends Controller
         $employees = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
         # retrieve school detail data by school Id
-        $schoolDetails = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
+        $school_details = $this->schoolDetailRepository->getAllSchoolDetailsById($school_id);
 
-        # retrieve School Program data by schoolId
-        $schoolPrograms = $this->schoolProgramRepository->getAllSchoolProgramsBySchoolId($schoolId);
+        # retrieve School Program data by school_id
+        $schoolPrograms = $this->schoolProgramRepository->getAllSchoolProgramsBySchoolId($school_id);
 
         # school visit data
-        $schoolVisits = $this->schoolVisitRepository->getSchoolVisitBySchoolId($schoolId);
+        $schoolVisits = $this->schoolVisitRepository->getSchoolVisitBySchoolId($school_id);
 
         # aliases
-        $aliases = $this->schoolRepository->getAliasBySchool($schoolId);
+        $aliases = $this->schoolRepository->getAliasBySchool($school_id);
 
         return view('pages.instance.school.form')->with(
             [
@@ -183,7 +179,7 @@ class SchoolController extends Controller
                 'schoolVisits' => $schoolVisits,
                 'leads' => $leads,
                 'employees' => $employees,
-                'details' => $schoolDetails,
+                'details' => $school_details,
                 'aliases' => $aliases
             ]
         );
@@ -191,7 +187,7 @@ class SchoolController extends Controller
 
     public function edit(Request $request)
     {
-        $schoolId = $request->route('school');
+        $school_id = $request->route('school');
 
         # retrieve curriculum data
         $curriculums = $this->curriculumRepository->getAllCurriculums();
@@ -206,10 +202,10 @@ class SchoolController extends Controller
         $employees = $this->userRepository->rnGetAllUsersByRole('Employee');
 
         # retrieve school data by id
-        $school = $this->schoolRepository->getSchoolById($schoolId);
+        $school = $this->schoolRepository->getSchoolById($school_id);
         
         # aliases
-        $aliases = $this->schoolRepository->getAliasBySchool($schoolId);
+        $aliases = $this->schoolRepository->getAliasBySchool($school_id);
 
         return view('pages.instance.school.form')->with(
             [
@@ -224,9 +220,9 @@ class SchoolController extends Controller
         );
     }
 
-    public function update(StoreSchoolRequest $request)
+    public function update(StoreSchoolRequest $request, UpdateSchoolAction $updateSchoolAction, LogService $log_service)
     {
-        $schoolDetails = $request->only([
+        $school_details = $request->safe()->only([
             'sch_name',
             'sch_type',
             'sch_insta',
@@ -238,79 +234,56 @@ class SchoolController extends Controller
             'status'
         ]);
 
-        $schoolId = $request->route('school');
-        $oldSchool = $this->schoolRepository->getSchoolById($schoolId);
+        $school_id = $request->route('school');
 
         DB::beginTransaction();
         try {
 
-            # insert into school
-            $this->schoolRepository->updateSchool($schoolId, $schoolDetails);
-
-            # insert into sch curriculum
-            $newSchoolCurriculumDetails = $request->sch_curriculum;
-
-            $this->schoolCurriculumRepository->updateSchoolCurriculum($schoolId, $newSchoolCurriculumDetails);
+            # update school
+            $updated_school = $updateSchoolAction->execute($request, $school_id, $school_details);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update school failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::UPDATE_SCHOOL, $e->getMessage(), $e->getLine(), $e->getFile(), $school_details);
             return Redirect::to('instance/school')->withError('Failed to update school');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'School', Auth::user()->first_name . ' '. Auth::user()->last_name, $schoolDetails, $oldSchool);
+        $log_service->createSuccessLog(LogModule::UPDATE_SCHOOL, 'School has been updated', $updated_school->toArray());
 
-        return Redirect::to('instance/school/' . $schoolId)->withSuccess('School successfully updated');
+        return Redirect::to('instance/school/' . $school_id)->withSuccess('School successfully updated');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteSchoolAction $deleteSchoolAction, LogService $log_service)
     {
-        $schoolId = $request->route('school');
-        $school = $this->schoolRepository->getSchoolById($schoolId);
+        $school_id = $request->route('school');
+        $school = $this->schoolRepository->getSchoolById($school_id);
 
         DB::beginTransaction();
         try {
 
             if (!isset($school))
                 return Redirect::to('instance/school')->withError('Data does not exist');
-
-            $this->schoolRepository->deleteSchool($schoolId);
+            
+            $deleteSchoolAction->execute($school_id);
+            
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete school failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_SCHOOL, $e->getMessage(), $e->getLine(), $e->getFile(), $school->toArray());
+
             return Redirect::to('instance/school')->withError('Failed to delete school');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'School', Auth::user()->first_name . ' '. Auth::user()->last_name, $school);
+        $log_service->createSuccessLog(LogModule::DELETE_SCHOOL, 'School has been deleted', $school->toArray());
 
         return Redirect::to('instance/school')->withSuccess('School successfully deleted');
-    }
-
-    public function import(StoreImportExcelRequest $request)
-    {
-        Cache::put('auth', Auth::user());
-        Cache::put('import_id', Carbon::now()->timestamp . '-import-school');
-
-        $file = $request->file('file');
-
-        // try {
-            (new SchoolImport())->queue($file)->allOnQueue('imports-school-merge');
-            // Excel::queueImport(new StudentImport(Auth::user()->first_name . ' '. Auth::user()->last_name), $file);
-            // $import = new StudentImport();
-            // $import->import($file);
-        // } catch (Exception $e) {
-        //     return back()->withError('Something went wrong while processing the data. Please try again or contact the administrator.');
-        // }
-
-        return back()->withSuccess('Import school start progress');
     }
 
     function getSchoolData()
