@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Actions\Report\Sales\EventReportAction;
+use App\Actions\Report\Sales\SalesReportAction;
+use App\Http\Requests\ReportEventRequest;
+use App\Http\Requests\ReportSalesRequest;
 use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
+use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
@@ -18,6 +22,7 @@ use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\ReferralRepositoryInterface;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
@@ -37,6 +42,8 @@ class ReportController extends Controller
     protected InvoiceDetailRepositoryInterface $invoiceDetailRepository;
     protected ReferralRepositoryInterface $referralRepository;
 
+    protected ClientProgramRepositoryInterface $clientProgramRepository;
+
     public function __construct(
         ClientEventRepositoryInterface $clientEventRepository,
         EventRepositoryInterface $eventRepository,
@@ -50,7 +57,8 @@ class ReportController extends Controller
         ReceiptRepositoryInterface $receiptRepository,
         SchoolVisitRepositoryInterface $schoolVisitRepository,
         InvoiceDetailRepositoryInterface $invoiceDetailRepository,
-        ReferralRepositoryInterface $referralRepository
+        ReferralRepositoryInterface $referralRepository,
+        ClientProgramRepositoryInterface $clientProgramRepository
     ) {
         $this->clientEventRepository = $clientEventRepository;
         $this->eventRepository = $eventRepository;
@@ -65,78 +73,48 @@ class ReportController extends Controller
         $this->schoolVisitRepository = $schoolVisitRepository;
         $this->invoiceDetailRepository = $invoiceDetailRepository;
         $this->referralRepository = $referralRepository;
+        $this->clientProgramRepository = $clientProgramRepository;
     }
 
-    public function event(Request $request)
+    /**
+     * Sales tracking
+     */
+    public function fnSalesTracking(
+        ReportSalesRequest $request,
+        SalesReportAction $salesReportAction,
+    ) 
     {
+        # initialize
+        $validated = $request->safe()->only([
+            'start', 
+            'end',
+            'main',
+            'program',
+            'pic',
+        ]);
 
-        $event_name = $choosen_event = $eventId = null;
-        if ($request->get('event_name') != null) {
-            $event_name = $request->get('event_name');
-        }
+        $sales_report = $salesReportAction->execute($validated);
+        return view('pages.report.sales-tracking.index')->with($sales_report);
+    }
 
-        $choosen_event = $this->eventRepository->getEventByName($event_name);
-        $eventId = isset($choosen_event) ? $choosen_event->event_id : null;
+    public function fnEventTracking(
+        ReportEventRequest $request,
+        EventReportAction $eventReportAction,
+        )
+    {
+        # initialize
+        $filter = $request->safe()->only([
+            'event_name',
+            'start_date',
+            'end_date'
+        ]);
 
-        $filter = [
-            'event_name' => $event_name,
-            'start_date' => null,
-            'end_date' => null
-        ];
-
-        if ($request->ajax()) {
-
-
+        if ($request->ajax()) 
             return $this->clientEventRepository->getAllClientEventDataTables($filter);
-        }
+        
 
-        $events = $this->eventRepository->getAllEvents();
-
-        // $clientEvents = $this->clientEventRepository->getAllClientEventDataTables($asDatatable, $filter);
-        $clients = $this->clientEventRepository->getReportClientEventsGroupByRoles($eventId);
-        $conversionLeads = $this->clientEventRepository->getConversionLead(['eventId' => $eventId]);
-
-
-        # new get feeder data
-        $feeder = $this->schoolRepository->getFeederSchools($eventId);
-
-
-        # query existing mentee from client event
-        $existingMentee = $this->clientEventRepository->getExistingMenteeFromClientEvent($eventId);
-        $id_mentee = $existingMentee->pluck('client_id')->toArray();
-
-
-        # query existing non mentee from client event
-        $existingNonMentee = $this->clientEventRepository->getExistingNonMenteeFromClientEvent($eventId);
-        $id_nonMentee = $existingNonMentee->pluck('client_id')->toArray();
-
-
-        $undefinedClients = $clients->whereNotIn('client_id', $id_nonMentee)->whereNotIn('client_id', $id_mentee)->unique('client_id');
-
-        $checkClient = $this->checkExistingOrNewClientEvent($undefinedClients);
-
-        $id_nonClient = $this->getIdClient($checkClient->where('type', 'ExistNonClient'));
-
-        $existingNonClient = $clients->whereIn('client_id', $id_nonClient)->unique('client_id');
-
-        $id_newClient = $this->getIdClient($checkClient->where('type', 'New'));
-
-        $newClient = $clients->whereIn('client_id', $id_newClient)->unique('client_id');
-
-
-        return view('pages.report.event-tracking.index')->with(
-            [
-                // 'clientEvents' => $clientEvents,
-                'existingMentee' => $existingMentee,
-                'existingNonMentee' => $existingNonMentee,
-                'existingNonClient' => $existingNonClient,
-                'newClient' => $newClient,
-                'events' => $events,
-                'conversionLeads' => $conversionLeads,
-                'choosen_event' => $choosen_event,
-                'feeder' => $feeder,
-            ]
-        );
+        $event_tracking = $eventReportAction->execute($filter['event_name']);
+        return view('pages.report.event-tracking.index')->with($event_tracking);
     }
 
     public function partnership(Request $request)
@@ -281,41 +259,6 @@ class ReportController extends Controller
             ]
         );
 
-    }
-
-    protected function getIdClient($data)
-    {
-        $id_client = array();
-
-        $i = 0;
-        foreach ($data as $d) {
-            $id_client[$i] = $d->client_id;
-            $i++;
-        }
-
-        return $id_client;
-    }
-
-    protected function checkExistingOrNewClientEvent($undefinedClients)
-    {
-
-        $dataClient =  new Collection();
-
-        foreach ($undefinedClients as $undefinedClient) {
-
-            if ($undefinedClient->main_prog_id != null && $undefinedClient->main_prog_id != 1) {
-                $dataClient->push((object)[
-                    'type' => 'ExistNonClient',
-                    'client_id' => $undefinedClient->client_id,
-                ]);
-            } else {
-                $dataClient->push((object)[
-                    'type' => 'New',
-                    'client_id' => $undefinedClient->client_id,
-                ]);
-            }
-        }
-        return $dataClient;
     }
 
     protected function getAllDataClient($data, $type)

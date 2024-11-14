@@ -82,7 +82,7 @@ class ProgramController extends Controller
     {
         return view('pages.master.program.form')->with(
             [
-                'main_programs' => $this->mainProgRepository->getAllMainProg()
+                'main_programs' => $this->mainProgRepository->rnGetAllMainProg()
             ]
         );
     }
@@ -129,7 +129,7 @@ class ProgramController extends Controller
 
         return view('pages.master.program.form')->with(
             [
-                'main_programs' => $this->mainProgRepository->getAllMainProg(),
+                'main_programs' => $this->mainProgRepository->rnGetAllMainProg(),
                 'program' => $program
             ]
         );
