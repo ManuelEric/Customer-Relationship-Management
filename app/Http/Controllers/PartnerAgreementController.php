@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Actions\Partners\Agreement\CreatePartnerAgreementAction;
+use App\Actions\Partners\Agreement\DeletePartnerAgreementAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StorePartnerAgreementRequest;
-use App\Http\Requests\StorePartnerRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Interfaces\UserRepositoryInterface;
@@ -12,17 +13,11 @@ use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\CorporatePicRepositoryInterface;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Interfaces\PartnerAgreementRepositoryInterface;
+use App\Services\Log\LogService;
 use Exception;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Str;
-use Svg\Tag\Rect;
 
 class PartnerAgreementController extends Controller
 {
@@ -52,85 +47,58 @@ class PartnerAgreementController extends Controller
 
   
 
-    public function store(StorePartnerAgreementRequest $request)
-    {
+    public function store(StorePartnerAgreementRequest $request, CreatePartnerAgreementAction $createPartnerAgreementAction, LogService $log_service)
+    {        
+        $corp_id = $request->route('corporate');
 
-        
-        $corpId = $request->route('corporate');
-
-        $partnerAgreements = $request->all();
+        $partner_agreement_details = $request->all();
      
-        $partnerAgreements['corp_id'] = $corpId;
-        
-        $file = $request->file('attachment');
-        $file_name = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME), "_").'_'.Str::slug(Carbon::now(),"_");
-        $extension = $file->getClientOriginalExtension();
-        $file_location = 'attachment/partner_agreement/'.strtolower($corpId).'/'; 
-        $attachment = $file_name.'.'.$extension;
-        
-        $file->move($file_location, $file_name.'.'.$extension);
-      
-
-        $partnerAgreements['attachment'] = $attachment;
-
+       
         DB::beginTransaction();
         try {
             
-            # insert into partner aggrement
-            $newPartnerAgreement = $this->partnerAgreementRepository->createPartnerAgreement($partnerAgreements);
+            $created_partner_agreement = $createPartnerAgreementAction->execute($request, $corp_id, $partner_agreement_details);
             
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store partner agreement failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_PARTNER_AGREEMENT, $e->getMessage(), $e->getLine(), $e->getFile(), $partner_agreement_details);
 
             // NOTE: Notif error ga muncul
-            return Redirect::to('instance/corporate/'.strtolower($corpId))->withError('Failed to create partner agreement');
+            return Redirect::to('instance/corporate/'.strtolower($corp_id))->withError('Failed to create partner agreement');
         }
         
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Partner Agreement', Auth::user()->first_name . ' '. Auth::user()->last_name, $newPartnerAgreement);
+        $log_service->createSuccessLog(LogModule::STORE_PARTNER_AGREEMENT, 'New partner agreement has been added', $created_partner_agreement->toArray());
 
         // NOTE: Notif success ga muncul
-        return Redirect::to('instance/corporate/'.strtolower($corpId))->withSuccess('Partner agreement successfully created');
+        return Redirect::to('instance/corporate/'.strtolower($corp_id))->withSuccess('Partner agreement successfully created');
     }
 
-   
-
-   public function destroy(Request $request)
+    public function destroy(Request $request, DeletePartnerAgreementAction $deletePartnerAgreementAction, LogService $log_service)
     {
-        $corpId = $request->route('corporate');
-        $partnerAgreeId = $request->route('agreement');
+        $corp_id = $request->route('corporate');
+        $partner_agreement_id = $request->route('agreement');
         
         DB::beginTransaction();
         try {
 
-            $partnerAgreeAttach = $this->partnerAgreementRepository->getPartnerAgreementById($partnerAgreeId);
-    
-            if(File::exists(public_path('attachment/partner_agreement/'. $corpId . '/' . $partnerAgreeAttach->attachment))){
-                
-                if($this->partnerAgreementRepository->deletePartnerAgreement($partnerAgreeId)){
-                    Unlink(public_path('attachment/partner_agreement/'. $corpId .'/' . $partnerAgreeAttach->attachment));
-                }
-            }else{
-                $this->partnerAgreementRepository->deletePartnerAgreement($partnerAgreeId);
-            }
+            $deleted_partner_agreement = $deletePartnerAgreementAction->execute($partner_agreement_id, $corp_id);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete partner agreement failed : ' . $e->getMessage());
-            // return $e->getMessage();
-            // exit;
-            return Redirect::to('instance/corporate/' . strtolower($corpId))->withError('Failed to delete partner agreement');
+            $log_service->createErrorLog(LogModule::DELETE_PARTNER_AGREEMENT, $e->getMessage(), $e->getLine(), $e->getFile(), $deleted_partner_agreement->toArray());
+
+            return Redirect::to('instance/corporate/' . strtolower($corp_id))->withError('Failed to delete partner agreement');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Partner Agreement', Auth::user()->first_name . ' '. Auth::user()->last_name, $partnerAgreeAttach);
+        $log_service->createSuccessLog(LogModule::DELETE_PARTNER_AGREEMENT, 'Partner agreement has been deleted', $deleted_partner_agreement->toArray());
 
-        return Redirect::to('instance/corporate/'. strtolower($corpId))->withSuccess('Partner Agreement successfully deleted');
+        return Redirect::to('instance/corporate/'. strtolower($corp_id))->withSuccess('Partner Agreement successfully deleted');
     }
 }

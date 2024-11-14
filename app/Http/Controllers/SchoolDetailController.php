@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Schools\Detail\CreateSchoolDetailAction;
+use App\Actions\Schools\Detail\DeleteSchoolDetailAction;
+use App\Actions\Schools\Detail\UpdateSchoolDetailAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreSchoolDetailRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\SchoolDetailRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
+use App\Services\Instance\SchoolService;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
 class SchoolDetailController extends Controller
@@ -22,16 +26,18 @@ class SchoolDetailController extends Controller
 
     protected SchoolRepositoryInterface $schoolRepository;
     protected SchoolDetailRepositoryInterface $schoolDetailRepository;
+    protected SchoolService $schoolService;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository, SchoolDetailRepositoryInterface $schoolDetailRepository)
+    public function __construct(SchoolRepositoryInterface $schoolRepository, SchoolDetailRepositoryInterface $schoolDetailRepository, SchoolService $schoolService)
     {
         $this->schoolRepository = $schoolRepository;
         $this->schoolDetailRepository = $schoolDetailRepository;
+        $this->schoolService = $schoolService;
     }
 
-    public function store(StoreSchoolDetailRequest $request)
+    public function store(StoreSchoolDetailRequest $request, CreateSchoolDetailAction $createSchoolDetailAction, LogService $log_service)
     {
-        $validated = $request->all([
+        $validated = $request->safe()->only([
             'sch_id',
             'schdetail_name',
             'schdetail_mail',
@@ -41,38 +47,22 @@ class SchoolDetailController extends Controller
             'is_pic',
         ]);
         
-        # using index 0
-        # because there is only one data in the array
-        unset($validated['schdetail_phone'][0]);
-        $validated['schdetail_phone'][0] = $this->tnSetPhoneNumber($request->schdetail_phone[0]);
-
-
+        
         DB::beginTransaction();
         try {
 
-            $representMaxLength = count($validated['schdetail_name']);
-            for ($i = 0; $i < $representMaxLength; $i++) {
-                $schoolDetails[] = [
-                    'sch_id' => $validated['sch_id'],
-                    'schdetail_fullname' => $validated['schdetail_name'][$i],
-                    'schdetail_email' => $validated['schdetail_mail'][$i],
-                    'schdetail_grade' => $validated['schdetail_grade'][$i],
-                    'schdetail_position' => $validated['schdetail_position'][$i],
-                    'schdetail_phone' => $validated['schdetail_phone'][$i],
-                    'is_pic' => $validated['is_pic'][$i],
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                ];
-            }
-
-            $this->schoolDetailRepository->createSchoolDetail($schoolDetails);
+            $created_school_detail = $createSchoolDetailAction->execute($request, $validated);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store school contact person failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_SCHOOL_DETAIL, $e->getMessage(), $e->getLine(), $e->getFile(), $validated);
+
             return Redirect::to('instance/school/' . $request->sch_id)->withError('Failed to create a new contact person');
         }
+
+        # create log success
+        $log_service->createSuccessLog(LogModule::STORE_SCHOOL_DETAIL, 'New school detail has been added', $created_school_detail->toArray());
 
         return Redirect::to('instance/school/' . $request->sch_id)->withSuccess('School contact person successfully created');
     }
@@ -90,20 +80,20 @@ class SchoolDetailController extends Controller
 
     public function edit(Request $request): JsonResponse
     {
-        $schoolDetailId = $request->route('detail');
+        $school_detail_id = $request->route('detail');
 
         # retrieve school detail data by id
-        $schoolDetail = $this->schoolDetailRepository->getSchoolDetailById($schoolDetailId);
+        $school_detail = $this->schoolDetailRepository->getSchoolDetailById($school_detail_id);
 
         return response()->json([
-            'school_id' => $schoolDetail->sch_id,
-            'schoolDetail' => $schoolDetail,
+            'school_id' => $school_detail->sch_id,
+            'schoolDetail' => $school_detail,
         ]);
     }
 
-    public function update(StoreSchoolDetailRequest $request)
+    public function update(StoreSchoolDetailRequest $request, UpdateSchoolDetailAction $updateSchoolDetailAction, LogService $log_service)
     {
-        $validated = $request->all([
+        $validated = $request->safe()->only([
             'sch_id',
             'schdetail_name',
             'schdetail_mail',
@@ -113,57 +103,50 @@ class SchoolDetailController extends Controller
             'is_pic'
         ]);
 
-        unset($validated['schdetail_phone'][0]);
-        $validated['schdetail_phone'][0] = $this->tnSetPhoneNumber($request->schdetail_phone[0]);
-
-        $schoolDetailId = $request->route('detail');
-
+        $school_detail_id = $request->route('detail');
+        
         DB::beginTransaction();
         try {
 
-            $representMaxLength = count($validated['schdetail_name']);
-            for ($i = 0; $i < $representMaxLength; $i++) {
-                $schoolDetails = [
-                    'sch_id' => $validated['sch_id'],
-                    'schdetail_fullname' => $validated['schdetail_name'][$i],
-                    'schdetail_email' => $validated['schdetail_mail'][$i],
-                    'schdetail_grade' => $validated['schdetail_grade'][$i],
-                    'schdetail_position' => $validated['schdetail_position'][$i],
-                    'schdetail_phone' => $validated['schdetail_phone'][$i],
-                    'is_pic' => $validated['is_pic'][$i],
-                    'updated_at' => Carbon::now(),
-                ];
-            }
+            $updated_school_detail = $updateSchoolDetailAction->execute($request, $school_detail_id, $validated);
 
-            $this->schoolDetailRepository->updateSchoolDetail($schoolDetailId, $schoolDetails);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update contact person failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::UPDATE_SCHOOL_DETAIL, $e->getMessage(), $e->getLine(), $e->getFile(), $validated);
+
             return Redirect::to('instance/school/' . $request->sch_id)->withError('Failed to update a contact person');
         }
+
+        # create log success
+        $log_service->createSuccessLog(LogModule::UPDATE_SCHOOL_DETAIL, 'School detail has been updated', $updated_school_detail->toArray());
 
         return Redirect::to('instance/school/' . $request->sch_id)->withSuccess('Contact person successfully updated');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteSchoolDetailAction $deleteSchoolDetailAction, LogService $log_service)
     {
-        $schoolId = $request->route('school');
-        $schoolDetailId = $request->route('detail');
+        $school_id = $request->route('school');
+        $school_detail_id = $request->route('detail');
 
         DB::beginTransaction();
         try {
 
-            $this->schoolDetailRepository->deleteSchoolDetail($schoolDetailId);
+            $deleted_school_detail = $deleteSchoolDetailAction->execute($school_detail_id);
+
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete contact person failed : ' . $e->getMessage());
-            return Redirect::to('instance/school/' . $schoolId)->withError('Failed to delete a contact person');
+            $log_service->createErrorLog(LogModule::DELETE_SCHOOL_DETAIL, $e->getMessage(), $e->getLine(), $e->getFile(), $deleted_school_detail->toArray());
+
+            return Redirect::to('instance/school/' . $school_id)->withError('Failed to delete a contact person');
         }
 
-        return Redirect::to('instance/school/' . $schoolId)->withSuccess('Contact person has successfully deleted');
+        # create log success
+        $log_service->createSuccessLog(LogModule::DELETE_SCHOOL_DETAIL, 'School detail has been deleted', $deleted_school_detail->toArray());
+
+        return Redirect::to('instance/school/' . $school_id)->withSuccess('Contact person has successfully deleted');
     }
 }

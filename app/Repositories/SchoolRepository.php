@@ -65,7 +65,7 @@ class SchoolRepository implements SchoolRepositoryInterface
 
     public function getVerifiedSchools()
     {
-        return School::where('status', 1)->where('is_verified', 'Y')->orderBy('sch_id', 'asc')->groupBy('sch_name')->get();
+        return School::where('status', 1)->isVerified()->orderBy('sch_id', 'asc')->groupBy('sch_name')->get();
     }
 
     public function getSchoolByMonthly($monthYear, $type)
