@@ -21,17 +21,18 @@ class UpdateEdufLeadAction
     )
     {
         $ext_pic_phone = $this->tnSetPhoneNumber($new_eduf_lead_details['ext_pic_phone']);
-
+        
         unset($new_eduf_lead_details['ext_pic_phone']); # remove the phone number that hasn't been updated into +62
         $new_eduf_lead_details['ext_pic_phone'] = $ext_pic_phone; # add new phone number 
 
-        if ($new_eduf_lead_details['organizer'] == "school")
-            $edufair_lead_details['corp_id'] = NULL;
-        else
-            $edufair_lead_details['sch_id'] = NULL;
+        if ($new_eduf_lead_details['organizer'] == "school"){
+            $new_eduf_lead_details['corp_id'] = NULL;
+        }else{
+            $new_eduf_lead_details['sch_id'] = NULL;
+        }
 
-        unset($edufair_lead_details['organizer']);
-
+        unset($new_eduf_lead_details['organizer']);
+        
         # Update eduf_lead
         $updated_eduf_lead = $this->edufLeadRepository->updateEdufairLead($eduf_lead_id, $new_eduf_lead_details);
 

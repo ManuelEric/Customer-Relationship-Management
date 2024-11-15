@@ -34,7 +34,7 @@ class AssetUsedController extends Controller
     public function store(StoreAssetUsedRequest $request, CreateAssetUsedAction $createAssetUsedAction, LogService $log_service)
     {
         $used_details = $request->safe()->only([
-            'assetId',
+            'asset_id',
             'user',
             'amount_used',
             'used_date',
@@ -52,12 +52,12 @@ class AssetUsedController extends Controller
             DB::rollBack();
             $log_service->createErrorLog(LogModule::STORE_ASSET_USED, $e->getMessage(), $e->getLine(), $e->getFile(), $used_details);
 
-            return Redirect::to('master/asset/' . $request->assetId)->withError('Failed to store user asset');
+            return Redirect::to('master/asset/' . $request->asset_id)->withError('Failed to store user asset');
         }
 
-        $log_service->createSuccessLog(LogModule::STORE_ASSET_USED, 'New asset used has been added', $new_asset_used->toArray());
+        $log_service->createSuccessLog(LogModule::STORE_ASSET_USED, 'New asset used has been added', $used_details);
 
-        return Redirect::to('master/asset/' . $request->assetId)->withSuccess('Asset user was successfully noted');
+        return Redirect::to('master/asset/' . $request->asset_id)->withSuccess('Asset user was successfully noted');
     }
 
     public function show(Request $request): JsonResponse
@@ -94,13 +94,13 @@ class AssetUsedController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            $log_service->createErrorLog(LogModule::DELETE_ASSET_USED, $e->getMessage(), $e->getLine(), $e->getFile(), ['user_id' => $used_id]);
+            $log_service->createErrorLog(LogModule::DELETE_ASSET_USED, $e->getMessage(), $e->getLine(), $e->getFile(), ['asset_id' => $asset_id, 'used_id' => $used_id]);
 
             return Redirect::to('master/asset/' . $request->asset)->withError('Failed to delete asset used');
         }
 
 
-        $log_service->createSuccessLog(LogModule::STORE_ASSET, 'New asset used has been deleted', ['user_id' => $used_id]);
+        $log_service->createSuccessLog(LogModule::DELETE_ASSET_USED, 'New asset used has been deleted', ['asset_id' => $asset_id, 'used_id' => $used_id]);
 
         return Redirect::to('master/asset/' . $request->asset)->withSuccess('Asset used successfully deleted');
     }

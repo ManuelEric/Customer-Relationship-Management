@@ -64,7 +64,7 @@ class EdufReviewController extends Controller
     {
         $eduf_lead_id = $request->eduf_id;
         $eduf_review_id = $request->route('review');
-        $new_eduf_lead_review_details = $request->only([
+        $new_eduf_lead_review_details = $request->safe()->only([
             'reviewer_name',
             'score',
             'review'

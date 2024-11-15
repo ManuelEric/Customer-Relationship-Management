@@ -134,7 +134,7 @@ class ProgramRepository implements ProgramRepositoryInterface
         // $newDetails['prog_main'] = $mainProg->prog_name;
 
         # disesuaikan dengan main_prog_id & sub_prog_id
-        return Program::whereProgId($programId)->update($newDetails);
+        return tap(Program::whereProgId($programId))->update($newDetails);
     }
 
     public function cleaningProgram()

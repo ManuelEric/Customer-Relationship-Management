@@ -39,7 +39,7 @@ class VendorRepository implements VendorRepositoryInterface
 
     public function updateVendor($vendorId, array $newDetails)
     {
-        return Vendor::whereVendorId($vendorId)->update($newDetails);
+        return tap(Vendor::whereVendorId($vendorId))->update($newDetails);
     }
 
     public function cleaningVendor()

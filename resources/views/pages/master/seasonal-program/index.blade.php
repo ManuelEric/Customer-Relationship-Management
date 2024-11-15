@@ -15,10 +15,6 @@
         </div>
     </div>
 
-    @if($errors->any())
-        {{ implode('', $errors->all('<div>:message</div>')) }}
-    @endif
-
     <div class="card rounded">
         <div class="card-body">
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="seasonalProgramTable">
@@ -259,4 +255,16 @@
                 })
         }
     </script>
+
+    @if (
+        $errors->has('prog_id') ||
+            $errors->has('start') ||
+            $errors->has('end') ||
+            $errors->has('sales_date'))
+        <script>
+            $(document).ready(function() {
+                $('#seasonalProgram').modal('show');
+            })
+        </script>
+    @endif
 @endsection

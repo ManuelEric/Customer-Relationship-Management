@@ -44,7 +44,7 @@ class SchoolEventController extends Controller
         DB::beginTransaction();
         try {
 
-            $created_school_event = $createSchoolEventAction->execute($event_id, $school_details);
+            $createSchoolEventAction->execute($event_id, $school_details);
 
             DB::commit();
         } catch (Exception $e) {
@@ -57,7 +57,7 @@ class SchoolEventController extends Controller
         }
 
         # create log success
-        $log_service->createSuccessLog(LogModule::STORE_SCHOOL_EVENT, 'New school event has been added', $created_school_event->toArray());
+        $log_service->createSuccessLog(LogModule::STORE_SCHOOL_EVENT, 'New school event has been added', $school_details);
 
         return Redirect::to('master/event/' . $event_id)->withSuccess('School successfully added to event');
     }
@@ -82,13 +82,13 @@ class SchoolEventController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            $log_service->createErrorLog(LogModule::DELETE_SCHOOL_EVENT, $e->getMessage(), $e->getLine(), $e->getFile(), $deleted_school_event->toArray());
+            $log_service->createErrorLog(LogModule::DELETE_SCHOOL_EVENT, $e->getMessage(), $e->getLine(), $e->getFile(), ['event_id' => $event_id, 'school_id' => $school_id]);
 
             return Redirect::to('master/event/' . $event_id)->withError('Failed to remove school from event');
         }
 
         # create log success
-        $log_service->createSuccessLog(LogModule::DELETE_SCHOOL_EVENT, 'School event has been deleted', $deleted_school_event->toArray());
+        $log_service->createSuccessLog(LogModule::DELETE_SCHOOL_EVENT, 'School event has been deleted', ['event_id' => $event_id, 'school_id' => $school_id]);
 
         return Redirect::to('master/event/' . $event_id)->withSuccess('School successfully removed from event');
     }

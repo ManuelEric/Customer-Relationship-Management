@@ -51,7 +51,7 @@ class SeasonalProgramRepository implements SeasonalProgramRepositoryInterface
 
     public function updateSeasonalProgram($id, array $newDetails)
     {
-        return SeasonalProgram::find($id)->update($newDetails);
+        return tap(SeasonalProgram::find($id))->update($newDetails);
     }
 
     public function deleteSeasonalProgram($id)

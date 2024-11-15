@@ -119,7 +119,7 @@ class SalesTargetController extends Controller
 
         # Update success
         # create log success
-        $log_service->createSuccessLog(LogModule::DELETE_SALES_TARGET, 'Sales target has been updated', $updated_sales_target->toArray());
+        $log_service->createSuccessLog(LogModule::UPDATE_SALES_TARGET, 'Sales target has been updated', $updated_sales_target->toArray());
 
         return Redirect::to('master/sales-target')->withSuccess('Sales target successfully updated');
     }

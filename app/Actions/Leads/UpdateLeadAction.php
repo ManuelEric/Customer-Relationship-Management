@@ -24,7 +24,7 @@ class UpdateLeadAction
     )
     {
 
-        $new_lead_details = $this->leadService->snSetMainLeadAndSubLead($request);
+        $new_lead_details = $this->leadService->snSetMainLeadAndSubLead($request, $new_lead_details);
 
         # Update lead
         $updated_lead = $this->leadRepository->updateLead($lead_id, $new_lead_details);

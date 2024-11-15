@@ -115,7 +115,7 @@ class VendorController extends Controller
 
     public function update(StoreVendorRequest $request, UpdateVendorAction $updateVendorAction, LogService $log_service)
     {
-        $new_vendor_details = $request->only([
+        $new_vendor_details = $request->safe()->only([
             'vendor_name',
             'vendor_address',
             'vendor_phone',

@@ -23,8 +23,10 @@ class DeletePurchaseRequestAction
         # delete program
         if ($this->purchaseRequestRepository->deletePurchaseRequest($purchase_id)) {
 
-            # delete file if does exist
-            $this->tnDeleteFile('storage/uploaded_file/finance/', $purchase->purchase_attachment);
+            if($purchase->purchase_attachment != null){
+                # delete file if does exist
+                $this->tnDeleteFile('storage/uploaded_file/finance/', $purchase->purchase_attachment);
+            }
         }
 
         return null;

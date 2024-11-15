@@ -33,7 +33,7 @@ class EventSpeakerController extends Controller
     {
         $event_id = $request->route('event');
         
-        $new_agenda_details = $request->only([
+        $new_agenda_details = $request->safe()->only([
             'speaker_type',
             'allin_speaker',
             'partner_speaker',
@@ -46,7 +46,7 @@ class EventSpeakerController extends Controller
         DB::beginTransaction();
         try {
 
-            $new_agenda = $createEventSpeakerAction->execute($event_id, $new_agenda_details);
+            $createEventSpeakerAction->execute($event_id, $new_agenda_details);
             DB::commit();
 
         } catch (Exception $e) {
@@ -58,7 +58,7 @@ class EventSpeakerController extends Controller
 
         }
 
-        $log_service->createSuccessLog(LogModule::STORE_EVENT_SPEAKER, 'New event speaker has been added', $new_agenda->toArray());
+        $log_service->createSuccessLog(LogModule::STORE_EVENT_SPEAKER, 'New event speaker has been added', $new_agenda_details);
 
         return Redirect::to('master/event/'.$event_id)->withSuccess('Event speaker successfully added');
     }
@@ -76,7 +76,7 @@ class EventSpeakerController extends Controller
         DB::beginTransaction();
         try {
 
-            $updated_event_speaker = $updateEventSpeakerAction->execute($request, $new_event_speaker_details);
+            $updateEventSpeakerAction->execute($request, $new_event_speaker_details);
 
             DB::commit();
 
@@ -90,7 +90,7 @@ class EventSpeakerController extends Controller
 
         }
 
-        $log_service->createSuccessLog(LogModule::UPDATE_EVENT_SPEAKER, 'Event speaker has been updated', $updated_event_speaker->toArray());
+        $log_service->createSuccessLog(LogModule::UPDATE_EVENT_SPEAKER, 'Event speaker has been updated', $new_event_speaker_details);
 
         return Redirect::to('master/event/'.$event_id)->withSuccess('Event speaker successfully updated');
     }

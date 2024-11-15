@@ -24,7 +24,7 @@ class UpdatePurchaseRequestAction
     {
         
         $file_name = $purchase_id;
-        $new_request_details['purchase_attachment'] = $this->tnUploadFile($request, 'purchase_attachment', $file_name, 'public/uploaded_file/finance');;
+        $new_request_details['purchase_attachment'] = pathinfo($this->tnUploadFile($request, 'purchase_attachment', $file_name, 'public/uploaded_file/finance'))['basename'];
 
         # update purchase request
         $updated_purchase_request =  $this->purchaseRequestRepository->updatePurchaseRequest($purchase_id, $new_request_details);

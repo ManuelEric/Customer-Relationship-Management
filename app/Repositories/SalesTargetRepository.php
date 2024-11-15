@@ -265,6 +265,6 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
 
     public function updateSalesTarget($salesTargetId, array $newSalesTargets)
     {
-        return SalesTarget::find($salesTargetId)->update($newSalesTargets);
+        return tap(SalesTarget::find($salesTargetId))->update($newSalesTargets);
     }
 }

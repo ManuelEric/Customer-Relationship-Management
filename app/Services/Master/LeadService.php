@@ -16,18 +16,18 @@ class LeadService
 
     # Purpose:
     # Set main_lead and sub lead before insert or update lead
-    public function snSetMainLeadAndSubLead($request)
+    public function snSetMainLeadAndSubLead($request, $new_lead_details)
     {
         if ($request->kol == true) {
 
-            $lead_details['main_lead'] = "KOL";
-            $lead_details['sub_lead'] = $request->lead_name;
+            $new_lead_details['main_lead'] = "KOL";
+            $new_lead_details['sub_lead'] = $request->lead_name;
         } else {
-            $lead_details['main_lead'] = $request->lead_name;
-            $lead_details['sub_lead'] = null;
+            $new_lead_details['main_lead'] = $request->lead_name;
+            $new_lead_details['sub_lead'] = null;
         }
 
-        return $lead_details;
+        return $new_lead_details;
     }
 
     # purpose:

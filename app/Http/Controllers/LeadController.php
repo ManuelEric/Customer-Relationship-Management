@@ -63,7 +63,7 @@ class LeadController extends Controller
 
     public function store(StoreLeadRequest $request, CreateLeadAction $createLeadAction, LogService $log_service)
     {
-        $new_lead_details = $request->only([
+        $new_lead_details = $request->safe()->only([
             'lead_name',
             'score',
             'kol',

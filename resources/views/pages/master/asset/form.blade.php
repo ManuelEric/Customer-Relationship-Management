@@ -306,7 +306,7 @@
                             @csrf
                             {{-- <input type="text" name="user" value="{{ isset($user) ? $user->id : null }}">
                             <input type="hidden" name="usedId" value="{{ isset($usedId) ? $usedId : null }}"> --}}
-                            <input type="hidden" name="assetId" value="{{ $asset->asset_id }}">
+                            <input type="hidden" name="asset_id" value="{{ $asset->asset_id }}">
 
                             <div class="row">
                                 <div class="col-md-8 mb-2">
@@ -396,8 +396,8 @@
                         <form action="" method="POST" id="formReturn">
                             @csrf
                             <input type="hidden" name="user" id="userId">
-                            <input type="hidden" name="usedId" id="usedId">
-                            <input type="hidden" name="assetId" id="assetId">
+                            <input type="hidden" name="used_id" id="usedId">
+                            <input type="hidden" name="asset_id" id="assetId">
 
                             <div class="row">
                                 <div class="col-md-2 mb-2">

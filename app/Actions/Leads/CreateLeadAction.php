@@ -31,7 +31,7 @@ class CreateLeadAction
         if (!$last_id)
             $last_id = 'LS000';
 
-        $new_lead_details = $this->leadService->snSetMainLeadAndSubLead($request);
+        $new_lead_details = $this->leadService->snSetMainLeadAndSubLead($request, $new_lead_details);
 
         $lead_id_without_label = $this->remove_primarykey_label($last_id, 2);
         $lead_id_with_label = 'LS' . $this->add_digit($lead_id_without_label + 1, 3);

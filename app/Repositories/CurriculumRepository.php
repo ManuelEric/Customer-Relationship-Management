@@ -46,6 +46,6 @@ class CurriculumRepository implements CurriculumRepositoryInterface
 
     public function updateCurriculum($curriculumId, array $newCurriculums)
     {
-        return Curriculum::find($curriculumId)->update($newCurriculums);
+        return tap(Curriculum::find($curriculumId))->update($newCurriculums);
     }
 }

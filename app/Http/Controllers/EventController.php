@@ -104,7 +104,7 @@ class EventController extends Controller
 
     public function store(StoreEventRequest $request, CreateEventAction $createEventAction, LogService $log_service)
     {
-        $new_event_details = $request->only([
+        $new_event_details = $request->safe()->only([
             'event_title',
             'event_description',
             'event_location',
