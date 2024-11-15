@@ -46,6 +46,6 @@ class TagRepository implements TagRepositoryInterface
 
     public function updateTag($tagId, array $tag)
     {
-        return Tag::find($tagId)->update($tag);
+        return tap(Tag::find($tagId))->update($tag);
     }
 }

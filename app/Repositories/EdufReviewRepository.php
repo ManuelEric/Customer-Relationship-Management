@@ -33,6 +33,6 @@ class EdufReviewRepository implements EdufReviewRepositoryInterface
     public function updateEdufairReview($edufLId, $edufRId, array $newDetails)
     {
         $newDetails['eduf_id'] = $edufLId;
-        return EdufReview::whereId($edufRId)->update($newDetails);
+        return tap(EdufReview::whereId($edufRId)->first())->update($newDetails);
     }
 }

@@ -51,6 +51,6 @@ class MajorRepository implements MajorRepositoryInterface
 
     public function updateMajor($majorId, array $newDetails)
     {
-        return Major::whereId($majorId)->update($newDetails);
+        return tap(Major::whereId($majorId)->first())->update($newDetails);
     }
 }

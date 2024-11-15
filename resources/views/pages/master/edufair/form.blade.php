@@ -69,29 +69,29 @@
                         </div>
                     </div>
                     <div class="card-body" style="max-height: 200px; overflow:auto;">
-                            @forelse ($reviews as $reviews)
+                            @forelse ($reviews as $review)
                                 <div class="item mb-3">
                                     <div class="d-flex justify-content-between">
                                         <div class="">
                                             <h6 class="mb-0">
-                                                {{ $reviews->reviewer->first_name . ' ' . $reviews->reviewer->last_name }}
+                                                {{ $review->reviewer->first_name . ' ' . $review->reviewer->last_name }}
                                             </h6>
                                             <small>
-                                                {{ date('M, d Y', strtotime($reviews->created_at)) }} |
-                                                {{ $reviews->score }}
+                                                {{ date('M, d Y', strtotime($review->created_at)) }} |
+                                                {{ $review->score }}
                                             </small>
                                         </div>
                                         <div class="">
                                             <i class="bi bi-pencil text-warning me-1 cursor-pointer" data-bs-toggle="modal"
                                                 data-bs-target="#reviewForm"
-                                                onclick="getReview('{{ $edufair->id }}','{{ $reviews->id }}')"></i>
+                                                onclick="getReview({{ $edufair->id }},{{ $review->id }})"></i>
 
                                             <i class="bi bi-trash2 text-danger cursor-pointer"
-                                                onclick="confirmDelete('master/edufair/{{ $edufair->id }}/review', '{{ $reviews->id }}')"></i>
+                                                onclick="confirmDelete('master/edufair/{{ $edufair->id }}/review', '{{ $review->id }}')"></i>
                                         </div>
                                     </div>
                                     <div class="ps-1 my-1" style="border-left: 1px solid #dedede">
-                                        {!! $reviews->review !!}
+                                        {!! $review->review !!}
                                     </div>
                                     <hr class="my-1">
                                 </div>
@@ -459,29 +459,6 @@
             }
         @endif
 
-        function getReview(eduf_id, reviews_id) {
-            let link = '{{ url('master/edufair') }}/' + eduf_id + '/review/' + reviews_id
-
-            axios.get(link)
-                .then(function(response) {
-                    let data = response.data.review
-                    // console.log(data)
-                    // handle success
-                    $('#reviewer_name').val(data.reviewer_name).trigger('change')
-                    $('#score').val(data.score).trigger('change')
-                    tinyMCE.get('review').setContent(data.review);
-
-                    let url = "{{ url('master/edufair/') }}/" + data.eduf_id + "/review/" + data.id
-                    $('#formReview').attr('action', url)
-
-                    let html = '@method('put')'
-                    $('.put').html(html);
-                })
-                .catch(function(error) {
-                    // handle error
-                    console.log(error);
-                })
-        }
     </script>
 
     @if (old('organizer'))
@@ -532,7 +509,6 @@
 
             function getReview(eduf_id, reviews_id) {
                 let link = '{{ url('master/edufair') }}/' + eduf_id + '/review/' + reviews_id
-
                 axios.get(link)
                     .then(function(response) {
                         let data = response.data.review

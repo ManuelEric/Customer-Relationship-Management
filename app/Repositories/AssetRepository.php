@@ -37,7 +37,7 @@ class AssetRepository implements AssetRepositoryInterface
 
     public function updateAsset($assetId, array $newDetails) 
     {
-        return Asset::whereAssetId($assetId)->update($newDetails);
+        return tap(Asset::whereAssetId($assetId))->update($newDetails);
     }
 
     public function cleaningAsset()

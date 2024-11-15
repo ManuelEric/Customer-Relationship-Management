@@ -42,7 +42,7 @@ class CorporatePartnerEventController extends Controller
         DB::beginTransaction();
         try {
 
-            $created_corporate_event = $createCorporateEventAction->execute($event_id, $partner_details);
+            $createCorporateEventAction->execute($event_id, $partner_details);
             DB::commit();
         } catch (Exception $e) {
 
@@ -53,7 +53,7 @@ class CorporatePartnerEventController extends Controller
         }
 
         # create log success
-        $log_service->createSuccessLog(LogModule::STORE_CORPORATE_EVENT, 'New corporate event has been added', $created_corporate_event->toArray());
+        $log_service->createSuccessLog(LogModule::STORE_CORPORATE_EVENT, 'New corporate event has been added', $partner_details);
 
         return Redirect::to('master/event/' . $event_id)->withSuccess('Partner successfully added to event');
     }
@@ -67,19 +67,19 @@ class CorporatePartnerEventController extends Controller
         DB::beginTransaction();
         try {
 
-            $deleted_corporate_event = $deleteCorporateEventAction->execute($event_id, $corporate_id);
+            $deleteCorporateEventAction->execute($event_id, $corporate_id);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            $log_service->createErrorLog(LogModule::DELETE_CORPORATE_EVENT, $e->getMessage(), $e->getLine(), $e->getFile(), $deleted_corporate_event->toArray());
+            $log_service->createErrorLog(LogModule::DELETE_CORPORATE_EVENT, $e->getMessage(), $e->getLine(), $e->getFile(), ['event_id' => $event_id, 'corporate_id' => $corporate_id]);
 
             return Redirect::to('master/event/' . $event_id)->withError('Failed to remove partner from event');
         }
 
         # create log success
-        $log_service->createSuccessLog(LogModule::DELETE_CORPORATE_EVENT, 'Corporate event has been deleted', $deleted_corporate_event->toArray());
+        $log_service->createSuccessLog(LogModule::DELETE_CORPORATE_EVENT, 'Corporate event has been deleted', ['event_id' => $event_id, 'corporate_id' => $corporate_id]);
 
         return Redirect::to('master/event/' . $event_id)->withSuccess('Partner successfully removed from event');
     }

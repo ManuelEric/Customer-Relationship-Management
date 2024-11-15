@@ -37,8 +37,8 @@ class AssetReturnedController extends Controller
     {
 
         $new_returned_details = $request->safe()->only([
-            'usedId',
-            'assetId',
+            'used_id',
+            'asset_id',
             'user',
             'amount_returned',
             'returned_date',
@@ -48,7 +48,7 @@ class AssetReturnedController extends Controller
         DB::beginTransaction();
         try {
 
-            $new_asset_returned = $createAssetReturnedAction->execute($request, $new_returned_details);
+            $createAssetReturnedAction->execute($request, $new_returned_details);
             
             DB::commit();
 
@@ -61,7 +61,7 @@ class AssetReturnedController extends Controller
 
         }
 
-        $log_service->createSuccessLog(LogModule::STORE_ASSET_RETURNED, 'New asset returned has been added', $new_asset_returned->toArray());
+        $log_service->createSuccessLog(LogModule::STORE_ASSET_RETURNED, 'New asset returned has been added', $new_returned_details);
 
         return Redirect::to('master/asset/'.$request->asset_id)->withSuccess('Asset returned was successfully noted');
     }
@@ -102,13 +102,13 @@ class AssetReturnedController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            $log_service->createErrorLog(LogModule::DELETE_ASSET_RETURNED, $e->getMessage(), $e->getLine(), $e->getFile(), ['returned_id' => $returned_id]);
+            $log_service->createErrorLog(LogModule::DELETE_ASSET_RETURNED, $e->getMessage(), $e->getLine(), $e->getFile(), ['returned_id' => $returned_id, 'asset_id' => $asset_id]);
 
             return Redirect::to('master/asset/'.$asset_id)->withError('Failed to delete asset returned');
 
         }
 
-        $log_service->createSuccessLog(LogModule::DELETE_ASSET_RETURNED, 'Asset returned has been deleted', ['returned_id' => $returned_id]);
+        $log_service->createSuccessLog(LogModule::DELETE_ASSET_RETURNED, 'Asset returned has been deleted', ['returned_id' => $returned_id, 'asset_id' => $asset_id]);
 
         return Redirect::to('master/asset/'.$asset_id)->withSuccess('Asset returned successfully deleted');
     }

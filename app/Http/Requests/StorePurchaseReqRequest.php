@@ -22,6 +22,9 @@ class StorePurchaseReqRequest extends FormRequest
     {
         return [
             'purchase_department' => 'The selected department is invalid',
+            'purchase_statusrequest.required' => 'The request status field is required',
+            'purchase_statusrequest.in' => 'The selected request status field is invalid',
+            'purchase_requestdate.required' => 'The request date field is required',
         ];
     }
 

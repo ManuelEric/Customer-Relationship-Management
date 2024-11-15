@@ -36,7 +36,7 @@ class SubjectRepository implements SubjectRepositoryInterface
 
     public function updateSubject($subjectId, array $newDetails)
     {
-        return Subject::whereId($subjectId)->update($newDetails);
+        return tap(Subject::whereId($subjectId)->first())->update($newDetails);
     }
 
     public function deleteSubject($subjectId)

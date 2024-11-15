@@ -21,8 +21,8 @@ class CreateAssetReturnedAction
         Array $new_asset_returned_details
     )
     {
-        $returned_details['asset_used_id'] = $request->usedId;
-        unset($returned_details['usedId']);
+        $new_asset_returned_details['asset_used_id'] = $request->used_id;
+        unset($new_asset_returned_details['used_id']);
 
         $new_asset_returned = $this->assetReturnedRepository->createAssetReturned($new_asset_returned_details);
 

@@ -45,6 +45,6 @@ class PositionRepository implements PositionRepositoryInterface
 
     public function updatePosition($positionId, array $newDetails)
     {
-        return Position::whereId($positionId)->update($newDetails);
+        return tap(Position::whereId($positionId)->first())->update($newDetails);
     }
 }

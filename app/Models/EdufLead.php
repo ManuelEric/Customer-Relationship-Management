@@ -106,7 +106,7 @@ class EdufLead extends Model
 
     public function schools()
     {
-        return $this->belongsTo(School::class, 'sch_id', 'sch_id');
+        return $this->belongsTo(School::class, 'sch_id', 'sch_id')->withTrashed();
     }
 
     public function corps()

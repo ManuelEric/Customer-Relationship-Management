@@ -23,7 +23,7 @@ class CreateVendorAction
         Array $new_vendor_details
     )
     {
-        unset($new_vendor_details['vendor_phone']);
+
         $new_vendor_details['vendor_phone'] = $this->tnSetPhoneNumber($request->vendor_phone);
 
         $last_id = Vendor::max('vendor_id');

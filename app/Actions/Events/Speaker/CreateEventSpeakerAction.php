@@ -20,8 +20,8 @@ class CreateEventSpeakerAction
         array $new_agenda_details
     ) {
 
-        $agenda_details['event_id'] = $event_id;
-        $agenda_details['priority'] = (int) $this->maxAgendaSpeakerPriority('Event', $event_id, $agenda_details)+1;
+        $new_agenda_details['event_id'] = $event_id;
+        $new_agenda_details['priority'] = (int) $this->maxAgendaSpeakerPriority('Event', $event_id, $new_agenda_details)+1;
 
         $new_agenda = $this->agendaSpeakerRepository->createAgendaSpeaker("Event", $event_id, $new_agenda_details);
 
