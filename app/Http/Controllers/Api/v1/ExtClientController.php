@@ -1186,7 +1186,7 @@ class ExtClientController extends Controller
     private function attachDestinationCountry($clientId, array $destinationCountries)
     {
         if (count($destinationCountries) > 0)
-            $this->clientRepository->syncDestinationCountry($clientId, $destinationCountries);
+            return $this->clientRepository->syncDestinationCountry($clientId, $destinationCountries);
     }
 
     private function storeParent($incomingRequest)

@@ -323,7 +323,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             }
         }
 
-        $model = ClientProgram::leftJoin('client as c', 'c.id', '=', 'tbl_client_prog.client_id')->
+        //! note that this data will display without the client that has been deleted 
+        $model = ClientProgram::has('cleanClient')->
+                    leftJoin('client as c', 'c.id', '=', 'tbl_client_prog.client_id')->
                     leftJoin('tbl_sch as sch', 'sch.sch_id', '=', 'c.sch_id')->
                     leftJoin('tbl_lead as cl', 'cl.lead_id', '=', 'c.lead_id')->
                     leftJoin('tbl_eduf_lead as cedl', 'cedl.id', '=', 'c.eduf_id')->
@@ -381,10 +383,6 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         'tbl_client_prog.created_at',
                         DB::raw('CONCAT (cref.first_name, " ", COALESCE(cref.last_name, "")) AS referral_name')
                     ]);
-
-                    if(!$asDatatables){
-                        return $model;
-                    }
                     
                     $model->
                     when(Session::get('user_role') == 'Employee', function ($subQuery) {
@@ -482,7 +480,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         $query->whereHas('internalPic', function ($query2) use ($searchQuery) {
                             $query2->whereIn('users.id', $searchQuery['emplUUID']);
                         });
-                    });
+                    })
+                    ->groupBy('tbl_client_prog.clientprog_id');
+
+        if ($asDatatables === false)
+            return $model->get();
 
         return Datatables::eloquent($model)->
             rawColumns(['strip_tag_notes'])->
