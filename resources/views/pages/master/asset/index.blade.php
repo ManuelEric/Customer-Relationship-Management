@@ -26,7 +26,7 @@
                         <th>Asset Name</th>
                         <th>Merk/Type</th>
                         <th>Achieved Date</th>
-                        <th>Amont</th>
+                        <th>Amount</th>
                         <th>Unit</th>
                         <th>Condition</th>
                         <th>Notes</th>
