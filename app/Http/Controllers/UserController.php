@@ -264,16 +264,19 @@ class UserController extends Controller
         $new_status = 0; # inactive
 
         $new_status_detail = [
-            'status' => $new_status,
-            'deativated_at' => Carbon::now(),
+            'active' => $new_status,
+            'deactivated_at' => Carbon::now(),
             'new_pic' => null,
             'department' => null
         ];
 
+        $selected_user = $this->userRepository->rnGetUserById($user_id);
+
         DB::beginTransaction();
         try {
 
-            $the_user = $this->userRepository->rnUpdateStatusUser($user_id, $new_status_detail);
+
+            $the_user = $this->userRepository->rnUpdateStatusUser($selected_user, $new_status_detail);
             DB::commit();
 
         } catch (Exception $e) {

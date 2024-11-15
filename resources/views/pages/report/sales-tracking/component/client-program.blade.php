@@ -3,9 +3,9 @@
         <h6 class="p-0 m-0">Client Program</h6>
     </div>
     <div class="card-body">
-        @unless ($sales_report_by_status['count']['pending'] && $sales_report_by_status['count']['failed'] && $sales_report_by_status['count']['success'] && $sales_report_by_status['count']['refund'])
+        @if ($sales_report_by_status['count']['pending'] == 0 && $sales_report_by_status['count']['failed'] == 0 && $sales_report_by_status['count']['success'] == 0 && $sales_report_by_status['count']['refund'] == 0)
             <div>No data</div>
-        @endunless
+        @endif
         @if ($sales_report_by_status['count']['pending'] > 0)
             <div class="table-responsive">
                 <table class="table mb-3">
