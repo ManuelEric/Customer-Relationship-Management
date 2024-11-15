@@ -168,7 +168,18 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
 
         $usingFilterDate = count($date_details) > 0 ? true : false;
 
-        return ClientProgram::leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')->
+        // 1. condition for building query
+        $date_condition = 'AND q_cp.success_date between \'' .$date_details['start']. '\' AND \'' . $date_details['end'] . '\'';
+        $pic_condition = $pic ? 'AND empl_id = \''.$pic.'\'' : null;
+        
+        // 2. building query for select
+        $query_total_actual_participant = '(SELECT COUNT(*) FROM tbl_client_prog as q_cp WHERE q_cp.prog_id = cp_p.prog_id AND q_cp.status = 1 '.$date_condition.' '.$pic_condition.' )';
+
+        $query_total_actual_amount = '(SELECT SUM(q_i.inv_totalprice_idr) FROM tbl_client_prog as q_cp LEFT JOIN tbl_inv q_i ON q_i.clientprog_id = q_cp.clientprog_id WHERE q_cp.prog_id = cp_p.prog_id AND q_cp.status = 1 '.$date_condition.' '.$pic_condition.')';
+
+
+        return ClientProgram::query()->
+            leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')->
             leftJoin('tbl_prog as cp_p', 'cp_p.prog_id', '=', 'tbl_client_prog.prog_id')->
             leftJoin('tbl_main_prog as cp_mp', 'cp_mp.id', '=', 'cp_p.main_prog_id')->
             when($usingFilterDate, function ($query) use ($date_details) {
@@ -184,6 +195,7 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
             })-> 
             when($pic, function ($query) use ($pic) {
                 # check the client pic
+                // $query->where('empl_id', $pic);
                 $query->where(function ($sq_1) use ($pic) {
                     $sq_1->whereHas('client', function ($sq_2) use ($pic) {
                         $sq_2->whereHas('handledBy', function ($sq_3) use ($pic) {
@@ -194,11 +206,14 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
                     orWhere('empl_id', $pic);
                 });
             })->
+
+            
+
             select([
                 'cp_p.prog_id',
                 DB::raw('CONCAT(cp_mp.prog_name, ": ", cp_p.prog_program) as program_name_sales'),
-                DB::raw('(SELECT COUNT(*) FROM tbl_client_prog as q_cp WHERE q_cp.prog_id = cp_p.prog_id AND q_cp.status = 1 AND q_cp.success_date between \'' .$date_details['start']. '\' AND \'' . $date_details['end'] . '\') as total_actual_participant'),
-                DB::raw('(SELECT SUM(q_i.inv_totalprice_idr) FROM tbl_client_prog as q_cp LEFT JOIN tbl_inv q_i ON q_i.clientprog_id = q_cp.clientprog_id WHERE q_cp.prog_id = cp_p.prog_id AND q_cp.status = 1 AND q_cp.success_date between \'' . $date_details['start'] . '\' AND  \'' . $date_details['end'] . '\') as total_actual_amount'),
+                DB::raw("{$query_total_actual_participant} as total_actual_participant"),
+                DB::raw("{$query_total_actual_amount} as total_actual_amount"),
             ])->groupBy('cp_p.prog_id', DB::raw('CONCAT(cp_mp.prog_name, ": ", cp_p.prog_program)'))->get();
     }
 
