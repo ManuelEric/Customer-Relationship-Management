@@ -114,6 +114,10 @@ class CorporatePicController extends Controller
     {
         $corporate_id = $request->route('corporate');
         $pic_id = $request->route('detail');
+        $pic = $this->corporatePicRepository->getCorporatePicById($pic_id);
+        
+        if(isset($pic->partner_agreement))
+            return Redirect::to('instance/corporate/'.$corporate_id)->withError('Failed to delete this PIC, there is an agreement related to this PIC');
 
         DB::beginTransaction();
         try {
