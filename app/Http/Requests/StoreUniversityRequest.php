@@ -36,9 +36,9 @@ class StoreUniversityRequest extends FormRequest
             'univ_name' => 'required',
             'univ_email' => 'nullable',
             'univ_phone' => 'nullable',
-            'univ_country' => 'required|exists:lc_countries_translations,name',
+            'univ_country' => 'required|exists:tbl_country,id',
             'univ_address' => 'nullable',
-            'tag' => 'required|exists:tbl_curriculum,id',
+            // 'tag' => 'required|exists:tbl_curriculum,id',
         ];
     }
 }

@@ -332,7 +332,7 @@ class PartnerProgramController extends Controller
         DB::beginTransaction();
         try {   
 
-            $updated_partner_program = $updatePartnerProgramAction->execute($partner_prog_id, $partner_program_details);
+            $updated_partner_program = $updatePartnerProgramAction->execute($partner_prog_id, $corp_id, $partner_program_details);
 
             DB::commit();
         } catch (Exception $e) {

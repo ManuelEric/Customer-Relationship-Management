@@ -117,7 +117,7 @@ class UniversityRepository implements UniversityRepositoryInterface
 
     public function updateUniversity($universityId, array $newDetails)
     {
-        return University::whereUniversityId($universityId)->update($newDetails);
+        return tap(University::whereUniversityId($universityId))->update($newDetails);
     }
 
     public function getReportNewUniversity($start_date = null, $end_date = null)

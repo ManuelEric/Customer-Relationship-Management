@@ -254,7 +254,7 @@ class SchoolRepository implements SchoolRepositoryInterface
 
     public function updateSchool($schoolId, array $newDetails)
     {
-        return School::whereSchoolId($schoolId)->update($newDetails);
+        return tap(School::whereSchoolId($schoolId))->update($newDetails);
     }
 
     public function updateSchools(array $schoolIds, array $newDetails)

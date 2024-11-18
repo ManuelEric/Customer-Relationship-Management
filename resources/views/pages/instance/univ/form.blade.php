@@ -152,8 +152,8 @@
                                             {{ empty($university) || isset($edit) ? '' : 'disabled' }}>
                                             <option data-placeholder="true"></option>
                                             @foreach ($countries as $item)
-                                                <option value="{{ $item->name }}"
-                                                    {{ (isset($university) ? $university->univ_country : old('univ_country')) == $item->name ? 'selected' : '' }}>
+                                                <option value="{{ $item->id }}"
+                                                    {{ (isset($university) ? $university->univ_country : old('univ_country')) == $item->id ? 'selected' : '' }}>
                                                     {{ $item->name }}
                                                 </option>
                                             @endforeach
@@ -164,7 +164,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-5">
+                            {{-- <div class="col-md-5">
                                 <div class="mb-2">
                                     <label for="">Tags <i class="text-danger font-weight-bold">*</i></label>
                                     <select name="tag" class="select w-100"
@@ -184,7 +184,7 @@
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="col-md-12">
                                 <div class="mb-2">
                                     <label for="">
