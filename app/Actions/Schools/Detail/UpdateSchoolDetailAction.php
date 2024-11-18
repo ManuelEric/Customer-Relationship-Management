@@ -31,7 +31,7 @@ class UpdateSchoolDetailAction
         unset($validated['schdetail_phone'][0]);
         $validated['schdetail_phone'][0] = $this->tnSetPhoneNumber($request->schdetail_phone[0]);
         
-        $school_details = $this->schoolService->snSetAttributeSchoolDetail($validated);
+        $school_details = $this->schoolService->snSetAttributeSchoolDetail($validated, true);
 
         $updated_school_detail = $this->schoolDetailRepository->updateSchoolDetail($school_detail_id, $school_details);
        

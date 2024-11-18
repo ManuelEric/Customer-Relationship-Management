@@ -270,7 +270,7 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
 
     public function updatePartnerProgram($partnerProgId, array $newPrograms)
     {
-        return PartnerProg::find($partnerProgId)->update($newPrograms);
+        return tap(PartnerProg::find($partnerProgId))->update($newPrograms);
     }
 
     public function getReportPartnerPrograms($start_date = null, $end_date = null)

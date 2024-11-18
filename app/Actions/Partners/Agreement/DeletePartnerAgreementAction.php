@@ -23,13 +23,13 @@ class DeletePartnerAgreementAction
     
             if(File::exists(public_path('attachment/partner_agreement/'. $corp_id . '/' . $partner_agreement_attach->attachment))){
                 
-                if($deleted_partner_agreement = $this->partnerAgreementRepository->deletePartnerAgreement($partner_agreement_id)){
+                if($this->partnerAgreementRepository->deletePartnerAgreement($partner_agreement_id)){
                     Unlink(public_path('attachment/partner_agreement/'. $corp_id .'/' . $partner_agreement_attach->attachment));
                 }
             }else{
-                $deleted_partner_agreement = $this->partnerAgreementRepository->deletePartnerAgreement($partner_agreement_id);
+                $this->partnerAgreementRepository->deletePartnerAgreement($partner_agreement_id);
             }
 
-        return $deleted_partner_agreement;
+        return $partner_agreement_attach;
     }
 }

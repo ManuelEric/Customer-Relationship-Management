@@ -8,6 +8,12 @@ use Carbon\Carbon;
 
 class SchoolVisitRepository implements SchoolVisitRepositoryInterface
 {
+
+    public function getSchoolVisitById($visitId)
+    {
+        return SchoolVisit::whereId($visitId)->first();
+    }
+
     public function getSchoolVisitBySchoolId($schoolId)
     {
         return SchoolVisit::where('sch_id', $schoolId)->get();
@@ -20,7 +26,7 @@ class SchoolVisitRepository implements SchoolVisitRepositoryInterface
 
     public function updateSchoolVisit($visitId, array $newDetails)
     {
-        return SchoolVisit::whereId($visitId)->update($newDetails);
+        return tap(SchoolVisit::whereId($visitId)->first())->update($newDetails);
     }
 
     public function deleteSchoolVisit($visitId)

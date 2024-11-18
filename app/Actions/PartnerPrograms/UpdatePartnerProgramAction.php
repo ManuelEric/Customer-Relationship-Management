@@ -21,11 +21,12 @@ class UpdatePartnerProgramAction
 
     public function execute(
         $partner_prog_id,
+        $corp_id,
         $parnter_program_details,
     )
     {
 
-        $parnter_program_details['corp_id'] = $partner_prog_id;
+        $parnter_program_details['corp_id'] = $corp_id;
         $parnter_program_details['updated_at'] = Carbon::now();
 
         # Set and create reason when user select other reason

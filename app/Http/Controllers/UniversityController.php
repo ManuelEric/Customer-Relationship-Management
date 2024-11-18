@@ -62,7 +62,6 @@ class UniversityController extends Controller
             'univ_email',
             'univ_phone',
             'univ_country',
-            'tag',
             'univ_address',
         ]);
 
@@ -88,11 +87,11 @@ class UniversityController extends Controller
 
     public function create()
     {
-        $tags = $this->tagRepository->getAllTags();
+        // $tags = $this->tagRepository->getAllTags();
         return view('pages.instance.univ.form')->with(
             [
-                'countries' => $this->countryRepository->getAllCountries(),
-                'tags' => $tags,
+                'countries' => $this->tagRepository->getAllCountries(),
+                // 'tags' => $tags,
             ]
         );
     }
@@ -102,7 +101,7 @@ class UniversityController extends Controller
         $university_id = $request->route('university');
 
         # retrieve country
-        $countries = $this->countryRepository->getAllCountries();
+        $countries = $this->tagRepository->getAllCountries();
 
         # retrieve university data by id
         $university = $this->universityRepository->getUniversityByUnivId($university_id);
@@ -110,14 +109,14 @@ class UniversityController extends Controller
         # retrieve university pic by university id
         $pics = $this->universityPicRepository->getAllUniversityPicByUniversityId($university_id);
 
-        $tags = $this->tagRepository->getAllTags();
+        // $tags = $this->tagRepository->getAllTags();
 
         return view('pages.instance.univ.form')->with(
             [
                 'university' => $university,
                 'countries' => $countries,
                 'pics' => $pics,
-                'tags' => $tags,
+                // 'tags' => $tags,
             ]
         );
     }
@@ -131,21 +130,21 @@ class UniversityController extends Controller
         $university_id = $request->route('university');
 
         # retrieve country
-        $countries = $this->countryRepository->getAllCountries();
+        $countries = $this->tagRepository->getAllCountries();
 
         # retrieve university data by id
         $university = $this->universityRepository->getUniversityByUnivId($university_id);
         # put the link to update vendor form below
         # example
 
-        $tags = $this->tagRepository->getAllTags();
+        // $tags = $this->tagRepository->getAllTags();
 
         return view('pages.instance.univ.form')->with(
             [
                 'edit' => true,
                 'university' => $university,
                 'countries' => $countries,
-                'tags' => $tags
+                // 'tags' => $tags
             ]
         );
     }
@@ -157,7 +156,7 @@ class UniversityController extends Controller
             'univ_email',
             'univ_phone',
             'univ_country',
-            'tag',
+            // 'tag',
             'univ_address',
         ]);
 

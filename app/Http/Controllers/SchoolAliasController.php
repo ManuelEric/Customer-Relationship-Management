@@ -82,7 +82,7 @@ class SchoolAliasController extends Controller
         DB::beginTransaction();
         try {
 
-            $deleted_school_alias = $deleteSchoolAliasAction->execute($alias_id);
+            $deleteSchoolAliasAction->execute($alias_id);
 
             DB::commit();
 
@@ -90,14 +90,14 @@ class SchoolAliasController extends Controller
 
             DB::rollBack();
 
-            $log_service->createErrorLog(LogModule::DELETE_SCHOOL_ALIAS, $e->getMessage(), $e->getLine(), $e->getFile(), $deleted_school_alias->toArray);
+            $log_service->createErrorLog(LogModule::DELETE_SCHOOL_ALIAS, $e->getMessage(), $e->getLine(), $e->getFile(), ['school_id' => $school_id, 'alias_id' => $alias_id]);
 
             return response()->json(['message' => 'Failed to delete alias'], 500);
 
         }
 
         # create log success
-        $log_service->createSuccessLog(LogModule::DELETE_SCHOOL_ALIAS, 'School alias has been deleted', $deleted_school_alias->toArray());
+        $log_service->createSuccessLog(LogModule::DELETE_SCHOOL_ALIAS, 'School alias has been deleted', ['school_id' => $school_id, 'alias_id' => $alias_id]);
 
         return response()->json(['message' => 'The alias has been removed']);
 

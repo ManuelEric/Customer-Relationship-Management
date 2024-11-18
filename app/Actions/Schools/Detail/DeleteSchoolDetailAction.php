@@ -17,9 +17,11 @@ class DeleteSchoolDetailAction
         $school_detail_id
     )
     {
-        # Delete school detail
-        $deleted_school_detail =$this->schoolDetailRepository->deleteSchoolDetail($school_detail_id);
+        $school_detail = $this->schoolDetailRepository->getSchoolDetailById($school_detail_id);
 
-        return $deleted_school_detail;
+        # Delete school detail
+        $this->schoolDetailRepository->deleteSchoolDetail($school_detail_id);
+
+        return $school_detail;
     }
 }

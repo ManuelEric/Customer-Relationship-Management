@@ -62,7 +62,7 @@ class SchoolDetailController extends Controller
         }
 
         # create log success
-        $log_service->createSuccessLog(LogModule::STORE_SCHOOL_DETAIL, 'New school detail has been added', $created_school_detail->toArray());
+        $log_service->createSuccessLog(LogModule::STORE_SCHOOL_DETAIL, 'New school detail has been added', $validated);
 
         return Redirect::to('instance/school/' . $request->sch_id)->withSuccess('School contact person successfully created');
     }

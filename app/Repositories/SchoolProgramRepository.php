@@ -278,7 +278,7 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
 
     public function updateSchoolProgram($schoolProgramId, array $newPrograms)
     {
-        return SchoolProgram::find($schoolProgramId)->update($newPrograms);
+        return tap(SchoolProgram::find($schoolProgramId))->update($newPrograms);
     }
 
     public function getReportSchoolPrograms($start_date = null, $end_date = null)

@@ -77,7 +77,7 @@ class CorporateRepository implements CorporateRepositoryInterface
 
     public function updateCorporate($corporateId, array $newDetails)
     {
-        return Corporate::whereCorpId($corporateId)->update($newDetails);
+        return tap(Corporate::whereCorpId($corporateId))->update($newDetails);
     }
 
     public function cleaningCorporate()
