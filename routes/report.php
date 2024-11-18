@@ -22,7 +22,7 @@ Route::get('sales', [ReportController::class, 'fnSalesTracking'])->name('report.
 
 Route::get('event', [ReportController::class, 'fnEventTracking'])->name('report.client.event');
 
-Route::get('partnership', [ReportController::class, 'partnership'])->name('report.partnership');
+Route::get('partnership', [ReportController::class, 'fnPartnershipReport'])->name('report.partnership');
 
 Route::get('invoice', [ReportController::class, 'invoice_receipt'])->name('report.invoice');
 

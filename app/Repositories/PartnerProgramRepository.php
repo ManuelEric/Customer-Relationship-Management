@@ -273,12 +273,8 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
         return PartnerProg::find($partnerProgId)->update($newPrograms);
     }
 
-    public function getReportPartnerPrograms($start_date = null, $end_date = null)
+    public function getReportPartnerPrograms($start_date, $end_date)
     {
-        $firstDay = Carbon::now()->startOfMonth()->toDateString();
-        $lastDay = Carbon::now()->endOfMonth()->toDateString();
-
-
         if (isset($start_date) && isset($end_date)) {
             return PartnerProg::where('status', 1)
                 ->whereDate('success_date', '>=', $start_date)

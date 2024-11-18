@@ -484,7 +484,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     ->groupBy('tbl_client_prog.clientprog_id');
 
         if ($asDatatables === false)
-            return $model->get();
+            return $model->get(); 
 
         return Datatables::eloquent($model)->
             rawColumns(['strip_tag_notes'])->

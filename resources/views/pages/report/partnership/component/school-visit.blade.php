@@ -19,7 +19,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($schoolVisits as $schoolVisit)
+                    @forelse ($school_visits as $schoolVisit)
                         <tr>
                             <td class="text-center">{{ $loop->iteration }}</td>
                             <td>{{ $schoolVisit->school->sch_name }}</td>
