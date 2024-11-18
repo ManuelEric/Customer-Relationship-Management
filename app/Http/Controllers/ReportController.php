@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Report\Partnership\PartnershipReportAction;
 use App\Actions\Report\Sales\EventReportAction;
 use App\Actions\Report\Sales\SalesReportAction;
 use App\Http\Requests\ReportEventRequest;
+use App\Http\Requests\ReportPartnershipRequest;
 use App\Http\Requests\ReportSalesRequest;
 use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
@@ -117,36 +119,14 @@ class ReportController extends Controller
         return view('pages.report.event-tracking.index')->with($event_tracking);
     }
 
-    public function partnership(Request $request)
+    public function fnPartnershipReport(
+        ReportPartnershipRequest $request,
+        PartnershipReportAction $partnershipReportAction,
+        )
     {
-        $start_date = null;
-        $end_date = null;
-
-        $start_date = $request->get('start_date');
-        $end_date = $request->get('end_date');
-
-
-        $partnerPrograms = $this->partnerProgramRepository->getReportPartnerPrograms($start_date, $end_date);
-        $schoolPrograms = $this->schoolProgramRepository->getReportSchoolPrograms($start_date, $end_date);
-        $schools = $this->schoolRepository->getReportNewSchool($start_date, $end_date);
-        $schoolVisits = $this->schoolVisitRepository->getReportSchoolVisit($start_date, $end_date);
-        $partners = $this->corporateRepository->getReportNewPartner($start_date, $end_date);
-        $universities = $this->universityRepository->getReportNewUniversity($start_date, $end_date);
-        $referrals_in = $this->referralRepository->getReportNewReferral($start_date, $end_date, 'In');
-        $referrals_out = $this->referralRepository->getReportNewReferral($start_date, $end_date, 'Out');
-
-        return view('pages.report.partnership.index')->with(
-            [
-                'partnerPrograms' => $partnerPrograms,
-                'schoolPrograms' => $schoolPrograms,
-                'schools' => $schools,
-                'schoolVisits' => $schoolVisits,
-                'partners' => $partners,
-                'universities' => $universities,
-                'referrals_in' => $referrals_in,
-                'referrals_out' => $referrals_out,
-            ]
-        );
+        $validated = $request->safe()->only(['start_date', 'end_date']);
+        $partnership_report = $partnershipReportAction->execute($validated);
+        return view('pages.report.partnership.index')->with($partnership_report);
     }
 
     public function invoice_receipt(Request $request)

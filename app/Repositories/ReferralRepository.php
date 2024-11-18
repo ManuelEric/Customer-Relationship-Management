@@ -159,33 +159,18 @@ class ReferralRepository implements ReferralRepositoryInterface
         return $end;
     }
 
-    public function getReportNewReferral($start_date = null, $end_date = null, $type)
+    public function getReportNewReferral($start_date, $end_date, $type)
     {
-        $firstDay = Carbon::now()->startOfMonth()->toDateString();
-        $lastDay = Carbon::now()->endOfMonth()->toDateString();
-
-        if (isset($start_date) && isset($end_date)) {
-            $query = Referral::whereDate('created_at', '>=', $start_date)
-                ->whereDate('created_at', '<=', $end_date);
-        } else if (isset($start_date) && !isset($end_date)) {
-            $query = Referral::whereDate('created_at', '>=', $start_date);
-        } else if (!isset($start_date) && isset($end_date)) {
-            $query = Referral::whereDate('created_at', '<=', $end_date);
-        } else {
-            $query = Referral::whereBetween('created_at', [$firstDay, $lastDay]);
-        }
-
-        switch ($type) {
-            case 'In':
-                return $query->where('referral_type', 'In')
-                    ->get();
-                break;
-
-            case 'Out':
-                return $query->where('referral_type', 'Out')
-                    ->get();
-                break;
-        }
+        return Referral::query()->
+                whereDate('created_at', '>=', $start_date)->
+                whereDate('created_at', '<=', $end_date)->
+                when($type == 'In', function ($sub) {
+                    $sub->where('referral_type', 'In');
+                })->
+                when($type == 'Out', function ($sub) {
+                    $sub->where('referral_type', 'Out');  
+                })->
+                get();
     }
 
     public function getReferralByCorpIdAndDate($corpId, $refDate)

@@ -51,15 +51,11 @@ class SchoolProgram extends Model
         'empl_id',
     ];
 
-    // public static function whereSchoolProgramId($id)
-    // {
-    //     if (is_array($id) && empty($id)) return new Collection;
-
-    //     $instance = new static;
-
-    //     return $instance->newQuery()->where('id', $id)->first();
-    // }
-
+    /**
+     * Summary of scope
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return void
+     */
     public function scopeSuccess(Builder $query): void
     {
         $query->where('status', 1)->where('end_program_date', '>=', Carbon::now());
@@ -70,6 +66,11 @@ class SchoolProgram extends Model
         $query->whereHas('program.main_prog', function ($sub) use ($main_program_name) {
             $sub->where('prog_name', $main_program_name);
         });
+    }
+
+    public function scopeActive(Builder $query): void
+    {
+        $query->where('status', 1);
     }
 
     public function school()
