@@ -136,7 +136,7 @@
                         </div>
                         <div class="col-md-12 mb-2">
                             <label for="">Mentor / Tutor Name</label>
-                            <select name="mentor_tutor[]" class="select form-select form-select-sm w-100" multiple>
+                            <select name="mentor_tutor[]" class="select form-select form-select-sm w-100" multiple id="mentor_tutor">
                                 @foreach ($mentor_tutors as $user)
                                     <option value="{{ Crypt::encrypt($user->id) }}"
                                         @if ($mentor_tutor_decrypted !== null && in_array($user->id, $mentor_tutor_decrypted)) {{ 'selected' }} @endif>{{ $user->fullname }}
@@ -146,7 +146,7 @@
                         </div>
                         <div class="col-md-12 mb-2">
                             <label for="">PIC</label>
-                            <select name="pic[]" id="" class="select form-select form-select-sm w-100" multiple>
+                            <select name="pic[]" class="select form-select form-select-sm w-100" multiple id="pic">
                                 @foreach ($pics as $pic)
                                     <option value="{{ $pic->uuid }}" @selected($picUUID_arr !== null && in_array($pic->uuid, $picUUID_arr))>{{ $pic->pic_name }}
                                     </option>
