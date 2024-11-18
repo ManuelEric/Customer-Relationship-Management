@@ -17,7 +17,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($schoolPrograms as $schoolProgram)
+                    @forelse ($school_programs as $schoolProgram)
                         <tr>
                             <td class="text-center">{{ $loop->iteration }}</td>
                             <td>{{ $schoolProgram->school->sch_name }}</td>
@@ -35,7 +35,7 @@
                     <tr>
                         <th colspan="5">Total Amount</th>
                         <th colspan="2" class="text-center">Rp.
-                            {{ number_format($schoolPrograms->sum('total_fee')) }}</th>
+                            {{ number_format($school_programs->sum('total_fee')) }}</th>
                     </tr>
                 </tfoot>
             </table>

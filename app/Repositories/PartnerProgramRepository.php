@@ -273,41 +273,22 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
         return tap(PartnerProg::find($partnerProgId))->update($newPrograms);
     }
 
-    public function getReportPartnerPrograms($start_date = null, $end_date = null)
+    public function getReportPartnerPrograms($start_date, $end_date)
     {
-        $firstDay = Carbon::now()->startOfMonth()->toDateString();
-        $lastDay = Carbon::now()->endOfMonth()->toDateString();
-
-
-        if (isset($start_date) && isset($end_date)) {
-            return PartnerProg::where('status', 1)
-                ->whereDate('success_date', '>=', $start_date)
-                ->whereDate('success_date', '<=', $end_date)
-
-                ->get();
-        } else if (isset($start_date) && !isset($end_date)) {
-            return PartnerProg::where('status', 1)
-                ->whereDate('success_date', '>=', $start_date)
-                ->get();
-        } else if (!isset($start_date) && isset($end_date)) {
-            return PartnerProg::where('status', 1)
-                ->whereDate('success_date', '<=', $end_date)
-                ->get();
-        } else {
-            return PartnerProg::where('status', 1)
-                ->whereBetween('success_date', [$firstDay, $lastDay])
-                ->get();
-        }
+        return PartnerProg::active()->
+            whereDate('success_date', '>=', $start_date)->
+            whereDate('success_date', '<=', $end_date)->
+            get();
     }
 
     public function getTotalPartnerProgramComparison($startYear, $endYear)
     {
         $start = PartnerProg::select(DB::raw("'start' as 'type'"), DB::raw('count(id) as count'), DB::raw('sum(total_fee) as total_fee'))
-            ->where('status', 1)
+            ->active()
             ->whereYear('success_date', $startYear);
 
         $end = PartnerProg::select(DB::raw("'end' as 'type'"), DB::raw('count(id) as count'), DB::raw('sum(total_fee) as total_fee'))
-            ->where('status', 1)
+            ->active()
             ->whereYear('success_date', $endYear)
             ->union($start)
             ->get();
@@ -331,7 +312,7 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                 DB::raw("SUM(total_fee) as total"),
                 DB::raw('count(tbl_partner_prog.prog_id) as count_program')
             )
-            ->where('status', 1)
+            ->active()
             ->whereYear(
                 'success_date',
                 '=',

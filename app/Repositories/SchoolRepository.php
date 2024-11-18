@@ -334,25 +334,11 @@ class SchoolRepository implements SchoolRepositoryInterface
         );
     }
 
-    public function getReportNewSchool($start_date = null, $end_date = null)
+    public function getReportNewSchool($start_date, $end_date)
     {
-        $firstDay = Carbon::now()->startOfMonth()->toDateString();
-        $lastDay = Carbon::now()->endOfMonth()->toDateString();
-
-        if (isset($start_date) && isset($end_date)) {
-            return School::whereDate('created_at', '>=', $start_date)
+        return School::whereDate('created_at', '>=', $start_date)
                 ->whereDate('created_at', '<=', $end_date)
                 ->get();
-        } else if (isset($start_date) && !isset($end_date)) {
-            return School::whereDate('created_at', '>=', $start_date)
-                ->get();
-        } else if (!isset($start_date) && isset($end_date)) {
-            return School::whereDate('created_at', '<=', $end_date)
-                ->get();
-        } else {
-            return School::whereBetween('created_at', [$firstDay, $lastDay])
-                ->get();
-        }
     }
 
     public function getFeederSchools($eventId)
