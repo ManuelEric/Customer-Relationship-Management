@@ -35,7 +35,6 @@ class CreateClientEventAction
         StoreClientEventRequest $request,
         Array $new_client_details,
         Array $new_client_event_details,
-        Array $new_school_details
     )
     {
         # case 1
