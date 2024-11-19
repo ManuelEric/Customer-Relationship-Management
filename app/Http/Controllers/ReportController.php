@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Report\Finance\InvoiceReceiptReportAction;
+use App\Actions\Report\Finance\UnpaidPaymentReportAction;
 use App\Actions\Report\Partnership\PartnershipReportAction;
 use App\Actions\Report\Sales\EventReportAction;
 use App\Actions\Report\Sales\SalesReportAction;
@@ -10,6 +11,7 @@ use App\Http\Requests\ReportEventRequest;
 use App\Http\Requests\ReportInvoiceReceiptRequest;
 use App\Http\Requests\ReportPartnershipRequest;
 use App\Http\Requests\ReportSalesRequest;
+use App\Http\Requests\ReportUnpaidPaymentRequest;
 use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
@@ -141,48 +143,14 @@ class ReportController extends Controller
         return view('pages.report.invoice.index')->with($invoice_receipt_report);
     }
 
-    public function unpaid_payment(Request $request)
+    public function fnUnpaidPaymentReport(
+        ReportUnpaidPaymentRequest $request,
+        UnpaidPaymentReportAction $unpaidPaymentReportAction,
+        )
     {
-        $start_date = null;
-        $end_date = null;
-        $start_date = $request->get('start_date');
-        $end_date = $request->get('end_date');
-
-
-        $invoiceB2b = $this->invoiceB2bRepository->getReportUnpaidInvoiceB2b($start_date, $end_date);
-        $invoiceB2c = $this->invoiceProgramRepository->getReportUnpaidInvoiceB2c($start_date, $end_date);
-        $collection = collect($invoiceB2b);
-        $invoiceMerge = $collection->merge($invoiceB2c);
-        $invoices = $invoiceMerge->all();
-
-        $totalAmount = $invoiceMerge->sum('total_price_inv_idr');
-
-        $totalUnpaid = $invoiceMerge->where('receipt_id', null)->sum('total_price_inv_idr');
-
-        $totalReceipt = 0;
-        $totalPaid = 0;
-        $totalDiff = 0;
-        foreach ($invoices as $invoice) {
-            if (isset($invoice->receipt_id)) {
-                $totalReceipt += $invoice->receipt_amount_idr;
-                $totalDiff += $invoice->receipt_amount_idr > $invoice->total_price_inv_idr ? $invoice->receipt_amount_idr - $invoice->total_price_inv_idr : 0;
-            }
-        }
-
-        if ($totalReceipt > 0) {
-            $totalPaid = $totalReceipt;
-        }
-
-
-        return view('pages.report.unpaid-payment.index')->with(
-            [
-                'invoices' => $invoices,
-                'totalAmount' => $totalAmount,
-                'totalPaid' => $totalPaid,
-                'totalDiff' => $totalDiff,
-                'remaining' => $totalUnpaid
-            ]
-        );
+        $validated = $request->safe()->only(['start_date', 'end_date']);
+        $unpaid_payment_report = $unpaidPaymentReportAction->execute($validated);
+        return view('pages.report.unpaid-payment.index')->with($unpaid_payment_report);
     }
 
     public function program_tracking(Request $request)
