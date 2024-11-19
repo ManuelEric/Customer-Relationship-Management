@@ -6,6 +6,7 @@ use App\Actions\Report\Finance\InvoiceReceiptReportAction;
 use App\Actions\Report\Finance\UnpaidPaymentReportAction;
 use App\Actions\Report\Partnership\PartnershipReportAction;
 use App\Actions\Report\Sales\EventReportAction;
+use App\Actions\Report\Sales\LeadTrackerReportAction;
 use App\Actions\Report\Sales\SalesReportAction;
 use App\Enum\LogModule;
 use App\Http\Requests\ReportEventRequest;
@@ -19,6 +20,7 @@ use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Services\Log\LogService;
 use Illuminate\Support\Collection;
 use Exception;
+use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
@@ -148,6 +150,15 @@ class ReportController extends Controller
         }
         $log_service->createInfoLog(LogModule::REPORT_PROGRAM_TRACKING, 'User accessed report program tracking');
         return view('pages.report.program-tracking.index')->with(compact('program_tracking'));
+    }
 
+    public function fnLeadTracking(
+        Request $request,
+        LeadTrackerReportAction $leadTrackerReportAction,
+        )
+    {
+        $date_range = $request->get('daterange');
+        $lead_tracker_report = $leadTrackerReportAction->execute($date_range);
+        return view('pages.report.lead.index')->with($lead_tracker_report);
     }
 }
