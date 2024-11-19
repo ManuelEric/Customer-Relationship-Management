@@ -87,7 +87,7 @@ class ReferralRepository implements ReferralRepositoryInterface
 
     public function updateReferral($referralId, array $newDetails)
     {
-        return Referral::whereId($referralId)->update($newDetails);
+        return tap(Referral::whereId($referralId)->first())->update($newDetails);
     }
 
     public function deleteReferral($referralId)

@@ -118,7 +118,7 @@ class SchoolProgramController extends Controller
         $schools = $this->schoolRepository->getAllSchools();
 
         # retrieve program data
-        $programs = $this->programService->snGetAllPrograms();
+        $programs = $this->programService->snGetProgramsB2b();
 
         # retrieve employee data
         $employees = $this->userRepository->rnGetAllUsersByRole('Employee');
@@ -169,7 +169,7 @@ class SchoolProgramController extends Controller
         $school = $this->schoolRepository->getSchoolById($school_id);
 
         # retrieve program data
-        $programs = $this->programService->snGetAllPrograms();
+        $programs = $this->programService->snGetProgramsB2b();
 
         # retrieve reason data
         $reasons = $this->reasonRepository->getReasonByType('Program');
@@ -205,7 +205,7 @@ class SchoolProgramController extends Controller
         $school_detail = $this->schoolDetailRepository->getAllSchoolDetailsById($school_id);
 
         # retrieve program data
-        $programs = $this->programService->snGetAllPrograms();
+        $programs = $this->programService->snGetProgramsB2b();
 
         # retrieve reason data
         $reasons = $this->reasonRepository->getReasonByType('Program');
@@ -290,7 +290,7 @@ class SchoolProgramController extends Controller
         $school_detail = $this->schoolDetailRepository->getAllSchoolDetailsById($school_id);
 
         # retrieve program data
-        $programs = $this->programService->snGetAllPrograms();
+        $programs = $this->programService->snGetProgramsB2b();
 
         # retrieve reason data
         $reasons = $this->reasonRepository->getReasonByType('Program');

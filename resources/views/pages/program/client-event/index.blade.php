@@ -27,24 +27,6 @@
             </div>
             <div class="col-md-5">
                 <div class="row align-items-center g-2">
-                    {{-- @if (Session::get('user_role') != 'Employee')
-                    <div class="col-md-3 col-6">
-                        <a href="{{ url('api/download/excel-template/client-event') }}"
-                            class="btn btn-sm btn-light text-info btn-download text-nowrap w-100"><i
-                                class="bi bi-download me-1"></i>
-                            <span>
-                                Template</span></a>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <a href="#" class="btn btn-sm btn-light text-info btn-import text-nowrap w-100"
-                            data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload me-1"></i>
-                            <span>Import</span></a>
-                    </div>
-                    @endif --}}
-                    {{-- <div @class([
-                        'col-md-3',
-                        'offset-6' => Session::get('user_role') == 'Employee',
-                    ])> --}}
                     <div class="col-md-3 offset-lg-6">
                         <div class="dropdown">
                             <button href="#" class="btn btn-sm btn-light text-dark dropdown-toggle w-100"
@@ -197,41 +179,6 @@
                     </tr>
                 </tfoot>
             </table>
-        </div>
-    </div>
-
-    <div class="modal fade" id="importData" tabindex="-1" aria-labelledby="importDataLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <form action="{{ route('program.event.import') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="importDataLabel">Import CSV Data</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <label for="">CSV File</label>
-                                <input type="file" name="file" id="" class="form-control form-control-sm">
-                            </div>
-                            <small class="text-warning mt-3">
-                                * Please clean the file first, before importing the csv file. <br>
-                                You can download the csv template <a
-                                    href="{{ url('api/download/excel-template/client-event') }}">here</a>
-                            </small>
-                        </div>
-                    </div>
-                    <div class="modal-footer d-flex justify-content-between">
-                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-dismiss="modal">
-                            <i class="bi bi-x"></i>
-                            Close</button>
-                        <button type="submit" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-upload"></i>
-                            Import</button>
-                    </div>
-                </div>
-            </form>
         </div>
     </div>
 
