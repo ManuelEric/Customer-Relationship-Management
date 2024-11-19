@@ -308,6 +308,11 @@ class ClientProgram extends Model
         });
     }
 
+    public function scopeSuccess(Builder $query): void
+    {
+        $query->whereNotNull('success_date')->whereNull('failed_date')->whereNull('refund_date');
+    }
+
     public function client()
     {
         return $this->belongsTo(UserClient::class, 'client_id', 'id')->withTrashed();
