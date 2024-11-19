@@ -117,12 +117,14 @@ class StoreClientEventRequest extends FormRequest
                 function ($attribute, $value, $fail) {
                     if ($this->input('sch_id') != "add-new") {
                         Rule::exists('tbl_sch', 'sch_id');
+                    }else{
+                        Rule::unique('tbl_sch', 'sch_name');
                     }
                 }
             ],
             'st_grade' => 'required_if:status_client,Student,Teacher/Conselor',
             'st_graduation_year' => 'nullable',
-            'sch_name' => 'sometimes|required_if:sch_id,add-new|unique:tbl_sch,sch_name',
+            'sch_name' => 'sometimes|required_if:sch_id,add-new',
             'sch_type' => 'required_if:sch_id,add-new',
             'sch_curriculum' => 'required_if:sch_id,add-new',
             'sch_score' => 'required_if:sch_id,add-new',

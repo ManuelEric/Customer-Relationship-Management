@@ -189,6 +189,8 @@ class ClientEventController extends Controller
     public function store(StoreClientEventRequest $request, ClientEventService $clientEventService, CreateClientEventAction $createClientEventAction, LogService $log_service)
     {
 
+        $new_client_details = [];
+
         # Client existing
         $new_client_event_details = $request->safe()->only([
             'client_id',
@@ -251,7 +253,7 @@ class ClientEventController extends Controller
 
         try {
 
-            $new_client_event = $createClientEventAction->execute($request, $new_client_details, $new_client_event_details, $new_client_details);
+            $new_client_event = $createClientEventAction->execute($request, $new_client_details, $new_client_event_details);
 
             DB::commit();
         } catch (Exception $e) {
