@@ -66,7 +66,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($programTracking as $pt)
+                                @forelse ($program_tracking as $pt)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
                                         <td>

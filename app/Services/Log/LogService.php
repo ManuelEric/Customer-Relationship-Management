@@ -23,4 +23,9 @@ class LogService
     {
         Log::notice("{$module->value} : {$message} | done by {$this->auth}", $content);
     }
+
+    public function createInfoLog(LogModule $module, String $message)
+    {
+        Log::info("{$module->value} : {$message} | done by {$this->auth}");
+    }
 }

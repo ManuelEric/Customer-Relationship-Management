@@ -7,79 +7,31 @@ use App\Actions\Report\Finance\UnpaidPaymentReportAction;
 use App\Actions\Report\Partnership\PartnershipReportAction;
 use App\Actions\Report\Sales\EventReportAction;
 use App\Actions\Report\Sales\SalesReportAction;
+use App\Enum\LogModule;
 use App\Http\Requests\ReportEventRequest;
 use App\Http\Requests\ReportInvoiceReceiptRequest;
 use App\Http\Requests\ReportPartnershipRequest;
+use App\Http\Requests\ReportProgramTrackingRequest;
 use App\Http\Requests\ReportSalesRequest;
 use App\Http\Requests\ReportUnpaidPaymentRequest;
-use App\Interfaces\PartnerProgramRepositoryInterface;
-use App\Interfaces\SchoolProgramRepositoryInterface;
-use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
-use App\Interfaces\ClientProgramRepositoryInterface;
-use App\Interfaces\SchoolRepositoryInterface;
-use App\Interfaces\CorporateRepositoryInterface;
-use App\Interfaces\UniversityRepositoryInterface;
-use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
-use App\Interfaces\ReceiptRepositoryInterface;
-use App\Interfaces\SchoolVisitRepositoryInterface;
-use App\Interfaces\InvoiceDetailRepositoryInterface;
-use App\Interfaces\ReferralRepositoryInterface;
-use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
+use App\Services\Log\LogService;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
+use Exception;
 
 class ReportController extends Controller
 {
     protected ClientEventRepositoryInterface $clientEventRepository;
-    protected EventRepositoryInterface $eventRepository;
-    protected SchoolProgramRepositoryInterface $schoolProgramRepository;
-    protected PartnerProgramRepositoryInterface $partnerProgramRepository;
-    protected SchoolRepositoryInterface $schoolRepository;
-    protected CorporateRepositoryInterface $corporateRepository;
-    protected UniversityRepositoryInterface $universityRepository;
-    protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
     protected InvoiceProgramRepositoryInterface $invoiceProgramRepository;
-    protected ReceiptRepositoryInterface $receiptRepository;
-    protected SchoolVisitRepositoryInterface $schoolVisitRepository;
-    protected InvoiceDetailRepositoryInterface $invoiceDetailRepository;
-    protected ReferralRepositoryInterface $referralRepository;
 
-    protected ClientProgramRepositoryInterface $clientProgramRepository;
 
     public function __construct(
         ClientEventRepositoryInterface $clientEventRepository,
-        EventRepositoryInterface $eventRepository,
-        SchoolProgramRepositoryInterface $schoolProgramRepository,
-        PartnerProgramRepositoryInterface $partnerProgramRepository,
-        SchoolRepositoryInterface $schoolRepository,
-        CorporateRepositoryInterface $corporateRepository,
-        UniversityRepositoryInterface $universityRepository,
-        InvoiceB2bRepositoryInterface $invoiceB2bRepository,
         InvoiceProgramRepositoryInterface $invoiceProgramRepository,
-        ReceiptRepositoryInterface $receiptRepository,
-        SchoolVisitRepositoryInterface $schoolVisitRepository,
-        InvoiceDetailRepositoryInterface $invoiceDetailRepository,
-        ReferralRepositoryInterface $referralRepository,
-        ClientProgramRepositoryInterface $clientProgramRepository
     ) {
         $this->clientEventRepository = $clientEventRepository;
-        $this->eventRepository = $eventRepository;
-        $this->schoolProgramRepository = $schoolProgramRepository;
-        $this->partnerProgramRepository = $partnerProgramRepository;
-        $this->schoolRepository = $schoolRepository;
-        $this->corporateRepository = $corporateRepository;
-        $this->universityRepository = $universityRepository;
-        $this->invoiceB2bRepository = $invoiceB2bRepository;
         $this->invoiceProgramRepository = $invoiceProgramRepository;
-        $this->receiptRepository = $receiptRepository;
-        $this->schoolVisitRepository = $schoolVisitRepository;
-        $this->invoiceDetailRepository = $invoiceDetailRepository;
-        $this->referralRepository = $referralRepository;
-        $this->clientProgramRepository = $clientProgramRepository;
     }
 
     /**
@@ -88,6 +40,7 @@ class ReportController extends Controller
     public function fnSalesTracking(
         ReportSalesRequest $request,
         SalesReportAction $salesReportAction,
+        LogService $log_service
     ) 
     {
         # initialize
@@ -98,14 +51,19 @@ class ReportController extends Controller
             'program',
             'pic',
         ]);
-
-        $sales_report = $salesReportAction->execute($validated);
+        try {
+            $sales_report = $salesReportAction->execute($validated);
+        } catch (Exception $e) {
+            $log_service->createErrorLog(LogModule::REPORT_SALES_TRACKING, $e->getMessage(), $e->getLine(), $e->getFile());
+        }
+        $log_service->createInfoLog(LogModule::REPORT_SALES_TRACKING, 'User accessed report sales tracking');
         return view('pages.report.sales-tracking.index')->with($sales_report);
     }
 
     public function fnEventTracking(
         ReportEventRequest $request,
         EventReportAction $eventReportAction,
+        LogService $log_service,
         )
     {
         # initialize
@@ -118,71 +76,78 @@ class ReportController extends Controller
         if ($request->ajax()) 
             return $this->clientEventRepository->getAllClientEventDataTables($filter);
         
-
-        $event_tracking = $eventReportAction->execute($filter['event_name']);
+        try {
+            $event_tracking = $eventReportAction->execute($filter['event_name']);
+        } catch (Exception $e) {
+            $log_service->createErrorLog(LogModule::REPORT_EVENT_TRACKING, $e->getMessage(), $e->getLine(), $e->getFile());
+        }
+        $log_service->createInfoLog(LogModule::REPORT_EVENT_TRACKING, 'User accessed report event tracking');
         return view('pages.report.event-tracking.index')->with($event_tracking);
     }
 
     public function fnPartnershipReport(
         ReportPartnershipRequest $request,
         PartnershipReportAction $partnershipReportAction,
+        LogService $log_service,
         )
     {
         $validated = $request->safe()->only(['start_date', 'end_date']);
-        $partnership_report = $partnershipReportAction->execute($validated);
+        try {
+            $partnership_report = $partnershipReportAction->execute($validated);
+        } catch (Exception $e) {
+            $log_service->createErrorLog(LogModule::REPORT_PARTNERSHIP, $e->getMessage(), $e->getLine(), $e->getFile());
+        }
+        $log_service->createInfoLog(LogModule::REPORT_PARTNERSHIP, 'User accessed report partnership');
         return view('pages.report.partnership.index')->with($partnership_report);
     }
 
     public function fnInvoiceReceiptReport(
         ReportInvoiceReceiptRequest $request,
         InvoiceReceiptReportAction $invoiceReceiptReportAction,
+        LogService $log_service,
         )
     {
-        $validated = $request->safe()->only(['start_date', 'end_date']);        
-        $invoice_receipt_report = $invoiceReceiptReportAction->execute($validated);
+        $validated = $request->safe()->only(['start_date', 'end_date']);
+        try {
+            $invoice_receipt_report = $invoiceReceiptReportAction->execute($validated);
+        } catch (Exception $e) {
+            $log_service->createErrorLog(LogModule::REPORT_INVOICE_RECEIPT, $e->getMessage(), $e->getLine(), $e->getFile());
+        }
+        $log_service->createInfoLog(LogModule::REPORT_INVOICE_RECEIPT, 'User accessed report invoice receipt');
         return view('pages.report.invoice.index')->with($invoice_receipt_report);
     }
 
     public function fnUnpaidPaymentReport(
         ReportUnpaidPaymentRequest $request,
         UnpaidPaymentReportAction $unpaidPaymentReportAction,
+        LogService $log_service,
         )
     {
         $validated = $request->safe()->only(['start_date', 'end_date']);
-        $unpaid_payment_report = $unpaidPaymentReportAction->execute($validated);
+        try {
+            $unpaid_payment_report = $unpaidPaymentReportAction->execute($validated);
+        } catch (Exception $e) {
+            $log_service->createErrorLog(LogModule::REPORT_UNPAID_PAYMENT, $e->getMessage(), $e->getLine(), $e->getFile());
+        }
+        $log_service->createInfoLog(LogModule::REPORT_UNPAID_PAYMENT, 'User accessed report unpaid payment');
         return view('pages.report.unpaid-payment.index')->with($unpaid_payment_report);
     }
 
-    public function program_tracking(Request $request)
+    public function fnProgramTracking(
+        ReportProgramTrackingRequest $request,
+        LogService $log_service
+        )
     {
-        $start_month = $request->get('start_month') ?? date('Y-m');
-        $end_month = $request->get('end_month') ?? date('Y-m');
-
+        $validated = $request->safe()->only(['start_month', 'end_month']);
+        $start_month = $validated['start_month'];
+        $end_month = $validated['end_month'];
         try {
-            $programTracking = $this->invoiceProgramRepository->getProgramTracker($start_month, $end_month);
+            $program_tracking = $this->invoiceProgramRepository->getProgramTracker($start_month, $end_month);
         } catch (Exception $e) {
-            Log::error('Failed get data program tracking : ' . $e->getMessage() . ' | On Line: ' . $e->getLine());
+            $log_service->createErrorLog(LogModule::REPORT_PROGRAM_TRACKING, $e->getMessage(), $e->getLine(), $e->getFile());
         }
+        $log_service->createInfoLog(LogModule::REPORT_PROGRAM_TRACKING, 'User accessed report program tracking');
+        return view('pages.report.program-tracking.index')->with(compact('program_tracking'));
 
-        return view('pages.report.program-tracking.index')->with(
-            [
-                'programTracking' => $programTracking,
-            ]
-        );
-
-    }
-
-    protected function getAllDataClient($data, $type)
-    {
-        $dataClient =  new Collection();
-        foreach ($data as $d) {
-            $dataClient->push((object)[
-                'type' => $type,
-                'client_id' => $d->client_id,
-                'role_name' => $d->role_name
-            ]);
-        }
-
-        return $dataClient;
     }
 }
