@@ -155,7 +155,7 @@ class ClientProgramController extends Controller
         $client_program = $this->clientProgramRepository->getClientProgramById($client_program_id);
 
         # programs
-        $programs = $this->programService->snGetAllPrograms();
+        $programs = $this->programService->snGetProgramsB2c();
 
         # main leads
         $leads = $this->leadRepository->getAllMainLead();
@@ -198,7 +198,7 @@ class ClientProgramController extends Controller
         $view_student = $this->clientRepository->getViewClientById($student_id);
 
         # programs
-        $programs = $this->programService->snGetAllPrograms();
+        $programs = $this->programService->snGetProgramsB2c();
 
         # main leads
         $leads = $this->leadRepository->getAllMainLead();
@@ -299,7 +299,7 @@ class ClientProgramController extends Controller
         $client_program = $this->clientProgramRepository->getClientProgramById($client_program_id);
 
         # programs
-        $programs = $this->programService->snGetAllPrograms();
+        $programs = $this->programService->snGetProgramsB2c();
 
         # main leads
         $leads = $this->leadRepository->getAllMainLead();
