@@ -24,7 +24,7 @@ Route::get('event', [ReportController::class, 'fnEventTracking'])->name('report.
 
 Route::get('partnership', [ReportController::class, 'fnPartnershipReport'])->name('report.partnership');
 
-Route::get('invoice', [ReportController::class, 'invoice_receipt'])->name('report.invoice');
+Route::get('invoice', [ReportController::class, 'fnInvoiceReceiptReport'])->name('report.invoice');
 
 Route::get('unpaid', [ReportController::class, 'unpaid_payment'])->name('report.unpaid');
 

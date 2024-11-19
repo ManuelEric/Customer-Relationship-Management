@@ -627,7 +627,11 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     {
         $deal = ClientProgram::whereHas('program.main_prog', function ($query) {
                 $query->where('prog_name', 'Admissions Mentoring');
-            })->whereIn('status', [1, 4])->whereBetween('success_date', [$start_date, $end_date])->get();
+            })->
+            whereIn('status', [1, 4])->
+            whereBetween('success_date', [$start_date, $end_date])->
+            success()->
+            get();
         $mapped = $deal->map(function ($item) {
             return [
                 'pic_id' => $item->internalPic->id,
@@ -867,7 +871,10 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     {
         $deal = ClientProgram::whereHas('program.main_prog', function ($query) {
             $query->where('prog_name', 'Academic & Test Preparation');
-        })->whereBetween('success_date', [$start_date, $end_date])->get();
+        })->
+        whereBetween('success_date', [$start_date, $end_date])->
+        success()->
+        get();
         $mapped = $deal->map(function ($item) {
             return [
                 'pic_id' => $item->internalPic->id,
@@ -1003,7 +1010,10 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     {
         $deal = ClientProgram::whereHas('program.sub_prog', function ($query) {
             $query->where('sub_prog_name', 'Global Immersion Program');
-        })->whereBetween('success_date', [$start_date, $end_date])->get();
+        })->
+        whereBetween('success_date', [$start_date, $end_date])->
+        success()->
+        get();
         $mapped = $deal->map(function ($item) {
             return [
                 'pic_id' => $item->internalPic->id,
