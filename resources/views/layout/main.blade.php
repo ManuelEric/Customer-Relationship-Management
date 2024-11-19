@@ -64,8 +64,7 @@
                 <ul class="navbar-nav">
                     <li class="nav-item font-weight-semibold d-none d-lg-block ms-0">
                         <h1 class="welcome-text">Welcome Back, <span
-                                class="text-black fw-bold">{{ Auth::user()->first_name }}
-                                {{ Auth::user()->last_name }}</span></h1>
+                                class="text-black fw-bold">{{ Auth::user()->full_name }}</span></h1>
                     </li>
                     @env('local')
                         @if(env('DB_HOST') != '127.0.0.1')
