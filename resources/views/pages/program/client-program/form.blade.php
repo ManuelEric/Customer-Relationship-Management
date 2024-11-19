@@ -153,7 +153,7 @@
                                                     {{ $clientEvent->event->event_title }}</option>
                                             @endforeach
                                         </select>
-                                        @error('event_id')
+                                        @error('clientevent_id')
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
