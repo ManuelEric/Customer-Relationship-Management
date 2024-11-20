@@ -28,6 +28,6 @@ Route::get('invoice', [ReportController::class, 'fnInvoiceReceiptReport'])->name
 
 Route::get('unpaid', [ReportController::class, 'fnUnpaidPaymentReport'])->name('report.unpaid');
 
-Route::get('program', [ReportController::class, 'program_tracking'])->name('report.program.tracking');
+Route::get('program', [ReportController::class, 'fnProgramTracking'])->name('report.program.tracking');
 
-Route::get('lead', [LeadTrackerController::class, 'index'])->name('report.lead');
+Route::get('lead', [ReportController::class, 'fnLeadTracking'])->name('report.lead');
