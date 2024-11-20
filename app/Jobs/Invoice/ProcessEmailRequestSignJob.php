@@ -3,6 +3,7 @@
 namespace App\Jobs\Invoice;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -13,8 +14,11 @@ use Illuminate\Support\Facades\Storage;
 use PDF;
 use romanzipp\QueueMonitor\Traits\IsMonitored;
 
+// class ProcessEmailRequestSignJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
+# Temporary not implementation "ShouldBeUniqueUntilProcessing"
+# Because it makes the job not dispatch successfully
+# "ShouldBeUniqueUntilProcessing" is used for preventive action if the request clicks more than once
 class ProcessEmailRequestSignJob implements ShouldQueue
-// class ProcessEmailRequestSignJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use IsMonitored;
