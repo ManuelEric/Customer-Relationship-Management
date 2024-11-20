@@ -991,8 +991,8 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
         $mapped = $potentials->map(function ($item) {
             return [
-                'pic_id' => $item->client_program->internalPic->id,
-                'pic_name' => $item->client_program->internalPic->full_name,
+                'pic_id' => $item->client_program->internalPic->id ?? NULL,
+                'pic_name' => $item->client_program->internalPic->full_name ?? NULL,
                 'clientprogram_id' => $item->client_program->clientprog_id,
                 'client_id' => $item->client_id,
                 'category' => $item->category,

@@ -85,7 +85,9 @@
                         data: 'status',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            return data == 1 ? 'Active' : 'Inactive';
+                            return data == 1 ?
+                                "<div class='badge badge-outline-success'>Active</div>" :
+                                "<div class='badge badge-outline-danger'>NonActive</div>";
                         }
                     },
                     {
