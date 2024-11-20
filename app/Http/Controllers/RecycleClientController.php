@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\LogModule;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +27,6 @@ class RecycleClientController extends Controller
         switch ($target) {
 
             case "students":
-                
                 if ($request->ajax()){
                     # advanced filter purpose
                     $school_name = $request->get('school_name');
@@ -74,6 +75,9 @@ class RecycleClientController extends Controller
                 $view = 'pages.recycle.client.teacher';
                 break;
 
+            default:
+                return Redirect::to('recycle/client/students');
+
         }
 
         if ($request->ajax()) 
@@ -83,28 +87,79 @@ class RecycleClientController extends Controller
     }
 
 
-    public function restore(Request $request)
+    public function restore(
+        Request $request,
+        LogService $log_service
+        )
     {
         $target = $request->route('target'); # not used
-        $clientId = $request->route('client');
+        $client_id = $request->route('client');
+        $redirect_page = $this->page($target);
 
-        if (!$this->clientRepository->findDeletedClientById($clientId))
+        if (!$this->clientRepository->findDeletedClientById($client_id))
             abort(404);
 
         DB::beginTransaction();
         try {
 
-            $this->clientRepository->restoreClient($clientId);
+            $the_user = $this->clientRepository->restoreClient($client_id);
             DB::commit();
 
         } catch (Exception $e) {
             
             DB::rollBack();
-            Log::error('Failed to restore '.$target.' : ' . $e->getMessage().' on line '.$e->getLine());
-            return Redirect::back()->withError('Failed to restore client');
-
+            $this->storeErrorLog($log_service, $target, $e, ['client_id' => $client_id]);
+            return Redirect::back()->withError("Failed to restore {$target}");
         }
+        
+        $this->storeSuccessLog($log_service, $target, $the_user->toArray());
+        return Redirect::to('recycle/client/'.$redirect_page)->withSuccess("{$target} has been restored");
+    }
 
-        return Redirect::to('recycle/client/'.$target)->withSuccess('Client has been restored');
-    }   
+    private function page($client_type)
+    {
+        switch ( $client_type )
+        {
+            case "student":
+                $page = "students";
+                break;
+            case "parent":
+                $page = "parents";
+                break;
+            case "teacher":
+                $page = "teacher-counselor";
+                break;
+        }
+        return $page;
+    }
+
+    private function storeSuccessLog($service, $client_type, $data = [])
+    {
+        switch ($client_type) {
+            case "student":
+                $service->createSuccessLog(LogModule::RESTORE_STUDENT, "The {$client_type} has been restored", $data);
+                break;
+            case "parent":
+                $service->createSuccessLog(LogModule::RESTORE_PARENT, "The {$client_type} has been restored", $data);
+                break;
+            case "teacher":
+                $service->createSuccessLog(LogModule::RESTORE_TEACHER, "The {$client_type} has been restored", $data);
+                break;
+        }
+    }
+
+    private function storeErrorLog($service, $client_type, $error, $data = [])
+    {
+        switch ($client_type) {
+            case "student":
+                $service->createErrorLog(LogModule::RESTORE_STUDENT, $error->getMessage(), $error->getLine(), $error->getFile(), $data);
+                break;  
+            case "parent":
+                $service->createErrorLog(LogModule::RESTORE_PARENT, $error->getMessage(), $error->getLine(), $error->getFile(), $data);
+                break;  
+            case "teacher":
+                $service->createErrorLog(LogModule::RESTORE_TEACHER, $error->getMessage(), $error->getLine(), $error->getFile(), $data);
+                break;  
+        }
+    }
 }

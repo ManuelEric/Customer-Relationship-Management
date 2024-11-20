@@ -117,6 +117,7 @@ class SyncDataCommand extends Command
                             break;
 
                         case 'mentor':
+                        case 'all-mentors':
                             # Info Adjustment:
                             # deleted $val->extended_id
                             $result[$key] = [$val->id, $val->fullname, $val->fullname . ' | ' . $val->id];
@@ -288,6 +289,16 @@ class SyncDataCommand extends Command
                 })->whereNotNull('email')->where('active', 1);
 
                 $sheet_name = 'Mentors';
+                $column_updated_at = 'E';
+                break;
+
+            case 'all-mentors':
+                //! on development
+                $query = User::with('educations')->withAndWhereHas('roles', function ($sub_query) {
+                    $sub_query->where('role_name', 'Mentor');
+                });
+
+                $sheet_name = 'All Mentors';
                 $column_updated_at = 'E';
                 break;
 

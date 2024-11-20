@@ -346,4 +346,12 @@ enum LogModule: string
     case REPORT_INVOICE_RECEIPT = '[REPORT INVOICE RECEIPT]';
     case REPORT_UNPAID_PAYMENT = '[REPORT UNPAID PAYMENT]';
     case REPORT_PROGRAM_TRACKING = '[PROGRAM TRACKING]';
+
+    /**
+     * Recycle
+     */
+    case RESTORE_STUDENT = '[RESTORE STUDENT]';
+    case RESTORE_PARENT = '[RESTORE PARENT]';
+    case RESTORE_TEACHER = '[RESTORE TEACHER]';
+    
 }

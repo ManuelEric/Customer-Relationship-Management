@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\StoreNewSchoolException;
-use App\Exports\StudentTemplate;
 use App\Http\Controllers\Module\ClientController;
 use App\Http\Requests\AddParentRequest;
 use App\Http\Requests\StoreClientRawRequest;
@@ -32,16 +30,10 @@ use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\InitialProgramRepositoryInterface;
 use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\ReasonRepositoryInterface;
-use App\Imports\MasterStudentImport;
 use App\Imports\StudentImport;
 use App\Interfaces\UserRepositoryInterface;
-use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\Client\ProcessInsertLogClient;
 use App\Models\ClientLeadTracking;
-use App\Models\Lead;
-use App\Models\School;
-use App\Models\UserClient;
-use App\Services\ClientStudentService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
@@ -53,8 +45,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
-use Maatwebsite\Excel\Facades\Excel;
 
 class ClientStudentController extends ClientController
 {
@@ -1186,7 +1176,6 @@ class ClientStudentController extends ClientController
         $this->logSuccess('delete', null, 'Client Student', Auth::user()->first_name . ' ' . Auth::user()->last_name, $client);
 
         return Redirect::to('client/student?st=new-leads')->withSuccess('Client student successfully deleted');
-
     }
 
     public function destroyRaw(Request $request)

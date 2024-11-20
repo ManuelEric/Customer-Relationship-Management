@@ -75,7 +75,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function restoreClient($clientId)
     {
-        return UserClient::where('id', $clientId)->withTrashed()->restore();
+        return tap(UserClient::where('id', $clientId)->withTrashed()->first())->restore();
     }
 
     public function getAllClientByRoleAndStatusDataTables($roleName, $statusClient = NULL)
@@ -930,6 +930,7 @@ class ClientRepository implements ClientRepositoryInterface
                 'children.phone as children_phone'
             ])->
             selectRaw('RTRIM(CONCAT(children.first_name, " ", COALESCE(children.last_name, ""))) as children_name')->
+            selectRaw("IF((SELECT COUNT(*) FROM tbl_client_relation WHERE parent_id = client.id) > 1,true,false) as have_siblings")->
             leftJoin('tbl_client_relation as relation', 'relation.parent_id', '=', 'client.id')->
             leftJoin('tbl_client as children', 'children.id', '=', 'relation.child_id')->
             when($month, function ($subQuery) use ($month) {

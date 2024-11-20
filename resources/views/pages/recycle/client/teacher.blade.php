@@ -122,12 +122,17 @@
                 {
                     data: '',
                     className: 'text-center',
-                    defaultContent: '<button type="button" class="btn btn-sm btn-outline-success editClient"><i class="bi bi-arrow-counterclockwise"></i></button>'
+                    defaultContent: '<button type="button" class="btn btn-sm btn-outline-success restore"><i class="bi bi-arrow-counterclockwise"></i></button>'
                 }
             ],
         }
 
         var table = initializeDataTable('#clientTable', options, 'rt_client');
+
+        $('#clientTable tbody').on('click', '.restore ', function() {
+            var data = table.row($(this).parents('tr')).data();
+            confirmRestore('restore/client/teacher', data.id)
+        });
 
         @php
             $privilage = $menus['Client']->where('submenu_name', 'Teacher/Counselor')->first();
