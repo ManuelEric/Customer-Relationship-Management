@@ -474,6 +474,34 @@ class ClientTeacherCounselorController extends ClientController
         return Redirect::to('client/teacher-counselor/'. (isset($clientId) ? $clientId : $rawclientId))->withSuccess('Convert client successfully.');
     }
 
+    public function destroy(Request $request)
+    {
+        $client_id = $request->route('teacher_counselor');
+        $client = $this->clientRepository->getClientById($client_id);
+
+        DB::beginTransaction();
+        try {
+
+            if (!isset($client))
+                return Redirect::back()->withError('Data does not exist');
+    
+            $this->clientRepository->deleteClient($client_id);
+
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Delete teacher failed : ' . $e->getMessage());
+            return Redirect::back()->withError('Failed to delete teacher');
+        }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Client Student', Auth::user()->first_name . ' ' . Auth::user()->last_name, $client);
+
+        return Redirect::back()->withSuccess('Teacher/Counselor successfully deleted');
+    }
+
     public function destroyRaw(Request $request)
     {
         $rawclientId = $request->route('rawclient_id');

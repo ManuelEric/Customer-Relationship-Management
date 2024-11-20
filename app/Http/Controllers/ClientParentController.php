@@ -17,25 +17,19 @@ use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
-use App\Models\School;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\ParentTemplate;
 use App\Http\Controllers\Module\ClientController;
 use App\Http\Requests\StoreClientRawParentRequest;
 use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\SyncClientTrait;
-use App\Imports\MasterParentImport;
 use App\Imports\ParentImport;
-use App\Imports\ParentsImport;
 use App\Interfaces\ClientEventRepositoryInterface;
-use App\Jobs\RawClient\ProcessVerifyClient;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
@@ -392,6 +386,52 @@ class ClientParentController extends ClientController
         return Redirect::to('client/parent/' . $parentId)->withSuccess('A parent has been updated.');
     }
 
+    public function updateStatus(Request $request)
+    {
+        $parentId = $request->route('parent');
+        $newStatus = $request->route('status');
+
+        # validate status
+        if (!in_array($newStatus, [0, 1])) {
+
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => "Status is invalid"
+                ]
+            );
+        }
+
+        DB::beginTransaction();
+        try {
+
+            $this->clientRepository->updateActiveStatus($parentId, $newStatus);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Update active status parent failed : ' . $e->getMessage());
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ]
+            );
+        }
+
+        # Upload success
+        # create log success
+        $this->logSuccess('upload', null, 'Status Client', Auth::user()->first_name . ' ' . Auth::user()->last_name, ['status' => $newStatus], ['client_id', $parentId]);
+
+
+        return response()->json(
+            [
+                'success' => true,
+                'message' => "Status has been updated",
+            ]
+        );
+    }
+
     public function import(StoreImportExcelRequest $request)
     {
         Cache::put('auth', Auth::user());
@@ -546,6 +586,35 @@ class ClientParentController extends ClientController
 
         // return Redirect::to('client/parent/' . (isset($clientId) ? $clientId : $rawclientId))->withSuccess('Convert client successfully.');
         return Redirect::to('client/student?st=new-leads')->withSuccess('Convert client successfully.');
+    }
+
+    //! need to be done by tomorrow 20 nov 2024
+    public function destroy(Request $request)
+    {
+        $client_id = $request->route('parent');
+        $client = $this->clientRepository->getClientById($client_id);
+
+        DB::beginTransaction();
+        try {
+
+            if (!isset($client))
+                return Redirect::to('client/parent')->withError('Data does not exist');
+    
+            $this->clientRepository->deleteClient($client_id);
+
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Delete parent failed : ' . $e->getMessage());
+            return Redirect::to('client/parent')->withError('Failed to delete parent');
+        }
+
+        # Delete success
+        # create log success
+        $this->logSuccess('delete', null, 'Client Student', Auth::user()->first_name . ' ' . Auth::user()->last_name, $client);
+
+        return Redirect::to('client/student?st=new-leads')->withSuccess('Client student successfully deleted');
     }
 
     public function destroyRaw(Request $request)

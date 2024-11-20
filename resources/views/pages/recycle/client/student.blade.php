@@ -421,7 +421,9 @@
                         searchable: false,
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            return data == 1 ? "Active" : "Non-active";
+                            return data == 1 ?
+                            "<div class='badge badge-outline-success'>Active</div>" :
+                            "<div class='badge badge-outline-danger'>NonActive</div>";
                         }
                     },
                     {
@@ -436,7 +438,7 @@
 
             $('#clientTable tbody').on('click', '.restore ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                confirmRestore('restore/client/students', data.id)
+                confirmRestore('restore/client/student', data.id)
             });
 
             @php

@@ -39,12 +39,13 @@
                         <th>Parents Number</th>
                         <th>Birthday</th>
                         <th>Childs Name</th>
+                        <th>Status</th>
                         <th class="bg-info text-white">#</th>
                     </tr>
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="7"></td>
+                        <td colspan="8"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -104,14 +105,29 @@
                     searchable: true,
                 },
                 {
+                    data: 'st_statusact',
+                    searchable: false,
+                    className: 'text-center',
+                    render: function(data, type, row, meta) {
+                        return data == 1 ?
+                        "<div class='badge badge-outline-success'>Active</div>" :
+                        "<div class='badge badge-outline-danger'>NonActive</div>";
+                    }
+                },
+                {
                     data: '',
                     className: 'text-center',
-                    defaultContent: '<button type="button" class="btn btn-sm btn-outline-success editClient"><i class="bi bi-arrow-counterclockwise"></i></button>'
+                    defaultContent: '<button type="button" class="btn btn-sm btn-outline-success restore"><i class="bi bi-arrow-counterclockwise"></i></button>'
                 }
             ],
         };
 
         var table = initializeDataTable('#clientTable', options, 'rt_client');
+
+        $('#clientTable tbody').on('click', '.restore ', function() {
+            var data = table.row($(this).parents('tr')).data();
+            confirmRestore('restore/client/parent', data.id)
+        });
 
         @php
             $privilage = $menus['Client']->where('submenu_name', 'Parents')->first();
