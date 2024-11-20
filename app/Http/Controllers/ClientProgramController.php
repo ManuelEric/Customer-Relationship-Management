@@ -708,7 +708,7 @@ class ClientProgramController extends Controller
         }
      
         # create log success
-        $log_service->createSuccessLog(LogModule::STORE_BUNDLE_PROGRAM, 'New bundle program has been added', $bundle_program->toArray());
+        $log_service->createSuccessLog(LogModule::STORE_BUNDLE_PROGRAM, 'New bundle program has been added', $client_program_details);
 
         return response()->json([
             'success' => true,

@@ -150,6 +150,7 @@ Route::prefix('school-program')->name('invoice-sch.')->group(function () {
     Route::get('{invoice}/export/{currency}', [InvoiceSchoolController::class, 'export'])->name('export');
     Route::get('{invoice}/request_sign/{currency}', [InvoiceSchoolController::class, 'requestSign'])->name('request_sign');
     Route::get('{invoice}/sign/{currency}', [InvoiceSchoolController::class, 'signAttachment'])->name('sign_document');
+    Route::post('{invoice}/upload/{currency}', [InvoiceSchoolController::class, 'upload'])->name('upload_signed_document');
     Route::get('{invoice}/send/{currency}', [InvoiceSchoolController::class, 'sendToClient'])->name('send_to_client');
     Route::get('{invoice}/preview/{currency}', [InvoiceSchoolController::class, 'previewPdf'])->name('preview_pdf');
     Route::post('{invoice}/refund', [RefundSchoolController::class, 'store'])->name('refund');
@@ -162,6 +163,7 @@ Route::prefix('referral')->name('invoice-ref.')->group(function () {
     Route::get('{invoice}/export/{currency}', [InvoiceReferralController::class, 'export'])->name('export');
     Route::get('{invoice}/request_sign/{currency}', [InvoiceReferralController::class, 'requestSign'])->name('request_sign');
     Route::get('{invoice}/sign/{currency}', [InvoiceReferralController::class, 'signAttachment'])->name('sign_document');
+    Route::post('{invoice}/upload/{currency}', [InvoiceReferralController::class, 'upload'])->name('upload_signed_document');
     Route::get('{invoice}/send/{currency}', [InvoiceReferralController::class, 'sendToClient'])->name('send_to_client');
     Route::get('{invoice}/preview/{currency}', [InvoiceReferralController::class, 'previewPdf'])->name('preview_pdf');
     // Route::post('{invoice}/refund', [RefundSchoolController::class, 'store'])->name('refund');
@@ -178,6 +180,7 @@ Route::prefix('corporate-program')->name('invoice-corp.')->group(function () {
     Route::get('{invoice}/export/{currency}', [InvoicePartnerController::class, 'export'])->name('export');
     Route::get('{invoice}/request_sign/{currency}', [InvoicePartnerController::class, 'requestSign'])->name('request_sign');
     Route::get('{invoice}/sign/{currency}', [InvoicePartnerController::class, 'signAttachment'])->name('sign_document');
+    Route::post('{invoice}/upload/{currency}', [InvoicePartnerController::class, 'upload'])->name('upload_signed_document');
     Route::get('{invoice}/send/{currency}', [InvoicePartnerController::class, 'sendToClient'])->name('send_to_client');
     Route::get('{invoice}/preview/{currency}', [InvoicePartnerController::class, 'previewPdf'])->name('preview_pdf');
     Route::post('{invoice}/refund', [RefundPartnerController::class, 'store'])->name('refund');

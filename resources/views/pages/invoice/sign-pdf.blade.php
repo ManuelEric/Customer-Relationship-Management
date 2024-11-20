@@ -30,11 +30,11 @@
             <div class="tool">
                 <button class="btn btn-light btn-sm" 
                 @if(isset($invoice->schprog_id))
-                    onclick="savePDF('save','{{ $attachment }}','{{ url('api/invoice-sch/'.$invoice->invb2b_num.'/upload/'.$currency) }}')">
+                    onclick="savePDF('save','{{ $attachment }}','{{ route('invoice-sch.upload_signed_document', ['invoice' => $invoice->invb2b_num, 'currency' => $currency]) }}')">
                 @elseif(isset($invoice->ref_id))
-                    onclick="savePDF('save','{{ $attachment }}','{{ url('api/invoice-ref/'.$invoice->invb2b_num.'/upload/'.$currency)  }}')">
+                    onclick="savePDF('save','{{ $attachment }}','{{ route('invoice-ref.upload_signed_document', ['invoice' => $invoice->invb2b_num, 'currency' => $currency])  }}')">
                 @elseif(isset($invoice->partnerprog_id))
-                    onclick="savePDF('save','{{ $attachment }}','{{ url('api/invoice-corp/'.$invoice->invb2b_num.'/upload/'.$currency)  }}')">
+                    onclick="savePDF('save','{{ $attachment }}','{{ route('invoice-corp.upload_signed_document', ['invoice' => $invoice->invb2b_num, 'currency' => $currency])  }}')">
                 @elseif(isset($invoice->bundling_id))
                     onclick="savePDF('save','{{ $attachment }}','{{ route('invoice.client-program.upload-signed-bundle', ['bundle' => Request::route('bundle'), 'currency' => Request::route('currency')]) }}')">
                 @else

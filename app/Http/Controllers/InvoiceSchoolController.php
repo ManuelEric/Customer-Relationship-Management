@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\LogModule;
 use App\Http\Requests\StoreInvoiceB2bRequest;
 use App\Http\Requests\StoreAttachmentB2bRequest;
 use App\Interfaces\ProgramRepositoryInterface;
@@ -15,6 +16,7 @@ use App\Interfaces\AxisRepositoryInterface;
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Models\Invb2b;
+use App\Services\Log\LogService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -77,28 +79,28 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
 
     public function create(Request $request)
     {
-        $schProgId = $request->route('sch_prog');
+        $sch_prog_id = $request->route('sch_prog');
 
-        $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($schProgId);
+        $school_program = $this->schoolProgramRepository->getSchoolProgramById($sch_prog_id);
 
-        $schoolId = $schoolProgram->sch_id;
+        $school_id = $school_program->sch_id;
 
         # retrieve school data by id
-        $school = $this->schoolRepository->getSchoolById($schoolId);
+        $school = $this->schoolRepository->getSchoolById($school_id);
 
         return view('pages.invoice.school-program.form')->with(
             [
-                'schoolProgram' => $schoolProgram,
+                'schoolProgram' => $school_program,
                 'school' => $school,
                 'status' => 'create',
             ]
         );
     }
 
-    public function store(StoreInvoiceB2bRequest $request)
+    public function store(StoreInvoiceB2bRequest $request, LogService $log_service)
     {
 
-        $schProgId = $request->route('sch_prog');
+        $sch_prog_id = $request->route('sch_prog');
         $invoices = $request->only([
             'select_currency',
             'currency',
@@ -185,18 +187,18 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
         unset($invoices['invb2b_wordsidr_other']);
 
         $now = Carbon::now();
-        $thisMonth = $now->month;
+        $this_month = $now->month;
 
-        $last_id = Invb2b::whereMonth('created_at', $thisMonth)->whereYear('created_at', date('Y'))->max(DB::raw('substr(invb2b_id, 1, 4)'));
+        $last_id = Invb2b::whereMonth('created_at', $this_month)->whereYear('created_at', date('Y'))->max(DB::raw('substr(invb2b_id, 1, 4)'));
 
-        $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($schProgId);
-        $prog_id = $schoolProgram->prog_id;
+        $school_program = $this->schoolProgramRepository->getSchoolProgramById($sch_prog_id);
+        $prog_id = $school_program->prog_id;
 
         // Use Trait Create Invoice Id
         $inv_id = $this->getInvoiceId($last_id, $prog_id);
 
         $invoices['invb2b_id'] = $inv_id;
-        $invoices['schprog_id'] = $schProgId;
+        $invoices['schprog_id'] = $sch_prog_id;
 
         if ($invoices['invb2b_pm'] == 'Installment') {
             $installment = $this->extract_installment($inv_id, $invoices['select_currency'], $cursrate, $installments);
@@ -206,7 +208,7 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
         DB::beginTransaction();
         try {
 
-            $invoiceCreated = $this->invoiceB2bRepository->createInvoiceB2b($invoices);
+            $invoice_created = $this->invoiceB2bRepository->createInvoiceB2b($invoices);
             if ($invoices['invb2b_pm'] == 'Installment') {
                 $this->invoiceDetailRepository->createInvoiceDetail($installment);
             }
@@ -214,38 +216,38 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Create invoice failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_INVOICE_SCHOOL, $e->getMessage(), $e->getLine(), $e->getFile(), $invoices);
 
-            return Redirect::to('invoice/school-program/' . $schProgId . '/detail/create')->withError('Failed to create a new invoice');
+            return Redirect::to('invoice/school-program/' . $sch_prog_id . '/detail/create')->withError('Failed to create a new invoice');
         }
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Invoice School Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoiceCreated);
+        $log_service->createSuccessLog(LogModule::STORE_INVOICE_SCHOOL, 'New invoice has been added', $invoices);
 
         return Redirect::to('invoice/school-program/status/list')->withSuccess('Invoice successfully created');
     }
 
     public function show(Request $request)
     {
-        $schProgId = $request->route('sch_prog');
-        $invNum = $request->route('detail');
+        $sch_prog_id = $request->route('sch_prog');
+        $inv_num = $request->route('detail');
 
-        $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($schProgId);
+        $school_program = $this->schoolProgramRepository->getSchoolProgramById($sch_prog_id);
 
-        $schoolId = $schoolProgram->sch_id;
+        $school_id = $school_program->sch_id;
 
-        $school = $this->schoolRepository->getSchoolById($schoolId);
+        $school = $this->schoolRepository->getSchoolById($school_id);
 
-        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoice_sch = $this->invoiceB2bRepository->getInvoiceB2bById($inv_num);
 
-        $attachments = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceIdentifier('B2B', $invoiceSch->invb2b_id);
+        $attachments = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceIdentifier('B2B', $invoice_sch->invb2b_id);
 
         return view('pages.invoice.school-program.form')->with(
             [
-                'schoolProgram' => $schoolProgram,
+                'schoolProgram' => $school_program,
                 'school' => $school,
-                'invoiceSch' => $invoiceSch,
+                'invoiceSch' => $invoice_sch,
                 'attachments' => $attachments,
                 'status' => 'show',
             ]
@@ -254,33 +256,33 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
 
     public function edit(Request $request)
     {
-        $invNum = $request->route('detail');
-        $schProgId = $request->route('sch_prog');
+        $inv_num = $request->route('detail');
+        $sch_prog_id = $request->route('sch_prog');
 
-        $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($schProgId);
+        $school_program = $this->schoolProgramRepository->getSchoolProgramById($sch_prog_id);
 
-        $schoolId = $schoolProgram->sch_id;
+        $school_id = $school_program->sch_id;
 
-        $school = $this->schoolRepository->getSchoolById($schoolId);
+        $school = $this->schoolRepository->getSchoolById($school_id);
 
-        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoice_sch = $this->invoiceB2bRepository->getInvoiceB2bById($inv_num);
 
         return view('pages.invoice.school-program.form')->with(
             [
                 'status' => 'edit',
-                'schoolProgram' => $schoolProgram,
+                'schoolProgram' => $school_program,
                 'school' => $school,
-                'invoiceSch' => $invoiceSch,
+                'invoiceSch' => $invoice_sch,
             ]
         );
     }
 
-    public function update(StoreInvoiceB2bRequest $request)
+    public function update(StoreInvoiceB2bRequest $request, LogService $log_service)
     {
 
-        $schProgId = $request->route('sch_prog');
-        $invNum = $request->route('detail');
-        $oldInvoice = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $sch_prog_id = $request->route('sch_prog');
+        $inv_num = $request->route('detail');
+        $old_invoice = $this->invoiceB2bRepository->getInvoiceB2bById($inv_num);
 
         $invoices = $request->only([
             'select_currency',
@@ -362,22 +364,22 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
         unset($invoices['invb2b_totpriceidr_other']);
         unset($invoices['invb2b_wordsidr_other']);
 
-        $invoices['schprog_id'] = $schProgId;
+        $invoices['schprog_id'] = $sch_prog_id;
 
-        $inv_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $inv_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($inv_num);
         $inv_id = $inv_b2b->invb2b_id;
         if ($invoices['invb2b_pm'] == 'Installment') {
-            $NewInstallment = $this->extract_installment($inv_id, $invoices['select_currency'], $cursrate, $installments);
+            $new_installment = $this->extract_installment($inv_id, $invoices['select_currency'], $cursrate, $installments);
         }
         unset($installments);
 
         DB::beginTransaction();
         try {
 
-            $this->invoiceB2bRepository->updateInvoiceB2b($invNum, $invoices);
+            $this->invoiceB2bRepository->updateInvoiceB2b($inv_num, $invoices);
             if ($invoices['invb2b_pm'] == 'Installment') {
-                $this->invoiceDetailRepository->updateInvoiceDetailByInvB2bId($inv_id, $NewInstallment);
-                $this->invoiceDetailRepository->createInvoiceDetail($NewInstallment);
+                $this->invoiceDetailRepository->updateInvoiceDetailByInvB2bId($inv_id, $new_installment);
+                $this->invoiceDetailRepository->createInvoiceDetail($new_installment);
             } else {
                 if (count($inv_b2b->inv_detail) > 0) {
                     $this->invoiceDetailRepository->deleteInvoiceDetailByinvb2b_Id($inv_id);
@@ -392,42 +394,40 @@ class InvoiceSchoolController extends InvoiceB2BBaseController
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update invoice failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::UPDATE_INVOICE_SCHOOL, $e->getMessage(), $e->getLine(), $e->getFile(), $invoices);
 
-            // return $e->getMessage();
-            // exit;
-            return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invNum)->withError('Failed to update invoice');
+            return Redirect::to('invoice/school-program/' . $sch_prog_id . '/detail/' . $inv_num)->withError('Failed to update invoice');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Invoice Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoices, $oldInvoice);
+        $log_service->createSuccessLog(LogModule::UPDATE_INVOICE_SCHOOL, 'Invoice school has been updated', $invoices);
 
-        return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invNum)->withSuccess('Invoice successfully updated');
+        return Redirect::to('invoice/school-program/' . $sch_prog_id . '/detail/' . $inv_num)->withSuccess('Invoice successfully updated');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, LogService $log_service)
     {
-        $invNum = $request->route('detail');
-        $schProgId = $request->route('sch_prog');
-        $invoice = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $inv_num = $request->route('detail');
+        $sch_prog_id = $request->route('sch_prog');
+        $invoice = $this->invoiceB2bRepository->getInvoiceB2bById($inv_num);
 
         DB::beginTransaction();
         try {
 
-            $this->invoiceB2bRepository->deleteInvoiceB2b($invNum);
+            $this->invoiceB2bRepository->deleteInvoiceB2b($inv_num);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete invoice failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_INVOICE_SCHOOL, $e->getMessage(), $e->getLine(), $e->getFile(), $invoice->toArray());
 
-            return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invNum)->withError('Failed to delete invoice');
+            return Redirect::to('invoice/school-program/' . $sch_prog_id . '/detail/' . $inv_num)->withError('Failed to delete invoice');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Invoice School Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoice);
+        $log_service->createSuccessLog(LogModule::DELETE_INVOICE_SCHOOL, 'Invoice has been deleted', $invoice->toArray());
 
         return Redirect::to('invoice/school-program/status/list')->withSuccess('Invoice successfully deleted');
     }

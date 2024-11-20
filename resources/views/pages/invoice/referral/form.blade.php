@@ -642,7 +642,7 @@
                         swal.close()
 
                     }).catch(function(error) {
-
+                        
                         swal.close()
                         notification('error', 'Something went wrong. Please try again');
 
@@ -902,8 +902,9 @@
                     $("#sendToClient--modal").modal('hide');
                 })
                 .catch(error => {
-                    notification('error', 'Something went wrong when sending invoice to client. Please try again');
+
                     swal.close()
+                    notification('error', error.response.data.message);
                 })
         }
 
