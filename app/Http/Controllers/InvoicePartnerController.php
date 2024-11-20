@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\LogModule;
 use App\Http\Requests\StoreInvoiceB2bRequest;
 use App\Http\Requests\StoreAttachmentB2bRequest;
 use App\Interfaces\ProgramRepositoryInterface;
@@ -16,6 +17,7 @@ use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Http\Traits\DirectorListTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Models\Invb2b;
+use App\Services\Log\LogService;
 use Barryvdh\DomPDF\PDF as DomPDFPDF;
 use Carbon\Carbon;
 use Exception;
@@ -85,28 +87,28 @@ class InvoicePartnerController extends InvoiceB2BBaseController
 
     public function create(Request $request)
     {
-        $partnerProgId = $request->route('corp_prog');
+        $partner_prog_id = $request->route('corp_prog');
 
-        $partnerProgram = $this->partnerProgramRepository->getPartnerProgramById($partnerProgId);
+        $partner_program = $this->partnerProgramRepository->getPartnerProgramById($partner_prog_id);
 
-        // $partnerId = $partnerProgram->sch_id;
+        // $partnerId = $partner_program->sch_id;
 
         # retrieve partner data by id
         // $partner = $this->corporateRepository->getSchoolById($partnerId);
 
         return view('pages.invoice.corporate-program.form')->with(
             [
-                'partnerProgram' => $partnerProgram,
+                'partnerProgram' => $partner_program,
                 // 'partner' => $partner,
                 'status' => 'create',
             ]
         );
     }
 
-    public function store(StoreInvoiceB2bRequest $request)
+    public function store(StoreInvoiceB2bRequest $request, LogService $log_service)
     {
 
-        $partnerProgId = $request->route('corp_prog');
+        $partner_prog_id = $request->route('corp_prog');
         $invoices = $request->only([
             'select_currency',
             'currency',
@@ -193,18 +195,18 @@ class InvoicePartnerController extends InvoiceB2BBaseController
 
 
         $now = Carbon::now();
-        $thisMonth = $now->month;
+        $this_month = $now->month;
 
-        $last_id = Invb2b::whereMonth('created_at', $thisMonth)->whereYear('created_at', date('Y'))->max(DB::raw('substr(invb2b_id, 1, 4)'));
+        $last_id = Invb2b::whereMonth('created_at', $this_month)->whereYear('created_at', date('Y'))->max(DB::raw('substr(invb2b_id, 1, 4)'));
 
-        $partnerProgram = $this->partnerProgramRepository->getPartnerProgramById($partnerProgId);
-        $prog_id = $partnerProgram->prog_id;
+        $partner_program = $this->partnerProgramRepository->getPartnerProgramById($partner_prog_id);
+        $prog_id = $partner_program->prog_id;
 
         // Use Trait Create Invoice Id
         $inv_id = $this->getInvoiceId($last_id, $prog_id);
 
         $invoices['invb2b_id'] = $inv_id;
-        $invoices['partnerprog_id'] = $partnerProgId;
+        $invoices['partnerprog_id'] = $partner_prog_id;
 
         if ($invoices['invb2b_pm'] == 'Installment') {
             $installment = $this->extract_installment($inv_id, $invoices['select_currency'], $cursrate, $installments);
@@ -215,7 +217,7 @@ class InvoicePartnerController extends InvoiceB2BBaseController
         DB::beginTransaction();
         try {
 
-            $invoiceCreated = $this->invoiceB2bRepository->createInvoiceB2b($invoices);
+            $invoice_created = $this->invoiceB2bRepository->createInvoiceB2b($invoices);
             if ($invoices['invb2b_pm'] == 'Installment') {
                 $this->invoiceDetailRepository->createInvoiceDetail($installment);
             }
@@ -223,35 +225,31 @@ class InvoicePartnerController extends InvoiceB2BBaseController
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Create invoice failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_INVOICE_PARTNER, $e->getMessage(), $e->getLine(), $e->getFile(), $invoices);
 
-            return Redirect::to('invoice/corporate-program/' . $partnerProgId . '/detail/create')->withError('Failed to create a new invoice');
+            return Redirect::to('invoice/corporate-program/' . $partner_prog_id . '/detail/create')->withError('Failed to create a new invoice');
         }
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Invoice Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoiceCreated);
+        $log_service->createSuccessLog(LogModule::STORE_INVOICE_PARTNER, 'New invoice partner has been added', $invoices);
 
         return Redirect::to('invoice/corporate-program/status/list')->withSuccess('Invoice successfully created');
     }
 
     public function show(Request $request)
     {
-        $partnerProgId = $request->route('corp_prog');
-        $invNum = $request->route('detail');
+        $partner_prog_id = $request->route('corp_prog');
+        $inv_num = $request->route('detail');
 
-        $partnerProgram = $this->partnerProgramRepository->getPartnerProgramById($partnerProgId);
+        $partner_program = $this->partnerProgramRepository->getPartnerProgramById($partner_prog_id);
 
-        // $schoolId = $partnerProgram->sch_id;
-
-        // $school = $this->schoolRepository->getSchoolById($schoolId);
-
-        $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoice_partner = $this->invoiceB2bRepository->getInvoiceB2bById($inv_num);
 
         return view('pages.invoice.corporate-program.form')->with(
             [
-                'partnerProgram' => $partnerProgram,
-                'invoicePartner' => $invoicePartner,
+                'partnerProgram' => $partner_program,
+                'invoicePartner' => $invoice_partner,
                 'status' => 'show',
             ]
         );
@@ -259,32 +257,28 @@ class InvoicePartnerController extends InvoiceB2BBaseController
 
     public function edit(Request $request)
     {
-        $invNum = $request->route('detail');
-        $partnerProgId = $request->route('corp_prog');
+        $inv_num = $request->route('detail');
+        $partner_prog_id = $request->route('corp_prog');
 
-        $partnerProgram = $this->partnerProgramRepository->getPartnerProgramById($partnerProgId);
+        $partner_program = $this->partnerProgramRepository->getPartnerProgramById($partner_prog_id);
 
-        // $partnerId = $partnerProgram->sch_id;
-
-        // $school = $this->schoolRepository->getSchoolById($partnerId);
-
-        $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoice_partner = $this->invoiceB2bRepository->getInvoiceB2bById($inv_num);
 
         return view('pages.invoice.corporate-program.form')->with(
             [
                 'status' => 'edit',
-                'partnerProgram' => $partnerProgram,
-                'invoicePartner' => $invoicePartner,
+                'partnerProgram' => $partner_program,
+                'invoicePartner' => $invoice_partner,
             ]
         );
     }
 
-    public function update(StoreInvoiceB2bRequest $request)
+    public function update(StoreInvoiceB2bRequest $request, LogService $log_service)
     {
 
-        $partnerProgId = $request->route('corp_prog');
-        $invNum = $request->route('detail');
-        $oldInvoice = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $partner_prog_id = $request->route('corp_prog');
+        $inv_num = $request->route('detail');
+        $old_invoice = $this->invoiceB2bRepository->getInvoiceB2bById($inv_num);
 
         $invoices = $request->only([
             'select_currency',
@@ -367,25 +361,22 @@ class InvoicePartnerController extends InvoiceB2BBaseController
         unset($invoices['invb2b_totpriceidr_other']);
         unset($invoices['invb2b_wordsidr_other']);
 
-        $invoices['partnerprog_id'] = $partnerProgId;
+        $invoices['partnerprog_id'] = $partner_prog_id;
 
-        $inv_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $inv_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($inv_num);
         $inv_id = $inv_b2b->invb2b_id;
         if ($invoices['invb2b_pm'] == 'Installment') {
-            $NewInstallment = $this->extract_installment($inv_id, $invoices['select_currency'], $cursrate, $installments);
+            $new_installment = $this->extract_installment($inv_id, $invoices['select_currency'], $cursrate, $installments);
         }
         unset($installments);
-
-        // return $installment;
-        // exit;
 
         DB::beginTransaction();
         try {
 
-            $this->invoiceB2bRepository->updateInvoiceB2b($invNum, $invoices);
+            $this->invoiceB2bRepository->updateInvoiceB2b($inv_num, $invoices);
             if ($invoices['invb2b_pm'] == 'Installment') {
-                $this->invoiceDetailRepository->updateInvoiceDetailByInvB2bId($inv_id, $NewInstallment);
-                $this->invoiceDetailRepository->createInvoiceDetail($NewInstallment);
+                $this->invoiceDetailRepository->updateInvoiceDetailByInvB2bId($inv_id, $new_installment);
+                $this->invoiceDetailRepository->createInvoiceDetail($new_installment);
             } else {
                 if (count($inv_b2b->inv_detail) > 0) {
                     $this->invoiceDetailRepository->deleteInvoiceDetailByinvb2b_Id($inv_id);
@@ -400,42 +391,40 @@ class InvoicePartnerController extends InvoiceB2BBaseController
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update invoice failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::UPDATE_INVOICE_PARTNER, $e->getMessage(), $e->getLine(), $e->getFile(), $invoices);
 
-            return $e->getMessage();
-            exit;
-            return Redirect::to('invoice/corporate-program/' . $partnerProgId . '/detail/' . $invNum)->withError('Failed to update invoice');
+            return Redirect::to('invoice/corporate-program/' . $partner_prog_id . '/detail/' . $inv_num)->withError('Failed to update invoice');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Invoice Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoices, $oldInvoice);
+        $log_service->createSuccessLog(LogModule::UPDATE_INVOICE_PARTNER, 'Invoice partner has been updated', $invoices);
 
-        return Redirect::to('invoice/corporate-program/' . $partnerProgId . '/detail/' . $invNum)->withSuccess('Invoice successfully updated');
+        return Redirect::to('invoice/corporate-program/' . $partner_prog_id . '/detail/' . $inv_num)->withSuccess('Invoice successfully updated');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, LogService $log_service)
     {
-        $invNum = $request->route('detail');
-        $partnerProgId = $request->route('corp_prog');
-        $invoice = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $inv_num = $request->route('detail');
+        $partner_prog_id = $request->route('corp_prog');
+        $invoice = $this->invoiceB2bRepository->getInvoiceB2bById($inv_num);
 
         DB::beginTransaction();
         try {
 
-            $this->invoiceB2bRepository->deleteInvoiceB2b($invNum);
+            $this->invoiceB2bRepository->deleteInvoiceB2b($inv_num);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete invoice failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_INVOICE_PARTNER, $e->getMessage(), $e->getLine(), $e->getFile(), $invoice->toArray());
 
-            return Redirect::to('invoice/corporate-program/' . $partnerProgId . '/detail/' . $invNum)->withError('Failed to delete invoice');
+            return Redirect::to('invoice/corporate-program/' . $partner_prog_id . '/detail/' . $inv_num)->withError('Failed to delete invoice');
         }
         
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Invoice Partner Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoice);
+        $log_service->createSuccessLog(LogModule::DELETE_INVOICE_PARTNER, 'Invoice partner has been deleted', $invoice->toArray());
 
         return Redirect::to('invoice/corporate-program/status/list')->withSuccess('Invoice successfully deleted');
     }

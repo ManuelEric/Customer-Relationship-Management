@@ -130,9 +130,6 @@ Route::get('digital/detail/{month}/conversion-lead/{lead}/{prog?}', [DigitalDash
 
 
 Route::post('/upload', [InvoiceProgramController::class, 'upload']);
-Route::post('invoice-sch/{invoice}/upload/{currency}', [InvoiceSchoolController::class, 'upload']);
-Route::post('invoice-ref/{invoice}/upload/{currency}', [InvoiceReferralController::class, 'upload']);
-Route::post('invoice-corp/{invoice}/upload/{currency}', [InvoicePartnerController::class, 'upload']);
 
 Route::post('receipt-sch/{receipt}/upload/{currency}', [ReceiptSchoolController::class, 'upload_signed']);
 Route::post('receipt-ref/{receipt}/upload/{currency}', [ReceiptReferralController::class, 'upload_signed']);
