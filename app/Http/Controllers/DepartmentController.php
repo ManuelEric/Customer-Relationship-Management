@@ -26,8 +26,8 @@ class DepartmentController extends Controller
             if ($employees->count() > 0) {
                 foreach ($employees as $employee) {
     
-                    $html .= '<li class="list-group-item d-flex justify-content-between cursor-pointer user-menu" id="'.$employee->uuid.'"
-                                    onclick="checkUser(\''.$employee->uuid.'\')">'.$employee->full_name.'<i class="bi bi-arrow-right"></i>
+                    $html .= '<li class="list-group-item d-flex justify-content-between cursor-pointer user-menu" id="'.$employee->id.'"
+                                    onclick="checkUser(\''.$employee->id.'\')">'.$employee->full_name.'<i class="bi bi-arrow-right"></i>
                                 </li>';
                 }
             } else {

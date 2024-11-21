@@ -101,6 +101,10 @@
                     getActiveCopy(obj.copy)
                     getActiveExport(obj.export)
 
+                    $("input[name=menus]").prop('disabled', false);
+                    $("input[name=copy]").prop('disabled', false);
+                    $("input[name=export]").prop('disabled', false);
+
                 }).catch(function (error) {
                     console.log(error)
                     notification('error', 'Something went wrong. Please try again.')
@@ -293,15 +297,21 @@
         {
             switch (param) {
                 case "menus":
-                    $("input[name=menus]").prop('checked', false);
+                    // this function commented in 21-11-2024
+                    // but will monitor later to make sure
+                    // $("input[name=menus]").prop('checked', true);
                 break;
 
                 case "copy":
-                    $("input[name=copy]").prop('checked', false);
+                    // this function commented in 21-11-2024
+                    // but will monitor later to make sure
+                    // $("input[name=copy]").prop('checked', false);
                 break;
 
                 case "export":
-                    $("input[name=export]").prop('checked', false);
+                    // this function commented in 21-11-2024
+                    // but will monitor later to make sure
+                    // $("input[name=export]").prop('checked', false);
                 break;
 
                 default:

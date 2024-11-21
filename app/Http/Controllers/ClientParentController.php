@@ -588,7 +588,6 @@ class ClientParentController extends ClientController
         return Redirect::to('client/student?st=new-leads')->withSuccess('Convert client successfully.');
     }
 
-    //! need to be done by tomorrow 20 nov 2024
     public function destroy(Request $request)
     {
         $client_id = $request->route('parent');
