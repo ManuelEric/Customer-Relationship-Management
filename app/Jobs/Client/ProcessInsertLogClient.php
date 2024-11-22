@@ -38,7 +38,7 @@ class ProcessInsertLogClient implements ShouldQueue
      */
     
 
-    # Clients data => [][client_uuid, first_name(nullable), last_name(nullable), lead_source, inputted_from(nullable), clientprog_id(nullable)]
+    # Clients data => [][client_id, first_name(nullable), last_name(nullable), lead_source, inputted_from(nullable), clientprog_id(nullable)]
     public function __construct($clients_data, $is_many_request = false)
     {
         $this->clients_data = $clients_data;
@@ -72,7 +72,7 @@ class ProcessInsertLogClient implements ShouldQueue
                     
                     3. Verified raw client
                         - get latest log client where category raw, if null throw exception
-                        - if select_existing true then update client_uuid log client to client_uuid existing
+                        - if select_existing true then update client_id log client to client_id existing
                         - set unique_key and lead_source from latest log client
                         - insert log client with category new-lead
                         - if inputted_from import-client-program then insert log client with category potential and clientprog_id from the latest log client
@@ -113,7 +113,7 @@ class ProcessInsertLogClient implements ShouldQueue
 
                     6. Delete/trash client
                         - Add log category trash
-                        - Update status all client program to failed
+                        - If Client program status pending then Update status client program to failed
                         
                 */ 
                 
@@ -126,7 +126,7 @@ class ProcessInsertLogClient implements ShouldQueue
                         $new_client_log = $clientRepository->createClientLog($client_data);
         
                         # update category from tbl_client to new-lead
-                        $clientRepository->updateClientByUUID($client_data['client_uuid'], ['category' => $client_data['category'], 'is_verified' => 'N']);
+                        $clientRepository->updateClient($client_data['client_id'], ['category' => $client_data['category'], 'is_verified' => 'N']);
                         break;
                     
                     case 'import-parent':
@@ -139,7 +139,7 @@ class ProcessInsertLogClient implements ShouldQueue
                         $clientRepository->createClientLog($client_data);
                         
                         # update category from tbl_client to new-lead
-                        $clientRepository->updateClientByUUID($client_data['client_uuid'], ['category' => $client_data['category'], 'is_verified' => 'N', 'deleted_at' => null, 'is_many_request' => $this->is_many_request]);
+                        $clientRepository->updateClient($client_data['client_id'], ['category' => $client_data['category'], 'is_verified' => 'N', 'deleted_at' => null, 'is_many_request' => $this->is_many_request]);
                         break;
 
                     case 'restore':
@@ -151,10 +151,9 @@ class ProcessInsertLogClient implements ShouldQueue
                         $clientRepository->createClientLog($client_data);
 
                         # update category from tbl_client to new-lead
-                        $clientRepository->updateClientByUUID($client_data['client_uuid'], ['category' => $client_data['category'], 'is_verified' => 'N', 'is_many_request' => $this->is_many_request]);
+                        $clientRepository->updateClient($client_data['client_id'], ['category' => $client_data['category'], 'is_verified' => 'N', 'is_many_request' => $this->is_many_request]);
 
-                        # only temporarily and will be removed in crm adjusted
-                        $get_client = $clientRepository->getClientByUUID($client_data['client_uuid']);
+                        $get_client = $clientRepository->getClientById($client_data['client_id']);
 
                         # update status all client program to failed 
                         $this->fnSetAllClientProgramToFailed($clientProgramRepository, $get_client);
@@ -164,21 +163,22 @@ class ProcessInsertLogClient implements ShouldQueue
                         $latest_client_log = $this->fnGetLatestClientLog($clientRepository, $client_data);
                         $client_data = $this->fnSetLeadSourceAndUniqueKey($clientRepository, $client_data, $latest_client_log);
 
+                        // Log::debug($client_data);
                         # if when verified select existing 
-                        # then update client_uuid log client to client_uuid existing
+                        # then update client_id log client to client_id existing
                         if($client_data['select_existing']){                            
-                            $clientLogRepository->updateClientLogByClientUUID($client_data['old_client_uuid'], ['client_uuid' => $client_data['client_uuid']]);
+                            $clientLogRepository->updateClientLogByClientUUID($client_data['old_client_id'], ['client_id' => $client_data['client_id']]);
                         }
                          
                         unset($client_data['select_existing']);
-                        unset($client_data['old_client_uuid']);
+                        unset($client_data['old_client_id']);
                         
                         # add new log client with category new-lead
                         $client_data['category'] = 'new-lead';
                         $clientRepository->createClientLog($client_data);
  
                         # if inputted_from import-client-program add log client with category potential
-                        if($latest_client_log->inputted_from == 'import-client-program')
+                        if($latest_client_log != null && $latest_client_log->inputted_from == 'import-client-program')
                         {
                             # add new log client with category potential and insert clientprog_id from category raw
                             $client_data['clientprog_id'] = $latest_client_log->clientprog_id;
@@ -189,7 +189,7 @@ class ProcessInsertLogClient implements ShouldQueue
                         $define_category_from_all_program = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
                       
                         # update category from tbl_client
-                        $clientRepository->updateClientByUUID($client_data['client_uuid'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
+                        $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
                         break;
 
                     # create or client program
@@ -240,7 +240,7 @@ class ProcessInsertLogClient implements ShouldQueue
                         
                         $define_category_from_all_program = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
                         # update category from tbl_client
-                        $clientRepository->updateClientByUUID($client_data['client_uuid'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
+                        $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
                         break;
 
                     case 'update-client-program':
@@ -288,16 +288,16 @@ class ProcessInsertLogClient implements ShouldQueue
 
                         $define_category_from_all_program = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
                         # update category from tbl_client
-                        $clientRepository->updateClientByUUID($client_data['client_uuid'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
+                        $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
                         
                         break;
                         
                     case 'delete-client-program':
-                        $clientLogRepository->deleteClientLogByClientProgIdAndClientUUID($client_data['clientprog_id'], $client_data['client_uuid']);
+                        $clientLogRepository->deleteClientLogByClientProgIdAndClientUUID($client_data['clientprog_id'], $client_data['client_id']);
                         
                         $define_category_from_all_program = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
                         # update category from tbl_client
-                        $clientRepository->updateClientByUUID($client_data['client_uuid'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
+                        $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
                         break;
 
                     case 'trash':
@@ -309,10 +309,10 @@ class ProcessInsertLogClient implements ShouldQueue
                         $clientRepository->createClientLog($client_data);
                             
                         # update category from tbl_client to new-lead
-                        $clientRepository->updateClientByUUID($client_data['client_uuid'], ['category' => $client_data['category'], 'is_many_request' => $this->is_many_request]);
+                        $clientRepository->updateClient($client_data['client_id'], ['category' => $client_data['category'], 'is_many_request' => $this->is_many_request]);
                             
                         # only temporarily and will be removed in crm adjusted
-                        $get_client = $clientRepository->getClientWithTrashedByUUID($client_data['client_uuid']);
+                        $get_client = $clientRepository->getClientById($client_data['client_id']);
                             
                         # update status all client program to failed 
                         $this->fnSetAllClientProgramToFailed($clientProgramRepository, $get_client);                            
@@ -335,7 +335,11 @@ class ProcessInsertLogClient implements ShouldQueue
     protected function fnSetAllClientProgramToFailed(ClientProgramRepository $clientProgramRepository, $get_client)
     {
         $get_client_programs = $clientProgramRepository->getClientProgramByClientId($get_client->id);
-        $clientprog_ids = $get_client_programs->pluck('clientprog_id')->toArray();
+       
+        # Get client program where status = 0 (pending)
+        $clientprog_ids = $get_client_programs->where('status', 0)->pluck('clientprog_id')->toArray();
+
+        # Update stutus client program to failed
         $clientProgramRepository->updateClientPrograms($clientprog_ids, ['status' => 2]);
     }
 
@@ -344,7 +348,7 @@ class ProcessInsertLogClient implements ShouldQueue
         $latest_client_log = null;
 
         # only temporarily and will be removed in crm adjusted
-        $get_client = $clientRepository->getClientWithTrashedByUUID(isset($client_data['select_existing']) && $client_data['select_existing'] ? $client_data['old_client_uuid'] : $client_data['client_uuid']);
+        $get_client = $clientRepository->getClientById(isset($client_data['select_existing']) && $client_data['select_existing'] ? $client_data['old_client_id'] : $client_data['client_id']);
             
         if(isset($get_client->client_log)){
             $latest_client_log = $get_client->client_log->sortByDesc('updated_at')->first();
@@ -362,8 +366,7 @@ class ProcessInsertLogClient implements ShouldQueue
             $client_data['unique_key'] = $latest_client_log->unique_key;
             $client_data['lead_source'] = $latest_client_log->lead_source;
         }else{
-            # only temporarily and will be removed in crm adjusted
-            $get_client = $clientRepository->getClientByUUID($client_data['client_uuid']);
+            $get_client = $clientRepository->getClientById($client_data['client_id']);
             
             # if client no have log then set lead_source from lead_id tbl_client
             $client_data['lead_source'] = $get_client->lead_id;

@@ -8,6 +8,7 @@ use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\SyncClientTrait;
 use App\Jobs\Client\ProcessDefineCategory;
+use App\Jobs\Client\ProcessInsertLogClient;
 use App\Jobs\RawClient\ProcessVerifyClient;
 use App\Jobs\RawClient\ProcessVerifyClientParent;
 use App\Models\JobBatches;
@@ -151,18 +152,29 @@ class ImportParent implements ShouldQueue
             ];
 
             $imported_date[] = [Carbon::now()->format('d-m-Y H:i:s')];
-            // $totalImported += $imported->totalUpdatedRows;
+
+            $clients_data_for_log_client[$key] = [
+                'client_id' => $children->id,
+                'first_name' => $checkExistChildren['isExist'] ? $children->first_name : $childrenDetails['first_name'],
+                'last_name' => $checkExistChildren['isExist'] ? $children->last_name : $childrenDetails['last_name'],
+                'lead_source' => $val['Lead'],
+                'inputted_from' => 'import-parent',
+                'clientprog_id' => null
+            ];
         }
 
 
-        # trigger to verifying parent
-        count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent') : null;
+        // # trigger to verifying parent
+        // count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent') : null;
         
-        # trigger to verifying children
-        count($childrenIds) > 0 ? ProcessVerifyClient::dispatch($childrenIds)->onQueue('verifying-client') : null;
+        // # trigger to verifying children
+        // count($childrenIds) > 0 ? ProcessVerifyClient::dispatch($childrenIds)->onQueue('verifying-client') : null;
  
-        # trigger to define category children
-        count($childrenIds) > 0 ? ProcessDefineCategory::dispatch($childrenIds)->onQueue('define-category-client') : null;
+        // # trigger to define category children
+        // count($childrenIds) > 0 ? ProcessDefineCategory::dispatch($childrenIds)->onQueue('define-category-client') : null;
+
+        # trigger to insert log children
+        count($childrenIds) > 0 ? ProcessInsertLogClient::dispatch($clients_data_for_log_client, true)->onQueue('insert-log-client') : null;
 
         Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Parents')->range('V'. $this->parentData->first()['No'] + 1)->update($imported_date);
         $dataJobBatches = JobBatches::find($this->batch()->id);

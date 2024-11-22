@@ -21,21 +21,21 @@ class ClientHotLeadsController extends Controller
     {
         # the initial program that we sell
         # in order to automatically added if there's new initial program 
-        $initialPrograms = $this->initialProgramRepository->getAllInitProg();
+        $initial_programs = $this->initialProgramRepository->getAllInitProg();
 
         if ($request->ajax()) {
 
             # get the initial program from parameter get
-            $selectedInitialProgram = $request->get('program');
+            $selected_initial_program = $request->get('program');
     
-            $model = $this->clientRepository->getClientHotLeads($selectedInitialProgram);
+            $model = $this->clientRepository->getClientHotLeads($selected_initial_program);
             return $this->clientRepository->getDataTables($model);
         }
 
 
         return view('pages.client.hotleads.index')->with(
             [
-                'initialPrograms' => $initialPrograms
+                'initialPrograms' => $initial_programs
             ]
         );
     }

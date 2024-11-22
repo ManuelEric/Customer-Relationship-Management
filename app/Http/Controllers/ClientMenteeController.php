@@ -8,6 +8,7 @@ use App\Interfaces\InitialProgramRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\ReasonRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Services\Master\ProgramService;
 use Illuminate\Http\Request;
 
 class ClientMenteeController extends Controller
@@ -19,9 +20,10 @@ class ClientMenteeController extends Controller
     private ProgramRepositoryInterface $programRepository;
     private ReasonRepositoryInterface $reasonRepository;
     private UserRepositoryInterface $userRepository;
+    private ProgramService $programService;
 
 
-    public function __construct(ClientRepositoryInterface $clientRepository, InitialProgramRepositoryInterface $initialProgramRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ReasonRepositoryInterface $reasonRepository, ProgramRepositoryInterface $programRepository, UserRepositoryInterface $userRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, InitialProgramRepositoryInterface $initialProgramRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ReasonRepositoryInterface $reasonRepository, ProgramRepositoryInterface $programRepository, UserRepositoryInterface $userRepository, ProgramService $programService)
     {
         $this->clientRepository = $clientRepository;
         $this->initialProgramRepository = $initialProgramRepository;
@@ -29,6 +31,7 @@ class ClientMenteeController extends Controller
         $this->reasonRepository = $reasonRepository;
         $this->programRepository = $programRepository;
         $this->userRepository = $userRepository;
+        $this->programService = $programService;
 
     }
     
@@ -38,8 +41,8 @@ class ClientMenteeController extends Controller
             $status = $request->get('st');
             $school_name = $request->get('school_name');
             $graduation_year = $request->get('graduation_year');
-            $asDatatables = true;
-            $groupBy = false;
+            $as_datatables = true;
+            $group_by = false;
 
             # array for advanced filter request
             $advanced_filter = [
@@ -50,11 +53,11 @@ class ClientMenteeController extends Controller
             switch ($status) {
 
                 case "mentee":
-                    $model = $this->clientRepository->getAlumniMentees($groupBy, $asDatatables, null, $advanced_filter);
+                    $model = $this->clientRepository->getAlumniMentees($group_by, $as_datatables, null, $advanced_filter);
                     break;
 
                 case "non-mentee":
-                    $model = $this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables, null, $advanced_filter);
+                    $model = $this->clientRepository->getAlumniNonMentees($group_by, $as_datatables, null, $advanced_filter);
                     break;
             }
             return $this->clientRepository->getDataTables($model);
@@ -70,36 +73,34 @@ class ClientMenteeController extends Controller
         $segment = $request->segment(3);
         $alumni_type = str_replace('-', '_', $segment);
 
-        $menteeId = $request->route($alumni_type);
-        $student = $this->clientRepository->getClientById($menteeId);
-        $viewStudent = $this->clientRepository->getViewClientById($menteeId);
+        $mentee_id = $request->route($alumni_type);
+        $student = $this->clientRepository->getClientById($mentee_id);
+        $view_student = $this->clientRepository->getViewClientById($mentee_id);
 
-        $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C', true);
-        $programsB2C = $this->programRepository->getAllProgramByType('B2C', true);
-        $programs = $programsB2BB2C->merge($programsB2C)->sortBy('program_name');
+        $programs = $this->programService->snGetProgramsB2c();
 
-        $initialPrograms = $this->initialProgramRepository->getAllInitProg();
-        $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($menteeId);
+        $initial_programs = $this->initialProgramRepository->getAllInitProg();
+        $history_leads = $this->clientLeadTrackingRepository->getHistoryClientLead($mentee_id);
 
         if (!$student)
             abort(404);
 
-        $picActive = null;
+        $pic_active = null;
         if (count($student->picClient) > 0) {
-            $picActive = $student->picClient->where('status', 1)->first();
+            $pic_active = $student->picClient->where('status', 1)->first();
         }
 
-        $salesTeams = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $sales_teams = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
 
         return view('pages.client.student.view')->with(
             [
                 'student' => $student,
-                'viewStudent' => $viewStudent,
-                'initialPrograms' => $initialPrograms,
-                'historyLeads' => $historyLeads,
+                'viewStudent' => $view_student,
+                'initialPrograms' => $initial_programs,
+                'historyLeads' => $history_leads,
                 'programs' => $programs,
-                'picActive' => $picActive,
-                'salesTeams' => $salesTeams,
+                'picActive' => $pic_active,
+                'salesTeams' => $sales_teams,
             ]
         );
     }

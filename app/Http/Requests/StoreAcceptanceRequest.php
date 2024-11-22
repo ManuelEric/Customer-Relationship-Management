@@ -33,11 +33,15 @@ class StoreAcceptanceRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'alumni' => 'required|exists:tbl_client,id',
-            'uni_id.*' => 'exists:tbl_univ,univ_id',
-            'major.*' => 'exists:tbl_major,id',
-            'status.*' => 'in:waitlisted,accepted,denied,chosen'
+        $rules = [
+            'uni_id.*' => 'required|exists:tbl_univ,univ_id',
+            'major.*' => 'required|exists:tbl_major,id',
+            'status.*' => 'required|in:waitlisted,accepted,denied,chosen'
         ];
+        
+        if($this->isMethod('POST')) 
+            $rules['alumni'] = 'required|exists:tbl_client,id';
+
+        return $rules;
     }
 }

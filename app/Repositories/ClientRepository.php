@@ -1888,12 +1888,12 @@ class ClientRepository implements ClientRepositoryInterface
     public function updatePicClient($pic_client_id, array $pic_details)
     {
 
-        $picDetails['status'] = 0;
+        $pic_details['status'] = 0;
 
-        PicClient::where('id', $picClientId)->update(['status' => 0]);
-        unset($picDetails['status']);
+        PicClient::where('id', $pic_client_id)->update(['status' => 0]);
+        unset($pic_details['status']);
 
-        return $this->insertPicClient($picDetails);
+        return $this->insertPicClient($pic_details);
     }
 
     public function checkActivePICByClient($clientId)
@@ -2072,7 +2072,8 @@ class ClientRepository implements ClientRepositoryInterface
 
         return [
             'client' => [
-                'id' => $child->id,
+                'id' => null,
+                'uuid_crm' => $child->id,
                 'is_vip' => $clientevent->notes == null ? false : true,
                 'took_initial_assessment' => 0,
                 'full_name' => $child->full_name,
@@ -2210,7 +2211,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getClientListByCategoryBasedOnClientLogs(String $category, $month_year = null)
     {
-        $clients = ClientLog::leftJoin('client', 'client.uuid', '=', 'tbl_client_log.client_uuid')
+        $clients = ClientLog::leftJoin('client', 'client.id', '=', 'tbl_client_log.client_id')
                     ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client_log.lead_source')
                     ->select('client.full_name', 'client.mail', 'client.phone', 'client.graduation_year_real', 'client.pic_name', 'tbl_client_log.inputted_from as triggered_by', 'tbl_lead.main_lead as lead_source_log', 'tbl_client_log.created_at')
                     ->where('tbl_client_log.category', $category)
@@ -2257,8 +2258,7 @@ class ClientRepository implements ClientRepositoryInterface
             - Have clientprogram & (not join admission with status success (1) where prog running status == done (2))
         */
 
-        $client = $this->getClientByUUID($clients_data['client_uuid']);
-
+        $client = $this->getClientById($clients_data['client_id']);
 
         // if ($client->is_verified == 'N') {
         //     Log::warning('Client with id ' . $client->id . ', failed to determine its category because it has not been verified yet');
@@ -2296,10 +2296,10 @@ class ClientRepository implements ClientRepositoryInterface
 
                 # check if data from trash
                 # if true, then update status all client program to failed
-                if($client->deleted_at != null){
-                    $clientProgramRepository = new ClientProgramRepositoryInterface;
-                    $clientProgramRepository->updateClientProgram($clientProg->clientprog_id, ['status' => 2]);
-                }
+                // if($client->deleted_at != null){
+                //     $clientProgramRepository = new ClientProgramRepositoryInterface;
+                //     $clientProgramRepository->updateClientProgram($clientProg->clientprog_id, ['status' => 2]);
+                // }
 
             }
         } else {
@@ -2332,7 +2332,7 @@ class ClientRepository implements ClientRepositoryInterface
             $category = 'raw';
         }
 
-        $this->updateClientByUUID($client->uuid, ['category' => $category, 'is_many_request' => $is_many_request]);
+        // $this->updateClientByUUID($client->uuid, ['category' => $category, 'is_many_request' => $is_many_request]);
         
         $clients_data['category'] = $category;
 

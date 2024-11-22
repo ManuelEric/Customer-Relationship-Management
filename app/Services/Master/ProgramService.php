@@ -32,6 +32,6 @@ class ProgramService
     {
         $b2cprograms = $this->programRepository->getAllProgramByType("B2C");
         $b2bb2cprograms = $this->programRepository->getAllProgramByType("B2B/B2C");
-        return  $b2cprograms->merge($b2bb2cprograms);
+        return $b2cprograms->merge($b2bb2cprograms);
     }
 }
