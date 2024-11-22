@@ -80,7 +80,7 @@ class MenuRepository implements MenuRepositoryInterface
         $copy = $newDetails['copy'];
         $export = $newDetails['export'];
         $param = $newDetails['param'];
-        $user = User::where('uuid', $userId)->first();
+        $user = User::where('id', $userId)->first();
 
         # check if the menu has on user
 
@@ -115,7 +115,7 @@ class MenuRepository implements MenuRepositoryInterface
 
     public function deleteUserAccess($userId, $deletedDetails)
     {
-        $user = User::where('uuid', $userId)->first();
+        $user = User::where('id', $userId)->first();
         $user->access_menus()->detach($deletedDetails);
         return $user->access_menus;
     }

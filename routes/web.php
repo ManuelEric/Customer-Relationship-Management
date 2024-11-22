@@ -110,16 +110,3 @@ Route::resource('user/volunteer', VolunteerController::class);
 Route::resource('profile', ProfileController::class);
 
 # PROFILE END -----------------------------------------
-
-
-#test
-Route::get('/testqueue', function () {
-    echo 'a';
-    try {
-        JobCoba::dispatch();
-        echo 'd';
-    } catch (\Exception $e) {
-        echo $e->getMessage();exit;
-    }
-    echo 'b';
-});

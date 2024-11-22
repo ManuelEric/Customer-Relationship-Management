@@ -25,7 +25,13 @@
                             <td>{{ $partnerProgram->success_date }}</td>
                             <td>{{ $partnerProgram->participants }}</td>
                             <td>Rp. {{ number_format($partnerProgram->total_fee) }}</td>
-                            <td>{{ $partnerProgram->user->first_name }} {{ $partnerProgram->user->last_name }}</td>
+                            <td>
+                                @if ($partnerProgram->user)
+                                {{ $partnerProgram->user->first_name }} {{ $partnerProgram->user->last_name }}
+                                @else
+                                N/A
+                                @endif
+                            </td>
                         </tr>
                     @empty
                         <td colspan="7" class="text-center">Not partner program yet</td>
