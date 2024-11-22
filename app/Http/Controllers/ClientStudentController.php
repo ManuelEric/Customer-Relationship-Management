@@ -1348,4 +1348,34 @@ class ClientStudentController extends ClientController
 
 
     }
+
+    public function getLogsClient(Request $request)
+    {
+        $mapped_client_logs = new Collection;
+        $client_uuid = $request->client;
+
+        try {
+            $client = $this->clientRepository->getClientByUUID($client_uuid);
+    
+            if(isset($client->client_log)){
+                $mapped_client_logs = $client->client_log->mapToGroups(function ($item, int $key) {
+                    return [$item['unique_key'] => [
+                        'inputted_from' => ucfirst($item['inputted_from']),
+                        'category' => ucfirst($item['category']),
+                        'updated_at' => $item['formatted_updated_at']
+                    ]];
+                });
+            }
+        } catch (Exception $e) {
+            Log::error('Failed to get logs client : ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to get logs client'], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $mapped_client_logs,
+            'message' => "Successfully get client logs."
+        ]);
+ 
+    }
 }

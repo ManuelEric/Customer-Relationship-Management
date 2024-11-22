@@ -148,6 +148,7 @@ Route::get('master/event/{event}/school/{school}', [SchoolEventController::class
 # client student menu
 Route::get('client/{client}/programs', [ClientStudentController::class, 'getClientProgramByStudentId']);
 Route::get('client/{client}/events', [ClientStudentController::class, 'getClientEventByStudentId']);
+Route::get('client/{client}/logs', [ClientStudentController::class, 'getLogsClient']);
 
 # Client teacher menu
 Route::get('teacher/{teacher}/events', [ClientTeacherCounselorController::class, 'getClientEventByTeacherId']);
