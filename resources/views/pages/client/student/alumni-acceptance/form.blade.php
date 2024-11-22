@@ -44,7 +44,7 @@
                                             
                                         @endforelse
                                     </select>
-                                    @error('alumni_name')
+                                    @error('alumni')
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -57,7 +57,7 @@
                                     <div id="univ_list">
                                         <div class="row align-items-end g-2 mb-3">
                                             <div class="col-md-4">
-                                                <label>University Name</label>
+                                                <label>University Name <sup class="text-danger">*</sup></label>
                                                 <select name="uni_id[]" id="" class="select w-100">
                                                     <option data-placeholder="true"></option>
                                                     @forelse ($universities as $university)
@@ -66,9 +66,12 @@
                                                         
                                                     @endforelse
                                                 </select>
+                                                @error('uni_id.0')
+                                                    <small class="text-danger">{{ $message }}</small>
+                                                @enderror
                                             </div>
                                             <div class="col-md-4">
-                                                <label>Major</label>
+                                                <label>Major <sup class="text-danger">*</sup></label>
                                                 <select  name="major[]" id="" class="select w-100">
                                                     <option data-placeholder="true"></option>
                                                     @forelse ($majors as $major)
@@ -77,15 +80,21 @@
                                                         
                                                     @endforelse
                                                 </select>
+                                                @error('major.0')
+                                                    <small class="text-danger">{{ $message }}</small>
+                                                @enderror
                                             </div>
                                             <div class="col-md-4">
-                                                <label>Status</label>
+                                                <label>Status <sup class="text-danger">*</sup></label>
                                                 <select name="status[]" id="" class="select w-100">
                                                     <option value="waitlisted">Waitlisted</option>
                                                     <option value="accepted">Accepted</option>
                                                     <option value="denied">Denied</option>
                                                     <option value="chosen">Chosen</option>
                                                 </select>
+                                                @error('status.0')
+                                                    <small class="text-danger">{{ $message }}</small>
+                                                @enderror
                                             </div>
                                         </div>
                                     </div>

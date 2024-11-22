@@ -6,6 +6,7 @@ use App\Http\Requests\StoreClientProgramRequest;
 use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Jobs\Client\ProcessDefineCategory;
+use App\Jobs\Client\ProcessInsertLogClient;
 use App\Services\Program\ClientProgramService;
 
 class CreateClientProgramAction
@@ -43,7 +44,8 @@ class CreateClientProgramAction
         $file_path = $additional_attributes['file_path'];
 
         $new_client_program = $this->clientProgramRepository->createClientProgram(['client_id' => $student->id] + $client_program_details);
-   
+        $new_client_program_id = $new_client_program->clientprog_id;
+
         # add or remove role mentee
         # add role mentee when program is mentoring and status success then add role mentee
         # remove role mentee Only for method update
@@ -59,8 +61,19 @@ class CreateClientProgramAction
             }
         }
 
+        $client_data_for_log_client[] = [
+            'client_id' => $student->id,
+            'first_name' => $student->first_name,
+            'last_name' => $student->last_name,
+            'inputted_from' => 'create-client-program',
+            'clientprog_id' => $new_client_program_id,
+            'status_program' => $client_program_details['status'],
+        ];
+
+        # trigger to insert log client
+        ProcessInsertLogClient::dispatch($client_data_for_log_client)->onQueue('insert-log-client');
         # trigger to define category child
-        ProcessDefineCategory::dispatch([$student->id])->onQueue('define-category-client');
+        // ProcessDefineCategory::dispatch([$student->id])->onQueue('define-category-client');
 
         return ['file_path' => $file_path, 'new_client_program' => $new_client_program];
     }

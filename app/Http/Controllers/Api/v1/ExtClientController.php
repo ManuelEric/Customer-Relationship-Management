@@ -1151,7 +1151,7 @@ class ExtClientController extends Controller
         if ($existingClient['isExist']){
             $client = $this->clientRepository->getClientById($existingClient['id']);
             
-            $data_client_for_log_client[0]['client_uuid'] = $client->uuid;
+            $data_client_for_log_client[0]['client_id'] = $client->id;
             # trigger insert log client
             ProcessInsertLogClient::dispatch($data_client_for_log_client)->onQueue('insert-log-client');
             
@@ -1164,7 +1164,7 @@ class ExtClientController extends Controller
         # trigger to verify student / children
         // ProcessVerifyClient::dispatch([$clientId])->onQueue('verifying_client');
 
-        $data_client_for_log_client[0]['client_uuid'] = $client->uuid;
+        $data_client_for_log_client[0]['client_id'] = $client->id;
         # trigger insert log client
         ProcessInsertLogClient::dispatch($data_client_for_log_client)->onQueue('insert-log-client');
 
@@ -1217,7 +1217,7 @@ class ExtClientController extends Controller
         $clientId = $client->id;
 
         # trigger to verify parent
-        ProcessVerifyClientParent::dispatch([$clientId])->onQueue('verifying_client_parent');
+        // ProcessVerifyClientParent::dispatch([$clientId])->onQueue('verifying_client_parent');
 
         return $client;
     }
@@ -1256,7 +1256,7 @@ class ExtClientController extends Controller
         $clientId = $client->id;
 
         # trigger to verify teacher
-        ProcessVerifyClient::dispatch([$clientId])->onQueue('verifying_client_teacher');
+        // ProcessVerifyClient::dispatch([$clientId])->onQueue('verifying_client_teacher');
 
         return $client;
     }
@@ -1937,7 +1937,7 @@ class ExtClientController extends Controller
 
         $result = null;
         if ($query->exists()) {
-            $result = $query->select('id', 'uuid', 'first_name', 'last_name', 'email', 'phone', 'password')->first();
+            $result = $query->select('id', 'first_name', 'last_name', 'email', 'phone', 'password')->first();
 
             # fetch the roles
             foreach ($result->roles as $role) {
@@ -1995,7 +1995,7 @@ class ExtClientController extends Controller
         $paginate = $request->get('paginate'); # true will return paginate results, false will return all results 
         $role = $request->get('role');
 
-        $user = \App\Models\User::query()->select('id', 'uuid', 'first_name', 'last_name', 'email', 'phone')->with([
+        $user = \App\Models\User::query()->select('id', 'first_name', 'last_name', 'email', 'phone')->with([
                 'user_subjects' => function ($query) {
                     $query->select('user_role_id', 'subject_id', 'year', 'agreement', 'head', 'additional_fee', 'grade', 'fee_individual', 'fee_group');
                 },
@@ -2043,7 +2043,7 @@ class ExtClientController extends Controller
             }
 
             return [
-                'uuid' => $data['uuid'],
+                'uuid' => $data['id'],
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
                 'email' => $data['email'],
@@ -2095,13 +2095,14 @@ class ExtClientController extends Controller
 
     public function updateTookIA(Request $request)
     {
-        $uuid = $request->uuid;
+        # NEW CRM client id convert to UUID
+        $id = $request->uuid;
 
         $rules = [
-            'uuid' => 'required|exists:tbl_client,uuid'
+            'uuid' => 'required|exists:tbl_client,id'
         ];
 
-        $validator = Validator::make(['uuid' => $uuid], $rules);
+        $validator = Validator::make(['uuid' => $id], $rules);
 
         # threw error if validation fails
         if ($validator->fails()) {
@@ -2114,7 +2115,7 @@ class ExtClientController extends Controller
         DB::beginTransaction();
         try {
 
-            $client =  $this->clientRepository->updateClientByUUID($uuid, ['took_ia' => 1]);
+            $client =  $this->clientRepository->updateClient($id, ['took_ia' => 1]);
 
             $response = [
                 'success' => true,
@@ -2137,7 +2138,7 @@ class ExtClientController extends Controller
 
     public function showMentorTutor($uuid)
     {
-        $user = \App\Models\User::where('uuid', $uuid)->select('password')->first();
+        $user = \App\Models\User::where('id', $uuid)->select('password')->first();
         if ( !$user )
         {
             return response()->json([

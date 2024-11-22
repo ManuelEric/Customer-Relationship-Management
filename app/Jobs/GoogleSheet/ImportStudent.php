@@ -192,7 +192,7 @@ class ImportStudent implements ShouldQueue
             $imported_date[] = [Carbon::now()->format('d-m-Y H:i:s')];
 
             $clients_data_for_log_client[$key] = [
-                'client_uuid' => $student->uuid,
+                'client_id' => $student->id,
                 'first_name' => $first_name,
                 'last_name' => $last_name,
                 'lead_source' => $val['Lead'],
