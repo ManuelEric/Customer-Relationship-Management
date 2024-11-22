@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\LogModule;
 use App\Http\Requests\StoreAcceptanceRequest;
 use App\Interfaces\AcceptanceRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -54,21 +56,21 @@ class AcceptanceController extends Controller
         );
     }
 
-    public function store(StoreAcceptanceRequest $request)
+    public function store(StoreAcceptanceRequest $request, LogService $log_service)
     {
-        $alumniId = $request->alumni;
-        $alumni = $this->clientRepository->getClientById($alumniId);
+        $alumni_id = $request->alumni;
+        $alumni = $this->clientRepository->getClientById($alumni_id);
 
-        $univId = $request->uni_id;
-        $majorId = $request->major;
+        $univ_id = $request->uni_id;
+        $major_id = $request->major;
         $status = $request->status;
 
         $index = 0;
-        while ($index < count($univId)) {
+        while ($index < count($univ_id)) {
 
-            $newDetails[] = [
-                'univ_id' => $univId[$index],
-                'major_id' => $majorId[$index],
+            $new_details[] = [
+                'univ_id' => $univ_id[$index],
+                'major_id' => $major_id[$index],
                 'status' => $status[$index]
             ];
 
@@ -78,18 +80,20 @@ class AcceptanceController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->clientRepository->storeUniversityAcceptance($alumni, $newDetails);
+            $this->clientRepository->storeUniversityAcceptance($alumni, $new_details);
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Failed to store university acceptance. Error : '.$e->getMessage().' on line '.$e->getLine());
+            $log_service->createErrorLog(LogModule::STORE_ALUMNI_ACCEPTANCE, $e->getMessage(), $e->getLine(), $e->getFile(), $new_details);
+
             return Redirect::back()->withError('Failed to store university acceptance');
 
         }
 
-        return Redirect::to('client/acceptance/create')->withSuccess('University acceptance has been stored');
+        $log_service->createSuccessLog(LogModule::STORE_ALUMNI_ACCEPTANCE, 'New alumni acceptance has been added', $new_details);
+        return Redirect::to('client/acceptance/'. $alumni_id.'/edit')->withSuccess('University acceptance has been stored');
     }
 
     public function edit(Request $request)
@@ -117,21 +121,21 @@ class AcceptanceController extends Controller
         );
     }
 
-    public function update(Request $request)
+    public function update(StoreAcceptanceRequest $request, LogService $log_service)
     {
-        $alumniId = $request->route('client');
-        $alumni = $this->clientRepository->getClientById($alumniId);
+        $alumni_id = $request->route('client');
+        $alumni = $this->clientRepository->getClientById($alumni_id);
 
-        $univId = $request->uni_id;
-        $majorId = $request->major;
+        $univ_id = $request->uni_id;
+        $major_id = $request->major;
         $status = $request->status;
 
         $index = 0;
-        while ($index < count($univId)) {
+        while ($index < count($univ_id)) {
 
-            $newDetails[] = [
-                'univ_id' => $univId[$index],
-                'major_id' => $majorId[$index],
+            $new_details[] = [
+                'univ_id' => $univ_id[$index],
+                'major_id' => $major_id[$index],
                 'status' => $status[$index]
             ];
 
@@ -141,41 +145,45 @@ class AcceptanceController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->clientRepository->storeUniversityAcceptance($alumni, $newDetails);
+            $this->clientRepository->storeUniversityAcceptance($alumni, $new_details);
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Failed to store university acceptance. Error : '.$e->getMessage().' on line '.$e->getLine());
+            $log_service->createErrorLog(LogModule::UPDATE_ALUMNI_ACCEPTANCE, $e->getMessage(), $e->getLine(), $e->getFile(), $new_details);
+
             return Redirect::back()->withError('Failed to store university acceptance');
 
         }
 
-        return Redirect::to('client/acceptance/'.$alumniId.'/edit')->withSuccess('University acceptance has been stored');
+        $log_service->createSuccessLog(LogModule::UPDATE_ALUMNI_ACCEPTANCE, 'Alumni acceptance has been updated', $new_details);
+        return Redirect::to('client/acceptance/'.$alumni_id.'/edit')->withSuccess('University acceptance has been stored');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, LogService $log_service)
     {
         # client on the route param is acceptance ID
-        $acceptanceId = $request->route('client');
-        $acceptance = $this->acceptanceRepository->getAcceptanceById($acceptanceId);
-        $clientId = $acceptance->client_id;
+        $acceptance_id = $request->route('client');
+        $acceptance = $this->acceptanceRepository->getAcceptanceById($acceptance_id);
+        $client_id = $acceptance->client_id;
 
         DB::beginTransaction();
         try {
 
-            $this->acceptanceRepository->deleteAcceptance($acceptanceId);
+            $this->acceptanceRepository->deleteAcceptance($acceptance_id);
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Failed to delete the acceptance. Error: ' . $e->getMessage().' on line '.$e->getLine());
+            $log_service->createErrorLog(LogModule::DELETE_ALUMNI_ACCEPTANCE, $e->getMessage(), $e->getLine(), $e->getFile(), $acceptance->toArray());
+
             return Redirect::back()->withError('Failed to delete acceptance.');
 
         }
 
-        return Redirect::to('client/acceptance/'.$clientId.'/edit')->withSuccess('Acceptance has been deleted.');
+        $log_service->createSuccessLog(LogModule::DELETE_ALUMNI_ACCEPTANCE, 'Alumni acceptance has been deleted', $acceptance->toArray());
+        return Redirect::to('client/acceptance/'.$client_id.'/edit')->withSuccess('Acceptance has been deleted.');
     }
 }
