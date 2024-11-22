@@ -382,25 +382,25 @@ class ClientProgramController extends Controller
     {
         $student_id = $request->route('student');
         $client_program_id = $request->route('program');
-        $client_program = $this->clientProgramRepository->getClientProgramById($client_program_id);
+        $old_client_program = $this->clientProgramRepository->getClientProgramById($client_program_id);
 
         DB::beginTransaction();
         try {
 
-            $deleteClientProgramAction->execute($client_program_id, $student_id);
+            $deleteClientProgramAction->execute($old_client_program, $client_program_id, $student_id);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            $log_service->createErrorLog(LogModule::DELETE_CLIENT_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $client_program->toArray());
+            $log_service->createErrorLog(LogModule::DELETE_CLIENT_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $old_client_program->toArray());
 
             return Redirect::to('client/student/' . $student_id . '/program/' . $client_program_id)->withError('Failed to delete client program');
         }
     
         # Delete success
         # create log success
-        $log_service->createSuccessLog(LogModule::DELETE_CLIENT_PROGRAM, 'Client program has been deleted', $client_program->toArray());
+        $log_service->createSuccessLog(LogModule::DELETE_CLIENT_PROGRAM, 'Client program has been deleted', $old_client_program->toArray());
 
         return Redirect::to('client/student/' . $student_id)->withSuccess('Client program has been deleted');
     }

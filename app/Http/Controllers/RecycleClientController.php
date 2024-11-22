@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enum\LogModule;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Jobs\Client\ProcessInsertLogClient;
 use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
@@ -103,6 +104,18 @@ class RecycleClientController extends Controller
         try {
 
             $the_user = $this->clientRepository->restoreClient($client_id);
+            
+            $client_data_for_log[] = [
+                'client_id' => $the_user->id,
+                'first_name' => $the_user->first_name,
+                'last_name' => $the_user->last_name,
+                'lead_source' => $the_user->lead_id,
+                'inputted_from' => 'restore',
+            ];
+
+            # Trigger to insert log client
+            ProcessInsertLogClient::dispatch($client_data_for_log)->onQueue('insert-log-client');
+
             DB::commit();
 
         } catch (Exception $e) {

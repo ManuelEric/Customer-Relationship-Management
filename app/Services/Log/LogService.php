@@ -11,7 +11,7 @@ class LogService
     protected $auth;
     public function __construct()
     {
-        $this->auth = Auth::user()->full_name;
+        $this->auth = ! is_null(Auth::user()) ? Auth::user()->full_name : auth()->guard('api')->user()->full_name;
     }
 
     public function createErrorLog(LogModule $module, String $message, String $line, String $file_location, Array $content = [])

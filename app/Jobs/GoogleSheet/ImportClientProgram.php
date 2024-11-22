@@ -164,7 +164,7 @@ class ImportClientProgram implements ShouldQueue
             $imported_date[] = [Carbon::now()->format('d-m-Y H:i:s')];
             
             $childs_data_for_log_client[$key] = [
-                'client_uuid' => isset($createdSubClient) ? $student->uuid : $mainClient->uuid,
+                'client_id' => isset($createdSubClient) ? $student->id : $mainClient->id,
                 'first_name' => $checkExistChildren['isExist'] ? $student->first_name : $child_name['first_name'],
                 'last_name' => $checkExistChildren['isExist'] ? $student->last_name : $child_name['last_name'],
                 'lead_source' => $val['Lead'],

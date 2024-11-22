@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\LogModule;
 use App\Http\Requests\StoreClientParentRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\FindStatusClientTrait;
@@ -29,6 +30,7 @@ use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\SyncClientTrait;
 use App\Imports\ParentImport;
 use App\Interfaces\ClientEventRepositoryInterface;
+use App\Services\Log\LogService;
 use App\Services\Master\ProgramService;
 use Exception;
 use Illuminate\Support\Facades\Auth;
@@ -163,7 +165,7 @@ class ClientParentController extends ClientController
         );
     }
 
-    public function store(StoreClientParentRequest $request)
+    public function store(StoreClientParentRequest $request, LogService $log_service)
     {
         # request->queryChilId is the primary key for client student
         # request->queryClientProgId is the primary key for the client program
@@ -181,7 +183,7 @@ class ClientParentController extends ClientController
 
             # case 1
             # create new user client as parent
-            if (!$parent = $this->clientRepository->createClient('Parent', $data['parentDetails']))
+            if (!$parent = $this->clientRepository->createClient('Parent', $data['parent_details']))
                 throw new Exception('Failed to store new parent', 1);
 
             $new_parent_id = $parent->id;
@@ -212,25 +214,25 @@ class ClientParentController extends ClientController
 
             switch ($e->getCode()) {
                 case 1:
-                    Log::error('Store parent failed : ' . $e->getMessage());
+                    $log_service->createErrorLog(LogModule::STORE_PARENT, $e->getMessage(), $e->getLine(), $e->getFile(), $data['parent_details']);
                     break;
 
                 case 2:
-                    Log::error('Store relation between student and parent failed : ' . $e->getMessage());
+                    $log_service->createErrorLog(LogModule::STORE_RELATION_FROM_PARENT, $e->getMessage(), $e->getLine(), $e->getFile(), $data['parent_details']);
                     break;
 
                 case 3:
-                    Log::error('Store destination country failed : ' . $e->getMessage());
+                    $log_service->createErrorLog(LogModule::STORE_DESTINATION_COUNTRY_FROM_PARENT, $e->getMessage(), $e->getLine(), $e->getFile(), $data['parent_details']);
                     break;
             }
 
-            Log::error('Store a new parent failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_PARENT, $e->getMessage(), $e->getLine(), $e->getFile(), $data['parent_details']);
             return Redirect::to('client/parent/create' . $query)->withError($e->getMessage());
         }
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Parent', Auth::user()->first_name . ' ' . Auth::user()->last_name, $parent);
+        $log_service->createSuccessLog(LogModule::STORE_PARENT, 'New parent has been added', $data['parent_details']);
 
         if ($query != NULL) {
             if ($q_children_id != NULL && $q_client_prog_id == NULL)
@@ -281,9 +283,7 @@ class ClientParentController extends ClientController
         $events = $this->eventRepository->getAllEvents();
         $ext_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
-        $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C');
-        $programsB2C = $this->programRepository->getAllProgramByType('B2C');
-        $programs = $programsB2BB2C->merge($programsB2C);
+        $programs = $this->programService->snGetProgramsB2c();
         $countries = $this->tagRepository->getAllTags();
         $majors = $this->majorRepository->getAllMajors();
 
@@ -306,7 +306,7 @@ class ClientParentController extends ClientController
         );
     }
 
-    public function update(StoreClientParentRequest $request)
+    public function update(StoreClientParentRequest $request, LogService $log_service)
     {
         $data = $this->initializeVariablesForStoreAndUpdate('parent', $request);
 
@@ -318,8 +318,8 @@ class ClientParentController extends ClientController
         try {
 
             # set referral code null if lead != referral
-            if ($data['parentDetails']['lead_id'] != 'LS005'){
-                $data['parentDetails']['referral_code'] = null;
+            if ($data['parent_details']['lead_id'] != 'LS005'){
+                $data['parent_details']['referral_code'] = null;
             }
 
             # case 1
@@ -341,20 +341,20 @@ class ClientParentController extends ClientController
             // if (!$this->createInterestedProgram($data['interestPrograms'], $parent_id))
             //     throw new Exception('Failed to store interest program', 3);
 
-            # removing the unnecessary information from the parentDetails
-            unset($data['parentDetails']['pr_firstname']);
-            unset($data['parentDetails']['pr_lastname']);
-            unset($data['parentDetails']['pr_mail']);
-            unset($data['parentDetails']['pr_phone']);
-            unset($data['parentDetails']['pr_dob']);
-            unset($data['parentDetails']['pr_insta']);
+            # removing the unnecessary information from the parent_details
+            unset($data['parent_details']['pr_firstname']);
+            unset($data['parent_details']['pr_lastname']);
+            unset($data['parent_details']['pr_mail']);
+            unset($data['parent_details']['pr_phone']);
+            unset($data['parent_details']['pr_dob']);
+            unset($data['parent_details']['pr_insta']);
 
-            # removing the kol_lead_id from the parentDetails array
-            unset($data['parentDetails']['kol_lead_id']);
+            # removing the kol_lead_id from the parent_details array
+            unset($data['parent_details']['kol_lead_id']);
 
             # case 3
             # update parent's information
-            if (!$this->clientRepository->updateClient($parent_id, $data['parentDetails']))
+            if (!$this->clientRepository->updateClient($parent_id, $data['parent_details']))
                 throw new Exception('Failed to update parent', 3);
 
             DB::commit();
@@ -364,30 +364,30 @@ class ClientParentController extends ClientController
 
             switch ($e->getCode()) {
                 case 1:
-                    Log::error('Update school failed from parent : ' . $e->getMessage());
+                    $log_service->createErrorLog(LogModule::UPDATE_SCHOOL_FROM_PARENT, $e->getMessage(), $e->getLine(), $e->getFile(), $data['parent_details']);
                     break;
 
                 case 2:
-                    Log::error('Update student failed from parent : ' . $e->getMessage());
+                    $log_service->createErrorLog(LogModule::UPDATE_STUDENT_FROM_PARENT, $e->getMessage(), $e->getLine(), $e->getFile(), $data['parent_details']);
                     break;
 
                 case 3:
-                    Log::error('Update parent failed : ' . $e->getMessage());
+                    $log_service->createErrorLog(LogModule::UPDATE_PARENT, $e->getMessage(), $e->getLine(), $e->getFile(), $data['parent_details']);
                     break;
             }
 
-            Log::error('Update a parent failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::UPDATE_PARENT, $e->getMessage(), $e->getLine(), $e->getFile(), $data['parent_details']);
             return Redirect::to('client/parent/' . $parent_id . '/edit')->withError($e->getMessage());
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Parent', Auth::user()->first_name . ' ' . Auth::user()->last_name, $data['parentDetails'], $old_parent);
+        $log_service->createSuccessLog(LogModule::UPDATE_PARENT, 'Parent has been updated', $data['parent_details']);
 
         return Redirect::to('client/parent/' . $parent_id)->withSuccess('A parent has been updated.');
     }
 
-    public function updateStatus(Request $request)
+    public function updateStatus(Request $request, LogService $log_service)
     {
         $parent_id = $request->route('parent');
         $new_status = $request->route('status');
@@ -411,7 +411,8 @@ class ClientParentController extends ClientController
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update active status parent failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::UPDATE_STATUS_PARENT, $e->getMessage(), $e->getLine(), $e->getFile(), ['parent_id'  => $parent_id, 'new_status' => $new_status]);
+
             return response()->json(
                 [
                     'success' => false,
@@ -422,8 +423,7 @@ class ClientParentController extends ClientController
 
         # Upload success
         # create log success
-        $this->logSuccess('upload', null, 'Status Client', Auth::user()->first_name . ' ' . Auth::user()->last_name, ['status' => $new_status], ['client_id', $parent_id]);
-
+        $log_service->createSuccessLog(LogModule::UPDATE_STATUS_PARENT, 'Status parent has been updated', ['parent_id'  => $parent_id, 'new_status' => $new_status]);
 
         return response()->json(
             [
@@ -453,7 +453,7 @@ class ClientParentController extends ClientController
         );
     }
 
-    public function cleaningData(Request $request)
+    public function cleaningData(Request $request, LogService $log_service)
     {
         $type = $request->route('type');
         $raw_client_id = $request->route('rawclient_id');
@@ -476,7 +476,8 @@ class ClientParentController extends ClientController
         } catch (Exception $e) {
             DB::rollBack();
 
-            Log::error('Fetch data raw client failed : ' . $e->getMessage() . ' ' . $e->getLine());
+            $log_service->createErrorLog(LogModule::SELECT_RAW_PARENT, $e->getMessage(), $e->getLine(), $e->getFile(), ['type' => $type, 'client_id' => $client_id, 'raw_client_id' => $raw_client_id]);
+
             return Redirect::to('client/parent/raw')->withError('Something went wrong. Please try again or contact the administrator.');
         }
 
@@ -496,7 +497,7 @@ class ClientParentController extends ClientController
         }
     }
 
-    public function convertData(StoreClientRawParentRequest $request)
+    public function convertData(StoreClientRawParentRequest $request, LogService $log_service)
     {
 
         $type = $request->route('type');
@@ -547,16 +548,17 @@ class ClientParentController extends ClientController
         } catch (Exception $e) {
             DB::rollBack();
 
-            Log::error('Convert client failed : ' . $e->getMessage() . ' ' . $e->getLine());
+            $log_service->createErrorLog(LogModule::VERIFIED_RAW_PARENT, $e->getMessage(), $e->getLine(), $e->getFile(), $client_details);
+
             return Redirect::to('client/parent/raw')->withError('Something went wrong. Please try again or contact the administrator.');
         }
 
-        // return Redirect::to('client/parent/' . (isset($client_id) ? $client_id : $raw_client_id))->withSuccess('Convert client successfully.');
+        $log_service->createSuccessLog(LogModule::VERIFIED_RAW_PARENT, 'Raw parent has been verified', $client_details);
+
         return Redirect::to('client/student?st=new-leads')->withSuccess('Convert client successfully.');
     }
 
-    //! need to be done by tomorrow 20 nov 2024
-    public function destroy(Request $request)
+    public function destroy(Request $request, LogService $log_service)
     {
         $client_id = $request->route('parent');
         $client = $this->clientRepository->getClientById($client_id);
@@ -573,18 +575,19 @@ class ClientParentController extends ClientController
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete parent failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_PARENT, $e->getMessage(), $e->getLine(), $e->getFile(), $client->toArray());
+
             return Redirect::to('client/parent')->withError('Failed to delete parent');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Client Student', Auth::user()->first_name . ' ' . Auth::user()->last_name, $client);
+        $log_service->createSuccessLog(LogModule::DELETE_PARENT, 'Parent has been deleted', $client->toArray());
 
         return Redirect::to('client/student?st=new-leads')->withSuccess('Client student successfully deleted');
     }
 
-    public function destroyRaw(Request $request)
+    public function destroyRaw(Request $request, LogService $log_service)
     {
         $raw_client_id = $request->route('rawclient_id');
         $raw_parent = $this->clientRepository->getViewRawClientById($raw_client_id);
@@ -600,37 +603,39 @@ class ClientParentController extends ClientController
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete raw client parent failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_RAW_PARENT, $e->getMessage(), $e->getLine(), $e->getFile(), $raw_parent->toArray());
+
             return Redirect::to('client/parent/raw')->withError('Failed to delete raw parent');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Raw Client', Auth::user()->first_name . ' ' . Auth::user()->last_name, $raw_parent);
+        $log_service->createSuccessLog(LogModule::DELETE_RAW_PARENT, 'Raw parent has been deleted', $raw_parent->toArray());
 
         return Redirect::to('client/parent/raw')->withSuccess('Raw parent successfully deleted');
     }
 
-    public function disconnectStudent(Request $request)
+    public function disconnectStudent(Request $request, LogService $log_service)
     {
-        $studentId = $request->route('student');
+        $student_id = $request->route('student');
         $parent_id = $request->route('parent');
 
         DB::beginTransaction();
         try {
 
-            $this->clientRepository->removeClientRelation($parent_id, $studentId);
+            $this->clientRepository->removeClientRelation($parent_id, $student_id);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Disconnect children failed : ' . $e->getMessage() . ' ' . $e->getLine());
+            $log_service->createErrorLog(LogModule::DISCONNECT_STUDENT, $e->getMessage(), $e->getLine(), $e->getFile(), ['student_id' => $student_id, 'parent_id' => $parent_id]);
+
             return Redirect::to('client/parent/' . $parent_id)->withError('failed to be diconnect children.');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'relation children', Auth::user()->first_name . ' ' . Auth::user()->last_name, ['client_id' => $studentId]);
+        $log_service->createSuccessLog(LogModule::DISCONNECT_STUDENT, 'Successfully disconnect student', ['student_id' => $student_id, 'parent_id' => $parent_id]);
 
         return Redirect::to('client/parent/' . $parent_id)->withSuccess('Successfully disconnect children.');
     }

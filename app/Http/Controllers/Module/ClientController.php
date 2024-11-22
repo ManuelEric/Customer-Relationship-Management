@@ -97,7 +97,7 @@ class ClientController extends Controller
                 if (isset($request->is_funding))
                     $student_details['is_funding'] = $request->is_funding;
 
-                return compact('studentDetails', 'parentDetails');
+                return compact('student_details', 'parent_details');
                 break;
 
             case "student":
@@ -165,8 +165,8 @@ class ClientController extends Controller
                 //     'referral_code' => $student_details['referral_code'],
                 // ];
 
-                // return compact('studentDetails', 'parentDetails');
-                return compact('studentDetails');
+                // return compact('student_details', 'parent_details');
+                return compact('student_details');
                 break;
 
             case "teacher":
@@ -205,7 +205,7 @@ class ClientController extends Controller
                 }
                 unset($teacher_details['kol_lead_id']);
 
-                return compact('teacherDetails');
+                return compact('teacher_details');
                 break;
         }
     }
@@ -213,9 +213,9 @@ class ClientController extends Controller
     public function initializeVariablesForStoreAndUpdate(string $client_type, Request $request)
     {
         # initiate variables student details
-        $student_details = $this->basicVariables($client_type, $request)['studentDetails'] ??= [];
-        $parent_details = $this->basicVariables($client_type, $request)['parentDetails'] ??= [];
-        $teacher_details = $this->basicVariables($client_type, $request)['teacherDetails'] ??= [];
+        $student_details = $this->basicVariables($client_type, $request)['student_details'] ??= [];
+        $parent_details = $this->basicVariables($client_type, $request)['parent_details'] ??= [];
+        $teacher_details = $this->basicVariables($client_type, $request)['teacher_details'] ??= [];
 
         # initiate variable school details
         $school_details = $request->only([
@@ -240,14 +240,14 @@ class ClientController extends Controller
         $interest_majors = $request->st_abrmajor ??= [];
 
         return compact(
-            'studentDetails',
-            'parentDetails',
-            'teacherDetails',
-            'schoolDetails',
+            'student_details',
+            'parent_details',
+            'teacher_details',
+            'school_details',
             // 'interestPrograms',
-            'abroadCountries',
-            'abroadUniversities',
-            'interestMajors',
+            'abroad_countries',
+            'abroad_universities',
+            'interest_majors',
         );
     }
 
