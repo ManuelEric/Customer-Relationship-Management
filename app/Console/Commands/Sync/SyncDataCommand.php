@@ -293,7 +293,6 @@ class SyncDataCommand extends Command
                 break;
 
             case 'all-mentors':
-                //! on development
                 $query = User::with('educations')->withAndWhereHas('roles', function ($sub_query) {
                     $sub_query->where('role_name', 'Mentor');
                 });

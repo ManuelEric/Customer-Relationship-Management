@@ -2048,6 +2048,9 @@ class ClientRepository implements ClientRepositoryInterface
         $clientevent = ClientEvent::with([
                     'client', 'client.school', 'client.destinationCountries', 'client.roles', 'children', 'children.school', 'children.destinationCountries'
                 ])->where('ticket_id', $ticket_no)->first();
+
+        if (!$clientevent)
+            return false;
         
         # when client that registered is actually a parent
         # then return false. why?
