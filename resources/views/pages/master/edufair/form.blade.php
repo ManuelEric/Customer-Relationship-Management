@@ -452,7 +452,7 @@
             function resetForm() {
                 $('#reviewer_name').val(null).trigger('change')
                 $('#score').val(null).trigger('change')
-                tinyMCE.get('review').setContent('');
+                // tinyMCE.get('review').setContent('');
                 $('.put').html('');
                 let url = "{{ url('master/edufair/' . $edufair->id . '/review') }}"
                 $('#formReview').attr('action', url)
@@ -501,7 +501,7 @@
             function resetForm() {
                 $('#reviewer_name').val(null).trigger('change')
                 $('#score').val(null).trigger('change')
-                tinyMCE.get('review').setContent('');
+                // tinyMCE.get('review').setContent('');
                 $('.put').html('');
                 let url = "{{ url('master/edufair/' . $edufair->id . '/review') }}"
                 $('#formReview').attr('action', url)
@@ -516,12 +516,14 @@
                         // handle success
                         $('#reviewer_name').val(data.reviewer_name).trigger('change')
                         $('#score').val(data.score).trigger('change')
-                        tinyMCE.get('review').setContent(data.review);
-
+                        
+                        // tinyMCE.get('review').setContent(data.review);
+                        
                         let url = "{{ url('master/edufair/') }}/" + data.eduf_id + "/review/" + data.id
                         $('#formReview').attr('action', url)
-
-                        let html = '@method('put')'
+                        
+                        let html = '{{ method_field('PUT') }}'
+                        
                         $('.put').html(html);
                     })
                     .catch(function(error) {

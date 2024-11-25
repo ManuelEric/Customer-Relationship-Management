@@ -35,7 +35,7 @@ class StoreLeadRequest extends FormRequest
     {
         $rules = [
             'kol' => 'sometimes',
-            'score' => 'required|integer',
+            'score' => 'required|numeric|gt:0',
             'department_id' => 'required|exists:tbl_department,id'
         ];
 
