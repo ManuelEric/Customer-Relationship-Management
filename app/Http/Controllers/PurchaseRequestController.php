@@ -110,6 +110,7 @@ class PurchaseRequestController extends Controller
 
         return view('pages.master.purchase.form')->with(
             [
+                'edit' => false,
                 'purchaseRequest' => $purchase_request,
                 'departments' => $departments,
                 'employees' => $employees,
