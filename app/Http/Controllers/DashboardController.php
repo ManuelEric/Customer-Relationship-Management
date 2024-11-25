@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\FetchClientStatus;
-use App\DataTables\OutstandingDataTable;
 use App\Http\Controllers\Module\AlarmController;
 use App\Http\Controllers\Module\DigitalDashboardController;
 use App\Http\Controllers\Module\SalesDashboardController;
 use App\Http\Controllers\Module\FinanceDashboardController;
 use App\Http\Controllers\Module\PartnerDashboardController;
-use App\Http\Controllers\Module\testController;
 use App\Http\Traits\Modules\GetClientStatusTrait;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
@@ -38,23 +35,10 @@ use App\Interfaces\TargetSignalRepositoryInterface;
 use App\Interfaces\TargetTrackingRepositoryInterface;
 use App\Interfaces\LeadTargetRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
-use App\Models\Client;
-use App\Models\User;
-use App\Models\UserClient;
-use App\Repositories\ClientRepository;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Session;
-use App\Models\v1\Student as CRMStudent;
-use Carbon\CarbonImmutable;
 use Exception;
-use Illuminate\Support\Benchmark;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Laravel\Passport\Passport;
-use Mostafaznv\LaraCache\Facades\LaraCache;
 
 class DashboardController extends SalesDashboardController
 {
@@ -122,6 +106,8 @@ class DashboardController extends SalesDashboardController
 
     public function index(Request $request)
     {
+        $sales = $partnership = $finance = $alarm = $digital = [];
+
         // Cache::flush();
         $data = array();
         $timeStoredInSecond = 60;

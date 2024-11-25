@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class GenerateClientLogCommand extends Command
 {
@@ -26,6 +27,25 @@ class GenerateClientLogCommand extends Command
      */
     public function handle()
     {   
+        /**
+         * below is the function to generate client log for unverified clients
+         */
+        DB::beginTransaction();
+        try {
+
+            $this->generateDeletedClient();
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->error($e->getMessage());
+            return Command::FAILURE;
+        }
+        return Command::SUCCESS;
+
+        
+        /**
+         * below is the function to generate client log for verified clients
+         */
         $skipped_users = \App\Models\UserClient::withTrashed()->whereNull('category')->where('is_verified', 'Y')->pluck('id')->toArray();
 
         $user_clients = \App\Models\UserClient::with([
@@ -115,4 +135,45 @@ class GenerateClientLogCommand extends Command
 
         return $client->clientProgram[0]->clientprog_id;
     }
+
+    private function generateDeletedClient()
+    {
+        $deleted_client = \App\Models\UserClient::with([
+            'clientProgram' => function ($query) {
+                $query->select('clientprog_id', 'client_id', 'updated_at')->orderBy('updated_at', 'DESC')->limit(1);
+            }
+        ])->
+        onlyTrashed()->
+        whereNull('category')->
+        where('is_verified', 'N')->
+        get();
+
+        $mapped_user_clients = $deleted_client->map(function ($value) {
+
+            $category = $value->category == NULL && $value->is_verified == 'N' ? 'trash' : $value->category;
+            [$created_at, $updated_at] = $this->getDateBasedOnTypeClient($category, $value);
+
+            return [
+                'client_id' => $value->id,
+                'first_name' => $value->first_name,
+                'last_name' => $value->last_name,
+                'category' => $category,
+                'lead_source' => $value->lead_id,
+                'inputted_from' => 'manual',
+                'unique_key' => \Illuminate\Support\Str::ulid(),
+                'clientprog_id' => $this->getClientProg($value),
+                'created_at' => $created_at,
+                'updated_at' => $updated_at
+            ];
+        });
+
+        foreach ($deleted_client as $client) {
+            $client->category = 'trash';
+            $client->save();
+        }
+
+        return \App\Models\ClientLog::insert($mapped_user_clients->toArray());
+    }
+
+
 }

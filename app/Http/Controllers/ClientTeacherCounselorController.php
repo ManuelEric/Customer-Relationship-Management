@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\LogModule;
 use App\Http\Controllers\Module\ClientController;
 use App\Http\Requests\StoreClientRawTeacherRequest;
 use App\Http\Requests\StoreClientTeacherCounselorRequest;
@@ -20,6 +21,7 @@ use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\SyncClientTrait;
 use App\Imports\TeacherImport;
 use App\Models\School;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -60,9 +62,9 @@ class ClientTeacherCounselorController extends ClientController
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $statusClient = $request->get('st');
+            $status_client = $request->get('st');
 
-            switch ($statusClient) {
+            switch ($status_client) {
 
                 case "inactive":
                     $model = $this->clientRepository->getInactiveTeacher(true);
@@ -112,7 +114,7 @@ class ClientTeacherCounselorController extends ClientController
         );
     }
 
-    public function store(StoreClientTeacherCounselorRequest $request)
+    public function store(StoreClientTeacherCounselorRequest $request, LogService $log_service)
     {
         $data = $this->initializeVariablesForStoreAndUpdate('teacher', $request);
 
@@ -122,13 +124,13 @@ class ClientTeacherCounselorController extends ClientController
             # case 1
             # create new school
             # when sch_id is "add-new" 
-            if (!$data['teacherDetails']['sch_id'] = $this->createSchoolIfAddNew($data['schoolDetails']))
+            if (!$data['teacher_details']['sch_id'] = $this->createSchoolIfAddNew($data['school_details']))
                 throw new Exception('Failed to store new school', 1);
 
 
             # case 2
             # create new user client as teacher / counselor
-            if (!$newTeacher = $this->clientRepository->createClient('Teacher/Counselor', $data['teacherDetails']))
+            if (!$new_teacher = $this->clientRepository->createClient('Teacher/Counselor', $data['teacher_details']))
                 throw new Exception('Failed to store new teacher / counselor', 2);
 
             DB::commit();
@@ -139,29 +141,29 @@ class ClientTeacherCounselorController extends ClientController
 
             switch ($e->getCode()) {
                 case 1:
-                    Log::error('Store school failed from teacher / counselor : ' . $e->getMessage());
+                    $log_service->createErrorLog(LogModule::STORE_SCHOOL_FROM_TEACHER, $e->getMessage(), $e->getLine(), $e->getFile(), $data['school_details']);
                     break;
 
                 case 2:
-                    Log::error('Store a new client failed : ' . $e->getMessage());
+                    $log_service->createErrorLog(LogModule::STORE_TEACHER, $e->getMessage(), $e->getLine(), $e->getFile(), $data['teacher_details']);
                     break;
             }
 
-            Log::error('Store a new teacher / counselor failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_TEACHER, $e->getMessage(), $e->getLine(), $e->getFile(), $data['teacher_details']);
             return Redirect::to('client/teacher-counselor/create')->withError($e->getMessage());
         }
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $newTeacher);
+        $log_service->createSuccessLog(LogModule::STORE_TEACHER, 'Teacher has been added', $data['teacher_details']);
 
         return Redirect::to('client/teacher-counselor')->withSuccess('A new teacher / counselor has been registered.');
     }
 
     public function show(Request $request)
     {
-        $teacher_counselorId = $request->route('teacher_counselor');
-        $teacher_counselor = $this->clientRepository->getClientById($teacher_counselorId);
+        $teacher_counselor_id = $request->route('teacher_counselor');
+        $teacher_counselor = $this->clientRepository->getClientById($teacher_counselor_id);
 
         return view('pages.client.teacher.view')->with(
             [
@@ -172,8 +174,8 @@ class ClientTeacherCounselorController extends ClientController
 
     public function edit(Request $request)
     {
-        $teacher_counselorId = $request->route('teacher_counselor');
-        $teacher_counselor = $this->clientRepository->getClientById($teacher_counselorId);
+        $teacher_counselor_id = $request->route('teacher_counselor');
+        $teacher_counselor = $this->clientRepository->getClientById($teacher_counselor_id);
         $schools = $this->schoolRepository->getAllSchools();
         $curriculums = $this->curriculumRepository->getAllCurriculums();
         $leads = $this->leadRepository->getAllMainLead();
@@ -196,9 +198,9 @@ class ClientTeacherCounselorController extends ClientController
         );
     }
 
-    public function update(StoreClientTeacherCounselorRequest $request)
+    public function update(StoreClientTeacherCounselorRequest $request, LogService $log_service)
     {
-        $newTeacherCounselorDetails = $request->only([
+        $new_teacher_counselor_details = $request->only([
             'first_name',
             'last_name',
             'mail',
@@ -218,7 +220,7 @@ class ClientTeacherCounselorController extends ClientController
             'referral_code'
         ]);
 
-        $newTeacherCounselorDetails['phone'] = $this->tnSetPhoneNumber($request->phone);
+        $new_teacher_counselor_details['phone'] = $this->tnSetPhoneNumber($request->phone);
 
         # set lead_id based on lead_id & kol_lead_id
         # when lead_id is kol
@@ -228,19 +230,19 @@ class ClientTeacherCounselorController extends ClientController
         # then lead_id is lead_id
         if ($request->lead_id == "kol") {
 
-            unset($newTeacherCounselorDetails['lead_id']);
-            $newTeacherCounselorDetails['lead_id'] = $request->kol_lead_id;
+            unset($new_teacher_counselor_details['lead_id']);
+            $new_teacher_counselor_details['lead_id'] = $request->kol_lead_id;
         }
-        unset($newTeacherCounselorDetails['kol_lead_id']);
-        // return $newTeacherCounselorDetails;
+        unset($new_teacher_counselor_details['kol_lead_id']);
+        // return $new_teacher_counselor_details;
         // exit;
 
         DB::beginTransaction();
         try {
 
             # set referral code null if lead != referral
-            if ($newTeacherCounselorDetails['lead_id'] != 'LS005'){
-                $newTeacherCounselorDetails['referral_code'] = null;
+            if ($new_teacher_counselor_details['lead_id'] != 'LS005'){
+                $new_teacher_counselor_details['referral_code'] = null;
             }
 
             # case 1
@@ -248,7 +250,7 @@ class ClientTeacherCounselorController extends ClientController
             # when sch_id is "add-new" 
             if ($request->sch_id == "add-new") {
 
-                $schoolDetails = $request->only([
+                $school_details = $request->only([
                     'sch_name',
                     // 'sch_location',
                     'sch_type',
@@ -259,7 +261,7 @@ class ClientTeacherCounselorController extends ClientController
                 $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
                 $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
 
-                if (!$school = $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails))
+                if (!$school = $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $school_details))
                     throw new Exception('Failed to store new school', 1);
 
                 # insert school curriculum
@@ -268,19 +270,19 @@ class ClientTeacherCounselorController extends ClientController
 
 
                 # remove field sch_id from student detail if exist
-                unset($newTeacherCounselorDetails['sch_id']);
+                unset($new_teacher_counselor_details['sch_id']);
 
                 # create index sch_id to student details
                 # filled with a new school id that was inserted before
-                $newTeacherCounselorDetails['sch_id'] = $school->sch_id;
+                $new_teacher_counselor_details['sch_id'] = $school->sch_id;
             }
 
 
             # case 2
             # create new user client as teacher / counselor
-            $teacher_counselorId = $request->route('teacher_counselor');
-            $oldTeacher = $this->clientRepository->getClientById($teacher_counselorId);
-            if (!$this->clientRepository->updateClient($teacher_counselorId, $newTeacherCounselorDetails))
+            $teacher_counselor_id = $request->route('teacher_counselor');
+            $old_teacher = $this->clientRepository->getClientById($teacher_counselor_id);
+            if (!$this->clientRepository->updateClient($teacher_counselor_id, $new_teacher_counselor_details))
                 throw new Exception('Failed to store new teacher / counselor', 2);
 
             DB::commit();
@@ -290,32 +292,32 @@ class ClientTeacherCounselorController extends ClientController
 
             switch ($e->getCode()) {
                 case 1:
-                    Log::error('Update school failed from teacher / counselor : ' . $e->getMessage());
+                    $log_service->createErrorLog(LogModule::UPDATE_SCHOOL_FROM_TEACHER, $e->getMessage(), $e->getLine(), $e->getFile(), $school_details);
                     break;
 
                 case 2:
-                    Log::error('Update a client failed : ' . $e->getMessage());
+                    $log_service->createErrorLog(LogModule::UPDATE_TEACHER, $e->getMessage(), $e->getLine(), $e->getFile(), $new_teacher_counselor_details);
                     break;
             }
 
-            Log::error('Update a new teacher / counselor failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::UPDATE_TEACHER, $e->getMessage(), $e->getLine(), $e->getFile(), $new_teacher_counselor_details);
             return Redirect::to('client/teacher-counselor/')->withError($e->getMessage());
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Parent', Auth::user()->first_name . ' '. Auth::user()->last_name, $newTeacherCounselorDetails, $oldTeacher);
+        $log_service->createSuccessLog(LogModule::UPDATE_TEACHER, 'Teacher has been updated', $new_teacher_counselor_details);
 
-        return Redirect::to('client/teacher-counselor/' . $teacher_counselorId)->withSuccess('A teacher / counselor\'s profile has been updated.');
+        return Redirect::to('client/teacher-counselor/' . $teacher_counselor_id)->withSuccess('A teacher / counselor\'s profile has been updated.');
     }
 
-    public function updateStatus(Request $request)
+    public function updateStatus(Request $request, LogService $log_service)
     {
-        $teacherId = $request->route('teacher');
-        $newStatus = $request->route('status');
+        $teacher_id = $request->route('teacher');
+        $new_status = $request->route('status');
 
         # validate status
-        if (!in_array($newStatus, [0, 1])) {
+        if (!in_array($new_status, [0, 1])) {
 
             return response()->json(
                 [
@@ -328,12 +330,13 @@ class ClientTeacherCounselorController extends ClientController
         DB::beginTransaction();
         try {
 
-            $this->clientRepository->updateActiveStatus($teacherId, $newStatus);
+            $this->clientRepository->updateActiveStatus($teacher_id, $new_status);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update active status client failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::UPDATE_STATUS_TEACHER, $e->getMessage(), $e->getLine(), $e->getFile(), ['teacher_id' => $teacher_id, 'status' => $new_status]);
+
             return response()->json(
                 [
                     'success' => false,
@@ -341,6 +344,8 @@ class ClientTeacherCounselorController extends ClientController
                 ]
             );
         }
+
+        $log_service->createSuccessLog(LogModule::UPDATE_STATUS_TEACHER, 'Status teacher has been updated', ['teacher_id' => $teacher_id, 'status' => $new_status]);
 
         return response()->json(
             [
@@ -352,43 +357,27 @@ class ClientTeacherCounselorController extends ClientController
 
     public function getClientEventByTeacherId(Request $request)
     {
-        $teacherId = $request->route('teacher');
-        return $this->clientEventRepository->getAllClientEventByClientIdDataTables($teacherId);
+        $teacher_id = $request->route('teacher');
+        return $this->clientEventRepository->getAllClientEventByClientIdDataTables($teacher_id);
     }
 
-    public function import(StoreImportExcelRequest $request)
-    {
-        Cache::put('auth', Auth::user());
-        Cache::put('import_id', Carbon::now()->timestamp . '-import-teacher');
-
-        $file = $request->file('file');
-
-        // Excel::queueImport(new TeacherImport(Auth::user()->first_name . ' '. Auth::user()->last_name), $file);
-        (new TeacherImport())->queue($file)->allOnQueue('imports-teacher');
-
-        // $import = new TeacherImport;
-        // $import->import($file);
-
-        return back()->withSuccess('Import teacher start progress');
-    }
-
-    public function cleaningData(Request $request)
+    public function cleaningData(Request $request, LogService $log_service)
     {
         $type = $request->route('type');
-        $rawClientId = $request->route('rawclient_id');
-        $clientId = $request->route('client_id');
+        $raw_client_id = $request->route('rawclient_id');
+        $client_id = $request->route('client_id');
 
         DB::beginTransaction();
         try {
 
             $schools = $this->schoolRepository->getVerifiedSchools();
 
-            $rawClient = $this->clientRepository->getViewRawClientById($rawClientId);
-            if (!isset($rawClient))
+            $raw_client = $this->clientRepository->getViewRawClientById($raw_client_id);
+            if (!isset($raw_client))
                 return Redirect::to('client/teacher-counselor/raw')->withError('Data does not exist');
 
-            if ($clientId != null){
-                $client = $this->clientRepository->getViewClientById($clientId);
+            if ($client_id != null){
+                $client = $this->clientRepository->getViewClientById($client_id);
                 if (!isset($client))
                     return Redirect::to('client/teacher-counselor/raw')->withError('Data does not exist');
             }
@@ -396,14 +385,17 @@ class ClientTeacherCounselorController extends ClientController
         } catch (Exception $e) {
             DB::rollBack();
 
-            Log::error('Fetch data raw client failed : ' . $e->getMessage() . ' ' . $e->getLine());
+            $log_service->createErrorLog(LogModule::SELECT_RAW_TEACHER, $e->getMessage(), $e->getLine(), $e->getFile(), $raw_client->toArray());
+
             return Redirect::to('client/teacher-counselor/raw')->withError('Something went wrong. Please try again or contact the administrator.');
         }
+
+        $log_service->createSuccessLog(LogModule::SELECT_RAW_TEACHER, 'Successfully fetch data raw teacher', $raw_client->toArray());
 
         switch ($type) {
             case 'comparison':
                 return view('pages.client.teacher.raw.form-comparison')->with([
-                    'rawClient' => $rawClient,
+                    'rawClient' => $raw_client,
                     'client' => $client,
                     'schools' => $schools,
                 ]);
@@ -411,23 +403,23 @@ class ClientTeacherCounselorController extends ClientController
 
             case 'new':
                 return view('pages.client.teacher.raw.form-new')->with([
-                    'rawClient' => $rawClient,
+                    'rawClient' => $raw_client,
                     'schools' => $schools,
                 ]);
                 break;
         }
     }
 
-    public function convertData(StoreClientRawTeacherRequest $request)
+    public function convertData(StoreClientRawTeacherRequest $request, LogService $log_service)
     {
 
         $type = $request->route('type');
-        $clientId = $request->route('client_id');
-        $rawclientId = $request->route('rawclient_id');
+        $client_id = $request->route('client_id');
+        $raw_client_id = $request->route('rawclient_id');
 
         $name = $this->explodeName($request->nameFinal);
 
-        $clientDetails = [
+        $client_details = [
             'first_name' => $name['firstname'],
             'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
             'mail' => $request->emailFinal,
@@ -441,24 +433,24 @@ class ClientTeacherCounselorController extends ClientController
             switch ($type) {
                 case 'merge':
 
-                    $this->clientRepository->updateClient($clientId, $clientDetails);
+                    $this->clientRepository->updateClient($client_id, $client_details);
 
-                    $rawTeacher = $this->clientRepository->getViewRawClientById($rawclientId);
+                    $raw_teacher = $this->clientRepository->getViewRawClientById($raw_client_id);
 
                     # delete parent from raw client
-                    $this->clientRepository->deleteClient($rawclientId);
+                    $this->clientRepository->deleteClient($raw_client_id);
 
                     break;
 
                 case 'new':
-                    $rawTeacher = $this->clientRepository->getViewRawClientById($rawclientId);
-                    $lead_id = $rawTeacher->lead_id;
-                    $register_by = $rawTeacher->register_by;
+                    $raw_teacher = $this->clientRepository->getViewRawClientById($raw_client_id);
+                    $lead_id = $raw_teacher->lead_id;
+                    $register_by = $raw_teacher->register_by;
 
-                    $clientDetails['lead_id'] = $lead_id;
-                    $clientDetails['register_by'] = $register_by;
+                    $client_details['lead_id'] = $lead_id;
+                    $client_details['register_by'] = $register_by;
 
-                    $newTeacher = $this->clientRepository->updateClient($rawclientId, $clientDetails);
+                    $new_teacher = $this->clientRepository->updateClient($raw_client_id, $client_details);
 
                     break;
             }
@@ -471,33 +463,65 @@ class ClientTeacherCounselorController extends ClientController
             return Redirect::to('client/teacher-counselor/raw')->withError('Something went wrong. Please try again or contact the administrator.');
         }
 
-        return Redirect::to('client/teacher-counselor/'. (isset($clientId) ? $clientId : $rawclientId))->withSuccess('Convert client successfully.');
+        $log_service->createSuccessLog(LogModule::VERIFIED_RAW_TEACHER, 'Raw teacher has been verified', $client_details);
+
+        return Redirect::to('client/teacher-counselor/'. (isset($client_id) ? $client_id : $raw_client_id))->withSuccess('Convert client successfully.');
     }
 
-    public function destroyRaw(Request $request)
+    public function destroy(Request $request, LogService $log_service)
     {
-        $rawclientId = $request->route('rawclient_id');
-        $rawTeacher = $this->clientRepository->getViewRawClientById($rawclientId);
+        $client_id = $request->route('teacher_counselor');
+        $client = $this->clientRepository->getClientById($client_id);
 
         DB::beginTransaction();
         try {
 
-            if (!isset($rawTeacher))
-                return Redirect::to('client/teacher-counselor/raw')->withError('Data does not exist');
+            if (!isset($client))
+                return Redirect::back()->withError('Data does not exist');
+    
+            $this->clientRepository->deleteClient($client_id);
 
-
-            $this->clientRepository->deleteClient($rawclientId);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete raw client teacher failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_TEACHER, $e->getMessage(), $e->getLine(), $e->getFile(), $client->toArray());
+
+            return Redirect::back()->withError('Failed to delete teacher');
+        }
+
+        # Delete success
+        # create log success
+        $log_service->createSuccessLog(LogModule::DELETE_TEACHER, 'Teacher has been deleted', $client->toArray());
+
+        return Redirect::back()->withSuccess('Teacher/Counselor successfully deleted');
+    }
+
+    public function destroyRaw(Request $request, LogService $log_service)
+    {
+        $raw_client_id = $request->route('rawclient_id');
+        $raw_teacher = $this->clientRepository->getViewRawClientById($raw_client_id);
+
+        DB::beginTransaction();
+        try {
+
+            if (!isset($raw_teacher))
+                return Redirect::to('client/teacher-counselor/raw')->withError('Data does not exist');
+
+
+            $this->clientRepository->deleteClient($raw_client_id);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            $log_service->createErrorLog(LogModule::DELETE_RAW_TEACHER, $e->getMessage(), $e->getLine(), $e->getFile(), $raw_teacher->toArray());
+
             return Redirect::to('client/teacher-counselor/raw')->withError('Failed to delete raw teacher');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Raw Client', Auth::user()->first_name . ' '. Auth::user()->last_name, $rawTeacher);
+        $log_service->createSuccessLog(LogModule::DELETE_RAW_TEACHER, 'Raw teacher has been deleted', $raw_teacher->toArray());
 
         return Redirect::to('client/teacher-counselor/raw')->withSuccess('Raw teacher successfully deleted');
     }

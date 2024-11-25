@@ -98,7 +98,7 @@ class CorporatePicController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            $log_service->createErrorLog(LogModule::DELETE_CORPORATE_PIC, $e->getMessage(), $e->getLine(), $e->getFile(), $updated_corporate_pic);
+            $log_service->createErrorLog(LogModule::UPDATE_CORPORATE_PIC, $e->getMessage(), $e->getLine(), $e->getFile(), $updated_corporate_pic);
 
             return Redirect::to('instance/corporate/'.$corporate_id)->withError('Failed to update corporate PIC');
             
@@ -114,22 +114,26 @@ class CorporatePicController extends Controller
     {
         $corporate_id = $request->route('corporate');
         $pic_id = $request->route('detail');
+        $pic = $this->corporatePicRepository->getCorporatePicById($pic_id);
+        
+        if(isset($pic->partner_agreement))
+            return Redirect::to('instance/corporate/'.$corporate_id)->withError('Failed to delete this PIC, there is an agreement related to this PIC');
 
         DB::beginTransaction();
         try {
 
-            $delete_corporate_pic = $deleteCorporatePicAction->execute($pic_id);
+            $deleteCorporatePicAction->execute($pic_id);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            $log_service->createErrorLog(LogModule::DELETE_CORPORATE_PIC, $e->getMessage(), $e->getLine(), $e->getFile(), $delete_corporate_pic->toArray());
+            $log_service->createErrorLog(LogModule::DELETE_CORPORATE_PIC, $e->getMessage(), $e->getLine(), $e->getFile(), ['corp_id' => $corporate_id, 'pic_id' => $pic_id]);
 
             return Redirect::to('instance/corporate/'.$corporate_id)->withError('Failed to delete corporate PIC');
         }
 
         # create log success
-        $log_service->createSuccessLog(LogModule::DELETE_CORPORATE_PIC, 'Corporate pic has been deleted', $delete_corporate_pic->toArray());
+        $log_service->createSuccessLog(LogModule::DELETE_CORPORATE_PIC, 'Corporate pic has been deleted', ['corp_id' => $corporate_id, 'pic_id' => $pic_id]);
 
         return Redirect::to('instance/corporate/'.$corporate_id)->withSuccess('Corporate PIC successfully deleted');
     }

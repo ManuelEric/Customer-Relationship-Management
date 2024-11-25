@@ -17,7 +17,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($partnerPrograms as $partnerProgram)
+                    @forelse ($partner_programs as $partnerProgram)
                         <tr>
                             <td class="text-center">{{ $loop->iteration }}</td>
                             <td>{{ $partnerProgram->corp->corp_name }}</td>
@@ -25,7 +25,13 @@
                             <td>{{ $partnerProgram->success_date }}</td>
                             <td>{{ $partnerProgram->participants }}</td>
                             <td>Rp. {{ number_format($partnerProgram->total_fee) }}</td>
-                            <td>{{ $partnerProgram->user->first_name }} {{ $partnerProgram->user->last_name }}</td>
+                            <td>
+                                @if ($partnerProgram->user)
+                                {{ $partnerProgram->user->first_name }} {{ $partnerProgram->user->last_name }}
+                                @else
+                                N/A
+                                @endif
+                            </td>
                         </tr>
                     @empty
                         <td colspan="7" class="text-center">Not partner program yet</td>
@@ -35,7 +41,7 @@
                     <tr>
                         <th colspan="5">Total Amount</th>
                         <th colspan="2" class="text-center">Rp.
-                            {{ number_format($partnerPrograms->sum('total_fee')) }}</th>
+                            {{ number_format($partner_programs->sum('total_fee')) }}</th>
                     </tr>
                 </tfoot>
             </table>

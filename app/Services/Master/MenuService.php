@@ -24,7 +24,7 @@ class MenuService
 
     # Purpose:
     # Get menu access from department access and user access
-    public function snGetMenuAccess(int $department_id, string $user_id)
+    public function snGetMenuAccess(int $department_id, string $user_id = null)
     {
         try {
             

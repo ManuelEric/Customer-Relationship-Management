@@ -22,7 +22,7 @@ class CreateSchoolDetailAction
 
     public function execute(
         StoreSchoolDetailRequest $request,
-        Array $school_details
+        Array $validated
     )
     {
         # using index 0

@@ -1,37 +1,21 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Actions\Report\Sales;
 
-use App\Interfaces\ClientLogRepositoryInterface;
 use App\Services\LeadTrackerService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
-class LeadTrackerController extends Controller
+class LeadTrackerReportAction
 {
-    private $leadTrackerService;
+    private LeadTrackerService $leadTrackerService;
 
     public function __construct(LeadTrackerService $leadTrackerService)
     {
         $this->leadTrackerService = $leadTrackerService;
     }
 
-    public function castToCarbon(String $item): Carbon
+    public function execute($date_range)
     {
-        return Carbon::parse($item);
-    }
-
-    public function selectCurrentWeek(): Array
-    {
-        $week_start_date = Carbon::now()->startOfWeek();
-        $week_end_date = Carbon::now()->endOfWeek();
-        return [$week_start_date, $week_end_date];
-    }
-    
-    public function index(Request $request)
-    {
-        //! on progress
-        $date_range = $request->get('daterange');
         [$start_date, $end_date] = ($date_range) ? array_map([$this, "castToCarbon"], explode('-', $date_range)) : $this->selectCurrentWeek();
         $end_date = $end_date->endOfDay();
 
@@ -54,8 +38,18 @@ class LeadTrackerController extends Controller
             ];
         });
 
-        return view('pages.report.lead.index')->with(
-            compact('start_date', 'end_date', 'lead_summary', 'lead_by_product', 'lead_by_sales', 'mapped_sales')
-        );
+        return compact('start_date', 'end_date', 'lead_summary', 'lead_by_product', 'lead_by_sales', 'mapped_sales');
+    }
+
+    private function castToCarbon(String $item): Carbon
+    {
+        return Carbon::parse($item);
+    }
+
+    private function selectCurrentWeek(): Array
+    {
+        $week_start_date = Carbon::now()->startOfWeek();
+        $week_end_date = Carbon::now()->endOfWeek();
+        return [$week_start_date, $week_end_date];
     }
 }

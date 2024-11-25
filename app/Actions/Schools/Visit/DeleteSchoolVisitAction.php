@@ -17,9 +17,11 @@ class DeleteSchoolVisitAction
         $visit_id
     )
     {
+        $school_visit = $this->schoolVisitRepository->getSchoolVisitById($visit_id);
+        
         # Delete schoil visit
-        $deleted_school_visit = $this->schoolVisitRepository->deleteSchoolVisit($visit_id);
+        $this->schoolVisitRepository->deleteSchoolVisit($visit_id);
 
-        return $deleted_school_visit;
+        return $school_visit;
     }
 }

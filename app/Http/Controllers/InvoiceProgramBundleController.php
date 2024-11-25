@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\LogModule;
 use App\Http\Requests\StoreInvoiceProgramBundleRequest;
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Http\Traits\LoggingTrait;
@@ -14,6 +15,7 @@ use App\Jobs\Invoice\ProcessEmailRequestSignJob;
 use App\Jobs\Invoice\ProcessEmailRequestSignJobBundle;
 use App\Jobs\Invoice\ProcessEmailToClientJob;
 use App\Models\InvoiceProgram;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -46,9 +48,9 @@ class InvoiceProgramBundleController extends Controller
 
     public function createBundle($uuid)
     {
-        $incomingRequestBundle = $uuid;
+        $incoming_request_bundle = $uuid;
 
-        if (!isset($incomingRequestBundle) or !$bundle = $this->clientProgramRepository->getBundleProgramByUUID($incomingRequestBundle)){
+        if (!isset($incoming_request_bundle) or !$bundle = $this->clientProgramRepository->getBundleProgramByUUID($incoming_request_bundle)){
             return Redirect::to('invoice/client-program?s=needed&b=true')->withError('We cannot continue the process at this time. Please try again later.');
         }
 
@@ -61,10 +63,10 @@ class InvoiceProgramBundleController extends Controller
         );
     }
 
-    public function storeBundle(StoreInvoiceProgramBundleRequest $request)
+    public function storeBundle(StoreInvoiceProgramBundleRequest $request, LogService $log_service)
     {
-        $bundlingId = $request->bundling_id;
-        $bundling = $this->clientProgramRepository->getClientProgramById($bundlingId);
+        $bundling_id = $request->bundling_id;
+        $bundling = $this->clientProgramRepository->getClientProgramById($bundling_id);
 
         $raw_currency = [];
         $raw_currency[0] = $request->currency;
@@ -78,7 +80,7 @@ class InvoiceProgramBundleController extends Controller
 
         if (in_array('idr', $raw_currency)) {
 
-            $invoiceDetails = $request->only([
+            $invoice_details = $request->only([
                 'bundling_id',
                 'currency',
                 'is_session',
@@ -96,7 +98,7 @@ class InvoiceProgramBundleController extends Controller
             $param = "idr";
         } elseif (in_array('other', $raw_currency)) {
 
-            $invoiceDetails = [
+            $invoice_details = [
                 'bundling_id' => $request->bundling_id,
                 'currency' => $request->currency,
                 'curs_rate' => $request->curs_rate,
@@ -120,14 +122,14 @@ class InvoiceProgramBundleController extends Controller
             $param = "other";
         } 
 
-        $invoiceDetails['inv_category'] = $param;
-        // $invoiceDetails['session'] = isset($invoiceDetails['session']) && $invoiceDetails['session'] != 0 ? $invoiceDetails['session'] : 0;
+        $invoice_details['inv_category'] = $param;
+        // $invoice_details['session'] = isset($invoice_details['session']) && $invoice_details['session'] != 0 ? $invoice_details['session'] : 0;
         if ($currency !== null)
-            $invoiceDetails['currency'] = $currency;
+            $invoice_details['currency'] = $currency;
 
-        $invoiceDetails['inv_paymentmethod'] = $invoiceDetails['inv_paymentmethod'] == "full" ? 'Full Payment' : 'Installment';
+        $invoice_details['inv_paymentmethod'] = $invoice_details['inv_paymentmethod'] == "full" ? 'Full Payment' : 'Installment';
 
-        $invoiceDetails['created_at'] = $invoiceDetails['invoice_date'] . ' ' . date('H:i:s');
+        $invoice_details['created_at'] = $invoice_details['invoice_date'] . ' ' . date('H:i:s');
 
         DB::beginTransaction();
         try {
@@ -135,61 +137,62 @@ class InvoiceProgramBundleController extends Controller
             $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
 
             # Use Trait Create Invoice Id
-            $inv_id = $this->getInvoiceId($last_id, 'BDL', $invoiceDetails['invoice_date']);
+            $inv_id = $this->getInvoiceId($last_id, 'BDL', $invoice_details['invoice_date']);
          
-            $invoiceProgramCreated = $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 1] + $invoiceDetails);
-            // $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 0] + $invoiceDetails);
+            $invoice_program_created = $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 1] + $invoice_details);
+            // $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 0] + $invoice_details);
 
             # add installment details
             # check if installment information has been filled
             # either idr or other currency
 
-            if ($invoiceDetails['inv_paymentmethod'] == "Installment") {
+            if ($invoice_details['inv_paymentmethod'] == "Installment") {
 
                 # and using param to fetch data based on rupiah or other currency
                 $limit = $param == "idr" ? count($request->invdtl_installment) : count($request->invdtl_installment__other);
 
                 for ($i = 0; $i < $limit; $i++) {
 
-                    $installmentDetails[$i] = [
+                    $installment_details[$i] = [
                         'inv_id' => $inv_id,
                         'invdtl_installment' => $param == "idr" ? $request->invdtl_installment[$i] : $request->invdtl_installment__other[$i],
                         'invdtl_duedate' => $param == "idr" ? $request->invdtl_duedate[$i] : $request->invdtl_duedate__other[$i],
                         'invdtl_percentage' => $param == "idr" ? $request->invdtl_percentage[$i] : $request->invdtl_percentage__other[$i],
                         'invdtl_amountidr' => $param == "idr" ? $request->invdtl_amountidr[$i] : $request->invdtl_amountidr__other[$i],
-                        'invdtl_cursrate' => $param == "other" ? $invoiceDetails['curs_rate'] : null,
-                        'invdtl_currency' => $invoiceDetails['currency'],
+                        'invdtl_cursrate' => $param == "other" ? $invoice_details['curs_rate'] : null,
+                        'invdtl_currency' => $invoice_details['currency'],
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now()
                     ];
 
                     if ($param == "other")
-                        $installmentDetails[$i]['invdtl_amount'] = $request->invdtl_amount__other[$i];
+                        $installment_details[$i]['invdtl_amount'] = $request->invdtl_amount__other[$i];
                 }
 
-                $this->invoiceDetailRepository->createInvoiceDetail($installmentDetails);
+                $this->invoiceDetailRepository->createInvoiceDetail($installment_details);
             }
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store invoice bundle program failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_INVOICE_PROGRAM_BUNDLE, $e->getMessage(), $e->getLine(), $e->getFile(), $invoice_details);
+
             return Redirect::to('invoice/client-program/create?bundle=' . $request->bundling_id)->withError('Failed to store invoice bundle program');
         }
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Invoice bundle Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoiceProgramCreated);
+        $log_service->createSuccessLog(LogModule::STORE_INVOICE_PROGRAM_BUNDLE, 'New invoice program bundle has been added', $invoice_details);
 
         return Redirect::to('invoice/client-program/bundle/'. $request->bundling_id)->withSuccess('Invoice has been created');
     }
 
     public function showBundle(Request $request)
     {
-        $bundlingId = $request->route('bundle');
-        $bundle = $this->clientProgramRepository->getBundleProgramByUUID($bundlingId);
-        $invoice = $this->invoiceProgramRepository->getInvoiceByBundlingId($bundlingId);
+        $bundling_id = $request->route('bundle');
+        $bundle = $this->clientProgramRepository->getBundleProgramByUUID($bundling_id);
+        $invoice = $this->invoiceProgramRepository->getInvoiceByBundlingId($bundling_id);
 
         return view('pages.invoice.client-program.form-bundle')->with(
             [
@@ -202,9 +205,9 @@ class InvoiceProgramBundleController extends Controller
 
     public function editBundle(Request $request)
     {
-        $bundlingId = $request->route('bundle');
-        $bundle = $this->clientProgramRepository->getBundleProgramByUUID($bundlingId);
-        $invoice = $this->invoiceProgramRepository->getInvoiceByBundlingId($bundlingId);
+        $bundling_id = $request->route('bundle');
+        $bundle = $this->clientProgramRepository->getBundleProgramByUUID($bundling_id);
+        $invoice = $this->invoiceProgramRepository->getInvoiceByBundlingId($bundling_id);
 
         return view('pages.invoice.client-program.form-bundle')->with(
             [
@@ -215,12 +218,12 @@ class InvoiceProgramBundleController extends Controller
         );
     }
 
-    public function updateBundle(StoreInvoiceProgramBundleRequest $request)
+    public function updateBundle(StoreInvoiceProgramBundleRequest $request, LogService $log_service)
     {
-        $bundlingId = $request->bundling_id;
-        $bundling = $this->clientProgramRepository->getClientProgramById($bundlingId);
+        $bundling_id = $request->bundling_id;
+        $bundling = $this->clientProgramRepository->getClientProgramById($bundling_id);
 
-        $invoice = $this->invoiceProgramRepository->getInvoiceByBundlingId($bundlingId);
+        $invoice = $this->invoiceProgramRepository->getInvoiceByBundlingId($bundling_id);
         $inv_id = $invoice->inv_id;
 
         # fetching currency till get the currency
@@ -231,7 +234,7 @@ class InvoiceProgramBundleController extends Controller
 
             case "idr":
 
-                    $invoiceDetails = $request->only([
+                    $invoice_details = $request->only([
                         'bundling_id',
                         'currency',
                         'currency_detail',
@@ -253,7 +256,7 @@ class InvoiceProgramBundleController extends Controller
 
             case "other":
 
-                    $invoiceDetails = [
+                    $invoice_details = [
                         'bundling_id' => $request->bundling_id,
                         'currency' => $request->currency,
                         'currency_detail' => $request->currency_detail,
@@ -283,90 +286,93 @@ class InvoiceProgramBundleController extends Controller
         }
         
 
-        $invoiceDetails['inv_category'] = $invoiceDetails['currency'];
-        $invoiceDetails['session'] = isset($invoiceDetails['session']) && $invoiceDetails['session'] != 0 ? $invoiceDetails['session'] : 0;
-        $invoiceDetails['currency'] = $currency == "other" ? $invoiceDetails['currency_detail'] : $currency;
-        $invoiceDetails['inv_paymentmethod'] = $invoiceDetails['inv_paymentmethod'] == "full" ? 'Full Payment' : 'Installment';
-        unset($invoiceDetails['currency_detail']);
+        $invoice_details['inv_category'] = $invoice_details['currency'];
+        $invoice_details['session'] = isset($invoice_details['session']) && $invoice_details['session'] != 0 ? $invoice_details['session'] : 0;
+        $invoice_details['currency'] = $currency == "other" ? $invoice_details['currency_detail'] : $currency;
+        $invoice_details['inv_paymentmethod'] = $invoice_details['inv_paymentmethod'] == "full" ? 'Full Payment' : 'Installment';
+        unset($invoice_details['currency_detail']);
 
-        $invoiceDetails['created_at'] = $invoiceDetails['invoice_date'] . ' ' . date('H:i:s');
+        $invoice_details['created_at'] = $invoice_details['invoice_date'] . ' ' . date('H:i:s');
 
         DB::beginTransaction();
         try {
 
             # when created date / invoice date has changed 
             # then check if old invoice_id same or not with the new invoice id using created at
-            if ( $invoice->created_at != $invoiceDetails['created_at']) {
+            if ( $invoice->created_at != $invoice_details['created_at']) {
                 
                 $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
     
                 # Use Trait Create Invoice Id
-                $new_inv_id = $this->getInvoiceId($last_id, 'BDL', $invoiceDetails['invoice_date']);
-                $invoiceDetails['inv_id'] = $new_inv_id;
+                $new_inv_id = $this->getInvoiceId($last_id, 'BDL', $invoice_details['invoice_date']);
+                $invoice_details['inv_id'] = substr($inv_id, 0, 4) == $last_id ? $inv_id : $new_inv_id;
             }
 
-            $this->invoiceProgramRepository->updateInvoice($inv_id, $invoiceDetails);
+            # update invoice
+            $update = $this->invoiceProgramRepository->updateInvoice($inv_id, $invoice_details);
+            $invoice_was_changed = $update['invoiceWasChanged'];
+
+            # if there was a change to invoice
+            # delete the invoice attachment in order to finance able to do the request sign
+            if ($invoice_was_changed === true) 
+                $this->invoiceAttachmentRepository->deleteInvoiceAttachmentByInvoiceId($invoice_details['inv_id']);
 
             # check if invoice has installments
             # if yes then remove it when status updated from installment to full payment
             if (isset($invoice->invoiceDetail) && $invoice->invoiceDetail->count() > 0)
-                $this->invoiceDetailRepository->deleteInvoiceDetailByInvId($inv_id);
+                $this->invoiceDetailRepository->deleteInvoiceDetailByInvId($invoice_details['inv_id']);
 
                 
             # add installment details
             # check if installment information has been filled
             # either idr or other currency
-            if ($invoiceDetails['inv_paymentmethod'] == "Installment") {
+            if ($invoice_details['inv_paymentmethod'] == "Installment") {
 
                 # and using param to fetch data based on rupiah or other currency
                 $limit = $param == "idr" ? count($request->invdtl_installment) : count($request->invdtl_installment__other);
 
                 for ($i = 0; $i < $limit; $i++) {
 
-                    $installmentDetails[$i] = [
-                        'inv_id' => $inv_id,
+                    $installment_details[$i] = [
+                        'inv_id' => $invoice_details['inv_id'],
                         'invdtl_installment' => $param == "idr" ? $request->invdtl_installment[$i] : $request->invdtl_installment__other[$i],
                         'invdtl_duedate' => $param == "idr" ? $request->invdtl_duedate[$i] : $request->invdtl_duedate__other[$i],
                         'invdtl_percentage' => $param == "idr" ? $request->invdtl_percentage[$i] : $request->invdtl_percentage__other[$i],
                         'invdtl_amountidr' => $param == "idr" ? $request->invdtl_amountidr[$i] : $request->invdtl_amountidr__other[$i],
-                        'invdtl_cursrate' => $param == "other" ? $invoiceDetails['curs_rate'] : null,
-                        'invdtl_currency' => $invoiceDetails['currency'],
+                        'invdtl_cursrate' => $param == "other" ? $invoice_details['curs_rate'] : null,
+                        'invdtl_currency' => $invoice_details['currency'],
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now()
                     ];
 
                     if ($param == "other")
-                        $installmentDetails[$i]['invdtl_amount'] = $request->invdtl_amount__other[$i];
+                        $installment_details[$i]['invdtl_amount'] = $request->invdtl_amount__other[$i];
                 }
 
-                $this->invoiceDetailRepository->updateInvoiceDetailByInvId($inv_id, $installmentDetails);
+                $this->invoiceDetailRepository->updateInvoiceDetailByInvId($invoice_details['inv_id'], $installment_details);
 
             }
-
-            # if update invoice success
-            # then delete the invoice attachment
-            if ($invoice->invoiceAttachment->count() > 0)
-                $this->invoiceAttachmentRepository->deleteInvoiceAttachmentByInvoiceId($inv_id);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update invoice program failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::UPDATE_INVOICE_PROGRAM_BUNDLE, $e->getMessage(), $e->getLine(), $e->getFile(), $invoice_details);
+
             return Redirect::to('invoice/client-program/bundle/' . $request->bundling_id . '/edit')->withError('Failed to update invoice program');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Invoice Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoiceDetails, $invoice);
+        $log_service->createSuccessLog(LogModule::UPDATE_INVOICE_PROGRAM_BUNDLE, 'Invoice program bundle has been updated', $invoice_details);
 
         return Redirect::to('invoice/client-program/bundle/' . $request->bundling_id)->withSuccess('Invoice has been updated');
     }
 
-    public function destroyBundle(Request $request)
+    public function destroyBundle(Request $request, LogService $log_service)
     {
         $bundling_id = $request->route('bundle');
-        $invProg = $this->invoiceProgramRepository->getInvoiceByBundlingId($bundling_id);
+        $inv_prog = $this->invoiceProgramRepository->getInvoiceByBundlingId($bundling_id);
         DB::beginTransaction();
         try {
 
@@ -375,13 +381,14 @@ class InvoiceProgramBundleController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete invoice program failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_INVOICE_PROGRAM_BUNDLE, $e->getMessage(), $e->getLine(), $e->getFile(), $inv_prog->toArray());
+
             return Redirect::to('invoice/client-program/bundle/' . $bundling_id)->withError('Failed to delete invoice program');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Invoice Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invProg);
+        $log_service->createSuccessLog(LogModule::DELETE_INVOICE_PROGRAM_BUNDLE, 'Invoice program bundle has been deleted', $inv_prog->toArray());
 
         return Redirect::to('invoice/client-program?s=needed&b=true')->withSuccess('Invoice has been deleted');
     }
@@ -393,14 +400,14 @@ class InvoiceProgramBundleController extends Controller
         else
             $view = 'pages.invoice.client-program.export.invoice-bundle-pdf-foreign';
 
-        $companyDetail = [
+        $company_detail = [
             'name' => env('ALLIN_COMPANY'),
             'address' => env('ALLIN_ADDRESS'),
             'address_dtl' => env('ALLIN_ADDRESS_DTL'),
             'city' => env('ALLIN_CITY')
         ];
 
-        $pdf = PDF::loadView($view, ['bundle' => $bundle, 'companyDetail' => $companyDetail, 'director' => $director]);
+        $pdf = PDF::loadView($view, ['bundle' => $bundle, 'companyDetail' => $company_detail, 'director' => $director]);
         return $pdf->stream();
     }
 
@@ -433,7 +440,7 @@ class InvoiceProgramBundleController extends Controller
         );
     }
 
-    public function requestSignBundle(Request $request)
+    public function requestSignBundle(Request $request, LogService $log_service)
     {
         $bundling_id = $request->route('bundle');
         $bundle = $this->clientProgramRepository->getBundleProgramByUUID($bundling_id);
@@ -448,7 +455,7 @@ class InvoiceProgramBundleController extends Controller
         else
             $view = 'pages.invoice.client-program.export.invoice-bundle-pdf-foreign';
 
-        $companyDetail = [
+        $company_detail = [
             'name' => env('ALLIN_COMPANY'),
             'address' => env('ALLIN_ADDRESS'),
             'address_dtl' => env('ALLIN_ADDRESS_DTL'),
@@ -475,7 +482,7 @@ class InvoiceProgramBundleController extends Controller
             $file_name = str_replace('/', '-', $invoice_id) . '-' . $type;
 
             # insert to invoice attachment
-            $attachmentDetails = [
+            $attachment_details = [
                 'inv_id' => $invoice_id,
                 'currency' => $type,
                 'sign_status' => 'not yet',
@@ -485,40 +492,41 @@ class InvoiceProgramBundleController extends Controller
             ];
 
             if (isset($attachment)) {
-                $this->invoiceAttachmentRepository->updateInvoiceAttachment($attachment->id, $attachmentDetails);
+                $this->invoiceAttachmentRepository->updateInvoiceAttachment($attachment->id, $attachment_details);
             } else {
-                $this->invoiceAttachmentRepository->createInvoiceAttachment($attachmentDetails);
+                $this->invoiceAttachmentRepository->createInvoiceAttachment($attachment_details);
             }
 
             # these data used for generate PDF file that will be sent into email
-            $attachmentDetails = [
+            $attachment_details = [
                 'view' => $view,
                 'invoice_id' => $invoice_id,
                 'bundle' => $bundle,
-                'company_detail' => $companyDetail, 
+                'company_detail' => $company_detail, 
                 'director' => $name,
                 'file_name' => $file_name
             ];
 
             # dispatching the job to the queue
-            ProcessEmailRequestSignJobBundle::dispatch($data, $attachmentDetails, $invoice_id)->onQueue('inv-email-request-sign');
+            ProcessEmailRequestSignJobBundle::dispatch($data, $attachment_details, $invoice_id)->onQueue('inv-email-request-sign');
             
         } catch (Exception $e) {
 
-            Log::info('Failed to request sign invoice : ' . $e->getMessage() . ' | Line ' . $e->getLine());
+            $log_service->createErrorLog(LogModule::REQUEST_SIGN_INVOICE_BUNDLE, $e->getMessage(), $e->getLine(), $e->getFile(), $attachment_details);
+
             return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
         }
 
         # Request Sign success
         # create log success
-        $this->logSuccess('request-sign', null, 'Invoice Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['invoice_id' => $invoice_id]);
+        $log_service->createSuccessLog(LogModule::REQUEST_SIGN_INVOICE_BUNDLE, 'Successfully send request sign', $attachment_details);
 
         return response()->json(['message' => 'Invoice sent successfully.']);
     }
 
-    public function upload(Request $request)
+    public function upload(Request $request, LogService $log_service)
     {
-        $pdfFile = $request->file('pdfFile');
+        $pdf_file = $request->file('pdfFile');
         $name = $request->file('pdfFile')->getClientOriginalName();
 
         $bundling_id = $request->route('bundle');
@@ -530,7 +538,7 @@ class InvoiceProgramBundleController extends Controller
 
         $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $inv_id, $currency);
 
-        $newDetails = [
+        $new_details = [
             'sign_status' => 'signed',
             'approve_date' => Carbon::now()
         ];
@@ -538,8 +546,8 @@ class InvoiceProgramBundleController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->invoiceAttachmentRepository->updateInvoiceAttachment($attachment->id, $newDetails);
-            if (!$pdfFile->storeAs('public/uploaded_file/invoice/client/', $file_name))
+            $this->invoiceAttachmentRepository->updateInvoiceAttachment($attachment->id, $new_details);
+            if (!$pdf_file->storeAs('public/uploaded_file/invoice/client/', $file_name))
                 throw new Exception('Failed to store signed invoice file');
 
             $data['title'] = 'Invoice No. ' . $inv_id . ' has been signed';
@@ -555,13 +563,14 @@ class InvoiceProgramBundleController extends Controller
             DB::commit();
         } catch (Exception $e) {
 
-            Log::error('Failed to update status after being signed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::APPROVE_ATTACHMENT_INVOICE_BUNDLE, $e->getMessage(), $e->getLine(), $e->getFile(), $attachment->toArray());
+
             return response()->json(['status' => 'success', 'message' => 'Failed to update'], 500);
         }
 
         # Signed success
         # create log success
-        $this->logSuccess('signed', null, 'Invoice Client Program', 'Director', ['invoice_id' => $inv_id]);
+        $log_service->createSuccessLog(LogModule::APPROVE_ATTACHMENT_INVOICE_BUNDLE, 'Successfully signed invoice', $attachment->toArray());
 
         return response()->json(['status' => 'success', 'message' => 'Invoice signed successfully']);
     }
@@ -585,7 +594,7 @@ class InvoiceProgramBundleController extends Controller
         );
     }
 
-    public function sendToClientBundle(Request $request)
+    public function sendToClientBundle(Request $request, LogService $log_service)
     {
         $bundling_id = $request->route('bundle');
         $type_recipient = $request->route('type_recipient');
@@ -627,13 +636,14 @@ class InvoiceProgramBundleController extends Controller
 
         } catch (Exception $e) {
 
-            Log::info('Failed to send invoice to client : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::SEND_INVOICE_BUNDLE_TO_CLIENT, $e->getMessage(), $e->getLine(), $e->getFile(), $attachment->toArray());
+
             return response()->json(['message' => 'Failed to send invoice to client.'], 500);
         }
 
         # Send To Client success
         # create log success
-        $this->logSuccess('send-to-client', null, 'Invoice Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['invoice_id' => $invoice_id, 'recipient' => $type_recipient]);
+        $log_service->createSuccessLog(LogModule::SEND_INVOICE_BUNDLE_TO_CLIENT, 'Successfully sent invoice to client', $attachment->toArray());
 
         return response()->json(['message' => 'Successfully sent invoice to client.']);
     }
@@ -642,11 +652,11 @@ class InvoiceProgramBundleController extends Controller
     {
         # sendTo is determined when clicking the recipient modal
         # whether parent or children
-        $sendTo = $request->sendTo;
+        $send_to = $request->sendTo;
 
         $parent = $request->parent_id != null ? $this->clientRepository->getClientById($request->parent_id) : null;
 
-        switch ($sendTo) {
+        switch ($send_to) {
 
             case "parent":
                 $client = $this->clientRepository->getClientById($parent != null ? $request->parent_id : $request->client_id);

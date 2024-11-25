@@ -17,9 +17,11 @@ class DeleteCorporateAction
         String $corporate_id
     )
     {
-        # Delete corporate
-        $deleted_corporate = $this->corporateRepository->deleteCorporate($corporate_id);
+        $corporate = $this->corporateRepository->getCorporateById($corporate_id);
 
-        return $deleted_corporate;
+        # Delete corporate
+        $this->corporateRepository->deleteCorporate($corporate_id);
+
+        return $corporate;
     }
 }

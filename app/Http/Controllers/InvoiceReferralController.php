@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\LogModule;
 use App\Http\Requests\StoreInvoiceB2bRequest;
 use App\Http\Requests\StoreInvoiceReferralRequest;
 use App\Interfaces\CorporateRepositoryInterface;
@@ -16,6 +17,7 @@ use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Http\Traits\DirectorListTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Models\Invb2b;
+use App\Services\Log\LogService;
 use Barryvdh\DomPDF\PDF as DomPDFPDF;
 use Carbon\Carbon;
 use Exception;
@@ -83,10 +85,10 @@ class InvoiceReferralController extends InvoiceB2BBaseController
 
         $referral = $this->referralRepository->getReferralById($ref_id);
 
-        $partnerId = $referral->partner_id;
+        $partner_id = $referral->partner_id;
 
         # retrieve corp data by id
-        $partner = $this->corporateRepository->getCorporateById($partnerId);
+        $partner = $this->corporateRepository->getCorporateById($partner_id);
 
         return view('pages.invoice.referral.form')->with(
             [
@@ -97,7 +99,7 @@ class InvoiceReferralController extends InvoiceB2BBaseController
         );
     }
 
-    public function store(StoreInvoiceReferralRequest $request)
+    public function store(StoreInvoiceReferralRequest $request, LogService $log_service)
     {
 
         $ref_id = $request->route('referral');
@@ -138,9 +140,9 @@ class InvoiceReferralController extends InvoiceB2BBaseController
 
 
         $now = Carbon::now();
-        $thisMonth = $now->month;
+        $this_month = $now->month;
 
-        $last_id = Invb2b::whereMonth('created_at', $thisMonth)->whereYear('created_at', date('Y'))->max(DB::raw('substr(invb2b_id, 1, 4)'));
+        $last_id = Invb2b::whereMonth('created_at', $this_month)->whereYear('created_at', date('Y'))->max(DB::raw('substr(invb2b_id, 1, 4)'));
 
         // Use Trait Create Invoice Id
         $inv_id = $this->getInvoiceId($last_id, 'REF-OUT');
@@ -151,21 +153,20 @@ class InvoiceReferralController extends InvoiceB2BBaseController
         DB::beginTransaction();
         try {
 
-            $invoiceCreated = $this->invoiceB2bRepository->createInvoiceB2b($invoices);
+            $invoice_created = $this->invoiceB2bRepository->createInvoiceB2b($invoices);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Create invoice failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_INVOICE_REFERRAL, $e->getMessage(), $e->getLine(), $e->getFile(), $invoices);
 
             return Redirect::to('invoice/referral/' . $ref_id . '/detail/create')->withError('Failed to create a new invoice');
         }
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Invoice Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoiceCreated);
-
+        $log_service->createSuccessLog(LogModule::STORE_INVOICE_REFERRAL, 'New invoice has been added', $invoices);
 
         return Redirect::to('invoice/referral/status/list')->withSuccess('Invoice successfully created');
     }
@@ -173,22 +174,22 @@ class InvoiceReferralController extends InvoiceB2BBaseController
     public function show(Request $request)
     {
         $ref_id = $request->route('referral');
-        $invNum = $request->route('detail');
+        $inv_num = $request->route('detail');
 
         $referral = $this->referralRepository->getReferralById($ref_id);
 
-        $partnerId = $referral->partner_id;
+        $partner_id = $referral->partner_id;
 
-        $partner = $this->corporateRepository->getCorporateById($partnerId);
+        $partner = $this->corporateRepository->getCorporateById($partner_id);
 
-        $invoiceRef = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoice_ref = $this->invoiceB2bRepository->getInvoiceB2bById($inv_num);
 
 
         return view('pages.invoice.referral.form')->with(
             [
                 'referral' => $referral,
                 'partner' => $partner,
-                'invoiceRef' => $invoiceRef,
+                'invoiceRef' => $invoice_ref,
                 'status' => 'show',
             ]
         );
@@ -196,33 +197,33 @@ class InvoiceReferralController extends InvoiceB2BBaseController
 
     public function edit(Request $request)
     {
-        $invNum = $request->route('detail');
+        $inv_num = $request->route('detail');
         $ref_id = $request->route('referral');
 
         $referral = $this->referralRepository->getReferralById($ref_id);
 
-        $partnerId = $referral->partner_id;
+        $partner_id = $referral->partner_id;
 
-        $partner = $this->corporateRepository->getCorporateById($partnerId);
+        $partner = $this->corporateRepository->getCorporateById($partner_id);
 
-        $invoiceRef = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoice_ref = $this->invoiceB2bRepository->getInvoiceB2bById($inv_num);
 
         return view('pages.invoice.referral.form')->with(
             [
                 'status' => 'edit',
                 'referral' => $referral,
                 'partner' => $partner,
-                'invoiceRef' => $invoiceRef,
+                'invoiceRef' => $invoice_ref,
             ]
         );
     }
 
-    public function update(StoreInvoiceReferralRequest $request)
+    public function update(StoreInvoiceReferralRequest $request, LogService $log_service)
     {
 
         $ref_id = $request->route('referral');
-        $invNum = $request->route('detail');
-        $oldInvoice = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $inv_num = $request->route('detail');
+        $old_invoice = $this->invoiceB2bRepository->getInvoiceB2bById($inv_num);
 
         $invoices = $request->only([
             'select_currency',
@@ -260,13 +261,13 @@ class InvoiceReferralController extends InvoiceB2BBaseController
 
 
         $invoices['ref_id'] = $ref_id;
-        $inv_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $inv_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($inv_num);
         $inv_id = $inv_b2b->invb2b_id;
 
         DB::beginTransaction();
         try {
 
-            $this->invoiceB2bRepository->updateInvoiceB2b($invNum, $invoices);
+            $this->invoiceB2bRepository->updateInvoiceB2b($inv_num, $invoices);
 
             if (count($inv_b2b->invoiceAttachment) > 0) {
                 $this->invoiceAttachmentRepository->deleteInvoiceAttachmentByInvoiceB2bId($inv_id);
@@ -276,40 +277,40 @@ class InvoiceReferralController extends InvoiceB2BBaseController
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update invoice failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::UPDATE_INVOICE_REFERRAL, $e->getMessage(), $e->getLine(), $e->getFile(), $invoices);
 
-            return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $invNum)->withError('Failed to update invoice');
+            return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $inv_num)->withError('Failed to update invoice');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Invoice Referral Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoices, $oldInvoice);
+        $log_service->createSuccessLog(LogModule::UPDATE_INVOICE_REFERRAL, 'Invoice has been updated', $invoices);
 
-        return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $invNum)->withSuccess('Invoice successfully updated');
+        return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $inv_num)->withSuccess('Invoice successfully updated');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, LogService $log_service)
     {
-        $invNum = $request->route('detail');
+        $inv_num = $request->route('detail');
         $ref_id = $request->route('referral');
-        $invoice = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoice = $this->invoiceB2bRepository->getInvoiceB2bById($inv_num);
 
         DB::beginTransaction();
         try {
 
-            $this->invoiceB2bRepository->deleteInvoiceB2b($invNum);
+            $this->invoiceB2bRepository->deleteInvoiceB2b($inv_num);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete invoice failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_INVOICE_REFERRAL, $e->getMessage(), $e->getLine(), $e->getFile(), $invoice->toArray());
 
-            return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $invNum)->withError('Failed to delete invoice');
+            return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $inv_num)->withError('Failed to delete invoice');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Invoice Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $invoice);
+        $log_service->createSuccessLog(LogModule::DELETE_INVOICE_REFERRAL, 'Invoice has been deleted', $invoice->toArray());
 
         return Redirect::to('invoice/referral/status/list')->withSuccess('Invoice successfully deleted');
     }

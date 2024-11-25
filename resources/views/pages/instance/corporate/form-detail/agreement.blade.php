@@ -37,6 +37,14 @@
                                     @break
                                     
                             @endswitch
+                            @if(isset($partnerAgreement->partnerPic))
+                                <br>
+                                {{ $partnerAgreement->partnerPic->pic_name }} (Partner PIC)
+                            @endif
+                            @if(isset($partnerAgreement->user))
+                                <br>
+                                {{ $partnerAgreement->user->full_name }} (Internal PIC)
+                            @endif
                             <br>
                             {{ date('d/m/Y', strtotime($partnerAgreement->start_date)) }} - {{ date('d/m/Y', strtotime($partnerAgreement->end_date)) }}
                         </div>
@@ -111,7 +119,7 @@
                             <label for="">Partner PIC <sup class="text-danger">*</sup></label>
                             <select name="corp_pic" class="agreement-select w-100">
                                 <option data-placeholder="true"></option>
-                                @foreach ($pics as $pic)
+                                @foreach ($pics->where('is_pic', 1) as $pic)
                                     <option value="{{ $pic->id }}" {{ $pic->id == old('corp_pic') ? 'selected' : '' }}>{{ $pic->pic_name }}</option>
                                 @endforeach
                             </select>

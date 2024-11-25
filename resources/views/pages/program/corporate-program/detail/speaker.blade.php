@@ -206,7 +206,7 @@
                 <i class="bi bi-pencil-square"></i>
             </div>
             <div class="modal-body w-100 text-start">
-                <form action="#" method="POST" id="reasonForm">
+                <form action="{{ url('program/corporate/' . strtolower($partner->corp_id) . '/detail/' . $partnerProgram->id . '/speaker') }}" method="POST" id="reasonForm">
                     @csrf
                     @method('put')
                     <input type="hidden" name="agendaId" id="agenda_id">

@@ -117,28 +117,14 @@ class UniversityRepository implements UniversityRepositoryInterface
 
     public function updateUniversity($universityId, array $newDetails)
     {
-        return University::whereUniversityId($universityId)->update($newDetails);
+        return tap(University::whereUniversityId($universityId))->update($newDetails);
     }
 
-    public function getReportNewUniversity($start_date = null, $end_date = null)
+    public function getReportNewUniversity($start_date, $end_date)
     {
-        $firstDay = Carbon::now()->startOfMonth()->toDateString();
-        $lastDay = Carbon::now()->endOfMonth()->toDateString();
-
-        if (isset($start_date) && isset($end_date)) {
-            return University::whereDate('created_at', '>=', $start_date)
+        return University::whereDate('created_at', '>=', $start_date)
                 ->whereDate('created_at', '<=', $end_date)
                 ->get();
-        } else if (isset($start_date) && !isset($end_date)) {
-            return University::whereDate('created_at', '>=', $start_date)
-                ->get();
-        } else if (!isset($start_date) && isset($end_date)) {
-            return University::whereDate('created_at', '<=', $end_date)
-                ->get();
-        } else {
-            return University::whereBetween('created_at', [$firstDay, $lastDay])
-                ->get();
-        }
     }
 
     # CRM

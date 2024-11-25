@@ -50,7 +50,7 @@ class SchoolDetailRepository implements SchoolDetailRepositoryInterface
 
     public function updateSchoolDetail($schoolDetailId, array $newDetails)
     {
-        return SchoolDetail::find($schoolDetailId)->update($newDetails);
+        return tap(SchoolDetail::find($schoolDetailId))->update($newDetails);
     }
 
     # CRM

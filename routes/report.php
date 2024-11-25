@@ -22,12 +22,12 @@ Route::get('sales', [ReportController::class, 'fnSalesTracking'])->name('report.
 
 Route::get('event', [ReportController::class, 'fnEventTracking'])->name('report.client.event');
 
-Route::get('partnership', [ReportController::class, 'partnership'])->name('report.partnership');
+Route::get('partnership', [ReportController::class, 'fnPartnershipReport'])->name('report.partnership');
 
-Route::get('invoice', [ReportController::class, 'invoice_receipt'])->name('report.invoice');
+Route::get('invoice', [ReportController::class, 'fnInvoiceReceiptReport'])->name('report.invoice');
 
-Route::get('unpaid', [ReportController::class, 'unpaid_payment'])->name('report.unpaid');
+Route::get('unpaid', [ReportController::class, 'fnUnpaidPaymentReport'])->name('report.unpaid');
 
-Route::get('program', [ReportController::class, 'program_tracking'])->name('report.program.tracking');
+Route::get('program', [ReportController::class, 'fnProgramTracking'])->name('report.program.tracking');
 
-Route::get('lead', [LeadTrackerController::class, 'index'])->name('report.lead');
+Route::get('lead', [ReportController::class, 'fnLeadTracking'])->name('report.lead');

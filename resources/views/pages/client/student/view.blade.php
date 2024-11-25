@@ -21,7 +21,7 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="col">
-                            <h3 class="m-0 mb-2 p-0">{{ $student->full_name }}</h3>
+                            <h3 class="m-0 mb-2 p-0">{{ $student->full_name }} <a id="btn-info-log-client"><i class="bi bi-info-circle-fill" style="color: #0083b8" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Info Log Client"></i></a></h3>
                             <small class="text-muted">
                                 <i class="bi bi-calendar-day me-1"></i> Join Date:
                                 {{ date('d M Y', strtotime($student->created_at)) }} |
@@ -163,12 +163,12 @@
                     <div class="row mb-2 g-1">
                         <div class="col d-flex justify-content-between">
                             <label>
-                                Register By
+                                Register As
                             </label>
                             <label>:</label>
                         </div>
                         <div class="col-md-9 col-8">
-                            @switch($student->register_by)
+                            @switch($student->register_as)
                                 @case('student')
                                     Student
                                 @break
@@ -215,6 +215,35 @@
             @include('pages.client.student.component.client-event')
         </div>
     </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalInfoLogsClient" tabindex="-1" aria-labelledby="modalInfoLogsClient"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="max-height: 400px; overflow:scroll">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="modalInfoLogsClient">Client Logs</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Triggered By</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Date</th>
+                          </tr>
+                        </thead>
+                        <tbody id="data-log-client">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <script src="{{ asset('js/lc_switch.min.js') }}"></script>
     <script>
@@ -287,5 +316,50 @@
                 allowClear: true
             });
         });
+    </script>
+
+    <script>
+        $('#btn-info-log-client').on('click', async function() {
+
+            var link = "{{ url('/') }}/api/client/{{ $student->id }}/logs"
+            var html = '';
+
+            showLoading()
+            await axios.get(link)
+                .then(function(response) {
+                    var client_logs = response.data.data;
+                    
+                    var i= 1;
+                    if(client_logs.length != 0){
+                        for (const [key, value] of Object.entries(client_logs)) {
+                            for (const [key2, value2] of Object.entries(value)) {
+                                html += '<tr>'
+                                html += `<td> ${i} </td>`
+                                html += `<td> ${value2.inputted_from} </td>`
+                                html += `<td> ${value2.category} </td>`
+                                html += `<td> ${value2.updated_at} </td>`
+                                html += '</tr>'
+                                i++;
+                            }
+                        }
+                        
+                    }else{
+                        html += '<tr>'
+                        html += `<td colspan="4" class="text-center"> There is no data </td>`
+                        html += '</tr>'
+                    }
+
+                    $('#data-log-client').html(html);
+                                        
+                    Swal.close()
+                    $('#modalInfoLogsClient').modal('show');
+                    // notification("success", response.data.message)
+                })
+                .catch(function(error) {
+                    // handle error
+                    Swal.close()
+                    notification("error", error.data.message)
+                })
+        })
     </script>
 @endsection

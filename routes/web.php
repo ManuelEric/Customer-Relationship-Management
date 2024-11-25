@@ -1,23 +1,14 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\SchoolController;
-use App\Http\Controllers\SchoolDetailController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Embed\PublicRegistrationController;
 use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\ClientProgramController;
-use App\Http\Controllers\ClientStudentController;
-use App\Http\Controllers\GoogleSheetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VolunteerController;
-use App\Jobs\Client\ProcessDefineCategory;
-use App\Jobs\testQueue;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Request;
+use App\Jobs\JobCoba;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Session;
 
 /*
 |--------------------------------------------------------------------------

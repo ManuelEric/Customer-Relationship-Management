@@ -1,4 +1,13 @@
 @extends('layout.main')
+@push('styles')
+<style>
+    .lcs_wrap {
+        scale: 0.7;
+        margin-top: -4px;
+        margin-left: -10px;
+    }
+</style>
+@endpush
 
 @section('title', 'Parents Detail')
 @section('breadcrumb')
@@ -80,6 +89,18 @@
                         </div>
                         <div class="col-md-9 col-8">
                             {{ $parent->lead_source }} {{ $parent->referral_code != null && $parent->lead_source == "Referral" ? '(' . $parent->referral_name . ')' : null }}
+                        </div>
+                    </div>
+                    <div class="row mb-2 g-1">
+                        <div class="col d-flex justify-content-between">
+                            <label>
+                                Active Status
+                            </label>
+                            <label>:</label>
+                        </div>
+                        <div class="col-md-9 col-8">
+                            <input type="checkbox" name="st_status" id="status" value=""
+                                @checked($parent->st_statusact == 1)>
                         </div>
                     </div>
                 </div>
@@ -199,6 +220,7 @@
 @endsection
 
 @push('scripts')
+
 <script>
     // Select2 Modal 
     $(document).ready(function() {
@@ -208,6 +230,48 @@
             allowClear: true
         });
     });
+</script>
+<script src="{{ asset('js/lc_switch.min.js') }}"></script>
+<script>
+    lc_switch('input[type=checkbox]', {
+
+        // ON text
+        on_txt: 'ON',
+
+        // OFF text
+        off_txt: 'OFF',
+
+        // Custom ON color. Supports gradients
+        on_color: '#0083B8',
+
+        // enable compact mode
+        compact_mode: false
+
+    });
+</script>
+<script type="text/javascript">
+    $('.lcs_switch').on('click', async function() {
+
+        var class_names = $(this).attr('class');
+        var getLcsStatus = class_names.split(' ');
+        var current_value = getLcsStatus[2];
+
+        var val = current_value == "lcs_off" ? 0 : 1;
+
+        var link = "{{ url('/') }}/client/parent/{{ $parent->id }}/status/" + val
+
+        await axios.get(link)
+            .then(function(response) {
+
+                Swal.close()
+                notification("success", response.data.message)
+            })
+            .catch(function(error) {
+                // handle error
+                Swal.close()
+                notification("error", error.response.data.message)
+            })
+    })
 </script>
 
 <script>

@@ -24,14 +24,12 @@ class SchoolRawController extends Controller
     protected SchoolRepositoryInterface $schoolRepository;
     protected ClientRepositoryInterface $clientRepository;
     protected DeleteSchoolRawAction $deleteSchoolRawAction;
-    protected LogService $log_service;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository, ClientRepositoryInterface $clientRepository, DeleteSchoolRawAction $deleteSchoolRawAction, LogService $log_service)
+    public function __construct(SchoolRepositoryInterface $schoolRepository, ClientRepositoryInterface $clientRepository, DeleteSchoolRawAction $deleteSchoolRawAction)
     {
         $this->schoolRepository = $schoolRepository;
         $this->clientRepository = $clientRepository;
         $this->deleteSchoolRawAction = $deleteSchoolRawAction;
-        $this->log_service = $log_service;
     }
 
     public function index(Request $request)
@@ -67,7 +65,7 @@ class SchoolRawController extends Controller
         return view('pages.instance.school.raw.form-new');
     }
 
-    public function update(StoreSchoolRawRequest $request, UpdateSchoolRawAction $updateSchoolRawAction)
+    public function update(StoreSchoolRawRequest $request, UpdateSchoolRawAction $updateSchoolRawAction, LogService $log_service)
     {
         $school_details = $request->only([
             'sch_name',
@@ -87,31 +85,31 @@ class SchoolRawController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            $this->log_service->createErrorLog(LogModule::UPDATE_SCHOOL_RAW, $e->getMessage(), $e->getLine(), $e->getFile(), $school_details);
+            $log_service->createErrorLog(LogModule::UPDATE_SCHOOL_RAW, $e->getMessage(), $e->getLine(), $e->getFile(), $school_details);
 
             return Redirect::to('instance/school/raw')->withError('Failed to convert school');
         }
 
         # Update success
         # create log success
-        $this->log_service->createSuccessLog(LogModule::UPDATE_SCHOOL_RAW, 'School raw has been updated', $updated_school_raw->toArray());
+        $log_service->createSuccessLog(LogModule::UPDATE_SCHOOL_RAW, 'School raw has been updated', $updated_school_raw->toArray());
 
         return Redirect::to('instance/school/raw')->   withSuccess('Convert raw school success');
     }
 
 
-    public function destroy (Request $request)
+    public function destroy (Request $request, LogService $log_service)
     {
         # when is method 'POST' meaning the function come from bulk delete
         $isBulk = $request->isMethod('POST') ? true : false;
         if ($isBulk)
-            return $this->bulk_destroy($request); 
+            return $this->bulk_destroy($request, $log_service); 
         
-        return $this->single_destroy($request);
+        return $this->single_destroy($request, $log_service);
 
     }
 
-    private function single_destroy(Request $request)
+    private function single_destroy(Request $request, LogService $log_service)
     {
         $raw_school_id = $request->route('raw');
         if (!$school = $this->schoolRepository->findUnverifiedSchool($raw_school_id))
@@ -120,47 +118,47 @@ class SchoolRawController extends Controller
         DB::beginTransaction();
         try {
 
-            $deleted_school = $this->deleteSchoolRawAction->execute(false, $raw_school_id, null);
+            $this->deleteSchoolRawAction->execute(false, $raw_school_id, null);
 
             DB::commit();
 
         } catch (Exception $e) {
          
             DB::rollBack();
-            $this->log_service->createErrorLog(LogModule::DELETE_SINGLE_SCHOOL_RAW, $e->getMessage(), $e->getLine(), $e->getFile(), $deleted_school->toArray());
+            $log_service->createErrorLog(LogModule::DELETE_SINGLE_SCHOOL_RAW, $e->getMessage(), $e->getLine(), $e->getFile(), ['raw_school_id' => $raw_school_id]);
 
             return Redirect::to('instance/school/raw')->withError('Failed to delete raw school');
 
         }
 
         # create log success
-        $this->log_service->createSuccessLog(LogModule::DELETE_SINGLE_SCHOOL_RAW, 'School raw has been single deleted', $deleted_school->toArray());
+        $log_service->createSuccessLog(LogModule::DELETE_SINGLE_SCHOOL_RAW, 'School raw has been single deleted', ['raw_school_id' => $raw_school_id]);
         
         return Redirect::to('instance/school/raw')->   withSuccess('Delete raw school success');
     }
 
-    private function bulk_destroy(Request $request)
+    private function bulk_destroy(Request $request, LogService $log_service)
     {
         # raw school id that being choose from list raw data school
         $raw_school_ids = $request->choosen;
         DB::beginTransaction();
         try {
 
-            $deleted_school = $this->deleteSchoolRawAction->execute(true, null, $raw_school_ids);
+            $this->deleteSchoolRawAction->execute(true, null, $raw_school_ids);
 
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            $this->log_service->createErrorLog(LogModule::DELETE_BULK_SCHOOL_RAW, $e->getMessage(), $e->getLine(), $e->getFile(), $deleted_school->toArray());
+            $log_service->createErrorLog(LogModule::DELETE_BULK_SCHOOL_RAW, $e->getMessage(), $e->getLine(), $e->getFile(), ['school_ids' => $raw_school_ids]);
 
             return response()->json(['success' => false, 'message' => 'Failed to delete raw school'], 500);
 
         }
 
         # create log success
-        $this->log_service->createSuccessLog(LogModule::DELETE_BULK_SCHOOL_RAW, 'School raw has been bulk deleted', $deleted_school->toArray());
+        $log_service->createSuccessLog(LogModule::DELETE_BULK_SCHOOL_RAW, 'School raw has been bulk deleted', ['school_ids' => $raw_school_ids]);
 
         return response()->json(['success' => true, 'message' => 'Delete raw school success']);
     }

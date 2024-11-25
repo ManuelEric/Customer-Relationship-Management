@@ -3,6 +3,22 @@
 @section('title', 'Finance Report - Bigdata Platform')
 
 @section('content')
+
+@if (Request::get('start_date') && Request::get('end_date'))
+<div class="row">
+    <div class="col">
+        <div class="alert alert-success">
+            Report period between <u>{{ date('F, dS Y', strtotime(Request::get('start_date'))) }}</u> and
+            <u>{{ date('F, dS Y', strtotime(Request::get('end_date'))) }}</u>
+        </div>
+    </div>
+</div>
+@else
+<div class="alert alert-primary" role="alert">
+    Report period between <u>{{ date('F, dS Y', strtotime($start_date)) }}</u> and <u>{{ date('F, dS Y', strtotime($end_date)) }}</u>
+</div>
+@endif
+
     <div class="row">
         <div class="col-md-3 mb-3">
             <div class="card mb-3">
@@ -34,22 +50,22 @@
                     <div class="d-flex justify-content-between">
                         <strong>Total Invoice ({{count($invoices)}})</strong>
                         <div class="text-end">
-                           Rp. {{ number_format($totalInvoice) }}
+                           Rp. {{ number_format($total_invoice) }}
                         </div>
                     </div>
                     <hr class="my-2">
                     <div class="d-flex justify-content-between">
                         <strong>Total Receipt ({{count($receipts)}})</strong>
                         <div class="text-end">
-                                Rp. {{ number_format($totalReceipt) }}
+                                Rp. {{ number_format($total_receipt) }}
                            
                         </div>
                     </div>
                     <hr class="my-2">
                     <div class="d-flex justify-content-between">
-                        <strong>Total Refund ({{ $countRefund }})</strong>
+                        <strong>Total Refund ({{ $count_refund }})</strong>
                         <div class="text-end">
-                                Rp. {{ number_format($totalRefund) }}
+                                Rp. {{ number_format($total_refund) }}
                            
                         </div>
                     </div>

@@ -156,7 +156,7 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
 
     public function updateAgendaSpeaker($agendaId, array $newDetails)
     {
-        return AgendaSpeaker::find($agendaId)->update($newDetails);
+        return tap(AgendaSpeaker::find($agendaId))->update($newDetails);
     }
 
     # event speaker below

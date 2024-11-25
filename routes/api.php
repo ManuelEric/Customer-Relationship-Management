@@ -17,19 +17,13 @@ use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\ClientParentController;
 use App\Http\Controllers\ClientStudentController;
 use App\Http\Controllers\ClientTeacherCounselorController;
-use App\Http\Controllers\CorporateController;
 use App\Http\Controllers\CurrencyRateController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ExcelTemplateController;
-use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\InvoiceProgramController;
-use App\Http\Controllers\InvoiceSchoolController;
-use App\Http\Controllers\InvoicePartnerController;
-use App\Http\Controllers\InvoiceReferralController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\Module\ClientController;
-use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\Api\v1\SchoolController as APISchoolController;
 use App\Http\Controllers\Api\v1\ProgramController as APIProgramController;
 use App\Http\Controllers\Api\v1\TagController as APITagController;
@@ -47,10 +41,7 @@ use App\Http\Controllers\ReceiptReferralController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolEventController;
 use App\Http\Controllers\UserController;
-use App\Models\JobBatches;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Route;
 
 
@@ -130,9 +121,6 @@ Route::get('digital/detail/{month}/conversion-lead/{lead}/{prog?}', [DigitalDash
 
 
 Route::post('/upload', [InvoiceProgramController::class, 'upload']);
-Route::post('invoice-sch/{invoice}/upload/{currency}', [InvoiceSchoolController::class, 'upload']);
-Route::post('invoice-ref/{invoice}/upload/{currency}', [InvoiceReferralController::class, 'upload']);
-Route::post('invoice-corp/{invoice}/upload/{currency}', [InvoicePartnerController::class, 'upload']);
 
 Route::post('receipt-sch/{receipt}/upload/{currency}', [ReceiptSchoolController::class, 'upload_signed']);
 Route::post('receipt-ref/{receipt}/upload/{currency}', [ReceiptReferralController::class, 'upload_signed']);
@@ -151,6 +139,7 @@ Route::get('master/event/{event}/school/{school}', [SchoolEventController::class
 # client student menu
 Route::get('client/{client}/programs', [ClientStudentController::class, 'getClientProgramByStudentId']);
 Route::get('client/{client}/events', [ClientStudentController::class, 'getClientEventByStudentId']);
+Route::get('client/{client}/logs', [ClientStudentController::class, 'getLogsClient']);
 
 # Client teacher menu
 Route::get('teacher/{teacher}/events', [ClientTeacherCounselorController::class, 'getClientEventByTeacherId']);

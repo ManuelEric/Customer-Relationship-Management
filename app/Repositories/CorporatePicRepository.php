@@ -42,6 +42,6 @@ class CorporatePicRepository implements CorporatePicRepositoryInterface
 
     public function updateCorporatePic($picId, array $newDetails)
     {
-        return CorporatePic::whereId($picId)->update($newDetails);
+        return tap(CorporatePic::whereId($picId)->first())->update($newDetails);
     }
 }

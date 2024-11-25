@@ -32,10 +32,9 @@ class CreatePartnerAgreementAction
         $extension = $file->getClientOriginalExtension();
         $file_location = 'attachment/partner_agreement/'.strtolower($corp_id).'/'; 
         $attachment = $file_name.'.'.$extension;
-        
-      
-        $this->tnUploadFile($request, 'attachment', $file_name, $file_location);
 
+        $file->move($file_location, $file_name.'.'.$extension);
+      
         $partner_agreement_details['attachment'] = $attachment;
 
         # insert into partner aggrement

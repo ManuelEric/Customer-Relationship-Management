@@ -11,10 +11,15 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script>
         $(function() {
+            var incoming_start_date = "{{ $start_date }}"
+            var start_date = incoming_start_date != null ? moment(incoming_start_date).format('L') : moment().startOf('L')
+            var incoming_end_date = "{{ $end_date }}"
+            var end_date = incoming_end_date != null ? moment(incoming_end_date).format('L') : moment().startOf('L').add(7, 'days')
+
             $('input[name="daterange"]').daterangepicker({
                 // minDate: moment('2024-11-01').format('L'),
-                startDate: moment().startOf('L'),
-                endDate: moment().startOf('L').add(7, 'days'),
+                startDate: start_date,
+                endDate: end_date,
             }, function(start, end, label) {
                 console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end
                     .format('YYYY-MM-DD'));

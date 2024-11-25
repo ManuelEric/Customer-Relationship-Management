@@ -121,7 +121,7 @@ class PartnerProgramController extends Controller
         $partners = $this->corporateRepository->getAllCorporate();
 
         # retrieve program data
-        $programs = $this->programService->snGetAllPrograms();
+        $programs = $this->programService->snGetProgramsB2b();
 
         # retrieve employee data
         $employees = $this->userRepository->rnGetAllUsersByRole('Employee');
@@ -167,7 +167,7 @@ class PartnerProgramController extends Controller
     {
         $corp_id = strtoupper($request->route('corp'));
 
-        $programs = $this->programService->snGetAllPrograms();
+        $programs = $this->programService->snGetProgramsB2b();
 
         # retrieve partner data
         $partner = $this->corporateRepository->getCorporateById($corp_id);
@@ -209,7 +209,7 @@ class PartnerProgramController extends Controller
         // # retrieve all school detail by school id
         // $schoolDetail = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
 
-        $programs = $this->programService->snGetAllPrograms();
+        $programs = $this->programService->snGetProgramsB2b();
 
         # retrieve reason data
         $reasons = $this->reasonRepository->getReasonByType('Program');
@@ -290,7 +290,7 @@ class PartnerProgramController extends Controller
         # retrieve all school detail by school id
         // $schoolDetail = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
 
-        $programs = $this->programService->snGetAllPrograms();
+        $programs = $this->programService->snGetProgramsB2b();
 
         # retrieve reason data
         $reasons = $this->reasonRepository->getReasonByType('Program');
@@ -332,7 +332,7 @@ class PartnerProgramController extends Controller
         DB::beginTransaction();
         try {   
 
-            $updated_partner_program = $updatePartnerProgramAction->execute($partner_prog_id, $partner_program_details);
+            $updated_partner_program = $updatePartnerProgramAction->execute($partner_prog_id, $corp_id, $partner_program_details);
 
             DB::commit();
         } catch (Exception $e) {
