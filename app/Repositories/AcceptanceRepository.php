@@ -11,7 +11,7 @@ class AcceptanceRepository implements AcceptanceRepositoryInterface
 {
     public function getAcceptanceById(int $id)
     {
-        return DB::table('tbl_client_acceptance')->find($id);
+        return ClientAcceptance::find($id);
     }
 
     public function getAcceptanceByClientId(String $clientId)
@@ -22,7 +22,7 @@ class AcceptanceRepository implements AcceptanceRepositoryInterface
 
     public function deleteAcceptance(int $id)
     {
-        $acceptance = DB::table('tbl_client_acceptance')->find($id);
+        $acceptance = ClientAcceptance::find($id);
         $clientId = $acceptance->client_id;
         $univId = $acceptance->univ_id;
 

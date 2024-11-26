@@ -676,7 +676,7 @@
                         defaultContent: '-'
                     },
                     {
-                        data: 'graduation_year_real',
+                        data: 'graduation_year_now',
                         className: 'text-center',
                         searchable: false,
                         defaultContent: '-'

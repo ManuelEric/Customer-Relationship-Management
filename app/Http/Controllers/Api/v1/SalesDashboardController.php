@@ -155,7 +155,7 @@ class SalesDashboardController extends Controller
                             <td class="text-center">' . $client->pic_name . '</td>
                             <td>' . $client->mail . '</td>
                             <td>' . $client->phone . '</td>
-                            <td>' . $client->graduation_year_real . '</td>
+                            <td>' . $client->graduation_year_now . '</td>
                             <td>' . $client->triggered_by . '</td>
                             <td>' . $client->lead_source_log . '</td>
                             <td>' . date('D, d M Y', strtotime($client->created_at))  . '</td>

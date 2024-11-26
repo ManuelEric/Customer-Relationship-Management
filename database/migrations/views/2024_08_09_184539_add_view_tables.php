@@ -461,6 +461,14 @@ return new class extends Migration
         ORDER BY inv_id_year ASC, inv_id_month ASC, inv_id_num ASC
         ');
 
+        # deleted column:
+        # second_client_real_grade
+        # second_client_grade_now
+        # second_client_year_gap
+        # second_client_graduation_year_real
+        # real_grade
+        # year_gap
+        # graduation_year_real
         DB::statement('
         CREATE OR REPLACE VIEW raw_client AS
         SELECT 
@@ -480,19 +488,9 @@ return new class extends Migration
             scsch.sch_name as second_school_name,
             scsch.is_verified as is_verifiedsecond_school,
             rc.scholarship,
-            UpdateGradeStudent (
-                year(CURDATE()),
-                year(rc.created_at),
-                month(CURDATE()),
-                month(rc.created_at),
-                second_client.st_grade
-            ) AS second_client_real_grade,
-            (CASE
-                WHEN (SELECT second_client_real_grade IS NULL) AND second_client.graduation_year IS NOT NULL THEN (12 - (second_client.graduation_year - YEAR(NOW())))  
-                ELSE (SELECT second_client_real_grade)
-            END) as second_client_grade_now,
-            (SELECT ((SELECT second_client_grade_now) - 12)) AS second_client_year_gap,
-            (SELECT YEAR((NOW() - INTERVAL (SELECT second_client_year_gap) YEAR) + INTERVAL 1 YEAR)) AS second_client_graduation_year_real,
+            second_client.grade_now AS second_client_grade_now,
+            second_client.gap_year AS second_client_year_gap,
+            second_client.graduation_year_now AS second_client_graduation_year_now,
             (SELECT 
                 GROUP_CONCAT(
                     (CASE
@@ -523,7 +521,7 @@ return new class extends Migration
                 rc.st_grade
             ) AS real_grade,
             (SELECT (rc.grade_now - 12)) AS year_gap,
-            (SELECT YEAR((NOW() - INTERVAL (SELECT year_gap) YEAR) + INTERVAL 1 YEAR)) AS graduation_year_real,
+            rc.graduation_year_now,
             rc.graduation_year,
             rc.lead_id,
             (CASE 

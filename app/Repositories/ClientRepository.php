@@ -341,7 +341,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('school_name', $advanced_filter['school_name']);
             })->
             when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
+                $querySearch->whereIn('client.graduation_year_now', $advanced_filter['graduation_year']);
             })->
             when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
@@ -411,7 +411,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->when(!empty($advanced_filter['school_name']), function ($subQuery) use ($advanced_filter) {
                 $subQuery->whereIn('school_name', $advanced_filter['school_name']);
             })->when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
+                $querySearch->whereIn('client.graduation_year_now', $advanced_filter['graduation_year']);
             })->when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
             })->when(!empty($advanced_filter['initial_programs']), function ($querySearch) use ($advanced_filter) {
@@ -495,7 +495,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->when(!empty($advanced_filter['school_name']), function ($subQuery) use ($advanced_filter) {
                 $subQuery->whereIn('school_name', $advanced_filter['school_name']);
             })->when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
+                $querySearch->whereIn('client.graduation_year_now', $advanced_filter['graduation_year']);
             })->when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
             })->when(!empty($advanced_filter['initial_programs']), function ($querySearch) use ($advanced_filter) {
@@ -572,7 +572,7 @@ class ClientRepository implements ClientRepositoryInterface
             })->when(!empty($advanced_filter['school_name']), function ($subQuery) use ($advanced_filter) {
                 $subQuery->whereIn('school_name', $advanced_filter['school_name']);
             })->when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
+                $querySearch->whereIn('client.graduation_year_now', $advanced_filter['graduation_year']);
             })->when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
             })->when(!empty($advanced_filter['initial_programs']), function ($querySearch) use ($advanced_filter) {
@@ -633,7 +633,7 @@ class ClientRepository implements ClientRepositoryInterface
         ->when(!empty($advanced_filter['school_name']), function ($subQuery) use ($advanced_filter) {
             $subQuery->whereIn('school_name', $advanced_filter['school_name']);
         })->when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-            $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
+            $querySearch->whereIn('client.graduation_year_now', $advanced_filter['graduation_year']);
         })->when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
             $querySearch->whereIn('lead_source', $advanced_filter['leads']);
         })->when(!empty($advanced_filter['initial_programs']), function ($querySearch) use ($advanced_filter) {
@@ -694,7 +694,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('school_name', $advanced_filter['school_name']);
             })->
             when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
+                $querySearch->whereIn('client.graduation_year_now', $advanced_filter['graduation_year']);
             })->
             isNotSalesAdmin()->
             isUsingAPI()->
@@ -762,7 +762,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('school_name', $advanced_filter['school_name']);
             })->
             when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
+                $querySearch->whereIn('client.graduation_year_now', $advanced_filter['graduation_year']);
             })->
             isNotSalesAdmin()->
             isUsingAPI()->
@@ -784,7 +784,7 @@ class ClientRepository implements ClientRepositoryInterface
                 'client.lead_source',
                 'client.mail',
                 'client.phone',
-                'client.graduation_year_real',
+                'client.graduation_year_now',
                 'client.dob',
                 'client.created_at',
                 'client.updated_at',
@@ -892,7 +892,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->whereIn('school_name', $advanced_filter['school_name']);
             })->
             when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
+                $querySearch->whereIn('client.graduation_year_now', $advanced_filter['graduation_year']);
             })->
             when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
@@ -1711,7 +1711,7 @@ class ClientRepository implements ClientRepositoryInterface
                     $subQuery->whereIn('school_name', $advanced_filter['school_name']);
                 })->
                 when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                    $querySearch->whereIn('client.graduation_year_real', $advanced_filter['graduation_year']);
+                    $querySearch->whereIn('client.graduation_year_now', $advanced_filter['graduation_year']);
                 })->
                 when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                     $querySearch->whereIn('lead_source', $advanced_filter['leads']);
@@ -1810,7 +1810,7 @@ class ClientRepository implements ClientRepositoryInterface
                     }
                 })->
                 when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                    $querySearch->whereIn('graduation_year', $advanced_filter['graduation_year']);
+                    $querySearch->whereIn('graduation_year_now', $advanced_filter['graduation_year']);
                 })->
                 when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                     $querySearch->whereIn('lead_source', $advanced_filter['leads']);
@@ -2213,7 +2213,7 @@ class ClientRepository implements ClientRepositoryInterface
     {
         $clients = ClientLog::leftJoin('client', 'client.id', '=', 'tbl_client_log.client_id')
                     ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client_log.lead_source')
-                    ->select('client.full_name', 'client.mail', 'client.phone', 'client.graduation_year_real', 'client.pic_name', 'tbl_client_log.inputted_from as triggered_by', 'tbl_lead.main_lead as lead_source_log', 'tbl_client_log.created_at')
+                    ->select('client.full_name', 'client.mail', 'client.phone', 'client.graduation_year_now', 'client.pic_name', 'tbl_client_log.inputted_from as triggered_by', 'tbl_lead.main_lead as lead_source_log', 'tbl_client_log.created_at')
                     ->where('tbl_client_log.category', $category)
                     ->when($month_year, function ($subQuery) use ($month_year) {
                         $subQuery->whereMonth('tbl_client_log.created_at', date('m', strtotime($month_year)))->whereYear('tbl_client_log.created_at', date('Y', strtotime($month_year)));
@@ -2345,5 +2345,16 @@ class ClientRepository implements ClientRepositoryInterface
         $created_client_log = ClientLog::create($client_log_details);
 
         return $created_client_log;
+    }
+
+    public function getAllStudents()
+    {
+        return UserClient::withTrashed()->whereRoleName('student')->get();
+    }
+
+    public function updateClientWithTrashed($clientId, array $newDetails)
+    {
+        $updated = tap(UserClient::withTrashed()->whereId($clientId)->first())->update($newDetails);
+        return $updated;
     }
 }

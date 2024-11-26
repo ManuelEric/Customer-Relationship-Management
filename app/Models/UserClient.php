@@ -24,7 +24,7 @@ class UserClient extends Authenticatable
 
     protected $table = 'tbl_client';
     public $incrementing = false;
-    protected $appends = ['lead_source', 'graduation_year_real', 'referral_name'];
+    protected $appends = ['lead_source', 'referral_name'];
     protected $keyType = 'string';
 
     /**
@@ -51,12 +51,14 @@ class UserClient extends Authenticatable
         'sch_id',
         // 'sch_uuid',
         'st_grade',
+        'grade_now',
         'lead_id',
         'eduf_id',
         'partner_id',
         'event_id',
         'st_levelinterest',
         'graduation_year',
+        'graduation_year_now',
         'gap_year',
         'st_abryear',
         // 'st_abrcountry',
@@ -174,19 +176,19 @@ class UserClient extends Authenticatable
         );
     }
 
-    protected function gradeNow(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => $this->getGradeNowFromView($this->id)
-        );
-    }
+    // protected function gradeNow(): Attribute
+    // {
+    //     return Attribute::make(
+    //         get: fn ($value) => $this->getGradeNowFromView($this->id)
+    //     );
+    // }
 
-    protected function graduationYearReal(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => $this->getGraduationYearFromView($this->id)
-        );
-    }
+    // protected function graduationYearReal(): Attribute
+    // {
+    //     return Attribute::make(
+    //         get: fn ($value) => $this->getGraduationYearFromView($this->id)
+    //     );
+    // }
 
     protected function participated(): Attribute
     {
@@ -324,15 +326,15 @@ class UserClient extends Authenticatable
         }
     }
 
-    public function getGraduationYearFromView($id)
-    {
-        return DB::table('client')->find($id)->graduation_year_real ?? null;
-    }
+    // public function getGraduationYearFromView($id)
+    // {
+    //     return DB::table('client')->find($id)->graduation_year_real ?? null;
+    // }
 
-    public function getGradeNowFromView($id)
-    {
-        return DB::table('client')->find($id)->grade_now ?? null;
-    }
+    // public function getGradeNowFromView($id)
+    // {
+    //     return DB::table('client')->find($id)->grade_now ?? null;
+    // }
 
     public function getParticipatedFromView($id)
     {

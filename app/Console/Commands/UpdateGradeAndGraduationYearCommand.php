@@ -46,7 +46,8 @@ class UpdateGradeAndGraduationYearCommand extends Command
         DB::beginTransaction();
         try {
 
-            $clients = $this->clientRepository->getAllClientByRole('Student');
+            $clients = $this->clientRepository->getAllStudents();
+
             $progress_bar = $this->output->createProgressBar($clients->count());
             $progress_bar->start();
 
@@ -70,20 +71,20 @@ class UpdateGradeAndGraduationYearCommand extends Command
                 }
 
                 $client->st_grade == null && $client->graduation_year == null ? $grade_now = $graduation_year_now = null : null;
-            
-                # Update grade now and graduation year now to tbl_client
-                $this->clientRepository->updateClient($client->id, ['grade_now' => $grade_now, 'graduation_year_now' => $graduation_year_now, 'updated_at' => $client->updated_at]);
 
+                # Update grade now and graduation year now to tbl_client
+                $this->clientRepository->updateClientWithTrashed($client->id, ['grade_now' => $grade_now, 'graduation_year_now' => $graduation_year_now, 'updated_at' => $client->updated_at]);
+                
                 $progress_bar->advance();
             }
-
+            
             DB::commit();
             $progress_bar->finish();
 
         } catch (Exception $e) {
             
             DB::rollBack();
-            Log::info('Cron Update grade and graduation year not working normal. Error : '. $e->getMessage() .' | Line '. $e->getLine());
+            Log::error('Cron Update grade and graduation year not working normal. Error : '. $e->getMessage() .' | Line '. $e->getLine());
 
         }
 

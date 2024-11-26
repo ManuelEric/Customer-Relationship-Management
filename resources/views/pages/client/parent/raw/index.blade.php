@@ -300,7 +300,7 @@
                         }
                     },
                     {
-                        data: 'second_client_graduation_year_real',
+                        data: 'second_client_graduation_year_now',
                         className: 'text-center',
                         defaultContent: '-'
                     },
