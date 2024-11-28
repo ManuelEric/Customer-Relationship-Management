@@ -104,7 +104,7 @@ class ExportClient implements ShouldQueue
                 $this->replaceNullValue($client->parent_mail),
                 $this->replaceNullValue($client->parent_phone),
                 $this->replaceNullValue($client->school_name),
-                $this->replaceNullValue($client->graduation_year_real),
+                $this->replaceNullValue($client->graduation_year_now),
                 $this->replaceNullValue($client->grade_now),
                 $this->replaceNullValue($client->insta),
                 $this->replaceNullValue($client->state),

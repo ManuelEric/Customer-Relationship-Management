@@ -299,7 +299,7 @@
                                     .parents[0].last_name !== null ? item.parents[0].last_name : '') : '-'
                             ) +
                             '</td>' +
-                            '<td>' + (item.graduation_year_real !== null ? item.graduation_year_real :
+                            '<td>' + (item.graduation_year_now !== null ? item.graduation_year_now :
                                 '-') + '</td>' +
                             '<td>' +
                             (item.client_program.length > 0 ?
@@ -456,7 +456,7 @@
                         }
                     },
                     {
-                        data: 'graduation_year_real',
+                        data: 'graduation_year_now',
                         className: 'text-center',
                         defaultContent: '-'
                     },

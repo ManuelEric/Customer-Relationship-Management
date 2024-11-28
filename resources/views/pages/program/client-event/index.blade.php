@@ -345,7 +345,7 @@
                         orderable: false
                     },
                     {
-                        data: 'graduation_year_real',
+                        data: 'graduation_year_now',
                         defaultContent: '-',
                         searchable: false,
                     },

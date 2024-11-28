@@ -43,6 +43,8 @@ class Client extends Model
         'event_id',
         'st_levelinterest',
         'graduation_year',
+        'graduation_year_now',
+        'grade_now',
         'gap_year',
         'st_abryear',
         // 'st_abrcountry',
@@ -150,12 +152,12 @@ class Client extends Model
         );
     }
 
-    protected function showGrade(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => $this->grade_now > 12 ? "Not high school" : $this->grade_now
-        );
-    }
+    // protected function showGrade(): Attribute
+    // {
+    //     return Attribute::make(
+    //         get: fn ($value) => $this->grade_now > 12 ? "Not high school" : $this->grade_now
+    //     );
+    // }
 
     public function parents()
     {

@@ -15,9 +15,9 @@
         </div>
         <div class="card-body">
 
-            @if($errors->any())
+            {{-- @if($errors->any())
                 {!! implode('', $errors->all('<div>:message</div>')) !!}
-            @endif
+            @endif --}}
 
             <form action="{{ isset($teacher_counselor) ? route('teacher-counselor.update', ['teacher_counselor' => $teacher_counselor->id]) : route('teacher-counselor.store') }}" method="post">
                 @csrf

@@ -53,6 +53,8 @@ interface ClientRepositoryInterface
     public function countClientByRole($role, $month = null);
     public function defineCategoryClient($client_ids, $is_many_request = false);
     public function createClientLog(Array $client_log_details);
+    public function getAllStudents();
+    public function updateClientWithTrashed($clientId, array $newDetails);
 
 
     /* ~ END */

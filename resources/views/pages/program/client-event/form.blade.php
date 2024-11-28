@@ -529,7 +529,7 @@
                                 <tr>
                                     <td width="30%">Graduation Year</td>
                                     <td width="1%">:</td>
-                                    <td>{{ $client->graduation_year_real ?? '-'}}</td>
+                                    <td>{{ $client->graduation_year_now ?? '-'}}</td>
                                 </tr>
                                 <tr>
                                     <td>Register By</td>

@@ -158,7 +158,7 @@ class SalesDashboardController extends Controller
                                     <td>' . $pic_name .'</td>
                                     <td>' . $client->mail . '</td>
                                     <td>' . $client->phone . '</td>
-                                    <td>' . $client->graduation_year_real . '</td>
+                                    <td>' . $client->graduation_year_now . '</td>
                                     <td>' . date('d F Y H:i', strtotime($client->created_at)) . '</td>
                                 </tr>';
     
@@ -168,7 +168,7 @@ class SalesDashboardController extends Controller
                             'pic_name' => $pic_name,
                             'email' => $client->mail,
                             'phone' => $client->phone,
-                            'graduation_year' => $client->graduation_year_real,
+                            'graduation_year' => $client->graduation_year_now,
                             'register_date' => date('d F Y H:i', strtotime($client->created_at)),
                         ];
                     }
@@ -192,7 +192,7 @@ class SalesDashboardController extends Controller
                                 <td class="text-center">' . $clientsPic . '</td>
                                 <td>' . $client->mail . '</td>
                                 <td>' . $client->phone . '</td>
-                                <td>' . $client->graduation_year_real . '</td>
+                                <td>' . $client->graduation_year_now . '</td>
                                 <td>' . date('D, d M Y', strtotime($client->created_at))  . '</td>
                             </tr>';
     
@@ -202,7 +202,7 @@ class SalesDashboardController extends Controller
                         'pic_name' => $clientsPic,
                         'email' => $client->mail,
                         'phone' => $client->phone,
-                        'graduation_year' => $client->graduation_year_real,
+                        'graduation_year' => $client->graduation_year_now,
                         'register_date' => date('d F Y H:i', strtotime($client->created_at)),
                     ];
                 }

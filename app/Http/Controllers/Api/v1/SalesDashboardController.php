@@ -153,16 +153,16 @@ class SalesDashboardController extends Controller
                 $styling = $client_register_date == $now ? 'class="bg-primary text-white popup-modal-detail-client"' : 'class="popup-modal-detail-client"';
     
                 $html .= '<tr ' . $styling . ' data-detail="' . $client->id . '">
-                                <td>' . $index++ . '</td>
-                                <td>' . $client->full_name . '</td>
-                                <td class="text-center">' . $client->pic_name . '</td>
-                                <td>' . $client->mail . '</td>
-                                <td>' . $client->phone . '</td>
-                                <td>' . $client->graduation_year_real . '</td>
-                                <td>' . $client->triggered_by . '</td>
-                                <td>' . $client->lead_source_log . '</td>
-                                <td>' . date('D, d M Y', strtotime($client->created_at))  . '</td>
-                            </tr>';
+                            <td>' . $index++ . '</td>
+                            <td>' . $client->full_name . '</td>
+                            <td class="text-center">' . $client->pic_name . '</td>
+                            <td>' . $client->mail . '</td>
+                            <td>' . $client->phone . '</td>
+                            <td>' . $client->graduation_year_now . '</td>
+                            <td>' . $client->triggered_by . '</td>
+                            <td>' . $client->lead_source_log . '</td>
+                            <td>' . date('D, d M Y', strtotime($client->created_at))  . '</td>
+                        </tr>';
             }
         } catch (Exception $e) {
             $log_service->createErrorLog(LogModule::SALES_DASHBOARD_GET_CLIENT_BY_MONTH_AND_TYPE, $e->getMessage(), $e->getLine(), $e->getFile());
