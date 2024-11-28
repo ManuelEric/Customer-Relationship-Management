@@ -21,7 +21,7 @@
                             </div>
                             <div class="card-body overflow-auto" style="height: 350px">
                                 <ul class="list-group" id="successful-program">
-                                    @forelse ($allSuccessProgramByMonth as $detail)
+                                    @forelse ($all_success_program_by_month as $detail)
                                         <li class="list-group-item d-flex justify-content-between align-items-center cursor-pointer btn-light detail-success-program" data-prog="{{ $detail->prog_id }}">
                                             <div class="text-start">{{ $detail->program_name_st }}</div>
                                             <span
@@ -66,7 +66,7 @@
                                                                                 <td class="text-end">
                                                                                     <span
                                                                                         class="badge badge-info init-consult-details">
-                                                                                        {{ $totalInitialConsultation }}
+                                                                                        {{ $total_initial_consultation }}
                                                                                     </span>
                                                                                 </td>
                                                                             </tr>
@@ -84,7 +84,7 @@
                                                                                 <td class="text-end">
                                                                                     <span
                                                                                         class="badge badge-info init-consult-details">
-                                                                                        {{ $successProgram }}
+                                                                                        {{ $success_program }}
                                                                                     </span>
                                                                                 </td>
                                                                             </tr>
@@ -93,7 +93,7 @@
                                                                                 <td class="text-end">
                                                                                     <span
                                                                                         class="badge badge-info init-consult-details">
-                                                                                        {{ isset($initialAssessmentMaking) ? (int) $initialAssessmentMaking->initialMaking : 0 }}
+                                                                                        {{ isset($initial_assessment_making) ? (int) $initial_assessment_making->initialMaking : 0 }}
                                                                                         Days
                                                                                     </span>
                                                                                 </td>
@@ -103,7 +103,7 @@
                                                                                 <td class="text-end">
                                                                                     <span
                                                                                         class="badge badge-info init-consult-details">
-                                                                                        {{ isset($conversionTimeProgress) ? (int) $conversionTimeProgress->conversionTime : 0 }}
+                                                                                        {{ isset($conversion_time_progress) ? (int) $conversion_time_progress->conversionTime : 0 }}
                                                                                         Days
                                                                                     </span>
                                                                                 </td>
@@ -113,7 +113,7 @@
                                                                                 <td class="text-end">
                                                                                     <span
                                                                                         class="badge badge-info init-consult-details">
-                                                                                        {{ round($successPercentage) }}%
+                                                                                        {{ round($success_percentage) }}%
                                                                                     </span>
                                                                                 </td>
                                                                             </tr>
@@ -130,7 +130,7 @@
                                     <div class="card-header d-flex justify-content-between">
                                         <div>Total :</div>
                                         <div class="init-consult-details">Rp.
-                                            {{ number_format($totalRevenueAdmissionMentoring, '2', ',', '.') }}
+                                            {{ number_format($total_revenue_adm_mentoring_by_program_and_month, '2', ',', '.') }}
                                         </div>
                                     </div>
                                 </div>
@@ -144,7 +144,7 @@
                                     <div class="card-header d-flex justify-content-between">
                                         <div>Total :</div>
                                         <div class="academic-prep-details">Rp.
-                                            {{ number_format($totalRevenueAcadTestPrepByMonth, '2', ',', '.') }}</div>
+                                            {{ number_format($total_revenue_acad_test_prep_by_month, '2', ',', '.') }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -156,7 +156,7 @@
                                     <div class="card-header d-flex justify-content-between">
                                         <div>Total :</div>
                                         <div class="career-exp-details">Rp.
-                                            {{ number_format($totalRevenueCareerExplorationByMonth, '2', ',', '.') }}
+                                            {{ number_format($total_revenue_career_exploration_by_month, '2', ',', '.') }}
                                         </div>
                                     </div>
                                 </div>
@@ -463,7 +463,7 @@ $(document).ready(function(){
     const all = document.getElementById('clientProgram');
 
     var dataset_program = new Array()
-    @foreach ($clientProgramGroupByStatus as $key => $val)
+    @foreach ($client_program_group_by_status as $key => $val)
         dataset_program.push({{ (int) $val }})
     @endforeach
 
@@ -514,7 +514,7 @@ $(document).ready(function(){
 
     // create a dataset for admission mentoring by status
     var dataset_admentoring = new Array()
-    @foreach ($admissionsMentoring as $key => $val)
+    @foreach ($admissions_mentoring as $key => $val)
         dataset_admentoring.push({{ (int) $val }})
     @endforeach
 
@@ -565,8 +565,9 @@ $(document).ready(function(){
 
                 axios.get(link)
                     .then(function (response) {
-
+                        
                         let obj = response.data;
+                        console.log(obj);
                         $("#adm_mentor_modal").modal('show');
                         $("#adm_mentor_modal .adm_mentor_modal_body").html(obj.ctx) 
                         swal.close();
@@ -585,7 +586,7 @@ $(document).ready(function(){
 
     // create a dataset for admission mentoring by status
     var dataset_acadtestprep = new Array()
-    @foreach ($academicTestPrep as $key => $val)
+    @foreach ($academic_test_prep as $key => $val)
         dataset_acadtestprep.push({{ (int) $val }})
     @endforeach
 
@@ -656,7 +657,7 @@ $(document).ready(function(){
 
     // create a dataset for admission mentoring by status
     var dataset_careerexploration = new Array()
-    @foreach ($careerExploration as $key => $val)
+    @foreach ($career_exploration as $key => $val)
         dataset_careerexploration.push({{ (int) $val }})
     @endforeach
 
@@ -726,7 +727,7 @@ $(document).ready(function(){
 
     // create a dataset for initial consultation
     var dataset_initconsult = new Array()
-    @foreach ($initialConsultation as $key => $val)
+    @foreach ($initial_consultation as $key => $val)
         dataset_initconsult.push({{ (int) $val }})
     @endforeach
 

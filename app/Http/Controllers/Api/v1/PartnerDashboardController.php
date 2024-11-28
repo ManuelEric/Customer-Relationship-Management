@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Enum\LogModule;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Interfaces\CorporateRepositoryInterface;
@@ -13,7 +14,9 @@ use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\ReferralRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
+use App\Services\Log\LogService;
 use Carbon\Carbon;
+use Exception;
 
 class PartnerDashboardController extends Controller
 {
@@ -42,62 +45,58 @@ class PartnerDashboardController extends Controller
     }
 
 
-    public function getTotalByMonth(Request $request)
+    public function fnGetTotalByMonth(Request $request, LogService $log_service)
     {
 
-        $monthYear = $request->route('month');
+        $month_year = $request->route('month');
         $type = $request->route('type');
+        $last_month = Carbon::parse($month_year)->subMonth(1)->format('Y-m');
 
         if ($type == 'all') {
-            $monthYear = date('Y-m');
+            $month_year = Carbon::now()->format('Y-m'); # current month and year, ex: 2024-11
             $last_month = Carbon::now()->subMonth()->format('Y-m');
-        } else {
-            $last_month = date('Y-m', strtotime('-1 month', strtotime($monthYear)));
         }
 
-        $newPartner = $this->corporateRepository->getCorporateByMonthly($monthYear, 'monthly');
-        $lastMonthPartner = $this->corporateRepository->getCorporateByMonthly($last_month, 'all');
+        $data = null;
+        $success = false;
+        try {
 
-        $newSchool = $this->schoolRepository->getSchoolByMonthly($monthYear, 'monthly');
-        $lastMonthSchool = $this->schoolRepository->getSchoolByMonthly($last_month, 'all');
-
-        $newUniversity = $this->universityRepository->getUniversityByMonthly($monthYear, 'monthly');
-        $lastMonthUniversity = $this->universityRepository->getUniversityByMonthly($last_month, 'all');
-
-        $totalAgreement = $this->partnerAgreementRepository->getPartnerAgreementByMonthly($monthYear, 'all');
-        $lastMonthAgreement = $this->partnerAgreementRepository->getPartnerAgreementByMonthly($last_month, 'all');
-
-        $data = [
-            'totalPartner' => $lastMonthPartner,
-            'totalSchool' => $lastMonthSchool,
-            'totalUniversity' => $lastMonthUniversity,
-            'newPartner' => $newPartner,
-            'newSchool' => $newSchool,
-            'newUniversity' => $newUniversity,
-            'totalAgreement' => $totalAgreement,
-            'percentagePartner' => $this->calculatePercentage($lastMonthPartner, $newPartner),
-            'percentageSchool' => $this->calculatePercentage($lastMonthSchool, $newSchool),
-            'percentageUniversity' => $this->calculatePercentage($lastMonthUniversity, $newUniversity),
-            'percentageAgreement' => $this->calculatePercentage($lastMonthAgreement, $totalAgreement),
-
-        ];
-
-        if ($data) {
-            $response = [
-                'success' => true,
-                'data' => $data
+            $new_partner = $this->corporateRepository->getCorporateByMonthly($month_year, 'monthly');
+            $last_month_partner = $this->corporateRepository->getCorporateByMonthly($last_month, $type);
+    
+            $new_school = $this->schoolRepository->getSchoolByMonthly($month_year, 'monthly');
+            $last_month_school = $this->schoolRepository->getSchoolByMonthly($last_month, $type);
+    
+            $new_university = $this->universityRepository->getUniversityByMonthly($month_year, 'monthly');
+            $last_month_university = $this->universityRepository->getUniversityByMonthly($last_month, $type);
+    
+            $total_agreement = $this->partnerAgreementRepository->getPartnerAgreementByMonthly($month_year, $type);
+            $last_month_agreement = $this->partnerAgreementRepository->getPartnerAgreementByMonthly($last_month, $type);
+    
+            $data = [
+                'totalPartner' => $last_month_partner,
+                'totalSchool' => $last_month_school,
+                'totalUniversity' => $last_month_university,
+                'newPartner' => $new_partner,
+                'newSchool' => $new_school,
+                'newUniversity' => $new_university,
+                'totalAgreement' => $total_agreement,
+                'percentagePartner' => $this->fnPartnershipCalculatePercentage($last_month_partner, $new_partner),
+                'percentageSchool' => $this->fnPartnershipCalculatePercentage($last_month_school, $new_school),
+                'percentageUniversity' => $this->fnPartnershipCalculatePercentage($last_month_university, $new_university),
+                'percentageAgreement' => $this->fnPartnershipCalculatePercentage($last_month_agreement, $total_agreement),
+    
             ];
-        } else {
-            $response = [
-                'success' => false,
-                'data' => null
-            ];
+            $success = true;
+        } catch (Exception $e) {
+            $log_service->createErrorLog(LogModule::PARTNERSHIP_DASHBOARD_GET_TOTAL_MONTHLY, $e->getMessage(), $e->getLine(), $e->getFile(), compact('month_year', 'type'));
         }
 
-        return response()->json($response);
+        $log_service->createSuccessLog(LogModule::PARTNERSHIP_DASHBOARD_GET_TOTAL_MONTHLY, 'Fetch total monthly success', $data);
+        return response()->json(compact('success', 'data'));
     }
 
-    private function calculatePercentage($last_month_data, $monthly_data)
+    private function fnPartnershipCalculatePercentage($last_month_data, $monthly_data)
     {
         if ($monthly_data == 0 && $last_month_data == 0)
             return "0,00";
@@ -108,64 +107,59 @@ class PartnerDashboardController extends Controller
     }
 
 
-    public function getSpeakerByDate(Request $request)
+    public function fnGetSpeakerByDate(Request $request, LogService $log_service)
     {
         $date = $request->route('date');
 
-        $data = [
-            'allSpeaker' => $this->agendaSpeakerRepository->getAllSpeakerDashboard('byDate', $date),
-        ];
-
-        if ($data) {
-            $response = [
-                'success' => true,
-                'data' => $data
-            ];
-        } else {
-            $response = [
-                'success' => false,
-                'data' => null
-            ];
+        $success = false;
+        $response = array();
+        try {
+            if ( $all_speaker = $this->agendaSpeakerRepository->getAllSpeakerDashboard('byDate', $date) )
+            {
+                $success = true;
+                $response['allSpeaker'] = $all_speaker;
+            }
+        } catch (Exception $e) {
+            $log_service->createErrorLog(LogModule::PARTNERSHIP_DASHBOARD_GET_SPEAKER_BY_DATE, $e->getMessage(), $e->getLine(), $e->getFile(), ['date' => $date]);
         }
 
-        return response()->json($response);
+        $log_service->createSuccessLog(LogModule::PARTNERSHIP_DASHBOARD_GET_SPEAKER_BY_DATE, 'Fetch speaker success');
+        return response()->json(compact('success', 'data'));
     }
 
-    public function getPartnershipProgramByMonth(Request $request)
+    public function fnGetPartnershipProgramByMonth(Request $request, LogService $log_service)
     {
-        $monthYear = $request->route('month');
-
-        $schoolPrograms = $this->schoolProgramRepository->getStatusSchoolProgramByMonthly($monthYear);
-        $partnerPrograms = $this->partnerProgramRepository->getStatusPartnerProgramByMonthly($monthYear);
-
-        $data = [
-            'statusSchoolPrograms' => $schoolPrograms,
-            'statusPartnerPrograms' => $partnerPrograms,
-            'referralTypes' => $this->referralRepository->getReferralTypeByMonthly($monthYear),
-            'totalPartnerProgram' => $partnerPrograms->where('status', 1)->sum('total_fee'),
-            'totalSchoolProgram' => $schoolPrograms->where('status', 1)->sum('total_fee'),
-        ];
-
-        if ($data) {
-            $response = [
-                'success' => true,
-                'data' => $data
+        $month_year = $request->route('month');
+        $data = null;
+        $success = false;
+        
+        try {
+            $school_programs = $this->schoolProgramRepository->getStatusSchoolProgramByMonthly($month_year);
+            $partner_programs = $this->partnerProgramRepository->getStatusPartnerProgramByMonthly($month_year);
+            
+            $data = [
+                'statusSchoolPrograms' => $school_programs,
+                'statusPartnerPrograms' => $partner_programs,
+                'referralTypes' => $this->referralRepository->getReferralTypeByMonthly($month_year),
+                'totalPartnerProgram' => $partner_programs->where('status', 1)->sum('total_fee'),
+                'totalSchoolProgram' => $school_programs->where('status', 1)->sum('total_fee'),
             ];
-        } else {
-            $response = [
-                'success' => false,
-                'data' => null
-            ];
+        } catch (Exception $e) {
+            $log_service->createErrorLog(LogModule::PARTNERSHIP_DASHBOARD_GET_PARTNERSHIP_PROGRAM_MONTHLY, $e->getMessage(), $e->getLine(), $e->getFile(), ['month_year' => $month_year]);
         }
 
-        return response()->json($response);
+        $log_service->createSuccessLog(LogModule::PARTNERSHIP_DASHBOARD_GET_PARTNERSHIP_PROGRAM_MONTHLY, 'Fetch partnership program success');
+        return response()->json(compact('success', 'data'));
     }
 
-    public function getPartnershipProgramDetailByMonth(Request $request)
+    public function fnGetPartnershipProgramDetailByMonth(Request $request, LogService $log_service)
     {
         $type = $request->route('type');
         $status = $request->route('status');
-        $monthYear = $request->route('month');
+        $month_year = $request->route('month');
+        $data = null;
+        $success = false;
+
 
         switch ($status) {
             case 'Pending':
@@ -192,76 +186,65 @@ class PartnerDashboardController extends Controller
             case 'Referral Out':
                 $status = 'Out';
                 break;
+
+            default:
+                $status;
         }
 
-        switch ($type) {
-            case 'school':
-                $data = $this->schoolProgramRepository->getAllSchoolProgramByStatusAndMonth($status, $monthYear);
-                break;
-            case 'partner':
-                $data = $this->partnerProgramRepository->getAllPartnerProgramByStatusAndMonth($status, $monthYear);
-                break;
-            case 'referral':
-                $data = $this->referralRepository->getAllReferralByTypeAndMonth($status, $monthYear);
-                break;
+        try {
+            switch ($type) {
+                case 'school':
+                    $data = $this->schoolProgramRepository->getAllSchoolProgramByStatusAndMonth($status, $month_year);
+                    break;
+                case 'partner':
+                    $data = $this->partnerProgramRepository->getAllPartnerProgramByStatusAndMonth($status, $month_year);
+                    break;
+                case 'referral':
+                    $data = $this->referralRepository->getAllReferralByTypeAndMonth($status, $month_year);
+                    break;
+            }
+        } catch (Exception $e) {
+            $log_service->createErrorLog(LogModule::PARTNERSHIP_DASHBOARD_GET_PARTNERSHIP_PROGRAM_DETAIL, $e->getMessage(), $e->getLine(), $e->getFile(), ['type' => $type, 'month_year' => $month_year, 'status' => $status]);
         }
 
-
-        if ($data) {
-            $response = [
-                'success' => true,
-                'data' => $data
-            ];
-        } else {
-            $response = [
-                'success' => false,
-                'data' => null
-            ];
-        }
-
-        return response()->json($response);
+        $log_service->createSuccessLog(LogModule::PARTNERSHIP_DASHBOARD_GET_PARTNERSHIP_PROGRAM_DETAIL, 'Fetch partnership program detail success');
+        return response()->json(compact('success', 'data'));
     }
 
-    public function getProgramComparison(Request $request)
+    public function fnGetProgramComparison(Request $request, LogService $log_service)
     {
-        $startYear = $request->route('start_year');
-        $endYear = $request->route('end_year');
+        $start_year = $request->route('start_year');
+        $end_year = $request->route('end_year');
+        $success = false;
+        $data = null;
 
-        $schoolProgramMerge = $this->schoolProgramRepository->getSchoolProgramComparison($startYear, $endYear);
-        $partnerProgramMerge = $this->partnerProgramRepository->getPartnerProgramComparison($startYear, $endYear);
-        $referralMerge = $this->referralRepository->getReferralComparison($startYear, $endYear);
-        $totReferral = $this->referralRepository->getTotalReferralProgramComparison($startYear, $endYear);
-
-        $programComparisonMerge = $this->mergeProgramComparison($schoolProgramMerge, $partnerProgramMerge, $referralMerge);
-
-        $programComparisons = $this->mappingProgramComparison($programComparisonMerge);
-
-        $data = [
-            'programComparisons' => $programComparisons,
-            'partnerPrograms' => $this->partnerProgramRepository->getPartnerProgramComparison($startYear, $endYear),
-            'totalSch' => $this->schoolProgramRepository->getTotalSchoolProgramComparison($startYear, $endYear),
-            'totalPartner' => $this->partnerProgramRepository->getTotalPartnerProgramComparison($startYear, $endYear),
-            'totalReferral' => $this->referralRepository->getTotalReferralProgramComparison($startYear, $endYear),
-        ];
-
-        if ($data) {
-            $response = [
-                'success' => true,
-                'data' => $data
+        try {
+            $school_program_merge = $this->schoolProgramRepository->getSchoolProgramComparison($start_year, $end_year);
+            $partner_program_merge = $this->partnerProgramRepository->getPartnerProgramComparison($start_year, $end_year);
+            $referral_merge = $this->referralRepository->getReferralComparison($start_year, $end_year);
+            $total_referral = $this->referralRepository->getTotalReferralProgramComparison($start_year, $end_year);
+            $program_comparison_merge = $this->mergeProgramComparison($school_program_merge, $partner_program_merge, $referral_merge);
+            $program_comparisons = $this->fnMappingProgramComparison($program_comparison_merge);
+    
+            $data = [
+                'programComparisons' => $program_comparisons,
+                'partnerPrograms' => $partner_program_merge,
+                'totalSch' => $this->schoolProgramRepository->getTotalSchoolProgramComparison($start_year, $end_year),
+                'totalPartner' => $this->partnerProgramRepository->getTotalPartnerProgramComparison($start_year, $end_year),
+                'totalReferral' => $total_referral
             ];
-        } else {
-            $response = [
-                'success' => false,
-                'data' => null
-            ];
+            $success = true;
+        } catch (Exception $e) {
+            $log_service->createErrorLog(LogModule::PARTNERSHIP_DASHBOARD_GET_PROGRAM_COMPARISON, $e->getMessage(), $e->getLine(), $e->getFile(), ['start_year' => $start_year, 'end_year' => $end_year]);
         }
 
-        return response()->json($response);
+        $log_service->createSuccessLog(LogModule::PARTNERSHIP_DASHBOARD_GET_PROGRAM_COMPARISON, 'Fetch program comparison success');
+        return response()->json(compact('success', 'data'));
     }
 
-    public function getPartnerDetailByMonth(Request $request)
+    public function fnGetPartnerDetailByMonth(Request $request, LogService $log_service)
     {
-        $monthYear = $request->route('month');
+        $month_year = $request->route('month');
         $type = $request->route('type');
 
         $index = 1;
@@ -269,161 +252,168 @@ class PartnerDashboardController extends Controller
         $html = '';
         $additional_header = '';
         $additional_content = '';
-        $uncompletedSchools = null;
+        $uncompleted_schools = null;
 
-        switch ($type) {
-            case 'Partner':
-                $additional_header = '';
-                $additional_content = '';
-                $partners = $this->corporateRepository->getCorporateByMonthly($monthYear, 'list');
-                if ($partners->count() == 0)
-                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="7">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
+        try {
 
-                foreach ($partners as $partner) {
-
-                    $html .= '<tr class="detail" data-corpid="' . $partner->corp_id . '" data-type="partner" style="cursor:pointer">
-                        <td>' . $index++ . '</td>
-                        <td>' . $partner->corp_name . '</td>
-                        <td>' . $partner->corp_mail . '</td>
-                        <td>' . $partner->corp_phone . '</td>
-                        <td>' . $partner->type . '</td>
-                        <td>' . $partner->country_type . '</td>
-                        <td>' . $partner->created_at . '</td>
-                    </tr>';
-                }
-                break;
-
-            case 'School':
-                $uncompletedSchools = $this->schoolRepository->getUncompeteSchools();
-
-                $schools = $this->schoolRepository->getSchoolByMonthly($monthYear, 'list');
-                if ($uncompletedSchools->count() > 0) {
-                    $additional_header .=
-                        '<tr><th colspan="6" class="text-start bg-secondary rounded border border-white text-white">Need Complete Data</th></tr>
-                        <tr class="text-white">
-                        <th class="bg-secondary rounded border border-white">No</th>
-                        <th class="bg-secondary rounded border border-white">School Name</th>
-                        <th class="bg-secondary rounded border border-white">Type</th>
-                        <th class="bg-secondary rounded border border-white">City</th>
-                        <th class="bg-secondary rounded border border-white">Location</th>
-                        <th class="bg-secondary rounded border border-white">Craeted At</th>
+            switch ($type) {
+                case 'Partner':
+                    $additional_header = '';
+                    $additional_content = '';
+                    $partners = $this->corporateRepository->getCorporateByMonthly($month_year, 'list');
+                    if ($partners->count() == 0)
+                        return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="7">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
+    
+                    foreach ($partners as $partner) {
+    
+                        $html .= '<tr class="detail" data-corpid="' . $partner->corp_id . '" data-type="partner" style="cursor:pointer">
+                            <td>' . $index++ . '</td>
+                            <td>' . $partner->corp_name . '</td>
+                            <td>' . $partner->corp_mail . '</td>
+                            <td>' . $partner->corp_phone . '</td>
+                            <td>' . $partner->type . '</td>
+                            <td>' . $partner->country_type . '</td>
+                            <td>' . $partner->created_at . '</td>
                         </tr>';
-
-                    foreach ($uncompletedSchools as $uncompletedSchool) {
-
-                        $additional_content .= '
-                            <tr class="table-danger detail" data-schid="' . $uncompletedSchool->sch_id . '" style="cursor:pointer">
-                            <td>' . $index_additional++ . '</td>
-                            <td>' . $uncompletedSchool->sch_name . '</td>
-                            <td>' . $uncompletedSchool->sch_type . '</td>
-                            <td>' . $uncompletedSchool->sch_city . '</td>
-                            <td>' . $uncompletedSchool->sch_location . '</td>
-                            <td>' . $uncompletedSchool->created_at . '</td>
-                        </tr>
-                        ';
                     }
-                }
-
-                if ($schools->count() == 0)
-                    return response()->json(
-                        [
-                            'title' => 'List of ' . ucwords(str_replace('-', ' ', $type)),
-                            'html_ctx' => '<tr align="center"><td colspan="6">No ' . str_replace('-', ' ', $type) . ' data</td></tr>',
-                            'additional_header' => $additional_header,
-                            'additional_content' => $additional_content,
-                            'total_additional' => $uncompletedSchools->count()
-                        ]
-                    );
-
-
-                foreach ($schools as $school) {
-
-                    $html .= '
-                        <tr class="detail" data-schid="' . $school->sch_id . '" data-type="school" style="cursor:pointer">
-                        <td>' . $index++ . '</td>
-                        <td>' . $school->sch_name . '</td>
-                        <td>' . $school->sch_type . '</td>
-                        <td>' . $school->sch_city . '</td>
-                        <td>' . $school->sch_location . '</td>
-                        <td>' . $school->created_at . '</td>
-                    </tr>';
-                }
-                break;
-
-            case 'University':
-                $additional_header = '';
-                $additional_content = '';
-                $universities = $this->universityRepository->getUniversityByMonthly($monthYear, 'list');
-                if ($universities->count() == 0)
-                    return response()->json(
-                        ['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="8">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']
-                    );
-
-                foreach ($universities as $university) {
-
-                    $html .= '<tr class="detail" data-univid="' . $university->univ_id . '" data-type="university" style="cursor:pointer">
-                        <td>' . $index++ . '</td>
-                        <td>' . $university->univ_id . '</td>
-                        <td>' . $university->univ_name . '</td>
-                        <td>' . $university->univ_address . '</td>
-                        <td>' . $university->univ_email . '</td>
-                        <td>' . $university->univ_phone . '</td>
-                        <td>' . $university->univ_country . '</td>
-                        <td>' . $university->created_at . '</td>
-                    </tr>';
-                }
-                break;
-
-            case 'Agreement':
-                $agreements = $this->partnerAgreementRepository->getPartnerAgreementByMonthly($monthYear, 'list');
-                if ($agreements->count() == 0)
-                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="9">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
-
-                foreach ($agreements as $agreement) {
-
-                    switch ($agreement->agreement_type) {
-                        case 0:
-                            $agreementType = 'Referral Mutual Agreement';
-                            break;
-                        case 1:
-                            $agreementType = 'Partnership Agreement';
-                            break;
-                        case 2:
-                            $agreementType = 'Speaker Agreement';
-                            break;
-                        case 3:
-                            $agreementType = 'University Agent';
-                            break;
+                    break;
+    
+                case 'School':
+                    $uncompleted_schools = $this->schoolRepository->getUncompeteSchools();
+    
+                    $schools = $this->schoolRepository->getSchoolByMonthly($month_year, 'list');
+                    if ($uncompleted_schools->count() > 0) {
+                        $additional_header .=
+                            '<tr><th colspan="6" class="text-start bg-secondary rounded border border-white text-white">Need Complete Data</th></tr>
+                            <tr class="text-white">
+                            <th class="bg-secondary rounded border border-white">No</th>
+                            <th class="bg-secondary rounded border border-white">School Name</th>
+                            <th class="bg-secondary rounded border border-white">Type</th>
+                            <th class="bg-secondary rounded border border-white">City</th>
+                            <th class="bg-secondary rounded border border-white">Location</th>
+                            <th class="bg-secondary rounded border border-white">Craeted At</th>
+                            </tr>';
+    
+                        foreach ($uncompleted_schools as $uncompletedSchool) {
+    
+                            $additional_content .= '
+                                <tr class="table-danger detail" data-schid="' . $uncompletedSchool->sch_id . '" style="cursor:pointer">
+                                <td>' . $index_additional++ . '</td>
+                                <td>' . $uncompletedSchool->sch_name . '</td>
+                                <td>' . $uncompletedSchool->sch_type . '</td>
+                                <td>' . $uncompletedSchool->sch_city . '</td>
+                                <td>' . $uncompletedSchool->sch_location . '</td>
+                                <td>' . $uncompletedSchool->created_at . '</td>
+                            </tr>
+                            ';
+                        }
                     }
-
-
-                    $html .= '<tr class="detail" data-corpid="' . $agreement->corp_id . '" data-agreementid="' . $agreement->id . '" data-type="agreement" style="cursor:pointer">
-                        <td>' . $index++ . '</td>
-                        <td>' . $agreement->partner->corp_name . '</td>
-                        <td>' . $agreement->agreement_name . '</td>
-                        <td>' . $agreementType . '</td>
-                        <td>' . date('M d, Y', strtotime($agreement->start_date)) . '</td>
-                        <td>' . date('M d, Y', strtotime($agreement->end_date)) . '</td>
-                        <td>' . $agreement->partnerPIC->pic_name . '</td>
-                        <td>' . $agreement->user->first_name . ' ' . $agreement->user->last_name . '</td>
-                        <td>' . $agreement->created_at . '</td>
-                    </tr>';
-                }
-                break;
+    
+                    if ($schools->count() == 0)
+                        return response()->json(
+                            [
+                                'title' => 'List of ' . ucwords(str_replace('-', ' ', $type)),
+                                'html_ctx' => '<tr align="center"><td colspan="6">No ' . str_replace('-', ' ', $type) . ' data</td></tr>',
+                                'additional_header' => $additional_header,
+                                'additional_content' => $additional_content,
+                                'total_additional' => $uncompleted_schools->count()
+                            ]
+                        );
+    
+    
+                    foreach ($schools as $school) {
+    
+                        $html .= '
+                            <tr class="detail" data-schid="' . $school->sch_id . '" data-type="school" style="cursor:pointer">
+                            <td>' . $index++ . '</td>
+                            <td>' . $school->sch_name . '</td>
+                            <td>' . $school->sch_type . '</td>
+                            <td>' . $school->sch_city . '</td>
+                            <td>' . $school->sch_location . '</td>
+                            <td>' . $school->created_at . '</td>
+                        </tr>';
+                    }
+                    break;
+    
+                case 'University':
+                    $additional_header = '';
+                    $additional_content = '';
+                    $universities = $this->universityRepository->getUniversityByMonthly($month_year, 'list');
+                    if ($universities->count() == 0)
+                        return response()->json(
+                            ['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="8">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']
+                        );
+    
+                    foreach ($universities as $university) {
+    
+                        $html .= '<tr class="detail" data-univid="' . $university->univ_id . '" data-type="university" style="cursor:pointer">
+                            <td>' . $index++ . '</td>
+                            <td>' . $university->univ_id . '</td>
+                            <td>' . $university->univ_name . '</td>
+                            <td>' . $university->univ_address . '</td>
+                            <td>' . $university->univ_email . '</td>
+                            <td>' . $university->univ_phone . '</td>
+                            <td>' . $university->univ_country . '</td>
+                            <td>' . $university->created_at . '</td>
+                        </tr>';
+                    }
+                    break;
+    
+                case 'Agreement':
+                    $agreements = $this->partnerAgreementRepository->getPartnerAgreementByMonthly($month_year, 'list');
+                    if ($agreements->count() == 0)
+                        return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="9">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
+    
+                    foreach ($agreements as $agreement) {
+    
+                        switch ($agreement->agreement_type) {
+                            case 0:
+                                $agreementType = 'Referral Mutual Agreement';
+                                break;
+                            case 1:
+                                $agreementType = 'Partnership Agreement';
+                                break;
+                            case 2:
+                                $agreementType = 'Speaker Agreement';
+                                break;
+                            case 3:
+                                $agreementType = 'University Agent';
+                                break;
+                        }
+    
+    
+                        $html .= '<tr class="detail" data-corpid="' . $agreement->corp_id . '" data-agreementid="' . $agreement->id . '" data-type="agreement" style="cursor:pointer">
+                            <td>' . $index++ . '</td>
+                            <td>' . $agreement->partner->corp_name . '</td>
+                            <td>' . $agreement->agreement_name . '</td>
+                            <td>' . $agreementType . '</td>
+                            <td>' . date('M d, Y', strtotime($agreement->start_date)) . '</td>
+                            <td>' . date('M d, Y', strtotime($agreement->end_date)) . '</td>
+                            <td>' . $agreement->partnerPIC->pic_name . '</td>
+                            <td>' . $agreement->user->first_name . ' ' . $agreement->user->last_name . '</td>
+                            <td>' . $agreement->created_at . '</td>
+                        </tr>';
+                    }
+                    break;
+            }
+        } catch (Exception $e) {
+            $log_service->createErrorLog(LogModule::PARTNERSHIP_DASHBOARD_GET_PARTNER_DETAIL_BY_MONTH, $e->getMessage(), $e->getLine(), $e->getFile(), ['month_year' => $month_year, 'type' => $type]);
+            
         }
 
+        $log_service->createSuccessLog(LogModule::PARTNERSHIP_DASHBOARD_GET_PARTNER_DETAIL_BY_MONTH, 'Fetch partner detail success');
         return response()->json(
             [
                 'title' => 'List of ' . ucwords($type),
                 'html_ctx' => $html,
                 'additional_header' => $additional_header,
                 'additional_content' => $additional_content,
-                'total_additional' => $uncompletedSchools ? $uncompletedSchools->count() : 0,
+                'total_additional' => $uncompleted_schools ? $uncompleted_schools->count() : 0,
             ]
         );
     }
 
-    protected function mappingProgramComparison($data)
+    protected function fnMappingProgramComparison($data)
     {
         return $data->mapToGroups(function ($item, $key) {
             return [
