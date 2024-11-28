@@ -54,9 +54,7 @@ class EdufReviewController extends Controller
     public function show(Request $request)
     {
         $id = $request->route('review');
-
         $review = $this->edufReviewRepository->getEdufairReviewById($id);
-
         return response()->json(['review' => $review]);
     }
 

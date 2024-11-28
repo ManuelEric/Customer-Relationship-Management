@@ -422,7 +422,8 @@
         </div>
     @endif
 
-
+@endsection
+@push('scripts')
     <script>
         $(document).ready(function() {
             $('.modal-select').select2({
@@ -434,6 +435,8 @@
             $('input[name=organizer]').on('change', function() {
                 change_organizer($(this).val())
             })
+
+            myEditor.destroy()
         })
 
         function change_organizer(val) {
@@ -447,18 +450,6 @@
                 $('#schoolList select').val(null).trigger('change')
             }
         }
-
-        @if (isset($edufair))
-            function resetForm() {
-                $('#reviewer_name').val(null).trigger('change')
-                $('#score').val(null).trigger('change')
-                // tinyMCE.get('review').setContent('');
-                $('.put').html('');
-                let url = "{{ url('master/edufair/' . $edufair->id . '/review') }}"
-                $('#formReview').attr('action', url)
-            }
-        @endif
-
     </script>
 
     @if (old('organizer'))
@@ -479,6 +470,7 @@
                 $('input[name=organizer]').on('change', function() {
                     change_organizer($(this).val())
                 })
+
             })
 
             function change_organizer(val) {
@@ -495,35 +487,60 @@
         </script>
 
         <script>
+            // destroy editor that initialized from app.blade.php
+            // and re-initialize the editor
+            var review_editor;
+            ClassicEditor
+                .create(document.querySelector('#review'), {
+                    toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList',
+                        'blockQuote'
+                    ],
+                    heading: {
+                        options: [{
+                                model: 'paragraph',
+                                title: 'Paragraph',
+                                class: 'ck-heading_paragraph'
+                            },
+                            {
+                                model: 'heading1',
+                                view: 'h1',
+                                title: 'Heading 1',
+                                class: 'ck-heading_heading1'
+                            },
+                            {
+                                model: 'heading2',
+                                view: 'h2',
+                                title: 'Heading 2',
+                                class: 'ck-heading_heading2'
+                            }
+                        ]
+                    }
+                })
+                .then(newEditor => {
+                    console.log('Editor was initialized', newEditor);
+                    review_editor = newEditor;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+
             var organizer = "{{ isset($edufair->sch_id) && $edufair->sch_id != null ? 'school' : 'corporate' }}"
             change_organizer(organizer)
 
-            function resetForm() {
-                $('#reviewer_name').val(null).trigger('change')
-                $('#score').val(null).trigger('change')
-                // tinyMCE.get('review').setContent('');
-                $('.put').html('');
-                let url = "{{ url('master/edufair/' . $edufair->id . '/review') }}"
-                $('#formReview').attr('action', url)
-            }
-
             function getReview(eduf_id, reviews_id) {
+
                 let link = '{{ url('master/edufair') }}/' + eduf_id + '/review/' + reviews_id
                 axios.get(link)
                     .then(function(response) {
                         let data = response.data.review
-                        // console.log(data)
-                        // handle success
                         $('#reviewer_name').val(data.reviewer_name).trigger('change')
                         $('#score').val(data.score).trigger('change')
-                        
-                        // tinyMCE.get('review').setContent(data.review);
+                        review_editor.setData(data.review)
                         
                         let url = "{{ url('master/edufair/') }}/" + data.eduf_id + "/review/" + data.id
                         $('#formReview').attr('action', url)
                         
                         let html = '{{ method_field('PUT') }}'
-                        
                         $('.put').html(html);
                     })
                     .catch(function(error) {
@@ -531,10 +548,32 @@
                         console.log(error);
                     })
             }
+
+            @if (isset($edufair))
+                function resetForm() {
+                    $('#reviewer_name').val(null).trigger('change')
+                    $('#score').val(null).trigger('change')
+                    // tinyMCE.get('review').setContent('');
+                    $('.put').html('');
+                    let url = "{{ url('master/edufair/' . $edufair->id . '/review') }}"
+                    $('#formReview').attr('action', url)
+                    review_editor.setData('');
+                }
+            @else
+                function resetForm() {
+                    $('#reviewer_name').val(null).trigger('change')
+                    $('#score').val(null).trigger('change')
+                    // tinyMCE.get('review').setContent('');
+                    $('.put').html('');
+                    let url = "{{ url('master/edufair/' . $edufair->id . '/review') }}"
+                    $('#formReview').attr('action', url)
+                    review_editor.setData('');
+                }
+            @endif
         </script>
     @endif
 
-      @if (
+        @if (
         $errors->has('reviewer_name') |
             $errors->has('score') |
             $errors->has('review'))
@@ -552,5 +591,4 @@
             })
         </script>
     @endif
-
-@endsection
+@endpush

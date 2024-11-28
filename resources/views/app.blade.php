@@ -98,7 +98,7 @@
     <script>
         var myEditor;
 
-        document.querySelectorAll('textarea').forEach(function(element) {
+        document.querySelectorAll('textarea:not(#review)').forEach(function(element) {
             ClassicEditor
                 .create(element, {
                     toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList',
