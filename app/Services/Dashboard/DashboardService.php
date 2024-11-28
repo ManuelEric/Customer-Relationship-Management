@@ -155,7 +155,7 @@ class DashboardService
         $conversion_time_progress = $this->clientProgramRepository->getConversionTimeProgress($date_details, $filter);
 
         # get initial consultation success percentage 
-        $success_percentage = $success_program == 0 ? 0 : ($success_program / $initial_consultation) * 100;
+        $success_percentage = $success_program == 0 ? 0 : ($success_program / $total_initial_consultation) * 100;
 
         # get total revenue of admission mentoring program
         $total_revenue_adm_mentoring_by_program_and_month = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Admissions Mentoring'] + $filter);
