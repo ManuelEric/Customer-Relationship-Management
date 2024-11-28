@@ -11,7 +11,7 @@ class LogService
     protected $auth;
     public function __construct()
     {
-        $this->auth = ! is_null(Auth::user()) ? Auth::user()->full_name : auth()->guard('api')->user()->full_name;
+        $this->auth = $this->checkAuth();
     }
 
     public function createErrorLog(LogModule $module, String $message, String $line, String $file_location, Array $content = [])
@@ -27,5 +27,17 @@ class LogService
     public function createInfoLog(LogModule $module, String $message)
     {
         Log::info("{$module->value} : {$message} | done by {$this->auth}");
+    }
+
+    private function checkAuth()
+    {
+        if ( Auth::check() )
+            $user_logged_in = Auth::user()->full_name;
+        else if ( Auth::guard('api')->check() )
+            $user_logged_in = Auth::guard('api')->user()->full_name;
+        else
+            $user_logged_in = 'Unknown from ' . request()->ip();
+            
+        return $user_logged_in;
     }
 }

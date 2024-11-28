@@ -8,7 +8,7 @@
                             <div class="col-12 mb-2">
                                 <label for="">Program Name</label>
                                 <select name="q-program" id="" class="select w-100" multiple>
-                                    @foreach ($allPrograms as $key => $value)
+                                    @foreach ($all_programs as $key => $value)
                                         <optgroup label="{{ $key }}">
                                             @foreach ($value as $program)
                                                 <option value="{{ $program->prog_id }}">{{ $program->prog_program }}</option>

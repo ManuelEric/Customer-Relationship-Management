@@ -110,3 +110,9 @@ Route::resource('user/volunteer', VolunteerController::class);
 Route::resource('profile', ProfileController::class);
 
 # PROFILE END -----------------------------------------
+
+Route::get('test', function () {
+    $a = \App\Models\ClientProgram::with('client_log')->
+        whereIn('clientprog_id', [1, 2, 3])->get();
+    return $a->toQuery()->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')->where('tbl_client.lead_id', 'LS002')->get();
+});

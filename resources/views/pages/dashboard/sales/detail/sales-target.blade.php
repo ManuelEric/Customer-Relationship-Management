@@ -56,7 +56,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($salesDetail as $detail)
+                                    @foreach ($sales_detail as $detail)
                                         <tr class="text-center">
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ isset($detail['prog_id']) ? $detail['prog_id'] : '-' }}</td>
@@ -73,15 +73,15 @@
                                     @endforeach
                                     <tr class="text-center">
                                         <th colspan="3">Total</th>
-                                        <td><b>{{ $salesDetail->sum('total_target_participant') ?? 0 }}</b></td>
-                                        <td><b>{{ number_format($salesDetail->sum('total_target'), '2', ',', '.') }}</b>
+                                        <td><b>{{ $sales_detail->sum('total_target_participant') ?? 0 }}</b></td>
+                                        <td><b>{{ number_format($sales_detail->sum('total_target'), '2', ',', '.') }}</b>
                                         </td>
-                                        <td><b>{{ $salesDetail->sum('total_actual_participant') ?? 0 }}</b></td>
-                                        <td><b>{{ number_format($salesDetail->sum('total_actual_amount'), '2', ',', '.') }}</b>
+                                        <td><b>{{ $sales_detail->sum('total_actual_participant') ?? 0 }}</b></td>
+                                        <td><b>{{ number_format($sales_detail->sum('total_actual_amount'), '2', ',', '.') }}</b>
                                         </td>
-                                        <td><b>{{ $salesDetail->sum('total_target_participant') != 0 ? round(($salesDetail->sum('total_actual_participant') / $salesDetail->sum('total_target_participant')) * 100, 2) : 0 }}%</b>
+                                        <td><b>{{ $sales_detail->sum('total_target_participant') != 0 ? round(($sales_detail->sum('total_actual_participant') / $sales_detail->sum('total_target_participant')) * 100, 2) : 0 }}%</b>
                                         </td>
-                                        <td><b>{{ $salesDetail->sum('total_target') != 0 ? ($salesDetail->sum('total_actual_amount') / $salesDetail->sum('total_target')) * 100 : 0 }}%</b>
+                                        <td><b>{{ $sales_detail->sum('total_target') != 0 ? ($sales_detail->sum('total_actual_amount') / $sales_detail->sum('total_target')) * 100 : 0 }}%</b>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -187,13 +187,13 @@
     const dataset_sales_target = new Array();
     const dataset_sales_actual = new Array();
 
-    const target_of_participant = {{ $salesTarget->total_participant ?? 0 }};
-    const actual_of_participant = {{ $salesActual['total_participant'] ?? 0 }};
+    const target_of_participant = {{ $sales_target->total_participant ?? 0 }};
+    const actual_of_participant = {{ $sales_actual['total_participant'] ?? 0 }};
     const achieved_percentage_of_participant = target_of_participant == 0 ? actual_of_participant * 100 : (
         actual_of_participant / target_of_participant) * 100;
 
-    const target_of_amount = {{ $salesTarget->total_target ?? 0 }};
-    const actual_of_amount = {{ $salesActual['total_target'] ?? 0 }};
+    const target_of_amount = {{ $sales_target->total_target ?? 0 }};
+    const actual_of_amount = {{ $sales_actual['total_target'] ?? 0 }};
     const achieved_percentage_of_amount = target_of_amount == 0 ? actual_of_amount * 100 : (actual_of_amount /
         target_of_amount) * 100;
 
@@ -204,11 +204,11 @@
         actual_of_amount: actual_of_amount,
     })
 
-    dataset_sales_target.push({{ $salesTarget->total_participant ?? 0 }})
-    dataset_sales_target.push({{ $salesActual['total_participant'] ?? 0 }})
+    dataset_sales_target.push({{ $sales_target->total_participant ?? 0 }})
+    dataset_sales_target.push({{ $sales_actual['total_participant'] ?? 0 }})
 
-    dataset_sales_actual.push({{ $salesTarget->total_target ?? 0 }})
-    dataset_sales_actual.push({{ $salesActual['total_target'] ?? 0 }})
+    dataset_sales_actual.push({{ $sales_target->total_target ?? 0 }})
+    dataset_sales_actual.push({{ $sales_actual['total_target'] ?? 0 }})
 
     var target_people_chart = new Chart(st, {
         data: {

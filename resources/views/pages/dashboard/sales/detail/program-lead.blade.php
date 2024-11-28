@@ -193,7 +193,7 @@
 
     const dataset_leadsource_label = [];
     const dataset_leadsource = [];
-    @foreach ($leadSource as $source)
+    @foreach ($lead_source as $source)
         dataset_leadsource_label.push('{{ $source->lead_source }}')
         dataset_leadsource.push('{{ $source->lead_source_count }}')
     @endforeach
@@ -240,7 +240,7 @@
     const dataset_conversion_label = [];
     const dataset_conversion = []; 
     const bgset_conversion = [];
-    @foreach ($conversionLeads as $source)
+    @foreach ($conversion_leads as $source)
         bgset_conversion.push('{{ $source->color_code }}')
         dataset_conversion_label.push('{{ $source->conversion_lead }}')
         dataset_conversion.push('{{ $source->conversion_lead_count }}')
@@ -289,7 +289,7 @@
     const dataset_admconversion = [];
     const dataset_admbackground = [];
     const bgset_admconversion = [];
-    @foreach ($adminssionMentoringConvLead as $source)
+    @foreach ($admission_mentoring_conv_lead as $source)
         bgset_admconversion.push('{{ $source->color_code }}')
         dataset_admconversion_label.push('{{ $source->conversion_lead }}')
         dataset_admconversion.push('{{ $source->conversion_lead_count }}')
@@ -327,7 +327,7 @@
     const dataset_acaconversion_label = [];
     const dataset_acaconversion = [];
     const bgset_acaconversion = [];
-    @foreach ($academicTestPrepConvLead as $source)
+    @foreach ($academic_test_prep_conv_lead as $source)
         bgset_acaconversion.push('{{ $source->color_code }}')
         dataset_acaconversion_label.push('{{ $source->conversion_lead }}')
         dataset_acaconversion.push('{{ $source->conversion_lead_count }}')
@@ -366,7 +366,7 @@
     const dataset_carconversion_label = [];
     const dataset_carconversion = [];
     const bgset_carconversion = [];
-    @foreach ($careerExplorationConvLead as $source)
+    @foreach ($career_exploration_conv_lead as $source)
         bgset_carconversion.push('{{ $source->color_code }}')
         dataset_carconversion_label.push('{{ $source->conversion_lead }}')
         dataset_carconversion.push('{{ $source->conversion_lead_count }}')

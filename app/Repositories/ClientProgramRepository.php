@@ -1793,9 +1793,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         return $data;
     }
 
-    public function getInitialMaking($dateDetails, $cp_filter)
+    public function getInitialMaking($date_details, $filter)
     {
-        $userId = $this->getUser($cp_filter);
+        $userId = $this->getUser($filter);
 
         # average value of initial consult and assessment sent date
         return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
@@ -1813,18 +1813,18 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     $query2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
                 });
             })
-            ->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+            ->when(isset($filter['quuid']), function ($q) use ($userId) {
                 $q->where('empl_id', $userId);
             })
             ->where('status', 1)
-            ->whereBetween('tbl_client_prog.initconsult_date', [$dateDetails['startDate'], $dateDetails['endDate']])
+            ->whereBetween('tbl_client_prog.initconsult_date', [$date_details['start'], $date_details['end']])
             ->groupBy('tbl_main_prog.id')
             ->first();
     }
 
-    public function getConversionTimeProgress($dateDetails, $cp_filter)
+    public function getConversionTimeProgress($date_details, $filter)
     {
-        $userId = $this->getUser($cp_filter);
+        $userId = $this->getUser($filter);
 
         # average value of success date and assessment sent date
         return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
@@ -1839,11 +1839,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     $query2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
                 });
             })
-            ->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+            ->when(isset($filter['quuid']), function ($q) use ($userId) {
                 $q->where('empl_id', $userId);
             })
             ->where('status', 1)
-            ->whereBetween('tbl_client_prog.initconsult_date', [$dateDetails['startDate'], $dateDetails['endDate']])
+            ->whereBetween('tbl_client_prog.initconsult_date', [$date_details['start'], $date_details['end']])
             ->groupBy('tbl_main_prog.id')
             ->first();
     }
@@ -1928,7 +1928,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     $q->whereYear('scp.created_at', $q_date['year_1'])
                         ->whereMonth('scp.created_at', $q_date['month_1']);
                 }, function ($q) use ($cp_filter) {
-                    $q->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['queryParams_year1']);
+                    $q->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['qparam_year1']);
                 })
                 ->select([
                     DB::raw('SUM(si.inv_totalprice_idr)')
@@ -1940,7 +1940,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     $q->whereYear('scp.created_at', $q_date['year_2'])
                         ->whereMonth('scp.created_at', $q_date['month_2']);
                 }, function ($q) use ($cp_filter) {
-                    $q->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['queryParams_year2']);
+                    $q->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['qparam_year2']);
                 })
                 ->select([
                     DB::raw('SUM(si.inv_totalprice_idr)')
