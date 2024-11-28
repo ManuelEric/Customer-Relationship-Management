@@ -36,6 +36,15 @@ return new class extends Migration
         Schema::table('tbl_client_abrcountry', function (Blueprint $table) {
             $table->foreign('country_id')->references('id')->on('tbl_country')->onUpdate('cascade')->onDelete('cascade');
         });
+
+        /**
+         * this some special case that happened when there are mentees that need to be stored in CRM while the information is not well provided
+         * because of that, user_id in tbl_client_mentor will be accepting null in order to gave admin a hint that when client_id have no user_id in tbl_client_mentor
+         * meaning they are forced to be stored in CRM
+         */
+        Schema::table('tbl_client_mentor', function (Blueprint $table) {
+            $table->string('user_id', 36)->nullable()->comment('whoever client that have no user_id means they are just stored for archive because no information provided')->change();
+        });
     }
 
     /**

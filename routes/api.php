@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\v1\ExtLeadController;
 use App\Http\Controllers\Api\v1\ExtProgramController;
 use App\Http\Controllers\Api\v1\ExtSalesTrackingController;
 use App\Http\Controllers\Api\v1\ExtUserController;
-use App\Http\Controllers\Api\v1\SalesDashboardController;
+use App\Http\Controllers\Api\v1\SalesDashboardController as SalesDashboardControllerV1;
 use App\Http\Controllers\Api\v2\SalesDashboardController as SalesDashboardControllerV2;
 use App\Http\Controllers\Api\v1\PartnerDashboardController;
 use App\Http\Controllers\Api\v2\PartnerDashboardController as PartnerDashboardControllerV2;
@@ -63,46 +63,37 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('get/client/{id}', [ExtClientController::class, 'getClientById']);
 
 # dashboard sales
-Route::get('get/client/{month}/type/{type}', [SalesDashboardController::class, 'getClientByMonthAndType']);
-Route::get('get/client-status/{month}', [SalesDashboardController::class, 'getClientStatus']);
-Route::get('get/follow-up-reminder/{month}', [SalesDashboardController::class, 'getFollowUpReminder']);
-Route::get('get/mentee-birthday/{month}', [SalesDashboardController::class, 'getMenteesBirthdayByMonth']);
-
-Route::get('get/client-program/{month}/{user?}', [SalesDashboardController::class, 'getClientProgramByMonth']);
-Route::get('get/successful-program/{month}/{user?}', [SalesDashboardController::class, 'getSuccessfulProgramByMonth']);
-Route::get('get/detail/successful-program/{month}/{program}/{user?}', [SalesDashboardController::class, 'getSuccessfulProgramDetailByMonthAndProgram']);
-Route::get('get/admissions-mentoring/{month}/{user?}', [SalesDashboardController::class, 'getAdmissionsProgramByMonth']);
-Route::get('get/initial-consultation/{month}/{user?}', [SalesDashboardController::class, 'getInitialConsultationByMonth']);
-
-Route::get('get/detail/initial-consultation/{month}/{user?}', [SalesDashboardController::class, 'getDetailInitialConsultByMonth']);
-
-Route::get('get/academic-prep/{month}/{user?}', [SalesDashboardController::class, 'getAcademicPrepByMonth']);
-// Route::get('get/detail/academic-prep/{month}/{user?}', [SalesDashboardController::class, 'getAcademicPrepByMonthDetail']);
-Route::get('get/career-exploration/{month}/{user?}', [SalesDashboardController::class, 'getCareerExplorationByMonth']);
-// Route::get('get/detail/career-exploration/{month}/{user?}', [SalesDashboardController::class, 'getCareerExplorationByMonthDetail']);
-Route::get('get/detail/client-program/{month}/{type}/{user?}', [SalesDashboardController::class, 'getClientProgramByMonthDetail']);
-Route::get('get/conversion-lead/{month}/{user?}', [SalesDashboardController::class, 'getConversionLeadByMonth']);
-Route::get('get/lead/admissions-mentoring/{month}/{user?}', [SalesDashboardController::class, 'getLeadAdmissionsProgramByMonth']);
-Route::get('get/lead/academic-prep/{month}/{user?}', [SalesDashboardController::class, 'getLeadAcademicPrepByMonth']);
-Route::get('get/lead/career-exploration/{month}/{user?}', [SalesDashboardController::class, 'getLeadCareerExplorationByMonth']);
-Route::get('get/all-program/target/{month}/{user?}', [SalesDashboardController::class, 'getAllProgramTargetByMonth']);
-Route::get('get/client-event/{year}/{user?}', [SalesDashboardController::class, 'getClientEventByYear']);
-Route::get('get/program-comparison', [SalesDashboardController::class, 'compare_program']);
-Route::get('get/conversion-lead/event/{event}', [SalesDashboardController::class, 'getConversionLeadsByEventId']);
-
+Route::get('get/client/{month}/type/{type}', [SalesDashboardControllerV1::class, 'fnGetClientByMonthAndType']);
+Route::get('get/client-status/{month}', [SalesDashboardControllerV1::class, 'fnGetClientStatus']);
+Route::get('get/follow-up-reminder/{month}', [SalesDashboardControllerV1::class, 'fnGetFollowUpReminder']);
+Route::get('get/mentee-birthday/{month}', [SalesDashboardControllerV1::class, 'fnGetMenteesBirthdayByMonth']);
+Route::get('get/client-program/{month}/{user?}', [SalesDashboardControllerV1::class, 'fnGetClientProgramByMonth']);
+Route::get('get/successful-program/{month}/{user?}', [SalesDashboardControllerV1::class, 'fnGetSuccessfulProgramByMonth']);
+Route::get('get/detail/successful-program/{month}/{program}/{user?}', [SalesDashboardControllerV1::class, 'fnGetSuccessfulProgramDetailByMonthAndProgram']);
+Route::get('get/admissions-mentoring/{month}/{user?}', [SalesDashboardControllerV1::class, 'fnGetAdmissionsProgramByMonth']);
+Route::get('get/initial-consultation/{month}/{user?}', [SalesDashboardControllerV1::class, 'fnGetInitialConsultationByMonth']);
+Route::get('get/detail/initial-consultation/{month}/{user?}', [SalesDashboardControllerV1::class, 'fnGetDetailInitialConsultByMonth']);
+Route::get('get/academic-prep/{month}/{user?}', [SalesDashboardControllerV1::class, 'fnGetAcademicPrepByMonth']);
+Route::get('get/career-exploration/{month}/{user?}', [SalesDashboardControllerV1::class, 'fnGetCareerExplorationByMonth']);
+Route::get('get/detail/client-program/{month}/{type}/{user?}', [SalesDashboardControllerV1::class, 'fnGetClientProgramByMonthDetail']);
+Route::get('get/conversion-lead/{month}/{user?}', [SalesDashboardControllerV1::class, 'fnGetConversionLeadByMonth']);
+Route::get('get/lead/admissions-mentoring/{month}/{user?}', [SalesDashboardControllerV1::class, 'fnGetLeadAdmissionsProgramByMonth']);
+Route::get('get/lead/academic-prep/{month}/{user?}', [SalesDashboardControllerV1::class, 'fnGetLeadAcademicPrepByMonth']);
+Route::get('get/lead/career-exploration/{month}/{user?}', [SalesDashboardControllerV1::class, 'fnGetLeadCareerExplorationByMonth']);
+Route::get('get/all-program/target/{month}/{user?}', [SalesDashboardControllerV1::class, 'fnGetAllProgramTargetByMonth']);
+Route::get('get/client-event/{year}/{user?}', [SalesDashboardControllerV1::class, 'fnGetClientEventByYear']);
+Route::get('get/program-comparison', [SalesDashboardControllerV1::class, 'fnCompareProgram']);
 Route::post('/upload', [InvoiceProgramController::class, 'upload']);
-Route::get('mentee/birthday/{month}', [SalesDashboardController::class, 'getMenteesBirthdayByMonth']);
-
-Route::get('export/client', [SalesDashboardController::class, 'exportClient']);
-Route::get('get/outstanding-payment', [DashboardController::class, 'ajaxDataTablesOutstandingPayment']);
+Route::get('export/client', [SalesDashboardControllerV1::class, 'fnExportClient']);
+Route::get('get/outstanding-payment', [DashboardController::class, 'fnAjaxDataTablesOutstandingPayment']);
 
 # dashboard partnership
-Route::get('partner/detail/{month}/{type}', [PartnerDashboardController::class, 'getPartnerDetailByMonth']);
-Route::get('partner/total/{month}/{type}', [PartnerDashboardController::class, 'getTotalByMonth']);
-Route::get('partner/agenda/{date}', [PartnerDashboardController::class, 'getSpeakerByDate']);
-Route::get('partner/partnership-program/{month}', [PartnerDashboardController::class, 'getPartnershipProgramByMonth']);
-Route::get('partner/partnership-program/detail/{type}/{status}/{month}', [PartnerDashboardController::class, 'getPartnershipProgramDetailByMonth']);
-Route::get('partner/partnership-program/program-comparison/{start_year}/{end_year}', [PartnerDashboardController::class, 'getProgramComparison']);
+Route::get('partner/detail/{month}/{type}', [PartnerDashboardController::class, 'fnGetPartnerDetailByMonth']);
+Route::get('partner/total/{month}/{type}', [PartnerDashboardController::class, 'fnGetTotalByMonth']);
+Route::get('partner/agenda/{date}', [PartnerDashboardController::class, 'fnGetSpeakerByDate']);
+Route::get('partner/partnership-program/{month}', [PartnerDashboardController::class, 'fnGetPartnershipProgramByMonth']);
+Route::get('partner/partnership-program/detail/{type}/{status}/{month}', [PartnerDashboardController::class, 'fnGetPartnershipProgramDetailByMonth']);
+Route::get('partner/partnership-program/program-comparison/{start_year}/{end_year}', [PartnerDashboardController::class, 'fnGetProgramComparison']);
 
 # dashboard finance
 Route::get('finance/detail/{month}/{type}', [FinanceDashboardController::class, 'getFinanceDetailByMonth']);
@@ -248,7 +239,13 @@ Route::group(['middleware' => 'auth:api', 'prefix' => 'import'], function () {
     Route::get('client-program', [GoogleSheetController::class, 'storeClientProgram']);
 });
 
-# New dashboard
+
+
+/**
+ * New dashboard requirements
+ * if dashboard want to be created using API approach
+ * for now, not being used
+ */
 Route::prefix('v2')->group(function () {
 
     #sales

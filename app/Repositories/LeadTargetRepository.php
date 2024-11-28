@@ -478,7 +478,7 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $query = ClientProgram::with([
                 'client', 
                 'client_log' => function($subQuery){
-                    $subQuery->where('category', 'non-mentee')->orWhere('category', 'mentee')->limit(1);
+                    $subQuery->whereIn('category', ['non-mentee', 'mentee'])->limit(1);
                 }
             ])->
             where('status', 1)->
@@ -490,11 +490,11 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                         $subQuery3->where('department_id', 7);
                     });
                 });
-            });   
+            })->
+            when($prog_id, function ($subQuery) use ($prog_id) {
+                $subQuery->where('prog_id', $prog_id);
+            });
         
-        if ($prog_id != null){
-            $query->where('prog_id', $prog_id);
-        }
         return $query->get();
     }
 
