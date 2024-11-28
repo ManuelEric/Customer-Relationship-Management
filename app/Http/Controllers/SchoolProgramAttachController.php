@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\SchoolPrograms\Attach\CreateSchoolProgramAttachAction;
+use App\Actions\SchoolPrograms\Attach\DeleteSchoolProgramAttachAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreSchoolProgramAttachRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\StoreAttachmentProgramTrait;
 // use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramAttachRepositoryInterface;
+use App\Services\Log\LogService;
 // use App\Interfaces\SchoolRepositoryInterface;
 
 use Exception;
@@ -38,73 +42,58 @@ class SchoolProgramAttachController extends Controller
         $this->schoolProgramAttachRepository = $schoolProgramAttachRepository;
     }
 
-    public function store(StoreSchoolProgramAttachRequest $request)
+    public function store(StoreSchoolProgramAttachRequest $request, CreateSchoolProgramAttachAction $createSchoolProgramAttachAction, LogService $log_service)
     {
 
 
-        $schoolId = $request->route('school');
-        $schoolProgramId = $request->route('sch_prog');
-
-        $schProgAttachs = $request->all();
-        $schProgAttachs['schprog_id'] = $schoolProgramId;
-
-        $schprog_file =  $this->getFileNameAttachment($schProgAttachs['schprog_file']);
-
-        $schprog_attach = $this->attachmentProgram($request->file('schprog_attach'), $schoolProgramId, $schprog_file);
-
-
-        $schProgAttachs['schprog_file'] = $schprog_file;
-        $schProgAttachs['schprog_attach'] = $schprog_attach;
+        $school_id = $request->route('school');
+        $school_program_id = $request->route('sch_prog');
 
         DB::beginTransaction();
 
         try {
 
             # insert into school program attachment
-            $this->schoolProgramAttachRepository->createSchoolProgramAttach($schProgAttachs);
+            $created_partner_program_attach = $createSchoolProgramAttachAction->execute($request, $school_program_id);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store school failed : ' . $e->getMessage());
-            return Redirect::to('program/school/' . $schoolId . '/detail/create')->withError('Failed to create school program attachments' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_SCHOOL_PROGRAM_ATTACH, $e->getMessage(), $e->getLine(), $e->getFile(), $request->all());
+
+            return Redirect::to('program/school/' . $school_id . '/detail/create')->withError('Failed to create school program attachments' . $e->getMessage());
         }
 
+        $log_service->createSuccessLog(LogModule::STORE_SCHOOL_PROGRAM_ATTACH, 'New school program attach has been added', $created_partner_program_attach->toArray());
 
-        return Redirect::to('program/school/' . $schoolId . '/detail/' . $schoolProgramId)->withSuccess('School program attachments successfully created');
+        return Redirect::to('program/school/' . $school_id . '/detail/' . $school_program_id)->withSuccess('School program attachments successfully created');
     }
 
 
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteSchoolProgramAttachAction $deleteSchoolProgramAttachAction, LogService $log_service)
     {
-        $schoolId = $request->route('school');
-        $sch_progId = $request->route('sch_prog');
-        $attachId = $request->route('attach');
+        $school_id = $request->route('school');
+        $sch_prog_id = $request->route('sch_prog');
+        $attach_id = $request->route('attach');
 
         DB::beginTransaction();
         try {
 
-            $schoolProgAttach = $this->schoolProgramAttachRepository->getSchoolProgramAttachById($attachId);
-            if (File::exists(public_path($schoolProgAttach->schprog_attach))) {
-
-                if ($this->schoolProgramAttachRepository->deleteSchoolProgramAttach($attachId)) {
-                    Unlink(public_path($schoolProgAttach->schprog_attach));
-                }
-            } else {
-                $this->schoolProgramAttachRepository->deleteSchoolProgramAttach($attachId);
-            }
-
+            $deleteSchoolProgramAttachAction->execute($attach_id);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete school program attach failed : ' . $e->getMessage());
-            return Redirect::to('program/school/' . $schoolId . '/detail/' . $sch_progId)->withError('Failed to delete school program attachments' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_SCHOOL_PROGRAM_ATTACH, $e->getMessage(), $e->getLine(), $e->getFile(), ['attach_id' => $attach_id]);
+            return Redirect::to('program/school/' . $school_id . '/detail/' . $sch_prog_id)->withError('Failed to delete school program attachments' . $e->getMessage());
         }
 
-        return Redirect::to('program/school/' . $schoolId . '/detail/' . $sch_progId)->withSuccess('School program attachments successfully deleted');
+        # create log success
+        $log_service->createSuccessLog(LogModule::DELETE_SCHOOL_PROGRAM_ATTACH, 'School program attach has been deleted', ['attach_id' => $attach_id]);
+
+        return Redirect::to('program/school/' . $school_id . '/detail/' . $sch_prog_id)->withSuccess('School program attachments successfully deleted');
     }
 }

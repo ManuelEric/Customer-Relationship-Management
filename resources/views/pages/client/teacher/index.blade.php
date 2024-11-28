@@ -37,7 +37,7 @@
                             data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span
                                 class="ms-1">Import</span></a>
                     </div> --}}
-                    <div class="col-md-4 offset-8">
+                    <div class="col-md-4 offset-lg-8">
                         <a href="{{ url('client/teacher-counselor/create') }}" class="btn btn-sm btn-info w-100"><i
                                 class="bi bi-plus-square me-1"></i> Add
                             Teacher</a>
@@ -137,6 +137,7 @@
                     right: 1
                 },
                 ajax: '',
+                pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
                         data: 'id',
                         className: 'text-center',
@@ -181,7 +182,14 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail"><i class="bi bi-eye"></i></button>'
+                        defaultContent: '<div class="d-flex gap-1 justify-content-center">' + 
+                                '<button type="button" class="btn btn-sm btn-outline-warning editClient" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="More Detail"><i class="bi bi-eye"></i></button>' +
+                                '<small data-bs-toggle="tooltip" data-bs-placement="top" ' +
+                                'data-bs-custom-class="custom-tooltip" ' +
+                                'data-bs-title="Delete" class="btn btn-sm btn-outline-danger cursor-pointer deleteClient">' +
+                                '<i class="bi bi-trash"></i>' +
+                                '</small>' + 
+                            '</div>'
                     }
                 ],
                 createdRow: function(row, data, index) {
@@ -234,6 +242,11 @@
                         Swal.close()
                         notification("error", error.response.data.message)
                     })
+            });
+
+            $('#clientTable tbody').on('click', '.deleteClient ', function() {
+                var data = table.row($(this).parents('tr')).data();
+                confirmDelete('client/teacher-counselor', data.id)
             });
 
             // View More 

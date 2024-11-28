@@ -51,6 +51,10 @@ interface ClientRepositoryInterface
     public function updateClientByUUID($uuid, array $newDetails);
     public function countClientByCategory($category, $month = NULL);
     public function countClientByRole($role, $month = null);
+    public function defineCategoryClient($client_ids, $is_many_request = false);
+    public function createClientLog(Array $client_log_details);
+    public function getAllStudents();
+    public function updateClientWithTrashed($clientId, array $newDetails);
 
 
     /* ~ END */
@@ -75,9 +79,10 @@ interface ClientRepositoryInterface
     public function getAllClientByRoleAndStatus($roleName, $statusClient);
     public function getAllChildrenWithNoParents($parentId);
     public function getClientById($clientId);
+    public function getClientWithTrashedByUUID($clientUUID);
     public function getClientByUUID($clientUUID);
     public function getClientsById(array $clientIds);
-    public function findHandledClient(int $clientId);
+    public function findHandledClient(String $clientId);
     public function getClientByMonthCreatedAt(array $createdAt);
     public function getClientByPhoneNumber($phoneNumber);
     public function getClientBySchool($schoolId);
@@ -109,6 +114,8 @@ interface ClientRepositoryInterface
     public function checkExistingByEmail($email);
     public function storeUniversityAcceptance($client, array $acceptanceDetails);
     public function getClientHasUniversityAcceptance();
+    public function getClientListByCategoryBasedOnClientLogs(String $category, $month_year = null);
+
 
     # dashboard
     public function getCountTotalClientByStatus($status, $month = null);
@@ -130,7 +137,7 @@ interface ClientRepositoryInterface
     # Pic Client
     public function checkActivePICByClient($clientId);
     public function insertPicClient($picDetails);
-    public function updatePicClient($picClientId, array $picDetails);
+    public function updatePicClient($pic_client_id, array $pic_details);
     public function inactivePreviousPIC(UserClient $picDetails);
 
     # CRM

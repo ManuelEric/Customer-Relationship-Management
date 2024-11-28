@@ -42,7 +42,7 @@
                                     Please, upload signed invoice here
                                 </h5>
                                 <form enctype="multipart/form-data"
-                                    action="{{ route('invoice.program.upload_signed_document', ['client_program' => $clientProg->clientprog_id]) }}"
+                                    action="{{ route('invoice.client-program.upload_signed_document', ['client_program' => $clientProg->clientprog_id]) }}"
                                     method="POST" id="form-upload-attachment">
                                     @csrf
                                     <input type="hidden" name="invoice_id" value="{{ $clientProg->invoice->inv_id }}">
@@ -148,7 +148,7 @@
     <script src="//fastly.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <form enctype="multipart/form-data" action="{{ route('invoice.program.upload_signed_document', ['client_program' => $clientProg->clientprog_id]) }}" method="POST" id="form-upload-attachment">
+    <form enctype="multipart/form-data" action="{{ route('invoice.client-program.upload_signed_document', ['client_program' => $clientProg->clientprog_id]) }}" method="POST" id="form-upload-attachment">
         @csrf
         <input type="hidden" name="invoice_id" value="{{ $clientProg->invoice->inv_id }}">
         <input type="file" name="signed_attachment">

@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Universities\CreateUniversityAction;
+use App\Actions\Universities\DeleteUniversityAction;
+use App\Actions\Universities\UpdateUniversityAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreUniversityRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
@@ -11,6 +15,7 @@ use App\Interfaces\TagRepositoryInterface;
 use App\Interfaces\UniversityPicRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Models\University;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -50,77 +55,68 @@ class UniversityController extends Controller
         );
     }
 
-    // public function data(): JsonResponse
-    // {
-    //     return $this->universityRepository->getAllUniversitiesDataTables();
-    // }
-
-    public function store(StoreUniversityRequest $request)
+    public function store(StoreUniversityRequest $request, CreateUniversityAction $createUniversityAction, LogService $log_service)
     {
-        $universityDetails = $request->only([
+        $university_details = $request->safe()->only([
             'univ_name',
             'univ_email',
             'univ_phone',
             'univ_country',
-            'tag',
             'univ_address',
         ]);
-
-        $last_id = University::max('univ_id');
-        $univ_id_without_label =  $last_id ? $this->remove_primarykey_label($last_id, 5) : '0000';
-        $univ_id_with_label = 'UNIV-' . $this->add_digit($univ_id_without_label + 1, 3);
 
         DB::beginTransaction();
         try {
 
-            $univCreated = $this->universityRepository->createUniversity(['univ_id' => $univ_id_with_label] + $universityDetails);
+            $created_university = $createUniversityAction->execute($university_details);
+            
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store university failed : ' . $e->getMessage());
-            return Redirect::to('instance/university/' . $univ_id_with_label)->withError('Failed to create a new university');
+            $log_service->createErrorLog(LogModule::STORE_UNIVERSITY, $e->getMessage(), $e->getLine(), $e->getFile(), $university_details);
+            return Redirect::to('instance/university/' . $created_university->univ_id)->withError('Failed to create a new university');
         }
         
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'University', Auth::user()->first_name . ' '. Auth::user()->last_name, $univCreated);
+        $log_service->createSuccessLog(LogModule::STORE_UNIVERSITY, 'New university has been added', $created_university->toArray());
 
-        return Redirect::to('instance/university/' . $univ_id_with_label)->withSuccess('University successfully created');
+        return Redirect::to('instance/university/' . $created_university->univ_id)->withSuccess('University successfully created');
     }
 
     public function create()
     {
-        $tags = $this->tagRepository->getAllTags();
+        // $tags = $this->tagRepository->getAllTags();
         return view('pages.instance.univ.form')->with(
             [
-                'countries' => $this->countryRepository->getAllCountries(),
-                'tags' => $tags,
+                'countries' => $this->tagRepository->getAllCountries(),
+                // 'tags' => $tags,
             ]
         );
     }
 
     public function show(Request $request)
     {
-        $universityId = $request->route('university');
+        $university_id = $request->route('university');
 
         # retrieve country
-        $countries = $this->countryRepository->getAllCountries();
+        $countries = $this->tagRepository->getAllCountries();
 
         # retrieve university data by id
-        $university = $this->universityRepository->getUniversityByUnivId($universityId);
+        $university = $this->universityRepository->getUniversityByUnivId($university_id);
 
         # retrieve university pic by university id
-        $pics = $this->universityPicRepository->getAllUniversityPicByUniversityId($universityId);
+        $pics = $this->universityPicRepository->getAllUniversityPicByUniversityId($university_id);
 
-        $tags = $this->tagRepository->getAllTags();
+        // $tags = $this->tagRepository->getAllTags();
 
         return view('pages.instance.univ.form')->with(
             [
                 'university' => $university,
                 'countries' => $countries,
                 'pics' => $pics,
-                'tags' => $tags,
+                // 'tags' => $tags,
             ]
         );
     }
@@ -131,82 +127,84 @@ class UniversityController extends Controller
             return $this->universityRepository->getAllUniversitiesDataTables();
         }
 
-        $universityId = $request->route('university');
+        $university_id = $request->route('university');
 
         # retrieve country
-        $countries = $this->countryRepository->getAllCountries();
+        $countries = $this->tagRepository->getAllCountries();
 
         # retrieve university data by id
-        $university = $this->universityRepository->getUniversityByUnivId($universityId);
+        $university = $this->universityRepository->getUniversityByUnivId($university_id);
         # put the link to update vendor form below
         # example
 
-        $tags = $this->tagRepository->getAllTags();
+        // $tags = $this->tagRepository->getAllTags();
 
         return view('pages.instance.univ.form')->with(
             [
                 'edit' => true,
                 'university' => $university,
                 'countries' => $countries,
-                'tags' => $tags
+                // 'tags' => $tags
             ]
         );
     }
 
-    public function update(StoreUniversityRequest $request)
+    public function update(StoreUniversityRequest $request, UpdateUniversityAction $updateUniversityAction, LogService $log_service)
     {
-        $universityDetails = $request->only([
+        $university_details = $request->safe()->only([
             'univ_name',
             'univ_email',
             'univ_phone',
             'univ_country',
-            'tag',
+            // 'tag',
             'univ_address',
         ]);
 
         # retrieve vendor id from url
-        $universityId = $request->route('university');
-        $oldUniv = $this->universityRepository->getUniversityById($universityId);
+        $university_id = $request->route('university');
 
         DB::beginTransaction();
         try {
 
-            $this->universityRepository->updateUniversity($universityId, $universityDetails);
+            $updated_university = $updateUniversityAction->execute($university_id, $university_details);
+            
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update university failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::UPDATE_UNIVERSITY, $e->getMessage(), $e->getLine(), $e->getFile(), $university_details);
+
             return Redirect::to('instance/university')->withError('Failed to update a university');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'University', Auth::user()->first_name . ' '. Auth::user()->last_name, $universityDetails, $oldUniv);
+        $log_service->createSuccessLog(LogModule::UPDATE_UNIVERSITY, 'University has been updated', $updated_university->toArray());
 
         return Redirect::to('instance/university')->withSuccess('University successfully updated');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteUniversityAction $deleteUniversityAction, LogService $log_service)
     {
-        $universityId = $request->route('university');
-        $school = $this->universityRepository->getUniversityById($universityId);
+        $university_id = $request->route('university');
+        $university = $this->universityRepository->getUniversityById($university_id);
 
         DB::beginTransaction();
         try {
 
-            $this->universityRepository->deleteUniversity($universityId);
+            $deleteUniversityAction->execute($university_id);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete university failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_UNIVERSITY, $e->getMessage(), $e->getLine(), $e->getFile(), $university->toArray());
+
             return Redirect::to('instance/university')->withError('Failed to delete a university');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'School', Auth::user()->first_name . ' '. Auth::user()->last_name, $school);
+        $log_service->createSuccessLog(LogModule::DELETE_UNIVERSITY, 'University has been deleted', $university->toArray());
 
         return Redirect::to('instance/university')->withSuccess('University successfully deleted');
     }

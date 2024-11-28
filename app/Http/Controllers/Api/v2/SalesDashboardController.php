@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers\Api\v2;
+
+use App\Enum\LogModule;
 use App\Http\Controllers\Controller;
 use App\Exports\DataClient;
 use App\Interfaces\ClientEventRepositoryInterface;
@@ -11,12 +13,10 @@ use App\Interfaces\FollowupRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SalesTargetRepositoryInterface;
 use App\Interfaces\ClientLeadTrackingRepositoryInterface;
-use Carbon\Carbon;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Session;
 use Maatwebsite\Excel\Facades\Excel;
 
 class SalesDashboardController extends Controller
@@ -50,7 +50,10 @@ class SalesDashboardController extends Controller
         $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
     }
 
-    public function getClientByMonthAndType(Request $request)
+    public function getClientByMonthAndType(
+        Request $request,
+        LogService $log_service,
+        )
     {
         $month = null;
         if ($request->get('month') != "all")
@@ -155,7 +158,7 @@ class SalesDashboardController extends Controller
                                     <td>' . $pic_name .'</td>
                                     <td>' . $client->mail . '</td>
                                     <td>' . $client->phone . '</td>
-                                    <td>' . $client->graduation_year_real . '</td>
+                                    <td>' . $client->graduation_year_now . '</td>
                                     <td>' . date('d F Y H:i', strtotime($client->created_at)) . '</td>
                                 </tr>';
     
@@ -165,7 +168,7 @@ class SalesDashboardController extends Controller
                             'pic_name' => $pic_name,
                             'email' => $client->mail,
                             'phone' => $client->phone,
-                            'graduation_year' => $client->graduation_year_real,
+                            'graduation_year' => $client->graduation_year_now,
                             'register_date' => date('d F Y H:i', strtotime($client->created_at)),
                         ];
                     }
@@ -189,7 +192,7 @@ class SalesDashboardController extends Controller
                                 <td class="text-center">' . $clientsPic . '</td>
                                 <td>' . $client->mail . '</td>
                                 <td>' . $client->phone . '</td>
-                                <td>' . $client->graduation_year_real . '</td>
+                                <td>' . $client->graduation_year_now . '</td>
                                 <td>' . date('D, d M Y', strtotime($client->created_at))  . '</td>
                             </tr>';
     
@@ -199,21 +202,21 @@ class SalesDashboardController extends Controller
                         'pic_name' => $clientsPic,
                         'email' => $client->mail,
                         'phone' => $client->phone,
-                        'graduation_year' => $client->graduation_year_real,
+                        'graduation_year' => $client->graduation_year_now,
                         'register_date' => date('d F Y H:i', strtotime($client->created_at)),
                     ];
                 }
             }
     
         } catch (Exception $e) {
-            Log::error('Failed to get detail client status ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::SALES_DASHBOARD_GET_CLIENT_STATUS, $e->getMessage(), $e->getLine(), $e->getFile());
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to get detail client status'
             ], 500);
         }
 
-      
+        $log_service->createSuccessLog(LogModule::SALES_DASHBOARD_GET_CLIENT_STATUS, 'Fetch client status on sales dashboard successfully', $data);
         return response()->json(
             [
                 'title' => 'List of ' . ucwords($title),
@@ -473,7 +476,7 @@ class SalesDashboardController extends Controller
 
         try {
 
-            $admissionsMentoring = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Admissions Mentoring'] + $cp_filter);
+            $admissions_mentoring = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Admissions Mentoring'] + $cp_filter);
         } catch (Exception $e) {
 
             Log::error('Failed to get admission program dashboard data ' . $e->getMessage());
@@ -486,7 +489,7 @@ class SalesDashboardController extends Controller
         return response()->json(
             [
                 'success' => true,
-                'data' => $admissionsMentoring
+                'data' => $admissions_mentoring
             ]
         );
     }
@@ -496,20 +499,20 @@ class SalesDashboardController extends Controller
         $cp_filter['qdate'] = $request->get('month');
         $cp_filter['quuid'] = $request->get('user') ?? null;
 
-        $dateDetails = [
-            'startDate' => $cp_filter['qdate'] . '-01',
-            'endDate' => $cp_filter['qdate'] . '-31'
+        $date_details = [
+            'start' => $cp_filter['qdate'] . '-01',
+            'end' => $cp_filter['qdate'] . '-31'
         ];
         try {
 
-            $admissionsMentoring = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Admissions Mentoring'] + $cp_filter);
+            $admissions_mentoring = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Admissions Mentoring'] + $cp_filter);
             $initialConsultation = $this->clientProgramRepository->getInitialConsultationInformation($cp_filter);
             $totalInitialConsultation = array_sum($initialConsultation);
-            $successProgram = $admissionsMentoring[2];
+            $successProgram = $admissions_mentoring[2];
             $already = $initialConsultation[1];
 
-            $initialAssessmentMaking = $this->clientProgramRepository->getInitialMaking($dateDetails, $cp_filter);
-            $conversionTimeProgress = $this->clientProgramRepository->getConversionTimeProgress($dateDetails, $cp_filter);
+            $initialAssessmentMaking = $this->clientProgramRepository->getInitialMaking($date_details, $cp_filter);
+            $conversionTimeProgress = $this->clientProgramRepository->getConversionTimeProgress($date_details, $cp_filter);
             $successPercentage = $successProgram == 0 || $totalInitialConsultation == 0 ? 0 : ($successProgram / $totalInitialConsultation) * 100;
             $totalRevenueAdmMentoringByProgramAndMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Admissions Mentoring'] + $cp_filter);
         } catch (Exception $e) {
@@ -1105,16 +1108,11 @@ class SalesDashboardController extends Controller
             
         } catch (Exception $e) {
 
-            Log::error('Failed to get comparasion program on sales dashboard. Error : '.$e->getMessage().' on line '.$e->getLine());
-            return response()->json(['success' => false, 'message' => 'Failed to get comparasion program on sales dashboard.'], 500);
+            Log::error('Failed to get comparison program on sales dashboard. Error : '.$e->getMessage().' on line '.$e->getLine());
+            return response()->json(['success' => false, 'message' => 'Failed to get comparison program on sales dashboard.'], 500);
         }
 
         return response()->json(['success' => true, 'data' => $comparisons]);
-    }
-
-    public function getConversionLeadsByEventId(Request $request)
-    {
-        $eventId = $request->route('event');
     }
 
     public function exportClient()

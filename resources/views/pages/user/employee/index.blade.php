@@ -42,12 +42,12 @@
                 <thead class="bg-dark text-white">
                     <tr>
                         <th class="bg-white text-dark">#</th>
-                        <th class="bg-info text-white">Employee ID</th>
+                        {{-- <th class="bg-info text-white">Employee ID</th> --}}
                         <th class="bg-info text-white">Full Name</th>
                         <th>E-mail</th>
                         <th>Phone</th>
                         <th>Position</th>
-                        <th>Graduated Form</th>
+                        <th>Graduated From</th>
                         <th>Major</th>
                         <th>Date of Birth</th>
                         <th>NIK</th>
@@ -93,9 +93,9 @@
                             return meta.row + meta.settings._iDisplayStart + 1;
                         }
                     },
-                    {
-                        data: 'extended_id',
-                    },
+                    // {
+                    //     data: 'extended_id',
+                    // },
                     {
                         data: 'full_name',
                     },
@@ -110,7 +110,7 @@
                         name: 'tbl_position.position_name',
                     },
                     {
-                        data: 'graduation_date_group',
+                        data: 'graduation_from',
                     },
                     {
                         data: 'major_group',
@@ -126,9 +126,11 @@
                     },
                     {
                         data: 'bankacc',
+                        name: 'users.account_no'
                     },
                     {
                         data: 'emergency_contact',
+                        name: 'users.emergency_contact_phone'
                     },
                     {
                         data: 'address',

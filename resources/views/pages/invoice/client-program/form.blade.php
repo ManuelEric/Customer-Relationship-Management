@@ -80,7 +80,7 @@
                             @else
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Print Invoice">
-                                    <a href="{{ route('invoice.program.print', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}"
+                                    <a href="{{ route('invoice.client-program.print', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}"
                                         class="text-info">
                                         <i class="bi bi-printer"></i>
                                     </a>
@@ -116,7 +116,7 @@
                                 @else
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Print Invoice">
-                                        <a href="{{ route('invoice.program.print', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}"
+                                        <a href="{{ route('invoice.client-program.print', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}"
                                             class="text-info">
                                             <i class="bi bi-printer"></i>
                                         </a>
@@ -144,8 +144,7 @@
                             Invoice Progress
                         </h6>
                     </div>
-                    <div class="card-body position-relative h-auto pb-5">
-                        {{-- IDR  --}}
+                    <div class="card-body position-relative h-auto pb-4 pb-md-5">                        {{-- IDR  --}}
                         @php
                             $invoiceHasBeenRequested = $invoice
                                 ->invoiceAttachment()
@@ -176,15 +175,11 @@
                                         $invoiceHasBeenSigned ||
                                         $invoiceHasSentToClient,
                                 ])>
-                                    <div @class([
-                                        'step-one',
-                                        'step-icon',
-                                        'active' =>
-                                            $invoiceHasBeenRequested ||
-                                            $invoiceHasBeenSigned ||
-                                            $invoiceHasSentToClient,
-                                    ])>1</div>
-                                    <p>Request Sign</p>
+                                    <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Request Sign">
+                                        <i class="bi bi-pen-fill d-block d-md-none"></i>
+                                        <div class="d-none d-md-block">1</div>
+                                    </div>
+                                    <p class="d-none d-md-block">Request Sign</p>
                                 </div>
                                 <div @class([
                                     'step-one',
@@ -199,11 +194,11 @@
                                     'step2',
                                     'active' => $invoiceHasBeenSigned || $invoiceHasSentToClient,
                                 ])>
-                                    <div @class([
-                                        'step-icon',
-                                        'active' => $invoiceHasBeenSigned || $invoiceHasSentToClient,
-                                    ])>2</div>
-                                    <p>Signed</p>
+                                    <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Signed">
+                                        <i class="bi bi-check-lg d-block d-md-none"></i>
+                                        <div class="d-none d-md-block">2</div>
+                                    </div>
+                                    <p class="d-none d-md-block">Signed</p>
                                 </div>
                                 <div @class([
                                     'indicator-line',
@@ -215,12 +210,11 @@
                                     'step3',
                                     'active' => $invoiceHasSentToClient,
                                 ])>
-                                    <div @class([
-                                        'step-three',
-                                        'step-icon',
-                                        'active' => $invoiceHasSentToClient,
-                                    ])>3</div>
-                                    <p>Print or Send to Client</p>
+                                    <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Send to Client">
+                                        <i class="bi bi-send d-block d-md-none"></i>
+                                        <div class="d-none d-md-block">3</div>
+                                    </div>
+                                    <p class="d-none d-md-block">Send to Client</p>
                                 </div>
                             </section>
                         </div>
@@ -258,15 +252,11 @@
                                             $invoiceHasBeenSigned_other ||
                                             $invoiceHasSentToClient_other,
                                     ])>
-                                        <div @class([
-                                            'step-one-other',
-                                            'step-icon',
-                                            'active' =>
-                                                $invoiceHasBeenRequested_other ||
-                                                $invoiceHasBeenSigned_other ||
-                                                $invoiceHasSentToClient_other,
-                                        ])>1</div>
-                                        <p>Request Sign</p>
+                                        <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Request Sign">
+                                            <i class="bi bi-pen-fill d-block d-md-none"></i>
+                                            <div class="d-none d-md-block">1</div>
+                                        </div>
+                                        <p class="d-none d-md-block">Request Sign</p>
                                     </div>
                                     <div @class([
                                         'step-one-other',
@@ -281,11 +271,11 @@
                                         'step2',
                                         'active' => $invoiceHasBeenSigned_other || $invoiceHasSentToClient_other,
                                     ])>
-                                        <div @class([
-                                            'step-icon',
-                                            'active' => $invoiceHasBeenSigned_other || $invoiceHasSentToClient_other,
-                                        ])>2</div>
-                                        <p>Signed</p>
+                                        <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Signed">
+                                            <i class="bi bi-check-lg d-block d-md-none"></i>
+                                            <div class="d-none d-md-block">2</div>
+                                        </div>
+                                        <p class="d-none d-md-block">Signed</p>
                                     </div>
                                     <div @class([
                                         'indicator-line',
@@ -297,12 +287,11 @@
                                         'step3',
                                         'active' => $invoiceHasSentToClient_other,
                                     ])>
-                                        <div @class([
-                                            'step-three-other',
-                                            'step-icon',
-                                            'active' => $invoiceHasSentToClient_other,
-                                        ])>3</div>
-                                        <p>Print or Send to Client</p>
+                                        <div class="step-icon" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Send to Client">
+                                            <i class="bi bi-send d-block d-md-none"></i>
+                                            <div class="d-none d-md-block">3</div>
+                                        </div>
+                                        <p class="d-none d-md-block">Send to Client</p>
                                     </div>
                                 </section>
                             </div>
@@ -1116,7 +1105,7 @@
             var curr = $(this).data('curr');
             curr = "'" + curr + "'";
             $('#sendToChoosenPic').attr("onclick",
-            "confirmRequestSign('{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', " +
+            "confirmRequestSign('{{ route('invoice.client-program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', " +
                 curr + ")");
         });
 
@@ -1215,7 +1204,7 @@
                 showLoading()
                 axios
                     .get(
-                        '{{ route('invoice.program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
+                        '{{ route('invoice.client-program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
                             responseType: 'arraybuffer',
                             params: {
                                 type: 'idr'
@@ -1246,7 +1235,7 @@
                 showLoading()
                 axios
                     .get(
-                        '{{ route('invoice.program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
+                        '{{ route('invoice.client-program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
                             responseType: 'arraybuffer',
                             params: {
                                 type: 'other'

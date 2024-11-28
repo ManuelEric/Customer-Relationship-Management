@@ -3,7 +3,7 @@ namespace App\Http\Traits;
 
 trait StandardizePhoneNumberTrait {
 
-    public function setPhoneNumber($phoneNumber)
+    public function tnSetPhoneNumber($phoneNumber)
     {
         if (!$phoneNumber)
             return null;

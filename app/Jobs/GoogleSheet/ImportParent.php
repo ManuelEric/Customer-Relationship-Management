@@ -3,10 +3,12 @@
 namespace App\Jobs\GoogleSheet;
 
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\GetGradeAndGraduationYear;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\SyncClientTrait;
 use App\Jobs\Client\ProcessDefineCategory;
+use App\Jobs\Client\ProcessInsertLogClient;
 use App\Jobs\RawClient\ProcessVerifyClient;
 use App\Jobs\RawClient\ProcessVerifyClientParent;
 use App\Models\JobBatches;
@@ -26,7 +28,7 @@ use romanzipp\QueueMonitor\Traits\IsMonitored;
 class ImportParent implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    use SyncClientTrait, CreateCustomPrimaryKeyTrait, LoggingTrait, SyncClientTrait, StandardizePhoneNumberTrait;
+    use SyncClientTrait, CreateCustomPrimaryKeyTrait, LoggingTrait, SyncClientTrait, StandardizePhoneNumberTrait, GetGradeAndGraduationYear;
     use IsMonitored;
 
     public $parentData;
@@ -51,7 +53,7 @@ class ImportParent implements ShouldQueue
 
         foreach ($this->parentData as $key => $val) {
             $parent = null;
-            $phoneNumber = $this->setPhoneNumber($val['Phone Number']);
+            $phoneNumber = $this->tnSetPhoneNumber($val['Phone Number']);
 
             $parent = $this->checkExistingClientImport($phoneNumber, $val['Email']);
 
@@ -90,6 +92,7 @@ class ImportParent implements ShouldQueue
 
             $children = null;
             $checkExistChildren = null;
+            $st_grade = null;
             if (isset($val['Children Name'])) {
                 $checkExistChildren = $this->checkExistClientRelation('parent', $parent, $val['Children Name']);
                 
@@ -104,11 +107,16 @@ class ImportParent implements ShouldQueue
                         $school = $this->createSchoolIfNotExists($val['School']);
                     }
 
+                    if (isset($val['Graduation Year'])) {
+                        $st_grade = $this->getGradeByGraduationYear($val['Graduation Year']);
+                    }
+
                     $childrenDetails = [
                         'first_name' => $name['firstname'],
                         'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
                         'sch_id' => $school->sch_id,
                         'graduation_year' => isset($val['Graduation Year']) ? $val['Graduation Year'] : null,
+                        'st_grade' => $st_grade,
                         'lead_id' => $val['Lead'],
                         'event_id' => isset($val['Event']) && $val['Lead'] == 'LS003' ? $val['Event'] : null,
                         'eduf_id' => isset($val['Edufair'])  && $val['Lead'] == 'LS017' ? $val['Edufair'] : null,
@@ -144,18 +152,29 @@ class ImportParent implements ShouldQueue
             ];
 
             $imported_date[] = [Carbon::now()->format('d-m-Y H:i:s')];
-            // $totalImported += $imported->totalUpdatedRows;
+
+            $clients_data_for_log_client[$key] = [
+                'client_id' => $children->id,
+                'first_name' => $checkExistChildren['isExist'] ? $children->first_name : $childrenDetails['first_name'],
+                'last_name' => $checkExistChildren['isExist'] ? $children->last_name : $childrenDetails['last_name'],
+                'lead_source' => $val['Lead'],
+                'inputted_from' => 'import-parent',
+                'clientprog_id' => null
+            ];
         }
 
 
-        # trigger to verifying parent
-        count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent') : null;
+        // # trigger to verifying parent
+        // count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent') : null;
         
-        # trigger to verifying children
-        count($childrenIds) > 0 ? ProcessVerifyClient::dispatch($childrenIds)->onQueue('verifying-client') : null;
+        // # trigger to verifying children
+        // count($childrenIds) > 0 ? ProcessVerifyClient::dispatch($childrenIds)->onQueue('verifying-client') : null;
  
-        # trigger to define category children
-        count($childrenIds) > 0 ? ProcessDefineCategory::dispatch($childrenIds)->onQueue('define-category-client') : null;
+        // # trigger to define category children
+        // count($childrenIds) > 0 ? ProcessDefineCategory::dispatch($childrenIds)->onQueue('define-category-client') : null;
+
+        # trigger to insert log children
+        count($childrenIds) > 0 ? ProcessInsertLogClient::dispatch($clients_data_for_log_client, true)->onQueue('insert-log-client') : null;
 
         Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Parents')->range('V'. $this->parentData->first()['No'] + 1)->update($imported_date);
         $dataJobBatches = JobBatches::find($this->batch()->id);

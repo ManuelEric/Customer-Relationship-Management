@@ -279,11 +279,14 @@
                             })
                         }
 
+                        var main_id = "'" + d.id + "'";
+                        var second_id = "'" + item.id + "'";
+
                         similar += '<tr onclick="comparison(' +
-                            d.id + ',' + item.id + ', ' + roles.toLowerCase() + ')" class="cursor-pointer">' +
+                            main_id + ',' + second_id + ', ' + roles.toLowerCase() + ')" class="cursor-pointer">' +
                             '<td><input type="radio" name="similar' + d.id +
                             '" class="form-check-input item-' + item.id + '" onclick="comparison(' +
-                            d.id + ',' + item.id + ', ' + roles.toLowerCase() + ')" /></td>' +
+                            main_id + ',' + second_id + ', ' + roles.toLowerCase() + ')" /></td>' +
                             '<td><i class="bi bi-person"></i> ' + item.first_name + ' ' + (item
                                 .last_name !== null ? item.last_name :
                                 '') + '</td>' +
@@ -296,7 +299,7 @@
                                     .parents[0].last_name !== null ? item.parents[0].last_name : '') : '-'
                             ) +
                             '</td>' +
-                            '<td>' + (item.graduation_year_real !== null ? item.graduation_year_real :
+                            '<td>' + (item.graduation_year_now !== null ? item.graduation_year_now :
                                 '-') + '</td>' +
                             '<td>' +
                             (item.client_program.length > 0 ?
@@ -453,7 +456,7 @@
                         }
                     },
                     {
-                        data: 'graduation_year_real',
+                        data: 'graduation_year_now',
                         className: 'text-center',
                         defaultContent: '-'
                     },
@@ -516,14 +519,14 @@
                         defaultContent: '<button type="button" class="btn btn-sm btn-outline-danger py-1 px-2 deleteRawClient"><i class="bi bi-eraser"></i></button>',
                         render: function(data, type, row, meta) {
                             var roles = "'" + row.roles + "'";
+                            var id = "'" + row.id + "'";
                             return '<div class="d-flex gap-1 justify-content-center">' +
                                 '<small class="btn btn-sm btn-info px-1 pt-1 pb-0  cursor-pointer item-' +
                                 row
                                 .id +
                                 '" data-bs-toggle="tooltip" data-bs-placement="top" ' +
                                 'data-bs-custom-class="custom-tooltip" ' +
-                                'data-bs-title="Convert to New Lead" onclick="newLeads(' +
-                                row.id + ', ' + roles.toLowerCase() + ')">' +
+                                'data-bs-title="Convert to New Lead" onclick="newLeads(' + id + ',' + roles.toLowerCase() + ')">' +
                                 '<i class="bi bi-send-check-fill me-1 text-secondary"></i>' +
                                 '</small>' +
                                 '<small data-bs-toggle="tooltip" data-bs-placement="top" ' +
@@ -596,7 +599,7 @@
                         var arrSuggest = suggestion.split(',');
                         var intArrSuggest = [];
                         for (var i = 0; i < arrSuggest.length; i++)
-                            intArrSuggest.push(parseInt(arrSuggest[i]));
+                            intArrSuggest.push(arrSuggest[i]);
 
                         showLoading()
                         axios.get("{{ url('api/client/suggestion') }}", {

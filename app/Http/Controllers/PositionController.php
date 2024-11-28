@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Positions\CreatePositionAction;
+use App\Actions\Positions\DeletePositionAction;
+use App\Actions\Positions\UpdatePositionAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StorePositionRequest;
 use App\Http\Traits\LoggingTrait;
 use App\Interfaces\PositionRepositoryInterface;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,27 +37,28 @@ class PositionController extends Controller
         return view('pages.master.position.index');
     }
 
-    public function store(StorePositionRequest $request)
+    public function store(StorePositionRequest $request, CreatePositionAction $createPositionAction, LogService $log_service)
     {
-        $positionDetails = $request->only([
+        $new_position_details = $request->safe()->only([
             'position_name',
         ]);
 
         DB::beginTransaction();
         try {
 
-            $newPosition = $this->positionRepository->createPosition($positionDetails);
+            $new_position = $createPositionAction->execute($new_position_details);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store position failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_POSITION, $e->getMessage(), $e->getLine(), $e->getFile(), $new_position_details);
+
             return Redirect::to('master/position')->withError('Failed to create a new position');
         }
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Position', Auth::user()->first_name . ' '. Auth::user()->last_name, $newPosition);
+        $log_service->createSuccessLog(LogModule::STORE_POSITION, 'New position has been added', $new_position->toArray());
 
         return Redirect::to('master/position')->withSuccess('Position successfully created');
     }
@@ -66,54 +72,56 @@ class PositionController extends Controller
         return response()->json(['position' => $position]);
     }
 
-    public function update(StorePositionRequest $request)
+    public function update(StorePositionRequest $request, UpdatePositionAction $updatePositionAction, LogService $log_service)
     {
-        $positionDetails = $request->only([
+        $new_position_details = $request->only([
             'position_name',
         ]);
 
-        $id = $request->route('position');
-        $oldPosition = $this->positionRepository->getPositionById($id);
+        $position_id = $request->route('position');
+        $old_position = $this->positionRepository->getPositionById($position_id);
 
         DB::beginTransaction();
         try {
 
-            $this->positionRepository->updatePosition($id, $positionDetails);
+            $updated_position = $updatePositionAction->execute($position_id, $new_position_details);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update position failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::UPDATE_POSITION, $e->getMessage(), $e->getLine(), $e->getFile(), $new_position_details);
+
             return Redirect::to('master/position')->withError('Failed to update position');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Position', Auth::user()->first_name . ' '. Auth::user()->last_name, $positionDetails, $oldPosition);
+        $log_service->createSuccessLog(LogModule::UPDATE_POSITION, 'Position has been updated', $updated_position->toArray());
 
         return Redirect::to('master/position')->withSuccess('Position successfully updated');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeletePositionAction $deletePositionAction, LogService $log_service)
     {
-        $id = $request->route('position');
-        $position = $this->positionRepository->getPositionById($id);
+        $position_id = $request->route('position');
+        $old_position = $this->positionRepository->getPositionById($position_id);
 
         DB::beginTransaction();
         try {
 
-            $this->positionRepository->deletePosition($id);
+            $deletePositionAction->execute($position_id);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete position failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_POSITION, $e->getMessage(), $e->getLine(), $e->getFile(), $old_position->toArray());
+
             return Redirect::to('master/position')->withError('Failed to delete position');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Position', Auth::user()->first_name . ' '. Auth::user()->last_name, $position);
+        $log_service->createSuccessLog(LogModule::DELETE_POSITION, 'Position has been deleted', $old_position->toArray());
 
         return Redirect::to('master/position')->withSuccess('Position successfully deleted');
     }

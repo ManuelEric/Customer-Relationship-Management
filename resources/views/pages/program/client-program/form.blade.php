@@ -23,7 +23,7 @@
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
-                    <h4>{{ $student->full_name }}</h4>
+                    <h4><a class="text-decoration-none" target="_blank" href="{{ route('student.show', ['student' => $student->id]) }}">{{ $student->full_name }}</a></h4>
                     @if (!request()->is('program/client/create*'))
                         <div class="mt-3 d-flex justify-content-center">
                             @if (!isset($clientProgram->invoice->refund))
@@ -97,7 +97,7 @@
                                             @if (!empty(old('prog_id')) && old('prog_id') == $program->prog_id) {{ 'selected' }}
                                             @elseif (isset($clientProgram) && $clientProgram->prog_id == $program->prog_id)
                                                 {{ 'selected' }} @endif>
-                                            {{ $program->prog_sub != '-' ? $program->prog_sub . ' - ' : '' }}
+                                            {{ isset($program->sub_prog->sub_prog_name) ? $program->sub_prog->sub_prog_name . ' - ' : '' }}
                                             {{ $program->prog_program }}</option>
                                     @endforeach
                                 </select>
@@ -153,7 +153,7 @@
                                                     {{ $clientEvent->event->event_title }}</option>
                                             @endforeach
                                         </select>
-                                        @error('event_id')
+                                        @error('clientevent_id')
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
@@ -256,7 +256,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row mb-3">
+                        {{-- <div class="row mb-3">
                             <div class="col-md-3">
                                 <label for="">
                                     Notes
@@ -268,7 +268,7 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <label for="">
@@ -290,6 +290,9 @@
                                                 <option value="3"
                                                     {{ old('status') !== null && old('status') == 3 ? 'selected' : null }}>
                                                     Refund</option>
+                                            @endif
+                                            @if (isset($clientProgram))
+                                                <option value="4">Hold</option>
                                             @endif
                                         </select>
                                         @error('status')
@@ -325,7 +328,7 @@
                                     </div>
 
 
-                                    <div class="col-md-12 mt-2 program-detail d-none" id="reason">
+                                    <div class="col-md-6 mt-2 program-detail d-none" id="reason">
                                         <small>Reason <sup class="text-danger">*</sup></small>
                                         <div class="classReason">
                                             <select name="reason_id" class="select w-100" {{ $disabled }}
@@ -363,6 +366,15 @@
                                         @enderror
                                         {{-- <input type="text" name="" class="form-control form-control-sm"> --}}
 
+                                    </div>
+                                    <div class="col-md-6 mt-2 program-detail d-none" id="reason_notes">
+                                        <small>Reason Notes </small>
+                                        <input type="text" name="reason_notes" id="" {{ $disabled }}
+                                            class="form-control form-control-sm rounded"
+                                            value="{{ isset($clientProgram->reason_notes) ? $clientProgram->reason_notes : old('reason_notes') }}">
+                                        @error('reason_notes')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
                                     </div>
 
                                     <div class="col-md-12 mt-2 program-detail" id="refund_notes">
@@ -480,6 +492,36 @@
                                                 @endforeach
                                             </select>
                                             @error('profile_building_mentor')
+                                                <small class="text-danger fw-light">{{ $message }}</small>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <label for="">
+                                        Subject Specialist Mentor
+                                    </label>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <select name="subject_specialist_mentor" id="" class="select w-100"
+                                                {{ $disabled }}>
+                                                <option data-placeholder="true"></option>
+                                                @foreach ($mentors as $mentor)
+                                                    <option value="{{ $mentor->id }}"
+                                                        @if (old('subject_specialist_mentor') == $mentor->id) {{ 'selected' }}
+                                                        @elseif (isset($clientProgram->clientMentor) &&
+                                                                $clientProgram->clientMentor()->where('type', 6)->count() > 0)
+                                                            @if ($clientProgram->clientMentor()->where('type', 6)->first()->id == $mentor->id)
+                                                                {{ 'selected' }} @endif
+                                                        @endif
+                                                        >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('subject_specialist_mentor')
                                                 <small class="text-danger fw-light">{{ $message }}</small>
                                             @enderror
                                         </div>
@@ -758,7 +800,7 @@
             let programName = program.text()
 
             if (programName) {
-                if (lead.includes('All-In Event')) {
+                if (lead.includes('EduALL Event')) {
 
                     $("#event").removeClass('d-none')
                     $("#edufair").addClass("d-none")
@@ -782,7 +824,7 @@
                     $("#partner").addClass("d-none")
                     $("#referral").addClass("d-none")
 
-                } else if (lead.includes('All-In Partners')) {
+                } else if (lead.includes('EduALL Partners')) {
 
                     $("#event").addClass("d-none")
                     $("#edufair").addClass("d-none")
@@ -877,6 +919,8 @@
                                 .includes('SAT') || programSubProg.includes('SAT')) {
                                 $('#tutoring').addClass('d-none')
                                 $('#sat-act').removeClass('d-none')
+                            } else if (programStatus == 4) { // hold
+                                $('#reason').removeClass('d-none')
 
                             }
                             break;
@@ -885,10 +929,12 @@
                 } else if (programStatus == 2) { // failed
                     $('#failed_date').removeClass('d-none')
                     $('#reason').removeClass('d-none')
+                    $('#reason_notes').removeClass('d-none')
                 } else if (programStatus == 3) { // refund
                     $('#refund_date').removeClass('d-none')
                     $('#refund_notes').removeClass('d-none')
                     $('#reason').removeClass('d-none')
+                    $('#reason_notes').removeClass('d-none')
                 }
             } else {
                 notification('warning', 'Please, select program name first!')

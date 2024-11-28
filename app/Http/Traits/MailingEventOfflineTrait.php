@@ -74,9 +74,9 @@ trait MailingEventOfflineTrait
                     throw new Exception('Store client event', 1);
 
 
-                UserClient::whereId($client_id)->update(['register_as' => 'parent']);
+                UserClient::whereId($client_id)->update(['register_by' => 'parent']);
                 if ($client->childrens->count() > 0) {
-                    UserClient::whereId($client->childrens[0]->id)->update(['register_as' => 'parent']);
+                    UserClient::whereId($client->childrens[0]->id)->update(['register_by' => 'parent']);
                 }
 
 

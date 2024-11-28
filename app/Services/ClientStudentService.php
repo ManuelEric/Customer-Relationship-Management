@@ -58,7 +58,7 @@ class ClientStudentService
         $leads = $main_leads->merge($sub_leads);
         $initial_programs = $this->initialProgramRepository->getAllInitProg();
 
-        $pics = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $pics = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
 
         return [
             'reasons' => $reasons,

@@ -330,7 +330,9 @@
                                     @if (isset($events) && count($events) > 0)
                                         @foreach ($events as $event)
                                             <option value="{{ $event->event_id }}"
-                                                {{ old('event_id') == $event->event_id ? 'selected' : null }}>
+                                                @if (isset($clientEvent->event_id)) {{ $clientEvent->event_id == $event->event_id ? 'selected' : null }}
+                                                @else
+                                                    {{ old('event_id') == $event->event_id ? 'selected' : null }} @endif>
                                                 {{ $event->event_title }}
                                             </option>
                                         @endforeach
@@ -527,12 +529,12 @@
                                 <tr>
                                     <td width="30%">Graduation Year</td>
                                     <td width="1%">:</td>
-                                    <td>{{ $client->graduation_year_real ?? '-'}}</td>
+                                    <td>{{ $client->graduation_year_now ?? '-'}}</td>
                                 </tr>
                                 <tr>
-                                    <td>Register As</td>
+                                    <td>Register By</td>
                                     <td width="1%">:</td>
-                                    <td>{{ $client->register_as }}</td>
+                                    <td>{{ $client->register_by }}</td>
                                 </tr>
                                 <tr>
                                     <td>Have you ever participated ALL-in Event/Program?</td>

@@ -650,7 +650,9 @@
                 var query = {
                     search: params.term
                 }
-
+                
+                $("input[name=sch_name]").val(query.search);
+                
                 // Query parameters will be ?search=[term]
                 return query;
             }, 
@@ -666,7 +668,7 @@
     })
 
     $("select[name=choosen_school]").on('change', function() {
-        var val = $(this).val();
+        var val = $(this).val();        
         if (val == 'SCH-NEW') {
 
             $(this).next(".select2-container").addClass('d-none');

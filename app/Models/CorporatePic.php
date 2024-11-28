@@ -40,4 +40,9 @@ class CorporatePic extends Model
     {
         return $this->belongsToMany(SchoolProg::class, 'tbl_agenda_speaker', 'partner_pic_id', 'sch_prog_id')->using(AgendaSpeaker::class);
     }
+
+    public function partner_agreement()
+    {
+        return $this->hasOne(PartnerAgreement::class, 'corp_pic', 'id');
+    }
 }

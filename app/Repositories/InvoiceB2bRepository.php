@@ -376,7 +376,6 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                         WHEN tbl_invb2b.invb2b_pm = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
                     END)
                 '), '=', $days)
-            // ->where(DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now())'), '=', $days)
             ->orderBy('date_difference', 'asc')->get();
     }
 
@@ -386,7 +385,6 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
         return DataTables::eloquent(
             Referral::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
                 ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
-                // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
                 ->leftJoin('users', 'users.id', '=', 'tbl_referral.empl_id')
                 ->leftJoin('tbl_invb2b', 'tbl_invb2b.ref_id', '=', 'tbl_referral.id')
                 ->select(
@@ -424,7 +422,6 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 $query = Invb2b::leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
                     ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
                     ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
-                    // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
                     ->select(
                         'tbl_invb2b.invb2b_num',
                         'tbl_corp.corp_name as partner_name',
@@ -451,7 +448,6 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 $query = Invb2b::leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
                     ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
                     ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
-                    // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
                     ->select(
                         'tbl_invb2b.invb2b_num',
                         'tbl_corp.corp_name as partner_name',
@@ -489,7 +485,6 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             ->leftJoin('users as u', 'u.id', '=', 'tbl_referral.empl_id')
             ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
-            // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
             ->select(
                 'tbl_invb2b.invb2b_num',
                 'tbl_corp.corp_name as partner_name',
@@ -572,17 +567,6 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
         $queryInv = Invb2b::leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
             ->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
             ->leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id');
-            // ->where(
-            //     DB::raw('(CASE
-            //                     WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch_prog.status
-            //                     WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_partner_prog.status
-            //                     WHEN tbl_invb2b.ref_id > 0 THEN tbl_referral.referral_type 
-            //                 END)'),
-            //     DB::raw('(CASE
-            //                     WHEN tbl_invb2b.ref_id > 0 THEN "Out" 
-            //                     ELSE 1
-            //                 END)')
-            // );
 
         if (isset($start_date) && isset($end_date)) {
             $queryInv->whereDate('tbl_invb2b.created_at', '>=', $start_date)
@@ -683,30 +667,19 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             )->where('tbl_receipt.receipt_id', '=', NULL);
 
         if (isset($start_date) && isset($end_date)) {
-            return $invoiceB2b->whereBetween($whereBy, [$start_date, $end_date])
-                ->orderBy('invb2b_id_num', 'asc')
-                ->orderBy('invb2b_id_month', 'asc')
-                ->orderBy('invb2b_id_year', 'asc')
-                ->get();
+            $invoiceB2b->whereBetween($whereBy, [$start_date, $end_date]);
         } else if (isset($start_date) && !isset($end_date)) {
-            return $invoiceB2b->whereDate($whereBy, '>=', $start_date)
-                ->orderBy('invb2b_id_num', 'asc')
-                ->orderBy('invb2b_id_month', 'asc')
-                ->orderBy('invb2b_id_year', 'asc')
-                ->get();
+            $invoiceB2b->whereDate($whereBy, '>=', $start_date);
         } else if (!isset($start_date) && isset($end_date)) {
-            return $invoiceB2b->whereDate($whereBy, '<=', $end_date)
-                ->orderBy('invb2b_id_num', 'asc')
-                ->orderBy('invb2b_id_month', 'asc')
-                ->orderBy('invb2b_id_year', 'asc')
-                ->get();
+            $invoiceB2b->whereDate($whereBy, '<=', $end_date);
         } else {
-            return $invoiceB2b->whereBetween($whereBy, [$firstDay, $lastDay])
-                ->orderBy('invb2b_id_num', 'asc')
-                ->orderBy('invb2b_id_month', 'asc')
-                ->orderBy('invb2b_id_year', 'asc')
-                ->get();
+            $invoiceB2b->whereBetween($whereBy, [$firstDay, $lastDay]);
         }
+
+        return $invoiceB2b->orderBy('invb2b_id_num', 'asc')
+                            ->orderBy('invb2b_id_month', 'asc')
+                            ->orderBy('invb2b_id_year', 'asc')
+                            ->get();
     }
 
     public function getTotalPartnershipProgram($monthYear)
@@ -714,6 +687,9 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
         $year = date('Y', strtotime($monthYear));
         $month = date('m', strtotime($monthYear));
 
+        # Get data invoice b2b from school and partner
+        # then merge them
+        # select total price idr and type (sch, partner)
         $schProg = Invb2b::leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
             ->select(DB::raw("'sch_prog' as 'type'"), 'tbl_invb2b.invb2b_totpriceidr')
             ->where('tbl_sch_prog.status', '1')
@@ -926,7 +902,6 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                             ELSE NULL
                             END)')
             );
-        // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id');
 
         switch ($type) {
             case 'paid':

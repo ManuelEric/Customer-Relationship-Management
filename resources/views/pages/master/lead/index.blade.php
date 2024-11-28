@@ -144,11 +144,11 @@
                 ajax: '{!! url('master/lead') !!}',
                 pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
-                        data: 'id',
+                        data: 'DT_RowIndex', 
+                        name: 'DT_RowIndex', 
+                        orderable: false, 
+                        searchable: false,
                         className: 'text-center',
-                        render: function(data, type, row, meta) {
-                            return meta.row + meta.settings._iDisplayStart + 1;
-                        }
                     },
                     {
                         data: 'lead_id',
@@ -223,7 +223,7 @@
         }
 
         function editById(lead_id) {
-            let link = "{{ url('master/lead') }}/" + lead_id.toLowerCase()
+            let link = "{{ url('master/lead') }}/" + lead_id.toUpperCase()
 
             axios.get(link)
                 .then(function(response) {
@@ -244,13 +244,12 @@
 
 
                     let html =
-                        '@method('put')' +
-                        '<input type="hidden" name="id" value="' + data.lead_id + '">'
+                        '@method('put')';
 
                     $('.put').html(html)
 
 
-                    $('#formLead').attr('action', '{{ url('master/lead') }}/' + data.lead_id.toLowerCase() + '')
+                    $('#formLead').attr('action', '{{ url('master/lead') }}/' + data.lead_id.toUpperCase() + '')
                 })
                 .catch(function(error) {
                     // handle error

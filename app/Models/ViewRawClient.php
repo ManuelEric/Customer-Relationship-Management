@@ -13,6 +13,7 @@ class ViewRawClient extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'raw_client';
+    protected $keyType = 'string';
 
     /**
      * The attributes that should be visible in arrays.
@@ -28,11 +29,12 @@ class ViewRawClient extends Authenticatable
         'second_client_mail',
         'second_client_phone',
         'school',
-        'register_as',
+        'register_by',
         'sch_id',
         'interest_countries',
         'lead_source',
-        'graduation_year_real',
+        'graduation_year_now',
+        'grade_now',
         'created_at',
         'updated_at',
         'roles',
@@ -71,6 +73,6 @@ class ViewRawClient extends Authenticatable
 
     public function destinationCountries()
     {
-        return $this->belongsToMany(Tag::class, 'tbl_client_abrcountry', 'client_id', 'tag_id')->withTimestamps();
+        return $this->belongsToMany(Tag::class, 'tbl_client_abrcountry', 'client_id', 'country_id')->withTimestamps();
     }
 }

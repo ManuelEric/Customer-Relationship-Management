@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Corporates\Pic\CreateCorporatePicAction;
+use App\Actions\Corporates\Pic\DeleteCorporatePicAction;
+use App\Actions\Corporates\Pic\UpdateCorporatePicAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreCorporatePicRequest;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\CorporatePicRepositoryInterface;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,9 +30,9 @@ class CorporatePicController extends Controller
 
     public function show(Request $request): JsonResponse
     {
-        $picId = $request->route('detail');
+        $pic_id = $request->route('detail');
 
-        $detail = $this->corporatePicRepository->getCorporatePicById($picId);
+        $detail = $this->corporatePicRepository->getCorporatePicById($pic_id);
 
         return response()->json(
             [
@@ -38,40 +43,42 @@ class CorporatePicController extends Controller
         );
     }
 
-    public function store(StoreCorporatePicRequest $request)
+    public function store(StoreCorporatePicRequest $request, CreateCorporatePicAction $createCorporatePicAction, LogService $log_service)
     {
-        $picDetails = $request->only([
+        $pic_details = $request->safe()->only([
             'pic_name',
             'pic_mail',
             'pic_phone',
             'pic_linkedin',
             'is_pic',
         ]);
-        unset($picDetails['pic_phone']);
-        $picDetails['pic_phone'] = $this->setPhoneNumber($request->pic_phone);
 
-        $picDetails['corp_id'] = $corporateId = $request->route('corporate');
+        $corporate_id = $request->route('corporate');
 
         DB::beginTransaction();
         try {
 
-            $this->corporatePicRepository->createCorporatePic($picDetails);
+            $craeted_corporate_pic = $createCorporatePicAction->execute($request, $pic_details);
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store corporate PIC failed : ' . $e->getMessage());
-            return Redirect::to('instance/corporate/'.$corporateId)->withError('Failed to create corporate PIC');
+            $log_service->createErrorLog(LogModule::STORE_CORPORATE_PIC, $e->getMessage(), $e->getLine(), $e->getFile(), $pic_details);
+
+            return Redirect::to('instance/corporate/'.$corporate_id)->withError('Failed to create corporate PIC');
             
         }
 
-        return Redirect::to('instance/corporate/'.$corporateId)->withSuccess('Corporate PIC successfully created');
+        # create log success
+        $log_service->createSuccessLog(LogModule::STORE_CORPORATE_PIC, 'New corporate pic has been added', $craeted_corporate_pic->toArray());
+
+        return Redirect::to('instance/corporate/'.$corporate_id)->withSuccess('Corporate PIC successfully created');
     }
     
-    public function update(StoreCorporatePicRequest $request)
+    public function update(StoreCorporatePicRequest $request, UpdateCorporatePicAction $updateCorporatePicAction, LogService $log_service)
     {
-        $newDetails = $request->only([
+        $corporate_pic_details = $request->safe()->only([
             'pic_name',
             'pic_mail',
             'pic_phone',
@@ -79,46 +86,55 @@ class CorporatePicController extends Controller
             'is_pic',
         ]);
 
-        unset($newDetails['pic_phone']);
-        $picDetails['pic_phone'] = $this->setPhoneNumber($request->pic_phone);
-
-        $newDetails['corp_id'] = $corporateId = $request->route('corporate');
-        $picId = $request->route('detail');
+        $pic_id = $request->route('detail');
+        $corporate_id = $request->route('corporate');
 
         DB::beginTransaction();
         try {
 
-            $this->corporatePicRepository->updateCorporatePic($picId, $newDetails);
+            $updated_corporate_pic = $updateCorporatePicAction->execute($request, $pic_id, $corporate_id, $corporate_pic_details);
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update corporate PIC failed : ' . $e->getMessage());
-            return Redirect::to('instance/corporate/'.$corporateId)->withError('Failed to update corporate PIC');
+            $log_service->createErrorLog(LogModule::UPDATE_CORPORATE_PIC, $e->getMessage(), $e->getLine(), $e->getFile(), $updated_corporate_pic);
+
+            return Redirect::to('instance/corporate/'.$corporate_id)->withError('Failed to update corporate PIC');
             
         }
 
-        return Redirect::to('instance/corporate/'.$corporateId)->withSuccess('Corporate PIC successfully updated');
+        # create log success
+        $log_service->createSuccessLog(LogModule::UPDATE_CORPORATE_PIC, 'Corporate pic has been updated', $updated_corporate_pic->toArray());
+
+        return Redirect::to('instance/corporate/'.$corporate_id)->withSuccess('Corporate PIC successfully updated');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteCorporatePicAction $deleteCorporatePicAction, LogService $log_service)
     {
-        $corporateId = $request->route('corporate');
-        $picId = $request->route('detail');
+        $corporate_id = $request->route('corporate');
+        $pic_id = $request->route('detail');
+        $pic = $this->corporatePicRepository->getCorporatePicById($pic_id);
+        
+        if(isset($pic->partner_agreement))
+            return Redirect::to('instance/corporate/'.$corporate_id)->withError('Failed to delete this PIC, there is an agreement related to this PIC');
 
         DB::beginTransaction();
         try {
 
-            $this->corporatePicRepository->deleteCorporatePic($picId);
+            $deleteCorporatePicAction->execute($pic_id);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete corporate PIC failed : ' . $e->getMessage());
-            return Redirect::to('instance/corporate/'.$corporateId)->withError('Failed to delete corporate PIC');
+            $log_service->createErrorLog(LogModule::DELETE_CORPORATE_PIC, $e->getMessage(), $e->getLine(), $e->getFile(), ['corp_id' => $corporate_id, 'pic_id' => $pic_id]);
+
+            return Redirect::to('instance/corporate/'.$corporate_id)->withError('Failed to delete corporate PIC');
         }
 
-        return Redirect::to('instance/corporate/'.$corporateId)->withSuccess('Corporate PIC successfully deleted');
+        # create log success
+        $log_service->createSuccessLog(LogModule::DELETE_CORPORATE_PIC, 'Corporate pic has been deleted', ['corp_id' => $corporate_id, 'pic_id' => $pic_id]);
+
+        return Redirect::to('instance/corporate/'.$corporate_id)->withSuccess('Corporate PIC successfully deleted');
     }
 }

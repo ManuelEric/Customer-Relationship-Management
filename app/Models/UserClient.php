@@ -16,13 +16,16 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Str;
 
 class UserClient extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     protected $table = 'tbl_client';
-    protected $appends = ['lead_source', 'graduation_year_real', 'referral_name'];
+    public $incrementing = false;
+    protected $appends = ['lead_source', 'referral_name'];
+    protected $keyType = 'string';
 
     /**
      * The attributes that should be visible in arrays.
@@ -31,8 +34,9 @@ class UserClient extends Authenticatable
      */
     protected $fillable = [
         'id',
+        'secondary_id',
         'st_id',
-        'uuid',
+        // 'uuid',
         'first_name',
         'last_name',
         'mail',
@@ -47,12 +51,14 @@ class UserClient extends Authenticatable
         'sch_id',
         // 'sch_uuid',
         'st_grade',
+        'grade_now',
         'lead_id',
         'eduf_id',
         'partner_id',
         'event_id',
         'st_levelinterest',
         'graduation_year',
+        'graduation_year_now',
         'gap_year',
         'st_abryear',
         // 'st_abrcountry',
@@ -65,7 +71,7 @@ class UserClient extends Authenticatable
         'is_funding',
         'scholarship',
         'is_verified',
-        'register_as',
+        'register_by',
         'referral_code',
         'category',
         'took_ia',
@@ -79,6 +85,15 @@ class UserClient extends Authenticatable
      * @var array
      */
     protected $dates = ['deleted_at'];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->id = (string) Str::uuid();
+        });
+    }
 
     # Modify methods Model
     public function delete()
@@ -103,13 +118,16 @@ class UserClient extends Authenticatable
 
         $updated = parent::update($attributes);
 
-        // Custom logic after update
-        // Send to pusher
-        event(New MessageSent('rt_client', 'channel_datatable'));
-        
-        // Delete cache birthDay
-        Cache::has('birthDay') ? Cache::forget('birthDay') : null;
-
+        if(isset($attributes['is_many_request']) && $attributes['is_many_request'])
+        {
+            unset($attributes['is_many_request']);
+        }else{
+            // Send to pusher
+            // Custom logic after creating the model
+            event(New MessageSent('rt_client', 'channel_datatable'));
+            // Delete cache birthDay
+            Cache::has('birthDay') ? Cache::forget('birthDay') : null;
+        }
 
         return $updated;
     }
@@ -120,13 +138,18 @@ class UserClient extends Authenticatable
 
         $model = static::query()->create($attributes);
 
-        // Custom logic after creating the model
+        if(isset($attributes['is_many_request']) && $attributes['is_many_request'])
+        {
+            unset($attributes['is_many_request']);
+        }else{
+            // Send to pusher
+            // Custom logic after creating the model
+            event(New MessageSent('rt_client', 'channel_datatable'));
 
-        // Send to pusher
-        event(New MessageSent('rt_client', 'channel_datatable'));
+            // Delete cache birthDay
+            Cache::has('birthDay') ? Cache::forget('birthDay') : null;
+        }
 
-        // Delete cache birthDay
-        Cache::has('birthDay') ? Cache::forget('birthDay') : null;
 
         return $model;
     }
@@ -153,19 +176,19 @@ class UserClient extends Authenticatable
         );
     }
 
-    protected function gradeNow(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => $this->getGradeNowFromView($this->id)
-        );
-    }
+    // protected function gradeNow(): Attribute
+    // {
+    //     return Attribute::make(
+    //         get: fn ($value) => $this->getGradeNowFromView($this->id)
+    //     );
+    // }
 
-    protected function graduationYearReal(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => $this->getGraduationYearFromView($this->id)
-        );
-    }
+    // protected function graduationYearReal(): Attribute
+    // {
+    //     return Attribute::make(
+    //         get: fn ($value) => $this->getGraduationYearFromView($this->id)
+    //     );
+    // }
 
     protected function participated(): Attribute
     {
@@ -303,15 +326,15 @@ class UserClient extends Authenticatable
         }
     }
 
-    public function getGraduationYearFromView($id)
-    {
-        return DB::table('client')->find($id)->graduation_year_real ?? null;
-    }
+    // public function getGraduationYearFromView($id)
+    // {
+    //     return DB::table('client')->find($id)->graduation_year_real ?? null;
+    // }
 
-    public function getGradeNowFromView($id)
-    {
-        return DB::table('client')->find($id)->grade_now ?? null;
-    }
+    // public function getGradeNowFromView($id)
+    // {
+    //     return DB::table('client')->find($id)->grade_now ?? null;
+    // }
 
     public function getParticipatedFromView($id)
     {
@@ -320,8 +343,7 @@ class UserClient extends Authenticatable
 
     public function getReferralNameFromRefCodeView($refCode)
     {
-        // return ViewClientRefCode::whereRaw('ref_code COLLATE utf8mb4_unicode_ci = (?)', $refCode)->first()->full_name;
-        return ViewClientRefCode::whereRaw('ref_code = (?)', $refCode)->first()->full_name;
+        return UserClient::where('secondary_id', $refCode)->first()->full_name ?? null;
     }
 
 
@@ -368,7 +390,7 @@ class UserClient extends Authenticatable
 
     public function destinationCountries()
     {
-        return $this->belongsToMany(Tag::class, 'tbl_client_abrcountry', 'client_id', 'tag_id')->withTimestamps();
+        return $this->belongsToMany(MasterCountry::class, 'tbl_client_abrcountry', 'client_id', 'country_id')->withTimestamps();
     }
 
     public function interestUniversities()
@@ -389,6 +411,41 @@ class UserClient extends Authenticatable
     public function clientProgram()
     {
         return $this->hasMany(ClientProgram::class, 'client_id', 'id');
+    }
+
+    public function latestOfferedProgram()
+    {
+        return $this->hasOne(ClientProgram::class, 'client_id', 'id')->ofMany([
+            'clientprog_id' => 'max',
+        ], function ($query) {
+            $query->where('status', 0); # pending
+        });
+    }
+
+    public function latestAdmissionProgram()
+    {
+        return $this->hasOne(ClientProgram::class, 'client_id', 'id')->ofMany([
+            'clientprog_id' => 'max',
+        ], function ($query) {
+            $query->
+            whereHas('program.main_prog', function ($sub) {
+                $sub->where('prog_name', 'Admissions Mentoring');
+            })->
+            whereIn('status', [1, 4]); # success
+        });
+    }
+
+    public function latestNonAdmissionProgram()
+    {
+        return $this->hasOne(ClientProgram::class, 'client_id', 'id')->ofMany([
+            'clientprog_id' => 'max',
+        ], function ($query) {
+            $query->
+            whereHas('program.main_prog', function ($sub) {
+                $sub->whereNot('prog_name', 'Admissions Mentoring');
+            })->
+            whereIn('status', [1, 4]); # success
+        });
     }
 
     public function clientEvent()
@@ -435,5 +492,10 @@ class UserClient extends Authenticatable
     public function followupSchedule()
     {
         return $this->hasMany(FollowupClient::class, 'client_id', 'id');
+    }
+
+    public function client_log()
+    {
+        return $this->hasMany(ClientLog::class, 'client_id', 'id');
     }
 }

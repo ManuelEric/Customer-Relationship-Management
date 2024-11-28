@@ -69,29 +69,29 @@
                         </div>
                     </div>
                     <div class="card-body" style="max-height: 200px; overflow:auto;">
-                            @forelse ($reviews as $reviews)
+                            @forelse ($reviews as $review)
                                 <div class="item mb-3">
                                     <div class="d-flex justify-content-between">
                                         <div class="">
                                             <h6 class="mb-0">
-                                                {{ $reviews->reviewer->first_name . ' ' . $reviews->reviewer->last_name }}
+                                                {{ $review->reviewer->first_name . ' ' . $review->reviewer->last_name }}
                                             </h6>
                                             <small>
-                                                {{ date('M, d Y', strtotime($reviews->created_at)) }} |
-                                                {{ $reviews->score }}
+                                                {{ date('M, d Y', strtotime($review->created_at)) }} |
+                                                {{ $review->score }}
                                             </small>
                                         </div>
                                         <div class="">
                                             <i class="bi bi-pencil text-warning me-1 cursor-pointer" data-bs-toggle="modal"
                                                 data-bs-target="#reviewForm"
-                                                onclick="getReview('{{ $edufair->id }}','{{ $reviews->id }}')"></i>
+                                                onclick="getReview({{ $edufair->id }},{{ $review->id }})"></i>
 
                                             <i class="bi bi-trash2 text-danger cursor-pointer"
-                                                onclick="confirmDelete('master/edufair/{{ $edufair->id }}/review', '{{ $reviews->id }}')"></i>
+                                                onclick="confirmDelete('master/edufair/{{ $edufair->id }}/review', '{{ $review->id }}')"></i>
                                         </div>
                                     </div>
                                     <div class="ps-1 my-1" style="border-left: 1px solid #dedede">
-                                        {!! $reviews->review !!}
+                                        {!! $review->review !!}
                                     </div>
                                     <hr class="my-1">
                                 </div>
@@ -422,7 +422,8 @@
         </div>
     @endif
 
-
+@endsection
+@push('scripts')
     <script>
         $(document).ready(function() {
             $('.modal-select').select2({
@@ -434,6 +435,8 @@
             $('input[name=organizer]').on('change', function() {
                 change_organizer($(this).val())
             })
+
+            myEditor.destroy()
         })
 
         function change_organizer(val) {
@@ -446,41 +449,6 @@
                 $("#schoolList").hide()
                 $('#schoolList select').val(null).trigger('change')
             }
-        }
-
-        @if (isset($edufair))
-            function resetForm() {
-                $('#reviewer_name').val(null).trigger('change')
-                $('#score').val(null).trigger('change')
-                tinyMCE.get('review').setContent('');
-                $('.put').html('');
-                let url = "{{ url('master/edufair/' . $edufair->id . '/review') }}"
-                $('#formReview').attr('action', url)
-            }
-        @endif
-
-        function getReview(eduf_id, reviews_id) {
-            let link = '{{ url('master/edufair') }}/' + eduf_id + '/review/' + reviews_id
-
-            axios.get(link)
-                .then(function(response) {
-                    let data = response.data.review
-                    // console.log(data)
-                    // handle success
-                    $('#reviewer_name').val(data.reviewer_name).trigger('change')
-                    $('#score').val(data.score).trigger('change')
-                    tinyMCE.get('review').setContent(data.review);
-
-                    let url = "{{ url('master/edufair/') }}/" + data.eduf_id + "/review/" + data.id
-                    $('#formReview').attr('action', url)
-
-                    let html = '@method('put')'
-                    $('.put').html(html);
-                })
-                .catch(function(error) {
-                    // handle error
-                    console.log(error);
-                })
         }
     </script>
 
@@ -502,6 +470,7 @@
                 $('input[name=organizer]').on('change', function() {
                     change_organizer($(this).val())
                 })
+
             })
 
             function change_organizer(val) {
@@ -518,34 +487,60 @@
         </script>
 
         <script>
+            // destroy editor that initialized from app.blade.php
+            // and re-initialize the editor
+            var review_editor;
+            ClassicEditor
+                .create(document.querySelector('#review'), {
+                    toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList',
+                        'blockQuote'
+                    ],
+                    heading: {
+                        options: [{
+                                model: 'paragraph',
+                                title: 'Paragraph',
+                                class: 'ck-heading_paragraph'
+                            },
+                            {
+                                model: 'heading1',
+                                view: 'h1',
+                                title: 'Heading 1',
+                                class: 'ck-heading_heading1'
+                            },
+                            {
+                                model: 'heading2',
+                                view: 'h2',
+                                title: 'Heading 2',
+                                class: 'ck-heading_heading2'
+                            }
+                        ]
+                    }
+                })
+                .then(newEditor => {
+                    console.log('Editor was initialized', newEditor);
+                    review_editor = newEditor;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+
             var organizer = "{{ isset($edufair->sch_id) && $edufair->sch_id != null ? 'school' : 'corporate' }}"
             change_organizer(organizer)
 
-            function resetForm() {
-                $('#reviewer_name').val(null).trigger('change')
-                $('#score').val(null).trigger('change')
-                tinyMCE.get('review').setContent('');
-                $('.put').html('');
-                let url = "{{ url('master/edufair/' . $edufair->id . '/review') }}"
-                $('#formReview').attr('action', url)
-            }
-
             function getReview(eduf_id, reviews_id) {
-                let link = '{{ url('master/edufair') }}/' + eduf_id + '/review/' + reviews_id
 
+                let link = '{{ url('master/edufair') }}/' + eduf_id + '/review/' + reviews_id
                 axios.get(link)
                     .then(function(response) {
                         let data = response.data.review
-                        // console.log(data)
-                        // handle success
                         $('#reviewer_name').val(data.reviewer_name).trigger('change')
                         $('#score').val(data.score).trigger('change')
-                        tinyMCE.get('review').setContent(data.review);
-
+                        review_editor.setData(data.review)
+                        
                         let url = "{{ url('master/edufair/') }}/" + data.eduf_id + "/review/" + data.id
                         $('#formReview').attr('action', url)
-
-                        let html = '@method('put')'
+                        
+                        let html = '{{ method_field('PUT') }}'
                         $('.put').html(html);
                     })
                     .catch(function(error) {
@@ -553,10 +548,32 @@
                         console.log(error);
                     })
             }
+
+            @if (isset($edufair))
+                function resetForm() {
+                    $('#reviewer_name').val(null).trigger('change')
+                    $('#score').val(null).trigger('change')
+                    // tinyMCE.get('review').setContent('');
+                    $('.put').html('');
+                    let url = "{{ url('master/edufair/' . $edufair->id . '/review') }}"
+                    $('#formReview').attr('action', url)
+                    review_editor.setData('');
+                }
+            @else
+                function resetForm() {
+                    $('#reviewer_name').val(null).trigger('change')
+                    $('#score').val(null).trigger('change')
+                    // tinyMCE.get('review').setContent('');
+                    $('.put').html('');
+                    let url = "{{ url('master/edufair/' . $edufair->id . '/review') }}"
+                    $('#formReview').attr('action', url)
+                    review_editor.setData('');
+                }
+            @endif
         </script>
     @endif
 
-      @if (
+        @if (
         $errors->has('reviewer_name') |
             $errors->has('score') |
             $errors->has('review'))
@@ -574,5 +591,4 @@
             })
         </script>
     @endif
-
-@endsection
+@endpush

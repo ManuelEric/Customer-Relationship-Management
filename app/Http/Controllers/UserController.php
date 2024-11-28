@@ -2,10 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Users\CreateUserAction;
+use App\Actions\Users\UpdateUserAction;
+use App\Actions\Users\UserDocumentDownloadAction;
+use App\Enum\LogModule;
+use App\Http\Requests\ChangeUserStatusRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Http\Traits\UploadFileTrait;
 use App\Interfaces\DepartmentRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\PositionRepositoryInterface;
@@ -13,27 +19,26 @@ use App\Interfaces\SubjectRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\UserTypeRepositoryInterface;
-use App\Models\pivot\UserRole;
 use App\Models\pivot\UserSubject;
-use App\Models\pivot\UserTypeDetail;
-use App\Models\User;
-use App\Models\UserType;
+use App\Services\Log\LogService;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class UserController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
     use StandardizePhoneNumberTrait;
     use LoggingTrait;
+    use UploadFileTrait;
 
     private UserRepositoryInterface $userRepository;
     private UniversityRepositoryInterface $universityRepository;
@@ -54,204 +59,83 @@ class UserController extends Controller
         $this->subjectRepository = $subjectRepository;
     }
 
-    public function index(Request $request)
+    public function index(Request $request): mixed
     {
         $role = $request->route('user_role');
         if ($request->ajax())
-            return $this->userRepository->getAllUsersByRoleDataTables($role);
+            return $this->userRepository->rnGetAllUsersByRoleDataTables($role);
 
         return view('pages.user.employee.index');
     }
 
-    public function store(StoreUserRequest $request)
+    public function store(
+        StoreUserRequest $request,
+        CreateUserAction $createUserAction,
+        LogService $log_service,
+        ): RedirectResponse
     {
         # INITIALIZE VARIABLES START
-        $userDetails = $request->only([
+        $new_user_details = $request->only([
             'first_name',
             'last_name',
             'email',
             'phone',
-            'emergency_contact',
+            'emergency_contact_phone',
+            'emergency_contact_relation_name',
             'datebirth',
             'address',
             'hiredate',
             'nik',
-            'bankname',
-            'bankacc',
+            'bank_name',
+            'account_name',
+            'account_no',
             'npwp',
+            'password',
+            'position_id'
         ]);
-        unset($userDetails['phone']);
-        unset($userDetails['emergency_contact']);
-        $userDetails['phone'] = $this->setPhoneNumber($request->phone);
-        $userDetails['emergency_contact'] = $request->emergency_contact != null ? $this->setPhoneNumber($request->emergency_contact) : null;
-
-        # generate default password which is 12345678
-        $userDetails['password'] = Hash::make('12345678'); # update
-        $userDetails['position_id'] = $request->position;
-
-        # generate extended_id
-        $last_id = User::where('extended_id', 'like', '%EMPL%')->max('extended_id');
-        $user_id_without_label = $this->remove_primarykey_label($last_id, 5);
-        $user_id_with_label = 'EMPL-' . $this->add_digit((int)$user_id_without_label + 1, 4);
-        $userDetails['extended_id'] = $user_id_with_label;
-
-        # when generated user id with label is exists on database
-        # then generate a new one
-        if ($this->userRepository->getUserByExtendedId($user_id_with_label)) {
-            $user_id_without_label = $this->remove_primarykey_label($user_id_with_label, 5);
-            $user_id_with_label = 'EMPL-' . $this->add_digit((int)$user_id_without_label + 1, 4);
-            $userDetails['extended_id'] = $user_id_with_label;
-        }
 
         # variables for user educations
-        $listGraduatedFrom = $request->graduated_from;
-        $listMajor = $request->major;
-        $listDegree = $request->degree;
-        $listGraduationDate = $request->graduation_date;
-
-        $userEducationDetails = [];
-        if ($request->graduated_from[0] != null) {
-            $userEducationDetails = [
-                'listGraduatedFrom' => $listGraduatedFrom,
-                'listMajor' => $listMajor,
-                'listDegree' => $listDegree,
-                'listGraduationDate' => $listGraduationDate,
-            ];
-        }
+        $new_user_education_details = $request->safe()->only([
+            'graduated_from',
+            'major',
+            'degree',
+            'graduation_date',
+        ]);
         
-        $userSubjectDetails = [];
-        if ($request->subject_id[0] != null) {
-            $userSubjectDetails = [
-                'listSubjectId' => $request->subject_id,
-                'listGrade' => $request->grade,
-                'listAgreement' => $request->agreement,
-                'listFeeIndividual' => $request->fee_individual,
-                'listFeeGroup' => $request->fee_group,
-                'listAdditionalFee' => $request->additional_fee,
-                'listHead' => $request->head,
-            ];
-        }
-
         # variables for user roles
-        $listRoles = $request->role;
-        $tutorSubject = $request->tutor_subject ??= NULL;
-        $feeHours = $request->feehours ??= NULL;
-        $feeSession = $request->feesession ??= NULL;
-        $userRoleDetails = [
-            'listRoles' => $listRoles,
-            'tutorSubject' => $tutorSubject,
-            'feeHours' => $feeHours,
-            'feeSession' => $feeSession,
-        ];
+        $new_user_role_details = $request->safe()->only([
+            'role',
+        ]);
 
-        # variables for user types
+        # variables for user contract
         # user type more like full-time, probation, part-time, etc.
-        $listType = $request->type;
-        $departmentThatUserWorkedIn = $request->department;
-        $startWorking = $request->start_period;
-        $stopWorking = $request->end_period;
-        $userTypeDetails = [
-            'listType' => $listType,
-            'departmentThatUserWorkedIn' => $departmentThatUserWorkedIn,
-            'startWorking' => $startWorking,
-            'stopWorking' => $stopWorking
-        ];
+        $new_user_type_details = $request->safe()->only([
+            'type',
+            'department',
+            'start_period',
+            'end_period'
+        ]);
+        
         # INITIALIZE VARIABLES END
 
         DB::beginTransaction();
         try {
-
-            # store new user
-            $newUser = $this->userRepository->createUser($userDetails, $userEducationDetails);
-            $newUserId = $newUser->id;
-
-            if ($request->graduated_from[0] != null) {
-                # store new user education to tbl_user_education
-                $this->userRepository->createUserEducation($newUser, $userEducationDetails);
-            }
-
-            # store new user role to tbl_user_roles
-            $this->userRepository->createUserRole($newUser, $userRoleDetails);
-
-            # store new user type to tbl_user_type
-            $this->userRepository->createUserType($newUser, $userTypeDetails);
-
-            if ($request->subject_id[0] != null) {
-                # store new user subject to tbl_user_subjects
-                $checkUserSubject = $this->userRepository->createOrUpdateUserSubject($newUser, $request, $user_id_with_label);
-                
-                if($checkUserSubject[0]){
-                    return back()->withErrors(["agreement.".$checkUserSubject[1] => "The Agreement field is required"])->withInput();
-                }
-            }
-
-            # upload curriculum vitae
-            $CV_file_path = null;
-            if ($request->hasFile('curriculum_vitae')) {
-                $CV_file_format = $request->file('curriculum_vitae')->getClientOriginalExtension();
-                $CV_file_name = 'CV-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $CV_file_path = $request->file('curriculum_vitae')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $CV_file_name . '.' . $CV_file_format);
-            }
-
-
-            # upload KTP / idcard
-            $ID_file_path = null;
-            if ($request->hasFile('idcard')) {
-                $ID_file_format = $request->file('idcard')->getClientOriginalExtension();
-                $ID_file_name = 'ID-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $ID_file_path = $request->file('idcard')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $ID_file_name . '.' . $ID_file_format);
-            }
-
-            # upload tax
-            $TX_file_path = null;
-            if ($request->hasFile('tax')) {
-                $TX_file_format = $request->file('tax')->getClientOriginalExtension();
-                $TX_file_name = 'TAX-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $TX_file_path = $request->file('tax')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $TX_file_name . '.' . $TX_file_format);
-            }
-
-            # upload bpjs kesehatan / health insurance
-            $HI_file_path = null;
-            if ($request->hasFile('health_insurance')) {
-                $HI_file_format = $request->file('health_insurance')->getClientOriginalExtension();
-                $HI_file_name = 'HI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $HI_file_path = $request->file('health_insurance')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $HI_file_name . '.' . $HI_file_format);
-            }
-
-            # upload bpjs ketenagakerjaan / empl insurance
-            $EI_file_path = null;
-            if ($request->hasFile('empl_insurance')) {
-                $EI_file_format = $request->file('empl_insurance')->getClientOriginalExtension();
-                $EI_file_name = 'EI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $EI_file_path = $request->file('empl_insurance')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $EI_file_name . '.' . $EI_file_format);
-            }
-
-            # update uploaded data to user table
-            if ($request->hasFile('curriculum_vitae') || $request->hasFile('idcard') || $request->hasFile('tax') || $request->hasFile('health_insurance') || $request->hasFile('empl_insurance')) {
-                $this->userRepository->updateUser($newUserId, [
-                    'idcard' => $ID_file_path,
-                    'cv' => $CV_file_path,
-                    'tax' => $TX_file_path,
-                    'health_insurance' => $HI_file_path,
-                    'empl_insurance' => $EI_file_path
-                ]);
-            }
+            
+            $new_user = $createUserAction->execute($request, $new_user_details, $new_user_education_details, $new_user_role_details, $new_user_type_details);            
             DB::commit();
+            
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store user ' . $request->route('user_role') . ' failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_USER, $e->getMessage(), $e->getLine(), $e->getFile(), $new_user_details);
             return Redirect::back()->withError('Failed to create a new ' . $request->route('user_role'));
         }
 
-        # store Success
-        # create log success
-        $this->logSuccess('store', 'Form Input', 'User', Auth::user()->first_name . ' '. Auth::user()->last_name, ['user_id' => $user_id_with_label]);
-
+        $log_service->createSuccessLog(LogModule::STORE_USER, 'New user has been added', $new_user->toArray());
         return Redirect::to('user/' . $request->route('user_role'))->withSuccess('New ' . $request->route('user_role') . ' has been created');
     }
 
-    public function create(Request $request)
+    public function create(): View
     {
         $universities = $this->universityRepository->getAllUniversities();
         $univ_countries = $this->universityRepository->getCountryNameFromUniversity();
@@ -275,235 +159,74 @@ class UserController extends Controller
         );
     }
 
-    public function changeStatus(Request $request)
+    public function update(
+        StoreUserRequest $request,
+        UpdateUserAction $updateUserAction,
+        LogService $log_service,
+        ): RedirectResponse
     {
-        $userId = $request->route('user');
-        $user = $this->userRepository->getUserById($userId);
-        $data = $request->params;
-        $status = $data['new_status'];
-        $newStatus = $status == "activate" ? 1 : 0;
-
-        $detail = [
-            'status' => $newStatus,
-            'deativated_at' => $data['deactivated_at'],
-            'new_pic' => $data['new_pic'],
-            'department' => $data['department']
-        ];
-
-
-        DB::beginTransaction();
-        try {
-
-            # update on users table
-            $this->userRepository->updateStatusUser($userId, $detail);
-            DB::commit();
-        } catch (Exception $e) {
-
-            DB::rollBack();
-            Log::error(ucfirst($status) . ' ' . $user->full_name . ' failed : ' . $e->getMessage());
-            return response()->json(['message' => 'Failed to ' . $status . ' ' . $user->full_name], 422);
-        }
-
-        return response()->json(['message' => ucwords($user->full_name) . ' has been ' . $status], 200);
-    }
-
-    public function update(StoreUserRequest $request)
-    {
-        $userId = $request->route('user');
-        $user = $this->userRepository->getUserById($userId);
-
-        $user_id_with_label = $user->extended_id;
-
-        $newDetails = $request->only([
+        $new_user_details = $request->only([
             'first_name',
             'last_name',
             'email',
             'phone',
-            'emergency_contact',
+            'emergency_contact_phone',
+            'emergency_contact_relation_name',
             'datebirth',
             'address',
             'hiredate',
             'nik',
-            'bankname',
-            'bankacc',
+            'bank_name',
+            'account_name',
+            'account_no',
             'npwp',
+            'password',
+            'position_id'
         ]);
-        unset($newDetails['phone']);
-        unset($newDetails['emergency_contact']);
-        $newDetails['phone'] = $this->setPhoneNumber($request->phone);
-        $newDetails['emergency_contact'] = $request->emergency_contact != null ? $this->setPhoneNumber($request->emergency_contact) : null;
 
-        $newDetails['position_id'] = $request->position;
+        # variables for user educations
+        $new_user_education_details = $request->safe()->only([
+            'graduated_from',
+            'major',
+            'degree',
+            'graduation_date',
+        ]);
+
+        # variables for user roles
+        $new_user_role_details = $request->safe()->only([
+            'role',
+        ]);
+
+        # variables for user contract
+        # user type more like full-time, probation, part-time, etc.
+        $new_user_type_details = $request->safe()->only([
+            'type',
+            'department',
+            'start_period',
+            'end_period'
+        ]);
 
         DB::beginTransaction();
         try {
 
-            # update user
-            $newUser = $this->userRepository->updateUser($userId, $newDetails);
-
-            $detailEducations = [];
-
-            if ($request->graduated_from[0] != null) {
-                # update user education to tbl_user_education
-                for ($i = 0; $i < count($request->graduated_from); $i++) {
-                    $detailEducations[] = [
-                        'univ_id' => $request->graduated_from[$i],
-                        'major_id' => (int) $request->major[$i],
-                        'degree' => $request->degree[$i],
-                        'graduation_date' => $request->graduation_date[$i] ?? null
-                    ];
-                }
-
-                $user->educations()->sync($detailEducations);
-            }
-
-
-            # update user role to tbl_user_roles
-            for ($i = 0; $i < count($request->role); $i++) {
-
-                $ext_id_with_label = null;
-                if ($request->role[$i] == 2) { # 2 means mentor
-
-                    # if user has the requested role
-                    # then save the extended_id
-                    if ($existingRoleInfo = $user->roles()->where('tbl_roles.id', $request->role[$i])->first()) {
-
-                        $ext_id_with_label = $existingRoleInfo->pivot->extended_id;
-                        # just in case the extended id is null
-                        if ($ext_id_with_label == null) {
-                            # generate secondary extended_id 
-                            $last_id = UserRole::max('extended_id');
-                            $ext_id_without_label = $this->remove_primarykey_label($last_id, 3);
-                            $ext_id_with_label = 'MT-' . $this->add_digit((int)$ext_id_without_label + 1, 4);
-                        }
-                    } else {
-                        # generate secondary extended_id 
-                        $last_id = UserRole::max('extended_id');
-                        $ext_id_without_label = $this->remove_primarykey_label($last_id, 3);
-                        $ext_id_with_label = 'MT-' . $this->add_digit((int)$ext_id_without_label + 1, 4);
-                    }
-                }
-
-
-                $roleDetails[] = [
-                    'role_id' => $request->role[$i],
-                    'extended_id' => $ext_id_with_label,
-                    'tutor_subject' => isset($request->tutor_subject) ? $request->tutor_subject : null,
-                    'feehours' => isset($request->feehours) ? $request->feehours : null,
-                    'feesession' => isset($request->feesession) ? $request->feesession : null,
-                ];
-            }
-            $user->roles()->sync($roleDetails);
-
-            if ($request->subject_id[0] != null) {
-                # update user subject to tbl_user_subjects
-                $checkUserSubject = $this->userRepository->createOrUpdateUserSubject($user, $request, $user_id_with_label);
-                 
-                if($checkUserSubject[0]){
-                    return back()->withErrors(["agreement.".$checkUserSubject[1]=> "The Agreement field is required"])->withInput();
-                }
-
-            }else{
-                if(in_array(4, $request->role) && $user->user_subjects()->count() > 0){
-                    $user_role_id = $user->roles()->where('role_name', 'Tutor')->first()->pivot->id;
-                    UserSubject::where('user_role_id', $user_role_id)->delete();
-                }
-            }
-
-            # validate
-            # in order to avoid double data
-            $newUserType = $request->type;
-            $newDepartment = $request->department;
-            # wherePivot('department_id, $newDepartment) old
-            if ($user->user_type()->wherePivot('user_type_id', $newUserType)->wherePivot('status', 1)->wherePivot('deactivated_at', NULL)->wherePivot('start_date', $request->start_period)->wherePivot('end_date', $request->end_period)->count() == 0) {
-                // if ($user->user_type()->wherePivot('user_type_id', 2)->wherePivot('department_id', 3)->wherePivot('start_date', '2022-12-01')->wherePivot('end_date', '2023-01-01')->count() == 0) {
-
-                # deactivate the latest active type
-                $activeType = $user->user_type()->where('tbl_user_type_detail.status', 1)->wherePivot('deactivated_at', NULL)->pluck('tbl_user_type_detail.user_type_id')->toArray();
-                foreach ($activeType as $key => $value) {
-                    $user->user_type()->updateExistingPivot($value, ['status' => 0, 'deactivated_at' => Carbon::now()]);
-                }
-
-                # store new user type to tbl_user_type
-                $user->user_type()->syncWithoutDetaching([[
-                    'user_type_id' => $request->type,
-                    'department_id' => $request->department,
-                    'start_date' => $request->start_period,
-                    'end_date' => $request->type == 1 ? null : $request->end_period,
-                ]]);
-            } else {
-                $user->user_type()->updateExistingPivot($newUserType, ['status' => 1, 'department_id' => $newDepartment, 'deactivated_at' => NULL]);
-            }
-
-            # upload curriculum vitae
-            $CV_file_path = $user->cv;
-            if ($request->hasFile('curriculum_vitae')) {
-                $CV_file_format = $request->file('curriculum_vitae')->getClientOriginalExtension();
-                $CV_file_name = 'CV-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $CV_file_path = $request->file('curriculum_vitae')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $CV_file_name . '.' . $CV_file_format);
-            }
-
-            # upload KTP / idcard
-            $ID_file_path = $user->idcard;
-            if ($request->hasFile('idcard')) {
-                $ID_file_format = $request->file('idcard')->getClientOriginalExtension();
-                $ID_file_name = 'ID-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $ID_file_path = $request->file('idcard')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $ID_file_name . '.' . $ID_file_format);
-            }
-
-            # upload tax
-            $TX_file_path = $user->tax;
-            if ($request->hasFile('tax')) {
-                $TX_file_format = $request->file('tax')->getClientOriginalExtension();
-                $TX_file_name = 'TAX-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $TX_file_path = $request->file('tax')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $TX_file_name . '.' . $TX_file_format);
-            }
-
-            # upload bpjs kesehatan / health insurance
-            $HI_file_path = $user->health_insurance;
-            if ($request->hasFile('health_insurance')) {
-                $HI_file_format = $request->file('health_insurance')->getClientOriginalExtension();
-                $HI_file_name = 'HI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $HI_file_path = $request->file('health_insurance')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $HI_file_name . '.' . $HI_file_format);
-            }
-
-            # upload bpjs ketenagakerjaan / empl insurance
-            $EI_file_path = $user->empl_insurance;
-            if ($request->hasFile('empl_insurance')) {
-                $EI_file_format = $request->file('empl_insurance')->getClientOriginalExtension();
-                $EI_file_name = 'EI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-                $EI_file_path = $request->file('empl_insurance')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $EI_file_name . '.' . $EI_file_format);
-            }
-
-            # update uploaded data to user table
-            if ($request->hasFile('curriculum_vitae') || $request->hasFile('idcard') || $request->hasFile('tax') || $request->hasFile('health_insurance') || $request->hasFile('empl_insurance')) {
-                $this->userRepository->updateUser($userId, [
-                    'idcard' => $ID_file_path,
-                    'cv' => $CV_file_path,
-                    'tax' => $TX_file_path,
-                    'health_insurance' => $HI_file_path,
-                    'empl_insurance' => $EI_file_path
-                ]);
-            }
+            $the_user = $updateUserAction->execute($request, $new_user_details, $new_user_education_details, $new_user_role_details, $new_user_type_details);
             DB::commit();
+
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update user ' . $request->route('user_role') . ' failed : ' . $e->getMessage());
-            return Redirect::back()->withError('Failed to update ' . $request->route('user_role') . ' | Line ' . $e->getLine());
+            $log_service->createErrorLog(LogModule::UPDATE_USER, $e->getMessage(), $e->getLine(), $e->getFile(), $new_user_details);
+            return Redirect::back()->withError('Failed to update the user ' . $request->route('user_role'));
         }
 
-        # Update success
-        # create log success
-        $this->logSuccess('update', 'Form Input', 'User', Auth::user()->first_name . ' '. Auth::user()->last_name, $newDetails, $user);
-
-        return Redirect::to('user/' . $request->route('user_role') . '/' . $userId . '/edit')->withSuccess(ucfirst($request->route('user_role')) . ' has been updated');
+        $log_service->createSuccessLog(LogModule::UPDATE_USER, 'The user has been updated', $the_user->toArray());
+        return Redirect::to('user/' . $request->route('user_role') . '/' . $request->route('user') . '/edit')->withSuccess(ucfirst($request->route('user_role')) . ' has been updated');
     }
 
-    public function edit(Request $request)
+    public function edit(Request $request): View
     {
         $userId = $request->route('user');
-        $user = $this->userRepository->getUserById($userId);
+        $user = $this->userRepository->rnGetUserById($userId);
 
         $universities = $this->universityRepository->getAllUniversities();
         $univ_countries = $this->universityRepository->getCountryNameFromUniversity();
@@ -511,7 +234,7 @@ class UserController extends Controller
         $departments = $this->departmentRepository->getAllDepartment();
         $positions = $this->positionRepository->getAllPositions();
         $user_types = $this->userTypeRepository->getAllUserType();
-        $salesTeams = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $salesTeams = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
         $subjects = $this->subjectRepository->getAllSubjects();
         $is_tutor = $user->roles()->where('role_name', 'Tutor')->first() != null ? true : false;
 
@@ -532,114 +255,147 @@ class UserController extends Controller
         );
     }
 
-    public function download(Request $request)
+    public function destroy(
+        Request $request,
+        LogService $log_service,
+        )
     {
-        $userId = $request->route('user');
-        $user = $this->userRepository->getUserById($userId);
+        $user_id = $request->user;
+        $new_status = 0; # inactive
 
-        switch ($request->route('filetype')) {
-
-            case "CV":
-                $file = Storage::disk('local')->get($user->cv);
-                break;
-
-            case "ID":
-                $file = Storage::disk('local')->get($user->idcard);
-                break;
-
-            case "TX":
-                $file = Storage::disk('local')->get($user->tax);
-                break;
-
-            case "HI":
-                $file = Storage::disk('local')->get($user->health_insurance);
-                break;
-
-            case "EI":
-                $file = Storage::disk('local')->get($user->empl_insurance);
-                break;
-        }
-
-        # Download success
-        # create log success
-        $this->logSuccess('download', null, 'User', Auth::user()->first_name . ' '. Auth::user()->last_name, ['user' => $user, 'file' => $request->route('filetype')]);
-
-        return response($file)->header('Content-Type', 'application/pdf');
-    }
-
-    public function destroy(Request $request)
-    {
-        $userId = $request->user;
-        $newStatus = 0; # inactive
-
-        $detail = [
-            'status' => $newStatus,
-            'deativated_at' => Carbon::now(),
+        $new_status_detail = [
+            'active' => $new_status,
+            'deactivated_at' => Carbon::now(),
             'new_pic' => null,
             'department' => null
         ];
 
-        DB::beginTransaction();
-        try {
-
-            $this->userRepository->updateStatusUser($userId, $detail);
-            DB::commit();
-        } catch (Exception $e) {
-
-            DB::rollBack();
-            Log::error('Deactive user failed : ' . $e->getMessage());
-            return Redirect::back()->withError('Failed to deactive user');
-        }
-
-        # Delete success
-        # create log success
-        $this->logSuccess('delete', null, 'User', Auth::user()->first_name . ' '. Auth::user()->last_name, ['user_id' => $userId]);
-
-        return Redirect::back()->withSuccess('User successfully deactivated');
-    }
-
-    public function destroyUserType(Request $request)
-    {
-        $userId = $request->route('user');
-        $userTypeId = $request->route('user_type');
+        $selected_user = $this->userRepository->rnGetUserById($user_id);
 
         DB::beginTransaction();
         try {
 
-            $this->userRepository->deleteUserType($userTypeId);
+
+            $the_user = $this->userRepository->rnUpdateStatusUser($selected_user, $new_status_detail);
             DB::commit();
+
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete user type failed : ' . $e->getMessage());
-            return Redirect::back()->withError('Failed to delete user type');
+            $log_service->createErrorLog(LogModule::DELETE_USER, $e->getMessage(), $e->getLine(), $e->getFile(), $new_status_detail);
+            return Redirect::back()->withError('Failed to temporarily delete the user');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'User Type', Auth::user()->first_name . ' '. Auth::user()->last_name, ['user_id' => $userId, 'user_type_id' => $userTypeId]);
-
-        return Redirect::to('user/' . $request->route('user_role') . '/' . $userId . '/edit')->withSuccess(ucfirst($request->route('user_role')) . ' has been updated');
+        $log_service->createSuccessLog(LogModule::DELETE_USER, 'The user has been temporarily deleted', $the_user->toArray());
+        return Redirect::back()->withSuccess('User successfully temporarily deleted');
     }
 
-    public function setPassword(Request $request)
+    
+    /**
+     * below are functions outside of resources functions
+     */
+
+    public function changeStatus(
+        ChangeUserStatusRequest $request,
+        LogService $log_service)
     {
-        $userId = $request->route('user');
-        $userDetails['password'] = Hash::make('12345678');
+        $selected_user_id = $request->route('user');
+        $selected_user = $this->userRepository->rnGetUserById($selected_user_id);
+        $new_status_details = $request->only(['active', 'deactivated_at', 'new_pic', 'department']);
 
         DB::beginTransaction();
         try {
 
             # update on users table
-            $this->userRepository->updateUser($userId, $userDetails);
+            $this->userRepository->rnUpdateStatusUser($selected_user, $new_status_details);
+            DB::commit();
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            $log_service->createErrorLog(LogModule::CHANGE_USER_ACTIVE_STATUS, $e->getMessage(), $e->getLine(), $e->getFile(), $new_status_details);
+            return response()->json(['message' => 'Failed to update user active status of ' . $selected_user->full_name], 422);
+        }
+
+        $log_service->createSuccessLog(LogModule::CHANGE_USER_ACTIVE_STATUS, 'The user status has been updated', $selected_user->toArray());
+        return response()->json(['message' => 'The user active status of ' . ucwords($selected_user->full_name) . ' has been updated']);
+    }
+
+    public function download(
+        Request $request,
+        UserDocumentDownloadAction $document_download_action,
+        LogService $log_service,
+        )
+    {
+        $user_id = $request->route('user');
+        $file_type = $request->route('filetype');
+        try {
+
+            [$file_path, $file_name] = $document_download_action->execute($user_id, $file_type);
+
+        } catch (Exception $e) {
+
+            $log_service->createErrorLog(LogModule::DOWNLOAD_USER_DOCUMENT, $e->getMessage(), $e->getLine(), $e->getFile(), compact('user_id', 'file_type'));
+            return response()->json([
+                'Cannot download the document.'
+            ], 400);
+
+        }
+
+        $log_service->createSuccessLog(LogModule::DOWNLOAD_USER_DOCUMENT, 'The user document has been downloaded', compact('user_id', 'file_type'));
+        return Storage::download($file_path, $file_name, [
+            'Content-Type' => 'application/pdf'
+        ]);
+        
+    }
+
+    public function destroyUserType(
+        Request $request,
+        LogService $log_service,
+        )
+    {
+        $user_id = $request->route('user');
+        $user_type_id = $request->route('user_type');
+
+        DB::beginTransaction();
+        try {
+
+            $deleted_user_type = $this->userRepository->rnDeleteUserType($user_type_id);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('failed to set password' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_USER_CONTRACT, $e->getMessage(), $e->getLine(), $e->getFile(), compact('user_id', 'user_type_id'));
+            return Redirect::back()->withError('Failed to delete user contract');
+        }
+
+        $log_service->createSuccessLog(LogModule::DELETE_USER_CONTRACT, 'The user contract has been deleted', $deleted_user_type);
+        return Redirect::to('user/' . $request->route('user_role') . '/' . $user_id . '/edit')->withSuccess(ucfirst($request->route('user_role')) . ' has been updated');
+    }
+
+    public function setPassword(
+        Request $request,
+        LogService $log_service
+        )
+    {
+        $user_id = $request->route('user');
+        $new_password = ['password' => Hash::make('12345678')];
+
+        DB::beginTransaction();
+        try {
+
+            $updated_user = $this->userRepository->rnUpdateUser($user_id, $new_password);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            $log_service->createErrorLog(LogModule::SET_USER_PASSWORD, $e->getMessage(), $e->getLine(), $e->getFile(), compact('user_id', 'new_password'));
             return response()->json(['message' => 'Failed to set password'], 422);
         }
 
+        $log_service->createSuccessLog(LogModule::SET_USER_PASSWORD, 'The user password has been reset', $updated_user);
         return response()->json(['message' => 'Password has been set'], 200);
     }
 
@@ -649,7 +405,7 @@ class UserController extends Controller
         try {
 
             # update on users table
-            $salesTeam = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+            $salesTeam = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
             DB::commit();
         } catch (Exception $e) {
 
@@ -669,10 +425,10 @@ class UserController extends Controller
     public function downloadAgreement(Request $request)
     {
         $userId = $request->route('user');
-        $user = $this->userRepository->getUserById($userId);
+        $user = $this->userRepository->rnGetUserById($userId);
 
         $userSubjectId = $request->route('user_subject');
-        $userSubject = $this->userRepository->getUserSubjectById($userSubjectId);
+        $userSubject = $this->userRepository->rnGetUserSubjectById($userSubjectId);
 
         $file = Storage::disk('local')->get($userSubject->agreement);
 

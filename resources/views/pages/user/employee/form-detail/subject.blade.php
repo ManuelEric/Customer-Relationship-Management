@@ -45,9 +45,7 @@
                                         <select name="subject_id[]" class="select w-100">
                                             <option data-placeholder="true"></option>
                                             @foreach ($subjects as $subject)
-                                                <option value="{{ $subject->id }}"
-                                                    @if ($subject->id == $user_subject->subject->id){{ "selected" }}
-                                                    @endif
+                                                <option value="{{ $subject->id }}" @selected($subject->id == $user_subject->subject->id)
                                                 >{{ $subject->name }}</option>
                                             @endforeach
                                         </select>
@@ -60,7 +58,7 @@
                                         <select name="year[]" class="select w-100">
                                             <option data-placeholder="true"></option>
                                             @for ($year = date('Y') - 5; $year <= date('Y') + 5; $year++)
-                                                <option value="{{$year}}" {{ $user_subject->year == $year ? 'selected' : null }}>{{ $year }}</option>
+                                                <option value="{{$year}}" @selected($user_subject->year == $year)>{{ $year }}</option>
                                             @endfor
                                         </select>
                                         @error('year.'.$loop->index)
@@ -77,8 +75,8 @@
                                                     <label for="" class="text-muted">Grade <sup class="text-danger">*</sup></label>
                                                     <select name="grade[{{$key1}}][]" class="select w-100">
                                                         <option data-placeholder="true"></option>
-                                                        <option value="[9,10]" {{ $sub_user_subject->grade == '[9,10]' ? 'selected' : null }}>9-10</option>
-                                                        <option value="[11,12]" {{ $sub_user_subject->grade == '[11,12]' ? 'selected' : null }}>11-12</option>
+                                                        <option value="9-10" @selected($sub_user_subject->grade == '9-10')>9-10</option>
+                                                        <option value="11-12" @selected($sub_user_subject->grade == '11-12')>11-12</option>
                                                     </select>
                                                     @error('grade.'.$key1.'.'.$isub)
                                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -147,9 +145,7 @@
                                         <select name="subject_id[]" class="select w-100">
                                             <option data-placeholder="true"></option>
                                             @foreach ($subjects as $subject)
-                                                <option value="{{ $subject->id }}"
-                                                    @if ($subject->id == old('subject_id.'.$i)){{ "selected" }}
-                                                    @endif
+                                                <option value="{{ $subject->id }}" @selected($subject->id == old('subject_id.'.$i))
                                                 >{{ $subject->name }}</option>
                                             @endforeach
                                         </select>
@@ -162,7 +158,7 @@
                                         <select name="year[]" class="select w-100">
                                             <option data-placeholder="true"></option>
                                             @for ($year = date('Y') - 5; $year <= date('Y') + 5; $year++)
-                                                <option value="{{$year}}" {{ $year == old('year.'.$i) ? 'selected' : null }}>{{ $year }}</option>
+                                                <option value="{{$year}}" @selected($year == old('year.'.$i))>{{ $year }}</option>
                                             @endfor
                                         </select>
                                         @error('year.'.$i)
@@ -177,8 +173,8 @@
                                                         <label for="" class="text-muted">Grade <sup class="text-danger">*</sup></label>
                                                         <select name="grade[{{$i}}][]" class="select w-100">
                                                             <option data-placeholder="true"></option>
-                                                            <option value="[9,10]" {{ old('grade.'.$i.'.'.$j) == '[9,10]' ? 'selected' : null }}>9-10</option>
-                                                            <option value="[11,12]" {{ old('grade.'.$i.'.'.$j) == '[11,12]' ? 'selected' : null }}>11-12</option>
+                                                            <option value="9-10" @selected(old('grade.'.$i.'.'.$j) == '9-10')>9-10</option>
+                                                            <option value="11-12" @selected(old('grade.'.$i.'.'.$j) == '11-12')>11-12</option>
                                                         </select>
                                                         @error('grade.'.$i.'.'.$j)
                                                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -269,8 +265,8 @@
                                             <label for="" class="text-muted">Grade <sup class="text-danger">*</sup></label>
                                             <select name="grade[0][]" class="select w-100">
                                                 <option data-placeholder="true"></option>
-                                                <option value="[9,10]">9-10</option>
-                                                <option value="[11,12]">11-12</option>
+                                                <option value="9-10">9-10</option>
+                                                <option value="11-12">11-12</option>
                                             </select>
                                             @error('grade.0.0')
                                                 <small class="text-danger fw-light">{{ $message }}</small>
@@ -369,8 +365,8 @@
                                 '<label for="" class="text-muted">Grade <sup class="text-danger">*</sup></label>' +
                                 '<select name="grade['+index+'][]" class="select w-100">' +
                                     '<option data-placeholder="true"></option>' +
-                                    '<option value="[9,10]">9-10</option>' +
-                                    '<option value="[11,12]">11-12</option>' +
+                                    '<option value="9-10">9-10</option>' +
+                                    '<option value="11-12">11-12</option>' +
                                 '</select>' +
                                 @error('grade.0.0')
                                     '<small class="text-danger fw-light">{{ $message }}</small>' +
@@ -430,8 +426,8 @@
                     '<label for="" class="text-muted">Grade <sup class="text-danger">*</sup></label>' +
                     '<select name="grade['+index+'][]" class="select w-100">' +
                         '<option data-placeholder="true"></option>' +
-                        '<option value="[9,10]">9-10</option>' +
-                        '<option value="[11,12]">11-12</option>' +
+                        '<option value="9-10">9-10</option>' +
+                        '<option value="11-12">11-12</option>' +
                     '</select>' +
                     @error('grade.0.0')
                         '<small class="text-danger fw-light">{{ $message }}</small>' +

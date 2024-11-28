@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Events\MessageSent;
+use App\Exports\MasterClient;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -78,9 +79,14 @@ class Tag extends Model
     {
         return $this->hasMany(University::class, 'tag', 'id');
     }
+    
+    public function countries()
+    {
+        return $this->hasMany(MasterCountry::class, 'tag', 'id');
+    }
 
     public function client()
     {
-        return $this->belongsToMany(UserClient::class, 'tbl_client_abrcountry', 'tag_id', 'client_id');
+        return $this->belongsToMany(UserClient::class, 'tbl_client_abrcountry', 'country_id', 'client_id');
     }
 }

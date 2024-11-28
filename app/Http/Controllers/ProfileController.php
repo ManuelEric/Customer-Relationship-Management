@@ -47,7 +47,7 @@ class ProfileController extends Controller
     
                 case true:
                     $newPassword = Hash::make($request->password);
-                    $this->userRepository->updateUser($myUserId, ['password' => $newPassword ]);
+                    $this->userRepository->rnUpdateUser($myUserId, ['password' => $newPassword ]);
                     break;
     
                 case false:

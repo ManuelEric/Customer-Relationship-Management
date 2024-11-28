@@ -63,7 +63,7 @@ class PublicRegistrationController extends Controller
                 'school' => $request->school,
                 'grade' => $request->grade,
                 'program' => $request->program,
-                'register_as' => 'parent',
+                'register_by' => 'parent',
             ];
         } else {
 
@@ -74,7 +74,7 @@ class PublicRegistrationController extends Controller
                 'school' => $request->school,
                 'grade' => $request->grade,
                 'program' => $request->program,
-                'register_as' => 'student',
+                'register_by' => 'student',
             ];
         }
 
@@ -183,7 +183,7 @@ class PublicRegistrationController extends Controller
             'phone' => $detail['phone'],
             'sch_id' => $detail['school'],
             'graduation_year' => $detail['grade'],
-            'register_as' => $detail['register_as'],
+            'register_by' => $detail['register_by'],
             'st_grade' => $grade,
             'preferred_program' => $detail['program'],
 

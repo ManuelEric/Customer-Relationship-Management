@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\FetchClientStatus;
-use App\DataTables\OutstandingDataTable;
 use App\Http\Controllers\Module\AlarmController;
 use App\Http\Controllers\Module\DigitalDashboardController;
 use App\Http\Controllers\Module\SalesDashboardController;
 use App\Http\Controllers\Module\FinanceDashboardController;
 use App\Http\Controllers\Module\PartnerDashboardController;
-use App\Http\Controllers\Module\testController;
+use App\Http\Requests\DashboardRequest;
 use App\Http\Traits\Modules\GetClientStatusTrait;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
@@ -38,25 +36,13 @@ use App\Interfaces\TargetSignalRepositoryInterface;
 use App\Interfaces\TargetTrackingRepositoryInterface;
 use App\Interfaces\LeadTargetRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
-use App\Models\Client;
-use App\Models\User;
-use App\Models\UserClient;
-use App\Repositories\ClientRepository;
+use App\Services\Dashboard\DashboardService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Session;
-use App\Models\v1\Student as CRMStudent;
-use Carbon\CarbonImmutable;
 use Exception;
-use Illuminate\Support\Benchmark;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Laravel\Passport\Passport;
-use Mostafaznv\LaraCache\Facades\LaraCache;
 
-class DashboardController extends SalesDashboardController
+class DashboardController extends Controller
 {
 
     use GetClientStatusTrait;
@@ -120,64 +106,89 @@ class DashboardController extends SalesDashboardController
         $this->invoicesRepository = $invoicesRepository;
     }
 
-    public function index(Request $request)
+    public function index(
+        DashboardRequest $request,
+        DashboardService $dashboardService,
+        )
     {
+        # initiate default variables
+        $sales = $partnership = $finance = $alarm = $digital = $data = [];
+        $time_stored_in_second = 60; // cache requirements
         // Cache::flush();
-        $data = array();
-        $timeStoredInSecond = 60;
 
+        # filter for sales dashboard
+        $filter = $request->safe()->only(['qdate', 'start', 'end', 'quuid', 'program_id', 'qparam_year1', 'qparam_year2', 'qyear']);
+
+        /**
+         * sales data dashboard
+         */
         if (!Cache::has('sales-data-dashboard')) {
-            $sales = (new SalesDashboardController($this))->get($request);
-            Cache::remember('sales-data-dashboard', $timeStoredInSecond, function () use ($sales) {
+            $sales = $dashboardService->snSalesDashboard($filter);
+            // $sales = (new SalesDashboardController($this))->get($request);
+            Cache::remember('sales-data-dashboard', $time_stored_in_second, function () use ($sales) {
                 return $sales;
             });
         }
-        
         $sales = Cache::get('sales-data-dashboard');
 
+
+        /**
+         * partnership data dashboard
+         */
         if (!Cache::has('partnership-data-dashboard')) {
-            $partnership = (new PartnerDashboardController($this))->get($request);
-            Cache::remember('partnership-data-dashboard', $timeStoredInSecond, function () use ($partnership) {
+            $partnership = $dashboardService->snPartnershipDashboard();
+            // $partnership = (new PartnerDashboardController($this))->get($request);
+            Cache::remember('partnership-data-dashboard', $time_stored_in_second, function () use ($partnership) {
                 return $partnership;
             });
         }
-
         $partnership = Cache::get('partnership-data-dashboard');
         
+
+        /**
+         * finance data dashboard
+         */
         if (!Cache::has('finance-data-dashboard')) {
-            $finance = (new FinanceDashboardController($this))->get($request);
-            Cache::remember('finance-data-dashboard', $timeStoredInSecond, function () use ($finance) {
+            $finance = $dashboardService->snFinanceDashboard();
+            // $finance = (new FinanceDashboardController($this))->get($request);
+            Cache::remember('finance-data-dashboard', $time_stored_in_second, function () use ($finance) {
                 return $finance;
             });
         }
-
         $finance = Cache::get('finance-data-dashboard');
         
-        if (!Cache::has('alarm-data-dashboard')) {
-            $alarm = (new AlarmController($this))->get($request);
-            Cache::remember('alarm-data-dashboard', $timeStoredInSecond, function () use ($alarm) {
-                return $alarm;
-            });
-        }
 
-        $alarm = Cache::get('alarm-data-dashboard');
-
+        /**
+         * digital data dashboard
+         */
         if (!Cache::has('digital-data-dashboard')) {
-            $digital = (new DigitalDashboardController($this))->get($request);
-            Cache::remember('digital-data-dashboard', $timeStoredInSecond, function () use ($digital) {
+            $digital = $dashboardService->snDigitalDashboard();
+            // $digital = (new DigitalDashboardController($this))->get($request);
+            Cache::remember('digital-data-dashboard', $time_stored_in_second, function () use ($digital) {
                 return $digital;
             });
         }
-
         $digital = Cache::get('digital-data-dashboard');
 
+
+        /**
+         * alarm data dashboard
+         */
+        if (!Cache::has('alarm-data-dashboard')) {
+            $alarm = (new AlarmController($this))->get($request);
+            Cache::remember('alarm-data-dashboard', $time_stored_in_second, function () use ($alarm) {
+                return $alarm;
+            });
+        }
+        $alarm = Cache::get('alarm-data-dashboard');
+
+
+        # combine data from each division
         $data = array_merge($sales, $partnership, $finance, $alarm, $digital);
-
-
         return view('pages.dashboard.index')->with($data);
     }
 
-    public function ajaxDataTablesOutstandingPayment()
+    public function fnAjaxDataTablesOutstandingPayment()
     {
         return $this->invoicesRepository->getOustandingPaymentDataTables(date('Y-m'));
     }

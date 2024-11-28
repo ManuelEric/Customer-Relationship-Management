@@ -26,7 +26,7 @@ class StoreAssetUsedRequest extends FormRequest
      */
     public function rules()
     {
-        $assetId = $this->input('assetId');
+        $assetId = $this->input('asset_id');
         $old_amount_used = $this->input('old_amount_used');
 
         return [

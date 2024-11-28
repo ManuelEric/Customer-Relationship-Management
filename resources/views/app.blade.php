@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>
         @yield('title')
     </title>
@@ -97,7 +98,7 @@
     <script>
         var myEditor;
 
-        document.querySelectorAll('textarea').forEach(function(element) {
+        document.querySelectorAll('textarea:not(#review)').forEach(function(element) {
             ClassicEditor
                 .create(element, {
                     toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList',
@@ -327,6 +328,10 @@
             $('.leads' + id).val(old_status);
             $('#updateLeadStatus').modal('hide');
         }
+        
+        function singlequote(text) {
+            return `'${text}'`;
+        }
     </script>
 
     {{-- Notification by Session  --}}
@@ -380,7 +385,7 @@
     </script>
 
     {{-- TinyMCE  --}}
-    //
+    
     <script>
         //     tinymce.init({
         //         strict_loading_mode : true,
@@ -409,8 +414,6 @@
             });
         }
     </script>
-
-
 
     @stack('scripts')
 </body>

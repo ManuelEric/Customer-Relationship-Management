@@ -115,6 +115,10 @@
                                     return formatGbp(row.revenue_other)
                                     break;
 
+                                case "AUD":
+                                    return formatAud(row.revenue_other)
+                                    break;
+
                                 case "IDR":
                                     return '-'
                                     break;
@@ -181,6 +185,13 @@
                 return new Intl.NumberFormat('en-GB', {
                     style: 'currency',
                     currency: 'GBP'
+                }).format(money)
+            }
+
+            const formatAud = (money) => {
+                return new Intl.NumberFormat('en-AU', {
+                    style: 'currency',
+                    currency: 'AUD'
                 }).format(money)
             }
 

@@ -27,25 +27,7 @@
             </div>
             <div class="col-md-5">
                 <div class="row align-items-center g-2">
-                    {{-- @if (Session::get('user_role') != 'Employee')
-                    <div class="col-md-3 col-6">
-                        <a href="{{ url('api/download/excel-template/client-event') }}"
-                            class="btn btn-sm btn-light text-info btn-download text-nowrap w-100"><i
-                                class="bi bi-download me-1"></i>
-                            <span>
-                                Template</span></a>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <a href="#" class="btn btn-sm btn-light text-info btn-import text-nowrap w-100"
-                            data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload me-1"></i>
-                            <span>Import</span></a>
-                    </div>
-                    @endif --}}
-                    {{-- <div @class([
-                        'col-md-3',
-                        'offset-6' => Session::get('user_role') == 'Employee',
-                    ])> --}}
-                    <div class="col-md-3 offset-6">
+                    <div class="col-md-3 offset-lg-6">
                         <div class="dropdown">
                             <button href="#" class="btn btn-sm btn-light text-dark dropdown-toggle w-100"
                                 data-bs-toggle="dropdown" data-bs-auto-close="false" id="filter">
@@ -177,7 +159,7 @@
                         <th>Child Name</th>
                         <th>Child Mail</th>
                         <th>Child Phone</th>
-                        <th>Have you ever participated in ALL-in Event/program before</th>
+                        <th>Have you ever participated in EduALL Event/program before</th>
                         <th>School Name</th>
                         <th>Graduation Year</th>
                         <th>Conversion Lead</th>
@@ -197,41 +179,6 @@
                     </tr>
                 </tfoot>
             </table>
-        </div>
-    </div>
-
-    <div class="modal fade" id="importData" tabindex="-1" aria-labelledby="importDataLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <form action="{{ route('program.event.import') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="importDataLabel">Import CSV Data</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <label for="">CSV File</label>
-                                <input type="file" name="file" id="" class="form-control form-control-sm">
-                            </div>
-                            <small class="text-warning mt-3">
-                                * Please clean the file first, before importing the csv file. <br>
-                                You can download the csv template <a
-                                    href="{{ url('api/download/excel-template/client-event') }}">here</a>
-                            </small>
-                        </div>
-                    </div>
-                    <div class="modal-footer d-flex justify-content-between">
-                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-dismiss="modal">
-                            <i class="bi bi-x"></i>
-                            Close</button>
-                        <button type="submit" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-upload"></i>
-                            Import</button>
-                    </div>
-                </div>
-            </form>
         </div>
     </div>
 
@@ -315,7 +262,6 @@
                     },
                     {
                         data: 'client_name',
-                        name: 'client.full_name',
                         render: function(data, type, row, meta) {
 
                             var existing = moment(row.created_at).format('MMMM Do YYYY, h:mm') ==
@@ -325,8 +271,8 @@
                                 .created_at).format('MMM Do YY');
 
                             var URL = '#';
-                            if (row.register_as != null){
-                                var clientRole = (row.register_as).toLowerCase();
+                            if (row.register_by != null){
+                                var clientRole = (row.register_by).toLowerCase();
                                 var intoURLParam = clientRole.replace("/", "-");
                                 var intoURLParam = intoURLParam.replace('counsellor', 'counselor');
                                 URL = "{{ url('/') }}/client/" + intoURLParam + "/" + row
@@ -347,12 +293,12 @@
                     },
                     // {
                     //     data: 'ticket_id',
-                    //     name: 'tbl_client_event.ticket_id',
+                    //     name: 'client_event.ticket_id',
                     //     className: 'text-center'
                     // },
                     {
-                        data: 'register_as',
-                        name: 'client.register_as',
+                        data: 'register_by',
+                        name: 'tbl_client.register_by',
                         searchable: false,
                         render: function(data, type, row, meta) {
                             if (data != null){
@@ -364,17 +310,16 @@
                     },
                     {
                         data: 'client_mail',
-                        name: 'client.mail',
+                        name: 'tbl_client.mail',
                         defaultContent: '-'
                     },
                     {
                         data: 'client_phone',
-                        name: 'client.phone',
+                        name: 'tbl_client.phone',
                         defaultContent: '-'
                     },
                     {
                         data: 'child_name',
-                        name: 'child.full_name',
                         defaultContent: '-'
                     },
                     {
@@ -389,15 +334,18 @@
                     },
                     {
                         data: 'participated',
-                        searchable: true
+                        searchable: false,
+                        orderable: false
                     },
                     {
                         data: 'school_name',
+                        name: 'tbl_sch.sch_name',
                         defaultContent: '-',
                         searchable: false,
+                        orderable: false
                     },
                     {
-                        data: 'graduation_year',
+                        data: 'graduation_year_now',
                         defaultContent: '-',
                         searchable: false,
                     },
@@ -408,29 +356,28 @@
                         className: 'text-center'
                     },
                     {
-                        data: 'referral_from',
-                        name: 'client_ref_code_view.full_name',
+                        data: 'referral_name',
+                        // name: '',
                         className: 'text-center',
                         defaultContent: '-'
                     },
                     {
                         data: 'abr_country',
-                        name: 'client.abr_country',
                         className: 'text-center',
                         defaultContent: '-'
                     },
                     {
-                        className: 'text-center',
                         data: 'joined_date',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
 
                             return moment(data).format('dddd, DD MMM YYYY');
                         }
                     },
                     {
-                        className: 'text-center',
                         data: 'notes',
-                        searchable: true,
+                        className: 'text-center',
+                        searchable: false,
                         defaultContent: '-'
                     },
                     {

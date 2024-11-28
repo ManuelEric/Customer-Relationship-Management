@@ -22,7 +22,7 @@ class AssetReturnedRepository implements AssetReturnedRepositoryInterface
 
     public function createAssetReturned(array $returnedDetails)
     {
-        $asset = $this->assetRepository->getAssetById($returnedDetails['assetId']);
+        $asset = $this->assetRepository->getAssetById($returnedDetails['asset_id']);
         if ($returnedDetails['amount_returned'] > $asset->asset_running_stock)
             throw new Exception("The amount returned was invalid.");
 

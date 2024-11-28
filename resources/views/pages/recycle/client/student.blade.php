@@ -22,7 +22,7 @@
 
     <div class="card bg-secondary mb-1 p-2">
         <div class="row align-items-center justify-content-between">
-            <div class="col-md-6">
+            <div class="col-md-6 mb-2 mb-md-0">
                 <h5 class="text-white m-0">
                     <i class="bi bi-tag me-1"></i>
                     Deleted Students
@@ -278,6 +278,7 @@
                     left: (widthView < 768) ? 1 : 2,
                     right: 1
                 },
+                pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 ajax: {
                     url: '',
                     data: function(params) {
@@ -420,7 +421,9 @@
                         searchable: false,
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            return data == 1 ? "Active" : "Non-active";
+                            return data == 1 ?
+                            "<div class='badge badge-outline-success'>Active</div>" :
+                            "<div class='badge badge-outline-danger'>NonActive</div>";
                         }
                     },
                     {
@@ -435,7 +438,7 @@
 
             $('#clientTable tbody').on('click', '.restore ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                confirmRestore('restore/client/students', data.id)
+                confirmRestore('restore/client/student', data.id)
             });
 
             @php

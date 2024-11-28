@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Corporates\CreateCorporateAction;
+use App\Actions\Corporates\DeleteCorporateAction;
+use App\Actions\Corporates\UpdateCorporateAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreCorporateRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\CorporatePicRepositoryInterface;
@@ -10,6 +14,7 @@ use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\PartnerAgreementRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Models\Corporate;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -46,9 +51,9 @@ class CorporateController extends Controller
         return view('pages.instance.corporate.index');
     }
 
-    public function store(StoreCorporateRequest $request)
+    public function store(StoreCorporateRequest $request, CreateCorporateAction $createCorporateAction, LogService $log_service)
     {
-        $corporateDetails = $request->only([
+        $corporate_details = $request->safe()->only([
             'corp_name',
             'corp_industry',
             'corp_mail',
@@ -64,24 +69,24 @@ class CorporateController extends Controller
             'partnership_type',
         ]);
 
-        $last_id = Corporate::max('corp_id');
-        $corp_id_without_label =  $last_id ? $this->remove_primarykey_label($last_id, 5) : '0000';
-        $corp_id_with_label = 'CORP-' . $this->add_digit($corp_id_without_label + 1, 4);
-        $corporateDetails['corp_password'] = Hash::make($request->corp_password);
-
         DB::beginTransaction();
         try {
 
-            $this->corporateRepository->createCorporate(['corp_id' => $corp_id_with_label] + $corporateDetails);
+            $created_corporate = $createCorporateAction->execute($request, $corporate_details);
+
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store corporate failed : ' . $e->getMessage());
-            return Redirect::to('instance/corporate/' . $corp_id_with_label)->withError('Failed to create new corporate');
+
+            $log_service->createErrorLog(LogModule::STORE_CORPORATE, $e->getMessage(), $e->getLine(), $e->getFile(), $corporate_details);
+            return Redirect::to('instance/corporate')->withError('Failed to create new corporate');
         }
 
-        return Redirect::to('instance/corporate/' . $corp_id_with_label)->withSuccess('Corporate successfully created');
+        # create log success
+        $log_service->createSuccessLog(LogModule::STORE_CORPORATE, 'New corporate has been added', $created_corporate->toArray());
+
+        return Redirect::to('instance/corporate/' . $created_corporate->corp_id)->withSuccess('Corporate successfully created');
     }
 
     public function create()
@@ -89,9 +94,9 @@ class CorporateController extends Controller
         return view('pages.instance.corporate.form');
     }
 
-    public function update(StoreCorporateRequest $request)
+    public function update(StoreCorporateRequest $request, UpdateCorporateAction $updateCorporateAction, LogService $log_service)
     {
-        $newDetails = $request->only([
+        $corporate_details = $request->safe()->only([
             'corp_id',
             'corp_name',
             'corp_industry',
@@ -105,44 +110,46 @@ class CorporateController extends Controller
             'country_type',
             'type',
             'partnership_type',
-            // 'corp_password',
         ]);
 
-        // if ($corp_password = $newDetails['corp_password'])
-        //     $newDetails['corp_password'] = Hash::make($corp_password);
-        $corporateId = $request->route('corporate');
+        $corporate_id = $request->route('corporate');
 
         DB::beginTransaction();
         try {
 
-            $this->corporateRepository->updateCorporate($newDetails['corp_id'], $newDetails);
+            $updated_corporate = $updateCorporateAction->execute($corporate_details);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Update corporate failed : ' . $e->getMessage());
-            return Redirect::to('instance/corporate/' . $corporateId)->withError('Failed to update corporate');
+            $log_service->createErrorLog(LogModule::UPDATE_CORPORATE, $e->getMessage(), $e->getLine(), $e->getFile(), $corporate_details);
+
+            return Redirect::to('instance/corporate/' . $corporate_id)->withError('Failed to update corporate');
         }
 
-        return Redirect::to('instance/corporate/' . $corporateId)->withSuccess('Corporate successfully updated');
+        # create log success
+        $log_service->createSuccessLog(LogModule::UPDATE_CORPORATE, 'Corporate has been updated', $updated_corporate->toArray());
+
+        return Redirect::to('instance/corporate/' . $corporate_id)->withSuccess('Corporate successfully updated');
     }
 
     public function show(Request $request)
     {
-        $corporateId = $request->route('corporate');
-        $corporate = $this->corporateRepository->getCorporateById($corporateId);
+        $corporate_id = $request->route('corporate');
+        $corporate = $this->corporateRepository->getCorporateById($corporate_id);
 
 
         # retrieve School Program data by schoolId
-        $partnerPrograms = $this->partnerProgramRepository->getAllPartnerProgramsByPartnerId($corporateId);
+        $partnerPrograms = $this->partnerProgramRepository->getAllPartnerProgramsByPartnerId($corporate_id);
 
-        $partnerAgreements = $this->partnerAgreementRepository->getAllPartnerAgreementsByPartnerId($corporateId);
+        $partnerAgreements = $this->partnerAgreementRepository->getAllPartnerAgreementsByPartnerId($corporate_id);
 
-        $pics = $this->corporatePicRepository->getAllCorporatePicByCorporateId($corporateId);
+        $pics = $this->corporatePicRepository->getAllCorporatePicByCorporateId($corporate_id);
 
         # retrieve employee from partnership team data
         # because for now 29/03/2023 there aren't partnership team, so we use client management
-        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
+        $employees = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
         return view('pages.instance.corporate.form')->with(
             [
@@ -157,8 +164,8 @@ class CorporateController extends Controller
 
     public function edit(Request $request)
     {
-        $corporateId = $request->route('corporate');
-        $corporate = $this->corporateRepository->getCorporateById($corporateId);
+        $corporate_id = $request->route('corporate');
+        $corporate = $this->corporateRepository->getCorporateById($corporate_id);
 
         return view('pages.instance.corporate.form')->with(
             [
@@ -168,21 +175,24 @@ class CorporateController extends Controller
         );
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteCorporateAction $deleteCorporateAction, LogService $log_service)
     {
-        $corporateId = $request->route('corporate');
+        $corporate_id = $request->route('corporate');
 
         DB::beginTransaction();
         try {
 
-            $this->corporateRepository->deleteCorporate($corporateId);
+            $deleted_corporate = $deleteCorporateAction->execute($corporate_id);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete corporate failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_CORPORATE, $e->getMessage(), $e->getLine(), $e->getFile(), $deleted_corporate->toArray());
             return Redirect::to('instance/corporate')->withError('Failed to delete corporate');
         }
+        
+        # create log success
+        $log_service->createSuccessLog(LogModule::DELETE_CORPORATE, 'Corporate has been deleted', $deleted_corporate->toArray());
 
         return Redirect::to('instance/corporate')->withSuccess('Corporate successfully deleted');
     }

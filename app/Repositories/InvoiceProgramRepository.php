@@ -32,14 +32,10 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                         when($status == "needed", function ($q) {
                         $q->where(function ($q2) use($q) {
                             # select all client program with relation bundling
-                            # where status already success which mean they(client) already paid the program
                             $q2->whereHas('bundlingDetail', function ($q3) {
-                                // $q3->whereHas('bundling', function ($q4){
-                                //     $q4->doesntHave('invoice_b2c');
-                                // });
 
                             # select all client program
-                            # where status already success which mean they(client) already paid the program
+                            # where status already success and not bundling program but doesnt have invoice
                             })->orWhereDoesntHave('bundlingDetail', function ($q5) use ($q) {
                                 $q->doesntHave('invoice');
                             });
@@ -60,7 +56,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 $fColumns = [
                     'relation' => ['client', 'viewProgram', 'internalPic'],
                     'columns' => ['fullname', 'program_name', 'pic_name'],
-                    'realColumns' => [DB::raw('CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, ""))'), 'program_name', DB::raw('CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, ""))')]
+                    'realColumns' => [DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), 'program_name', DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))')]
                 ];
 
                 $datatable = DataTables::eloquent($query)->
@@ -132,11 +128,11 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     
                     $datatable->filterColumn('conversion_lead', function ($query, $keyword) {
                         $sql = "(CASE 
-                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'KOL' THEN CONCAT('KOL - ', cpl.sub_lead COLLATE utf8mb4_unicode_ci)
-                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'External Edufair' THEN CONCAT('External Edufair - ', edl.title COLLATE utf8mb4_unicode_ci)
-                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'EduALL Event' THEN CONCAT('All-In Event - ', e.event_title COLLATE utf8mb4_unicode_ci)
-                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'EduALL Partners' THEN CONCAT('All-In Partner - ', corp.corp_name COLLATE utf8mb4_unicode_ci)
-                                    ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
+                                    WHEN cpl.main_lead = 'KOL' THEN CONCAT('KOL - ', cpl.sub_lead)
+                                    WHEN cpl.main_lead = 'External Edufair' THEN CONCAT('External Edufair - ', edl.title)
+                                    WHEN cpl.main_lead = 'EduALL Event' THEN CONCAT('All-In Event - ', e.event_title)
+                                    WHEN cpl.main_lead = 'EduALL Partners' THEN CONCAT('All-In Partner - ', corp.corp_name)
+                                    ELSE cpl.main_lead
                                 END) like ?";
                         $query->whereRaw($sql, ["%{$keyword}%"]);
                     });
@@ -162,7 +158,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 $fColumns = [
                     'relation' => ['viewProgram', 'client'],
                     'columns' => ['program_name', 'fullname'],
-                    'realColumns' => ['program_name', DB::raw('CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, ""))')]
+                    'realColumns' => ['program_name', DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))')]
                 ];
 
                 $datatable = DataTables::eloquent($query)->
@@ -287,23 +283,23 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 
     public function getAllDueDateInvoiceProgram(int $days)
     {
-        return ViewClientProgram::
-            leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')->
+        return ClientProgram::
+            leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')->
             leftJoin('tbl_inv_attachment', 'tbl_inv.inv_id', '=', 'tbl_inv_attachment.inv_id')->
             leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')->
-            leftJoin('tbl_client as child', 'child.id', '=', 'clientprogram.client_id')->
+            leftJoin('tbl_client as child', 'child.id', '=', 'tbl_client_prog.client_id')->
             leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')->
             leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')->
             leftJoin('tbl_receipt as r', 'r.inv_id', '=', 'tbl_inv.inv_id')->
             leftJoin('tbl_receipt as dr', 'dr.invdtl_id', '=', 'tbl_invdtl.invdtl_id')->
             select([
                 'tbl_inv.clientprog_id',
-                'clientprogram.fullname',
-                'clientprogram.parent_fullname',
-                'clientprogram.parent_phone',
-                'clientprogram.parent_mail',
-                'clientprogram.status',
-                'program_name',
+                DB::raw('CONCAT(child.first_name, " ", COALESCE(child.last_name, "")) as fullname'),
+                DB::raw('CONCAT(parent.first_name, " ", COALESCE(parent.last_name, "")) as parent_fullname'),
+                'parent.phone as parent_phone',
+                'parent.mail as parent_mail',
+                'tbl_client_prog.status',
+                'tbl_client_prog.prog_id',
                 'tbl_inv.currency',
                 'tbl_inv.inv_paymentmethod as master_paymentmethod',
                 'tbl_inv.inv_id',
@@ -348,7 +344,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     END) as inv_totalprice
                 '),
                 // 'tbl_inv.inv_totalprice_idr',
-                'pic_mail',
+                'tbl_client_prog.empl_id',
                 DB::raw('
                     (CASE
                         WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
@@ -381,7 +377,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             # not included refunded invoice
             whereIn('tbl_inv.inv_status', [0,1])->
             # not included status program failed
-            where('clientprogram.status', 1)->
+            where('tbl_client_prog.status', 1)->
             // where('tbl_inv.inv_status', 1)->
             orderBy('date_difference', 'asc')->
             groupBy('tbl_inv.inv_id')->
@@ -706,7 +702,9 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     'child.id as client_id',
                     DB::raw('CONCAT(child.first_name, " ", COALESCE(child.last_name, "")) as full_name'),
                     'child.phone as child_phone',
+                    'child.mail as child_mail',
                     'parent.phone as parent_phone',
+                    'parent.mail as parent_mail',
                     DB::raw('CONCAT(parent.first_name, " ", COALESCE(parent.last_name, "")) as parent_name'),
                     'parent.id as parent_id',
                     'program.program_name',
@@ -727,7 +725,9 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                                     tbl_inv.inv_duedate 
                                 WHEN tbl_inv.inv_paymentmethod = "Installment" THEN 
                                     tbl_invdtl.invdtl_duedate
-                            END) as invoice_duedate')
+                            END) as invoice_duedate'),
+                    //! new
+                    'tbl_client_prog.status',
                 ])
                 ->whereNull('tbl_receipt.id');
 
@@ -741,7 +741,10 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
         }
 
         $queryInv
-            ->whereRelation('clientprog', 'status', 1)
+            // ->whereRelation('clientprog', 'status', 1)
+            ->whereHas('clientprog', function ($sub) {
+                $sub->where('status', 1)->orWhere('status', 4);
+            })
             ->whereNull('tbl_inv.bundling_id')
         ->groupBy(DB::raw('(CASE WHEN tbl_invdtl.invdtl_id is null THEN tbl_inv.inv_id ELSE tbl_invdtl.invdtl_id END)'));
 
@@ -815,6 +818,12 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                             WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
                             WHEN tbl_inv.inv_paymentmethod = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
                         END) like ?', "%{$keyword}%");
+            })->filterColumn('fullname', function ($query, $keyword) {
+                $sql = "CONCAT(child.first_name, ' ', COALESCE(child.last_name, '')) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->filterColumn('parent_fullname', function ($query, $keyword) {
+                $sql = "CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, '')) like ?";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
             })
             ->make(true);
     }
@@ -823,26 +832,26 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
     public function getInvoicesNeedToBeSigned($asDatatables = false)
     {
 
-        $response = ViewClientProgram::
-            leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')->
+        $response = ClientProgram::with(['invoice.invoiceAttachment'])->
+            leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')->
             leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')->
-            leftJoin('tbl_inv_attachment', 'tbl_inv_attachment.inv_id', '=', 'tbl_inv.inv_id')->
-            leftJoin('tbl_client as child', 'child.id', '=', 'clientprogram.client_id')->
+            leftJoin('program as p', 'p.prog_id', '=', 'tbl_client_prog.prog_id')->
+            leftJoin('tbl_client as child', 'child.id', '=', 'tbl_client_prog.client_id')->
             leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')->
             leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')->
             leftJoin('tbl_receipt as receipt', 'receipt.inv_id', '=', 'tbl_inv.inv_id')->
             select([
                 'tbl_inv.clientprog_id',
-                'clientprogram.fullname',
-                'clientprogram.parent_fullname',
-                'clientprogram.parent_phone',
+                DB::raw("CONCAT(child.first_name, ' ', COALESCE(child.last_name, '')) AS fullname"),
+                DB::raw("CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, '')) AS parent_fullname"),
+                'parent.phone as parent_phone',
                 'parent.id as parent_id',
                 'child.id as client_id',
                 'child.phone as child_phone',
-                'program_name',
+                'p.program_name',
                 'tbl_inv.inv_id',
                 'tbl_inv.inv_category as currency_category',
-                'tbl_inv.currency',
+                'tbl_inv.currency as invoice_currency',
                 DB::raw('
                         (CASE
                             WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_paymentmethod
@@ -881,8 +890,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     '),
             ])->
             whereNotNull('tbl_inv.inv_id')->
-            whereNotNull('tbl_inv_attachment.inv_id')->
-            where('tbl_inv_attachment.sign_status', 'not yet')->
+            whereRelation('invoice.invoiceAttachment', 'inv_id', '!=', null)->
+            whereRelation('invoice.invoiceAttachment', 'sign_status', '=', 'not yet')->
             where(DB::raw('
                 (CASE
                     WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
@@ -1018,7 +1027,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                             return $bundle->details()->first()->client_program->client->phone;
                         })->
                         filterColumn('fullname', function ($query, $keyword) {
-                            $query->whereRelation('first_detail.client_program.client', DB::raw('CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, ""))'), 'like', "%{$keyword}%");
+                            $query->whereRelation('first_detail.client_program.client', DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), 'like', "%{$keyword}%");
                         })->
                         filterColumn('payment_method', function ($query, $keyword) {
                             $sql = '(CASE
@@ -1061,8 +1070,29 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 return implode(', ', $program_names);
             })->
             filterColumn('fullname', function ($query, $keyword) {
-                $query->whereRelation('first_detail.client_program.client', DB::raw('CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, ""))'), 'like', "%{$keyword}%");
+                $query->whereRelation('first_detail.client_program.client', DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), 'like', "%{$keyword}%");
             })->
             toJson();
+    }
+
+    ###############################################################
+    ######################### END BUNDLING ############################
+    ###############################################################
+
+    public function getProgramTracker($start_month, $end_month)
+    {
+        $start_month = date('Y-m-01', strtotime($start_month));
+        $end_month = date('Y-m-t', strtotime($end_month));
+
+        return InvoiceProgram::whereHas('clientprog', function($subQuery) use ($start_month, $end_month) {
+            $subQuery->whereIn('status', [1,3,4])
+                    ->whereBetween(
+                        DB::raw('CASE 
+                                    WHEN status = 1 THEN success_date
+                                    WHEN status = 3 THEN refund_date
+                                    WHEN status = 4 THEN hold_date
+                                END'), [$start_month, $end_month]);
+        })->get();
+
     }
 }

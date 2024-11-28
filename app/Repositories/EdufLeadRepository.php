@@ -73,7 +73,7 @@ class EdufLeadRepository implements EdufLeadRepositoryInterface
 
     public function updateEdufairLead($edufLId, array $newDetails)
     {
-        return EdufLead::whereId($edufLId)->update($newDetails);
+        return tap(EdufLead::whereId($edufLId)->first())->update($newDetails);
     }
     
     public function getEdufairLeadByYear($year)

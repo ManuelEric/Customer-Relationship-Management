@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use App\Models\pivot\SchoolCollaboratorFromSchoolProgram;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
 
 class SchoolProgram extends Model
 {
@@ -42,20 +44,34 @@ class SchoolProgram extends Model
         'accepted_date',
         'cancel_date',
         'reason_id',
+        'reason_notes',
         'refund_date',
         'refund_notes',
         'denied_date',
         'empl_id',
     ];
 
-    // public static function whereSchoolProgramId($id)
-    // {
-    //     if (is_array($id) && empty($id)) return new Collection;
+    /**
+     * Summary of scope
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return void
+     */
+    public function scopeSuccess(Builder $query): void
+    {
+        $query->where('status', 1)->where('end_program_date', '>=', Carbon::now());
+    }
+    
+    public function scopeProgramIs(Builder $query, string $main_program_name): void
+    {
+        $query->whereHas('program.main_prog', function ($sub) use ($main_program_name) {
+            $sub->where('prog_name', $main_program_name);
+        });
+    }
 
-    //     $instance = new static;
-
-    //     return $instance->newQuery()->where('id', $id)->first();
-    // }
+    public function scopeActive(Builder $query): void
+    {
+        $query->where('status', 1);
+    }
 
     public function school()
     {

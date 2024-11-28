@@ -33,7 +33,7 @@
 
     <p style="text-align: center;margin: 2.5em auto;">
         <a class="button"
-            href="{{ route('invoice.program.preview_bundle', [
+            href="{{ route('invoice.client-program.preview_bundle', [
                 'bundle' => $param['bundling_id'],
                 'currency' => $param['currency'],
             ]) }}"

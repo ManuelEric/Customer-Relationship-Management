@@ -19,6 +19,8 @@ interface InvoiceProgramRepositoryInterface
     public function getRevenueByYear($year);
     public function getDatatables($model);
     
+    public function getProgramTracker($start_month, $end_month);
+    
     //! signature
     public function getInvoicesNeedToBeSigned(bool $dataTables);
 

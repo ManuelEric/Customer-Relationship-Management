@@ -14,7 +14,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use romanzipp\QueueMonitor\Traits\IsMonitored;
 
-class ProcessEmailToClientJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
+// class ProcessEmailToClientJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
+# Temporary not implementation "ShouldBeUniqueUntilProcessing"
+# Because it makes the job not dispatch successfully
+# "ShouldBeUniqueUntilProcessing" is used for preventive action if the request clicks more than once
+
+class ProcessEmailToClientJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use IsMonitored;

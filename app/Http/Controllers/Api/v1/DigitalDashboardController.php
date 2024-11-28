@@ -94,12 +94,12 @@ class DigitalDashboardController extends Controller
 
         # Chart lead
         for ($i = 2; $i >= 0; $i--) {
-            $dataLeadChart['target'][] = $targetTrackingLead->where('month', date('m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingLead->where('month', date('m', strtotime($date->subMonth($i))))->first()->target : 0;
-            $dataLeadChart['actual'][] = $targetTrackingLead->where('month', date('m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingLead->where('month', date('m', strtotime($date->subMonth($i))))->first()->actual : 0;
+            $dataLeadChart['target'][] = $targetTrackingLead->where('month_year', date('Y-m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingLead->where('month_year', date('Y-m', strtotime($date->subMonth($i))))->first()->target : 0;
+            $dataLeadChart['actual'][] = $targetTrackingLead->where('month_year', date('Y-m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingLead->where('month_year', date('Y-m', strtotime($date->subMonth($i))))->first()->actual : 0;
             $dataLeadChart['label'][] = date('F', strtotime($date->subMonth($i)));
 
-            $dataRevenueChart['target'][] = $targetTrackingRevenue->where('month', date('m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingRevenue->where('month', date('m', strtotime($date->subMonth($i))))->first()->target : 0;
-            $dataRevenueChart['actual'][] = $targetTrackingRevenue->where('month', date('m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingRevenue->where('month', date('m', strtotime($date->subMonth($i))))->first()->actual : 0;
+            $dataRevenueChart['target'][] = $targetTrackingRevenue->where('month_year', date('Y-m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingRevenue->where('month_year', date('Y-m', strtotime($date->subMonth($i))))->first()->target : 0;
+            $dataRevenueChart['actual'][] = $targetTrackingRevenue->where('month_year', date('Y-m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingRevenue->where('month_year', date('Y-m', strtotime($date->subMonth($i))))->first()->actual : 0;
             $dataRevenueChart['label'][] = date('F', strtotime($date->subMonth($i)));
         }
 
@@ -142,16 +142,17 @@ class DigitalDashboardController extends Controller
          
         # List Lead Source 
         $leads = $this->leadRepository->getAllLead();
-        $dataLead = $this->leadTargetRepository->getLeadDigital($month, $prog_id ?? null);
-        // $dataConversionLead = $this->leadTargetRepository->getConversionLeadDigital($today);
+        $dataLeadDigtal = $this->leadTargetRepository->getLeadDigital($month, $prog_id ?? null);    
         $htmlDataLead = '';
 
+        
         $i = 1;
-        foreach ($dataLead as $data) {
+        foreach ($dataLeadDigtal as $data) {
+            $lead_source = $data->client_log->count() > 0 ? ($data->client_log->first()->lead_source ? $data->client_log->first()->lead_source_log->main_lead : $data->client->lead->main_lead) : $data->client->lead->main_lead;
             $htmlDataLead .= '<tr>
                     <td> '.$i.' </td>
                     <td> '.$data->client->full_name.' </td>
-                    <td>' . (isset($data->client->lead_source) ? $data->client->lead_source : '-') . '</td>
+                    <td>' . $lead_source .'</td>
                     <td>' . (isset($data->conversion_lead) ? $data->conversion_lead : '-') . '</td>
                     <td>' . $data->program->program_name . '</td>
                     <td>' . $data->conversion_time . '</td>
@@ -160,11 +161,11 @@ class DigitalDashboardController extends Controller
         }
 
         $response = [
-            'leadsDigital' => $this->mappingDataLead($leads->where('department_id', 7), $dataLead, 'Lead Source'),
-            'leadsAllDepart' => $this->mappingDataLead($leads, $dataLead, 'Conversion Lead'),
-            'dataLead' => $dataLead,
+            'leadsDigital' => $this->mappingDataLead($leads, $dataLeadDigtal, 'Lead Source'),
+            'leadsAllDepart' => $this->mappingDataLead($leads, $dataLeadDigtal, 'Conversion Lead'),
+            'dataLead' => $dataLeadDigtal,
             'htmlDataLead' => $htmlDataLead,
-            'totalConversionTime' => $dataLead->count() > 0 ? round($dataLead->avg('conversion_time')) : '-'
+            'totalConversionTime' => $dataLeadDigtal->count() > 0 ? round($dataLeadDigtal->avg('conversion_time')) : '-'
         ];
 
         return response()->json(
@@ -190,15 +191,14 @@ class DigitalDashboardController extends Controller
 
         $index = 1;
         foreach ($dataAchieved as $achieved) {
-            // $achievedParents = $achieved->parents !== null ? $achieved->parents->count() : 0;
         
-            $html .= '<tr class="detail" data-clientid="' .$achieved->id. '" style="cursor:pointer">
+            $html .= '<tr class="detail" data-clientid="' .$achieved->master_client->id. '" style="cursor:pointer">
                         <td>' . $index++ . '</td>
-                        <td>' . $achieved->full_name . '</td>
-                        <td>' . (count($achieved->parents) > 0 ? $achieved->parents->first()->full_name : '-'). '</td>
-                        <td>' . (isset($achieved->school) ? $achieved->school->sch_name : '-') . '</td>
-                        <td>' . $achieved->graduation_year_real . '</td>
-                        <td>' . $achieved->leadSource . '</td>
+                        <td>' . $achieved->master_client->full_name . '</td>
+                        <td>' . (count($achieved->master_client->parents) > 0 ? $achieved->master_client->parents->first()->full_name : '-'). '</td>
+                        <td>' . (isset($achieved->master_client->school) ? $achieved->master_client->school->sch_name : '-') . '</td>
+                        <td>' . $achieved->master_client->graduation_year_real . '</td>
+                        <td>' . $achieved->lead_source_log->main_lead . '</td>
                     </tr>';
         }
 
@@ -220,24 +220,31 @@ class DigitalDashboardController extends Controller
         $lead_id = $request->lead;
         $prog_id = $request->route('prog') ?? null;
 
-        $dataLeadSource = $this->leadTargetRepository->getLeadDigital($month, $prog_id)->where('client.lead_id', $lead_id);
+        $lead_from_digital = $this->leadTargetRepository->getLeadDigital($month, $prog_id ?? null);
+        $data_lead_source_from_client_log = $lead_from_digital->where('client_log.0.lead_source', $lead_id);
+        $data_lead_source_from_client = $lead_from_digital->where('client.lead_id', $lead_id);
+        $data_lead_source = $data_lead_source_from_client_log->merge($data_lead_source_from_client);
 
         $html = '';
 
-        if ($dataLeadSource->count() == 0)
+        if ($data_lead_source->count() == 0)
             return response()->json(['success' => true, 'html_ctx' => '<tr align="center"><td colspan="6">No data</td></tr>']);
 
         $index = 1;
-        foreach ($dataLeadSource as $data) {
+        foreach ($data_lead_source as $data) {
+            $lead_source = $data->client_log->count() > 0 ? ($data->client_log->first()->lead_source ? $data->client_log->first()->lead_source_log->main_lead : $data->client->lead->main_lead) : $data->client->lead->main_lead;
+            
             $html .= '<tr>
                         <td>' . $index++ . '</td>
                         <td>' . $data->client->full_name . '</td>
                         <td>' . (count($data->client->parents) > 0 ? $data->client->parents->first()->full_name : '-') . '</td>
                         <td>' . (isset($data->client->school) ? $data->client->school->sch_name : '-') . '</td>
                         <td>' . $data->client->graduation_year_real . '</td>
-                        <td>' . (isset($data->client->lead_source) ? $data->client->lead_source : '-') . '</td>
+                        <td>' . $lead_source . '</td>
                     </tr>';
         }
+
+        
 
         return response()->json(
             [
@@ -293,7 +300,10 @@ class DigitalDashboardController extends Controller
         $data = new Collection();
         foreach ($leads as $lead) {
             if($type == 'Lead Source'){
-                $count = $dataLead->where('client.lead_id', $lead->lead_id)->count();
+                // if ($dataLead->where('client.lead_id', $lead->lead_id)->count() > 0)
+                    $count = $dataLead->where('client.lead_id', $lead->lead_id)->count();
+                // else
+                //     $count = $dataLead->where('client_log.lead_source', $lead->lead_id)->count();
             }else if($type == 'Conversion Lead'){
                 $count = $dataLead->where('lead_id', $lead->lead_id)->count();
             }

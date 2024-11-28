@@ -108,12 +108,12 @@
                         <div class="row mb-2 g-1">
                             <div class="col d-flex justify-content-between">
                                 <label>
-                                    Register As
+                                    Register By
                                 </label>
                                 <label>:</label>
                             </div>
                             <div class="col-md-8 col-8">
-                                {{ $student->register_as }}
+                                {{ $student->register_by }}
                             </div>
                         </div>
                     </div>
@@ -168,4 +168,147 @@
             </div>
         </div>
     </div>
+    
+    @if (isset($clientProgram) && $clientProgram->status == 4 && preg_match("/Admission/i", $clientProgram->program->prog_main) )
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                data-bs-target="#admissionInfo">
+                <h6 class="m-0 p-0">
+                    <i class="bi bi-person me-2"></i>
+                    Admission Information
+                </h6>
+            </button>
+        </h2>
+        <div id="admissionInfo" class="accordion-collapse collapse show" aria-labelledby="admissionInfo">
+            <div class="accordion-body p-2">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row mb-2 g-1">
+                            <div class="col d-flex justify-content-between">
+                                <label>
+                                    Initial Consult Date
+                                </label>
+                                <label>:</label>
+                            </div>
+                            <div class="col-md-8 col-8">
+                                {{ $clientProgram->initconsult_date }}
+                            </div>
+                        </div>
+                        <div class="row mb-2 g-1">
+                            <div class="col d-flex justify-content-between">
+                                <label>
+                                    Initial Assessment Sent
+                                </label>
+                                <label>:</label>
+                            </div>
+                            <div class="col-md-8 col-8">
+                                {{ $clientProgram->assessmentsent_date }}
+                            </div>
+                        </div>
+                        <div class="row mb-2 g-1">
+                            <div class="col d-flex justify-content-between">
+                                <label>
+                                    Success Program
+                                </label>
+                                <label>:</label>
+                            </div>
+                            <div class="col-md-8 col-8">
+                                {{ $clientProgram->success_date }}
+                            </div>
+                        </div>
+                        <div class="row mb-2 g-1">
+                            <div class="col d-flex justify-content-between">
+                                <label>
+                                    Mentor IC
+                                </label>
+                                <label>:</label>
+                            </div>
+                            <div class="col-md-8 col-8">
+                                {{ $clientProgram->mentorIC()->orderBy('tbl_mentor_ic.id', 'asc')->first()->full_name }}
+                            </div>
+                        </div>
+                        <div class="row mb-2 g-1">
+                            <div class="col d-flex justify-content-between">
+                                <label>
+                                    Program End
+                                </label>
+                                <label>:</label>
+                            </div>
+                            <div class="col-md-8 col-8">
+                                {{ $clientProgram->prog_end_date }}
+                            </div>
+                        </div>
+                        <div class="row mb-2 g-1">
+                            <div class="col d-flex justify-content-between">
+                                <label>
+                                    Supervising Mentor
+                                </label>
+                                <label>:</label>
+                            </div>
+                            <div class="col-md-8 col-8">
+                                {{ $clientProgram->clientMentor()->where('type', 1)->first()->full_name }}
+                            </div>
+                        </div>
+                        <div class="row mb-2 g-1">
+                            <div class="col d-flex justify-content-between">
+                                <label>
+                                    Profile Building Mentor
+                                </label>
+                                <label>:</label>
+                            </div>
+                            <div class="col-md-8 col-8">
+                                {{ $clientProgram->clientMentor()->where('type', 2)->first()->full_name }}
+                            </div>
+                        </div>
+                        <div class="row mb-2 g-1">
+                            <div class="col d-flex justify-content-between">
+                                <label>
+                                    Subject Specialist Mentor
+                                </label>
+                                <label>:</label>
+                            </div>
+                            <div class="col-md-8 col-8">
+                                {{ $clientProgram->clientMentor()->where('type', 6)->first()->full_name }}
+                            </div>
+                        </div>
+                        <div class="row mb-2 g-1">
+                            <div class="col d-flex justify-content-between">
+                                <label>
+                                    Aplication Strategy Mentor
+                                </label>
+                                <label>:</label>
+                            </div>
+                            <div class="col-md-8 col-8">
+                                {{ $clientProgram->clientMentor()->where('type', 3)->first()->full_name }}
+                            </div>
+                        </div>
+                        <div class="row mb-2 g-1">
+                            <div class="col d-flex justify-content-between">
+                                <label>
+                                    Writing Mentor
+                                </label>
+                                <label>:</label>
+                            </div>
+                            <div class="col-md-8 col-8">
+                                {{ $clientProgram->clientMentor()->where('type', 4)->first()->full_name }}
+                            </div>
+                        </div>
+                        <div class="row mb-2 g-1">
+                            <div class="col d-flex justify-content-between">
+                                <label>
+                                    Agreement
+                                </label>
+                                <label>:</label>
+                            </div>
+                            <div class="col-md-8 col-8">
+                                <a target="_blank" href="{{ url('/') }}/storage/uploaded_file/agreement/{{ $clientProgram->agreement }}">{{ $clientProgram->agreement }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>

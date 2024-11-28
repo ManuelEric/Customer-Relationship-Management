@@ -230,7 +230,7 @@
                 let event_id = data.event_id;
 
                 // populate
-                let embed_link = "{{ $registrationUrl }}?event_name=" + encodeURIComponent(event_title) + "&ev=" + event_id
+                let embed_link = "https://registration.edu-all.com/form/event?event_name=" + encodeURIComponent(event_title) + "&ev=" + event_id
 
                 $('#link').val(embed_link)
                 $('#firstLink').val(embed_link)

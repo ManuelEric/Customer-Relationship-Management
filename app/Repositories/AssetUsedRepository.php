@@ -23,9 +23,8 @@ class AssetUsedRepository implements AssetUsedRepositoryInterface
 
     public function createAssetUsed(array $usedDetails)
     {
-        $asset = Asset::whereAssetId($usedDetails['assetId']);
+        $asset = Asset::whereAssetId($usedDetails['asset_id']);
         $userId = $usedDetails['user'];
-
         $usedDetails['created_at'] = Carbon::now();
         $usedDetails['updated_at'] = Carbon::now();
 

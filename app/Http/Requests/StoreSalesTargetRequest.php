@@ -51,7 +51,7 @@ class StoreSalesTargetRequest extends FormRequest
             //     return $query->where('month_year', $month_year);
             // })],
             'total_participant' => 'required|integer',
-            'total_target' => 'required|integer',
+            'total_target' => 'required|numeric|gt:0',
             'month_year' => 'required',
         ];
     }

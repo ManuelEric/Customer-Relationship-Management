@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
@@ -18,10 +20,26 @@ class UserFactory extends Factory
     public function definition()
     {
         return [
-            'name' => fake()->name(),
+            'number' => fake()->randomNumber(),
+            'id' => fake()->uuid(),
+            'nip' => null,
+            'first_name' => fake()->firstName(),
+            'last_name' => fake()->lastName(),
+            'address' => fake()->address(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'phone' => fake()->phoneNumber(),
+            'emergency_contact_phone' => fake()->phoneNumber(),
+            'emergency_contact_relation_name' => fake()->name(),
+            'datebirth' => fake()->dateTime()->format('Y-m-d'),
+            'position_id' => \App\Models\Position::inRandomOrder()->first()->id,
+            'password' => Hash::make('password'),
+            'hiredate' => Carbon::now(),
+            'nik' => fake()->randomNumber(16),
+            'idcard' => NULL,
+            'cv' => NULL,
+            'bank_name' => 'BCA',
+            'account_name' => fake()->name(),
             'remember_token' => Str::random(10),
         ];
     }

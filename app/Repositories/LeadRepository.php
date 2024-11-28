@@ -16,6 +16,7 @@ class LeadRepository implements LeadRepositoryInterface
                     filterColumn('dept_name', function ($query, $keyword) {
                         $query->whereRaw('tbl_department.dept_name like ?', ["%{$keyword}%"]);
                     })->
+                    addIndexColumn()->
                     make(true);
     }
 
@@ -71,7 +72,7 @@ class LeadRepository implements LeadRepositoryInterface
 
     public function updateLead($leadId, array $newDetails)
     {
-        return Lead::whereLeadId($leadId)->update($newDetails);
+        return tap(Lead::whereLeadId($leadId))->update($newDetails);
     }
 
     # from lead big data v1 model

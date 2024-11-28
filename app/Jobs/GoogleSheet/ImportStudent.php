@@ -7,6 +7,7 @@ use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\SyncClientTrait;
 use App\Jobs\Client\ProcessDefineCategory;
+use App\Jobs\Client\ProcessInsertLogClient;
 use App\Jobs\RawClient\ProcessVerifyClient;
 use App\Jobs\RawClient\ProcessVerifyClientParent;
 use App\Models\Client;
@@ -55,8 +56,8 @@ class ImportStudent implements ShouldQueue
 
         foreach ($this->studentData as $key => $val) {
             $student = null;
-            $phoneNumber = isset($val['Phone Number']) ? $this->setPhoneNumber($val['Phone Number']) : null;
-            isset($val['Parents Phone']) ? $parentPhone = $this->setPhoneNumber($val['Parents Phone']) : $parentPhone = null;
+            $phoneNumber = isset($val['Phone Number']) ? $this->tnSetPhoneNumber($val['Phone Number']) : null;
+            isset($val['Parents Phone']) ? $parentPhone = $this->tnSetPhoneNumber($val['Parents Phone']) : $parentPhone = null;
 
             $studentName = $val['Full Name'] != null ? $this->explodeName($val['Full Name']) : null;
             $parentName = $val['Parents Name'] != null ? $this->explodeName($val['Parents Name']) : null;
@@ -77,6 +78,9 @@ class ImportStudent implements ShouldQueue
 
             $mail = isset($val['Email']) ? $val['Email'] : null;
             $student = $this->checkExistingClientImport($phoneNumber, $mail);
+
+            $first_name = $studentName != null ? $studentName['firstname'] : ($parentName != null ? $parentName['firstname'] . ' ' . $parentName['lastname'] : null);
+            $last_name = $studentName != null && isset($studentName['lastname']) ? $studentName['lastname'] : ($parentName != null ? 'Child' : null);
 
             if (!$student['isExist']) {
                 $studentDetails = [
@@ -110,7 +114,7 @@ class ImportStudent implements ShouldQueue
                 $student->roles()->attach($roleId);
 
             } else {
-                $student = UserClient::find($student['id']);
+                $student = UserClient::withTrashed()->find($student['id']);
 
             }
 
@@ -186,17 +190,30 @@ class ImportStudent implements ShouldQueue
             $childIds[] = $student['id'];
 
             $imported_date[] = [Carbon::now()->format('d-m-Y H:i:s')];
+
+            $clients_data_for_log_client[$key] = [
+                'client_id' => $student->id,
+                'first_name' => $first_name,
+                'last_name' => $last_name,
+                'lead_source' => $val['Lead'],
+                'inputted_from' => 'import-student',
+                'clientprog_id' => null
+            ];
             // $totalImported += $imported->totalUpdatedRows;
         }
 
         # trigger to verifying children
-        count($childIds) > 0 ? ProcessVerifyClient::dispatch($childIds)->onQueue('verifying-client') : null;
+        // count($childIds) > 0 ? ProcessVerifyClient::dispatch($childIds)->onQueue('verifying-client') : null;
 
         # trigger to define category children
-        count($childIds) > 0 ? ProcessDefineCategory::dispatch($childIds)->onQueue('define-category-client') : null;
+        // count($childIds) > 0 ? ProcessDefineCategory::dispatch($childIds)->onQueue('define-category-client') : null;
 
         # trigger to verifying parent
-        count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent') : null;
+        // count($parentIds) > 0 ? ProcessVerifyClientParent::dispatch($parentIds)->onQueue('verifying-client-parent') : null;
+
+        # trigger to insert log client
+        ProcessInsertLogClient::dispatch($clients_data_for_log_client, true)->onQueue('insert-log-client');
+
 
         Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Students')->range('Z'. $this->studentData->first()['No'] + 1)->update($imported_date);
         $dataJobBatches = JobBatches::find($this->batch()->id);

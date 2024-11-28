@@ -128,9 +128,9 @@
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input graduation" type="radio" name="graduation"
                                             id="graduationInput1" onchange="checkInputRadio(this, 'graduation', 'text')"
-                                            value="{{ $client->graduation_year_real }}" checked>
+                                            value="{{ $client->graduation_year_now }}" checked>
                                         <label class="form-check-label" for="graduationInput1">
-                                            {{ $client->graduation_year_real ? $client->graduation_year_real : '-' }} <span
+                                            {{ $client->graduation_year_now ? $client->graduation_year_now : '-' }} <span
                                                 class="text-warning">(Existing
                                                 Data)</span>
                                         </label>
@@ -138,9 +138,9 @@
                                     <div class="form-check ms-4 my-0">
                                         <input class="form-check-input graduation" type="radio" name="graduation"
                                             id="graduationInput2" onchange="checkInputRadio(this, 'graduation', 'text')"
-                                            value="{{ $rawClient->graduation_year_real }}">
+                                            value="{{ $rawClient->graduation_year_now }}">
                                         <label class="form-check-label" for="graduationInput2">
-                                            {{ $rawClient->graduation_year_real ? $rawClient->graduation_year_real : '-' }} <span
+                                            {{ $rawClient->graduation_year_now ? $rawClient->graduation_year_now : '-' }} <span
                                                 class="text-info">(New Data)</span>
                                         </label>
                                     </div>
@@ -405,9 +405,9 @@
                                 <td>Graduation Year</td>
                                 <td>:</td>
                                 <td>
-                                    <div id="graduationPreview">{{ $client->graduation_year_real }}</div>
+                                    <div id="graduationPreview">{{ $client->graduation_year_now }}</div>
                                     <input type="hidden" name="graduationFinal" id="graduationInputPreview"
-                                        value="{{ $client->graduation_year_real }}">
+                                        value="{{ $client->graduation_year_now }}">
                                 </td>
                             </tr>
                             <tr>

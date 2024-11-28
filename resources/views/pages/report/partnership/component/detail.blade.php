@@ -1,43 +1,43 @@
-@if (count($schoolVisits) > 0 || count($schoolPrograms) > 0 || count($partnerPrograms) > 0)
+@if (count($school_visits) > 0 || count($school_programs) > 0 || count($partner_programs) > 0)
     <div class="card mb-3">
         <div class="card-header">
             <h6 class="p-0 m-0">Partnership Detail</h6>
         </div>
         <div class="card-body">
-            @if (count($schoolVisits) > 0)
+            @if (count($school_visits) > 0)
                 <div class="card mb-1 border border-danger text-info">
                     <div class="card-body d-flex justify-content-between align-items-center py-2">
                         <strong class="">
                             Total School Visit
                         </strong>
                         <h5 class="text-end m-0 badge bg-info text-white">
-                            {{ count($schoolVisits) }}
+                            {{ count($school_visits) }}
                         </h5>
                     </div>
                 </div>
             @endif
 
-            @if (count($schoolPrograms) > 0)
+            @if (count($school_programs) > 0)
                 <div class="card mb-1 border border-danger text-info">
                     <div class="card-body d-flex justify-content-between align-items-center py-2">
                         <strong class="">
                             Total School Program
                         </strong>
                         <h5 class="text-end m-0 badge bg-info text-white">
-                            {{ count($schoolPrograms) }}
+                            {{ count($school_programs) }}
                         </h5>
                     </div>
                 </div>
             @endif
 
-            @if (count($partnerPrograms) > 0)
+            @if (count($partner_programs) > 0)
                 <div class="card mb-1 border border-danger text-info">
                     <div class="card-body d-flex justify-content-between align-items-center py-2">
                         <strong class="">
                             Total Partner Program
                         </strong>
                         <h5 class="text-end m-0 badge bg-info text-white">
-                            {{ count($partnerPrograms) }}
+                            {{ count($partner_programs) }}
                         </h5>
                     </div>
                 </div>

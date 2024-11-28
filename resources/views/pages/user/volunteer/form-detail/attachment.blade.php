@@ -36,11 +36,20 @@
         </div>
         <div class="row align-items-center border py-2 mx-1 mb-1">
             <div class="col-md-3 mb-2 mb-md-0">
-                <label for="">BCA Account <sup class="text-danger">*</sup></label>
+                <label for="">Bank Account <sup class="text-danger">*</sup></label>
             </div>
             <div class="col-md-9">
                 <div class="row">
-                    <div class="col-md-6 mb-1 mb-md-0">
+                    <div class="col-md-4 mb-2">
+                        <small>Bank Name <sup class="text-danger">*</sup></small>
+                        <select name="volunt_bank_name" id="volunt_bank_name" class="select w-100">
+                            <option value=""></option>
+                        </select>
+                        @error('volunt_bank_name')
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
+                    </div>
+                    <div class="col-md-4 mb-1 mb-md-0">
                         <small>Account Name <sup class="text-danger">*</sup></small>
                         <input type="text" name="volunt_bank_accname" id=""
                             class="form-control form-control-sm rounded"
@@ -49,7 +58,7 @@
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <small>Account Number <sup class="text-danger">*</sup></small>
                         <input type="text" name="volunt_bank_accnumber" id=""
                             class="form-control form-control-sm rounded"
@@ -226,3 +235,40 @@
         </div>
     </div>
 </div>
+
+<script>
+
+    $(document).ready(function() {
+        axios.get('https://bios.kemenkeu.go.id/api/ws/ref/bank')
+                .then(function (response){
+    
+                    let obj = response.data;
+                    
+                    var html = '<option data-placeholder="true"></option>'
+    
+                    for (var key in obj.data){
+                        var selected = '';
+        
+                        if('{{ !empty(old("volunt_bank_name")) }}' && '{{ old("volunt_bank_name") }}' === obj.data[key].uraian)
+                            selected = "selected";
+
+                        @if (isset($volunteer) && isset($volunteer->volunt_bank_name))
+                            if('{{ $volunteer->volunt_bank_name }}' === obj.data[key].uraian){
+                                selected = "selected";
+                            }    
+                        @endif
+                            
+                        html += "<option value='" + obj.data[key].uraian + "' " + selected +">" + obj.data[key].uraian + "</option>"
+                            
+                    }
+    
+                    $("#volunt_bank_name").html(html)
+                       
+                    swal.close();
+                }).catch(function (error) {
+                    console.log(error)
+                    swal.close();
+                })
+        
+    });
+</script>

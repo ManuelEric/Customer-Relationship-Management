@@ -29,7 +29,7 @@ class ExtProgramController extends Controller
         }
 
         # map the data that being shown to the user
-        $mappedPrograms = $programs->map(function ($value) {
+        $mapped_programs = $programs->map(function ($value) {
 
             return [
                 'prog_id' => $value->prog_id,
@@ -40,25 +40,25 @@ class ExtProgramController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'There are programs found.',
-            'data' => $mappedPrograms
+            'data' => $mapped_programs
         ]);
     }
 
     public function getProgramsByMainProg(Request $request)
     {
-        $requestedMainProgram = $request->route('main_program');
-        $foundedMainProgram = $this->mainProgRepository->getMainProgByName($requestedMainProgram);
-        if (!$foundedMainProgram) {
+        $requested_main_program = $request->route('main_program');
+        $founded_main_program = $this->mainProgRepository->getMainProgByName($requested_main_program);
+        if (!$founded_main_program) {
             return response()->json([
                 'success' => false,
                 'message' => 'Main program not valid.'
             ]);
         }
 
-        $mainProgId = $foundedMainProgram->id;
+        $main_prog_id = $founded_main_program->id;
 
         # get the program by main program id
-        $programs = $this->programRepository->getProgramsByMainProg($mainProgId);
+        $programs = $this->programRepository->getProgramsByMainProg($main_prog_id);
         if (!$programs) {
             return response()->json([
                 'success' => true,
@@ -67,7 +67,7 @@ class ExtProgramController extends Controller
         }
 
         # map the data that being shown to the user
-        $mappedPrograms = $programs->map(function ($value) {
+        $mapped_programs = $programs->map(function ($value) {
             return [
                 'prog_id' => $value->prog_id,
                 'program_name' => $value->program_name,
@@ -77,22 +77,22 @@ class ExtProgramController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'There are programs found.',
-            'data' => $mappedPrograms
+            'data' => $mapped_programs
         ]);
 
     }
 
     public function getProgramsByType(Request $request)
     {
-        $requestedType = strtolower($request->route("type"));
-        if (!in_array($requestedType, ['b2b', 'b2c'])) {
+        $requested_type = strtolower($request->route("type"));
+        if (!in_array($requested_type, ['b2b', 'b2c'])) {
             return response()->json([
                 'success' => false,
                 'message' => 'Type is not valid.'
             ]);
         }
 
-        $programs = $this->programRepository->getAllProgramByType($requestedType);
+        $programs = $this->programRepository->getAllProgramByType($requested_type);
         if (!$programs) {
             return response()->json([
                 'success' => true,
@@ -102,7 +102,7 @@ class ExtProgramController extends Controller
         }
 
         # map the data that being shown to the user
-        $mappedPrograms = $programs->map(function ($value) {
+        $mapped_programs = $programs->map(function ($value) {
             return [
                 'prog_id' => $value->prog_id,
                 'program_name' => $value->program_name,
@@ -112,7 +112,7 @@ class ExtProgramController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'There are programs found.',
-            'data' => $mappedPrograms
+            'data' => $mapped_programs
         ]);
     }
 }

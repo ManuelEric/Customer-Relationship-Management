@@ -70,7 +70,6 @@ Route::resource('event', ClientEventController::class, [
     ]
 ]);
 
-Route::post('event/import', [ClientEventController::class, 'import'])->name('program.event.import');
 Route::post('event/{type}/import', [ClientEventController::class, 'mailing'])->name('program.event.mailing');
 Route::get('event/reg-exp/{client}/{event}/{notes}/{index_child}', [ClientEventController::class, 'registerExpress'])->name('program.event.register-express')->withoutMiddleware(['auth', 'auth.department']);
 Route::get('event/referral/{refcode}/{event_slug}/{notes}', [ClientEventController::class, 'referralPage'])->name('program.event.referral-page')->withoutMiddleware(['auth', 'auth.department']);
@@ -87,9 +86,19 @@ Route::prefix('corporate')->name('corporate_prog.')->group(function () {
 });
 
 Route::get('school', [SchoolProgramController::class, 'index'])->name('program.school.index');
-Route::post('school', [SchoolProgramController::class, 'index'])->name('program.school.index');
-Route::prefix('school')->name('school.')->group(function () {
-    Route::resource('{school}/detail', SchoolProgramController::class);
+Route::post('school', [SchoolProgramController::class, 'store'])->name('program.school.store');
+Route::prefix('school')->name('program.school.')->group(function () {
+    Route::resource('{school}/detail', SchoolProgramController::class, [
+        'names' => [
+            'index' => 'program.detail.index',
+            'create' => 'program.detail.create',
+            'store' => 'program.detail.store',
+            'show' => 'program.detail.show',
+            'edit' => 'program.detail.edit',
+            'update' => 'program.detail.update',
+            'destroy' => 'program.detail.destroy',
+        ]
+    ]);
     Route::resource('{school}/detail/{sch_prog}/speaker', SchoolProgramSpeakerController::class);
     Route::resource('{school}/detail/{sch_prog}/attach', SchoolProgramAttachController::class);
 });

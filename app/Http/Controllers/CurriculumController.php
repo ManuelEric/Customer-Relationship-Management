@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Curriculums\CreateCurriculumAction;
+use App\Actions\Curriculums\DeleteCurriculumAction;
+use App\Actions\Curriculums\UpdateCurriculumAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreCurriculumRequest;
 use App\Http\Traits\LoggingTrait;
 use App\Interfaces\CurriculumRepositoryInterface;
+use App\Services\Log\LogService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -35,62 +40,57 @@ class CurriculumController extends Controller
         return view('pages.master.curriculum.index');
     }
 
-    public function store(StoreCurriculumRequest $request)
+    public function store(StoreCurriculumRequest $request, CreateCurriculumAction $createCurriculumAction, LogService $log_service)
     {
-        $curriculum = $request->only([
+        $new_curriculum_details = $request->safe()->only([
             'name',
         ]);
-
-        $curriculum['created_at'] = Carbon::now();
-        $curriculum['updated_at'] = Carbon::now();
 
         DB::beginTransaction();
         try {
 
-            $curriculumCreated = $this->curriculumRepository->createCurriculum($curriculum);
+            $new_curriculum = $createCurriculumAction->execute($new_curriculum_details);
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Create curriculum failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_CURRICULUM, $e->getMessage(), $e->getLine(), $e->getFile(), $new_curriculum_details);
 
             return Redirect::to('master/curriculum')->withError('Failed to create a new curriculum');
         }
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Curriculum', Auth::user()->first_name . ' '. Auth::user()->last_name, $curriculumCreated);
+        $log_service->createSuccessLog(LogModule::STORE_CURRICULUM, 'New curriculum has been added', $new_curriculum->toArray());
 
         return Redirect::to('master/curriculum')->withSuccess('Curriculum successfully created');
     }
 
-    public function update(StoreCurriculumRequest $request)
+    public function update(StoreCurriculumRequest $request, UpdateCurriculumAction $updateCurriculumAction, LogService $log_service)
     {
-        $curriculum = $request->only([
+        $new_curriculum_details = $request->safe()->only([
             'name',
         ]);
 
-        $curriculum['updated_at'] = Carbon::now();
-
-        $curriculumId = $request->route('curriculum');
-        $oldCurriclum = $this->curriculumRepository->getCurriculumById($curriculumId);
+        $curriculum_id = $request->route('curriculum');
 
         DB::beginTransaction();
         try {
 
-            $this->curriculumRepository->updateCurriculum($curriculumId, $curriculum);
+            $new_curriculum = $updateCurriculumAction->execute($curriculum_id, $new_curriculum_details);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update sales target failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::UPDATE_CURRICULUM, $e->getMessage(), $e->getLine(), $e->getFile(), $new_curriculum_details);
+
             return Redirect::to('master/curriculum')->withError('Failed to update a curriculum');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Curriculum', Auth::user()->first_name . ' '. Auth::user()->last_name, $curriculum, $oldCurriclum);
+        $log_service->createSuccessLog(LogModule::UPDATE_CURRICULUM, 'Curriculum has been updated', $new_curriculum->toArray());
 
         return Redirect::to('master/curriculum')->withSuccess('Curriculum successfully updated');
     }
@@ -99,33 +99,34 @@ class CurriculumController extends Controller
     {
 
         if ($request->ajax()) {
-            $curriculumId = $request->route('curriculum');
-            $curriculum = $this->curriculumRepository->getCurriculumById($curriculumId);
+            $curriculum_id = $request->route('curriculum');
+            $curriculum = $this->curriculumRepository->getCurriculumById($curriculum_id);
 
             return response()->json(['curriculum' => $curriculum]);
         }
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteCurriculumAction $deleteCurriculumAction, LogService $log_service)
     {
-        $curriculumId = $request->route('curriculum');
-        $curriculum = $this->curriculumRepository->getCurriculumById($curriculumId);
+        $curriculum_id = $request->route('curriculum');
+        $curriculum = $this->curriculumRepository->getCurriculumById($curriculum_id);
 
         DB::beginTransaction();
         try {
 
-            $this->curriculumRepository->deleteCurriculum($curriculumId);
+            $deleteCurriculumAction->execute($curriculum_id);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete curriculum failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_CURRICULUM, $e->getMessage(), $e->getLine(), $e->getFile(), $curriculum->toArray());
+
             return Redirect::to('master/curriculum')->withError('Failed to delete a curriculum');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Curriculum', Auth::user()->first_name . ' '. Auth::user()->last_name, $curriculum);
+        $log_service->createSuccessLog(LogModule::DELETE_CURRICULUM, 'Curriculum has been deleted', $curriculum->toArray());
 
         return Redirect::to('master/curriculum')->withSuccess('Curriculum successfully deleted');
     }

@@ -17,6 +17,7 @@ use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Jobs\Client\ProcessDefineCategory;
+use App\Jobs\Client\ProcessInsertLogClient;
 use App\Jobs\RawClient\ProcessVerifyClient;
 use App\Jobs\RawClient\ProcessVerifyClientParent;
 use App\Models\ClientEvent;
@@ -24,9 +25,6 @@ use App\Models\Event;
 use App\Models\School;
 use App\Models\UserClient;
 use App\Repositories\ProgramRepository;
-use App\Rules\Event\DestinationCountryRequiredRule;
-use App\Rules\Event\DestinationCountryRule;
-use App\Rules\Event\DestinationCountryValidityRule;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
@@ -71,7 +69,7 @@ class ExtClientController extends Controller
     public function getParentMentee()
     {
         $existingMentees = $this->clientRepository->getExistingMentees(false, null, []);
-        
+
         return response()->json(
             [
                 'success' => true,
@@ -79,7 +77,6 @@ class ExtClientController extends Controller
                 'data' => $existingMentees
             ]
         );
-
     }
 
     public function getAlumniMentees()
@@ -98,7 +95,7 @@ class ExtClientController extends Controller
     public function getClientFromAdmissionMentoring()
     {
         $existingMentees = $this->clientRepository->getExistingMenteesAPI();
-        
+
         return response()->json(
             [
                 'success' => true,
@@ -106,7 +103,6 @@ class ExtClientController extends Controller
                 'data' => $existingMentees
             ]
         );
-
     }
 
     public function getMentors()
@@ -138,7 +134,7 @@ class ExtClientController extends Controller
                 'fullname' => $trimmedFullname,
                 'id' => $value->id,
                 'extended_id' => $value->extended_id,
-                'formatted' => $trimmedFullname.' | '.$value->id,
+                'formatted' => $trimmedFullname . ' | ' . $value->id,
             ];
         });
 
@@ -179,7 +175,7 @@ class ExtClientController extends Controller
 
     public function store_express(Request $request)
     {
-        
+
         $main_client = $request->main_client;
 
         # Second Client digunakan untuk menampung id anak jika ada parent
@@ -200,7 +196,7 @@ class ExtClientController extends Controller
             'notes' => $notes
         ];
 
-        if (!$event = $this->eventRepository->getEventById($event_id)){
+        if (!$event = $this->eventRepository->getEventById($event_id)) {
             Log::warning("Register express: Event not found!", $logDetails);
             return Redirect::to($urlRegistration . '/error/404');
         }
@@ -220,20 +216,20 @@ class ExtClientController extends Controller
         //     return Redirect::to($urlRegistration . '/error/access-denied');
         // }
 
-        if (!$client = $this->clientRepository->getClientById($main_client)){
+        if (!$client = $this->clientRepository->getClientById($main_client)) {
             Log::warning("Register express: Main client not register!", $logDetails);
             return Redirect::to($urlRegistration . '/error/not-register');
         }
 
         $allowable_role = ['parent', 'student'];
-        if (!$client->roles()->whereIn('role_name', $allowable_role)->exists()){
+        if (!$client->roles()->whereIn('role_name', $allowable_role)->exists()) {
             # Role main client is not parent or student
             Log::warning("Register express: Client not parent or student!", $logDetails);
             return Redirect::to($urlRegistration . '/error/not-vip');
         }
 
         $student_id = $second_client != null ? $second_client : $main_client;
-        if (!$this->clientRepository->checkIfClientIsMentee($student_id)){
+        if (!$this->clientRepository->checkIfClientIsMentee($student_id)) {
             # Client has not mentee
             Log::warning("Register express: Client is not mentee!", $logDetails);
             return Redirect::to($urlRegistration . '/error/not-vip');
@@ -253,7 +249,7 @@ class ExtClientController extends Controller
 
         DB::beginTransaction();
         try {
-            
+
             # check if registered client has already join the event
             if ($existing = $this->clientEventRepository->getClientEventByMultipleIdAndEventId($main_client, $event_id, $second_client)) {
 
@@ -262,108 +258,104 @@ class ExtClientController extends Controller
                     'mail' => $existing->client->mail
                 ];
 
-                    if ($second_client != null)
-                    {
+                if ($second_client != null) {
 
-                        $dataResponseClient['parent'] = [
-                            'name' => $existing->client->full_name,
-                            'first_name' => $existing->client->first_name,
-                            'last_name' => $existing->client->last_name,
-                            'mail' => $existing->client->mail,
-                            'phone' => $existing->client->phone,
-                        ];
+                    $dataResponseClient['parent'] = [
+                        'name' => $existing->client->full_name,
+                        'first_name' => $existing->client->first_name,
+                        'last_name' => $existing->client->last_name,
+                        'mail' => $existing->client->mail,
+                        'phone' => $existing->client->phone,
+                    ];
 
-                        $dataResponseClient['student'] = [
-                            'name' => $existing->children->full_name,
-                            'first_name' => $existing->children->first_name,
-                            'last_name' => $existing->children->last_name,
-                            'mail' => $existing->children->mail,
-                            'phone' => $existing->children->phone,
-                        ];
+                    $dataResponseClient['student'] = [
+                        'name' => $existing->children->full_name,
+                        'first_name' => $existing->children->first_name,
+                        'last_name' => $existing->children->last_name,
+                        'mail' => $existing->children->mail,
+                        'phone' => $existing->children->phone,
+                    ];
 
-                        $destinationCountries = $existing->children->destinationCountries;
-                        
+                    $destinationCountries = $existing->children->destinationCountries;
+                } else {
 
-                    }else{
+                    $dataResponseClient['student'] = [
+                        'name' => $existing->client->full_name,
+                        'first_name' => $existing->client->first_name,
+                        'last_name' => $existing->client->last_name,
+                        'mail' => $existing->client->mail,
+                        'phone' => $existing->client->phone,
+                    ];
 
-                        $dataResponseClient['student'] = [
-                            'name' => $existing->client->full_name,
-                            'first_name' => $existing->client->first_name,
-                            'last_name' => $existing->client->last_name,
-                            'mail' => $existing->client->mail,
-                            'phone' => $existing->client->phone,   
-                        ];
+                    $destinationCountries = $existing->client->destinationCountries;
+                }
 
-                        $destinationCountries = $existing->client->destinationCountries;
+                if (count($destinationCountries) > 0) {
+                    foreach ($destinationCountries as $key => $country) {
+                        $dataDestinationCountries[$key] = [
 
-                    }
-
-                    if( count($destinationCountries) > 0 ){
-                        foreach ($destinationCountries as $key => $country) {
-                            $dataDestinationCountries[$key] = [
-                                
-                                'country_id' => $country->id,
-                                'country_name' => $country->name
-                            ];
-                        }
-                        $dataResponseClient['dreams_countries'] = $dataDestinationCountries;
-                        unset($dataDestinationCountries);
-                    }else{
-                        $dataResponseClient['dreams_countries'] = [];
-                    }
-
-                    if ($second_client != null) {
-                        $dataResponseClient['education'] = [
-                            'school_id' => $existing->children->sch_id,
-                            'school_name' => isset($existing->children->school->sch_name) ? $existing->children->school->sch_name : null,
-                            'graduation_year' => $existing->children->graduation_year,
-                            'grade' => $existing->children->st_grade,
-                        ];
-                    }else{
-                        $dataResponseClient['education'] = [
-                            'school_id' => $existing->client->sch_id,
-                            'school_name' => isset($existing->client->school->sch_name) ? $existing->client->school->sch_name : null,
-                            'graduation_year' => $existing->client->graduation_year,
-                            'grade' => $existing->client->st_grade,
+                            'country_id' => $country->id,
+                            'country_name' => $country->name
                         ];
                     }
-            
+                    $dataResponseClient['dreams_countries'] = $dataDestinationCountries;
+                    unset($dataDestinationCountries);
+                } else {
+                    $dataResponseClient['dreams_countries'] = [];
+                }
 
-                if ($is_site == null || $is_site == false){
+                if ($second_client != null) {
+                    $dataResponseClient['education'] = [
+                        'school_id' => $existing->children->sch_id,
+                        'school_name' => isset($existing->children->school->sch_name) ? $existing->children->school->sch_name : null,
+                        'graduation_year' => $existing->children->graduation_year,
+                        'grade' => $existing->children->st_grade,
+                    ];
+                } else {
+                    $dataResponseClient['education'] = [
+                        'school_id' => $existing->client->sch_id,
+                        'school_name' => isset($existing->client->school->sch_name) ? $existing->client->school->sch_name : null,
+                        'graduation_year' => $existing->client->graduation_year,
+                        'grade' => $existing->client->st_grade,
+                    ];
+                }
+
+
+                if ($is_site == null || $is_site == false) {
                     return Redirect::to($urlRegistration . '/thanks/event/vip');
                 }
 
-                    
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Client event was found.',
                     'data' => $dataResponseClient +
-                    [
-                        'role' => $second_client != null ? 'parent' : 'student',
-                        'is_vip' => true,
-                        'lead' => [
-                            'lead_id' => $existing->lead_id,
-                            'lead_name' => $existing->lead->main_lead,
-                        ],
-                        'joined_event' => [
-                            'clientevent_id' => $existing->clientevent_id,
-                            'event_id' => $existing->event->event_id,
-                            'event_name' => $existing->event->event_title,
-                            'attend_status' => $existing->status,
-                            'attend_party' => $existing->number_of_attend,
-                            'event_type' => 'offline',
-                            'status' => $existing->registration_type,
-                            'referral' => $existing->referral_code,
-                            'client_type' => $existing->notes,
-                        ],
-                        
-                     
-                    ]
+                        [
+                            'role' => $second_client != null ? 'parent' : 'student',
+                            'is_vip' => true,
+                            'lead' => [
+                                'lead_id' => $existing->lead_id,
+                                'lead_name' => $existing->lead->main_lead,
+                            ],
+                            'joined_event' => [
+                                'clientevent_id' => $existing->clientevent_id,
+                                'event_id' => $existing->event->event_id,
+                                'event_name' => $existing->event->event_title,
+                                'attend_status' => $existing->status,
+                                'attend_party' => $existing->number_of_attend,
+                                'event_type' => 'offline',
+                                'status' => $existing->registration_type,
+                                'referral' => $existing->referral_code,
+                                'client_type' => $existing->notes,
+                            ],
+
+
+                        ]
                 ]);
             }
-            
-            if ($is_site == null || $is_site == false){
-                if($is_confirm == null || $is_confirm == false){
+
+            if ($is_site == null || $is_site == false) {
+                if ($is_confirm == null || $is_confirm == false) {
                     $linkRegist = route('register-express-event', ['main_client' => $main_client, 'notes' => 'WxSFs0LGh', 'second_client' => $second_client, 'EVT' => 'EVT-0014']);
                     return Redirect::to($urlRegistration . '/confirmation/VIP?url=' . $linkRegist);
                 }
@@ -393,22 +385,19 @@ class ExtClientController extends Controller
             $dataMail['registration_type'] = 'ots';
             $dataMail['notes'] = $notes;
 
-        DB::commit();
-
+            DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Registration Event Failed | ' . $e->getMessage(). ' | '.$e->getFile().' on line '.$e->getLine());
+            Log::error('Registration Event Failed | ' . $e->getMessage() . ' | ' . $e->getFile() . ' on line ' . $e->getLine());
             return Redirect::to($urlRegistration . '/error/registration-failed');
-
         }
 
         # create log success
         $this->logSuccess('store', 'Form Embed', 'Client Event Register Express', 'Guest', $clientEventDetails);
 
-        
-        if ($second_client != null)
-        {
+
+        if ($second_client != null) {
 
             $dataResponseClient = [
                 'parent' => [
@@ -428,8 +417,7 @@ class ExtClientController extends Controller
             ];
 
             $destinationCountries = $storedClientEvent->children->destinationCountries;
-
-        }else{
+        } else {
 
             $dataResponseClient = [
                 'student' => [
@@ -444,17 +432,17 @@ class ExtClientController extends Controller
             $destinationCountries = $storedClientEvent->client->destinationCountries;
         }
 
-        if( count($destinationCountries) > 0 ){
+        if (count($destinationCountries) > 0) {
             foreach ($destinationCountries as $key => $country) {
                 $dataDestinationCountries[$key] = [
-                    
+
                     'country_id' => $country->id,
                     'country_name' => $country->name
                 ];
             }
             $dataResponseClient['dreams_countries'] = $dataDestinationCountries;
             unset($dataDestinationCountries);
-        }else{
+        } else {
             $dataResponseClient['dreams_countries'] = [];
         }
 
@@ -465,7 +453,7 @@ class ExtClientController extends Controller
                 'graduation_year' => $storedClientEvent->children->graduation_year,
                 'grade' => $storedClientEvent->children->st_grade,
             ];
-        }else{
+        } else {
             $dataResponseClient['education'] = [
                 'school_id' => $storedClientEvent->client->sch_id,
                 'school_name' => isset($storedClientEvent->client->school->sch_name) ? $storedClientEvent->client->school->sch_name : null,
@@ -474,8 +462,8 @@ class ExtClientController extends Controller
             ];
         }
 
-        if ($is_site == null || $is_site == false){
-            if(isset($is_confirm) && $is_confirm == true){
+        if ($is_site == null || $is_site == false) {
+            if (isset($is_confirm) && $is_confirm == true) {
                 return Redirect::to($urlRegistration . '/thanks/event/vip');
             }
         }
@@ -485,37 +473,37 @@ class ExtClientController extends Controller
             'success' => true,
             'message' => "Welcome aboard! Your registration is complete. Don't forget to check your email for exciting updates and next steps.",
             'data' => $dataResponseClient +
-            [
-                'role' => $second_client != null ? 'parent' : 'student',
-                'is_vip' => true,
-                'lead' => [
-                    'lead_id' => 'LS040',
-                    'lead_name' => 'Invited Mentee'
-                ],
-                'joined_event' => [
-                    'clientevent_id' => $storedClientEvent->clientevent_id,
-                    'event_id' => $storedClientEvent->event->event_id,
-                    'event_name' => $storedClientEvent->event->event_title,
-                    'attend_status' => $storedClientEvent->status,
-                    'attend_party' => 1,
-                    'event_type' => 'offline',
-                    'status' => $storedClientEvent->registration_type,
-                    'referral' => $storedClientEvent->referral_code,
-                    'client_type' => $storedClientEvent->notes,
-                ],
-        ]]);
-
+                [
+                    'role' => $second_client != null ? 'parent' : 'student',
+                    'is_vip' => true,
+                    'lead' => [
+                        'lead_id' => 'LS040',
+                        'lead_name' => 'Invited Mentee'
+                    ],
+                    'joined_event' => [
+                        'clientevent_id' => $storedClientEvent->clientevent_id,
+                        'event_id' => $storedClientEvent->event->event_id,
+                        'event_name' => $storedClientEvent->event->event_title,
+                        'attend_status' => $storedClientEvent->status,
+                        'attend_party' => 1,
+                        'event_type' => 'offline',
+                        'status' => $storedClientEvent->registration_type,
+                        'referral' => $storedClientEvent->referral_code,
+                        'client_type' => $storedClientEvent->notes,
+                    ],
+                ]
+        ]);
     }
 
     public function store(Request $request)
     {
         # split lead id and eduf id when lead source is edufair
         $explodeLeadId = explode('-', $request['lead_source_id']);
-        if($explodeLeadId[0] == 'LS017'){
+        if ($explodeLeadId[0] == 'LS017') {
             $splitLeadEdufair = $this->splitLeadEdufair($request['lead_source_id']);
             $request['lead_source_id'] = $splitLeadEdufair['lead_id'];
             $request['eduf_id'] = $splitLeadEdufair['eduf_id'];
-        } 
+        }
 
         # validation
         $rules = [
@@ -561,10 +549,31 @@ class ExtClientController extends Controller
             'have_child' => 'required|boolean'
         ];
 
-    
+
 
         $incomingRequest = $request->only([
-            'role', 'user', 'fullname', 'mail', 'phone', 'secondary_name', 'secondary_email', 'secondary_phone', 'school_id', 'other_school', 'graduation_year', 'destination_country', 'scholarship', 'lead_source_id', 'eduf_id', 'event_id', 'attend_status', 'attend_party', 'event_type', 'status', 'referral', 'have_child'
+            'role',
+            'user',
+            'fullname',
+            'mail',
+            'phone',
+            'secondary_name',
+            'secondary_email',
+            'secondary_phone',
+            'school_id',
+            'other_school',
+            'graduation_year',
+            'destination_country',
+            'scholarship',
+            'lead_source_id',
+            'eduf_id',
+            'event_id',
+            'attend_status',
+            'attend_party',
+            'event_type',
+            'status',
+            'referral',
+            'have_child'
         ]);
 
         $messages = [
@@ -578,7 +587,7 @@ class ExtClientController extends Controller
         ];
 
         $validator = Validator::make($incomingRequest, $rules, $messages);
-        
+
 
         # threw error if validation fails
         if ($validator->fails()) {
@@ -611,7 +620,7 @@ class ExtClientController extends Controller
 
             # separate the incoming request data
             switch ($validated['role']) {
-    
+
                 case "student":
                     $client = $this->storeStudent($validated);
                     $clientId = $client->id;
@@ -621,7 +630,7 @@ class ExtClientController extends Controller
                     $joinedEvent = Event::whereEventId($validated['event_id']);
                     if ($eventCategory = $joinedEvent->category) {
                         # keep insert the interest program eventhough she/he has already had the program as interested program before
-                        $this->reAttachInterestPrograms($clientId, $eventCategory); 
+                        $this->reAttachInterestPrograms($clientId, $eventCategory);
                     }
 
                     # attach destination countries if any
@@ -633,9 +642,9 @@ class ExtClientController extends Controller
                     }
 
                     break;
-    
+
                 case "parent":
-                    
+
                     $parent = $client = $this->storeParent($validated);
                     if ($validated['have_child'] == true) {
 
@@ -660,7 +669,7 @@ class ExtClientController extends Controller
                         }
 
                         $this->storeRelationship($parent, $student);
-                        
+
                         $this->attachDestinationCountry($studentId, $validated['destination_country']);
 
                         // check if both parent and student have already joined the event
@@ -673,7 +682,6 @@ class ExtClientController extends Controller
                         if (gettype($result) != "boolean") {
                             return response()->json($result);
                         }
-                        
                     }
 
                     $result = $this->checkClientIsExistsOnClientEvent($client, $validated);
@@ -682,7 +690,7 @@ class ExtClientController extends Controller
                     }
 
                     break;
-    
+
                 case "teacher/counsellor":
                     $client = $this->storeTeacher($validated);
 
@@ -695,7 +703,6 @@ class ExtClientController extends Controller
 
                 default:
                     abort(404);
-    
             }
 
 
@@ -720,17 +727,15 @@ class ExtClientController extends Controller
             # store client event
             $storedClientEvent = $this->clientEventRepository->createClientEvent($clientEventDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Registration Event Failed | ' . $e->getMessage(). ' | '.$e->getFile().' on line '.$e->getLine());
+            Log::error('Registration Event Failed | ' . $e->getMessage() . ' | ' . $e->getFile() . ' on line ' . $e->getLine());
             return response()->json([
                 'success' => false,
                 'code' => 'ERR',
                 'message' => "We encountered an issue completing your registration. Please check for any missing information or errors and try again. If you're still having trouble, feel free to contact our support team for assistance."
             ]);
-
         }
 
 
@@ -739,15 +744,13 @@ class ExtClientController extends Controller
         if ($validated['event_type'] == 'offline') {
 
             try {
-    
+
                 # send an registration success email
                 $this->sendEmailRegistrationSuccess($validated, $storedClientEvent);
-                Log::notice('Email registration sent sucessfully to '. $incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id);
-                
+                Log::notice('Email registration sent sucessfully to ' . $incomingRequest['mail'] . ' refer to ticket ID : ' . $storedClientEvent->ticket_id);
             } catch (Exception $e) {
-    
-                Log::error('Failed to send email registration to '.$incomingRequest['mail'].' refer to ticket ID : '.$storedClientEvent->ticket_id.' | ' . $e->getMessage());
-    
+
+                Log::error('Failed to send email registration to ' . $incomingRequest['mail'] . ' refer to ticket ID : ' . $storedClientEvent->ticket_id . ' | ' . $e->getMessage());
             }
         }
 
@@ -766,7 +769,7 @@ class ExtClientController extends Controller
                     'email' => $storedClientEvent->client->mail,
                     'is_vip' => $storedClientEvent->notes == 'VIP' ? true : false,
                     'have_child' => $validated['have_child'],
-                    'register_as' => $this->getRole($storedClientEvent)['role']
+                    'register_by' => $this->getRole($storedClientEvent)['role']
                 ],
                 'clientevent' => [
                     'id' => $storedClientEvent->clientevent_id,
@@ -774,11 +777,10 @@ class ExtClientController extends Controller
                     'is_offline' => (isset($validated['event_type']) || $validated['event_type']) == "offline" ? true : false,
                 ],
                 'link' => [
-                    'scan' => url('/client-event/CE/'.$storedClientEvent->clientevent_id)  
+                    'scan' => url('/client-event/CE/' . $storedClientEvent->clientevent_id)
                 ]
             ]
         ]);
-
     }
 
     public function storePublicRegistration(Request $request)
@@ -801,23 +803,38 @@ class ExtClientController extends Controller
             'graduation_year' => 'required',
             'destination_country' => 'required|array',
             'destination_country.*' => 'exists:tbl_tag,id',
-            'interest_prog' => 'required|exists:tbl_prog,prog_id'
+            'interest_prog' => 'required|exists:tbl_prog,prog_id',
+            'lead_id' => 'required|exists:tbl_lead,lead_id',
         ];
 
         $incomingRequest = $request->only([
-            'role', 'fullname', 'mail', 'phone', 'school_id', 'other_school', 'graduation_year', 'destination_country', 'interest_prog', 'secondary_name', 'secondary_mail', 'secondary_phone'
+            'role',
+            'fullname',
+            'mail',
+            'phone',
+            'school_id',
+            'other_school',
+            'graduation_year',
+            'destination_country',
+            'interest_prog',
+            'secondary_name',
+            'secondary_mail',
+            'secondary_phone',
+            'lead_id'
         ]);
 
         $messages = [
             'secondary_name.required_if' => 'The child name field is required.',
             'school_id.required_if' => 'The school field is required.',
             'school_id.exists' => 'The school field is not valid.',
-            'destination_country.*.exists' => 'The destination country must be one of the following values.'
+            'destination_country.*.exists' => 'The destination country must be one of the following values.',
+            'lead_id.required' => 'Something is not right.', # we hide the lead_id because lead_id comes from get parameter so user should not know
+            'lead_id.exists' => 'Something is not right.', # we hide the lead_id because lead_id comes from get parameter so user should not know
         ];
 
-        
+
         $validator = Validator::make($incomingRequest, $rules, $messages);
-        
+
 
         # threw error if validation fails
         if ($validator->fails()) {
@@ -831,14 +848,14 @@ class ExtClientController extends Controller
         # after validating incoming request data, then retrieve the incoming request data
         $validated = $request->collect();
         $validated['scholarship'] = 'N';
-        $validated['lead_source_id'] = 'LS001'; # Website
+        $validated['lead_source_id'] = $request->lead_id;
 
         # declaration of default variables that will be used 
         $client = null;
 
         DB::beginTransaction();
         try {
-            
+
             $validatedArray = $validated->toArray();
 
             # separate the incoming request data
@@ -852,12 +869,13 @@ class ExtClientController extends Controller
                 case 'parent':
                     $parent = $client = $this->storeParent($validated);
                     $clientId = $client->id;
-                    if(isset($validated['secondary_name'])){
+                    if (isset($validated['secondary_name'])) {
                         $validatedStudent = $request->except(['fullname', 'email', 'phone']);
                         $validatedStudent['fullname'] = $validated['secondary_name'];
                         $validatedStudent['mail'] = $validated['secondary_mail'] != null ? $validated['secondary_mail'] : null;
                         $validatedStudent['phone'] = $validated['secondary_phone'] != null ? $validated['secondary_phone'] : null;
                         $validatedStudent['scholarship'] = 'N';
+                        $validatedStudent['lead_source_id'] = 'LS001'; # Website
 
                         $student = $this->storeStudent($validatedStudent);
 
@@ -876,38 +894,36 @@ class ExtClientController extends Controller
                         }
 
                         $this->storeRelationship($parent, $student);
-                        
-                        if($studentId != null && isset($validated['destination_country'])){
+
+                        if ($studentId != null && isset($validated['destination_country'])) {
                             $this->attachDestinationCountry($studentId, $validatedArray['destination_country']);
                         }
 
-                        if($studentId != null && isset($validated['interest_prog'])){            
-                            if(isset($validatedArray['interest_prog'])){
+                        if ($studentId != null && isset($validated['interest_prog'])) {
+                            if (isset($validatedArray['interest_prog'])) {
                                 $this->reAttachInterestPrograms($studentId, $validatedArray['interest_prog']);
                             }
                         }
-
-                    }else{
-                        if(isset($schoolId)){
+                    } else {
+                        if (isset($schoolId)) {
                             $this->clientRepository->updateClient($parent->id, ['sch_id' => $schoolId]);
                         }
-
                     }
                     break;
             }
 
-            if($client != null && isset($validated['destination_country'])){
+            if ($client != null && isset($validated['destination_country'])) {
                 $this->attachDestinationCountry($clientId, $validatedArray['destination_country']);
             }
 
-            if($client != null && isset($validated['interest_prog'])){
+            if ($client != null && isset($validated['interest_prog'])) {
                 // if(count($validatedArray['interest_prog']) > 0){
                 //     foreach ($validatedArray['interest_prog'] as $interestProg) {
                 //         $this->reAttachInterestPrograms($clientId, $interestProg);
                 //     }
                 // }
 
-                if(isset($validatedArray['interest_prog'])){
+                if (isset($validatedArray['interest_prog'])) {
                     $this->reAttachInterestPrograms($clientId, $validatedArray['interest_prog']);
                 }
             }
@@ -916,8 +932,8 @@ class ExtClientController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Registration from EduAll website failed: '. $e->getMessage() . ' | On Line: ' .$e->getLine());
-            
+            Log::error('Registration from EduAll website failed: ' . $e->getMessage() . ' | On Line: ' . $e->getLine());
+
             return response()->json([
                 'success' => false,
                 'message' => "We encountered an issue completing your registration. Please check for any missing information or errors and try again. If you're still having trouble, feel free to contact our support team for assistance."
@@ -934,9 +950,9 @@ class ExtClientController extends Controller
             ]
         ];
 
-        if($request->role == 'student'){
+        if ($request->role == 'student') {
             $template = 'mail-template.registration.public.thanks-email-student';
-        }else{
+        } else {
             $passedData['client']['child_name'] = $request->secondary_name;
             $template = 'mail-template.registration.public.thanks-email-parent';
         }
@@ -957,20 +973,20 @@ class ExtClientController extends Controller
 
             $subject = "Your registration is confirmed";
 
-            Mail::send($template, $passedData,
-                    function ($message) use ($client, $subject) {
-                        $message->to($client->mail, $client->full_name)
-                            ->subject($subject);
-                    }
+            Mail::send(
+                $template,
+                $passedData,
+                function ($message) use ($client, $subject) {
+                    $message->to($client->mail, $client->full_name)
+                        ->subject($subject);
+                }
             );
             $sent_mail = 1;
-
         } catch (Exception $e) {
 
             $sent_mail = 0;
             throw new Exception($e->getMessage());
-            Log::error('Failed send email to public registration | error : ' . $e->getMessage() . ' on file '.$e->getFile().' | Line ' . $e->getLine());
-
+            Log::error('Failed send email to public registration | error : ' . $e->getMessage() . ' on file ' . $e->getFile() . ' | Line ' . $e->getLine());
         }
 
 
@@ -982,7 +998,6 @@ class ExtClientController extends Controller
             'data' => $dataResponseClient,
             'message' => "Welcome aboard! Your registration is complete."
         ]);
-
     }
 
     public function getRole(ClientEvent $clientevent)
@@ -999,7 +1014,7 @@ class ExtClientController extends Controller
 
                 # turn have_child into true when the parent has children
                 # but check the children from clientevent not from the parent
-                if ($client->childrens->count() > 0) 
+                if ($client->childrens->count() > 0)
                     $have_child = true;
 
                 break;
@@ -1023,12 +1038,10 @@ class ExtClientController extends Controller
     public function generateTicketID()
     {
         do {
-            
+
             $ticket_id = Str::random(4);
             $isUnique = $this->clientEventRepository->isTicketIDUnique($ticket_id);
-            
-        }
-        while ($isUnique === false);
+        } while ($isUnique === false);
 
         return $ticket_id;
     }
@@ -1048,7 +1061,7 @@ class ExtClientController extends Controller
                         'name' => $existing->client->full_name,
                         'email' => $existing->client->mail,
                         'is_vip' => $existing->notes == 'VIP' ? true : false,
-                        'register_as' => $this->getRole($existing)['role']
+                        'register_by' => $this->getRole($existing)['role']
                     ],
                     'clientevent' => [
                         'id' => $existing->clientevent_id,
@@ -1056,7 +1069,7 @@ class ExtClientController extends Controller
                         'is_offline' => (isset($incomingRequest['event_type']) || $incomingRequest['event_type']) == "offline" ? true : false,
                     ],
                     'link' => [
-                        'scan' => url('/client-event/CE/'.$existing->clientevent_id)  
+                        'scan' => url('/client-event/CE/' . $existing->clientevent_id)
                     ]
                 ]
             ];
@@ -1078,7 +1091,7 @@ class ExtClientController extends Controller
                         'name' => $existing->client->full_name,
                         'email' => $existing->client->mail,
                         'is_vip' => $existing->notes == 'VIP' ? true : false,
-                        'register_as' => $this->getRole($existing)['role']
+                        'register_by' => $this->getRole($existing)['role']
                     ],
                     'clientevent' => [
                         'id' => $existing->clientevent_id,
@@ -1086,11 +1099,10 @@ class ExtClientController extends Controller
                         'is_offline' => (isset($incomingRequest['event_type']) || $incomingRequest['event_type']) == "offline" ? true : false,
                     ],
                     'link' => [
-                        'scan' => url('/client-event/CE/'.$existing->clientevent_id)  
+                        'scan' => url('/client-event/CE/' . $existing->clientevent_id)
                     ]
                 ]
             ];
-
         }
 
         return true;
@@ -1100,11 +1112,11 @@ class ExtClientController extends Controller
     {
 
         # check if the client exists in crm database
-        $existingClient = $this->checkExistingClient($this->setPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
+        $existingClient = $this->checkExistingClient($this->tnSetPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
 
 
         # if the client is exists
-        if ($existingClient['isExist']) 
+        if ($existingClient['isExist'])
             return $this->clientRepository->getClientById($existingClient['id']);
 
 
@@ -1118,8 +1130,8 @@ class ExtClientController extends Controller
             'first_name' => $splitNames['first_name'],
             'last_name' => $splitNames['last_name'],
             'mail' => $incomingRequest['mail'],
-            'phone' => $this->setPhoneNumber($incomingRequest['phone']),
-            'register_as' => $incomingRequest['role'],
+            'phone' => $this->tnSetPhoneNumber($incomingRequest['phone']),
+            'register_by' => $incomingRequest['role'],
             'st_grade' => $this->getGradeByGraduationYear($incomingRequest['graduation_year']),
             'graduation_year' => $incomingRequest['graduation_year'],
             'lead_id' => $incomingRequest['lead_source_id'],
@@ -1128,23 +1140,41 @@ class ExtClientController extends Controller
             'sch_id' => $schoolId
         ];
 
+        $data_client_for_log_client[0] = [
+            'first_name' => $newClientDetails['first_name'],
+            'last_name' => $newClientDetails['last_name'],
+            'lead_source' => $incomingRequest['lead_source_id'],
+            'inputted_from' => 'form-embed'
+        ];
+
+        # if the client is exists
+        if ($existingClient['isExist']){
+            $client = $this->clientRepository->getClientById($existingClient['id']);
+            
+            $data_client_for_log_client[0]['client_id'] = $client->id;
+            # trigger insert log client
+            ProcessInsertLogClient::dispatch($data_client_for_log_client)->onQueue('insert-log-client');
+            
+            return $client;
+        }
+
+
         $client = $this->clientRepository->createClient('Student', $newClientDetails);
-        $clientId = $client->id;
-
+        
         # trigger to verify student / children
-        ProcessVerifyClient::dispatch([$clientId])->onQueue('verifying_client');
+        // ProcessVerifyClient::dispatch([$clientId])->onQueue('verifying_client');
 
-        # trigger define category client
-        ProcessDefineCategory::dispatch([$clientId])->onQueue('define-category-client');
+        $data_client_for_log_client[0]['client_id'] = $client->id;
+        # trigger insert log client
+        ProcessInsertLogClient::dispatch($data_client_for_log_client)->onQueue('insert-log-client');
 
         return $client;
-    
     }
 
     private function attachInterestPrograms($clientId, $interestedPrograms)
     {
         $selectedClient = $this->clientRepository->getClientById($clientId);
-        if (!$selectedClient->interestPrograms()->where('tbl_interest_prog.prog_id', $interestedPrograms)->exists()) 
+        if (!$selectedClient->interestPrograms()->where('tbl_interest_prog.prog_id', $interestedPrograms)->exists())
             $this->clientRepository->addInterestProgram($clientId, ['prog_id' => $interestedPrograms]);
     }
 
@@ -1156,17 +1186,16 @@ class ExtClientController extends Controller
     private function attachDestinationCountry($clientId, array $destinationCountries)
     {
         if (count($destinationCountries) > 0)
-            $this->clientRepository->syncDestinationCountry($clientId, $destinationCountries);
-
+            return $this->clientRepository->syncDestinationCountry($clientId, $destinationCountries);
     }
 
     private function storeParent($incomingRequest)
     {
         # check if the client exists in crm database
-        $existingClient = $this->checkExistingClient($this->setPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
+        $existingClient = $this->checkExistingClient($this->tnSetPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
 
         # if the client is exists
-        if ($existingClient['isExist']) 
+        if ($existingClient['isExist'])
             return $this->clientRepository->getClientById($existingClient['id']);
 
         # declare some variables
@@ -1177,8 +1206,8 @@ class ExtClientController extends Controller
             'first_name' => $splitNames['first_name'],
             'last_name' => $splitNames['last_name'],
             'mail' => $incomingRequest['mail'],
-            'phone' => $this->setPhoneNumber($incomingRequest['phone']),
-            'register_as' => $incomingRequest['role'],
+            'phone' => $this->tnSetPhoneNumber($incomingRequest['phone']),
+            'register_by' => $incomingRequest['role'],
             'scholarship' => $incomingRequest['scholarship'],
             'lead_id' => $incomingRequest['lead_source_id'],
             'eduf_id' => isset($incomingRequest['eduf_id']) ? $incomingRequest['eduf_id'] : null,
@@ -1188,7 +1217,7 @@ class ExtClientController extends Controller
         $clientId = $client->id;
 
         # trigger to verify parent
-        ProcessVerifyClientParent::dispatch([$clientId])->onQueue('verifying_client_parent');
+        // ProcessVerifyClientParent::dispatch([$clientId])->onQueue('verifying_client_parent');
 
         return $client;
     }
@@ -1201,10 +1230,10 @@ class ExtClientController extends Controller
     private function storeTeacher($incomingRequest)
     {
         # check if the client exists in crm database
-        $existingClient = $this->checkExistingClient($this->setPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
-        
+        $existingClient = $this->checkExistingClient($this->tnSetPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
+
         # if the client is exists
-        if ($existingClient['isExist']) 
+        if ($existingClient['isExist'])
             return $this->clientRepository->getClientById($existingClient['id']);
 
         # declare some variables
@@ -1216,8 +1245,8 @@ class ExtClientController extends Controller
             'first_name' => $splitNames['first_name'],
             'last_name' => $splitNames['last_name'],
             'mail' => $incomingRequest['mail'],
-            'phone' => $this->setPhoneNumber($incomingRequest['phone']),
-            'register_as' => $incomingRequest['role'],
+            'phone' => $this->tnSetPhoneNumber($incomingRequest['phone']),
+            'register_by' => $incomingRequest['role'],
             'sch_id' => $schoolId,
             'lead_id' => $incomingRequest['lead_source_id'],
             'eduf_id' => isset($incomingRequest['eduf_id']) ? $incomingRequest['eduf_id'] : null,
@@ -1227,10 +1256,9 @@ class ExtClientController extends Controller
         $clientId = $client->id;
 
         # trigger to verify teacher
-        ProcessVerifyClient::dispatch([$clientId])->onQueue('verifying_client_teacher');
+        // ProcessVerifyClient::dispatch([$clientId])->onQueue('verifying_client_teacher');
 
         return $client;
-
     }
 
     public function sendEmailVerificationSuccess($incomingRequest, ClientEvent $clientevent)
@@ -1254,22 +1282,21 @@ class ExtClientController extends Controller
                 'mail' => $incomingRequest['mail']
             ]
         ];
-        
+
 
         # populate client variables
         # when they are student or parents
         # and when they are parents but have a child
-        if ( ($client->roles()->whereIn('role_name', ['student', 'parent'])->exists() 
-            || (($client->roles()->where('role_name', 'parent')->exists()) && $client->childrens->count() > 0))
+        if (($client->roles()->whereIn('role_name', ['student', 'parent'])->exists()
+                || (($client->roles()->where('role_name', 'parent')->exists()) && $client->childrens->count() > 0))
             && strtolower($clientevent->notes) != 'vip'
         ) {
             # populate the client array
             $assessment_link = env('EDUALL_ASSESSMENT_URL', null);
-            if ($assessment_link !== null) 
-                $assessment_link .= '?ticket='.$clientevent->ticket_id;
+            if ($assessment_link !== null)
+                $assessment_link .= '?ticket=' . $clientevent->ticket_id;
 
             $clientInformation['assessment_link'] = $assessment_link;
-            
         }
 
         $event = [
@@ -1283,27 +1310,27 @@ class ExtClientController extends Controller
 
         # passing parameter into template
         $passedData = [
-            'client' => $clientInformation, 
+            'client' => $clientInformation,
             'event' => $event
         ];
 
         # send the email function
         try {
 
-            Mail::send($template, $passedData,
-                    function ($message) use ($email) {
-                        $message->to($email['recipient']['mail'], $email['recipient']['name'])
-                            ->subject($email['subject']);
-                    }
+            Mail::send(
+                $template,
+                $passedData,
+                function ($message) use ($email) {
+                    $message->to($email['recipient']['mail'], $email['recipient']['name'])
+                        ->subject($email['subject']);
+                }
             );
             $sent_mail = 1;
-
         } catch (Exception $e) {
 
             $sent_mail = 0;
             throw new Exception($e->getMessage());
-            Log::error('Failed send email to participant of Event ' . $eventName . ' | error : ' . $e->getMessage() . ' on file '.$e->getFile().' | Line ' . $e->getLine());
-
+            Log::error('Failed send email to participant of Event ' . $eventName . ' | error : ' . $e->getMessage() . ' on file ' . $e->getFile() . ' | Line ' . $e->getLine());
         }
 
         # store to log so that we can track the sending status of each email
@@ -1317,9 +1344,9 @@ class ExtClientController extends Controller
                 'sent_status' => $sent_mail,
                 'category' => 'verification-registration-event-mail'
             ];
-    
+
             Log::notice("Form Embed: Successfully send thank mail registration", $passedData);
-            
+
             return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
         }
 
@@ -1337,13 +1364,12 @@ class ExtClientController extends Controller
             'name' => $clientevent->client->full_name,
             'mail' => $clientevent->client->mail
         ];
-        
 
-        switch (strtolower($incomingRequest['registration_type'])) 
-        {
+
+        switch (strtolower($incomingRequest['registration_type'])) {
             case "ots":
                 # thanks mail with a ticket and link to access EduApp
-                
+
                 # initiate variables
                 $template = 'mail-template.registration.event.ots-mail-registration';
                 $client = $clientevent->client;
@@ -1354,19 +1380,19 @@ class ExtClientController extends Controller
                         'mail' => $incomingRequest['mail']
                     ]
                 ];
-                
+
 
                 # populate client variables
                 # when they are student or parents
                 # and when they are parents but have a child
-                if ( ($client->roles()->whereIn('role_name', ['student', 'parent'])->exists() 
-                    || (($client->roles()->where('role_name', 'parent')->exists()) && $client->childrens->count() > 0))
+                if (($client->roles()->whereIn('role_name', ['student', 'parent'])->exists()
+                        || (($client->roles()->where('role_name', 'parent')->exists()) && $client->childrens->count() > 0))
                     && strtolower($incomingRequest['notes']) != 'vip'
                 ) {
                     # populate the client array
                     $assessment_link = env('EDUALL_ASSESSMENT_URL', null);
-                    if ($assessment_link !== null) 
-                        $assessment_link .= '?ticket='.$clientevent->ticket_id;
+                    if ($assessment_link !== null)
+                        $assessment_link .= '?ticket=' . $clientevent->ticket_id;
 
                     $clientInformation['assessment_link'] = $assessment_link;
                 }
@@ -1382,17 +1408,17 @@ class ExtClientController extends Controller
 
                 # passing parameter into template
                 $passedData = [
-                    'client' => $clientInformation, 
+                    'client' => $clientInformation,
                     'event' => $event
                 ];
-                
-                
+
+
                 break;
 
 
             default:
                 # thanks mail with a ticket only or QR code
-                
+
                 # initiate variables
                 # variable for sending email
                 $template = 'mail-template.registration.event.pra-reg-mail-registration';
@@ -1417,30 +1443,29 @@ class ExtClientController extends Controller
 
                 # passing parameter into template
                 $passedData = [
-                    'qr' => $ticket_id, 
-                    'client' => $clientInformation, 
+                    'qr' => $ticket_id,
+                    'client' => $clientInformation,
                     'event' => $event
                 ];
-
         }
 
         # send the email function
         try {
 
-            Mail::send($template, $passedData,
-                    function ($message) use ($email) {
-                        $message->to($email['recipient']['mail'], $email['recipient']['name'])
-                            ->subject($email['subject']);
-                    }
+            Mail::send(
+                $template,
+                $passedData,
+                function ($message) use ($email) {
+                    $message->to($email['recipient']['mail'], $email['recipient']['name'])
+                        ->subject($email['subject']);
+                }
             );
             $sent_mail = 1;
-
         } catch (Exception $e) {
 
             $sent_mail = 0;
             throw new Exception($e->getMessage());
-            Log::error('Failed send email to participant of Event ' . $eventName . ' | error : ' . $e->getMessage() . ' on file '.$e->getFile().' | Line ' . $e->getLine());
-
+            Log::error('Failed send email to participant of Event ' . $eventName . ' | error : ' . $e->getMessage() . ' on file ' . $e->getFile() . ' | Line ' . $e->getLine());
         }
 
 
@@ -1459,7 +1484,7 @@ class ExtClientController extends Controller
 
             // return $this->clientEventLogMailRepository->updateClientEventLogMail($logMailId, $newLogDetails);
 
-        // } else {
+            // } else {
             # when the log does not exist
 
             $logDetails = [
@@ -1467,15 +1492,14 @@ class ExtClientController extends Controller
                 'sent_status' => $sent_mail,
                 'category' => 'registration-event-mail'
             ];
-    
+
             Log::notice("Form Embed: Successfully send thank mail registration", $passedData);
-            
+
             return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
         }
-
     }
 
-    private function getSchoolId($incomingRequest) 
+    private function getSchoolId($incomingRequest)
     {
         $schoolId = $incomingRequest['school_id'];
 
@@ -1487,32 +1511,31 @@ class ExtClientController extends Controller
             if (!$schoolExistOnDB = $this->schoolRepository->getSchoolByName($incomingRequest['other_school'])) {
                 # if user did write down the school name outside our school collection
                 # and the school name does not exist in our database then store it to CRM database
-    
+
                 // $last_id = School::max(DB::raw('SUBSTR(sch_id, 5)'));
                 $last_id = School::withTrashed()->selectRaw('MAX(SUBSTR(sch_id,5)) as max')->first()->max;
                 $school_id_with_label = 'SCH-' . $this->add_digit((int)$last_id + 1, 4);
 
-                if ($school_id_with_label == NULL && $incomingRequest['other_school'] == NULL)
-                {
+                if ($school_id_with_label == NULL && $incomingRequest['other_school'] == NULL) {
                     throw new Exception('There is an issue preventing the school from being created.');
                 }
-    
+
                 $school = [
                     'sch_id' => $school_id_with_label,
                     'sch_name' => $incomingRequest['other_school'],
                 ];
-    
+
                 # create a new school
                 $school = $this->schoolRepository->createSchool($school);
                 $schoolId = $school->sch_id;
 
                 # manipulate the variable schoolExistOnDB
                 $schoolExistOnDB = $school;
-            } 
-    
+            }
+
             # if user did write down the school name outside our school collection
             # but the school name have been stored previously then get the existing school
-    
+
             $schoolId = $schoolExistOnDB->sch_id;
         }
 
@@ -1579,7 +1602,27 @@ class ExtClientController extends Controller
         ];
 
         $incomingRequest = $request->only([
-            'role', 'user', 'fullname', 'mail', 'phone', 'secondary_name', 'secondary_email', 'secondary_phone', 'school_id', 'other_school', 'graduation_year', 'destination_country', 'scholarship', 'lead_source_id', 'event_id', 'attend_status', 'attend_party', 'event_type', 'status', 'referral', 'have_child'
+            'role',
+            'user',
+            'fullname',
+            'mail',
+            'phone',
+            'secondary_name',
+            'secondary_email',
+            'secondary_phone',
+            'school_id',
+            'other_school',
+            'graduation_year',
+            'destination_country',
+            'scholarship',
+            'lead_source_id',
+            'event_id',
+            'attend_status',
+            'attend_party',
+            'event_type',
+            'status',
+            'referral',
+            'have_child'
         ]);
 
         $messages = [
@@ -1591,7 +1634,7 @@ class ExtClientController extends Controller
         ];
 
         $validator = Validator::make($incomingRequest, $rules, $messages);
-        
+
 
         # threw error if validation fails
         if ($validator->fails()) {
@@ -1618,9 +1661,9 @@ class ExtClientController extends Controller
         DB::beginTransaction();
         try {
 
-            # update the data which depends on their register_as 
+            # update the data which depends on their register_by 
             switch ($requestUpdateClientEvent->client->roles->count() > 0) {
-    
+
                 case $requestUpdateClientEvent->client->roles()->where('role_name', 'student')->exists():
                     # initiate variables for client
                     $studentId = $requestUpdateClientEvent->client_id;
@@ -1639,12 +1682,12 @@ class ExtClientController extends Controller
                     $this->attachDestinationCountry($studentId, $validated['destination_country']);
 
                     break;
-    
+
                 case $requestUpdateClientEvent->client->roles()->where('role_name', 'parent')->exists():
                     # initiate variables for clients
                     $parentId = $requestUpdateClientEvent->client_id;
                     $parent = $client = $this->updateParent($parentId, $validated);
-                    
+
                     # when the request says they have a children
                     # but based on the data we know that the parents don't include a children when they are register
                     if ($validated['have_child'] == true && $requestUpdateClientEvent->child_id === NULL) {
@@ -1671,9 +1714,8 @@ class ExtClientController extends Controller
                         }
 
                         $this->storeRelationship($parent, $student);
-                        
-                        $this->attachDestinationCountry($studentId, $validated['destination_country']);
 
+                        $this->attachDestinationCountry($studentId, $validated['destination_country']);
                     }
 
 
@@ -1690,23 +1732,23 @@ class ExtClientController extends Controller
                         $student = $this->updateStudent($studentId, $validatedStudent);
                         $studentId = $student->id;
 
-                        
+
                         $this->attachDestinationCountry($studentId, $validated['destination_country']);
                     }
 
                     # when the request says they don't have a children
                     # but somehow in the time the parents registered, they had inputted the children data which is input "have_child" as a yes 
                     if ($validated['have_child'] == false && $requestUpdateClientEvent->child_id !== NULL) {
-                        
+
                         $studentId = $requestUpdateClientEvent->child_id;
 
                         $this->deleteRelation($parent, $studentId);
 
-                        Log::info('Student ID : '.$studentId.'has been detached from '.$parent->id);
+                        Log::info('Student ID : ' . $studentId . 'has been detached from ' . $parent->id);
                     }
 
                     break;
-    
+
                 case $requestUpdateClientEvent->client->roles()->where('role_name', 'teacher/counselor')->exists():
                     $teacherId = $requestUpdateClientEvent->client_id;
                     $client = $this->updateTeacher($teacherId, $validated);
@@ -1714,47 +1756,42 @@ class ExtClientController extends Controller
 
                 default:
                     abort(404);
-    
             }
 
 
             # update client event
             $updatedClientEvent = $this->clientEventRepository->updateClientEvent($requestUpdateClientEvent->clientevent_id, [
-                            'number_of_attend' => $validated['attend_party'],
-                            'status' => 1 # they came to the event
-                        ]);
+                'number_of_attend' => $validated['attend_party'],
+                'status' => 1 # they came to the event
+            ]);
 
 
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Verifying Registration Event Failed | ' . $e->getMessage(). ' | '.$e->getFile().' on line '.$e->getLine());
+            Log::error('Verifying Registration Event Failed | ' . $e->getMessage() . ' | ' . $e->getFile() . ' on line ' . $e->getLine());
             return response()->json([
                 'success' => false,
                 'code' => 'ERR',
                 'message' => "We encountered an issue completing your verification. Please check for any missing information or errors and try again. If you're still having trouble, feel free to contact our support team for assistance."
             ]);
-
         }
 
         try {
 
             # send an registration success email
             $this->sendEmailVerificationSuccess($validated, $updatedClientEvent);
-            Log::notice('Email verifying sucessfully send to '. $incomingRequest['mail'].' refer to ticket ID : '.$updatedClientEvent->ticket_id);
-            
+            Log::notice('Email verifying sucessfully send to ' . $incomingRequest['mail'] . ' refer to ticket ID : ' . $updatedClientEvent->ticket_id);
         } catch (Exception $e) {
 
-            Log::error('Failed to send email verifying to '.$incomingRequest['mail'].' refer to ticket ID : '.$updatedClientEvent->ticket_id.' | ' . $e->getMessage());
-
+            Log::error('Failed to send email verifying to ' . $incomingRequest['mail'] . ' refer to ticket ID : ' . $updatedClientEvent->ticket_id . ' | ' . $e->getMessage());
         }
 
-        
+
         # create log success
         $this->logSuccess('update', 'Form Embed', 'Client Event', 'Guest', $updatedClientEvent, $requestUpdateClientEvent);
-        
+
 
         return response()->json([
             'success' => true,
@@ -1766,7 +1803,7 @@ class ExtClientController extends Controller
                     'email' => $updatedClientEvent->client->mail,
                     'is_vip' => $updatedClientEvent->notes == 'VIP' ? true : false,
                     'have_child' => $validated['have_child'],
-                    'register_as' => $updatedClientEvent->client->register_as
+                    'register_by' => $updatedClientEvent->client->register_by
                 ],
                 'clientevent' => [
                     'id' => $updatedClientEvent->clientevent_id,
@@ -1788,8 +1825,8 @@ class ExtClientController extends Controller
             'first_name' => $splitNames['first_name'],
             'last_name' => $splitNames['last_name'],
             'mail' => $incomingRequest['mail'],
-            'phone' => $this->setPhoneNumber($incomingRequest['phone']),
-            'register_as' => $incomingRequest['role'],
+            'phone' => $this->tnSetPhoneNumber($incomingRequest['phone']),
+            'register_by' => $incomingRequest['role'],
             'sch_id' => $schoolId,
             'lead_id' => 'LS001', # lead is hardcoded into website
         ];
@@ -1809,8 +1846,8 @@ class ExtClientController extends Controller
             'first_name' => $splitNames['first_name'],
             'last_name' => $splitNames['last_name'],
             'mail' => $incomingRequest['mail'],
-            'phone' => $this->setPhoneNumber($incomingRequest['phone']),
-            'register_as' => $incomingRequest['role'],
+            'phone' => $this->tnSetPhoneNumber($incomingRequest['phone']),
+            'register_by' => $incomingRequest['role'],
             'scholarship' => $incomingRequest['scholarship'],
             'lead_id' => 'LS001', # lead is hardcoded into website
         ];
@@ -1839,8 +1876,8 @@ class ExtClientController extends Controller
             'first_name' => $splitNames['first_name'],
             'last_name' => $splitNames['last_name'],
             'mail' => $incomingRequest['mail'],
-            'phone' => $this->setPhoneNumber($incomingRequest['phone']),
-            'register_as' => $incomingRequest['role'],
+            'phone' => $this->tnSetPhoneNumber($incomingRequest['phone']),
+            'register_by' => $incomingRequest['role'],
             'st_grade' => $this->getGradeByGraduationYear($incomingRequest['graduation_year']),
             'graduation_year' => $incomingRequest['graduation_year'],
             'lead_id' => 'LS001', # lead is hardcoded into website
@@ -1857,7 +1894,7 @@ class ExtClientController extends Controller
     {
         # get student info
         $student = $this->clientRepository->getClientByTicket($ticket_no);
-        
+
         if (!$student) {
             return response()->json([
                 'success' => false,
@@ -1875,7 +1912,7 @@ class ExtClientController extends Controller
     {
         # get student info
         $student = $this->clientRepository->getClientByUUIDforAssessment($uuid);
-        
+
         if (!$student) {
             return response()->json([
                 'success' => false,
@@ -1891,16 +1928,45 @@ class ExtClientController extends Controller
 
     //! Timesheet needs
     public function checkUserEmail(Request $request): JsonResponse
-    {   
+    {
         $incomingEmail = $request->get('email');
-        
-        $query = \App\Models\User::with('roles')->whereHas('roles', function ($query) use ($incomingEmail) {
-            $query->whereIn('role_name', ['Mentor', 'Tutor']);
-        })->where('email', $incomingEmail);
 
-        $result = $query->exists() ? $query->select(['id', 'uuid', 'first_name', 'last_name', 'email', 'password'])->first() : null;
+        $query = \App\Models\User::query()->withAndWhereHas('roles', function ($query) {
+                $query->whereIn('role_name', ['Mentor', 'Tutor'])->select('role_name');
+            })->where('email', $incomingEmail);
 
-        return response()->json($result);
+        $result = null;
+        if ($query->exists()) {
+            $result = $query->select('id', 'first_name', 'last_name', 'email', 'phone', 'password')->first();
+
+            # fetch the roles
+            foreach ($result->roles as $role) {
+
+                $mappedRoles[] = [
+                    'role_name' => $role->role_name,
+                    'subjects' => $result->user_subjects && $role->role_name == 'Tutor' ? $result->user_subjects->map(function ($item) {
+                        return [
+                            'id' => $item->id,
+                            'subject' => $item->subject->name,
+                            'year' => $item->year,
+                            'agreement' => $item->agreement,
+                            'head' => $item->head,
+                            'additional_fee' => $item->additional_fee,
+                            'grade' => $item->grade,
+                            'fee_individual' => $item->fee_individual,
+                            'fee_group' => $item->fee_group,
+                        ];
+                    }) : null
+                ];
+            }
+
+            $resultInArray = $result->toArray();
+            $resultInArray['roles'] = $mappedRoles;
+
+            unset($resultInArray['user_subjects']);
+        }
+
+        return response()->json($resultInArray);
     }
 
     public function validateCredentials(Request $request): JsonResponse
@@ -1922,59 +1988,77 @@ class ExtClientController extends Controller
         return response()->json($user);
     }
 
-    public function getMentorTutors(Request $request): JsonResponse 
+    public function getMentorTutors(Request $request, $authorization = null): JsonResponse
     {
         /* Incoming request */
         $keyword = $request->get('keyword');
+        $paginate = $request->get('paginate'); # true will return paginate results, false will return all results 
+        $role = $request->get('role');
 
-        $user = \App\Models\User::query()->
-            select('id', 'uuid', 'first_name', 'last_name', 'email', 'phone')->
-            with(['roles' => function ($query) {
-                $query->select('role_name', 'tutor_subject', 'feehours');
-            }])->
-            whereHas('roles', function ($query) {
-                $query->whereIn('role_name', ['Mentor', 'Tutor']);
-            })->
-            when($keyword, function ($query) use ($keyword) {
-                $query->
-                    whereRaw('CONCAT(first_name, " ", last_name) like ?', ['%'.$keyword.'%'])->
-                    orWhereRaw('email like ?', ['%'.$keyword.'%'])->
-                    orWhereRaw('phone like ?', ['%'.$keyword.'%']);
-            })->
-            get();
-        
+        $user = \App\Models\User::query()->select('id', 'first_name', 'last_name', 'email', 'phone')->with([
+                'user_subjects' => function ($query) {
+                    $query->select('user_role_id', 'subject_id', 'year', 'agreement', 'head', 'additional_fee', 'grade', 'fee_individual', 'fee_group');
+                },
+                'user_subjects.subject',
+                'user_subjects.user_roles',
+                'user_subjects.user_roles.role',
+            ])->whereHas('roles', function ($query) use ($role) {
+                $query->when($role, function ($sub) use ($role) {
+                    $sub->where('role_name', $role);
+                }, function ($sub) use ($role) {
+                    $sub->whereIn('role_name', ['Mentor', 'Tutor']);
+                });
+            })->when($keyword, function ($query) use ($keyword) {
+                $query->where(function ($sub) use ($keyword) {
+                        $sub->whereRaw('CONCAT(first_name, " ", COALESCE(last_name)) like ?', ['%' . $keyword . '%'])->orWhereRaw('email like ?', ['%' . $keyword . '%'])->orWhereRaw('phone like ?', ['%' . $keyword . '%']);
+                    });
+            })->whereNotNull('email')->isActive()->get();
+
         $mappedUser = $user->map(function ($data) {
-            $base = [
-                'uuid' => $data['uuid'],
-                'first_name' => $data['first_name'],
-                'last_name' => $data['last_name'],
-                'email' => $data['email'],
-                'phone' => $data['phone']
-            ];
 
-            foreach ($data['roles'] as $role) {
+            $userSubjects = $data->user_subjects;
+
+            $acceptedRole = [];
+
+            foreach ($userSubjects as $user_subject) {
+
+                $user_role = $user_subject['user_roles'];
+                $role = $user_role['role'];
 
                 if (!in_array($role['role_name'], ['Mentor', 'Tutor']))
                     continue;
 
-
-                $acceptedRole = [
+                $acceptedRole[] = [
                     'role' => $role['role_name'],
-                    'tutor_subject' => $role['tutor_subject'],
-                    'feehours' => $role['feehours'],
+                    'subjects' => [
+                        'name' => $user_subject['subject']['name'],
+                        'year' => $user_subject['year'],
+                        'head' => $user_subject['head'],
+                        'additional_fee' => $user_subject['additional_fee'],
+                        'grade' => $user_subject['grade'],
+                        'fee_individual' => $user_subject['fee_individual'],
+                        'fee_group' => $user_subject['fee_group'],
+                    ],
                 ];
-            
             }
 
-            return array_merge($base, $acceptedRole);
+            return [
+                'uuid' => $data['id'],
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'],
+                'roles' => $acceptedRole
+            ];
         });
 
-        $mappedUser = $mappedUser->paginate(10);
+        if ($paginate)
+            $mappedUser = $mappedUser->paginate(10);
 
         return response()->json($mappedUser);
     }
 
-    public function updateUser (Request $request): JsonResponse
+    public function updateUser(Request $request): JsonResponse
     {
         $request->validate([
             'email' => 'required|email|exists:users,email',
@@ -2001,18 +2085,25 @@ class ExtClientController extends Controller
         return response()->json([
             'message' => 'Information has been updated.'
         ]);
-
     }
 
-    public function updateTookIA(Request $request){
-        $uuid = $request->uuid;
+    public function getClientInformation($uuid): JsonResponse
+    {
+        $userClient = UserClient::where('uuid', $uuid)->select('*')->selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade')->first();
+        return response()->json($userClient);
+    }
+
+    public function updateTookIA(Request $request)
+    {
+        # NEW CRM client id convert to UUID
+        $id = $request->uuid;
 
         $rules = [
-            'uuid' => 'required|exists:tbl_client,uuid'
+            'uuid' => 'required|exists:tbl_client,id'
         ];
 
-        $validator = Validator::make(['uuid' => $uuid], $rules);
-        
+        $validator = Validator::make(['uuid' => $id], $rules);
+
         # threw error if validation fails
         if ($validator->fails()) {
             return response()->json([
@@ -2023,8 +2114,8 @@ class ExtClientController extends Controller
 
         DB::beginTransaction();
         try {
-            
-            $client =  $this->clientRepository->updateClientByUUID($uuid, ['took_ia' => 1]);
+
+            $client =  $this->clientRepository->updateClient($id, ['took_ia' => 1]);
 
             $response = [
                 'success' => true,
@@ -2033,9 +2124,9 @@ class ExtClientController extends Controller
 
             Log::notice('Successfully update took ia ' . $client->full_name);
             DB::commit();
-        }catch (Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Failed to update took ia '. $e->getMessage() . ' | On Line: ' .$e->getLine());
+            Log::error('Failed to update took ia ' . $e->getMessage() . ' | On Line: ' . $e->getLine());
             return response()->json([
                 'success' => false,
                 'error' => 'Failed to update took ia' . $e->getMessage()
@@ -2043,5 +2134,18 @@ class ExtClientController extends Controller
         }
 
         return response()->json($response);
+    }
+
+    public function showMentorTutor($uuid)
+    {
+        $user = \App\Models\User::where('id', $uuid)->select('password')->first();
+        if ( !$user )
+        {
+            return response()->json([
+                'success' => false,
+                'error' => 'Cannot find the user.'
+            ]);
+        } 
+        return response()->json($user);
     }
 }

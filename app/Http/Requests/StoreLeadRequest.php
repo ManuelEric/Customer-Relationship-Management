@@ -35,17 +35,20 @@ class StoreLeadRequest extends FormRequest
     {
         $rules = [
             'kol' => 'sometimes',
-            'score' => 'required|integer',
+            'score' => 'required|numeric|gt:0',
             'department_id' => 'required|exists:tbl_department,id'
         ];
 
-        $leadId = $this->input('id');
+        // $leadId = $this->input('id');
         $kol = $this->input('kol');
 
         if ($kol == true)
-            $rules['lead_name'] = 'required_if:kol,true|exclude_unless:kol,true|unique:tbl_lead,sub_lead,'.$leadId;
+            # Error when store lead is KOL
+            // $rules['lead_name'] = 'required_if:kol,true|exclude_unless:kol,true|unique:tbl_lead,sub_lead,'.$leadId;
+            $rules['lead_name'] = 'required_if:kol,true|exclude_unless:kol,true';
         else
-            $rules['lead_name'] = 'required_if:kol,true|exclude_unless:kol,true|unique:tbl_lead,main_lead,'.$leadId;
+            // $rules['lead_name'] = 'required_if:kol,true|exclude_unless:kol,true|unique:tbl_lead,main_lead,'.$leadId;
+            $rules['lead_name'] = 'required_if:kol,true|exclude_unless:kol,true';
 
         return $rules;
     }

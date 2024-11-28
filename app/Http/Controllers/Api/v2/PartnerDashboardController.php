@@ -269,7 +269,7 @@ class PartnerDashboardController extends Controller
     
             $programComparisonMerge = $this->mergeProgramComparison($schoolProgramMerge, $partnerProgramMerge, $referralMerge);
     
-            $programComparisons = $this->mappingProgramComparison($programComparisonMerge);
+            $programComparisons = $this->fnMappingProgramComparison($programComparisonMerge);
     
             $data = [
                 'programComparisons' => $programComparisons,
@@ -515,7 +515,7 @@ class PartnerDashboardController extends Controller
         );
     }
 
-    protected function mappingProgramComparison($data)
+    protected function fnMappingProgramComparison($data)
     {
         return $data->mapToGroups(function ($item, $key) {
             return [

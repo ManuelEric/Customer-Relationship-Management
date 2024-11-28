@@ -80,16 +80,6 @@ Route::prefix('alumni')->group(function() {
 });
 Route::resource('alumni', ClientMenteeController::class);
 
-// Route::get('teacher-counselor/raw', function () {
-//     return view('pages.client.teacher.raw.index');
-// });
-// Route::get('teacher-counselor/raw/1/comparison/2', function () {
-//     return view('pages.client.teacher.raw.form-comparison');
-// });
-// Route::get('teacher-counselor/raw/1/new', function () {
-//     return view('pages.client.teacher.raw.form-new');
-// });
-
 Route::get('teacher-counselor/raw',  [ClientTeacherCounselorController::class, 'indexRaw']);
 Route::get('teacher-counselor/raw/{rawclient_id}/{type}/{client_id?}', [ClientTeacherCounselorController::class, 'cleaningData']);
 Route::post('teacher-counselor/raw/{rawclient_id}/{type}/{client_id?}', [ClientTeacherCounselorController::class, 'convertData'])->name('client.convert.teacher');
@@ -102,6 +92,9 @@ Route::prefix('teacher-counselor')->name('teacher-counselor.')->group(function (
 });
 
 
+Route::prefix('parent')->name('parent.')->group(function() {
+    Route::get('{parent}/status/{status}', [ClientParentController::class, 'updateStatus'])->name('update.status');
+});
 Route::get('parent/raw',  [ClientParentController::class, 'indexRaw']);
 Route::get('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'cleaningData']);
 Route::post('parent/raw/{rawclient_id}/{type}/{client_id?}', [ClientParentController::class, 'convertData'])->name('client.convert.parent');

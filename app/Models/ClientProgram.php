@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 
 class ClientProgram extends Model
 {
@@ -34,13 +35,14 @@ class ClientProgram extends Model
         'last_discuss_date',
         'followup_date',
         'meeting_date',
-        'meeting_notes',
+        // 'meeting_notes',
         'status',
         'statusprog_date',
         'initconsult_date',
         'assessmentsent_date',
         'negotiation_date',
         'reason_id',
+        'reason_notes',
         'test_date',
         'first_class',
         'last_class',
@@ -60,6 +62,7 @@ class ClientProgram extends Model
         'prog_start_date',
         'prog_end_date',
         'empl_id',
+        'hold_date',
         'success_date',
         'failed_date',
         'refund_date',
@@ -70,6 +73,7 @@ class ClientProgram extends Model
         'registration_type',
         'referral_code',
         'agreement',
+        'agreement_uploaded_at',
         'created_at',
         'updated_at'
     ];
@@ -94,9 +98,14 @@ class ClientProgram extends Model
 
         $updated = parent::update($attributes);
 
-        // Custom logic after update
-        // Send to pusher
-        event(new MessageSent('rt_client_program', 'channel_datatable'));
+        if(isset($attributes['is_many_request']) && $attributes['is_many_request'])
+        {
+            unset($attributes['is_many_request']);
+        }else{
+            // Custom logic after update
+            // Send to pusher
+            event(new MessageSent('rt_client_program', 'channel_datatable'));
+        }
 
         return $updated;
     }
@@ -107,10 +116,14 @@ class ClientProgram extends Model
 
         $model = static::query()->create($attributes);
 
-        // Custom logic after creating the model
-
-        // Send to pusher
-        event(new MessageSent('rt_client_program', 'channel_datatable'));
+        if(isset($attributes['is_many_request']) && $attributes['is_many_request'])
+        {
+            unset($attributes['is_many_request']);
+        }else{
+            // Custom logic after create
+            // Send to pusher
+            event(new MessageSent('rt_client_program', 'channel_datatable'));
+        }
 
         return $model;
     }
@@ -162,7 +175,7 @@ class ClientProgram extends Model
     protected function stripTagNotes(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => substr(strip_tags($this->meeting_notes), 0, 50)
+            get: fn ($value) => mb_substr(strip_tags($this->meeting_notes), 0, 50)
         );
     }
 
@@ -173,6 +186,15 @@ class ClientProgram extends Model
         $instance = new static;
 
         return $instance->newQuery()->where('clientprog_id', $id)->first();
+    }
+
+    public function scopeSuccessAndPaid(Builder $query): void
+    {
+        $query->
+            where('status', 1)->whereNot('prog_running_status', 2)->where('prog_end_date', '>=', Carbon::now())->
+            where(function ($query2) {
+                $query2->has('invoice')->has('invoice.receipt');
+            });
     }
 
 
@@ -188,7 +210,7 @@ class ClientProgram extends Model
         $firstDiscussDate = Carbon::parse($this->first_discuss_date);
 
         return Attribute::make(
-            get: fn ($value) => $successDate->diffInDays($firstDiscussDate),
+            get: fn ($value) => $firstDiscussDate->diffInDays($successDate),
         );
     }
 
@@ -208,8 +230,87 @@ class ClientProgram extends Model
 
     public function getReferralNameFromRefCodeView($refCode)
     {
-        // return ViewClientRefCode::whereRaw('ref_code COLLATE utf8mb4_unicode_ci = (?)', $refCode)->first()->full_name;
-        return ViewClientRefCode::whereRaw('ref_code = (?)', $refCode)->first()->full_name;
+        return UserClient::where('secondary_id', $refCode)->first()->full_name ?? null;
+        // return ViewClientRefCode::whereRaw('ref_code = (?)', $refCode)->first()->full_name;
+    }
+
+    /**
+     * Scopes
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return void
+     */
+    public function scopeOnlinePaid(Builder $query): void
+    {
+        $query->whereHas('lead', function ($sub) {
+            $sub->where('type', 'paid')->where('is_online', true);
+        });
+    }
+
+    public function scopeOnlineOrganic(Builder $query): void
+    {
+        $query->whereHas('lead', callback: function ($sub) {
+            $sub->where('type', 'organic')->where('is_online', true);
+        });
+    }
+
+    public function scopeOffline(Builder $query): void
+    {
+        $lead_of_referral = ['LS005', 'LS058', 'LS060', 'LS061'];
+        $query->whereHas('lead', function ($sub) use ($lead_of_referral) {
+            $sub->where('is_online', false)->whereNotIn('lead_id', $lead_of_referral);
+        });
+    }
+
+
+    public function scopeReferral(Builder $query): void
+    {
+        $lead_of_referral = ['LS005', 'LS058', 'LS060', 'LS061']; # manually select lead from referral
+        $query->whereHas('lead', function ($sub) use ($lead_of_referral) {
+            $sub->whereIn('lead_id', $lead_of_referral);
+        });
+    }
+
+    public function scopeMentoring(Builder $query): void
+    {
+        $query->whereHas('program.main_prog', function ($sub) {
+            $sub->where('prog_name', 'Admissions Mentoring');
+        });
+    }
+
+    public function scopeTutoring(Builder $query): void
+    {
+        $query->whereHas('program.main_prog', function ($sub) {
+            $sub->where('prog_name', 'Academic & Test Preparation');
+        });
+    }
+
+    public function scopeGIP(Builder $query): void
+    {
+        $query->whereHas('program.sub_prog', function ($sub) {
+            $sub->where('sub_prog_name', 'Global Immersion Program');
+        });
+    }
+
+    public function scopeDealLeads(Builder $query, Carbon $start_date, Carbon $end_date): void
+    {
+        $query->whereIn('status', [1, 4])->whereBetween('success_date', [$start_date, $end_date]);
+    }
+
+    public function scopeHasAgreement(Builder $query, Carbon $start_date, Carbon $end_date): void
+    {
+        $query->whereNotNull('agreement')->whereBetween('success_date', [$start_date, $end_date]);
+    }
+
+    public function scopeAlreadyPaidTheProgram(Builder $query, Carbon $start_date, Carbon $end_date): void
+    {
+        $query->whereHas('invoice.firstReceipt', function ($sub) use ($start_date, $end_date) {
+            $sub->whereBetween('receipt_date', [$start_date, $end_date]);
+        });
+    }
+
+    public function scopeSuccess(Builder $query): void
+    {
+        $query->whereNotNull('success_date')->whereNull('failed_date')->whereNull('refund_date');
     }
 
     public function client()
@@ -224,7 +325,8 @@ class ClientProgram extends Model
 
     public function viewClient()
     {
-        return $this->belongsTo(Client::class, 'client_id', 'id');
+        //! withTrashed() > could be deleted
+        return $this->belongsTo(Client::class, 'client_id', 'id')->withTrashed();
     }
 
     public function program()
@@ -311,6 +413,11 @@ class ClientProgram extends Model
     public function bundlingDetail()
     {
         return $this->hasOne(BundlingDetail::class, 'clientprog_id', 'clientprog_id');
+    }
+
+    public function client_log()
+    {
+        return $this->hasMany(ClientLog::class, 'clientprog_id', 'clientprog_id');
     }
 
 }

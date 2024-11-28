@@ -117,11 +117,12 @@
                     },
                     {
                         data: 'fullname',
-                        name: paramType == 'invoice' ? 'clientprogram.fullname' : 'client.full_name'
+                        name: paramType == 'invoice' ? null : 'client.full_name',
+                        // name: paramType == 'invoice' ? 'clientprogram.fullname' : 'client.full_name'
                     },
                     {
                         data: 'program_name',
-                        name: paramType == 'invoice' ? 'program_name' : 'program.program_name'
+                        name: paramType == 'invoice' ? 'p.program_name' : 'program.program_name'
                     },
                     {
                         data: 'payment_method',
@@ -141,8 +142,8 @@
                             var format, currency;
 
                             var curr_category = row['currency_category'];
-                            var currency = row['currency'];
-                            if (curr_category != 'Other') 
+                            var currency = row['invoice_currency'];
+                            if (curr_category != 'other') 
                                 return 0;
 
                             switch (currency) {
@@ -167,8 +168,6 @@
                                 currency: currency,
                                 minimumFractionDigits: 0
                             }).format(data);
-                            
-
 
                         }
                     },
@@ -192,16 +191,36 @@
 
                             var clientprog_id = row.clientprog_id;
                             var receipt_id = row.id;
-                            var currency = row.currency;
+                            var isOther = false;
+                            var currencyOther = null;
+
+                            if(paramType == 'invoice') {
+                                row.invoice.invoice_attachment.forEach((item) => {
+                                    if(item.currency != 'idr'){
+                                        isOther = true;
+                                        currencyOther = item.currency;
+                                    }
+                                });
+                            }else{                                
+                                row.receipt_attachment.forEach((item) => {
+                                    if(item.currency != 'idr'){
+                                        isOther = true;
+                                        currencyOther = item.currency;
+                                    }
+                                });
+                            }
+                          
 
                             switch (paramType) {
 
                                 case "invoice":
-                                    link = '<button type="button" class="btn btn-sm btn-outline-warning" onclick="previewAttachment('+clientprog_id+', \''+currency+'\', \'Invoice\')"><i class="bi bi-pencil"></i></button>';
+                                    link = '<button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="IDR" onclick="previewAttachment('+clientprog_id+', \'idr\', \'Invoice\')"><i class="bi bi-pencil"></i></button>';
+                                    isOther ? link += '<button type="button" class="btn btn-sm btn-outline-warning ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Other" onclick="previewAttachment('+clientprog_id+', \''+currencyOther+'\', \'Invoice\')"><i class="bi bi-pencil"></i></button>' : null;
                                     break;
 
                                 case "receipt":
-                                    link = '<button type="button" class="btn btn-sm btn-outline-warning" onclick="previewAttachment('+receipt_id+', \''+currency+'\', \'Receipt\')"><i class="bi bi-pencil"></i></button>';
+                                    link = '<button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="IDR" onclick="previewAttachment('+receipt_id+', \'idr\', \'Receipt\')"><i class="bi bi-pencil"></i></button>';
+                                    isOther ? link += '<button type="button" class="btn btn-sm btn-outline-warning ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Other" onclick="previewAttachment('+receipt_id+', \''+currencyOther+'\', \'Receipt\')"><i class="bi bi-pencil"></i></button>' : null;
                                     break;
 
                             }

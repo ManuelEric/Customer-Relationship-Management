@@ -3,6 +3,7 @@
 namespace App\Models\pivot;
 
 use App\Models\Subject;
+use App\Models\Pivot\UserRole;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class UserSubject extends Pivot
@@ -30,6 +31,11 @@ class UserSubject extends Pivot
     public function subject()
     {
         return $this->belongsTo(Subject::class, 'subject_id', 'id');
+    }
+
+    public function user_roles()
+    {
+        return $this->belongsTo(UserRole::class, 'user_role_id', 'id');
     }
 
 }

@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Subjects\CreateSubjectAction;
+use App\Actions\Subjects\DeleteSubjectAction;
+use App\Actions\Subjects\UpdateSubjectAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreSubjectRequest;
 use App\Http\Traits\LoggingTrait;
 use App\Interfaces\SubjectRepositoryInterface;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,39 +37,41 @@ class SubjectController extends Controller
         return view('pages.master.subject.index');
     }
 
-    public function store(StoreSubjectRequest $request)
+    public function store(StoreSubjectRequest $request, CreateSubjectAction $createSubjectAction, LogService $log_service)
     {
-        $subjectDetails = $request->only([
+        $new_subject_details = $request->safe()->only([
             'name',
         ]);
 
         DB::beginTransaction();
         try {
 
-            $subjectCreated = $this->subjectRepository->createSubject($subjectDetails);
+            $subject_created = $createSubjectAction->execute($new_subject_details);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store subject failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_SUBJECT, $e->getMessage(), $e->getLine(), $e->getFile(), $new_subject_details);
+
             return Redirect::to('master/subject')->withError('Failed to create a new subject');
         }
         
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Subject', Auth::user()->first_name . ' '. Auth::user()->last_name, $subjectCreated);
+        $log_service->createSuccessLog(LogModule::STORE_SUBJECT, 'New subject has been added', $subject_created->toArray());
 
         return Redirect::to('master/subject')->withSuccess('Subject successfully created');
     }
 
     public function show(Request $request)
     {
-        $subjectId = $request->route('subject');
+        $subject_id = $request->route('subject');
 
         try {
             # retrieve subject
-            $subject = $this->subjectRepository->getSubjectById($subjectId);
+            $subject = $this->subjectRepository->getSubjectById($subject_id);
         } catch (Exception $e) {
+            
             Log::error('Failed to show detail subject: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -73,55 +80,56 @@ class SubjectController extends Controller
 
     }
 
-    public function update(StoreSubjectRequest $request)
+    public function update(StoreSubjectRequest $request, UpdateSubjectAction $updateSubjectAction, LogService $log_service)
     {
-        $subjectDetails = $request->only([
+        $new_subject_details = $request->safe()->only([
             'name',
         ]);
 
         # retrieve vendor id from url
-        $subjectId = $request->route('subject');
-        $oldSubject = $this->subjectRepository->getSubjectById($subjectId);
+        $subject_id = $request->route('subject');
 
         DB::beginTransaction();
         try {
 
-            $this->subjectRepository->updateSubject($subjectId, $subjectDetails);
+            $updated_subject = $updateSubjectAction->execute($subject_id, $new_subject_details);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update subject failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_SUBJECT, $e->getMessage(), $e->getLine(), $e->getFile(), $new_subject_details);
+
             return Redirect::to('master/subject')->withError('Failed to update a subject');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Subject', Auth::user()->first_name . ' '. Auth::user()->last_name, $subjectDetails, $oldSubject);
+        $log_service->createSuccessLog(LogModule::STORE_SUBJECT, 'New subject has been added', $updated_subject->toArray());
 
         return Redirect::to('master/subject')->withSuccess('Subject successfully updated');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteSubjectAction $deleteSubjectAction, LogService $log_service)
     {
-        $subjectId = $request->route('subject');
-        $subject = $this->subjectRepository->getSubjectById($subjectId);
+        $subject_id = $request->route('subject');
+        $subject = $this->subjectRepository->getSubjectById($subject_id);
 
         DB::beginTransaction();
         try {
 
-            $this->subjectRepository->deleteSubject($subjectId);
+            $deleteSubjectAction->execute($subject_id);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete subject failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_SUBJECT, $e->getMessage(), $e->getLine(), $e->getFile(), $subject->toArray());
+
             return Redirect::to('master/subject')->withError('Failed to delete a subject');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Subject', Auth::user()->first_name . ' '. Auth::user()->last_name, $subject);
+        $log_service->createSuccessLog(LogModule::DELETE_SUBJECT, 'Subject has been deleted', $subject->toArray());
 
         return Redirect::to('master/subject')->withSuccess('Subject successfully deleted');
     }

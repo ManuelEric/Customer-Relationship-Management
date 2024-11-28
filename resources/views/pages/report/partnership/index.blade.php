@@ -4,6 +4,21 @@
 
 @section('content')
 
+@if (Request::get('start_date') && Request::get('end_date'))
+<div class="row">
+    <div class="col">
+        <div class="alert alert-success">
+            Report period between <u>{{ date('F, dS Y', strtotime(Request::get('start_date'))) }}</u> and
+            <u>{{ date('F, dS Y', strtotime(Request::get('end_date'))) }}</u>
+        </div>
+    </div>
+</div>
+@else
+<div class="alert alert-primary" role="alert">
+    Report period between <u>{{ date('F, dS Y', strtotime($start_date)) }}</u> and <u>{{ date('F, dS Y', strtotime($end_date)) }}</u>
+</div>
+@endif
+
     <div class="row">
         <div class="col-md-3 mb-2">
             <div class="position-sticky" style="top:15%;">
@@ -17,13 +32,13 @@
                                 <label>Start Date</label>
                                 <input type="date" name="start_date" id=""
                                     class="form-control form-control-sm rounded"
-                                    value="{{ Request::get('start_date') ? Request::get('start_date') : null }}">
+                                    value="{{ Request::get('start_date') ?? null }}">
                             </div>
                             <div class="mb-3">
                                 <label>End Date</label>
                                 <input type="date" name="end_date" id=""
                                     class="form-control form-control-sm rounded"
-                                    value="{{ Request::get('end_date') ? Request::get('end_date') : null }}">
+                                    value="{{ Request::get('end_date') ?? null }}">
                             </div>
                             <div class="text-center">
                                 <button class="btn btn-sm btn-outline-primary">Submit</button>

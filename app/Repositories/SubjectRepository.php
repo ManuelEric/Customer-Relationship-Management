@@ -21,7 +21,7 @@ class SubjectRepository implements SubjectRepositoryInterface
 
     public function getSubjectById($subjectId)
     {
-        return Subject::find($subjectId)->first();
+        return Subject::whereId($subjectId)->first();
     }
 
     public function getSubjectByName($subjectName)
@@ -36,7 +36,7 @@ class SubjectRepository implements SubjectRepositoryInterface
 
     public function updateSubject($subjectId, array $newDetails)
     {
-        return Subject::whereId($subjectId)->update($newDetails);
+        return tap(Subject::whereId($subjectId)->first())->update($newDetails);
     }
 
     public function deleteSubject($subjectId)

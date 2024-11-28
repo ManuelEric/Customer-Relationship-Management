@@ -49,6 +49,10 @@
                                 $url = explode("/", $submenu_active);
                                 if ( count($url) > 2) {
                                     $submenu_active = $url[0].'/'.$url[1];
+
+                                    # special case for recycle
+                                    if ( $url[0] == 'recycle' )
+                                        $submenu_active = $url[0].'/'.$url[1].'/'.$url[2];
                                 }
                                 
                                 

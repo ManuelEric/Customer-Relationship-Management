@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Events\MessageSent;
 use App\Models\pivot\AgendaSpeaker;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -32,6 +33,7 @@ class PartnerProg extends Model
         'end_date',
         'is_corporate_scheme',
         'reason_id',
+        'reason_notes',
         'total_fee',
         'success_date',
         'pending_date',
@@ -89,6 +91,14 @@ class PartnerProg extends Model
         return Attribute::make(
             get: fn ($value) => date('M d, Y', strtotime($value)),
         );
+    }
+
+    /**
+     * the scopes.
+     */
+    public function scopeActive(Builder $query): void
+    {
+        $query->where('status', 1);
     }
 
     public function school_speaker()

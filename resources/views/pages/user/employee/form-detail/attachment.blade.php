@@ -38,23 +38,32 @@
         </div>
         <div class="row align-items-center border py-2 mx-1 mb-1">
             <div class="col-md-3 mb-2 mb-md-0">
-                <label for="">BCA Account</label>
+                <label for="">Bank Account</label>
             </div>
             <div class="col-md-9">
                 <div class="row">
-                    <div class="col-md-6 mb-2">
-                        <small>Account Name <sup class="text-danger">*</sup></small>
-                        <input type="text" name="bankname" class="form-control form-control-sm rounded"
-                            value="{{ isset($user->bankname) ? $user->bankname : old('bankname') }}">
-                        @error('bankname')
+                    <div class="col-md-4 mb-2">
+                        <small>Bank Name <sup class="text-danger">*</sup></small>
+                        <select name="bank_name" id="bank_name" class="select w-100">
+                            <option value=""></option>
+                        </select>
+                        @error('bank_name')
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
-                    <div class="col-md-6 mb-2">
+                    <div class="col-md-4 mb-2">
+                        <small>Account Name <sup class="text-danger">*</sup></small>
+                        <input type="text" name="account_name" class="form-control form-control-sm rounded"
+                            value="{{ isset($user->account_name) ? $user->account_name : old('account_name') }}">
+                        @error('account_name')
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
+                    </div>
+                    <div class="col-md-4 mb-2">
                         <small>Account Number <sup class="text-danger">*</sup></small>
-                        <input type="text" name="bankacc" class="form-control form-control-sm rounded"
-                            value="{{ isset($user->bankacc) ? $user->bankacc : old('bankacc') }}">
-                        @error('bankacc')
+                        <input type="text" name="account_no" class="form-control form-control-sm rounded"
+                            value="{{ isset($user->account_no) ? $user->account_no : old('account_no') }}">
+                        @error('account_no')
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
@@ -117,7 +126,7 @@
                 <div class="row ">
                     <div class="col-md-6 mb-2">
                         <small>NPWP Number</small>
-                        <input type="text" name="npwp" id="" class="form-control form-control-sm rounded"
+                        <input type="text" name="npwp" placeholder="12.345.678.9-123.456" id="" class="form-control form-control-sm rounded"
                             value="{{ isset($user->npwp) ? $user->npwp : old('npwp') }}">
                         @error('npwp')
                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -222,3 +231,38 @@
         </div>
     </div>
 </div>
+<script>
+
+    $(document).ready(function() {
+        axios.get('https://bios.kemenkeu.go.id/api/ws/ref/bank')
+                .then(function (response){
+    
+                    let obj = response.data;
+                    
+                    var html = '<option data-placeholder="true"></option>'
+    
+                    for (var key in obj.data){
+                        var selected = '';
+        
+                        if('{{ !empty(old("bank_name")) }}' && '{{ old("bank_name") }}' === obj.data[key].uraian)
+                            selected = "selected";
+
+                        @if (isset($user) && isset($user->bank_name))
+                            if('{{ $user->bank_name }}' === obj.data[key].uraian){
+                                selected = "selected";
+                            }    
+                        @endif
+                            
+                        html += "<option value='" + obj.data[key].uraian + "' " + selected +">" + obj.data[key].uraian + "</option>"
+                            
+                    }
+    
+                    $("#bank_name").html(html)
+                       
+                    swal.close();
+                }).catch(function (error) {
+                    console.log(error)
+                    swal.close();
+                })
+    });
+</script>

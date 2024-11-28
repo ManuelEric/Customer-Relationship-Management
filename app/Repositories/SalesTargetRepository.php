@@ -31,7 +31,7 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
     {
         $userId = null;
         if (isset($filter['quuid'])) {
-            $user = User::where('uuid', $filter['quuid'])->first();
+            $user = User::where('id', $filter['quuid'])->first();
             $userId = $user->id;
         }
 
@@ -92,7 +92,7 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
     {
         $userId = null;
         if (isset($filter['quuid'])) {
-            $user = User::where('uuid', $filter['quuid'])->first();
+            $user = User::where('id', $filter['quuid'])->first();
             $userId = $user->id;
         }
 
@@ -156,40 +156,46 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
         return $mapping;
     }
    
-    public function getSalesDetailFromClientProgram(array $dateDetails, array $additionalFilter = [])
+    public function rnGetSalesDetailFromClientProgram(array $date_details, array $additional_filter = [])
     {
         
-        # array of additional filter is filled with [mainProg, progName, pic]
-        $mainProg = $additionalFilter['mainProg']; # filled with id main prog
-        $progName = $additionalFilter['progName']; # filled with id
-        $pic = $additionalFilter['pic']; # filled with id employee
+        # array of additional filter is filled with [main_prog_id, prog_id, pic]
+        $main_prog_id = $additional_filter['main_prog_id'];
+        $prog_id = $additional_filter['prog_id'];
+        $pic = $additional_filter['pic'];
 
         $userId = null;
-        if (isset($filter['quuid'])) {
-            $user = User::where('uuid', $filter['quuid'])->first();
-            $userId = $user->id;
-        }
 
-        // $usingProgramId = $programId ? true : false;
-        $usingFilterDate = count($dateDetails) > 0 ? true : false;
-        // $usingUuid = $userId ? true : false;
+        $usingFilterDate = count($date_details) > 0 ? true : false;
 
-        return ClientProgram::leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')->
+        // 1. condition for building query
+        $date_condition = 'AND q_cp.success_date between \'' .$date_details['start']. '\' AND \'' . $date_details['end'] . '\'';
+        $pic_condition = $pic ? 'AND empl_id = \''.$pic.'\'' : null;
+        
+        // 2. building query for select
+        $query_total_actual_participant = '(SELECT COUNT(*) FROM tbl_client_prog as q_cp WHERE q_cp.prog_id = cp_p.prog_id AND q_cp.status = 1 '.$date_condition.' '.$pic_condition.' )';
+
+        $query_total_actual_amount = '(SELECT SUM(q_i.inv_totalprice_idr) FROM tbl_client_prog as q_cp LEFT JOIN tbl_inv q_i ON q_i.clientprog_id = q_cp.clientprog_id WHERE q_cp.prog_id = cp_p.prog_id AND q_cp.status = 1 '.$date_condition.' '.$pic_condition.')';
+
+
+        return ClientProgram::query()->
+            leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')->
             leftJoin('tbl_prog as cp_p', 'cp_p.prog_id', '=', 'tbl_client_prog.prog_id')->
             leftJoin('tbl_main_prog as cp_mp', 'cp_mp.id', '=', 'cp_p.main_prog_id')->
-            when($usingFilterDate, function ($query) use ($dateDetails) {
-                $query->where(function ($q) use ($dateDetails) {
-                    $q->whereBetween('tbl_client_prog.success_date', [$dateDetails['startDate'], $dateDetails['endDate']]);
+            when($usingFilterDate, function ($query) use ($date_details) {
+                $query->where(function ($q) use ($date_details) {
+                    $q->whereBetween('tbl_client_prog.success_date', [$date_details['start'], $date_details['end']]);
                 });
             })->
-            when($mainProg, function ($query) use ($mainProg) {
-                $query->where('cp_mp.id', $mainProg);
+            when($main_prog_id, function ($query) use ($main_prog_id) {
+                $query->where('cp_mp.id', $main_prog_id);
             })->
-            when($progName, function ($query) use ($progName) {
-                $query->where('cp_p.prog_id', $progName);
+            when($prog_id, function ($query) use ($prog_id) {
+                $query->where('cp_p.prog_id', $prog_id);
             })-> 
             when($pic, function ($query) use ($pic) {
                 # check the client pic
+                // $query->where('empl_id', $pic);
                 $query->where(function ($sq_1) use ($pic) {
                     $sq_1->whereHas('client', function ($sq_2) use ($pic) {
                         $sq_2->whereHas('handledBy', function ($sq_3) use ($pic) {
@@ -200,11 +206,14 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
                     orWhere('empl_id', $pic);
                 });
             })->
+
+            
+
             select([
                 'cp_p.prog_id',
-                DB::raw('CONCAT(cp_mp.prog_name COLLATE utf8mb4_unicode_ci, ": ", cp_p.prog_program COLLATE utf8mb4_unicode_ci) as program_name_sales'),
-                DB::raw('(SELECT COUNT(*) FROM tbl_client_prog as q_cp WHERE q_cp.prog_id = cp_p.prog_id AND q_cp.status = 1 AND q_cp.success_date between \'' .$dateDetails['startDate']. '\' AND \'' . $dateDetails['endDate'] . '\') as total_actual_participant'),
-                DB::raw('(SELECT SUM(q_i.inv_totalprice_idr) FROM tbl_client_prog as q_cp LEFT JOIN tbl_inv q_i ON q_i.clientprog_id = q_cp.clientprog_id WHERE q_cp.prog_id = cp_p.prog_id AND q_cp.status = 1 AND q_cp.success_date between \'' . $dateDetails['startDate'] . '\' AND  \'' . $dateDetails['endDate'] . '\') as total_actual_amount'),
+                DB::raw('CONCAT(cp_mp.prog_name, ": ", cp_p.prog_program) as program_name_sales'),
+                DB::raw("{$query_total_actual_participant} as total_actual_participant"),
+                DB::raw("{$query_total_actual_amount} as total_actual_amount"),
             ])->groupBy('cp_p.prog_id', DB::raw('CONCAT(cp_mp.prog_name, ": ", cp_p.prog_program)'))->get();
     }
 
@@ -271,6 +280,6 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
 
     public function updateSalesTarget($salesTargetId, array $newSalesTargets)
     {
-        return SalesTarget::find($salesTargetId)->update($newSalesTargets);
+        return tap(SalesTarget::find($salesTargetId))->update($newSalesTargets);
     }
 }

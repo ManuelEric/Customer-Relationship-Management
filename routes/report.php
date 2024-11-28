@@ -1,9 +1,7 @@
 <?php
 
-use App\Http\Controllers\ClientEventController;
-use App\Http\Controllers\PartnerProgramController;
+use App\Http\Controllers\LeadTrackerController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\SalesTrackingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,29 +17,17 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::get('sales', [SalesTrackingController::class, 'index'])->name('report.sales.tracking');
+// Route::get('sales', [SalesTrackingController::class, 'index'])->name('report.sales.tracking');
+Route::get('sales', [ReportController::class, 'fnSalesTracking'])->name('report.sales.tracking');
 
-// Route::get('event', function () {
-//     return view('pages.report.event-tracking.index');
-// });
+Route::get('event', [ReportController::class, 'fnEventTracking'])->name('report.client.event');
 
-Route::get('event', [ReportController::class, 'event'])->name('report.client.event');
+Route::get('partnership', [ReportController::class, 'fnPartnershipReport'])->name('report.partnership');
 
+Route::get('invoice', [ReportController::class, 'fnInvoiceReceiptReport'])->name('report.invoice');
 
-// Route::get('invoice', function () {
-//     return view('pages.report.invoice.index');
-// });
+Route::get('unpaid', [ReportController::class, 'fnUnpaidPaymentReport'])->name('report.unpaid');
 
-// Route::get('partnership', function () {
-//     return view('pages.report.partnership.index');
-// });
+Route::get('program', [ReportController::class, 'fnProgramTracking'])->name('report.program.tracking');
 
-Route::get('partnership', [ReportController::class, 'partnership'])->name('report.partnership');
-
-Route::get('invoice', [ReportController::class, 'invoice_receipt'])->name('report.invoice');
-
-Route::get('unpaid', [ReportController::class, 'unpaid_payment'])->name('report.unpaid');
-
-// Route::get('unpaid', function () {
-//     return view('pages.report.unpaid-payment.index');
-// });
+Route::get('lead', [ReportController::class, 'fnLeadTracking'])->name('report.lead');

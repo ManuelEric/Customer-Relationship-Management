@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Tags\CreateTagAction;
+use App\Actions\Tags\DeleteTagAction;
+use App\Actions\Tags\UpdateTagAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreTagRequest;
 use App\Http\Traits\LoggingTrait;
 use App\Interfaces\TagRepositoryInterface;
+use App\Services\Log\LogService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -35,67 +40,59 @@ class TagController extends Controller
         return view('pages.master.university-tag.index');
     }
 
-    public function store(StoreTagRequest $request)
+    public function store(StoreTagRequest $request, CreateTagAction $createTagAction, LogService $log_service)
     {
-        $tag = $request->only([
+        $new_tag_details = $request->only([
             'name',
             'score',
         ]);
 
-        $tag['created_at'] = Carbon::now();
-        $tag['updated_at'] = Carbon::now();
-
         DB::beginTransaction();
         try {
 
-            $newTag = $this->tagRepository->createTag($tag);
+            $new_tag = $createTagAction->execute($new_tag_details);
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Create University Tags failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::STORE_TAG, $e->getMessage(), $e->getLine(), $e->getFile(), $new_tag_details);
 
-            // return $e->getMessage();
-            // exit;
             return Redirect::to('master/university-tags')->withError('Failed to create a new university tags');
         }
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'University Tag', Auth::user()->first_name . ' '. Auth::user()->last_name, $newTag);
-
+        $log_service->createSuccessLog(LogModule::STORE_TAG, 'New tag has been added', $new_tag->toArray());
 
         return Redirect::to('master/university-tags')->withSuccess('University tags successfully created');
     }
 
-    public function update(StoreTagRequest $request)
+    public function update(StoreTagRequest $request, UpdateTagAction $updateTagAction, LogService $log_service)
     {
-        $tag = $request->only([
+        $new_tag_details = $request->only([
             'name',
             'score',
         ]);
 
-        $tag['updated_at'] = Carbon::now();
-
-        $tagId = $request->route('university_tag');
-        $oldTag = $this->tagRepository->getTagById($tagId);
+        $tag_id = $request->route('university_tag');
 
         DB::beginTransaction();
         try {
 
-            $this->tagRepository->updateTag($tagId, $tag);
+            $updated_tag = $updateTagAction->execute($tag_id, $new_tag_details);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update university tags failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::UPDATE_TAG, $e->getMessage(), $e->getLine(), $e->getFile(), $new_tag_details);
+
             return Redirect::to('master/university-tags')->withError('Failed to update a university tags');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'University Tag', Auth::user()->first_name . ' '. Auth::user()->last_name, $tag, $oldTag);
+        $log_service->createSuccessLog(LogModule::UPDATE_TAG, 'Tag has been updated', $updated_tag->toArray());
 
         return Redirect::to('master/university-tags')->withSuccess('University tags successfully updated');
     }
@@ -104,33 +101,34 @@ class TagController extends Controller
     {
 
         if ($request->ajax()) {
-            $tagId = $request->route('university_tag');
-            $tag = $this->tagRepository->getTagById($tagId);
+            $tag_id = $request->route('university_tag');
+            $tag = $this->tagRepository->getTagById($tag_id);
 
             return response()->json(['tag' => $tag]);
         }
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteTagAction $deleteTagAction, LogService $log_service)
     {
-        $tagId = $request->route('university_tag');
-        $tag = $this->tagRepository->getTagById($tagId);
+        $tag_id = $request->route('university_tag');
+        $tag = $this->tagRepository->getTagById($tag_id);
 
         DB::beginTransaction();
         try {
 
-            $this->tagRepository->deleteTag($tagId);
+            $deleteTagAction->execute($tag_id);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete university tag failed : ' . $e->getMessage());
+            $log_service->createErrorLog(LogModule::DELETE_TAG, $e->getMessage(), $e->getLine(), $e->getFile(), $tag->toArray());
+
             return Redirect::to('master/university-tags')->withError('Failed to delete a university tags');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'University Tag', Auth::user()->first_name . ' '. Auth::user()->last_name, $tag);
+        $log_service->createSuccessLog(LogModule::DELETE_TAG, 'Tag has been deleted', $tag->toArray());
 
         return Redirect::to('master/university-tags')->withSuccess('University tags successfully deleted');
     }

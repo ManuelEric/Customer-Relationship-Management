@@ -110,7 +110,7 @@ class ClientEventController extends Controller
             ]
         ];
 
-        # secondly we need to add client information but it depends on their role (previously was register_as) 
+        # secondly we need to add client information but it depends on their role (previously was register_by) 
         # for example, if they are student then we will add student object, 
         # but when they are parent we will add the parent as well as the student.
         switch ($foundClientevent->client->roles->count() > 0) {

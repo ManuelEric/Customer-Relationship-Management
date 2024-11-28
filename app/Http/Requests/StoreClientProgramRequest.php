@@ -221,7 +221,8 @@ class StoreClientProgramRequest extends FormRequest
                     ],
                     'failed_date' => 'required',
                     'reason_id' => 'required_if:other_reason,null',
-                    'other_reason' => 'required_if:reason_id,=,null'
+                    'other_reason' => 'required_if:reason_id,=,null',
+                    'reason_notes' => 'nullable',
                 ];
                 break;
 
@@ -276,7 +277,8 @@ class StoreClientProgramRequest extends FormRequest
                     'refund_date' => 'required',
                     'refund_notes' => 'nullable',
                     'reason_id' => 'required_if:other_reason,null',
-                    'other_reason' => 'required_if:reason_id,=,null'
+                    'other_reason' => 'required_if:reason_id,=,null',
+                    'reason_notes' => 'nullable',
                 ];
                 break;
         }
@@ -424,6 +426,21 @@ class StoreClientProgramRequest extends FormRequest
                 'required',
                 // 'required_if:status,1',
                 // 'different:supervising_mentor,aplication_strategy_mentor,writing_mentor'
+            ],
+            'subject_specialist_mentor' => [
+                function ($attribute, $value, $fail) use ($studentId) {
+                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                        $q->where('role_name', 'Mentor');
+                    })->find($value)) {
+                        $fail('The submitted mentor was invalid mentor');
+                    }
+                    if (UserClient::whereHas('clientMentor', function($query) use ($value) {
+                        $query->where('users.id', $value);
+                    })->where('id', $studentId)->count() > 0) {
+                        $fail('The choosen backup mentor has already exist');
+                    }
+                },
+                'nullable'
             ],
             'aplication_strategy_mentor' => [
                 function ($attribute, $value, $fail) use ($studentId) {

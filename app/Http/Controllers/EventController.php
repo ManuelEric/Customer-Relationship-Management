@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Events\CreateEventAction;
+use App\Actions\Events\DeleteEventAction;
+use App\Actions\Events\UpdateEventAction;
+use App\Enum\LogModule;
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
@@ -15,15 +19,10 @@ use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\UniversityEventRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
-use App\Models\Agenda;
-use App\Models\Event;
-use App\Models\pivot\AgendaSpeaker;
+use App\Services\Log\LogService;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
@@ -67,21 +66,21 @@ class EventController extends Controller
 
     public function show(Request $request)
     {
-        $eventId = $request->route('event');
-        $event = $this->eventRepository->getEventById($eventId);
-        $eventPic = $event->eventPic->pluck('id')->toArray();
-        $employees = $this->userRepository->getAllUsersByRole('employee');
+        $event_id = $request->route('event');
+        $event = $this->eventRepository->getEventById($event_id);
+        $event_pic = $event->eventPic->pluck('id')->toArray();
+        $employees = $this->userRepository->rnGetAllUsersByRole('employee');
         # universities
         $universities = $this->universityRepository->getAllUniversities();
-        $universityEvent = $this->universityEventRepository->getUniversityByEventId($eventId);
+        $university_event = $this->universityEventRepository->getUniversityByEventId($event_id);
         # schools
         $schools = $this->schoolRepository->getAllSchools();
-        $schoolEvent = $this->schoolEventRepository->getSchoolByEventId($eventId);
+        $school_event = $this->schoolEventRepository->getSchoolByEventId($event_id);
         # corporate / partner
         $partners = $this->corporateRepository->getAllCorporate();
-        $partnerEvent = $this->corporatePartnerRepository->getPartnerByEventId($eventId);
+        $partner_event = $this->corporatePartnerRepository->getPartnerByEventId($event_id);
 
-        $eventSpeakers = $this->agendaSpeakerRepository->getAllSpeakerByEvent($eventId);
+        $event_speakers = $this->agendaSpeakerRepository->getAllSpeakerByEvent($event_id);
 
         # retrieve program data
         $programs = $this->programRepository->getAllPrograms();
@@ -89,23 +88,23 @@ class EventController extends Controller
         return view('pages.master.event.form')->with(
             [
                 'event' => $event,
-                'eventPic' => $eventPic,
+                'eventPic' => $event_pic,
                 'employees' => $employees,
                 'universities' => $universities,
-                'universityEvent' => $universityEvent,
+                'universityEvent' => $university_event,
                 'schools' => $schools,
-                'schoolEvent' => $schoolEvent,
+                'schoolEvent' => $school_event,
                 'partners' => $partners,
-                'partnerEvent' => $partnerEvent,
-                'eventSpeakers' => $eventSpeakers,
+                'partnerEvent' => $partner_event,
+                'eventSpeakers' => $event_speakers,
                 'programs' => $programs
             ]
         );
     }
 
-    public function store(StoreEventRequest $request)
+    public function store(StoreEventRequest $request, CreateEventAction $createEventAction, LogService $log_service)
     {
-        $eventDetails = $request->only([
+        $new_event_details = $request->safe()->only([
             'event_title',
             'event_description',
             'event_location',
@@ -116,49 +115,32 @@ class EventController extends Controller
             'type'
         ]);
 
-        $employee_id = $request->user_id;
-
-        $last_id = Event::max('event_id');
-        $event_id_without_label = $this->remove_primarykey_label($last_id, 4);
-        $event_id_with_label = 'EVT-' . $this->add_digit((int)$event_id_without_label + 1, 4);
-        $eventDetails['event_id'] = $event_id_with_label;
-        $fileName = null;
-
         DB::beginTransaction();
         try {
 
-            # upload banner 
-            if ($request->file('event_banner')) {
-                $fileName = time() . '-' . $event_id_with_label . '.' . $request->event_banner->extension();
-                $request->event_banner->storeAs(null, $fileName, 'uploaded_file_event');
-            }
-
-            $eventDetails['event_banner'] = $fileName;
-
-            $newEvent = $this->eventRepository->createEvent($eventDetails);
-
-            $this->eventRepository->addEventPic($event_id_with_label, $employee_id);
+            $new_event = $createEventAction->execute($request, $new_event_details);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store event failed : ' . $e->getMessage());
-            return Redirect::to('master/event/' . $event_id_with_label . '')->withError('Failed to create new event');
+            $log_service->createErrorLog(LogModule::STORE_EVENT, $e->getMessage(), $e->getLine(), $e->getFile(), $new_event_details);
+
+            return Redirect::to('master/event/')->withError('Failed to create new event');
         }
 
         # store Success
         # create log success
-        $this->logSuccess('store', 'Form Input', 'Event', Auth::user()->first_name . ' ' . Auth::user()->last_name, $newEvent);
+        $log_service->createSuccessLog(LogModule::STORE_EVENT, 'New event has been added', $new_event->toArray());
 
-        return Redirect::to('master/event/' . $event_id_with_label)->withSuccess('Event successfully created');
+        return Redirect::to('master/event/' . $new_event->event_id)->withSuccess('Event successfully created');
     }
 
     public function create()
     {
-        $partnership = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
-        $sales = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
-        $digital = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Digital');
+        $partnership = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Business Development');
+        $sales = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $digital = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Digital');
         $employees = $partnership->merge($sales)->merge($digital);
 
         # retrieve program data
@@ -173,9 +155,9 @@ class EventController extends Controller
         );
     }
 
-    public function update(StoreEventRequest $request)
+    public function update(StoreEventRequest $request, UpdateEventAction $updateEventAction, LogService $log_service)
     {
-        $newDetails = $request->only([
+        $new_event_details = $request->only([
             'event_title',
             'event_description',
             'event_location',
@@ -186,77 +168,50 @@ class EventController extends Controller
             'type'
         ]);
 
-        $eventId = $request->route('event');
-        $newPic = $request->user_id;
-
-        $oldEvent = $this->eventRepository->getEventById($eventId);
-
         DB::beginTransaction();
         try {
 
-            // return $request->all();
-
-            # check if the banner event is changed or not
-            // if (isset($request->change_banner) && $request->change_banner == "yes") {
-            if (isset($request->change_banner)) {
-
-                # get existing banner as a file
-                if ($existingBannerName = $request->old_event_banner) {
-                    $existingImagePath = storage_path('app/public/uploaded_file/events') . '/' . $existingBannerName;
-                    if (File::exists($existingImagePath))
-                        File::delete($existingImagePath);
-                }
-
-                # upload banner 
-                if ($request->file('event_banner')) {
-                    $fileName = time() . '-' . $eventId . '.' . $request->event_banner->extension();
-                    $request->event_banner->storeAs(null, $fileName, 'uploaded_file_event');
-                    $newDetails['event_banner'] = $fileName;
-                }
-            }
-
-            $this->eventRepository->updateEvent($eventId, $newDetails);
-
-            $this->eventRepository->updateEventPic($eventId, $newPic);
+            $updated_event = $updateEventAction->execute($request, $new_event_details);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update event failed : ' . $e->getMessage());
-            return Redirect::to('master/event/' . $eventId)->withError('Failed to update new event');
+            $log_service->createErrorLog(LogModule::UPDATE_EVENT, $e->getMessage(), $e->getLine(), $e->getFile(), $new_event_details);
+
+            return Redirect::to('master/event/' . $updated_event->event_id)->withError('Failed to update new event');
         }
 
         # Update success
         # create log success
-        $this->logSuccess('update', 'Form Input', 'Event', Auth::user()->first_name . ' ' . Auth::user()->last_name, $newDetails, $oldEvent);
+        $log_service->createSuccessLog(LogModule::UPDATE_EVENT, 'New event has been updated', $updated_event->toArray());
 
-        return Redirect::to('master/event/' . $eventId)->withSuccess('Event successfully updated');
+        return Redirect::to('master/event/' . $updated_event->event_id)->withSuccess('Event successfully updated');
     }
 
     public function edit(Request $request)
     {
 
-        $eventId = $request->route('event');
-        $event = $this->eventRepository->getEventById($eventId);
-        $eventPic = $event->eventPic->pluck('id')->toArray();
+        $event_id = $request->route('event');
+        $event = $this->eventRepository->getEventById($event_id);
+        $event_pic = $event->eventPic->pluck('id')->toArray();
 
-        $partnership = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
-        $sales = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
-        $digital = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Digital');
+        $partnership = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Business Development');
+        $sales = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $digital = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Digital');
         $employees = $partnership->merge($sales)->merge($digital);
 
         # universities
         $universities = $this->universityRepository->getAllUniversities();
-        $universityEvent = $this->universityEventRepository->getUniversityByEventId($eventId);
+        $university_event = $this->universityEventRepository->getUniversityByEventId($event_id);
         # schools
         $schools = $this->schoolRepository->getAllSchools();
-        $schoolEvent = $this->schoolEventRepository->getSchoolByEventId($eventId);
+        $school_event = $this->schoolEventRepository->getSchoolByEventId($event_id);
         # corporate / partner
         $partners = $this->corporateRepository->getAllCorporate();
-        $partnerEvent = $this->corporatePartnerRepository->getPartnerByEventId($eventId);
+        $partner_event = $this->corporatePartnerRepository->getPartnerByEventId($event_id);
 
-        $eventSpeakers = $this->agendaSpeakerRepository->getAllSpeakerByEvent($eventId);
+        $event_speakers = $this->agendaSpeakerRepository->getAllSpeakerByEvent($event_id);
 
         # retrieve program data
         $programs = $this->programRepository->getAllPrograms();
@@ -265,41 +220,44 @@ class EventController extends Controller
             [
                 'edit' => true,
                 'event' => $event,
-                'eventPic' => $eventPic,
+                'eventPic' => $event_pic,
                 'employees' => $employees,
                 'universities' => $universities,
-                'universityEvent' => $universityEvent,
+                'universityEvent' => $university_event,
                 'schools' => $schools,
-                'schoolEvent' => $schoolEvent,
+                'schoolEvent' => $school_event,
                 'partners' => $partners,
-                'partnerEvent' => $partnerEvent,
-                'eventSpeakers' => $eventSpeakers,
+                'partnerEvent' => $partner_event,
+                'eventSpeakers' => $event_speakers,
                 'programs' => $programs
             ]
         );
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteEventAction $deleteEventAction, LogService $log_service)
     {
-        $eventId = $request->route('event');
+        $event_id = $request->route('event');
 
-        $event = $this->eventRepository->getEventById($eventId);
+        $event = $this->eventRepository->getEventById($event_id);
 
         DB::beginTransaction();
         try {
 
-            $this->eventRepository->deleteEvent($eventId);
+            $deleteEventAction->execute($event_id);
+
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
+            $log_service->createErrorLog(LogModule::DELETE_EVENT, $e->getMessage(), $e->getLine(), $e->getFile(), $event->toArray());
+
             Log::error('Delete event failed : ' . $e->getMessage());
-            return Redirect::to('master/event/' . $eventId)->withError('Failed to delete event');
+            return Redirect::to('master/event/' . $event_id)->withError('Failed to delete event');
         }
 
         # Delete success
         # create log success
-        $this->logSuccess('delete', null, 'Event', Auth::user()->first_name . ' ' . Auth::user()->last_name, $event);
+        $log_service->createSuccessLog(LogModule::DELETE_EVENT, 'Event has been deleted', $event->toArray());
 
         return Redirect::to('master/event')->withSuccess('Event successfully deleted');
     }

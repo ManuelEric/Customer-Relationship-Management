@@ -6,17 +6,17 @@ namespace App\Models;
 
 use App\Events\MessageSent;
 use App\Models\pivot\AgendaSpeaker;
-use App\Models\pivot\AssetReturned;
 use App\Models\pivot\AssetUsed;
 use App\Models\pivot\UserRole;
 use App\Models\pivot\UserSubject;
 use App\Models\pivot\UserTypeDetail;
-use App\Observers\UserObserver;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
@@ -27,20 +27,26 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    protected $primaryKey = 'id';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'uuid',
-        'extended_id',
+        'number',
+        'id',
+        'nip',
         'first_name',
         'last_name',
         'address',
         'email',
         'phone',
-        'emergency_contact',
+        'emergency_contact_phone',
+        'emergency_contact_relation_name',
         'datebirth',
         'position_id',
         'password',
@@ -48,8 +54,9 @@ class User extends Authenticatable
         'nik',
         'idcard',
         'cv',
-        'bankname',
-        'bankacc',
+        'bank_name',
+        'account_name',
+        'account_no',
         'npwp',
         'tax',
         'active',
@@ -129,27 +136,13 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function scopeWithAndWhereHas($query, $relation, $constraint){
-        return $query->whereHas($relation, $constraint)
-                     ->with([$relation => $constraint]);
-    }
-
     public static function boot()
     {
         parent::boot();
 
         self::creating(function ($model) {
-            $model->uuid = (string) Str::uuid();
+            $model->id = (string) Str::uuid();
         });
-    }
-
-    public static function whereExtendedId($id)
-    {
-        if (is_array($id) && empty($id)) return new Collection();
-
-        $instance = new static;
-
-        return $instance->newQuery()->where('extended_id', $id)->first();
     }
 
     public static function whereFullName($name)
@@ -175,7 +168,85 @@ class User extends Authenticatable
         );
     }
 
-    # scope
+
+    /**
+     * The scopes.
+     * 
+     */
+    public function scopeActive(Builder $query): void
+    {
+        $query->where('active', 1);
+    }
+
+    public function scopeRole(Builder $query, String $role): void
+    {
+        $query->whereHas('roles', function ($sub) use ($role) {
+            $sub->where('role_name', 'like', '%'.$role);
+        });
+    }
+
+    public function scopeDepartment(Builder $query, String $department): void
+    {
+        $query->whereHas('department', function ($sub) use ($department) {
+            $sub->where('dept_name', 'like', '%'.$department.'%');
+        });
+    }
+
+    public function scopeTutor(Builder $query): void
+    {
+        $query->whereHas('roles', function ($sub) {
+            $sub->where('role_name', 'Tutor');
+        });
+    }
+
+    public function scopeEditor(Builder $query): void
+    {
+        $query->whereHas('roles', function ($sub) {
+            $sub->where('role_name', 'like', '%Editor');
+        });
+    }
+
+    public function scopeExternalMentor(Builder $query): void
+    {
+        $query->whereHas('roles', function ($sub) {
+            $sub->where('role_name', 'Mentor');
+        })->
+        whereDoesntHave('roles', function ($sub) {
+            $sub->where('role_name', 'Employee');
+        });
+    }
+
+    public function scopeInternship(Builder $query, Carbon $expected_end_date): void
+    {
+        $query->whereHas('user_type', function($sub) use ($expected_end_date) {
+            $sub->
+                where('tbl_user_type_detail.status', 1)-> # dimana status contractnya active
+                where('tbl_user_type_detail.end_date', $expected_end_date)-> # dimana end date nya sudah H-2 weeks
+                where('tbl_user_type.type_name', 'Internship');
+        });
+    }
+
+    public function scopePartTime(Builder $query, $expected_end_date): void
+    {
+        $query->whereHas('user_type', function($sub) use ($expected_end_date) {
+            $sub->
+                where('tbl_user_type_detail.status', 1)-> # dimana status contractnya active
+                where('tbl_user_type_detail.end_date', $expected_end_date)-> # dimana end date nya sudah H-2 weeks
+                where('tbl_user_type.type_name', 'Part-Time');
+        });
+    }
+
+
+    public function scopeIsActive(Builder $query): void
+    {
+        $query->where('active', 1);
+    }
+
+    public function scopeWithAndWhereHas($query, $relation, $constraint){
+        return $query->whereHas($relation, $constraint)
+                     ->with([$relation => $constraint]);
+    }
+
     public function scopeIsAdminSales($query)
     {
         return $query->whereHas('roles', function ($subQuery) {
@@ -210,23 +281,16 @@ class User extends Authenticatable
 
     public function scopeHasDepartment($query, $department)
     {
-        return $query->whereHas('department', function ($subQuery) {
-            $subQuery->where('tbl_user_type_detail.status', 1);
-        })->exists();
+        return $this->belongsToMany(Role::class, 'tbl_user_roles', 'user_id', 'role_id')->using(UserRole::class)->withTimestamps()->withPivot('id', 'user_id', 'role_id', 'extended_id');
     }
 
-    # relation
+
+    /**
+     * The relations.
+     */
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'tbl_user_roles', 'user_id', 'role_id')->using(UserRole::class)->withPivot(
-            [
-                'id',
-                'extended_id',
-                'tutor_subject',
-                'feehours',
-                'feesession'
-            ]
-        )->withTimestamps();
+        return $this->belongsToMany(Role::class, 'tbl_user_roles', 'user_id', 'role_id')->using(UserRole::class)->withTimestamps()->withPivot('id', 'user_id', 'role_id');
     }
 
     public function department()
@@ -274,7 +338,6 @@ class User extends Authenticatable
                 'condition',
             ]
         );
-        // return $this->belongsToMany(Asset::class, 'tbl_asset_used', 'user_id', 'asset_id');
     }
 
     public function edufairReview()
@@ -321,7 +384,7 @@ class User extends Authenticatable
 
     public function user_subjects()
     {
-        return $this->hasManyThrough(UserSubject::class, UserRole::class, 'user_id', 'user_role_id', 'id', 'id');  
+        return $this->hasManyThrough(UserSubject::class, UserRole::class, 'user_id', 'user_role_id', 'id', 'id');
     }
 
     # applied when user from sales department

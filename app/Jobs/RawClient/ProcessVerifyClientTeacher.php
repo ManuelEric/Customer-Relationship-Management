@@ -21,15 +21,17 @@ class ProcessVerifyClientTeacher implements ShouldQueue
 
     protected ClientRepositoryInterface $clientRepository;
     protected $clientIds;
+    protected $is_many_request;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($clients)
+    public function __construct($clients, $is_many_request = false)
     {
         $this->clientIds = $clients;
+        $this->is_many_request = $is_many_request;
     }
 
     /**
@@ -51,7 +53,7 @@ class ProcessVerifyClientTeacher implements ShouldQueue
                 if($teacher->mail != null && $teacher->phone != null && isset($teacher->school) && !preg_match('/[^\x{80}-\x{F7} a-z0-9@_.\'-]/iu', $teacher->full_name)){
                     if($teacher->school->is_verified == 'Y'){
                         Log::debug(['client_id' => $teacher->id, 'is_verified' => true]);
-                        $clientRepository->updateClient($teacher->id, ['is_verified' => 'Y']);
+                        $clientRepository->updateClient($teacher->id, ['is_verified' => 'Y', 'is_many_request' => true]);
                     }
                 }
             }

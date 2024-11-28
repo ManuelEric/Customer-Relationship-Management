@@ -214,7 +214,7 @@
                                     @error('purchase_attachment')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
-                                    @if (isset($purchaseRequest->purchase_attachment))
+                                    @if (isset($purchaseRequest->purchase_attachment) && !$edit)
                                         <small class="text-info fw-light">
                                             {{-- <a href="{{ public_path('storage/uploaded_file/finance/').$purchaseRequest->purchase_attachment }}">Download file</a> --}}
                                             <a

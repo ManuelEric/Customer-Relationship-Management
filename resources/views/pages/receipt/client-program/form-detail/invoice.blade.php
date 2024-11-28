@@ -7,7 +7,7 @@
             </h6>
         </div>
         <div class="">
-            <a href="{{ Request::get('b') ? route('invoice.program.show_bundle', ['bundle' => $receipt->invoiceProgram->bundling_id]) : route('invoice.program.show', ['client_program' => $receipt->invoiceProgram->clientprog->clientprog_id]) }}">
+            <a href="{{ Request::get('b') ? route('invoice.client-program.show_bundle', ['bundle' => $receipt->invoiceProgram->bundling_id]) : route('invoice.program.show', ['client_program' => $receipt->invoiceProgram->clientprog->clientprog_id]) }}">
                 <button class="btn btn-sm btn-outline-warning py-1">
                     <i class="bi bi-eye"></i> View Invoice
                 </button>

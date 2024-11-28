@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Interfaces\TagRepositoryInterface;
+use App\Models\MasterCountry;
 use App\Models\Tag;
 use DataTables;
 
@@ -11,6 +12,11 @@ class TagRepository implements TagRepositoryInterface
     public function getAllTagsDataTables()
     {
         return Datatables::eloquent(Tag::query())->make(true);
+    }
+
+    public function getAllCountries()
+    {
+        return MasterCountry::all();
     }
 
     public function getAllTags()
@@ -28,9 +34,9 @@ class TagRepository implements TagRepositoryInterface
         return Tag::where('name', 'like', '%'.$tagName.'%')->first();
     }
 
-    public function createTag(array $tags)
+    public function createTag(array $tag)
     {
-        return Tag::insert($tags);
+        return Tag::create($tag);
     }
 
     public function deleteTag($tagId)
@@ -38,8 +44,8 @@ class TagRepository implements TagRepositoryInterface
         return Tag::destroy($tagId);
     }
 
-    public function updateTag($tagId, array $tags)
+    public function updateTag($tagId, array $tag)
     {
-        return Tag::find($tagId)->update($tags);
+        return tap(Tag::find($tagId))->update($tag);
     }
 }

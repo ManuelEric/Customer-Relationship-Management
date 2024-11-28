@@ -66,7 +66,7 @@ class EventRepository implements EventRepositoryInterface
 
     public function updateEvent($eventId, array $newDetails)
     {
-        return Event::whereEventId($eventId)->update($newDetails);
+        return tap(Event::whereEventId($eventId))->update($newDetails);
     }
 
     public function addEventPic($eventId, $employeeId)

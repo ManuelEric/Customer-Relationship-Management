@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\ProgramCollaborators\CreateProgramCollaboratorAction;
+use App\Actions\ProgramCollaborators\DeleteProgramCollaboratorAction;
+use App\Enum\LogModule;
 use App\Interfaces\SchoolProgramCollaboratorsRepositoryInterface;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
 class SchoolProgramCollaboratorsController extends Controller
@@ -19,89 +22,59 @@ class SchoolProgramCollaboratorsController extends Controller
         $this->schoolProgramCollaboratorsRepository = $schoolProgramCollaboratorsRepository;
     }
 
-    public function store(Request $request)
+    public function store(Request $request, CreateProgramCollaboratorAction $createProgramCollaboratorAction, LogService $log_service)
     {
-        $schoolId = $request->route('school');
+        $school_id = $request->route('school');
         $schoolprog_id = $request->route('sch_prog');
         $collaborators = $request->route('collaborators');
 
         DB::beginTransaction();
         try {
 
-            switch ($collaborators) {
-
-                case "school":
-                    $choosen_school = $request->sch_id; # single data
-                    $response = $this->schoolProgramCollaboratorsRepository->storeSchoolCollaborators($schoolprog_id, $choosen_school);
-                    $added_collaborators = ucwords(strtolower($response->sch_name));
-                    break;
-
-                case "university":
-                    $choosen_univ = $request->univ_id;
-                    $response = $this->schoolProgramCollaboratorsRepository->storeUnivCollaborators($schoolprog_id, $choosen_univ);
-                    $added_collaborators = ucwords(strtolower($response->univ_name));
-                    break;
-
-                case "partner":
-                    $choosen_partner = $request->corp_id;
-                    $response = $this->schoolProgramCollaboratorsRepository->storePartnerCollaborators($schoolprog_id, $choosen_partner);
-                    $added_collaborators = ucwords(strtolower($response->corp_name));
-                    break;
-
-            }
+           $added_collaborators = $createProgramCollaboratorAction->execute($request, $collaborators, $schoolprog_id, $this->schoolProgramCollaboratorsRepository);
 
             DB::commit();
 
         } catch (Exception $e) {
             
             DB::rollBack();
-            Log::error("Failed to store ".$collaborators." collaborators from school program caused by ". $e->getMessage().' | Line '.$e->getLine());
+
+            $log_service->createErrorLog(LogModule::STORE_SCHOOL_PROGRAM_COLLABORATOR, $e->getMessage(), $e->getLine(), $e->getFile(), $request->all());
             return Redirect::back()->withError('Failed to store '.$collaborators.' collaborators. Please try again.');
 
         }
 
-        return Redirect::to('program/school/'.$schoolId.'/detail/'.$schoolprog_id)->withSuccess($added_collaborators.' has been added as collaborator.');
+        $log_service->createSuccessLog(LogModule::STORE_SCHOOL_PROGRAM_COLLABORATOR, 'New school program collaborator has been added', $added_collaborators);
+
+        return Redirect::to('program/school/'.$school_id.'/detail/'.$schoolprog_id)->withSuccess($added_collaborators.' has been added as collaborator.');
     
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, DeleteProgramCollaboratorAction $deleteProgramCollaboratorAction, LogService $log_service)
     {
-        $schId = $request->route('school');
+        $sch_id = $request->route('school');
         $schprog_id = $request->route('sch_prog'); # same as corp prog id
         $collaborators = $request->route('collaborators');
-        $collaboratorsId = $request->route('collaborators_id');
+        $collaborators_id = $request->route('collaborators_id');
 
         DB::beginTransaction();
         try {
 
-            switch ($collaborators) {
-
-                case "school":
-                    $response = $this->schoolProgramCollaboratorsRepository->deleteSchoolCollaborators($schprog_id, $collaboratorsId);
-                    $removed_collaborators = ucwords(strtolower($response->sch_name));
-                    break;
-
-                case "university":
-                    $response = $this->schoolProgramCollaboratorsRepository->deleteUnivCollaborators($schprog_id, $collaboratorsId);
-                    $removed_collaborators = ucwords(strtolower($response->univ_name));
-                    break;
-
-                case "partner":
-                    $response = $this->schoolProgramCollaboratorsRepository->deletePartnerCollaborators($schprog_id, $collaboratorsId);
-                    $removed_collaborators = ucwords(strtolower($response->corp_name));
-                    break;
-
-            }
+            $removed_collaborators = $deleteProgramCollaboratorAction->execute($collaborators, $collaborators_id, $schprog_id, $this->schoolProgramCollaboratorsRepository);
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error("Failed to remove ".$collaborators." collaborators from school program caused by ". $e->getMessage().' | Line '.$e->getLine());
+
+            $log_service->createErrorLog(LogModule::DELETE_SCHOOL_PROGRAM_COLLABORATOR, $e->getMessage(), $e->getLine(), $e->getFile(), $removed_collaborators);
+
             return Redirect::back()->withError('Failed to delete '.$collaborators.' collaborators. Please try again.');
 
         }
 
-        return Redirect::to('program/school/'.$schId.'/detail/'.$schprog_id)->withSuccess($removed_collaborators.' has been removed as collaborator.');
+        $log_service->createSuccessLog(LogModule::DELETE_SCHOOL_PROGRAM_COLLABORATOR, 'School program collaborator has been deleted', $removed_collaborators);
+
+        return Redirect::to('program/school/'.$sch_id.'/detail/'.$schprog_id)->withSuccess($removed_collaborators.' has been removed as collaborator.');
     }
 }

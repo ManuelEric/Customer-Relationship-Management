@@ -20,6 +20,7 @@ use App\Models\ViewClientProgram;
 use App\Models\ViewClientRefCode;
 use App\Models\ViewProgram;
 use DataTables;
+use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
@@ -206,13 +207,17 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         break;
 
                     case "All-In Event":
-                        $event_title = $clientProgram->clientEvent->event->title;
+                        $event_title = isset($clientProgram->clientEvent) ? $clientProgram->clientEvent->event->title : '';
                         $conv_lead = "EduALL Event - {$event_title}";
                         break;
 
                     case "All-In Partners":
-                        $partner_name = $clientProgram->partner->corp_name;
-                        $conv_lead = "EduALL Partners - {$partner_name}";
+                        $conv_lead = "EduALL Partners";
+                        if (isset($clientProgram->partner)) {
+                            $partner_name = $clientProgram->partner->corp_name;
+                            $conv_lead = "EduALL Partners - {$partner_name}";
+                        }
+
                         break;
 
                     default:
@@ -230,11 +235,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             })->
             filterColumn('conversion_lead', function ($query, $keyword) {
                 $sql = "(CASE 
-                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'KOL' THEN CONCAT('KOL - ', cpl.sub_lead COLLATE utf8mb4_unicode_ci)
-                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'External Edufair' THEN CONCAT('External Edufair - ', edl.title COLLATE utf8mb4_unicode_ci)
-                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'EduALL Event' THEN CONCAT('All-In Event - ', e.event_title COLLATE utf8mb4_unicode_ci)
-                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = 'EduALL Partners' THEN CONCAT('All-In Partner - ', corp.corp_name COLLATE utf8mb4_unicode_ci)
-                            ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
+                            WHEN cpl.main_lead = 'KOL' THEN CONCAT('KOL - ', cpl.sub_lead)
+                            WHEN cpl.main_lead = 'External Edufair' THEN CONCAT('External Edufair - ', edl.title)
+                            WHEN cpl.main_lead = 'EduALL Event' THEN CONCAT('All-In Event - ', e.event_title)
+                            WHEN cpl.main_lead = 'EduALL Partners' THEN CONCAT('All-In Partner - ', corp.corp_name)
+                            ELSE cpl.main_lead
                         END) like ?";
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             })->
@@ -318,7 +323,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             }
         }
 
-        $model = ClientProgram::leftJoin('client as c', 'c.id', '=', 'tbl_client_prog.client_id')->
+        //! note that this data will display without the client that has been deleted 
+        $model = ClientProgram::has('cleanClient')->
+                    leftJoin('client as c', 'c.id', '=', 'tbl_client_prog.client_id')->
                     leftJoin('tbl_sch as sch', 'sch.sch_id', '=', 'c.sch_id')->
                     leftJoin('tbl_lead as cl', 'cl.lead_id', '=', 'c.lead_id')->
                     leftJoin('tbl_eduf_lead as cedl', 'cedl.id', '=', 'c.eduf_id')->
@@ -334,6 +341,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     leftJoin('tbl_reason as r', 'r.reason_id', '=', 'tbl_client_prog.reason_id')->
                     leftJoin('users as u', 'u.id', '=', 'tbl_client_prog.empl_id')->
                     leftJoin('eduf_lead as vedl', 'vedl.id', '=', 'edl.id')->
+                    leftJoin('tbl_client as cref', 'cref.secondary_id', '=', 'tbl_client_prog.referral_code')->
                     select([
                         'c.id as client_id', 
                         'tbl_client_prog.clientprog_id', 
@@ -347,7 +355,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         'sch.sch_name AS school_name',
                         'c.grade_now AS grade_now',
                         'p.program_name AS program_names',
-                        'c.register_as AS register_as',
+                        'c.register_by AS register_by',
                         DB::raw("CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, '')) AS parent_fullname"),
                         'parent.phone as parent_phone',
                         'parent.mail as parent_mail',
@@ -357,11 +365,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         'tbl_client_prog.prog_end_date',
                         'c.lead_source',
                         DB::raw('(CASE 
-                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead COLLATE utf8mb4_unicode_ci)
-                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "External Edufair" THEN (CASE WHEN tbl_client_prog.eduf_lead_id is not null THEN vedl.organizer_name ELSE "External Edufair" END) 
-                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title COLLATE utf8mb4_unicode_ci)
-                                    WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name COLLATE utf8mb4_unicode_ci)
-                                    ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
+                                    WHEN cpl.main_lead = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead)
+                                    WHEN cpl.main_lead = "External Edufair" THEN (CASE WHEN tbl_client_prog.eduf_lead_id is not null THEN vedl.organizer_name ELSE "External Edufair" END) 
+                                    WHEN cpl.main_lead = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title)
+                                    WHEN cpl.main_lead = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name)
+                                    ELSE cpl.main_lead
                                 END) AS conversion_lead_view'),
                         'tbl_client_prog.status',
                         'tbl_client_prog.prog_running_status',
@@ -373,17 +381,16 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         'tbl_client_prog.failed_date',
                         'tbl_client_prog.success_date',
                         'tbl_client_prog.created_at',
+                        DB::raw('CONCAT (cref.first_name, " ", COALESCE(cref.last_name, "")) AS referral_name')
                     ]);
-
-                    if(!$asDatatables){
-                        return $model;
-                    }
                     
                     $model->
                     when(Session::get('user_role') == 'Employee', function ($subQuery) {
                         $subQuery->whereHas('internalPic', function ($query2) {
                             $query2->where('users.id', auth()->user()->id);
-                        })->orWhere('pic_client', auth()->user()->id);
+                        })->orWhereHas('handledBy', function ($subQuery2){
+                            $subQuery2->where('user_id', auth()->user()->id);
+                        });
                     })->
                     when($searchQuery['clientId'], function ($query) use ($searchQuery) {
                         $query->where('client_id', $searchQuery['clientId']);
@@ -471,16 +478,16 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     # search by pic uuid
                     ->when(isset($searchQuery['emplUUID']) && count($searchQuery['emplUUID']) > 0, function ($query) use ($searchQuery) {
                         $query->whereHas('internalPic', function ($query2) use ($searchQuery) {
-                            $query2->whereIn('users.uuid', $searchQuery['emplUUID']);
+                            $query2->whereIn('users.id', $searchQuery['emplUUID']);
                         });
-                    });
+                    })
+                    ->groupBy('tbl_client_prog.clientprog_id');
+
+        if ($asDatatables === false)
+            return $model->get(); 
 
         return Datatables::eloquent($model)->
             rawColumns(['strip_tag_notes'])->
-            addColumn('referral_name', function ($query) {
-                $referral = ViewClientRefCode::where('id', (int) filter_var($query->referral_code, FILTER_SANITIZE_NUMBER_INT))->first();
-                return isset($referral) ? $referral->full_name : '';
-            })->
             addColumn('custom_clientprog_id', function ($query) {
                 return 'CP-' . $query->clientprog_id;
             })->
@@ -530,15 +537,18 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             })->filterColumn('conversion_lead_view', function ($query, $keyword) {
                 $sql = '(CASE 
-                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead COLLATE utf8mb4_unicode_ci)
-                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "External Edufair" THEN (CASE WHEN tbl_client_prog.eduf_lead_id is not null THEN vedl.organizer_name ELSE "External Edufair" END) 
-                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title COLLATE utf8mb4_unicode_ci)
-                            WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name COLLATE utf8mb4_unicode_ci)
-                        ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
+                            WHEN cpl.main_lead = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead)
+                            WHEN cpl.main_lead = "External Edufair" THEN (CASE WHEN tbl_client_prog.eduf_lead_id is not null THEN vedl.organizer_name ELSE "External Edufair" END) 
+                            WHEN cpl.main_lead = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title)
+                            WHEN cpl.main_lead = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name)
+                        ELSE cpl.main_lead
                         END) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             })->filterColumn('pic_name', function ($query, $keyword) {
                 $sql = 'CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) like ?';
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->filterColumn('referral_name', function ($query, $keyword) {
+                $sql = 'CONCAT (cref.first_name, " ", COALESCE(cref.last_name, "")) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             })
             ->make(true);
@@ -575,7 +585,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 })->whereHas('department', function ($query) use ($department) {
                     $query->where('dept_name', 'like', '%'.$department.'%');
                 })->where('active', 1)
-                ->select(DB::raw('id as empl_id'), DB::raw('CONCAT(users.first_name, " ", COALESCE(users.last_name, "")) as pic_name'), 'uuid')
+                ->select(DB::raw('id as empl_id'), DB::raw('CONCAT(users.first_name, " ", COALESCE(users.last_name, "")) as pic_name'), 'id')
                 ->orderBy('first_name', 'asc')->orderBy('last_name', 'asc')->get();
     }
 
@@ -653,6 +663,15 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 // $status = (strtotime($clientProgramDetails['prog_end_date']) < strtotime(date('Y-m-d'))) ? 0 : 1; # status mentoring [0: inactive, 1: active]
                 $status = 1;
                 $clientProgram->clientMentor()->attach($clientProgramDetails['profile_building_mentor'], ['type' => 2, 'status' => $status]);
+            }
+
+            if (isset($clientProgramDetails['subject_specialist_mentor'])) {
+
+                # if program end date was less than today 
+                # then put status into 0 else 1
+                // $status = (strtotime($clientProgramDetails['prog_end_date']) < strtotime(date('Y-m-d'))) ? 0 : 1; # status mentoring [0: inactive, 1: active]
+                $status = 1;
+                $clientProgram->clientMentor()->attach($clientProgramDetails['subject_specialist_mentor'], ['type' => 6, 'status' => $status]);
             }
 
             if (isset($clientProgramDetails['aplication_strategy_mentor'])) {
@@ -759,7 +778,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 'eduf_lead_id'              => null,
                 'partner_id'                => null,
                 'first_discuss_date'        => null,
-                'meeting_notes'             => null,
+                // 'meeting_notes'             => null,
                 'status'                    => null,
                 'empl_id'                   => null,
                 'initconsult_date'          => null,
@@ -783,6 +802,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 'failed_date'               => null,
                 'reason_id'                 => null,
                 'refund_date'               => null,
+                'reason_notes'              => null,
             ];
         }
 
@@ -797,6 +817,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
                 $additionalDetails['profile_building_mentor'] =  $clientProgramDetails['profile_building_mentor'];
             }
+
+            if (isset($clientProgramDetails['subject_specialist_mentor'])) {
+
+                $additionalDetails['subject_specialist_mentor'] =  $clientProgramDetails['subject_specialist_mentor'];
+            }
             
             if (isset($clientProgramDetails['aplication_strategy_mentor'])) {
 
@@ -810,6 +835,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
             unset($clientProgramDetails['supervising_mentor']);
             unset($clientProgramDetails['profile_building_mentor']);
+            unset($clientProgramDetails['subject_specialist_mentor']);
             unset($clientProgramDetails['aplication_strategy_mentor']);
             unset($clientProgramDetails['writing_mentor']);
         }
@@ -868,8 +894,8 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             unset($clientProgramDetails['session_tutor_detail']);
         }
 
-        $clientProgram = ClientProgram::where('clientprog_id', $clientProgramId)->update(array_merge($fullDetails, $clientProgramDetails));
         $clientProgram = ClientProgram::whereClientProgramId($clientProgramId);
+        $clientProgram->update(array_merge($fullDetails, $clientProgramDetails));
 
         # delete the client mentor when status client program changed to pending
         if ($clientProgram->status == 0 && $clientProgram->clientMentor()->count() > 0) {
@@ -881,7 +907,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         # when supervising_mentor and profile_building_mentor is filled which is not null
         # then assumed the user want to input "admission mentoring" program
         # do attach main mentor and backup mentor as client mentor
-        if (array_key_exists('supervising_mentor', $additionalDetails) || array_key_exists('profile_building_mentor', $additionalDetails) || array_key_exists('aplication_strategy_mentor', $additionalDetails) || array_key_exists('writing_mentor', $additionalDetails)) {
+        if (array_key_exists('supervising_mentor', $additionalDetails) || array_key_exists('profile_building_mentor', $additionalDetails) || array_key_exists('subject_specialist_mentor', $additionalDetails) || array_key_exists('aplication_strategy_mentor', $additionalDetails) || array_key_exists('writing_mentor', $additionalDetails)) {
             $mentorInfo = [];
 
             # if program end date was less than today 
@@ -891,21 +917,34 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $mentorInfo[]=[
                     'user_id' => $additionalDetails['supervising_mentor'],
                     'type' => 1,
+                    'status' => $status,
                 ];
-
+                $clientProgram->clientMentor()->updateExistingPivot($additionalDetails['supervising_mentor'], ['type' => 1, 'status' => $status]); # Supervising mentor
             }
 
             if (array_key_exists('profile_building_mentor', $additionalDetails)) {
                 $mentorInfo[]=[
                     'user_id' => $additionalDetails['profile_building_mentor'],
                     'type' => 2,
+                    'status' => $status,
                 ];
+                $clientProgram->clientMentor()->updateExistingPivot($additionalDetails['profile_building_mentor'], ['type' => 2, 'status' => $status]); # Profile Building Mentor
+            }
+
+            if (array_key_exists('subject_specialist_mentor', $additionalDetails)) {
+                $mentorInfo[]=[
+                    'user_id' => $additionalDetails['subject_specialist_mentor'],
+                    'type' => 6,
+                    'status' => $status,
+                ];
+                $clientProgram->clientMentor()->updateExistingPivot($additionalDetails['subject_specialist_mentor'], ['type' => 6, 'status' => $status]); # Subject specialist mentor
             }
 
             if (array_key_exists('aplication_strategy_mentor', $additionalDetails)) {
                 $mentorInfo[]=[
                     'user_id' => $additionalDetails['aplication_strategy_mentor'],
                     'type' => 3,
+                    'status' => $status,
                 ];
                 $clientProgram->clientMentor()->updateExistingPivot($additionalDetails['aplication_strategy_mentor'], ['type' => 3, 'status' => $status]); # Aplication strategy mentor
             }
@@ -914,12 +953,14 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $mentorInfo[]=[
                     'user_id' => $additionalDetails['writing_mentor'],
                     'type' => 4,
+                    'status' => $status,
                 ];
                 $clientProgram->clientMentor()->updateExistingPivot($additionalDetails['writing_mentor'], ['type' => 4, 'status' => $status]); # Writing mentor
             }
 
-            if(count($mentorInfo) > 0)
+            if(count($mentorInfo) > 0){
                 $clientProgram->clientMentor()->sync($mentorInfo, ['status' => $status]);
+            }
         }
 
         # when tutor id is filled which is not null
@@ -1001,6 +1042,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         return $clientProgram;
     }
 
+    public function updateClientPrograms($clientprogram_ids, array $clientprogram_details)
+    {
+        return ClientProgram::whereIn('clientprog_id', $clientprogram_ids)->update($clientprogram_details);
+    }
+
     public function updateFewField(int $clientprog_id, array $newCDetails)
     {
         return ClientProgram::whereClientProgramId($clientprog_id)->update($newCDetails);
@@ -1023,7 +1069,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
     private function getStatusId($status)
     {
-        switch ($status) {
+        switch (ucfirst($status)) {
 
             case "Pending":
                 $statusId = 0;
@@ -1045,6 +1091,44 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     }
 
     # sales tracking
+    public function rnSummarySalesTracking(array $date_details, array $additional_filter = []): Array
+    {
+        $status = ['pending', 'failed', 'refund', 'success'];
+        for ($i = 0 ; $i < 4 ; $i++)
+        {
+            $searched_column = $this->getSearchedColumn($status[$i]);        
+            $statusId = $this->getStatusId($status[$i]);
+            $query = ClientProgram::has('cleanClient')->
+                    where('status', $statusId)->
+                    whereBetween($searched_column, [$date_details['start'], $date_details['end']])->
+                    when($additional_filter['main_prog_id'], function ($sub) use ($additional_filter) {
+                        $sub->whereHas('program.main_prog', function ($sub) use ($additional_filter) {
+                            $sub->where('id', $additional_filter['main_prog_id']);
+                        });
+                    })->
+                    when($additional_filter['prog_id'], function ($sub) use ($additional_filter) {
+                        $sub->where('prog_id', $additional_filter['prog_id']);
+                    })->
+                    when($additional_filter['pic'], function ($sub) use ($additional_filter) {
+                        $sub->where('empl_id', $additional_filter['pic']);
+                    })->get();
+            
+            $no = 0;
+            $mapped = [];
+            foreach ($query as $item) {
+                $mapped[$item->program->main_prog->prog_name][$item->program->prog_program][$item->program->prog_id][] = $no++;
+            }
+
+            $report['data'][$status[$i]] = $mapped;
+            $report['count'][$status[$i]] = $query->count();
+        }
+        
+        # the function above will produce these kind of array
+        # ["data"] => ["pending" => [], "failed" => [], "refund" => [], "success" => []]
+        # ["count"] => ["pending" => 0, "failed" => 0, "refund" => 0, "success" => 0]
+        return $report;
+    }
+
     public function getCountProgramByStatus($status, array $dateDetails, array $additionalFilter = [])
     {
         # array of additional filter is filled with [mainProg, progName, pic]
@@ -1067,16 +1151,17 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $query->where('prog_id', $progName);
             })->
             when($pic, function ($query) use ($pic) {
+                $query->where('empl_id', $pic);
                 # check the client pic
-                $query->where(function ($sq_1) use ($pic) {
-                    $sq_1->whereHas('client', function ($sq_2) use ($pic) {
-                        $sq_2->whereHas('handledBy', function ($sq_3) use ($pic) {
-                            $sq_3->where('users.id', $pic);
-                        });
-                    })->
-                    # and check the pic client program
-                    orWhere('empl_id', $pic);
-                });
+                // $query->where(function ($sq_1) use ($pic) {
+                //     $sq_1->whereHas('client', function ($sq_2) use ($pic) {
+                //         $sq_2->whereHas('handledBy', function ($sq_3) use ($pic) {
+                //             $sq_3->where('users.id', $pic);
+                //         });
+                //     })->
+                //     # and check the pic client program
+                //     orWhere('empl_id', $pic);
+                // });
             })->
             count();
     }
@@ -1105,16 +1190,18 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $query->where('prog_id', $progName);
             })->
             when($pic, function ($query) use ($pic) {
+                $query->where('empl_id', $pic);
                 # check the client pic
-                $query->where(function ($sq_1) use ($pic) {
-                    $sq_1->whereHas('client', function ($sq_2) use ($pic) {
-                        $sq_2->whereHas('handledBy', function ($sq_3) use ($pic) {
-                            $sq_3->where('users.id', $pic);
-                        });
-                    })->
-                    # and check the pic client program
-                    orWhere('empl_id', $pic);
-                });
+                // $query->where(function ($sq_1) use ($pic) {
+                //     $sq_1->whereHas('client', function ($sq_2) use ($pic) {
+                //         $sq_2->whereHas('handledBy', function ($sq_3) use ($pic) {
+                //             $sq_3->where('users.id', $pic);
+                //         });
+                //     })->
+                //     # and check the pic client program
+                //     orWhere('empl_id', $pic);
+                // });
+
             })->
             get();
 
@@ -1127,18 +1214,18 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         return $data;
     }
 
-    public function getInitAssessmentProgress($dateDetails, $additionalFilter = []) # startDate, endDate
+    public function rnGetInitAssessmentProgress(array $date_details, array $additionalFilter = []) # startDate, endDate
     {
-        # array of additional filter is filled with [mainProg, progName, pic]
-        $mainProg = $additionalFilter['mainProg']; # filled with id main prog
-        $progName = $additionalFilter['progName']; # filled with id
-        $pic = $additionalFilter['pic']; # filled with id employee
+        # array of additional filter is filled with [main_prog_id, prog_id, pic]
+        $main_prog_id = $additionalFilter['main_prog_id'];
+        $prog_id = $additionalFilter['prog_id'];
+        $pic = $additionalFilter['pic'];
 
         $IC_query = "SELECT COUNT(*) FROM tbl_client_prog scp 
                 LEFT JOIN tbl_client c ON c.id = scp.client_id
                 LEFT JOIN tbl_pic_client pc ON pc.client_id = c.id
                 WHERE scp.prog_id = tbl_client_prog.prog_id
-                AND scp.created_at BETWEEN '".$dateDetails['startDate']."' AND '".$dateDetails['endDate']."'
+                AND scp.created_at BETWEEN '".$date_details['start']."' AND '".$date_details['end']."'
                 AND (CASE 
                     WHEN scp.initconsult_date IS NOT NULL THEN scp.initconsult_date
                     ELSE scp.first_discuss_date
@@ -1148,12 +1235,12 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 LEFT JOIN tbl_client c ON c.id = scp.client_id
                 LEFT JOIN tbl_pic_client pc ON pc.client_id = c.id
                 WHERE scp.prog_id = tbl_client_prog.prog_id
-                AND scp.created_at BETWEEN '".$dateDetails['startDate']."' AND '".$dateDetails['endDate']."'
+                AND scp.created_at BETWEEN '".$date_details['start']."' AND '".$date_details['end']."'
                 AND scp.success_date IS NOT NULL AND scp.status = 1";
 
         if ($pic) {
-            $IC_query .= " AND (pc.user_id = ".$pic." OR empl_id = ".$pic.")";
-            $Success_query .= " AND (pc.user_id = ".$pic." OR empl_id = ".$pic.")";
+            $IC_query .= " AND (pc.user_id = '".$pic."' OR empl_id = '".$pic."')";
+            $Success_query .= " AND (pc.user_id = '".$pic."' OR empl_id = '".$pic."')";
         }
 
         return ClientProgram::
@@ -1176,19 +1263,19 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 });
             })
             ->where('status', 1)
-            ->whereBetween('tbl_client_prog.success_date', [$dateDetails['startDate'], $dateDetails['endDate']])->
+            ->whereBetween('tbl_client_prog.success_date', [$date_details['start'], $date_details['end']])->
             
             # added new features
             # filter by main prog 
-            // when($mainProg, function ($query) use ($mainProg) {
-            //     $query->whereHas('program.main_prog', function ($subQuery) use ($mainProg) {
-            //         $subQuery->where('id', $mainProg);
-            //     });
-            // })->
-            // # filter by prog Id
-            // when($progName, function ($query) use ($progName) {
-            //     $query->where('tbl_prog.prog_id', $progName);
-            // })->
+            when($main_prog_id, function ($query) use ($main_prog_id) {
+                $query->whereHas('program.main_prog', function ($subQuery) use ($main_prog_id) {
+                    $subQuery->where('id', $main_prog_id);
+                });
+            })->
+            # filter by prog Id
+            when($prog_id, function ($query) use ($prog_id) {
+                $query->where('tbl_prog.prog_id', $prog_id);
+            })->
             # filter by pic
             when($pic, function ($query) use ($pic) {
                 # check the client pic
@@ -1206,7 +1293,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->get();
     }
 
-    public function getLeadSource($dateDetails, $cp_filter = null)
+    public function rnGetLeadSource($date_details, $cp_filter = null)
     {
         $userId = $this->getUser($cp_filter);
 
@@ -1267,8 +1354,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->when(isset($cp_filter['qdate']), function ($q) use ($cp_filter) {
                 $q->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])));
             })
-            ->when(!empty($dateDetails), function ($q) use ($dateDetails) {
-                // $q->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']]);
+            ->when(!empty($date_details), function ($q) use ($date_details) {
                 $q->whereBetween(DB::raw('
                     (CASE
                         WHEN tbl_client_prog.status = 0 THEN tbl_client_prog.created_at
@@ -1276,7 +1362,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         WHEN tbl_client_prog.status = 2 THEN tbl_client_prog.failed_date
                         WHEN tbl_client_prog.status = 3 THEN tbl_client_prog.refund_date
                     END)
-                '), [$dateDetails['startDate'], $dateDetails['endDate']]);
+                '), [$date_details['start'], $date_details['end']]);
             })
             
             ->groupBy('lead_source')
@@ -1338,7 +1424,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             })
             # filter by pic
             ->when(isset($filter['picUUID']), function ($q) use ($filter) {
-                $picId = User::where('uuid', $filter['picUUID'])->first()->id;
+                $picId = User::where('id', $filter['picUUID'])->first()->id;
 
                 $q->
                     where('tbl_client_prog.empl_id', $picId)->
@@ -1349,7 +1435,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->get();
     }
 
-    public function getConversionLead($dateDetails, $cp_filter = null)
+    public function rnGetConversionLead($date_details, $cp_filter = null)
     {
         $userId = $this->getUser($cp_filter);
         $program = isset($cp_filter['prog']) ? $cp_filter['prog'] : null;
@@ -1419,7 +1505,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->when(isset($cp_filter['qdate']), function ($q) use ($cp_filter) {
                 $q->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])));
             })
-            ->when(!empty($dateDetails), function ($q) use ($dateDetails) {
+            ->when(!empty($date_details), function ($q) use ($date_details) {
                 $q->whereBetween(DB::raw('
                     (CASE
                         WHEN tbl_client_prog.status = 0 THEN tbl_client_prog.created_at
@@ -1427,7 +1513,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         WHEN tbl_client_prog.status = 2 THEN tbl_client_prog.failed_date
                         WHEN tbl_client_prog.status = 3 THEN tbl_client_prog.refund_date
                     END)
-                '), [$dateDetails['startDate'], $dateDetails['endDate']]);
+                '), [$date_details['start'], $date_details['end']]);
             })
             ->groupBy('conversion_lead')
             ->get();
@@ -1484,7 +1570,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->get();
     }
 
-    public function getConversionTimeSuccessfulPrograms($dateDetails)
+    public function rnGetConversionTimeSuccessfulPrograms($date_details)
     {
         return ClientProgram::has('cleanClient')->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
             ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
@@ -1503,7 +1589,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 });
             })
             ->where('status', 1)
-            ->whereBetween('tbl_client_prog.success_date', [$dateDetails['startDate'], $dateDetails['endDate']])
+            ->whereBetween('tbl_client_prog.success_date', [$date_details['start'], $date_details['end']])
             ->groupBy('program_name_st')
             ->get();
     }
@@ -1707,9 +1793,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         return $data;
     }
 
-    public function getInitialMaking($dateDetails, $cp_filter)
+    public function getInitialMaking($date_details, $filter)
     {
-        $userId = $this->getUser($cp_filter);
+        $userId = $this->getUser($filter);
 
         # average value of initial consult and assessment sent date
         return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
@@ -1727,18 +1813,18 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     $query2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
                 });
             })
-            ->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+            ->when(isset($filter['quuid']), function ($q) use ($userId) {
                 $q->where('empl_id', $userId);
             })
             ->where('status', 1)
-            ->whereBetween('tbl_client_prog.initconsult_date', [$dateDetails['startDate'], $dateDetails['endDate']])
+            ->whereBetween('tbl_client_prog.initconsult_date', [$date_details['start'], $date_details['end']])
             ->groupBy('tbl_main_prog.id')
             ->first();
     }
 
-    public function getConversionTimeProgress($dateDetails, $cp_filter)
+    public function getConversionTimeProgress($date_details, $filter)
     {
-        $userId = $this->getUser($cp_filter);
+        $userId = $this->getUser($filter);
 
         # average value of success date and assessment sent date
         return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
@@ -1753,11 +1839,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     $query2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
                 });
             })
-            ->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+            ->when(isset($filter['quuid']), function ($q) use ($userId) {
                 $q->where('empl_id', $userId);
             })
             ->where('status', 1)
-            ->whereBetween('tbl_client_prog.initconsult_date', [$dateDetails['startDate'], $dateDetails['endDate']])
+            ->whereBetween('tbl_client_prog.initconsult_date', [$date_details['start'], $date_details['end']])
             ->groupBy('tbl_main_prog.id')
             ->first();
     }
@@ -1842,7 +1928,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     $q->whereYear('scp.created_at', $q_date['year_1'])
                         ->whereMonth('scp.created_at', $q_date['month_1']);
                 }, function ($q) use ($cp_filter) {
-                    $q->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['queryParams_year1']);
+                    $q->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['qparam_year1']);
                 })
                 ->select([
                     DB::raw('SUM(si.inv_totalprice_idr)')
@@ -1854,7 +1940,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     $q->whereYear('scp.created_at', $q_date['year_2'])
                         ->whereMonth('scp.created_at', $q_date['month_2']);
                 }, function ($q) use ($cp_filter) {
-                    $q->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['queryParams_year2']);
+                    $q->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['qparam_year2']);
                 })
                 ->select([
                     DB::raw('SUM(si.inv_totalprice_idr)')
@@ -1915,7 +2001,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         $userId = null;
         if (isset($cp_filter['quuid']) && $cp_filter['quuid'] !== null) {
             $uuid = $cp_filter['quuid'];
-            $user = User::where('uuid', $uuid)->first();
+            $user = User::where('id', $uuid)->first();
             $userId = $user->id;
         }
 
@@ -1948,6 +2034,25 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         }
 
         return $searched_column;
+    }
+
+    public function checkProgramIsAdmission($clientprog_id)
+    {
+        $is_admission = false;
+
+        $clientprog = ClientProgram::whereClientProgramId($clientprog_id);
+
+        if(!isset($clientprog))
+            throw new Exception ('Client program not found!');
+        
+        if(!isset($clientprog->program))
+            throw new Exception ('failed to get detail program from this client program!');
+        
+        
+        if($clientprog->program->main_prog_id == 1)
+            $is_admission = true;
+
+        return $is_admission;
     }
 
     # CRM

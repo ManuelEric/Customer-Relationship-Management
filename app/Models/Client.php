@@ -17,8 +17,11 @@ class Client extends Model
 
     protected $table = 'client';
 
+    protected $keyType = 'string';
+
     protected $fillable = [
         'id',
+        'secondary_id',
         'st_id',
         'uuid',
         'first_name',
@@ -40,6 +43,8 @@ class Client extends Model
         'event_id',
         'st_levelinterest',
         'graduation_year',
+        'graduation_year_now',
+        'grade_now',
         'gap_year',
         'st_abryear',
         // 'st_abrcountry',
@@ -50,7 +55,7 @@ class Client extends Model
         'st_password',
         'preferred_program',
         'is_funding',
-        'register_as',
+        'register_by',
         'is_verified',
         'created_at',
         'updated_at',
@@ -123,6 +128,13 @@ class Client extends Model
         });
     }
 
+    public function scopeDoesntHavePIC($query)
+    {
+        return $query->when(Session::get('user_role') == 'Employee', function ($subQuery) {
+            $subQuery->where('client.pic_id', auth()->user()->id)->orWhereNull('client.pic_id');
+        });
+    }
+
     public function scopeIsUsingAPI($query)
     {
         return $query->when(auth()->guard('api')->user() && Session::get('user_role') == 'Employee', function ($subQuery) {
@@ -140,12 +152,12 @@ class Client extends Model
         );
     }
 
-    protected function showGrade(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => $this->grade_now > 12 ? "Not high school" : $this->grade_now
-        );
-    }
+    // protected function showGrade(): Attribute
+    // {
+    //     return Attribute::make(
+    //         get: fn ($value) => $this->grade_now > 12 ? "Not high school" : $this->grade_now
+    //     );
+    // }
 
     public function parents()
     {
@@ -184,7 +196,7 @@ class Client extends Model
 
     public function destinationCountries()
     {
-        return $this->belongsToMany(Tag::class, 'tbl_client_abrcountry', 'client_id', 'tag_id');
+        return $this->belongsToMany(Tag::class, 'tbl_client_abrcountry', 'client_id', 'country_id');
     }
 
     public function interestUniversities()

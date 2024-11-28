@@ -16,7 +16,6 @@
     </li>
     @endenv
 
-    @env('local')
     <li class="nav-item">
         <a @class([
             'nav-link',
@@ -24,5 +23,4 @@
             'active' => Request::get('st') == "inactive"
         ]) aria-current="page" href="{{ url('client/parent?st=inactive') }}">Inactive</a>
     </li>
-    @endenv
 </ul>

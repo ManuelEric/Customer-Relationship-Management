@@ -2,11 +2,15 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\UserRepositoryInterface;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Hash;
 
 class StoreUserRequest extends FormRequest
 {
+    use StandardizePhoneNumberTrait;
+
     private UserRepositoryInterface $userRepository;
     /**
      * Determine if the user is authorized to make this request.
@@ -32,6 +36,17 @@ class StoreUserRequest extends FormRequest
         return $this->isMethod('POST') ? $this->store() : $this->update();
     }
 
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'phone' => $this->tnSetPhoneNumber($this->phone),
+            'emergency_contact_phone' => $this->emergency_contact_phone != null ? $this->tnSetPhoneNumber($this->emergency_contact_phone) : null,
+            'emergency_contact_relation_name' => $this->emergency_contact_relation_name,
+            'position_id' => $this->position,
+            'password' => Hash::make('12345678'),
+        ]);
+    }
+
     protected function store()
     {
         $i = 0;
@@ -40,7 +55,8 @@ class StoreUserRequest extends FormRequest
             $i < $total_roles
         ) {
             $rules = [
-                'emergency_contact' =>  'required_if:role.' . $i . ',1,8'
+                'emergency_contact_phone' =>  'required_if:role.' . $i . ',1,8',
+                'emergency_contact_relation_name' => 'required_if:role.' . $i . ',1,8'
             ];
             $i++;
         }
@@ -50,14 +66,13 @@ class StoreUserRequest extends FormRequest
             'last_name' => 'nullable',
             'email' => 'required|email|unique:users,email',
             'phone' => 'required|unique:users,phone',
-
-            // 'emergency_contact' => 'required_if:role.*,1,8',
             'datebirth' => 'required',
             'address' => 'required',
 
             'graduated_from.*' => 'nullable',
             'degree.*' => 'nullable',
             'major.*' => 'nullable',
+            'graduation_date.*' => 'nullable',
 
             'role.*' => 'required|in:1,2,3,4,18',
             'department' => 'required',
@@ -68,8 +83,9 @@ class StoreUserRequest extends FormRequest
             'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
 
             'curriculum_vitae' => 'nullable|mimes:pdf|max:5000',
-            'bankname' => 'required',
-            'bankacc' => 'required',
+            'bank_name' => 'required',
+            'account_name' => 'required',
+            'account_no' => 'required',
             'nik' => 'required',
             'idcard' => 'required|mimes:pdf,jpeg,jpg,png|max:5000',
             'npwp' => 'nullable',
@@ -85,7 +101,7 @@ class StoreUserRequest extends FormRequest
                     'agreement.*' => 'required|mimes:pdf|max:5000',
                     'subject_id.*' => 'required',
                     'year.*' => 'required',
-                    'grade.*.*' => 'required|in:[9-10],[11-12]',
+                    'grade.*.*' => 'required',
                     'fee_individual.*.*' => 'required',
                     'fee_group.*.*' => 'nullable',
                     'additional_fee.*.*' => 'nullable',
@@ -105,7 +121,8 @@ class StoreUserRequest extends FormRequest
             $i < $total_roles
         ) {
             $rules = [
-                'emergency_contact' =>  'required_if:role.' . $i . ',1,8'
+                'emergency_contact_phone' =>  'required_if:role.' . $i . ',1,8',
+                'emergency_contact_relation_name' => 'required_if:role.' . $i . ',1,8'
             ];
             $i++;
         }
@@ -115,13 +132,13 @@ class StoreUserRequest extends FormRequest
             'last_name' => 'nullable',
             'email' => 'required|email',
             'phone' => 'required',
-            // 'emergency_contact' => 'required_if:role,1,8|nullable',
             'datebirth' => 'required',
             'address' => 'required',
 
             'graduated_from.*' => 'nullable',
             'degree.*' => 'nullable',
             'major.*' => 'nullable',
+            'graduation_date.*' => 'nullable',
 
             'role.*' => 'required|in:1,2,3,4,18',
             'department' => 'required',
@@ -132,8 +149,9 @@ class StoreUserRequest extends FormRequest
             'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
             
             'curriculum_vitae' => 'nullable|mimes:pdf|max:5000',
-            'bankname' => 'required',
-            'bankacc' => 'required',
+            'bank_name' => 'required',
+            'account_name' => 'required',
+            'account_no' => 'required',
             'nik' => 'required',
             'npwp' => 'nullable',
             'tax' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000',
@@ -143,27 +161,39 @@ class StoreUserRequest extends FormRequest
         ];
 
         $userId = $this->route('user');
-        $user = $this->userRepository->getUserById($userId);
+        $user = $this->userRepository->rnGetUserById($userId);
 
         if ($user->idcard == null)
             $rules['idcard'] = 'required|mimes:pdf,jpeg,jpg,png|max:5000';
 
-        // if ($user->tax == null)
-        //     $rules['tax'] = 'required|mimes:pdf|max:5000';
+        if ( $total_roles > 0 )
+        {
+            if ( in_array(4, $this->input('role')) )
+            {
+                for ($i = 0; $i < count($this->subject_id) ; $i++)
+                {
+                    if ( !$tutor_role_information = $user->roles->where('id', 4)->first() )
+                    {
+                        $rules += ["agreement.*" => 'required|mimes:pdf|max:5000'];
+                        break;
+                    }
 
-        // if ($user->health_insurance == null)
-        //     $rules['health_insurance'] = 'required|mimes:pdf|max:5000';
+                    $user_role_id = $tutor_role_information->pivot->id;
+                    if ( $role_subject = $this->userRepository->rnGetUserSubjectById($user_role_id) )
+                    {
+                        if ( $role_subject->agreement !== NULL )
+                        {
+                            $rules += [
+                                "agreement.{$i}" => 'nullable',
+                            ];
+                        }
+                    }
+                }
 
-        // if ($user->empl_insurance == null)
-        //     $rules['empl_insurance'] = 'required|mimes:pdf|max:5000';
-
-        if($total_roles > 0){
-            if(in_array(4, $this->input('role'))){
                 $rules += [
-                    'agreement.*' => 'required|mimes:pdf|max:5000',
                     'subject_id.*' => 'required',
                     'year.*' => 'required',
-                    'grade.*.*' => 'required|in:[9-10],[11-12]',
+                    'grade.*.*' => 'required',
                     'fee_individual.*.*' => 'required',
                     'fee_group.*.*' => 'nullable',
                     'additional_fee.*.*' => 'nullable',

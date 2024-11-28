@@ -30,7 +30,7 @@ class StoreVendorRequest extends FormRequest
             'vendor_type' => 'nullable',
             'vendor_material' => 'nullable',
             'vendor_size' => 'nullable',
-            'vendor_unitprice' => 'required',
+            'vendor_unitprice' => 'required|numeric',
             'vendor_processingtime' => 'nullable',
             'vendor_notes' => 'nullable'
         ];
