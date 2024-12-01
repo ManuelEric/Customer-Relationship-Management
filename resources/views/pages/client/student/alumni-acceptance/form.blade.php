@@ -16,7 +16,7 @@
                     {{-- View of Edit  --}}
                     <div class="text-center" id="client-information-section">
                         <h4>{{ $client->full_name }}</h4>
-                        <h6>{{ $client->school->sch_name }} | {{ $client->graduation_year }}</h6>
+                        <h6>{{ isset($client->school) ? $client->school->sch_name : '' }} | {{ $client->graduation_year }}</h6>
                     </div>
                     {{-- End of view  --}}
                     @endif
