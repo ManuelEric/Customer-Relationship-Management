@@ -350,7 +350,7 @@ class ClientProgramController extends Controller
             'kol_lead_id',
             'partner_id',
             'first_discuss_date',
-            // 'meeting_notes',
+            'meeting_notes',
             'status',
             'empl_id',
             'referral_code'

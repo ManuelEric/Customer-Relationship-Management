@@ -35,7 +35,7 @@ class ClientProgram extends Model
         'last_discuss_date',
         'followup_date',
         'meeting_date',
-        // 'meeting_notes',
+        'meeting_notes',
         'status',
         'statusprog_date',
         'initconsult_date',
