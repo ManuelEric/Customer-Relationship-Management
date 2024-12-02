@@ -256,7 +256,7 @@
                                 </div>
                             </div>
                         </div>
-                        {{-- <div class="row mb-3">
+                        <div class="row mb-3">
                             <div class="col-md-3">
                                 <label for="">
                                     Notes
@@ -268,7 +268,7 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                        </div> --}}
+                        </div>
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <label for="">
