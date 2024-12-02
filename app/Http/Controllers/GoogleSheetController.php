@@ -558,7 +558,7 @@ class GoogleSheetController extends Controller
                     $st_grade = null;
         
                     if ($row['Class Of'] != null || $row['Class Of'] != '') {
-                        $st_grade = $this->getGradeByGraduationYear($row['class Of']);
+                        $st_grade = $this->getGradeByGraduationYear($row['Class Of']);
                     }
         
                     $dataClient = [
