@@ -44,7 +44,7 @@ class AuthController extends Controller
 
             $user = Auth::user();
             $userId = $user->id;
-             $authorizationService->checkPermissionFromUserType($userId);
+            $authorizationService->checkPermissionFromUserType($userId);
             $scopes = $authorizationService->checkUserRole($user);
             [$generatedToken, $acceptableUserRole] = $authorizationService->authorize($user, $scopes);
     
