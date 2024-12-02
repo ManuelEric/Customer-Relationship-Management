@@ -92,8 +92,9 @@ class AuthorizationService
         # because role Admin could have came from many departments
         # so we need to check whether he/she is a sales admin / or any other department
         # and because for now, there will be only 1 admin from client management (sales admin)
-        if ( $user->department()->where('dept_name', 'Client Management')->exists() )
-        {
+        # and check user has role admin
+        if ( $user->department()->where('dept_name', 'Client Management')->exists() && $user->roles()->where('role_name', 'Admin')->exists() )
+        {   
             $acceptableUserRole = 'SalesAdmin';
         }
 
