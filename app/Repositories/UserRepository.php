@@ -193,10 +193,10 @@ class UserRepository implements UserRepositoryInterface
     
     public function rnUpdateUserEducation(User $user, array $new_user_education_details)
     {
-        if ( (array_key_exists('graduated_from', $new_user_education_details) && ($new_user_education_details['graduated_from'] !== [])) 
-            && (array_key_exists('major', $new_user_education_details) && ($new_user_education_details['major'] !== []))
-            && (array_key_exists('degree', $new_user_education_details) && ($new_user_education_details['degree'] !== []))
-            && (array_key_exists('graduation_date', $new_user_education_details) && ($new_user_education_details['graduation_date'] !== []))
+        if ( (array_key_exists('graduated_from', $new_user_education_details) && ($new_user_education_details['graduated_from'] !== [null])) 
+            && (array_key_exists('major', $new_user_education_details) && ($new_user_education_details['major'] !== [null]))
+            && (array_key_exists('degree', $new_user_education_details) && ($new_user_education_details['degree'] !== [null]))
+            && (array_key_exists('graduation_date', $new_user_education_details) && ($new_user_education_details['graduation_date'] !== [null]))
         )
         {
             for ($i = 0; $i < count($new_user_education_details['graduated_from']); $i++) {
