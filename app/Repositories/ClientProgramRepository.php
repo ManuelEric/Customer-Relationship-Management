@@ -778,7 +778,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 'eduf_lead_id'              => null,
                 'partner_id'                => null,
                 'first_discuss_date'        => null,
-                // 'meeting_notes'             => null,
+                'meeting_notes'             => null,
                 'status'                    => null,
                 'empl_id'                   => null,
                 'initconsult_date'          => null,
