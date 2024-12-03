@@ -252,6 +252,7 @@ class ClientProgramController extends Controller
             'kol_lead_id',
             'partner_id',
             'first_discuss_date',
+            'meeting_notes',
             'status',
             'referral_code',
             'empl_id'
