@@ -34,6 +34,8 @@ use App\Interfaces\ReasonRepositoryInterface;
 use App\Imports\StudentImport;
 use App\Interfaces\UserRepositoryInterface;
 use App\Jobs\Client\ProcessInsertLogClient;
+use App\Jobs\Client\ProcessUpdateClientEventRawStudent;
+use App\Jobs\Client\ProcessUpdateClientProgramRawStudent;
 use App\Models\ClientLeadTracking;
 use App\Services\Log\LogService;
 use App\Services\Master\ProgramService;
@@ -42,6 +44,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -1029,9 +1032,6 @@ class ClientStudentController extends ClientController
 
                     $raw_student = $this->clientRepository->getViewRawClientById($raw_client_id);
                     
-                    // return $raw_student->destinationCountries->count();
-                    // exit;
-
                     if ($parent_type == 'new') {
                         if ($request->parentFinal == null) {
                             # Remove relation parent
@@ -1172,12 +1172,12 @@ class ClientStudentController extends ClientController
         return Redirect::to('client/student?st=new-leads')->withSuccess('Client student successfully deleted');
     }
 
-    public function destroyRaw(Request $request)
+    public function destroyRaw(Request $request, LogService $log_service)
     {
         # when is method 'POST' meaning the function come from bulk delete
         $is_bulk = $request->isMethod('POST') ? true : false;
         if ($is_bulk)
-            return $this->bulk_destroy($request); 
+            return $this->bulk_destroy($request, $log_service); 
         
         return $this->single_destroy($request);
     }

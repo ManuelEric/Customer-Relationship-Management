@@ -611,6 +611,15 @@ class ClientEventRepository implements ClientEventRepositoryInterface
 
     }
 
+    public function updateClientEvents(array $clientEventIds, array $newClientEvents)
+    {
+        $clientEvent = ClientEvent::whereIn($clientEventIds);
+        $clientEvent->update($newClientEvents);
+
+        return $clientEvent;
+
+    }
+
     # 
 
     private function getUser($cp_filter)

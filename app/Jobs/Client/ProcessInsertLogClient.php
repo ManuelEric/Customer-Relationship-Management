@@ -15,6 +15,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use romanzipp\QueueMonitor\Traits\IsMonitored;
@@ -163,11 +164,15 @@ class ProcessInsertLogClient implements ShouldQueue
                         $latest_client_log = $this->fnGetLatestClientLog($clientRepository, $client_data);
                         $client_data = $this->fnSetLeadSourceAndUniqueKey($clientRepository, $client_data, $latest_client_log);
 
-                        // Log::debug($client_data);
                         # if when verified select existing 
                         # then update client_id log client to client_id existing
                         if($client_data['select_existing']){                            
                             $clientLogRepository->updateClientLogByClientUUID($client_data['old_client_id'], ['client_id' => $client_data['client_id']]);
+                            
+                            Bus::chain([
+                                new ProcessUpdateClientEventRawStudent($client_data['old_client_id'], $client_data['client_id']),
+                                new ProcessUpdateClientProgramRawStudent($client_data['old_client_id'], $client_data['client_id']),
+                            ])->onQueue('update-raw-client')->dispatch();
                         }
                          
                         unset($client_data['select_existing']);
