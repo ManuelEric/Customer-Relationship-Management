@@ -66,6 +66,11 @@ class ViewRawClient extends Authenticatable
         return $this->hasMany(ClientEvent::class, 'client_id', 'id');
     }
 
+    public function clientEventAsChild()
+    {
+        return $this->hasMany(ClientEvent::class, 'child_id', 'id');
+    }
+
     public function clientProgram()
     {
         return $this->hasMany(ClientProgram::class, 'client_id', 'id');
