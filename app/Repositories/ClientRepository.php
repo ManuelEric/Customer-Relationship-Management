@@ -16,6 +16,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\ClientProgramRepositoryInterface;
+use App\Jobs\Client\ProcessUpdateGradeAndGraduationYearNow;
 use App\Models\ClientAcceptance;
 use App\Models\ClientEvent;
 use App\Models\ClientLog;
@@ -1224,6 +1225,11 @@ class ClientRepository implements ClientRepositoryInterface
         return UserClient::with(['childrens'])->withTrashed()->find($clientId);
     }
 
+    public function getClientWithTrashedById($clientId)
+    {
+        return UserClient::withTrashed()->find($clientId);
+    }
+
     public function getClientWithTrashedByUUID($clientUUID)
     {
         return UserClient::where('uuid', $clientUUID)->withTrashed()->first();
@@ -1334,7 +1340,9 @@ class ClientRepository implements ClientRepositoryInterface
     public function updateClient($clientId, array $newDetails)
     {
         $updated = tap(UserClient::whereId($clientId)->first())->update($newDetails);
-        // UserClient::dispatchUpdated($updated);
+
+        ProcessUpdateGradeAndGraduationYearNow::dispatch($clientId)->onQueue('update-grade-and-graduation-year-now');
+
         return $updated;
     }
 
