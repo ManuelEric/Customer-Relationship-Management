@@ -12,7 +12,7 @@
             <div class="card-body">
                 <div class="row mb-2">
                     <div class="col-md-12 mb-2">
-                        <small>Trial Date <sup class="text-danger">*</sup></small>
+                        <small>Trial Date</small>
                         <input type="date" name="trial_date" {{ $disabled }} value="{{ isset($clientProgram->trial_date) ? $clientProgram->trial_date : old('trial_date') }}"
                             class="form-control form-control-sm rounded">
                         @error('trial_date')
