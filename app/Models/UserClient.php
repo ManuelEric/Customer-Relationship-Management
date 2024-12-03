@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Events\MessageSent;
+use App\Jobs\Client\ProcessUpdateGradeAndGraduationYearNow;
 use App\Models\pivot\ClientAcceptance;
 use App\Models\pivot\ClientLeadTracking;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Str;
@@ -150,6 +152,7 @@ class UserClient extends Authenticatable
             Cache::has('birthDay') ? Cache::forget('birthDay') : null;
         }
 
+        ProcessUpdateGradeAndGraduationYearNow::dispatch($model->id)->onQueue('update-grade-and-graduation-year-now');
 
         return $model;
     }

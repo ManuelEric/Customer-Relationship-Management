@@ -24,6 +24,7 @@ interface ClientEventRepositoryInterface
     public function deleteClientEvent($clientEventId);
     public function createClientEvent(array $clientEvents);
     public function updateClientEvent($clientEventId, array $clientEvents);
+    public function updateClientEvents(array $clientEventIds, array $newClientEvents);
     public function getAllClientEvents();
 
     public function isTicketIDUnique($ticketId);

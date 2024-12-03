@@ -220,11 +220,11 @@
                                     </div>
                                     <div class="col-md-6 d-none" id="referral">
                                         <small>Sub Lead <sup class="text-danger">*</sup></small>
-                                        <input type="hidden" name="old_refname" id="old_refname" value="{{ isset($clientProgram->referral_code) ? $clientProgram->viewClientRefCode->full_name : null }}">
+                                        <input type="hidden" name="old_refname" id="old_refname" value="{{ isset($clientProgram->referral_code) ? $clientProgram->referral_name : null }}">
                                         <select name="referral_code" id="referral_code" class="select w-100 select-referral"
                                             {{ $disabled }}>
                                             @if(isset($clientProgram->referral_code))
-                                                <option value="{{ $clientProgram->referral_code }}" selected="selected">{{ $clientProgram->viewClientRefCode->full_name }}</option>
+                                                <option value="{{ $clientProgram->referral_code }}" selected="selected">{{ $clientProgram->referral_name }}</option>
                                             @endif
                                             {{-- <option data-placeholder="true"></option> --}}
 
