@@ -77,6 +77,7 @@ class UserClient extends Authenticatable
         'referral_code',
         'category',
         'took_ia',
+        'took_ia_date',
         'created_at',
         'updated_at',
     ];
