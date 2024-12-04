@@ -61,7 +61,7 @@ class ImportClientEvent implements ShouldQueue
             return;
         }
 
-        $childIds = $parentIds = $teacherIds = [];
+        $childIds = $parentIds = $teacherIds = $child_name = [];
 
         foreach ($this->clientEventData as $key => $val) {
             # initiate variables
@@ -83,16 +83,21 @@ class ImportClientEvent implements ShouldQueue
 
             $createdMainClient = app(GoogleSheetController::class)->createClient($val, 'main', $val['Audience'], $val['Itended Major'], $val['Destination Country'], $school);
 
-            $mainClient = UserClient::withTrashed()->find($createdMainClient);
+            $mainClient = UserClient::withTrashed()->where('id', $createdMainClient)->first();
             $createdSubClient = ($val['Audience'] == 'Student' || $val['Audience'] == 'Parent') && isset($val['Child or Parent Name']) ? app(GoogleSheetController::class)->createClient($val, 'sub', $roleSub, $val['Itended Major'], $val['Destination Country'], $school, $mainClient) : null;
 
+            $student_fullname = $val['Name'];
+            $child_name['first_name'] = $this->split($student_fullname)['first_name'];
+            $child_name['last_name'] = $this->split($student_fullname)['last_name'];
+
             // Create relation parent and student
+            $checkExistChildren = [];
             if(($val['Audience'] == 'Parent' || $val['Audience'] == 'Student') && isset($createdSubClient)){
                 $checkExistChildren = null;
                 switch ($val['Audience']) {
                     case 'Parent':
-                        $parent = UserClient::withTrashed()->find($createdMainClient);
-                        $student = UserClient::withTrashed()->find($createdSubClient);
+                        $parent = UserClient::withTrashed()->where('id', $createdMainClient)->first();
+                        $student = UserClient::withTrashed()->where('id', $createdSubClient)->first();
                         $checkExistChildren = $this->checkExistClientRelation('parent', $parent, $student->full_name);
                         !$checkExistChildren['isExist'] ? $parent->childrens()->attach($createdSubClient) : null;
                         $student_fullname = isset($val['Child or Parent Name']) ? $val['Child or Parent Name'] : null;
@@ -105,12 +110,16 @@ class ImportClientEvent implements ShouldQueue
                         break;
 
                     case 'Student':
-                        $parent = UserClient::withTrashed()->find($createdSubClient);
-                        $student = UserClient::withTrashed()->find($createdMainClient);
+                        $parent = UserClient::withTrashed()->where('id', $createdSubClient)->first();
+                        $student = UserClient::withTrashed()->where('id', $createdMainClient)->first();
                         $checkExistChildren = $this->checkExistClientRelation('parent', $parent, $student->full_name);
                         !$checkExistChildren['isExist'] ? $parent->childrens()->attach($createdMainClient) : null;
                         break;
                 }
+            }else{
+                $student = UserClient::withTrashed()->where('id', $createdMainClient)->first();
+                $child_name['first_name'] = $student->first_name;
+                $child_name['last_name'] = $student->last_name;
             }
 
             // Insert client event
@@ -177,8 +186,8 @@ class ImportClientEvent implements ShouldQueue
             
             $childs_data_for_log_client[$key] = [
                 'client_id' => $student->id,
-                'first_name' => $checkExistChildren['isExist'] ? $student->first_name : $child_name['first_name'],
-                'last_name' => $checkExistChildren['isExist'] ? $student->last_name : $child_name['last_name'],
+                'first_name' => count($checkExistChildren) > 0 && $checkExistChildren['isExist'] ? $student->first_name : $child_name['first_name'],
+                'last_name' => count($checkExistChildren) > 0 && $checkExistChildren['isExist'] ? $student->last_name : $child_name['last_name'],
                 'lead_source' => $val['Lead'],
                 'inputted_from' => 'import-client-event',
                 'clientprog_id' => null
@@ -193,7 +202,7 @@ class ImportClientEvent implements ShouldQueue
         # trigger to insert log children
         count($childIds) > 0 ? ProcessInsertLogClient::dispatch($childs_data_for_log_client, true)->onQueue('insert-log-client') : null;
 
-        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Client Events')->range('Z'. $this->clientEventData->first()['No'] + 1)->update($imported_date);
+        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet(env('APP_ENV') == 'local' ? 'test client event' : 'Client Events')->range('Z'. $this->clientEventData->first()['No'] + 1)->update($imported_date);
         $dataJobBatches = JobBatches::find($this->batch()->id);
         
         $logDetailsCollection = Collect($logDetails);

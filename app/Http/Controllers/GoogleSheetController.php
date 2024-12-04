@@ -69,7 +69,7 @@ class GoogleSheetController extends Controller
             }
 
             try {
-                $rawData = $this->setRawData('V', $start, $end, 'Parents');
+                $rawData = $this->setRawData('V', $start, $end, env('APP_ENV') == 'local' ? 'test parent' : 'Parents');
         
                 $response = [];
             
@@ -132,7 +132,7 @@ class GoogleSheetController extends Controller
                     ];
                 }
             } catch (Exception $e) {
-                Log::error('Failed to dispatch job import parent', $e->getMessage()  . ' On Line: ' .  $e->getLine());
+                Log::error('Failed to dispatch job import parent'. $e->getMessage()  . ' On Line: ' .  $e->getLine());
                 return response()->json([
                     'success' => false,
                     'error' => $e->getMessage()
@@ -160,7 +160,7 @@ class GoogleSheetController extends Controller
             }
 
             try {
-                $rawData = $this->setRawData('Z', $start, $end, 'Students');
+                $rawData = $this->setRawData('Z', $start, $end, env('APP_ENV') == 'local' ? 'test student' : 'Students');
         
                 $response = [];
                
@@ -227,7 +227,7 @@ class GoogleSheetController extends Controller
                     ];
                 }
             } catch (Exception $e) {
-                Log::error('Failed to dispatch job import student', $e->getMessage() . ' On Line: ' .  $e->getLine());
+                Log::error('Failed to dispatch job import student '. $e->getMessage() . ' On Line: ' .  $e->getLine());
                 return response()->json([
                     'success' => false,
                     'error' => $e->getMessage()
@@ -253,7 +253,7 @@ class GoogleSheetController extends Controller
             }
 
             try {
-                $rawData = $this->setRawData('R', $start, $end, 'Teachers');
+                $rawData = $this->setRawData('R', $start, $end, env('APP_ENV') == 'local' ? 'test teacher' : 'Teachers');
         
                 $response = [];
             
@@ -313,7 +313,7 @@ class GoogleSheetController extends Controller
                     ];
                 }
             } catch (Exception $e) {
-                Log::error('Failed to dispatch job import teacher', $e->getMessage() . ' On Line: ' .  $e->getLine());
+                Log::error('Failed to dispatch job import teacher '. $e->getMessage() . ' On Line: ' .  $e->getLine());
                 return response()->json([
                     'success' => false,
                     'error' => $e->getMessage()
@@ -340,7 +340,7 @@ class GoogleSheetController extends Controller
             }
 
             try {
-                $rawData = $this->setRawData('Z', $start, $end, 'Client Events');
+                $rawData = $this->setRawData('Z', $start, $end, env('APP_ENV') == 'local' ? 'test client event' : 'Client Events');
         
                 $response = [];
                
@@ -408,7 +408,7 @@ class GoogleSheetController extends Controller
                     ];
                 }
             } catch (Exception $e) {
-                Log::error('Failed to dispatch job import client event', $e->getMessage()  . ' On Line: ' .  $e->getLine());
+                Log::error('Failed to dispatch job import client event '. $e->getMessage()  . ' On Line: ' .  $e->getLine());
                 return response()->json([
                     'success' => false,
                     'error' => $e->getMessage()
@@ -436,7 +436,7 @@ class GoogleSheetController extends Controller
             }
 
             try {
-                $rawData = $this->setRawData('W', $start, $end, 'Client Programs');
+                $rawData = $this->setRawData('W', $start, $end, env('APP_ENV') == 'local' ? 'test client program' : 'Client Programs');
         
                 $response = [];
             
@@ -501,7 +501,7 @@ class GoogleSheetController extends Controller
                     ];
                 }
             } catch (Exception $e) {
-                Log::error('Failed to dispatch job import client program', $e->getMessage()  . ' On Line: ' .  $e->getLine());
+                Log::error('Failed to dispatch job import client program '. $e->getMessage()  . ' On Line: ' .  $e->getLine());
                 return response()->json([
                     'success' => false,
                     'error' => $e->getMessage()
@@ -581,7 +581,7 @@ class GoogleSheetController extends Controller
                         Log::error('Failed to store new client');
                     } else {
                         $clientId = $newClient->id;
-                        $thisNewClient = UserClient::find($newClient->id);
+                        $thisNewClient = UserClient::withTrashed()->where('id', $newClient->id)->first();
         
                         $thisNewClient->roles()->attach($roleId);
                         isset($majorDetails) ? $this->syncInterestMajor($row['Itended Major'], $thisNewClient) : '';
@@ -596,7 +596,7 @@ class GoogleSheetController extends Controller
                 
                 } else if ($existClient['isExist']) {
                     $clientId = $existClient['id'];
-                    $existClientStudent = UserClient::find($existClient['id']);
+                    $existClientStudent = UserClient::withTrashed()->where('id', $existClient['id'])->first();
                     isset($majorDetails) ? $this->syncInterestMajor($row['Itended Major'], $existClientStudent) : '';
                     isset($destinationCountryDetails) ? $this->syncDestinationCountry($row['Destination Country'], $existClientStudent) : null;
                 }
@@ -623,7 +623,7 @@ class GoogleSheetController extends Controller
                         Log::error('Failed to store new client');
                     } else {
                         $clientId = $newClient->id;
-                        $thisNewClient = UserClient::find($newClient->id);
+                        $thisNewClient = UserClient::withTrashed()->where('id', $newClient->id)->first();
         
                         $thisNewClient->roles()->attach($roleId);
                     }
@@ -657,7 +657,7 @@ class GoogleSheetController extends Controller
                         Log::error('Failed to store new client');
                     } else {
                         $clientId = $newClient->id;
-                        $thisNewClient = UserClient::find($newClient->id);
+                        $thisNewClient = UserClient::withTrashed()->where('id', $newClient->id)->first();
         
                         $thisNewClient->roles()->attach($roleId);
                     }
