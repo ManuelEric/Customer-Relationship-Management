@@ -306,12 +306,12 @@
                                 body: function (data, row, column, node){
                                     var clearHtml = '';
                                     var result = '';
-                                    if(column === 2){
+                                    if(column === 2 && typeof data !== 'undefined' && data !== null){
                                         clearHtml = data.replace(/<[^>]*>?/gm, '');
                                         if (clearHtml.indexOf('{}') === -1) {
                                             result = clearHtml.replace(/{.*}/, '');
                                         }
-                                    }else if(column === 1 || column === 18 || column === 28){
+                                    }else if((column === 1 || column === 18 || column === 28) && (typeof data !== 'undefined' && data !== null)){
                                         result = data.replace(/<[^>]*>?/gm, '');
                                     }else{
                                         result = data;
