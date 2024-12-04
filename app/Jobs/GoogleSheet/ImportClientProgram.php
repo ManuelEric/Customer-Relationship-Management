@@ -60,7 +60,7 @@ class ImportClientProgram implements ShouldQueue
             # initiate variables
             // Check existing school
             if (!$school = School::where('sch_name', $val['School'])->first())
-                $school = $this->createSchoolIfNotExists($val['School']);
+                $school = $this->createSchoolIfNotExists($val['School'], true);
 
             $roleSub = null;
             switch ($val['Audience']) {
@@ -73,7 +73,7 @@ class ImportClientProgram implements ShouldQueue
             }
 
             $createdMainClient = app(GoogleSheetController::class)->createClient($val, 'main', $val['Audience'], $val['Itended Major'], $val['Destination Country'], $school);
-            $mainClient = UserClient::find($createdMainClient);
+            $mainClient = UserClient::withTrashed()->where('id', $createdMainClient)->first();
             $createdSubClient = ($val['Audience'] == 'Student' || $val['Audience'] == 'Parent') && isset($val['Child or Parent Name']) ? app(GoogleSheetController::class)->createClient($val, 'sub', $roleSub, $val['Itended Major'], $val['Destination Country'], $school, $mainClient) : null;
 
             $student_fullname = $val['Name'];
@@ -86,8 +86,8 @@ class ImportClientProgram implements ShouldQueue
                 $checkExistChildren = null;
                 switch ($val['Audience']) {
                     case 'Parent':
-                        $parent = UserClient::withTrashed()->find($createdMainClient);
-                        $student = UserClient::withTrashed()->find($createdSubClient);
+                        $parent = UserClient::withTrashed()->where('id', $createdMainClient)->first();
+                        $student = UserClient::withTrashed()->where('id', $createdSubClient)->first();
                         $checkExistChildren = $this->checkExistClientRelation('parent', $parent, $student->fullName);
                         !$checkExistChildren['isExist'] ? $parent->childrens()->attach($createdSubClient) : null;
 
@@ -100,8 +100,8 @@ class ImportClientProgram implements ShouldQueue
                         break;
 
                     case 'Student':
-                        $parent = UserClient::withTrashed()->find($createdSubClient);
-                        $student = UserClient::withTrashed()->find($createdMainClient);
+                        $parent = UserClient::withTrashed()->where('id', $createdSubClient)->first();
+                        $student = UserClient::withTrashed()->where('id', $createdMainClient)->first();
                         $checkExistChildren = $this->checkExistClientRelation('parent', $parent, $student->fullName);
                         !$checkExistChildren['isExist'] ? $parent->childrens()->attach($createdMainClient) : null;
                         break;
@@ -180,7 +180,7 @@ class ImportClientProgram implements ShouldQueue
         # trigger to define category children
         count($childIds) > 0 ? ProcessInsertLogClient::dispatch($childs_data_for_log_client, true)->onQueue('insert-log-client') : null;
 
-        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Client Programs')->range('W'. $this->clientProgData->first()['No'] + 1)->update($imported_date);
+        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet(env('APP_ENV') == 'local' ? 'test client program' : 'Client Programs')->range('W'. $this->clientProgData->first()['No'] + 1)->update($imported_date);
         $dataJobBatches = JobBatches::find($this->batch()->id);
         
         $logDetailsCollection = Collect($logDetails);
