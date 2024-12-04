@@ -2115,7 +2115,7 @@ class ExtClientController extends Controller
         DB::beginTransaction();
         try {
 
-            $client =  $this->clientRepository->updateClient($id, ['took_ia' => 1]);
+            $client =  $this->clientRepository->updateClient($id, ['took_ia' => 1, 'took_ia_date' => Carbon::now()]);
 
             $response = [
                 'success' => true,
