@@ -63,7 +63,7 @@ class ImportTeacher implements ShouldQueue
             $school = School::where('sch_name', $val['School'])->get()->pluck('sch_id')->first();
 
             if (!isset($school)) {
-                $newSchool = $this->createSchoolIfNotExists($val['School']);
+                $newSchool = $this->createSchoolIfNotExists($val['School'], true);
             }
 
             $teacher = $this->checkExistingClientImport($phoneNumber, $val['Email']);
@@ -84,6 +84,7 @@ class ImportTeacher implements ShouldQueue
                     'event_id' => isset($val['Event']) && $val['Lead'] == 'LS003' ? $val['Event'] : null,
                     'eduf_id' => isset($val['Edufair'])  && $val['Lead'] == 'LS017' ? $val['Edufair'] : null,
                     'st_levelinterest' => $val['Level of Interest'],
+                    'is_many_request' => true
                 ];
                 isset($val['Joined Date']) ? $teacherDetails['created_at'] = Carbon::parse($val['Joined Date'] . ' ' . date('H:i:s')) : null;
                 isset($val['Joined Date']) ? $teacherDetails['updated_at'] = Carbon::parse($val['Joined Date'] . ' ' . date('H:i:s')) : null;

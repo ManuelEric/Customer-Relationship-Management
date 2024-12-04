@@ -53,6 +53,8 @@ class ImportStudent implements ShouldQueue
  
             return;
         }
+         
+        $clients_data_for_log_client = [];
 
         foreach ($this->studentData as $key => $val) {
             $student = null;
@@ -73,7 +75,7 @@ class ImportStudent implements ShouldQueue
             $school = School::where('sch_name', $val['School'])->get()->pluck('sch_id')->first();
 
             if (!isset($school)) {
-                $newSchool = $this->createSchoolIfNotExists($val['School']);
+                $newSchool = $this->createSchoolIfNotExists($val['School'], true);
             }
 
             $mail = isset($val['Email']) ? $val['Email'] : null;
@@ -85,8 +87,8 @@ class ImportStudent implements ShouldQueue
             if (!$student['isExist']) {
                 $studentDetails = [
                     // 'st_id' => $studentId,
-                    'first_name' => $studentName != null ? $studentName['firstname'] : ($parentName != null ? $parentName['firstname'] . ' ' . $parentName['lastname'] : null),
-                    'last_name' =>  $studentName != null && isset($studentName['lastname']) ? $studentName['lastname'] : ($parentName != null ? 'Child' : null),
+                    'first_name' => $first_name,
+                    'last_name' =>  $last_name,
                     'mail' => $mail,
                     'phone' => $phoneNumber,
                     'dob' => isset($val['Date of Birth']) ? $val['Date of Birth'] : null,
@@ -103,6 +105,7 @@ class ImportStudent implements ShouldQueue
                     'st_levelinterest' => $val['Level of Interest'],
                     'graduation_year' => isset($val['Graduation Year']) ? $val['Graduation Year'] : null,
                     'st_abryear' => isset($val['Year of Study Abroad']) ? $val['Year of Study Abroad'] : null,
+                    'is_many_request' => true,
                 ];
 
                 isset($val['Joined Date']) ? $studentDetails['created_at'] = Carbon::parse($val['Joined Date'] . ' ' . date('H:i:s')) : null;
@@ -114,7 +117,7 @@ class ImportStudent implements ShouldQueue
                 $student->roles()->attach($roleId);
 
             } else {
-                $student = UserClient::withTrashed()->find($student['id']);
+                $student = UserClient::withTrashed()->where('id', $student['id'])->first();
 
             }
 
@@ -139,6 +142,7 @@ class ImportStudent implements ShouldQueue
                                 'first_name' => $name['firstname'],
                                 'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
                                 'phone' => isset($parentPhone) ? $parentPhone : null,
+                                'is_many_request' => true,
                             ];
 
                             $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['parent'])->first();
@@ -146,7 +150,7 @@ class ImportStudent implements ShouldQueue
                             $parent = UserClient::create($parentDetails);
                             $parent->roles()->attach($roleId);
                         }else{
-                            $parent = UserClient::find($checkParent['id']);
+                            $parent = UserClient::withTrashed()->where('id', $checkParent['id'])->first();
                         }
                     }else{
                         
@@ -154,6 +158,7 @@ class ImportStudent implements ShouldQueue
                             'first_name' => $name['firstname'],
                             'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
                             'phone' => isset($parentPhone) ? $parentPhone : null,
+                            'is_many_request' => true,
                         ];
 
                         $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['parent'])->first();
@@ -215,7 +220,7 @@ class ImportStudent implements ShouldQueue
         ProcessInsertLogClient::dispatch($clients_data_for_log_client, true)->onQueue('insert-log-client');
 
 
-        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Students')->range('Z'. $this->studentData->first()['No'] + 1)->update($imported_date);
+        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet(env('APP_ENV') == 'local' ? 'test student' : 'Students')->range('Z'. $this->studentData->first()['No'] + 1)->update($imported_date);
         $dataJobBatches = JobBatches::find($this->batch()->id);
         
         $logDetailsCollection = Collect($logDetails);

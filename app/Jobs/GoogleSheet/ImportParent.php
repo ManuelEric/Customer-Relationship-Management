@@ -76,6 +76,7 @@ class ImportParent implements ShouldQueue
                     'event_id' => isset($val['Event']) && $val['Lead'] == 'LS003' ? $val['Event'] : null,
                     'eduf_id' => isset($val['Edufair'])  && $val['Lead'] == 'LS017' ? $val['Edufair'] : null,
                     'st_levelinterest' => $val['Level of Interest'],
+                    'is_many_request' => true
                 ];
 
 
@@ -86,7 +87,7 @@ class ImportParent implements ShouldQueue
                 $parent = UserClient::create($parentDetails);
                 $parent->roles()->attach($roleId);
             } else {
-                $parent = UserClient::find($parent['id']);
+                $parent = UserClient::withTrashed()->where('id', $parent['id'])->first();
             }
 
 
@@ -104,7 +105,7 @@ class ImportParent implements ShouldQueue
                     $school = School::where('sch_name', $val['School'])->first();
 
                     if (!isset($school)) {
-                        $school = $this->createSchoolIfNotExists($val['School']);
+                        $school = $this->createSchoolIfNotExists($val['School'], true);
                     }
 
                     if (isset($val['Graduation Year'])) {
@@ -120,6 +121,7 @@ class ImportParent implements ShouldQueue
                         'lead_id' => $val['Lead'],
                         'event_id' => isset($val['Event']) && $val['Lead'] == 'LS003' ? $val['Event'] : null,
                         'eduf_id' => isset($val['Edufair'])  && $val['Lead'] == 'LS017' ? $val['Edufair'] : null,
+                        'is_many_request' => true
                     ];
 
                     isset($val['Joined Date']) ? $childrenDetails['created_at'] = $val['Joined Date'] : null;
@@ -176,7 +178,7 @@ class ImportParent implements ShouldQueue
         # trigger to insert log children
         count($childrenIds) > 0 ? ProcessInsertLogClient::dispatch($clients_data_for_log_client, true)->onQueue('insert-log-client') : null;
 
-        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet('Parents')->range('V'. $this->parentData->first()['No'] + 1)->update($imported_date);
+        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet(env('APP_ENV') == 'local' ? 'test parent' : 'Parents')->range('V'. $this->parentData->first()['No'] + 1)->update($imported_date);
         $dataJobBatches = JobBatches::find($this->batch()->id);
         
         $logDetailsCollection = Collect($logDetails);

@@ -53,7 +53,7 @@ trait CheckExistingClientImport {
     private function checkExistingByPhoneNumber($phone)
     {
         # From tbl client
-        $client_phone = UserClient::select('id', 'mail', 'phone')->whereNot('phone', null)->whereNot('phone', '')->get();
+        $client_phone = UserClient::withTrashed()->select('id', 'mail', 'phone')->whereNot('phone', null)->whereNot('phone', '')->get();
         $std_phone = $client_phone->map(function ($item, int $key) {
             return [
                 'id' => $item['id'],
@@ -85,7 +85,7 @@ trait CheckExistingClientImport {
     private function checkExistingByEmail($email)
     {
         # From tbl client
-        $client_mail = UserClient::select('id', 'mail', 'phone')->whereNot('mail', null)->whereNot('mail', '')->get();
+        $client_mail = UserClient::withTrashed()->select('id', 'mail', 'phone')->whereNot('mail', null)->whereNot('mail', '')->get();
 
         $client = $client_mail->where('mail', $email)->first();
 

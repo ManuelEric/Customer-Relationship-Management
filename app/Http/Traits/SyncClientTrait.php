@@ -202,13 +202,13 @@ trait SyncClientTrait
                         }
                     );
             
-                    $existChildren = $mapChildren->where('deleted_at', null)->where('full_name', strtolower($secondClient))->first();
+                    $existChildren = $mapChildren->where('full_name', strtolower($secondClient))->first();
 
                     # if children not existing from this parent
                     if(!isset($existChildren)){
                         $secondClientDetails['isExist'] = false;
                     }else{
-                        $children = UserClient::find($existChildren['id']);
+                        $children = UserClient::withTrashed()->where('id', $existChildren['id'])->first();
                         $secondClientDetails['isExist'] = true;
                         $secondClientDetails['client'] = $children;
                     }
@@ -236,13 +236,13 @@ trait SyncClientTrait
                     );
                     
             
-                    $existParent = $mapParent->where('deleted_at', null)->where('full_name', strtolower($secondClient))->first();
+                    $existParent = $mapParent->where('full_name', strtolower($secondClient))->first();
                  
                     # if parent not existing from this child
                     if(!isset($existParent)){
                         $secondClientDetails['isExist'] = false;
                     }else{
-                        $children = UserClient::find($existParent['id']);
+                        $children = UserClient::withTrashed()->where('id', $existParent['id'])->first();
                         $secondClientDetails['isExist'] = true;
                         $secondClientDetails['client'] = $children;
                     }
@@ -261,13 +261,17 @@ trait SyncClientTrait
         
     }
 
-    private function createSchoolIfNotExists($sch_name)
+    private function createSchoolIfNotExists($sch_name, $is_many_request = false)
     {
         $last_id = School::withTrashed()->max('sch_id');
         $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
         $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
 
-        $newSchool = School::create(['sch_id' => $school_id_with_label, 'sch_name' => $sch_name]);
+        $school_detail = ['sch_id' => $school_id_with_label, 'sch_name' => $sch_name];
+        if ($is_many_request === true )
+            $school_detail['is_many_request'] = true;
+    
+        $newSchool = School::create($school_detail);
 
         return $newSchool;
     }
