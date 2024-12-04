@@ -1336,7 +1336,7 @@ class ClientRepository implements ClientRepositoryInterface
     {
         $updated = tap(UserClient::whereId($clientId)->first())->update($newDetails);
 
-        ProcessUpdateGradeAndGraduationYearNow::dispatch($clientId)->onQueue('update-grade-and-graduation-year-now');
+        // ProcessUpdateGradeAndGraduationYearNow::dispatch($clientId)->onQueue('update-grade-and-graduation-year-now');
 
         return $updated;
     }
