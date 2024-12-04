@@ -169,19 +169,19 @@
             $('#schoolTable tbody').on('change', '.status ', function() {
                 const data = table.row($(this).parents('tr')).data();
                 const val = data.status == 1 ? 0 : 1;
-                alert('Belom ada function')
-                // const link = "{{ url('/') }}/client/student/" + data.id + "/status/" + val
 
-                // axios.get(link)
-                //     .then(function(response) {
-                //         Swal.close()
-                //         notification("success", response.data.message)
-                //     })
-                //     .catch(function(error) {
-                //         Swal.close()
-                //         notification("error", error.response.data.message)
-                //     })
-                // table.ajax.reload(null, false)
+                const link = "{{ url('/') }}/instance/school/" + data.sch_id.toLowerCase() + "/status/" + val
+
+                axios.get(link)
+                    .then(function(response) {
+                        Swal.close()
+                        notification("success", response.data.message)
+                    })
+                    .catch(function(error) {
+                        Swal.close()
+                        notification("error", error.response.data.message)
+                    })
+                table.ajax.reload(null, false)
             });
 
             // Select All 

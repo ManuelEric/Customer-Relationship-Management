@@ -371,6 +371,11 @@ class SchoolRepository implements SchoolRepositoryInterface
         return School::whereNull('sch_type')->get();
     }
 
+    public function updateActiveStatus($school_id, $newStatus)
+    {
+        return School::where('sch_id', $school_id)->update(['status' => $newStatus]);
+    }
+
     # CRM v1
     public function getAllSchoolFromV1()
     {
@@ -387,4 +392,5 @@ class SchoolRepository implements SchoolRepositoryInterface
     {
         return SchoolAliases::find($aliasid)->delete();
     }
+
 }
