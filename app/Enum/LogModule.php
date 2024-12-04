@@ -278,6 +278,7 @@ enum LogModule: string
     case STORE_SCHOOL_DETAIL = '[STORE SCHOOL DETAIL]';
     case UPDATE_SCHOOL_DETAIL = '[UPDATE SCHOOL DETAIL]';
     case DELETE_SCHOOL_DETAIL = '[DELETE SCHOOL DETAIL]';
+    case UPDATE_STATUS_SCHOOL = '[UPDATE STATUS SCHOOL]';
     
     /**
      * School Event
