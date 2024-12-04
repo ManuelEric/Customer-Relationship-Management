@@ -286,6 +286,52 @@ class SchoolController extends Controller
         return Redirect::to('instance/school')->withSuccess('School successfully deleted');
     }
 
+    public function updateStatus(Request $request, LogService $log_service)
+    {
+        $school_id = $request->route('school');
+        $new_status = $request->route('status');
+
+        # validate status
+        if (!in_array($new_status, [0, 1])) {
+
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => "Status is invalid"
+                ]
+            );
+        }
+
+        DB::beginTransaction();
+        try {
+
+            $this->schoolRepository->updateActiveStatus($school_id, $new_status);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            $log_service->createErrorLog(LogModule::UPDATE_STATUS_SCHOOL, $e->getMessage(), $e->getLine(), $e->getFile(), ['sch_id' => $school_id, 'new_status' => $new_status]);
+
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ]
+            );
+        }
+
+        # Upload success
+        # create log success
+        $log_service->createSuccessLog(LogModule::UPDATE_STATUS_SCHOOL, 'Status school has been updated', ['sch_id' => $school_id, 'new_status' => $new_status]);
+
+        return response()->json(
+            [
+                'success' => true,
+                'message' => "Status has been updated",
+            ]
+        );
+    }
+
     function getSchoolData()
     {
         $schools = $this->schoolRepository->getVerifiedSchools();
