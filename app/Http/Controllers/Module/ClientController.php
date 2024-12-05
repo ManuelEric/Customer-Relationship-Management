@@ -287,7 +287,7 @@ class ClientController extends Controller
             # hari senin lanjutin utk insert destination countries
             # dan hubungin score nya melalui client view
             for ($i = 0; $i < count($abroad_countries); $i++) {
-                $destination_country_details[] = $this->tagRepository->getTagById($abroad_countries[$i])->id;
+                $destination_country_details[] = $this->tagRepository->getCountryById($abroad_countries[$i])->id;
             }
 
             $destination_country = $this->clientRepository->createDestinationCountry($newStudentId, $destination_country_details);
