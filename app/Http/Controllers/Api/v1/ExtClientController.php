@@ -790,7 +790,7 @@ class ExtClientController extends Controller
         $rules = [
             'role' => 'required|in:parent,student',
             'fullname' => 'required',
-            'mail' => 'required|email',
+            'mail' => 'nullable|email',
             'phone' => 'required',
             'school_id' => [
                 'nullable',
@@ -801,7 +801,7 @@ class ExtClientController extends Controller
             'secondary_mail' => 'nullable',
             'secondary_phone' => 'nullable',
             'graduation_year' => 'required',
-            'destination_country' => 'required|array',
+            'destination_country' => 'nullable|array',
             'destination_country.*' => 'exists:tbl_country,id',
             'interest_prog' => 'required|exists:tbl_prog,prog_id',
             'lead_id' => 'required|exists:tbl_lead,lead_id',
