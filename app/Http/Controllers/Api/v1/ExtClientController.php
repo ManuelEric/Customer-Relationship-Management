@@ -971,17 +971,19 @@ class ExtClientController extends Controller
 
         try {
 
-            $subject = "Your registration is confirmed";
-
-            Mail::send(
-                $template,
-                $passedData,
-                function ($message) use ($client, $subject) {
-                    $message->to($client->mail, $client->full_name)
-                        ->subject($subject);
-                }
-            );
-            $sent_mail = 1;
+            if(isset($validated['mail']) && $validated['mail'] != null){
+                $subject = "Your registration is confirmed";
+    
+                Mail::send(
+                    $template,
+                    $passedData,
+                    function ($message) use ($client, $subject) {
+                        $message->to($client->mail, $client->full_name)
+                            ->subject($subject);
+                    }
+                );
+                $sent_mail = 1;
+            }
         } catch (Exception $e) {
 
             $sent_mail = 0;
