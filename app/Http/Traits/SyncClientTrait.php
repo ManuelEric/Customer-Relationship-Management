@@ -113,14 +113,14 @@ trait SyncClientTrait
                 
                 $destinationCountryDetails->push([
                     'country_id' => $tagFromDB->id,
-                    'country_name' => $countryName,
+                    // 'country_name' => $countryName,
                 ]);
     
             } else {
                 // $newCountry = Tag::create(['name' => $regionName]);
                 $destinationCountryDetails->push([
                     'country_id' => 7,
-                    'country_name' => $countryName,
+                    // 'country_name' => $countryName,
                 ]);
             }
         }

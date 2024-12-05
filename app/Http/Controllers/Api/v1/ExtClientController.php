@@ -530,7 +530,7 @@ class ExtClientController extends Controller
                 'array',
                 $request->role == 'student' ? 'required' : 'required_if_accepted:have_child',
             ],
-            'destination_country.*' => 'exists:tbl_tag,id',
+            'destination_country.*' => 'exists:tbl_country,id',
             'scholarship' => 'required|in:Y,N',
             'lead_source_id' => 'required|exists:tbl_lead,lead_id',
             'eduf_id' => 'required_if:lead_source_id,LS017|exists:tbl_eduf_lead,id',
@@ -802,7 +802,7 @@ class ExtClientController extends Controller
             'secondary_phone' => 'nullable',
             'graduation_year' => 'required',
             'destination_country' => 'required|array',
-            'destination_country.*' => 'exists:tbl_tag,id',
+            'destination_country.*' => 'exists:tbl_country,id',
             'interest_prog' => 'required|exists:tbl_prog,prog_id',
             'lead_id' => 'required|exists:tbl_lead,lead_id',
         ];
@@ -1584,7 +1584,7 @@ class ExtClientController extends Controller
                 'array',
                 $request->role == 'student' ? 'required' : 'required_if_accepted:have_child',
             ],
-            'destination_country.*' => 'exists:tbl_tag,id',
+            'destination_country.*' => 'exists:tbl_country,id',
             'scholarship' => 'required|in:Y,N',
             'event_id' => 'required|exists:tbl_events,event_id',
             # status
