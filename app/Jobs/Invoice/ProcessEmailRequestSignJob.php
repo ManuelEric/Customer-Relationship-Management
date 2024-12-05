@@ -62,7 +62,8 @@ class ProcessEmailRequestSignJob implements ShouldQueue
      */
     public function handle()
     {
-        $pdf = PDF::loadView(
+        try {
+            $pdf = PDF::loadView(
                     $this->attachmentDetails['view'], 
                     [
                         'clientProg' => $this->attachmentDetails['client_prog'], 
@@ -70,16 +71,20 @@ class ProcessEmailRequestSignJob implements ShouldQueue
                         'director' => $this->attachmentDetails['director'],
                     ]
                 );
-        Storage::put('public/uploaded_file/invoice/client/' . $this->attachmentDetails['file_name'] . '.pdf', $pdf->output());
-
-        # send email to related person that has authority to give a signature
-        Mail::send('pages.invoice.client-program.mail.view', $this->mailDetails, function ($message) use ($pdf) {
+            Storage::put('public/uploaded_file/invoice/client/' . $this->attachmentDetails['file_name'] . '.pdf', $pdf->output());
+    
+            # send email to related person that has authority to give a signature
+            Mail::send('pages.invoice.client-program.mail.view', $this->mailDetails, function ($message) use ($pdf) {
+                    
+                Log::notice('Email request sign has been sent with invoice ID : '.$this->invoiceId);
                 
-            Log::notice('Email request sign has been sent with invoice ID : '.$this->invoiceId);
-            
-            $message->to($this->mailDetails['email'], $this->mailDetails['recipient'])
-                ->subject($this->mailDetails['title'])
-                ->attachData($pdf->output(), $this->invoiceId . '.pdf');
-        });
+                $message->to($this->mailDetails['email'], $this->mailDetails['recipient'])
+                    ->subject($this->mailDetails['title'])
+                    ->attachData($pdf->output(), $this->invoiceId . '.pdf');
+            });
+        }catch (Exception $e){
+            Log::error('Failed send request-sign-mail ' . $e->getMessage());
+        }
+        
     }
 }
