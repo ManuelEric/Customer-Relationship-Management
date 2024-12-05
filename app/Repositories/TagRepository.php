@@ -28,6 +28,11 @@ class TagRepository implements TagRepositoryInterface
     {
         return Tag::find($tagId);
     }
+    
+    public function getCountryById($country_id)
+    {
+        return MasterCountry::find($country_id);
+    }
 
     public function getTagByName($tagName)
     {
