@@ -73,7 +73,7 @@ class StoreFormProgramEmbedRequest extends FormRequest
             
             'school' => 'required',
             'graduation_year' => 'required',
-            'destination_country' => 'required|exists:tbl_tag,id',
+            'destination_country' => 'required|exists:tbl_country,id',
             'leadsource' => 'required|exists:tbl_lead,lead_id',
             'program' => 'nullable',
         ];
