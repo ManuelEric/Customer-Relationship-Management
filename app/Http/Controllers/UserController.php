@@ -155,6 +155,8 @@ class UserController extends Controller
                 'user_types' => $user_types,
                 'subjects' => $subjects,
                 'is_tutor' => false,
+                'is_mentor' => false,
+                'is_editor' => false,
             ]
         );
     }
@@ -237,6 +239,8 @@ class UserController extends Controller
         $salesTeams = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
         $subjects = $this->subjectRepository->getAllSubjects();
         $is_tutor = $user->roles()->where('role_name', 'Tutor')->first() != null ? true : false;
+        $is_mentor = $user->roles()->where('role_name', 'Mentor')->first() != null ? true : false;
+        $is_editor = $user->roles()->where('role_name', 'Editor')->first() != null ? true : false;
 
 
         return view('pages.user.employee.form')->with(
@@ -250,7 +254,9 @@ class UserController extends Controller
                 'user' => $user,
                 'salesTeams' => $salesTeams->whereNotIn('id', [$userId]),
                 'subjects' => $subjects,
-                'is_tutor' => $is_tutor
+                'is_tutor' => $is_tutor,
+                'is_mentor,' => $is_mentor,
+                'is_editor' => $is_editor
             ]
         );
     }

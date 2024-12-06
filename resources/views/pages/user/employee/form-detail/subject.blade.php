@@ -1,4 +1,4 @@
-<div class="card {{ $is_tutor || Request::route('user_role') == 'tutor' ? null : 'd-none' }}" id="subject">
+<div class="card {{ ($is_tutor || Request::route('user_role') == 'tutor') || ($is_mentor || Request::route('user_role') == 'mentor') || ($is_editor || Request::route('user_role') == 'editor') ? null : 'd-none' }}" id="subject">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h6 class="m-0 p-0">Subject Detail</h6>
         <button type="button" class="btn btn-sm btn-outline-primary" onclick="addSubject()"><i

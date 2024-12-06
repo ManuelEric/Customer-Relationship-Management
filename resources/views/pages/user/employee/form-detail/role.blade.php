@@ -41,6 +41,20 @@
                             @selected(Request::route('user_role') == 'tutor')
                         @endif
                         >Tutor</option>
+                    <option value="19" 
+                        @if (isset($user))
+                            @selected(in_array(19, $roles))
+                        @else
+                            @selected(Request::route('user_role') == 'external-mentor')
+                        @endif
+                        >External Mentor</option>
+                    <option value="20" 
+                        @if (isset($user))
+                            @selected(in_array(20, $roles))
+                        @else
+                            @selected(Request::route('user_role') == 'professional')
+                        @endif
+                        >Professional</option>
                     @if ($isSuperAdmin)
                     <option value="18" 
                         @if (isset($user))

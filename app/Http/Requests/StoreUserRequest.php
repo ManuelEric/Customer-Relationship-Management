@@ -74,7 +74,7 @@ class StoreUserRequest extends FormRequest
             'major.*' => 'nullable',
             'graduation_date.*' => 'nullable',
 
-            'role.*' => 'required|in:1,2,3,4,18',
+            'role.*' => 'required|in:1,2,3,4,18,19,20',
             'department' => 'required',
             'position' => 'required',
             'hiredate' => 'required',
@@ -96,7 +96,8 @@ class StoreUserRequest extends FormRequest
         ];
 
         if($total_roles > 0){
-            if(in_array(4, $this->input('role'))){
+            # Tutor || Editor || External Mentor
+            if(in_array(4, $this->input('role')) || in_array(3, $this->input('role')) || in_array(19, $this->input('role'))){
                 $rules += [
                     'agreement.*' => 'required|mimes:pdf|max:5000',
                     'subject_id.*' => 'required',
@@ -140,7 +141,7 @@ class StoreUserRequest extends FormRequest
             'major.*' => 'nullable',
             'graduation_date.*' => 'nullable',
 
-            'role.*' => 'required|in:1,2,3,4,18',
+            'role.*' => 'required|in:1,2,3,4,18,19,20',
             'department' => 'required',
             'position' => 'required',
             'hiredate' => 'required',

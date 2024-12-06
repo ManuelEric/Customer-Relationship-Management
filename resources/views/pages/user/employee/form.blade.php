@@ -87,14 +87,14 @@
             </div>
             @endif
             @if (isset($user) && $user->roles()->where('role_name', 'mentor')->count() > 0)
-            <div class="card rounded mb-3">
-                <div class="card-header">
-                    <h5 class="p-0 m-0">Mentees</h5>
+                <div class="card rounded mb-3">
+                    <div class="card-header">
+                        <h5 class="p-0 m-0">Mentees</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <h2>{{ $user->mentorClient()->wherePivot('status', 1)->count() }}</h2>
+                    </div>
                 </div>
-                <div class="card-body text-center">
-                    <h2>{{ $user->mentorClient()->wherePivot('status', 1)->count() }}</h2>
-                </div>
-            </div>
             @endif
         </div>
         <div class="col-md-9">
