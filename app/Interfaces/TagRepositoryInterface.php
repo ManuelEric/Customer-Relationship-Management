@@ -8,6 +8,7 @@ interface TagRepositoryInterface
     public function getAllCountries();
     public function getAllTags();
     public function getTagById($tagId);
+    public function getCountryById($country_id);
     public function getTagByName($tagName);
     public function createTag(array $tag);
     public function deleteTag($tagId);

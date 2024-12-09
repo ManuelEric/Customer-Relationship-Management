@@ -3,6 +3,7 @@
 namespace App\Services\Authorization;
 
 use App\Interfaces\UserTypeRepositoryInterface;
+use App\Models\User;
 use Exception;
 use Google\Service\Compute\HttpRedirectAction;
 use Illuminate\Support\Carbon;
@@ -56,17 +57,17 @@ class AuthorizationService
         foreach ( $user->roles()->orderBy('id', 'asc')->get() as $userRole )
         {
             $roleName = str_replace(' ', '-', strtolower($userRole->role_name));
-            if ( $roleName == 'employee' || $roleName == 'super-admin' || $roleName == 'admin' )
+            if ( $roleName == 'employee' || $roleName == 'super-admin' || $roleName == 'admin')
             {
                 # the scopes variables should between "employee", "super admin", "admin"
-                $scopes = [$roleName];
+                $scopes = ( $roleName == 'admin' && $user->department()->where('dept_name', 'Client Management')->exists() ) ? ['sales-admin'] : [$roleName];
             }
         }
 
         return $scopes;
     }
 
-    public function authorize($user, $scopes)
+    public function authorize(User $user, $scopes)
     {
         $userFullname = $user->first_name . ' ' . $user->last_name;
         # just in case both of the condition above to check user type was passed by
