@@ -376,6 +376,9 @@
 @push('scripts')
     <script src="{{ asset('js/date.js') }}" type="text/javascript"></script>
     <script>
+        console.log("{{ session()->get('access_token') }}")
+    </script>
+    <script>
         $(".card-client").each(function() {
             $(this).click(function() {
                 showLoading()
@@ -384,7 +387,6 @@
                 let f_type = $(this).data('f-client-type')
 
                 let url = window.location.origin + '/api/get/client/' + f_date + '/type/' + f_type;
-                const bearer_token = `Bearer {{ Session::get('access_token') }}`;
 
                 axios.get(url, {
                     headers: {
@@ -445,9 +447,12 @@
             var url = window.location.origin + '/api/get/client-status/' + month
             $(".card-client").data('f-date', month);
 
-            axios.get(url)
+            axios.get(url, {
+                    headers: {
+                        Authorization: bearer_token
+                    }
+                })
                 .then(function(response) {
-                    // console.log(response)
                     var obj = response.data.data
 
                     $(".client-status").each(function(index, value) {

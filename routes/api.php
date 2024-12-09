@@ -63,7 +63,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('get/client/{id}', [ExtClientController::class, 'getClientById']);
 
 # dashboard sales
-Route::get('get/client/{month}/type/{type}', [SalesDashboardControllerV1::class, 'fnGetClientByMonthAndType']);
+Route::middleware('auth:api')->group(function() {
+    Route::get('get/client/{month}/type/{type}', [SalesDashboardControllerV1::class, 'fnGetClientByMonthAndType']);
+});
 Route::get('get/client-status/{month}', [SalesDashboardControllerV1::class, 'fnGetClientStatus']);
 Route::get('get/follow-up-reminder/{month}', [SalesDashboardControllerV1::class, 'fnGetFollowUpReminder']);
 Route::get('get/mentee-birthday/{month}', [SalesDashboardControllerV1::class, 'fnGetMenteesBirthdayByMonth']);
