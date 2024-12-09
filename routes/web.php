@@ -7,7 +7,7 @@ use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\ClientProgramController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VolunteerController;
-use App\Jobs\JobCoba;
+use App\Livewire\Asset\ListAsset;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -116,3 +116,5 @@ Route::get('test', function () {
         whereIn('clientprog_id', [1, 2, 3])->get();
     return $a->toQuery()->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')->where('tbl_client.lead_id', 'LS002')->get();
 });
+
+Route::get('/asset', ListAsset::class);

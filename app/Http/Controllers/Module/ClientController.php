@@ -59,7 +59,7 @@ class ClientController extends Controller
                 $parent_details['phone'] = $this->tnSetPhoneNumber($request->pr_phone);
                 $parent_details['dob'] = $request->pr_dob;
                 $parent_details['insta'] = $request->pr_insta;
-                $parent_details['is_verified'] = 'Y';
+                $parent_details['is_verified'] = 'N';
                 // $parent_details['st_abrcountry'] = json_encode($request->st_abrcountry);
 
                 # set lead_id based on lead_id & kol_lead_id 
@@ -91,7 +91,7 @@ class ClientController extends Controller
                     'is_funding' => $request->is_funding ?? 0,
                     'register_by' => $request->register_by,
                     'referral_code' => $request->referral_code,
-                    'is_verified' => 'Y'
+                    'is_verified' => 'N'
                 ];
 
                 if (isset($request->is_funding))
@@ -134,7 +134,7 @@ class ClientController extends Controller
                     $student_details['is_funding'] = $request->is_funding;
 
                 $student_details['phone'] = $this->tnSetPhoneNumber($request->phone);
-                $student_details['is_verified'] = "Y";
+                $student_details['is_verified'] = "N";
                 // $student_details['st_abrcountry'] = json_encode($request->st_abrcountry);
 
                 # set lead_id based on lead_id & kol_lead_id 
@@ -190,7 +190,7 @@ class ClientController extends Controller
                     'referral_code'
                 ]);
                 $teacher_details['phone'] = $this->tnSetPhoneNumber($request->phone);
-                $teacher_details['is_verified'] = 'Y';
+                $teacher_details['is_verified'] = 'N';
 
                 # set lead_id based on lead_id & kol_lead_id
                 # when lead_id is kol
