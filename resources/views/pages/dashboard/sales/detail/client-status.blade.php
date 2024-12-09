@@ -376,9 +376,6 @@
 @push('scripts')
     <script src="{{ asset('js/date.js') }}" type="text/javascript"></script>
     <script>
-        console.log("{{ session()->get('access_token') }}")
-    </script>
-    <script>
         $(".card-client").each(function() {
             $(this).click(function() {
                 showLoading()
