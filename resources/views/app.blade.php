@@ -415,6 +415,9 @@
         }
     </script>
 
+    <script>
+        const bearer_token = `Bearer {{ Session::get('access_token') }}`;
+    </script>
     @stack('scripts')
 </body>
 

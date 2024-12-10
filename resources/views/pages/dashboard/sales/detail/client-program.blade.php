@@ -314,7 +314,11 @@ $(document).ready(function(){
 
         var url = window.location.origin + '/api/get/client-program/' + month + '/' + user
 
-        axios.get(url)
+        axios.get(url, {
+                headers: {
+                    Authorization: bearer_token
+                }
+            })
             .then(function(response) {
 
                 var obj = response.data.data

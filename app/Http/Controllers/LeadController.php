@@ -187,6 +187,6 @@ class LeadController extends Controller
 
     public function fnGetListReferral(Request $request)
     {
-        $this->leadService->snGetListReferral($request);
+        return $this->leadService->snGetListReferral($request);
     }
 }
