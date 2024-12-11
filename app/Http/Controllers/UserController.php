@@ -47,6 +47,7 @@ class UserController extends Controller
     private PositionRepositoryInterface $positionRepository;
     private UserTypeRepositoryInterface $userTypeRepository;
     private SubjectRepositoryInterface $subjectRepository;
+    private $role_type_mentors;
 
     public function __construct(UserRepositoryInterface $userRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, DepartmentRepositoryInterface $departmentRepository, PositionRepositoryInterface $positionRepository, UserTypeRepositoryInterface $userTypeRepository, SubjectRepositoryInterface $subjectRepository)
     {
@@ -57,6 +58,14 @@ class UserController extends Controller
         $this->positionRepository = $positionRepository;
         $this->userTypeRepository = $userTypeRepository;
         $this->subjectRepository = $subjectRepository;
+
+        $this->role_type_mentors = [
+            'Competition Project Mentorship',
+            'Research Project Mentorship',
+            'Passion Project Mentorship',
+            'Professional Sharing Session Speaker',
+            'Part Time Subject Mentor'
+        ];
     }
 
     public function index(Request $request): mixed
@@ -155,8 +164,10 @@ class UserController extends Controller
                 'user_types' => $user_types,
                 'subjects' => $subjects,
                 'is_tutor' => false,
-                'is_mentor' => false,
+                'is_external_mentor' => false,
                 'is_editor' => false,
+                'is_professional' => false,
+                'role_type_mentors' => $this->role_type_mentors,
             ]
         );
     }
@@ -239,8 +250,9 @@ class UserController extends Controller
         $salesTeams = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
         $subjects = $this->subjectRepository->getAllSubjects();
         $is_tutor = $user->roles()->where('role_name', 'Tutor')->first() != null ? true : false;
-        $is_mentor = $user->roles()->where('role_name', 'Mentor')->first() != null ? true : false;
+        $is_external_mentor = $user->roles()->where('role_name', 'External Mentor')->first() != null ? true : false;
         $is_editor = $user->roles()->where('role_name', 'Editor')->first() != null ? true : false;
+        $is_professional = $user->roles()->where('role_name', 'Individual Professional')->first() != null ? true : false;
 
 
         return view('pages.user.employee.form')->with(
@@ -255,8 +267,10 @@ class UserController extends Controller
                 'salesTeams' => $salesTeams->whereNotIn('id', [$userId]),
                 'subjects' => $subjects,
                 'is_tutor' => $is_tutor,
-                'is_mentor,' => $is_mentor,
-                'is_editor' => $is_editor
+                'is_external_mentor' => $is_external_mentor,
+                'is_editor' => $is_editor,
+                'is_professional' => $is_professional,
+                'role_type_mentors' => $this->role_type_mentors,
             ]
         );
     }

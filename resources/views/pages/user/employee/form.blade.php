@@ -6,6 +6,11 @@
 @php
     $departmentId = [];
     $departmentThisUser = null;
+    Request::route('user_role') == 'external-mentor' ? $is_external_mentor = 'a' : 'b';
+    Request::route('user_role') == 'tutor' ? $is_tutor = 1 : null;
+    Request::route('user_role') == 'editor' ? $is_editor = 1 : null;
+    Request::route('user_role') == 'professional' ? $is_professional = 1 : null;
+
     if (isset($user) && $typeInfo = $user->user_type()->where('tbl_user_type_detail.status', 1)->first()) 
         $departmentId = $typeInfo->pivot->department_id;
         $departmentThisUser = $departments->where('id', $departmentId)->first();
@@ -21,6 +26,15 @@
         <div class="col-md-3 mb-3">
             <div class="card rounded mb-3">
                 <div class="card-body">
+                    @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
                     <img loading="lazy"  src="{{ asset('img/mentee.webp') }}" class="w-100">
                     <h4 class="text-center">
                         {{ isset($user) ? "Edit" : "Add" }}
@@ -191,7 +205,16 @@
                                 @include('pages.user.employee.form-detail.role')
                             </div>
                             <div class="col-md-12 mb-3">
-                                @include('pages.user.employee.form-detail.subject')
+                                @if($is_tutor || $is_external_mentor || $is_editor)
+                                    @if(isset($user) && count($user->user_subjects) > 0)
+                                        <x-user.employee.agreement case="1"/>
+                                    @elseif(old('count_subject') !== null)
+                                        <x-user.employee.agreement case="2"/>
+                                    @else
+                                        <x-user.employee.agreement :a="$is_external_mentor" case="3"/>
+                                    @endif
+                                @endif
+                                {{-- @include('pages.user.employee.form-detail.subject') --}}
                             </div>
                             <div class="col-md-12 mb-3">
                                 @include('pages.user.employee.form-detail.attachment')

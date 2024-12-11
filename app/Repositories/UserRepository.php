@@ -220,6 +220,7 @@ class UserRepository implements UserRepositoryInterface
         # variables for tutor subject
         $new_tutor_subject_details = $request->only([
             'subject_id',
+            'role_type',
             'grade',
             'agreement',
             'fee_individual',
@@ -231,6 +232,7 @@ class UserRepository implements UserRepositoryInterface
 
 
         if ( ( (!array_key_exists('subject_id', $new_tutor_subject_details) && ($new_tutor_subject_details['subject_id'] !== []))
+            || (!array_key_exists('role_type', $new_tutor_subject_details) && ($new_tutor_subject_details['role_type'] !== []))
             || (!array_key_exists('fee_individual', $new_tutor_subject_details) && ($new_tutor_subject_details['fee_individual'] !== []))
             || (!array_key_exists('grade', $new_tutor_subject_details) && ($new_tutor_subject_details['grade'] !== []))
             || (!array_key_exists('head', $new_tutor_subject_details) && ($new_tutor_subject_details['head'] !== []))
@@ -238,20 +240,20 @@ class UserRepository implements UserRepositoryInterface
                 && in_array(4, $user->roles()->pluck('tbl_roles.id')->toArray() )
         )
         {
-            throw new Exception('Tutor subject information has to be provided when add a tutor.');
+            throw new Exception('Agreement information has to be provided when add a tutor, mentor, editor or professional.');
         }
 
         
-        if ( !$user_tutor_identity = $user->roles()->where('role_name', 'Tutor')->first() )
+        if ( !$user_identity = $user->roles()->where('role_name', 'Tutor')->last() || !$user_identity = $user->roles()->where('role_name', 'External Mentor')->last() || !$user_identity = $user->roles()->where('role_name', 'Editor')->last() || !$user_identity = $user->roles()->where('role_name', 'Individual Professional')->last())
         {
-            Log::warning('Failed to add a subject for tutor!, User is not a Tutor', ['id' => $user->id]);
+            Log::warning('Failed to add agreement!, User is not a Tutor, mentor, editor or professional', ['id' => $user->id]);
             return;
         }        
     
 
         for ($i = 0; $i < count($new_tutor_subject_details['subject_id']); $i++) 
         {
-            if ( $user_subject = UserSubject::where('user_role_id', $user_tutor_identity->pivot->id)->where('subject_id', $new_tutor_subject_details['subject_id'][$i])->where('year', $new_tutor_subject_details['year'][$i])->first() )
+            if ( $user_subject = UserSubject::where('user_role_id', $user_identity->pivot->id)->where('subject_id', $new_tutor_subject_details['subject_id'][$i])->where('year', $new_tutor_subject_details['year'][$i])->first() )
             {
                 $agreement = $user_subject->agreement ?? $this->tnUploadFile($request, 'agreement.'.$i, 'Agreement-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name . '-' . $request->subject_id[$i] .  '-' . date('Y')), 'public/uploaded_file/user/' . $user->id);
             }
@@ -267,8 +269,9 @@ class UserRepository implements UserRepositoryInterface
                 ];
                 
                 $user->user_subjects()->updateOrCreate([
-                    'user_role_id' => $user_tutor_identity->pivot->id,
+                    'user_role_id' => $user_identity->pivot->id,
                     'subject_id' => $new_tutor_subject_details['subject_id'][$i],
+                    'role_type' => $new_tutor_subject_details['role_type'][$i],
                     'grade' => $new_tutor_subject_details['grade'][$i][$j],
                     'year' => $new_tutor_subject_details['year'][$i]
                 ], $subject_details);

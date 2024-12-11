@@ -75,11 +75,11 @@ class StoreUserRequest extends FormRequest
             'graduation_date.*' => 'nullable',
 
             'role.*' => 'required|in:1,2,3,4,18,19,20',
-            'department' => 'required',
-            'position' => 'required',
-            'hiredate' => 'required',
-            'type' => 'required|exists:tbl_user_type,id',
-            'start_period' => 'required',
+            'department' => 'required_unless:role,19', # 20 is professional
+            'position' => 'required_unless:role,19',
+            'hiredate' => 'required_unless:role,19',
+            'type' => 'required_unless:role,19|exists:tbl_user_type,id',
+            'start_period' => 'required_unless:role,19',
             'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
 
             'curriculum_vitae' => 'nullable|mimes:pdf|max:5000',
@@ -96,13 +96,14 @@ class StoreUserRequest extends FormRequest
         ];
 
         if($total_roles > 0){
-            # Tutor || Editor || External Mentor
-            if(in_array(4, $this->input('role')) || in_array(3, $this->input('role')) || in_array(19, $this->input('role'))){
+            # Tutor || Editor || Individual Professional || External Mentor
+            if(in_array(4, $this->input('role')) || in_array(3, $this->input('role')) || in_array(19, $this->input('role')) || in_array(20, $this->input('role'))){
                 $rules += [
                     'agreement.*' => 'required|mimes:pdf|max:5000',
-                    'subject_id.*' => 'required',
+                    'subject_id.*' => 'required_if:role,4',
+                    'role_type.*' => 'required_if:role,3|required_if:role,19',
                     'year.*' => 'required',
-                    'grade.*.*' => 'required',
+                    'grade.*.*' => 'required_if:role,4',
                     'fee_individual.*.*' => 'required',
                     'fee_group.*.*' => 'nullable',
                     'additional_fee.*.*' => 'nullable',
@@ -142,11 +143,11 @@ class StoreUserRequest extends FormRequest
             'graduation_date.*' => 'nullable',
 
             'role.*' => 'required|in:1,2,3,4,18,19,20',
-            'department' => 'required',
-            'position' => 'required',
-            'hiredate' => 'required',
-            'type' => 'required|exists:tbl_user_type,id',
-            'start_period' => 'required',
+            'department' => 'required_unless:role,19',
+            'position' => 'required_unless:role,19',
+            'hiredate' => 'required_unless:role,19',
+            'type' => 'required_unless:role,19|exists:tbl_user_type,id',
+            'start_period' => 'required_unless:role,19',
             'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
             
             'curriculum_vitae' => 'nullable|mimes:pdf|max:5000',
@@ -192,9 +193,10 @@ class StoreUserRequest extends FormRequest
                 }
 
                 $rules += [
-                    'subject_id.*' => 'required',
+                    'subject_id.*' => 'required_if:role,4',
                     'year.*' => 'required',
-                    'grade.*.*' => 'required',
+                    'role_type.*' => 'required_if:role,3|required_if:role,19',
+                    'grade.*.*' => 'required_if:role,4',
                     'fee_individual.*.*' => 'required',
                     'fee_group.*.*' => 'nullable',
                     'additional_fee.*.*' => 'nullable',
