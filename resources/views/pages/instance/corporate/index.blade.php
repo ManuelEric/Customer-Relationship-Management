@@ -69,7 +69,7 @@
                         }
                     },
                     {
-                        data: 'corp_name',
+                        data: 'partnership_name',
                     },
                     {
                         data: 'corp_industry',

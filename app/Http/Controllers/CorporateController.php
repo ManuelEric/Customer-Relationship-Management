@@ -10,8 +10,10 @@ use App\Http\Requests\StoreCorporateRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\CorporatePicRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
+use App\Interfaces\IndustryRepositoryInterface;
 use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\PartnerAgreementRepositoryInterface;
+use App\Interfaces\SubSectorRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Models\Corporate;
 use App\Services\Log\LogService;
@@ -30,16 +32,20 @@ class CorporateController extends Controller
     private CorporatePicRepositoryInterface $corporatePicRepository;
     private PartnerProgramRepositoryInterface $partnerProgramRepository;
     private PartnerAgreementRepositoryInterface $partnerAgreementRepository;
+    private IndustryRepositoryInterface $industryRepository;
+    private SubSectorRepositoryInterface $subSectorRepository;
     protected UserRepositoryInterface $userRepository;
 
 
-    public function __construct(CorporateRepositoryInterface $corporateRepository, CorporatePicRepositoryInterface $corporatePicRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, UserRepositoryInterface $userRepository)
+    public function __construct(CorporateRepositoryInterface $corporateRepository, CorporatePicRepositoryInterface $corporatePicRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, UserRepositoryInterface $userRepository, IndustryRepositoryInterface $industryRepository, SubSectorRepositoryInterface $subSectorRepository)
     {
         $this->corporateRepository = $corporateRepository;
         $this->corporatePicRepository = $corporatePicRepository;
         $this->partnerProgramRepository = $partnerProgramRepository;
         $this->partnerAgreementRepository = $partnerAgreementRepository;
         $this->userRepository = $userRepository;
+        $this->industryRepository = $industryRepository;
+        $this->subSectorRepository = $subSectorRepository;
     }
 
     public function index(Request $request)
@@ -55,7 +61,9 @@ class CorporateController extends Controller
     {
         $corporate_details = $request->safe()->only([
             'corp_name',
+            'user_id',
             'corp_industry',
+            'corp_subsector_id',
             'corp_mail',
             'corp_phone',
             'corp_insta',
@@ -65,6 +73,7 @@ class CorporateController extends Controller
             'corp_note',
             'corp_password',
             'country_type',
+            'status',
             'type',
             'partnership_type',
         ]);
@@ -91,15 +100,28 @@ class CorporateController extends Controller
 
     public function create()
     {
-        return view('pages.instance.corporate.form');
+        $industries = $this->industryRepository->rnGetAllIndustries();
+        $external_mentors = $this->userRepository->rnGetAllUsersByRole('External Mentor');
+        $editors = $this->userRepository->rnGetAllUsersByRole('Editor');
+        $tutors = $this->userRepository->rnGetAllUsersByRole('Tutor');
+        $professionals = $this->userRepository->rnGetAllUsersByRole('Individual Professional');
+    
+        $individual_partnerships = $external_mentors->merge($editors)->merge($tutors)->merge($professionals);
+
+        return view('pages.instance.corporate.form')->with([
+            'industries' => $industries,
+            'individual_partnerships' => $individual_partnerships
+        ]);
     }
 
     public function update(StoreCorporateRequest $request, UpdateCorporateAction $updateCorporateAction, LogService $log_service)
     {
         $corporate_details = $request->safe()->only([
             'corp_id',
+            'user_id',
             'corp_name',
             'corp_industry',
+            'corp_subsector_id',
             'corp_mail',
             'corp_phone',
             'corp_insta',
@@ -108,6 +130,7 @@ class CorporateController extends Controller
             'corp_address',
             'corp_note',
             'country_type',
+            'status',
             'type',
             'partnership_type',
         ]);
@@ -151,13 +174,24 @@ class CorporateController extends Controller
         # because for now 29/03/2023 there aren't partnership team, so we use client management
         $employees = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
+        $industries = $this->industryRepository->rnGetAllIndustries();
+
+        $external_mentors = $this->userRepository->rnGetAllUsersByRole('External Mentor');
+        $editors = $this->userRepository->rnGetAllUsersByRole('Editor');
+        $tutors = $this->userRepository->rnGetAllUsersByRole('Tutor');
+        $professionals = $this->userRepository->rnGetAllUsersByRole('Individual Professional');
+    
+        $individual_partnerships = $external_mentors->merge($editors)->merge($tutors)->merge($professionals);
+
         return view('pages.instance.corporate.form')->with(
             [
                 'corporate' => $corporate,
                 'partnerPrograms' => $partnerPrograms,
                 'partnerAgreements' => $partnerAgreements,
                 'pics' => $pics,
-                'employees' => $employees
+                'employees' => $employees,
+                'industries' => $industries,
+                'individual_partnerships' => $individual_partnerships,
             ]
         );
     }
@@ -166,11 +200,23 @@ class CorporateController extends Controller
     {
         $corporate_id = $request->route('corporate');
         $corporate = $this->corporateRepository->getCorporateById($corporate_id);
+        $sub_sectors = $corporate->corp_industry != null ? $this->subSectorRepository->rnGetSubSectorByIndustryId($corporate->corp_industry) : [];
+        $industries = $this->industryRepository->rnGetAllIndustries();
+
+        $external_mentors = $this->userRepository->rnGetAllUsersByRole('External Mentor');
+        $editors = $this->userRepository->rnGetAllUsersByRole('Editor');
+        $tutors = $this->userRepository->rnGetAllUsersByRole('Tutor');
+        $professionals = $this->userRepository->rnGetAllUsersByRole('Individual Professional');
+    
+        $individual_partnerships = $external_mentors->merge($editors)->merge($tutors)->merge($professionals);
 
         return view('pages.instance.corporate.form')->with(
             [
                 'edit' => true,
-                'corporate' => $corporate
+                'corporate' => $corporate,
+                'sub_sectors' => $sub_sectors,
+                'industries' => $industries,
+                'individual_partnerships' => $individual_partnerships
             ]
         );
     }

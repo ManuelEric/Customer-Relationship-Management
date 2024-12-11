@@ -13,7 +13,19 @@ class CorporateRepository implements CorporateRepositoryInterface
 {
     public function getAllCorporateDataTables()
     {
-        return Datatables::eloquent(Corporate::orderBy('created_at', 'desc'))->rawColumns(['corp_address'])->make(true);
+        return Datatables::eloquent(Corporate::orderBy('created_at', 'desc'))
+                ->addColumn('partnership_name', function ($query) {
+                    $partnership_name = $query->corp_name;
+                    if($query->type == 'Individual Professional'){
+                        $partnership_name = '-';
+                        if(isset($query->individualProfessional)){
+                            $partnership_name = $query->individualProfessional->full_name;
+                        }
+                    }
+                    return $partnership_name;
+                })
+                ->rawColumns(['corp_address'])
+                ->make(true);
     }
 
     public function getAllCorporate()
