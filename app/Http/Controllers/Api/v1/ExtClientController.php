@@ -1933,13 +1933,22 @@ class ExtClientController extends Controller
     {
         $incomingEmail = $request->get('email');
 
-        $query = \App\Models\User::query()->withAndWhereHas('roles', function ($query) {
+        $query = \App\Models\User::query()->
+            with([
+                'educations' => function ($query) {
+                    $query->select('tbl_univ.univ_name', 'tbl_user_educations.created_at')->first();
+                },
+                'position' => function ($query) {
+                    $query->select('id', 'position_name');
+                }
+            ])->
+            withAndWhereHas('roles', function ($query) {
                 $query->whereIn('role_name', ['Mentor', 'Tutor'])->select('role_name');
             })->where('email', $incomingEmail);
 
         $result = null;
         if ($query->exists()) {
-            $result = $query->select('id', 'first_name', 'last_name', 'email', 'phone', 'password')->first();
+            $result = $query->select('id', 'first_name', 'last_name', 'email', 'phone', 'password', 'position_id', 'active')->first();
 
             # fetch the roles
             foreach ($result->roles as $role) {
@@ -2149,5 +2158,13 @@ class ExtClientController extends Controller
             ]);
         } 
         return response()->json($user);
+    }
+
+    public function fnGetMentors(string $role)
+    {
+        $users = \App\Models\User::whereHas('roles', function ($query) use ($role) {
+            $query->where('role_name', $role);
+        })->get();
+        return response()->json($users);
     }
 }
