@@ -202,11 +202,6 @@
                 $isStart = Cache::has('isStartImport') ? Cache::get('isStartImport') : null;
             @endphp
 
-            @php
-                $authImport = Cache::has('auth') ? Cache::get('auth') : null;
-                $isStart = Cache::has('isStartImport') ? Cache::get('isStartImport') : null;
-            @endphp
-
             @if (
                 $authImport != null &&
                     $isStart != null &&
@@ -223,7 +218,7 @@
                     window.location.href = "{{ route('logout.expiration') }}";
                     return;
                 }
-
+            
                 notification('error', 'Oops, Something went wrong when trying to get the data')
             };
         })
@@ -415,6 +410,9 @@
         }
     </script>
 
+    <script>
+        const bearer_token = `Bearer {{ Session::get('access_token') }}`;
+    </script>
     @stack('scripts')
 </body>
 

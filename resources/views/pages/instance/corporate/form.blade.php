@@ -12,6 +12,9 @@
         
         $partnership_type = ['Market Sharing', 'Program Collaborator', 'Internship', 'External Mentor'];
         sort($partnership_type);
+
+        $statuses = ['Contacted', 'Contracted', 'Engaged', 'Expired', 'Prospect'];
+        sort($statuses);
     @endphp
 
     <div class="row">
@@ -73,24 +76,77 @@
                         @endif
 
                         <div class="row">
-                            <div class="col-md-4 mb-2">
-                                <label>Corporate / Partner Name <sup class="text-danger">*</sup></label>
-                                <input type="text" name="corp_name"
+
+                            <div class="col-md-6 mb-2">
+                                <label for="">Type <sup class="text-danger">*</sup></label>
+                                <select name="type" class="select w-100" id="type"
+                                    {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
+                                    <option data-placeholder="true"></option>
+                                    @for ($i = 0; $i < count($type); $i++)
+                                        <option value="{{ $type[$i] }}"
+                                            {{ (isset($corporate->type) && $corporate->type == $type[$i]) || old('type') == $type[$i] ? 'selected' : null }}>
+                                            {{ $type[$i] }}</option>
+                                    @endfor
+                                </select>
+                                @error('type')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="corporate-name d-none">
+                                    <label>Corporate / Partner Name <sup class="text-danger">*</sup></label>
+                                    <input type="text" name="corp_name"
                                     value="{{ isset($corporate->corp_name) ? $corporate->corp_name : old('corp_name') }}"
                                     class="form-control form-control-sm rounded"
                                     {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
-                                @error('corp_name')
+                                    @error('corp_name')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="professional-name d-none">
+                                    <label>Professional Name <sup class="text-danger">*</sup></label>
+                                    <select name="user_id" id="user_id" class="select w-100" {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
+                                        <option data-placeholder="true"></option>
+                                        @foreach ($individual_partnerships as $individual_partnership)
+                                            <option value="{{ $individual_partnership->id }}" {{ (isset($corporate->user_id) && $corporate->user_id == $individual_partnership->id) || old('user_id') == $individual_partnership->id ? 'selected' : null }}>{{ $individual_partnership->full_name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('user_id')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label>Industry</label>
+                                <select name="corp_industry" id="corp_industry" class="select w-100" {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
+                                    <option data-placeholder="true"></option>
+                                    @foreach ($industries as $industry)
+                                        <option value="{{ $industry->id }}" {{ (isset($corporate->corp_industry) && $corporate->corp_industry == $industry->id) || old('corp_industry') == $industry->id ? 'selected' : null }}>{{ $industry->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('corp_industry')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
 
-                            <div class="col-md-4 mb-2">
-                                <label>Industry</label>
-                                <input type="text" name="corp_industry"
-                                    value="{{ isset($corporate->corp_industry) ? $corporate->corp_industry : old('corp_industry') }}"
-                                    class="form-control form-control-sm rounded"
-                                    {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
-                                @error('corp_industry')
+                            <div class="col-md-6 mb-2">
+                                <label>Sub Sector</label>
+                                <select name="corp_subsector_id" id="corp_subsector_id" class="select w-100" {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
+                                    @if(isset($edit))
+                                        <option data-placeholder="true"></option>
+                                        @foreach ($sub_sectors as $sub_sector)
+                                            <option value="{{ $sub_sector->id }}" {{ $corporate->corp_subsector_id == $sub_sector->id || old('sub_sector') == $sub_sector->id ? 'selected' : null }}>{{ $sub_sector->name }}</option>
+                                        @endforeach
+                                    @else
+                                        @if(isset($corporate) && $corporate->corp_subsector_id != null)
+                                            <option value="{{ $corporate->corp_subsector_id }}">{{ $corporate->subSector->name }}</option>                                        
+                                        @endif
+                                    @endif
+                                </select>
+                                @error('corp_subsector_id')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
@@ -106,7 +162,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-4 mb-2">
                                 <label>Phone <sup class="text-danger">*</sup></label>
                                 <input type="text" name="corp_phone"
                                     value="{{ isset($corporate->corp_phone) ? $corporate->corp_phone : old('corp_phone') }}"
@@ -117,7 +173,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-4 mb-2">
                                 <label>Instagram</label>
                                 <input type="text" name="corp_insta"
                                     value="{{ isset($corporate->corp_insta) ? $corporate->corp_insta : old('corp_insta') }}"
@@ -128,7 +184,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-4 mb-2">
                                 <label>Website </label>
                                 <input type="text" name="corp_site" placeholder="https://xxxxxx.xxxx"
                                     value="{{ isset($corporate->corp_site) ? $corporate->corp_site : old('corp_site') }}"
@@ -139,7 +195,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-4 mb-2">
                                 <label>Region</label>
                                 <input type="text" name="corp_region"
                                     value="{{ isset($corporate->corp_region) ? $corporate->corp_region : old('corp_region') }}"
@@ -150,12 +206,28 @@
                                 @enderror
                             </div>
 
+                            <div class="col-md-4 mb-2">
+                                <label for="">Status </label>
+                                <select name="status" class="select w-100"
+                                    {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
+                                    <option data-placeholder="true"></option>
+                                    @foreach ($statuses as $status)
+                                        <option value="{{ $status }}"
+                                            {{ (isset($corporate->status) && $corporate->status == $status) || old('status') == $status ? 'selected' : null }}>
+                                            {{ $status }}</option>
+                                    @endforeach
+                                </select>
+                                @error('status')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+
                             <div class="col-md-12 mb-2">
                                 <label>Address</label>
                                 <textarea name="corp_address" cols="30" rows="10">{{ isset($corporate->corp_address) ? $corporate->corp_address : old('corp_address') }}</textarea>
                             </div>
 
-                            <div class="col-md-4 mb-2">
+                            <div class="col-md-6 mb-2">
                                 <label for="">Country Type <sup class="text-danger">*</sup></label>
                                 <select name="country_type" class="select w-100"
                                     {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
@@ -172,23 +244,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-4 mb-2">
-                                <label for="">Type <sup class="text-danger">*</sup></label>
-                                <select name="type" class="select w-100"
-                                    {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
-                                    <option data-placeholder="true"></option>
-                                    @for ($i = 0; $i < count($type); $i++)
-                                        <option value="{{ $type[$i] }}"
-                                            {{ (isset($corporate->type) && $corporate->type == $type[$i]) || old('type') == $type[$i] ? 'selected' : null }}>
-                                            {{ $type[$i] }}</option>
-                                    @endfor
-                                </select>
-                                @error('type')
-                                    <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-4 mb-2">
+                            <div class="col-md-6 mb-2">
                                 <label for="">Partnership Type </label>
                                 <select name="partnership_type" class="select w-100"
                                     {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
@@ -238,6 +294,53 @@
                 placeholder: "Select value",
                 allowClear: true
             });
+
+            $('#corp_industry').on('change', function(){
+                var selected_industry = $(this).select2().find(":selected").val();
+                
+                var baseUrl = "{{ url('/') }}/api/v1/get/subsectors/" + selected_industry;             
+
+                showLoading();
+                axios.get(baseUrl)
+                .then(function(response) {
+                    // handle success
+                    let sub_sectors = response.data.data
+                    let list_option_sub_sector = '<option data-placeholder="true"></option>';
+                    
+                    sub_sectors.forEach((sub_sector) => {
+                        list_option_sub_sector += '<option value="'+sub_sector.id+'">' +sub_sector.name+ '</option>';
+                    });
+
+                    $('#corp_subsector_id').html(list_option_sub_sector);
+                  
+                    Swal.close()
+                })
+                .catch(function(error) {
+                    // handle error
+                    Swal.close()
+                    notification(error.response.data.success, 'Something went wrong. Please try again or contact the administrator.')
+                })
+            });
+
+            $('#type').on('change', function(){
+                var selected_type = $(this).select2().find(":selected").val();
+                                
+                if(selected_type == 'Individual Professional'){
+                    $('.professional-name').removeClass('d-none');
+                    $('.corporate-name').addClass('d-none');
+                }else{
+                    $('.professional-name').addClass('d-none');
+                    $('.corporate-name').removeClass('d-none');
+                }
+            });
+
+            @if (isset($corporate) && $corporate->type != null && $corporate->type == 'Individual Professional')
+                $('.professional-name').removeClass('d-none');
+                $('.corporate-name').addClass('d-none');
+            @else
+                $('.professional-name').addClass('d-none');
+                $('.corporate-name').removeClass('d-none');
+            @endif
         });
     </script>
 @endsection
