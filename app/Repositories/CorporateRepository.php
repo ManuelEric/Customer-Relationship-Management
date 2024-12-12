@@ -13,18 +13,36 @@ class CorporateRepository implements CorporateRepositoryInterface
 {
     public function getAllCorporateDataTables()
     {
-        return Datatables::eloquent(Corporate::orderBy('created_at', 'desc'))
-                ->addColumn('partnership_name', function ($query) {
-                    $partnership_name = $query->corp_name;
-                    if($query->type == 'Individual Professional'){
-                        $partnership_name = '-';
-                        if(isset($query->individualProfessional)){
-                            $partnership_name = $query->individualProfessional->full_name;
-                        }
-                    }
-                    return $partnership_name;
-                })
+        return Datatables::eloquent(
+            Corporate::
+                leftJoin('users', 'users.id', '=', 'tbl_corp.user_id')->
+                leftJoin('tbl_industry', 'tbl_industry.id', '=', 'tbl_corp.corp_industry')->
+                leftJoin('tbl_industry_subsector', 'tbl_industry_subsector.id', '=', 'tbl_corp.corp_subsector_id')->
+                select(
+                    'corp_id',
+                    DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                                THEN CONCAT(users.first_name, " ", COALESCE(users.last_name, ""))
+                                ELSE tbl_corp.corp_name
+                            END) as partnership_name'),
+                    'tbl_industry.name as industry_name',
+                    'tbl_industry_subsector.name as subsector_name',
+                    'corp_mail',
+                    'corp_phone',
+                    'corp_address',
+                    'type',
+                    'country_type',
+                    'partnership_type',
+                    'corp_region',
+                    'active_status'
+                ))
                 ->rawColumns(['corp_address'])
+                ->filterColumn('partnership_name', function ($query, $keyword) {
+                    $sql = '(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                                THEN CONCAT(users.first_name, " ", COALESCE(users.last_name, ""))
+                                ELSE tbl_corp.corp_name
+                            END) like ?';
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                })
                 ->make(true);
     }
 
