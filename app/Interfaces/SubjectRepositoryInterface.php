@@ -11,4 +11,5 @@ interface SubjectRepositoryInterface
     public function createSubject(array $subjectDetails);
     public function updateSubject($subjectId, array $newDetails);
     public function deleteSubject($subjectId);
+    public function rnGetAllSubjectsByRole(string $role);
 }

@@ -25,7 +25,7 @@ class ExtCorporateController extends Controller
             
             if (!$sub_sectors) {
                 return response()->json([
-                    'success' => true,
+                    'success' => false,
                     'message' => 'Sub sector not found.'
                 ]);
             }

@@ -28,4 +28,5 @@ interface UserRepositoryInterface
 
     //! new methods
     public function rnFindExpiringContracts(ContractUserType $type);
+    public function rnDeleteUserAgreement($user_subject_id);
 }

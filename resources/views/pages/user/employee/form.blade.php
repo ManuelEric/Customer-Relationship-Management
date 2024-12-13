@@ -26,15 +26,6 @@
         <div class="col-md-3 mb-3">
             <div class="card rounded mb-3">
                 <div class="card-body">
-                    @if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
                     <img loading="lazy"  src="{{ asset('img/mentee.webp') }}" class="w-100">
                     <h4 class="text-center">
                         {{ isset($user) ? "Edit" : "Add" }}
@@ -110,7 +101,13 @@
                     </div>
                 </div>
             @endif
+
+            @if(isset($user) && (in_array(4, $user->roles()->pluck('role_id')->toArray()) || in_array(3, $user->roles()->pluck('role_id')->toArray()) || in_array(19, $user->roles()->pluck('role_id')->toArray()) || in_array(20, $user->roles()->pluck('role_id')->toArray())))
+                @include('pages.user.employee.form-detail.agreement')
+            @endif
         </div>
+
+
         <div class="col-md-9">
             <div class="card rounded mb-3">
                 <div class="card-header d-flex align-items-center">
@@ -203,18 +200,6 @@
                             </div>
                             <div class="col-md-12 mb-3">
                                 @include('pages.user.employee.form-detail.role')
-                            </div>
-                            <div class="col-md-12 mb-3">
-                                @if($is_tutor || $is_external_mentor || $is_editor)
-                                    @if(isset($user) && count($user->user_subjects) > 0)
-                                        <x-user.employee.agreement case="1"/>
-                                    @elseif(old('count_subject') !== null)
-                                        <x-user.employee.agreement case="2"/>
-                                    @else
-                                        <x-user.employee.agreement :a="$is_external_mentor" case="3"/>
-                                    @endif
-                                @endif
-                                {{-- @include('pages.user.employee.form-detail.subject') --}}
                             </div>
                             <div class="col-md-12 mb-3">
                                 @include('pages.user.employee.form-detail.attachment')

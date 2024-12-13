@@ -384,7 +384,7 @@ class User extends Authenticatable
 
     public function user_subjects()
     {
-        return $this->hasManyThrough(UserSubject::class, UserRole::class, 'user_id', 'user_role_id', 'id', 'id');
+        return $this->hasManyThrough(UserSubject::class, UserRole::class, 'user_id', 'user_role_id', 'id', 'id')->with('user_roles');
     }
 
     # applied when user from sales department

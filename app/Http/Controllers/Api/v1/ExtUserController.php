@@ -3,16 +3,21 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Interfaces\SubjectRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ExtUserController extends Controller
 {
     protected UserRepositoryInterface $userRepository;
+    protected SubjectRepositoryInterface $subjectRepository;
 
-    public function __construct(UserRepositoryInterface $userRepository)
+    public function __construct(UserRepositoryInterface $userRepository, SubjectRepositoryInterface $subjectRepository)
     {
         $this->userRepository = $userRepository;
+        $this->subjectRepository = $subjectRepository;
     }
 
     # used for spreadsheets
@@ -82,6 +87,29 @@ class ExtUserController extends Controller
             'success' => true,
             'message' => 'Employee are found',
             'data' => $mappingEmployees
+        ]);
+    }
+
+    public function cnGetSubjectsByRole(Request $request)
+    {
+        $role = $request->route('role');
+        try {
+            $subjects = $this->subjectRepository->rnGetAllSubjectsByRole($role);
+            
+            if (!$subjects) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Subject not found.'
+                ]);
+            }
+        } catch (Exception $e) {
+            Log::error('Failed get subject' . $e->getMessage());
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'There are subject found.',
+            'data' => $subjects
         ]);
     }
 }

@@ -458,4 +458,78 @@ class UserController extends Controller
 
         return response($file)->header('Content-Type', 'application/pdf');
     }
+
+    public function cnStoreUserAgreement(Request $request, LogService $log_service)
+    {
+        $user_id = $request->route('user');
+        $user = $this->userRepository->rnGetUserById($user_id);
+
+        DB::beginTransaction();
+        try {
+            $user_agreement = $this->userRepository->rnCreateOrUpdateUserSubject($user, $request);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+
+            $log_service->createErrorLog(LogModule::STORE_USER_AGREEMENT, $e->getMessage(), $e->getLine(), $e->getFile(), compact('user'));
+            return redirect()->route('user.edit', ['user_role' => $request->route('user_role'), 'user' => $user_id])->withErrors('Failed store user agreement!');
+        }
+
+        $log_service->createSuccessLog(LogModule::STORE_USER_AGREEMENT, 'Successfully store/update user agreement', $user_agreement);
+        
+        return redirect()->route('user.edit', ['user_role' => $request->route('user_role'), 'user' => $user_id])->withSuccess('Successfully store/update user agreement!');
+    }
+    
+    public function cnEditUserAgreement(Request $request)
+    {
+        $user_id = $request->route('user');
+        $user_subject_id = $request->route('user_subject');
+        $user = $this->userRepository->rnGetUserById($user_id);
+        
+        $user_subject = $user->user_subjects->where('id', $user_subject_id)->first();
+
+        try {
+            if(!$user_subject){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User subject not found.'
+                ]);
+            }
+
+        } catch (Exception $e) {
+            Log::error('Failed get user subject' . $e->getMessage());
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'There are user agreement found.',
+            'data' => $user_subject
+        ]);
+    }
+
+    public function cnDestroyUserAgreement(
+        Request $request,
+        LogService $log_service,
+        )
+    {
+        $user_id = $request->route('user');
+        $user_subject_id = $request->route('user_subject');
+
+        DB::beginTransaction();
+        try {
+
+            $deleted_user_subject = $this->userRepository->rnDeleteUserAgreement($user_subject_id);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            $log_service->createErrorLog(LogModule::DELETE_USER_AGREEMENT, $e->getMessage(), $e->getLine(), $e->getFile(), compact('user_id', 'user_subject_id'));
+            return Redirect::back()->withError('Failed to delete user agreement');
+        }
+
+        $log_service->createSuccessLog(LogModule::DELETE_USER_AGREEMENT, 'The user agreement has been deleted', $deleted_user_subject->toArray());
+        return Redirect::to('user/' . $request->route('user_role') . '/' . $user_id . '/edit')->withSuccess('Successfully deleted the user agreement');
+    }
+
 }
