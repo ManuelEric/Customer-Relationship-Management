@@ -14,49 +14,57 @@
     </div>
     <div class="card-body">
         <ol class="list-group list-group-numbered">
-        @forelse ($user->user_subjects as $user_subject)
+        @forelse ($user->user_subjects->groupBy(['subject_id', 'year']) as $key => $user_subject_by_subject_id)
             <li class="list-group-item d-flex justify-content-between align-items-start">
                 <div class="ms-2 me-auto">
-                    <div class="fw-bold">{{ $user_subject->subject->name }}</div>
-                    <b>{{ $user_subject->year }} | {{ $user_subject->grade}}</b> 
-                    <table>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                        </tr>
-                        <tr>
-                            <td>Fee Individual</td>
-                            <td>:</td>
-                            <td> {{ $user_subject->fee_individual ?? '-' }}</td>
-                        </tr>
-                        <tr>
-                            <td>Fee Group</td>
-                            <td>:</td>
-                            <td> {{ $user_subject->fee_group ?? '-' }}</td>
-                        </tr>
-                        <tr>
-                            <td>Additional Fee</td>
-                            <td>:</td>
-                            <td> {{ $user_subject->additional_fee ?? '-' }}</td>
-                        </tr>
-                        <tr>
-                            <td>Head</td>
-                            <td>:</td>
-                            <td> {{ $user_subject->head ?? '-' }}</td>
-                        </tr>
-                    </table>
-                    @if($user_subject->agreement != null)
-                        <div class="d-grid gap-2 d-md-flex mx-auto">
-                            <h4>
-                                <a href="#" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Download" class="download" onclick="downloadAgreement('{{$user_subject->id}}')"><i class="bi bi-download"></i></a>
-                                <a href="#" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit" data-user-subject-id="{{ $user_subject->id }}" class="ms-2 edit text-warning" onclick="editAgreement('{{$user_subject->id}}')"><i class="bi bi-pencil"></i></a>
-                                <a href="#" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete" data-user-subject-id="{{ $user_subject->id }}" class="ms-2 delete text-danger" onclick="confirmDelete('user/{{Request::route('user_role')}}/{{$user->id}}/agreement', {{ $user_subject->id }})"><i class="bi bi-trash"></i></a>
-                            </h4>
-                        </div>
-                        <div class="text-center">
-                        </div>
-                    @endif
+                    <div class="fw-bold">{{ $user_subject_by_subject_id->first()->first()->subject->name }}</div>
+                    @foreach ($user_subject_by_subject_id as $user_subject_by_year)
+                        <hr>
+                        @foreach ($user->user_subjects()->where('subject_id', $user_subject_by_year->first()->subject_id)->where('year', $user_subject_by_year->first()->year)->get() as $user_subject)
+                            {{-- {{dd($user_subject)}} --}}
+                                <b>{{ $user_subject->year }} | {{ $user_subject->grade}}</b>  
+                                @if($user_subject->agreement != null && $loop->index == 0)
+                                    {{-- {{dd($user_subject->subject_id)}} --}}
+                                    <div class="d-grid gap-2 d-md-flex mx-auto">
+                                        <h6>
+                                            <a href="#" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Download" class="download" onclick="downloadAgreement('{{$user_subject->id}}')"><i class="bi bi-download"></i></a>
+                                            <a href="#" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit" data-user-subject-id="{{ $user_subject->id }}" class="ms-2 edit text-warning" onclick="editAgreement('{{$user_subject->subject_id}}', '{{$user_subject->year}}')"><i class="bi bi-pencil"></i></a>
+                                            <a href="#" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete" data-user-subject-id="{{ $user_subject->id }}" class="ms-2 delete text-danger" onclick="confirmDelete('user/{{Request::route('user_role')}}/{{$user->id}}/agreement/{{ $user_subject->subject_id }}/year', {{ $user_subject->year }})"><i class="bi bi-trash"></i></a>
+                                        </h6>
+                                    </div>
+                                    <div class="text-center">
+                                    </div>
+                                @endif
+                                <table>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                    <tr>
+                                        <td>Fee Individual</td>
+                                        <td>:</td>
+                                        <td> {{ $user_subject->fee_individual ?? '-' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Fee Group</td>
+                                        <td>:</td>
+                                        <td> {{ $user_subject->fee_group ?? '-' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Additional Fee</td>
+                                        <td>:</td>
+                                        <td> {{ $user_subject->additional_fee ?? '-' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Head</td>
+                                        <td>:</td>
+                                        <td> {{ $user_subject->head ?? '-' }}</td>
+                                    </tr>
+                                </table>
+                               
+                        @endforeach
+                    @endforeach
                 </div>
                 
             </li>
@@ -235,8 +243,7 @@
         });
     });
 
-    function addDetailAgreement() {
-        let index = 0;
+    function addDetailAgreement(index = 0) {
         let id = Math.floor((Math.random() * 100) + 1);
         $("#detail-subject-"+index).append(
             '<div class="row border py-2 px-3 mb-1" id="subjectDetailField-'+id+'">' +
@@ -295,57 +302,114 @@
         $('#subjectDetailField-' + id).remove();
     }
     
-    function editAgreement(id) {
+    function editAgreement(subject_id, year) {
 
-        var baseUrl = "{{ url('/user/'.Request::route("user_role").'/'.$user->id.'/agreement') }}/" + id;        
+        var baseUrl = "{{ url('/user/'.Request::route("user_role").'/'.$user->id.'/agreement') }}/" + subject_id + "/year/" + year;        
         
         $('#agreementForm').modal('show');
         showLoading();
         axios.get(baseUrl)
         .then(function(response) {
             // handle success
-            let user_subject = response.data.data
+            let user_subjects = response.data.data
+            
             var html_agreement = '';
-                        
+            var keys = Object.keys(user_subjects) 
+            
             $('#role_agreement').attr('data-edit', 'true');
-            $('#role_agreement').attr('data-subject', user_subject.subject_id);
-            $('#role_agreement').val(user_subject.user_role_id).trigger('change');
-            $('#year').val(user_subject.year).trigger('change');
-            $('select[name="grade[]"]').val(user_subject.grade).trigger('change');
-            $('input[name="fee_individual[]"]').val(user_subject.fee_individual);
-            $('input[name="fee_group[]"]').val(user_subject.fee_group);
-            $('input[name="additional_fee[]"]').val(user_subject.additional_fee);
-            $('input[name="head[]"]').val(user_subject.head);
+            $('#role_agreement').attr('data-subject', user_subjects[keys[0]].subject_id);
+            $('#role_agreement').val(user_subjects[keys[0]].user_role_id).trigger('change');
+            $('#year').val(user_subjects[keys[0]].year).trigger('change');
 
-            if(user_subject.agreement !== null){
+            if(user_subjects[keys[0]].agreement !== null){
                 
-                html_agreement += '<button id="btn-download-'+user_subject.id+'" type="button" class="btn btn-sm btn-info me-2 download" onclick="downloadAgreement('+user_subject.id+')">' +
+                html_agreement += '<button id="btn-download-'+user_subjects[keys[0]].id+'" type="button" class="btn btn-sm btn-info me-2 download" onclick="downloadAgreement('+user_subjects[keys[0]].id+')">' +
                     '<i class="bi bi-download me-2"></i>' +
                         'Download' +
                     '</button>' +
-                    '<button type="button" class="btn btn-sm btn-danger remove" id="btn-remove-'+ user_subject.id+'" onclick="removeAgreement('+user_subject.id+')">' +
+                    '<button type="button" class="btn btn-sm btn-danger remove" id="btn-remove-'+ user_subjects[keys[0]].id+'" onclick="removeAgreement('+user_subjects[keys[0]].id+')">' +
                     '<i class="bi bi-trash"></i>'+
                     '</button>' +
 
-                    '<div id="agreement-upload-'+user_subject.id+'" class="upload-file d-flex justify-content-center align-items-center d-none">' +
-                    '<input type="hidden" name="agreement_text" value='+user_subject.agreement+'>' +
+                    '<div id="agreement-upload-'+user_subjects[keys[0]].id+'" class="upload-file d-flex justify-content-center align-items-center d-none">' +
+                    '<input type="hidden" name="agreement_text" value='+user_subjects[keys[0]].agreement+'>' +
                     '<input type="file" name="agreement" class="form-control form-control-sm rounded">' +
-                    '<i id="btn-roolback-'+user_subject.id+'" class="bi bi-backspace ms-2 cursor-pointer text-danger rollback" onclick="roolbackAgreement(' + user_subject.id + ')"></i>' +
+                    '<i id="btn-roolback-'+user_subjects[keys[0]].id+'" class="bi bi-backspace ms-2 cursor-pointer text-danger rollback" onclick="roolbackAgreement(' + user_subjects[keys[0]].id + ')"></i>' +
                     '</div>' ;
                     
                 $('.file-agreement').html('');
                 $('.file-agreement').html(html_agreement);
             }
             
-            // let html_method = '@method('put')';
-            // $('.put').html(html_method);
-            // $('#detailForm').attr('action', '{{ url('master/sales-target') }}/' + data.id + '')
+            var new_html_detail_agreement = '';
+            var i = 0;
+            Object.keys(user_subjects).forEach(function (key){
+                
+                @php
+                    $index = 0;
+                @endphp
+                
+                var id_field_detail_subject = Math.floor((Math.random() * 100) + 1);
+                new_html_detail_agreement += '<div class="row border py-2 px-3 mb-1" id="subjectDetailField-'+id_field_detail_subject+'">' +
+                    '<input type="hidden" value="1" name="count_agreement_detail[]">' +
+                    @if($is_tutor)
+                        '<div class="col-md-6 mb-2">' +
+                            '<label for="">Grade <sup class="text-danger">*</sup></label>' +
+                            '<select name="grade[]" class="agreement-select w-100">' +
+                                '<option data-placeholder="true"></option>' +
+                                '<option value="9-10" '+(user_subjects[key].grade == "9-10" ? "selected" : "")+'>9-10</option>' +
+                                '<option value="11-12" '+(user_subjects[key].grade == "11-12" ? "selected" : "")+'>11-12</option>' +
+                            '</select>' +
+                            @error('grade.'. $index)
+                                '<small class="text-danger fw-light">{{ $message }}</small>'
+                            @enderror
+                        '</div>' +
+                    @endif
+                    '<div class="col-md-6 mb-2">' +
+                        '<label for="">Fee Individual <sup class="text-danger">*</sup></label>' +
+                        '<input class="form-control form-control-sm rounded" type="text" name="fee_individual[]" value="'+(user_subjects[key].fee_individual ?? '')+'">' +
+                        @error('fee_individual.'. $index)
+                            '<small class="text-danger fw-light">{{ $message }}</small>' +
+                        @enderror
+                    '</div>' +
+                    '<div class="col-md-6 mb-2">' +
+                        '<label for="">Fee Group </label>' +
+                        '<input class="form-control form-control-sm rounded" type="text" name="fee_group[]" value="'+(user_subjects[key].fee_group ?? '')+'">' +
+                        @error('fee_group.'. $index)
+                            '<small class="text-danger fw-light">{{ $message }}</small>' +
+                        @enderror
+                    '</div>' +
+                    '<div class="col-md-6 mb-2">' +
+                        '<label for="">Additional Fee </label>' +
+                        '<input class="form-control form-control-sm rounded" type="text" name="additional_fee[]" value="'+(user_subjects[key].additional_fee ?? '')+'">' +
+                        @error('additional_fee.'. $index)
+                            '<small class="text-danger fw-light">{{ $message }}</small>' +
+                        @enderror
+                    '</div>' +
+                    '<div class="col-md-6 mb-2 d-flex justify-content-between align-items-start">' +
+                        '<div style="width: 100%">' +
+                            '<label for="" class="text-muted">Head</label>' +
+                            '<input class="form-control form-control-sm rounded" type="text" name="head[]" value="'+(user_subjects[key].head ?? '')+'">' +
+                            @error('head.'. $index)
+                                '<small class="text-danger fw-light">{{ $message }}</small>' +
+                            @enderror
+                        '</div>' +
+                        (i > 0 ? '<button type="button" class="btn btn-sm btn-danger py-1" onclick="deleteDetailSubject('+id_field_detail_subject+')" style="margin-top:18px; margin-left:10px;"><i class="bi bi-trash2"></i></button>' : '<button type="button" id="btn-add-detail-agreement" class="btn btn-sm btn-outline-primary py-1" onclick="addDetailAgreement('+i+')" style="margin-top:18px; margin-left:10px;"><i class="bi bi-plus"></i></button>')  +
+                    '</div>' +
 
-            $('#btn-add-detail-agreement').addClass('d-none');
-            
+                '</div>'
+                @php
+                    $index++;
+                @endphp
+                i++;
+            });
+
+            $("#detail-subject-"+0).html('');
+            $("#detail-subject-"+0).html(new_html_detail_agreement);
+
             Swal.close()
         })
-        .catch(function(error) {
+        .catch(function(error) {            
             // handle error
             Swal.close()
             notification(error.response.data.success, 'Something went wrong. Please try again or contact the administrator.')

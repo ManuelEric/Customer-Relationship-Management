@@ -440,5 +440,25 @@ class UserRepository implements UserRepositoryInterface
 
         return $user_subject;
     }
+
+    public function rnDeleteUserAgreementBySubjectIdAndYear($subject_id, $year)
+    {
+        # store the soon deleted user subject variable and returned it
+        $user_subject = UserSubject::where('subject_id', $subject_id)->where('year', $year)->get();
+
+        UserSubject::where('subject_id', $subject_id)->where('year', $year)->delete();
+        
+        # delete file agreement
+
+        # if there is no user subject with the same subject id and year then delete file agreement
+        // $user_subjects_by_subject_id = UserSubject::where('subject_id', $user_subject->subject_id)->where('year', $user_subject->year)->get();
+        if(count($user_subject) == 0 && Storage::exists($user_subject->first()->agreement)){
+
+            Storage::delete($user_subject->first()->agreement);
+
+        }
+
+        return $user_subject;
+    }
     //! new methods end
 }

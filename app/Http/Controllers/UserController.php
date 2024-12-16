@@ -484,10 +484,11 @@ class UserController extends Controller
     public function cnEditUserAgreement(Request $request)
     {
         $user_id = $request->route('user');
-        $user_subject_id = $request->route('user_subject');
+        $subject_id = $request->route('subject');
+        $year = $request->route('year');
         $user = $this->userRepository->rnGetUserById($user_id);
         
-        $user_subject = $user->user_subjects->where('id', $user_subject_id)->first();
+        $user_subject = $user->user_subjects->where('subject_id', $subject_id)->where('year', $year);
 
         try {
             if(!$user_subject){
@@ -514,12 +515,13 @@ class UserController extends Controller
         )
     {
         $user_id = $request->route('user');
-        $user_subject_id = $request->route('user_subject');
+        $subject_id = $request->route('subject');
+        $year = $request->route('year');
 
         DB::beginTransaction();
         try {
 
-            $deleted_user_subject = $this->userRepository->rnDeleteUserAgreement($user_subject_id);
+            $deleted_user_subject = $this->userRepository->rnDeleteUserAgreementBySubjectIdAndYear($subject_id, $year);
             DB::commit();
         } catch (Exception $e) {
 

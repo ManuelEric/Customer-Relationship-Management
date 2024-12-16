@@ -37,8 +37,8 @@ Route::prefix('{user_role}/{user}')->name('user.')->group(function () {
     Route::post('update/status', [UserController::class, 'changeStatus'])->name('update.status');
     Route::delete('{user_type}', [UserController::class, 'destroyUserType'])->name('type.destroy');
     Route::post('agreement', [UserController::class, 'cnStoreUserAgreement'])->name('store.agreement');
-    Route::get('agreement/{user_subject}', [UserController::class, 'cnEditUserAgreement'])->name('edit.agreement');
-    Route::delete('agreement/{user_subject}', [UserController::class, 'cnDestroyUserAgreement'])->name('destroy.agreement');
+    Route::get('agreement/{subject}/year/{year}', [UserController::class, 'cnEditUserAgreement'])->name('edit.agreement');
+    Route::delete('agreement/{subject}/year/{year}', [UserController::class, 'cnDestroyUserAgreement'])->name('destroy.agreement');
 });
 
 Route::resource('volunteer', VolunteerController::class);
