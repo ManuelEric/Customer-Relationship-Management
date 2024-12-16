@@ -74,12 +74,12 @@ class StoreUserRequest extends FormRequest
             'major.*' => 'nullable',
             'graduation_date.*' => 'nullable',
 
-            'role.*' => 'required|in:1,2,3,4,18',
-            'department' => 'required',
-            'position' => 'required',
-            'hiredate' => 'required',
-            'type' => 'required|exists:tbl_user_type,id',
-            'start_period' => 'required',
+            'role.*' => 'required|in:1,2,3,4,18,19,20',
+            'department' => 'required_unless:role,19', # 20 is professional
+            'position' => 'required_unless:role,19',
+            'hiredate' => 'required_unless:role,19',
+            'type' => 'required_unless:role,19|exists:tbl_user_type,id',
+            'start_period' => 'required_unless:role,19',
             'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
 
             'curriculum_vitae' => 'nullable|mimes:pdf|max:5000',
@@ -95,20 +95,22 @@ class StoreUserRequest extends FormRequest
 
         ];
 
-        if($total_roles > 0){
-            if(in_array(4, $this->input('role'))){
-                $rules += [
-                    'agreement.*' => 'required|mimes:pdf|max:5000',
-                    'subject_id.*' => 'required',
-                    'year.*' => 'required',
-                    'grade.*.*' => 'required',
-                    'fee_individual.*.*' => 'required',
-                    'fee_group.*.*' => 'nullable',
-                    'additional_fee.*.*' => 'nullable',
-                    'head.*.*' => 'nullable',
-                ];
-            }
-        }
+        // if($total_roles > 0){
+        //     # Tutor || Editor || Individual Professional || External Mentor
+        //     if(in_array(4, $this->input('role')) || in_array(3, $this->input('role')) || in_array(19, $this->input('role')) || in_array(20, $this->input('role'))){
+        //         $rules += [
+        //             'agreement.*' => 'required|mimes:pdf|max:5000',
+        //             'subject_id.*' => 'required_if:role,4',
+        //             'role_type.*' => 'required_if:role,3|required_if:role,19',
+        //             'year.*' => 'required',
+        //             'grade.*.*' => 'required_if:role,4',
+        //             'fee_individual.*.*' => 'required',
+        //             'fee_group.*.*' => 'nullable',
+        //             'additional_fee.*.*' => 'nullable',
+        //             'head.*.*' => 'nullable',
+        //         ];
+        //     }
+        // }
         
         return $rules;
     }
@@ -140,12 +142,12 @@ class StoreUserRequest extends FormRequest
             'major.*' => 'nullable',
             'graduation_date.*' => 'nullable',
 
-            'role.*' => 'required|in:1,2,3,4,18',
-            'department' => 'required',
-            'position' => 'required',
-            'hiredate' => 'required',
-            'type' => 'required|exists:tbl_user_type,id',
-            'start_period' => 'required',
+            'role.*' => 'required|in:1,2,3,4,18,19,20',
+            'department' => 'required_unless:role,19',
+            'position' => 'required_unless:role,19',
+            'hiredate' => 'required_unless:role,19',
+            'type' => 'required_unless:role,19|exists:tbl_user_type,id',
+            'start_period' => 'required_unless:role,19',
             'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
             
             'curriculum_vitae' => 'nullable|mimes:pdf|max:5000',
@@ -166,41 +168,42 @@ class StoreUserRequest extends FormRequest
         if ($user->idcard == null)
             $rules['idcard'] = 'required|mimes:pdf,jpeg,jpg,png|max:5000';
 
-        if ( $total_roles > 0 )
-        {
-            if ( in_array(4, $this->input('role')) )
-            {
-                for ($i = 0; $i < count($this->subject_id) ; $i++)
-                {
-                    if ( !$tutor_role_information = $user->roles->where('id', 4)->first() )
-                    {
-                        $rules += ["agreement.*" => 'required|mimes:pdf|max:5000'];
-                        break;
-                    }
+        // if ( $total_roles > 0 )
+        // {
+        //     if ( in_array(4, $this->input('role')) )
+        //     {
+        //         for ($i = 0; $i < count($this->subject_id) ; $i++)
+        //         {
+        //             if ( !$tutor_role_information = $user->roles->where('id', 4)->first() )
+        //             {
+        //                 $rules += ["agreement.*" => 'required|mimes:pdf|max:5000'];
+        //                 break;
+        //             }
 
-                    $user_role_id = $tutor_role_information->pivot->id;
-                    if ( $role_subject = $this->userRepository->rnGetUserSubjectById($user_role_id) )
-                    {
-                        if ( $role_subject->agreement !== NULL )
-                        {
-                            $rules += [
-                                "agreement.{$i}" => 'nullable',
-                            ];
-                        }
-                    }
-                }
+        //             $user_role_id = $tutor_role_information->pivot->id;
+        //             if ( $role_subject = $this->userRepository->rnGetUserSubjectById($user_role_id) )
+        //             {
+        //                 if ( $role_subject->agreement !== NULL )
+        //                 {
+        //                     $rules += [
+        //                         "agreement.{$i}" => 'nullable',
+        //                     ];
+        //                 }
+        //             }
+        //         }
 
-                $rules += [
-                    'subject_id.*' => 'required',
-                    'year.*' => 'required',
-                    'grade.*.*' => 'required',
-                    'fee_individual.*.*' => 'required',
-                    'fee_group.*.*' => 'nullable',
-                    'additional_fee.*.*' => 'nullable',
-                    'head.*.*' => 'nullable',
-                ];
-            }
-        }
+        //         $rules += [
+        //             'subject_id.*' => 'required_if:role,4',
+        //             'year.*' => 'required',
+        //             'role_type.*' => 'required_if:role,3|required_if:role,19',
+        //             'grade.*.*' => 'required_if:role,4',
+        //             'fee_individual.*.*' => 'required',
+        //             'fee_group.*.*' => 'nullable',
+        //             'additional_fee.*.*' => 'nullable',
+        //             'head.*.*' => 'nullable',
+        //         ];
+        //     }
+        // }
         return $rules;
     }
 }

@@ -30,6 +30,7 @@ use App\Http\Controllers\Api\v1\TagController as APITagController;
 use App\Http\Controllers\Api\v1\ClientEventController as APIClientEventController;
 use App\Http\Controllers\Api\v1\EventController as APIEventController;
 use App\Http\Controllers\Api\v1\ExtClientProgramController;
+use App\Http\Controllers\Api\v1\ExtCorporateController;
 use App\Http\Controllers\Api\v1\ExtEventController;
 use App\Http\Controllers\Api\v1\ExtPartnerController;
 use App\Http\Controllers\Api\v1\ExtUniversityController;
@@ -197,6 +198,12 @@ Route::prefix('v1')->group(function () {
         Route::get('program/list', [ExtClientProgramController::class, 'getSuccessPrograms']);
         Route::get('client/information/{uuid}', [ExtClientController::class, 'getClientInformation']);
     // });
+
+    # use for select data subsector corporate
+    Route::get('get/subsectors/{industry}', [ExtCorporateController::class, 'cnGetSubSectorByIndustry']);
+
+    # use for select data subject user agreement
+    Route::get('get/subjects/{role}', [ExtUserController::class, 'cnGetSubjectsByRole']);
 });
 
 # Client Event Attendance

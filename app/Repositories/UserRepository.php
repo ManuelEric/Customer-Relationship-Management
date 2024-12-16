@@ -21,6 +21,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class UserRepository implements UserRepositoryInterface
@@ -218,10 +219,12 @@ class UserRepository implements UserRepositoryInterface
         $user = User::with('roles')->find($user->id);
 
         # variables for tutor subject
-        $new_tutor_subject_details = $request->only([
+        $request_subject_details = $request->only([
             'subject_id',
+            'role_agreement',
             'grade',
             'agreement',
+            'agreement_text',
             'fee_individual',
             'fee_group',
             'additional_fee',
@@ -229,51 +232,59 @@ class UserRepository implements UserRepositoryInterface
             'year',
         ]);
 
-
-        if ( ( (!array_key_exists('subject_id', $new_tutor_subject_details) && ($new_tutor_subject_details['subject_id'] !== []))
-            || (!array_key_exists('fee_individual', $new_tutor_subject_details) && ($new_tutor_subject_details['fee_individual'] !== []))
-            || (!array_key_exists('grade', $new_tutor_subject_details) && ($new_tutor_subject_details['grade'] !== []))
-            || (!array_key_exists('head', $new_tutor_subject_details) && ($new_tutor_subject_details['head'] !== []))
-            || (!array_key_exists('year', $new_tutor_subject_details) && ($new_tutor_subject_details['year'] !== [])) )
-                && in_array(4, $user->roles()->pluck('tbl_roles.id')->toArray() )
-        )
+        if ( !$user_identity = $user->roles()->wherePivot('id', $request_subject_details['role_agreement'])->first())
         {
-            throw new Exception('Tutor subject information has to be provided when add a tutor.');
+            Log::warning('Failed to add agreement!, User is not a Tutor, mentor, editor or professional', ['id' => $user->id]);
+            return;
+        }
+        
+        # check field agreement
+        # when update agreement and file agreement not change
+        # field agreement is agreement_text (existing agreement)
+        # else field agreement is agreement
+        $fieldname_agreement = $request['agreement_text'] != null && $request['agreement'] == null ? 'agreement_text' : 'agreement';
+
+        if ( $user_subject = UserSubject::where('user_role_id', $request_subject_details['role_agreement'])->where('subject_id', $request_subject_details['subject_id'])->where('year', $request_subject_details['year'])->first() )
+        {
+
+            # case 1 agreement ga ada  dan fieldname_agreement != agreement_text then upload
+            # case 2 agreement ada dan fieldname_agreement == agreement_text then skip
+            # case 3 agreement ada dan fieldname_agreement == agreement then upload
+            # case 4 agreement ga ada dan fieldname_agreement = agreement then upload
+
+            if((!$user_subject->agreement && $fieldname_agreement == 'agreement') || (!$user_subject->agreement && $fieldname_agreement == 'agreement') || ($user_subject->agreement && $fieldname_agreement == 'agreement')){
+                $agreement = $this->tnUploadFile($request, $fieldname_agreement, 'Agreement-' . str_replace(' ', '_', $user->first_name . '_' . $user->last_name . '-' . $request->subject_id .  '-' . $request_subject_details['year']), 'public/uploaded_file/user/' . $user->id);
+            }else{
+                $agreement = $user_subject->agreement;
+            }
+
+            // $agreement = $user_subject->agreement ?? $this->tnUploadFile($request, $fieldname_agreement, 'Agreement-' . str_replace(' ', '_', $user->first_name . '_' . $user->last_name . '-' . $request->subject_id .  '-' . $request_subject_details['year']), 'public/uploaded_file/user/' . $user->id);
+        } else {
+            $agreement = $this->tnUploadFile($request, $fieldname_agreement, 'Agreement-' . str_replace(' ', '_', $user->first_name . '_' . $user->last_name . '-' . $request->subject_id .  '-' . $request_subject_details['year']), 'public/uploaded_file/user/' . $user->id);
         }
 
-        
-        if ( !$user_tutor_identity = $user->roles()->where('role_name', 'Tutor')->first() )
-        {
-            Log::warning('Failed to add a subject for tutor!, User is not a Tutor', ['id' => $user->id]);
-            return;
-        }        
-    
+        for($j = 0; $j < count($request_subject_details['grade']); $j++){
 
-        for ($i = 0; $i < count($new_tutor_subject_details['subject_id']); $i++) 
-        {
-            if ( $user_subject = UserSubject::where('user_role_id', $user_tutor_identity->pivot->id)->where('subject_id', $new_tutor_subject_details['subject_id'][$i])->where('year', $new_tutor_subject_details['year'][$i])->first() )
-            {
-                $agreement = $user_subject->agreement ?? $this->tnUploadFile($request, 'agreement.'.$i, 'Agreement-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name . '-' . $request->subject_id[$i] .  '-' . date('Y')), 'public/uploaded_file/user/' . $user->id);
-            }
+            $subject_details =  [
+                'fee_individual' => $request_subject_details['fee_individual'][$j],
+                'fee_group' => $request_subject_details['fee_group'][$j],
+                'additional_fee' => $request_subject_details['additional_fee'][$j],
+                'head' => $request_subject_details['head'][$j],
+                'agreement' => $agreement,
+            ];
+
+            $key_subject = [
+                'user_role_id' => $user_identity->pivot->id,
+                'subject_id' => $request_subject_details['subject_id'],
+                'grade' => $request_subject_details['grade'][$j],
+                'year' => $request_subject_details['year']
+            ];
             
-            for($j = 0; $j < count($new_tutor_subject_details['grade'][$i]); $j++){
-
-                $subject_details =  [
-                    'fee_individual' => $new_tutor_subject_details['fee_individual'][$i][$j],
-                    'fee_group' => $new_tutor_subject_details['fee_group'][$i][$j],
-                    'additional_fee' => $new_tutor_subject_details['additional_fee'][$i][$j],
-                    'head' => $new_tutor_subject_details['head'][$i][$j],
-                    'agreement' => $agreement,
-                ];
-                
-                $user->user_subjects()->updateOrCreate([
-                    'user_role_id' => $user_tutor_identity->pivot->id,
-                    'subject_id' => $new_tutor_subject_details['subject_id'][$i],
-                    'grade' => $new_tutor_subject_details['grade'][$i][$j],
-                    'year' => $new_tutor_subject_details['year'][$i]
-                ], $subject_details);
-            }
-        }        
+            $user->user_subjects()->updateOrCreate(
+                $key_subject, $subject_details);
+        } 
+        
+        return $request_subject_details;
     }
 
     public function rnCreateUserRole(User $user, array $user_role_details)
@@ -410,5 +421,44 @@ class UserRepository implements UserRepositoryInterface
             lazy();
     }
 
+    public function rnDeleteUserAgreement($user_subject_id)
+    {
+        # store the soon deleted user subject variable and returned it
+        $user_subject = UserSubject::find($user_subject_id);
+
+        UserSubject::destroy($user_subject_id);
+        
+        # delete file agreement
+
+        # if there is no user subject with the same subject id and year then delete file agreement
+        $user_subjects_by_subject_id = UserSubject::where('subject_id', $user_subject->subject_id)->where('year', $user_subject->year)->get();
+        if(count($user_subjects_by_subject_id) == 0 && Storage::exists($user_subject->agreement)){
+
+            Storage::delete($user_subject->agreement);
+
+        }
+
+        return $user_subject;
+    }
+
+    public function rnDeleteUserAgreementBySubjectIdAndYear($subject_id, $year)
+    {
+        # store the soon deleted user subject variable and returned it
+        $user_subject = UserSubject::where('subject_id', $subject_id)->where('year', $year)->get();
+
+        UserSubject::where('subject_id', $subject_id)->where('year', $year)->delete();
+        
+        # delete file agreement
+
+        # if there is no user subject with the same subject id and year then delete file agreement
+        // $user_subjects_by_subject_id = UserSubject::where('subject_id', $user_subject->subject_id)->where('year', $user_subject->year)->get();
+        if(count($user_subject) == 0 && Storage::exists($user_subject->first()->agreement)){
+
+            Storage::delete($user_subject->first()->agreement);
+
+        }
+
+        return $user_subject;
+    }
     //! new methods end
 }

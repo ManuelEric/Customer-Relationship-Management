@@ -106,6 +106,7 @@
                                         <option data-placeholder="true"></option>
                                         <option value="Bachelor" @selected(old('degree.'.$i) == "Bachelor")>Bachelor</option>
                                         <option value="Magister" @selected(old('degree.'.$i) == "Magister")>Magister</option>
+                                        <option value="Phd" @selected(old('degree.'.$i) == "Phd")>Phd</option>
                                     </select>
                                     @error('degree.'.$i)
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -158,6 +159,7 @@
                                 <option data-placeholder="true"></option>
                                 <option value="Bachelor">Bachelor</option>
                                 <option value="Magister">Magister</option>
+                                <option value="Phd">Phd</option>
                             </select>
                             @error('degree.0')
                                 <small class="text-danger fw-light">{{ $message }}</small>
@@ -218,6 +220,7 @@
                     '<option data-placeholder="true"></option>' +
                     '<option value="Bachelor">Bachelor</option>' +
                     '<option value="Magister">Magister</option>' +
+                    '<option value="Phd">Phd</option>' +
                     '</select>' +
                     @error('degree')
                         '<small class="text-danger fw-light">{{ $message }}</small>'
