@@ -35,6 +35,8 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
+        $credentials = $request->only(['email', 'password']);
+
         # check credentials
         if (!Auth::attempt($credentials, true)) 
             return back()->withErrors([ 'password' => 'Wrong email or password' ]);

@@ -462,7 +462,7 @@ return new class extends Migration
                     WHERE tbl_client.is_verified = "Y"
                     AND tbl_client.deleted_at is null
                     AND tbl_client_roles.role_id = role_id
-                    AND (first_name LIKE (first_name LIKE CONCAT("%", fname, "%"));
+                    AND (first_name LIKE (first_name LIKE CONCAT("%", fname, "%")));
             ELSE
                 SELECT GROUP_CONCAT(DISTINCT(tbl_client.id)) INTO id_similiar
                     FROM tbl_client

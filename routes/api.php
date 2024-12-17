@@ -142,7 +142,7 @@ Route::get('current/rate/{base_currency}/{to_currency}', [CurrencyRateController
 // Route::get('create-qr/{size}', [ClientEventController::class, 'createQrCode']);
 
 # external API
-Route::middleware(['auth:api', 'auth.api.expires'])->prefix('v1')->group(function () {
+Route::prefix('v1')->group(function () {
     Route::get('get/parent-mentees', [ExtClientController::class, 'getParentMentee']);
     Route::get('get/alumni-mentees', [ExtClientController::class, 'getAlumniMentees']);
     Route::get('get/mentees', [ExtClientController::class, 'getClientFromAdmissionMentoring']);
@@ -199,39 +199,41 @@ Route::middleware(['auth:api', 'auth.api.expires'])->prefix('v1')->group(functio
     # essay editing
     Route::get('essay/program/list', [ExtClientProgramController::class, 'fnGetSuccessEssayProgram']);
     Route::get('user/{role}/list', [ExtClientController::class, 'fnGetUserByRole']);
-
-    # Client Event Attendance
-    Route::get('event/attendance/{id}/{status}', [ClientEventController::class, 'updateAttendance']);
-    
-    # Client Event Number of Party
-    Route::get('event/party/{id}/{party}', [ClientEventController::class, 'updateNumberOfParty']);
-    
-    # Get URL from short URL
-    Route::get('track/referral/{referral}', [ClientEventController::class, 'trackReferralURL']);
-    
-    # Instance School API
-    # being called from CRM store/update school
-    # why it's different from api/v1/school? -> because api/v1/school being called from vue frontend meaning they have javascript to automatically create new
-    Route::get('school', [APISchoolController::class, 'search']);
-    
-    # Get Active School Data
-    Route::get('instance/school/', [SchoolController::class, 'getSchoolData']);
-    
-    # Get Parents Data
-    Route::get('client/parent/', [ClientParentController::class, 'getDataParents']);
-    
-    # Get Client Suggestion
-    Route::get('client/suggestion/', [ClientController::class, 'getClientSuggestion']);
-    
-    # Get Sales Team
-    Route::get('user/sales-team/', [UserController::class, 'getSalesTeam']); # basically same with route on line 155
-    
-    # Get Prog Program based on Main Program Id
-    Route::get('get/program/main/{mainProgId}', [APIProgramController::class, 'getProgramNameByMainProgramId']);
-    
-    # Get List referral / sub lead referral (All Client)
-    Route::get('get/referral/list', [LeadController::class, 'fnGetListReferral']);
+    Route::get('user/{role}/by/{uuid}', [ExtClientController::class, 'fnGetUserByRoleAndUUID']);
 });
+
+
+# Client Event Attendance
+Route::get('event/attendance/{id}/{status}', [ClientEventController::class, 'updateAttendance']);
+
+# Client Event Number of Party
+Route::get('event/party/{id}/{party}', [ClientEventController::class, 'updateNumberOfParty']);
+
+# Get URL from short URL
+Route::get('track/referral/{referral}', [ClientEventController::class, 'trackReferralURL']);
+
+# Instance School API
+# being called from CRM store/update school
+# why it's different from api/v1/school? -> because api/v1/school being called from vue frontend meaning they have javascript to automatically create new
+Route::get('school', [APISchoolController::class, 'search']);
+
+# Get Active School Data
+Route::get('instance/school/', [SchoolController::class, 'getSchoolData']);
+
+# Get Parents Data
+Route::get('client/parent/', [ClientParentController::class, 'getDataParents']);
+
+# Get Client Suggestion
+Route::get('client/suggestion/', [ClientController::class, 'getClientSuggestion']);
+
+# Get Sales Team
+Route::get('user/sales-team/', [UserController::class, 'getSalesTeam']); # basically same with route on line 155
+
+# Get Prog Program based on Main Program Id
+Route::get('get/program/main/{mainProgId}', [APIProgramController::class, 'getProgramNameByMainProgramId']);
+
+# Get List referral / sub lead referral (All Client)
+Route::get('get/referral/list', [LeadController::class, 'fnGetListReferral']);
 
 
 # Import From google sheet

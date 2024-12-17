@@ -1943,10 +1943,10 @@ class ExtClientController extends Controller
                 }
             ])->
             withAndWhereHas('roles', function ($query) {
-                $query->whereIn('role_name', ['Mentor', 'Tutor'])->select('role_name');
+                $query->whereIn('role_name', ['Mentor', 'Tutor', 'Editor'])->select('role_name');
             })->where('email', $incomingEmail);
 
-        $result = null;
+        $result = $resultInArray = null;
         if ($query->exists()) {
             $result = $query->select('id', 'first_name', 'last_name', 'email', 'phone', 'password', 'position_id', 'active')->first();
 
@@ -1986,7 +1986,7 @@ class ExtClientController extends Controller
         $incomingPassword = $request->post('password');
 
         $user = \App\Models\User::with('roles')->where('email', $incomingEmail)->first();
-
+        
         if (!$user || !Hash::check($incomingPassword, $user->password)) {
 
             throw new HttpResponseException(
@@ -2100,7 +2100,7 @@ class ExtClientController extends Controller
 
     public function getClientInformation($uuid): JsonResponse
     {
-        $userClient = UserClient::where('uuid', $uuid)->select('*')->selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade')->first();
+        $userClient = UserClient::where('id', $uuid)->select('*')->selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade')->first();
         return response()->json($userClient);
     }
 
@@ -2110,10 +2110,10 @@ class ExtClientController extends Controller
         $id = $request->uuid;
 
         $rules = [
-            'uuid' => 'required|exists:tbl_client,id'
+            'id' => 'required|exists:tbl_client,id'
         ];
 
-        $validator = Validator::make(['uuid' => $id], $rules);
+        $validator = Validator::make(['id' => $id], $rules);
 
         # threw error if validation fails
         if ($validator->fails()) {
@@ -2160,11 +2160,19 @@ class ExtClientController extends Controller
         return response()->json($user);
     }
 
-    public function fnGetMentors(string $role)
+    public function fnGetUserByRole(string $role)
     {
         $users = \App\Models\User::whereHas('roles', function ($query) use ($role) {
             $query->where('role_name', $role);
         })->get();
+        return response()->json($users);
+    }
+
+    public function fnGetUserByRoleAndUUID(string $role, string $uuid)
+    {
+        $users = \App\Models\User::whereHas('roles', function ($query) use ($role, $uuid) {
+            $query->where('role_name', $role);
+        })->where('id', $uuid)->first();
         return response()->json($users);
     }
 }
