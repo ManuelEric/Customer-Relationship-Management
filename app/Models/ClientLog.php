@@ -330,7 +330,7 @@ class ClientLog extends Model
      */
     public function master_client()
     {
-        return $this->belongsTo(UserClient::class, 'client_id', 'id');
+        return $this->belongsTo(UserClient::class, 'client_id', 'id')->withTrashed();
     }
 
     public function lead_source_log()
