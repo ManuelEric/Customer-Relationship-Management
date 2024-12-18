@@ -191,15 +191,25 @@ class DigitalDashboardController extends Controller
 
         $index = 1;
         foreach ($dataAchieved as $achieved) {
-        
-            $html .= '<tr class="detail" data-clientid="' .$achieved->master_client->id. '" style="cursor:pointer">
-                        <td>' . $index++ . '</td>
-                        <td>' . $achieved->master_client->full_name . '</td>
-                        <td>' . (count($achieved->master_client->parents) > 0 ? $achieved->master_client->parents->first()->full_name : '-'). '</td>
-                        <td>' . (isset($achieved->master_client->school) ? $achieved->master_client->school->sch_name : '-') . '</td>
-                        <td>' . $achieved->master_client->graduation_year_real . '</td>
-                        <td>' . $achieved->lead_source_log->main_lead . '</td>
-                    </tr>';
+            if($typeLead == 'InitConsult' || $typeLead == 'Contribution'){
+                $html .= '<tr class="detail" data-clientid="' .$achieved->id. '" style="cursor:pointer">
+                            <td>' . $index++ . '</td>
+                            <td>' . $achieved->full_name . '</td>
+                            <td>' . (count($achieved->parents) > 0 ? $achieved->parents->first()->full_name : '-'). '</td>
+                            <td>' . (isset($achieved->school) ? $achieved->school->sch_name : '-') . '</td>
+                            <td>' . $achieved->graduation_year_now . '</td>
+                            <td>' . $achieved->lead_source . '</td>
+                        </tr>';
+            }else{
+                $html .= '<tr class="detail" data-clientid="' .$achieved->master_client->id. '" style="cursor:pointer">
+                            <td>' . $index++ . '</td>
+                            <td>' . $achieved->master_client->full_name . '</td>
+                            <td>' . (count($achieved->master_client->parents) > 0 ? $achieved->master_client->parents->first()->full_name : '-'). '</td>
+                            <td>' . (isset($achieved->master_client->school) ? $achieved->master_client->school->sch_name : '-') . '</td>
+                            <td>' . $achieved->master_client->graduation_year_real . '</td>
+                            <td>' . $achieved->lead_source_log->main_lead . '</td>
+                        </tr>';
+            }
         }
 
         return response()->json(
