@@ -52,6 +52,9 @@
                 @include('pages.instance.corporate.form-detail.agreement')
                 @include('pages.instance.corporate.form-detail.event')
                 @include('pages.instance.corporate.form-detail.contact')
+                @if($corporate->user_id != null || $corporate->user_id != '')
+                    @include('pages.instance.corporate.form-detail.user-agreement')
+                @endif
             @endif
 
         </div>

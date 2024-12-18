@@ -22,7 +22,7 @@
                         <hr>
                         @foreach ($user->user_subjects()->where('subject_id', $user_subject_by_year->first()->subject_id)->where('year', $user_subject_by_year->first()->year)->get() as $user_subject)
                             {{-- {{dd($user_subject)}} --}}
-                                <b>{{ $user_subject->year }} | {{ $user_subject->grade}}</b>  
+                                <b>{{ $user_subject->year }} {{ $user_subject->grade != null ? '| ' . $user_subject->grade : '' }}</b>  
                                 @if($user_subject->agreement != null && $loop->index == 0)
                                     {{-- {{dd($user_subject->subject_id)}} --}}
                                     <div class="d-grid gap-2 d-md-flex mx-auto">
@@ -69,15 +69,15 @@
                 
             </li>
         @empty
-            <li class="list-group-item d-flex justify-content-between align-items-start">
-                Ga ada
-            </li>
+            <p>
+                There is no user agreement data yet
+            </p>
         @endforelse
         </ol>
     </div>
 </div>
 
-<div class="modal modal-md fade" id="agreementForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+<div class="modal modal-md fade" id="agreementForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -92,11 +92,12 @@
                     @csrf
                     <div class="row">
                         <div class="col-md-6 mb-2">
+                            <input type="hidden" name="role" id="role-id-user-agreement">
                             <label for="">Role <sup class="text-danger">*</sup></label>
                             <select name="role_agreement" id="role_agreement" class="agreement-select w-100">
                                 <option data-placeholder="true"></option>
                                 @foreach ($user->roles as $role)
-                                    <option value="{{ $role->pivot->id }}" {{ old('role_agreement') == $role->id ? 'selected' : '' }}>{{ $role->role_name }}</option>
+                                    <option value="{{ $role->pivot->id }}" {{ old('role_agreement') == $role->pivot->id ? 'selected' : '' }} data-role-id="{{ $role->id }}">{{ $role->role_name }}</option>
                                 @endforeach
                             </select>
                             @error('role_agreement')
@@ -134,10 +135,10 @@
                         </div>
                         
                         <div class="detail-subject" id="detail-subject-0">
-                            <div class="row border py-2 px-3 mb-1" id="subjectDetailField-0">
+                            <div class="row border py-2 px-3 mb-1 subject-detail-field" id="subjectDetailField-0">
                                 <input type="hidden" value="1" name="count_agreement_detail[]">
-                                @if($is_tutor)
-                                    <div class="col-md-6 mb-2">
+                                {{-- @if($is_tutor) --}}
+                                    <div class="input-grade col-md-6 mb-2 d-none">
                                         <label for="">Grade <sup class="text-danger">*</sup></label>
                                         <select name="grade[]" class="agreement-select w-100">
                                             <option data-placeholder="true"></option>
@@ -148,7 +149,7 @@
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
-                                @endif
+                                {{-- @endif --}}
                                 <div class="col-md-6 mb-2">
                                     <label for="">Fee Individual <sup class="text-danger">*</sup></label>
                                     <input class="form-control form-control-sm rounded" type="text" name="fee_individual[]">
@@ -214,8 +215,17 @@
 
         $('#role_agreement').on('change', function(){
             var selected_role = $(this).select2().find(":selected").html();
+            var selected_role_id = $(this).select2().find(":selected").data('role-id');
             var edit = $(this).data('edit');
             var selected_subject = $(this).data('edit') === true ? $(this).data('subject') : null;
+            
+            $('#role-id-user-agreement').val(selected_role_id);
+            
+            if(selected_role == 'Tutor'){
+                $('.input-grade').removeClass('d-none');
+            }else{
+                $('.input-grade').addClass('d-none');
+            }
             
             var baseUrl = "{{ url('/') }}/api/v1/get/subjects/" + selected_role;
 
@@ -245,40 +255,41 @@
 
     function addDetailAgreement(index = 0) {
         let id = Math.floor((Math.random() * 100) + 1);
+        let selected_role = $('#role_agreement').select2().find(":selected").html();
+        let count_subject_detail_field = $('.subject-detail-field').length        
+
         $("#detail-subject-"+index).append(
-            '<div class="row border py-2 px-3 mb-1" id="subjectDetailField-'+id+'">' +
+            '<div class="row border py-2 px-3 mb-1 subject-detail-field" id="subjectDetailField-'+id+'">' +
                 '<input type="hidden" value="1" name="count_agreement_detail[]">' +
-                @if($is_tutor)
-                    '<div class="col-md-6 mb-2">' +
-                        '<label for="">Grade <sup class="text-danger">*</sup></label>' +
-                        '<select name="grade[]" class="agreement-select w-100">' +
-                            '<option data-placeholder="true"></option>' +
-                            '<option value="9-10">9-10</option>' +
-                            '<option value="11-12">11-12</option>' +
-                        '</select>' +
-                        @error('grade.0')
-                            '<small class="text-danger fw-light">{{ $message }}</small>'
-                        @enderror
-                    '</div>' +
-                @endif
+                '<div class="input-grade col-md-6 mb-2 '+(selected_role != 'Tutor' ? 'd-none' : '')+'">' +
+                    '<label for="">Grade <sup class="text-danger">*</sup></label>' +
+                    '<select name="grade[]" class="agreement-select w-100">' +
+                        '<option data-placeholder="true"></option>' +
+                        '<option value="9-10">9-10</option>' +
+                        '<option value="11-12">11-12</option>' +
+                    '</select>' +
+                    @error('grade.1')
+                        '<small class="text-danger fw-light">{{ $message }}</small>'
+                    @enderror
+                '</div>' +
                 '<div class="col-md-6 mb-2">' +
                     '<label for="">Fee Individual <sup class="text-danger">*</sup></label>' +
                     '<input class="form-control form-control-sm rounded" type="text" name="fee_individual[]">' +
-                    @error('fee_individual.0')
+                    @error('fee_individual.1')
                         '<small class="text-danger fw-light">{{ $message }}</small>' +
                     @enderror
                 '</div>' +
                 '<div class="col-md-6 mb-2">' +
                     '<label for="">Fee Group </label>' +
                     '<input class="form-control form-control-sm rounded" type="text" name="fee_group[]">' +
-                    @error('fee_group.0')
+                    @error('fee_group.1')
                         '<small class="text-danger fw-light">{{ $message }}</small>' +
                     @enderror
                 '</div>' +
                 '<div class="col-md-6 mb-2">' +
                     '<label for="">Additional Fee </label>' +
                     '<input class="form-control form-control-sm rounded" type="text" name="additional_fee[]">' +
-                    @error('additional_fee.0')
+                    @error('additional_fee.1')
                         '<small class="text-danger fw-light">{{ $message }}</small>' +
                     @enderror
                 '</div>' +
@@ -286,7 +297,7 @@
                     '<div style="width: 100%">' +
                         '<label for="" class="text-muted">Head</label>' +
                         '<input class="form-control form-control-sm rounded" type="text" name="head[]">' +
-                        @error('head.0')
+                        @error('head.1')
                             '<small class="text-danger fw-light">{{ $message }}</small>' +
                         @enderror
                     '</div>' +
@@ -315,10 +326,18 @@
             
             var html_agreement = '';
             var keys = Object.keys(user_subjects) 
+
+            console.log(keys);
+            
+            console.log(user_subjects[keys[0]].user_roles.role.id);
+            
             
             $('#role_agreement').attr('data-edit', 'true');
             $('#role_agreement').attr('data-subject', user_subjects[keys[0]].subject_id);
             $('#role_agreement').val(user_subjects[keys[0]].user_role_id).trigger('change');
+            $('#role_agreement').attr('data-role-id', user_subjects[keys[0]].user_roles.role.id);
+            $('#role-id-user-agreement').val(user_subjects[keys[0]].user_roles.role.id);
+
             $('#year').val(user_subjects[keys[0]].year).trigger('change');
 
             if(user_subjects[keys[0]].agreement !== null){
@@ -350,7 +369,7 @@
                 @endphp
                 
                 var id_field_detail_subject = Math.floor((Math.random() * 100) + 1);
-                new_html_detail_agreement += '<div class="row border py-2 px-3 mb-1" id="subjectDetailField-'+id_field_detail_subject+'">' +
+                new_html_detail_agreement += '<div class="row border py-2 px-3 mb-1 subject-detail-field" id="subjectDetailField-'+id_field_detail_subject+'">' +
                     '<input type="hidden" value="1" name="count_agreement_detail[]">' +
                     @if($is_tutor)
                         '<div class="col-md-6 mb-2">' +
@@ -452,13 +471,14 @@
 
 
 @if(
-    $errors->has('agreement_name') | 
-    $errors->has('agreement_type') | 
-    $errors->has('start_date') | 
-    $errors->has('end_date') | 
-    $errors->has('corp_pic') | 
-    $errors->has('empl_id') | 
-    $errors->has('attachment')  
+    $errors->has('role_agreement') || 
+    $errors->has('subject_id') || 
+    $errors->has('year') || 
+    $errors->has('grade.*') || 
+    $errors->has('fee_individual.*') || 
+    $errors->has('fee_group.*') || 
+    $errors->has('additional_fee.*') || 
+    $errors->has('head.*') 
     )
             
     <script>

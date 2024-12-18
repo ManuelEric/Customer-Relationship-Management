@@ -7,6 +7,7 @@ use App\Actions\Users\UpdateUserAction;
 use App\Actions\Users\UserDocumentDownloadAction;
 use App\Enum\LogModule;
 use App\Http\Requests\ChangeUserStatusRequest;
+use App\Http\Requests\StoreUserAgreementRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
@@ -459,7 +460,7 @@ class UserController extends Controller
         return response($file)->header('Content-Type', 'application/pdf');
     }
 
-    public function cnStoreUserAgreement(Request $request, LogService $log_service)
+    public function cnStoreUserAgreement(StoreUserAgreementRequest $request, LogService $log_service)
     {
         $user_id = $request->route('user');
         $user = $this->userRepository->rnGetUserById($user_id);

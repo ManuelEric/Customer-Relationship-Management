@@ -263,7 +263,7 @@ class UserRepository implements UserRepositoryInterface
             $agreement = $this->tnUploadFile($request, $fieldname_agreement, 'Agreement-' . str_replace(' ', '_', $user->first_name . '_' . $user->last_name . '-' . $request->subject_id .  '-' . $request_subject_details['year']), 'public/uploaded_file/user/' . $user->id);
         }
 
-        for($j = 0; $j < count($request_subject_details['grade']); $j++){
+        for($j = 0; $j < count($request_subject_details['fee_individual']); $j++){
 
             $subject_details =  [
                 'fee_individual' => $request_subject_details['fee_individual'][$j],
