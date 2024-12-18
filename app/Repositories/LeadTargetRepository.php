@@ -193,39 +193,26 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $year = date('Y', strtotime($now));
 
         # clients where source lead is referral
-        $clients = UserClient::withTrashed()->
-                    isStudent()->
-                    whereHas('lead', function ($query) {
-                        $query->where('main_lead', 'Referral');    
-                    })->
-                    where(function ($q) use ($month, $year) {
-                        $q->
-                            whereMonth('tbl_client.created_at', $month)->
-                            whereYear('tbl_client.created_at', $year)->
-                            orWhere(function ($q_2) use ($month, $year) {
-                                $q_2->
-                                whereHas('interestPrograms', function ($subQuery) use ($month, $year) {
-                                    $subQuery->
-                                        whereMonth('tbl_interest_prog.created_at', $month)->
-                                        whereYear('tbl_interest_prog.created_at', $year);
-                                });
-                            });
-                    })->
-                    groupBy('tbl_client.id')->
-                    get();
-
-        $client_program = ClientProgram::
-                    leftJoin('tbl_client as c', 'c.id', '=', 'tbl_client_prog.client_id')->
-                    whereHas('lead', function ($query) {
-                        $query->where('main_lead', 'Referral');
-                    })->
-                    where('status', 0)->
-                    whereMonth('tbl_client_prog.created_at', $month)->
-                    whereYear('tbl_client_prog.created_at', $year)->
-                    get('c.*');
-
-        $achieved_lead = $clients->merge($client_program);
-
+        $clients = ClientLog::with(['master_client', 'lead_source_log'])->
+        whereHas('lead_source_log', function ($query) {
+            $query->whereIn('lead_id', ['LS005', 'LS058', 'LS060', 'LS061']);    
+        })->
+        where(function ($q) use ($month, $year) {
+            $q->
+                whereMonth('tbl_client_log.created_at', $month)->
+                whereYear('tbl_client_log.created_at', $year)->
+                orWhere(function ($q_2) use ($month, $year) {
+                    $q_2->
+                    whereHas('master_client', function ($q_3) use ($month, $year) {
+                        $q_3->whereHas('interestPrograms', function ($subQuery) use ($month, $year) {
+                            $subQuery->
+                                whereMonth('tbl_interest_prog.created_at', $month)->
+                                whereYear('tbl_interest_prog.created_at', $year);
+                        });
+                    });
+                });
+        })->get();
+         
         return $clients; # because we only get the client where lead id is referral
     }
 
@@ -234,34 +221,64 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $month = date('m', strtotime($now));
         $year = date('Y', strtotime($now));
 
-        return UserClient::withTrashed()->
-                    isStudent()->
-                    whereHas('lead', function ($query) {
-                        $query->where('main_lead', 'Referral');    
-                    })->
-                    where(function ($q) use ($month, $year) {
-                        $q->
-                            whereMonth('tbl_client.created_at', $month)->
-                            whereYear('tbl_client.created_at', $year)->
-                            orWhere(function ($q_2) use ($month, $year) {
-                                $q_2->
-                                whereHas('interestPrograms', function ($subQuery) use ($month, $year) {
-                                    $subQuery->
-                                        whereMonth('tbl_interest_prog.created_at', $month)->
-                                        whereYear('tbl_interest_prog.created_at', $year);
-                                });
+        return ClientLog::with(['master_client', 'lead_source_log'])->
+            whereHas('lead_source_log', function ($query) {
+                $query->whereIn('lead_id', ['LS005', 'LS058', 'LS060', 'LS061']);    
+            })->
+            where(function ($q) use ($month, $year) {
+                $q->
+                    whereMonth('tbl_client_log.created_at', $month)->
+                    whereYear('tbl_client_log.created_at', $year)->
+                    orWhere(function ($q_2) use ($month, $year) {
+                        $q_2->
+                        whereHas('master_client', function ($q_3) use ($month, $year) {
+                            $q_3->whereHas('interestPrograms', function ($subQuery) use ($month, $year) {
+                                $subQuery->
+                                    whereMonth('tbl_interest_prog.created_at', $month)->
+                                    whereYear('tbl_interest_prog.created_at', $year);
                             });
-                    })->
-                    whereHas('leadStatus', function ($query) use ($month, $year) {
-                        $query->
-                            // whereMonth('tbl_client_lead_tracking.updated_at', $month)->
-                            // whereYear('tbl_client_lead_tracking.updated_at', $year)->
-                            where('tbl_initial_program_lead.name', 'Admissions Mentoring')->
-                            where('tbl_client_lead_tracking.type', 'Lead')->
-                            where('tbl_client_lead_tracking.total_result', '>=', 0.65); # >= 0.65 means HOT
-                    })->
-                    groupBy('tbl_client.id')->
-                    get();
+                        });
+                    });
+            })->
+            whereHas('master_client', function ($query) {
+
+                $query->whereHas('leadStatus', function ($sub_query) {
+                    $sub_query->
+                        where('tbl_initial_program_lead.name', 'Admissions Mentoring')->
+                        where('tbl_client_lead_tracking.type', 'Lead')->
+                        where('tbl_client_lead_tracking.total_result', '>=', 0.65); # >= 0.65 means HOT
+                });
+            })->
+            get();
+
+        // return UserClient::withTrashed()->
+        //             isStudent()->
+        //             whereHas('lead', function ($query) {
+        //                 $query->where('main_lead', 'Referral');    
+        //             })->
+        //             where(function ($q) use ($month, $year) {
+        //                 $q->
+        //                     whereMonth('tbl_client.created_at', $month)->
+        //                     whereYear('tbl_client.created_at', $year)->
+        //                     orWhere(function ($q_2) use ($month, $year) {
+        //                         $q_2->
+        //                         whereHas('interestPrograms', function ($subQuery) use ($month, $year) {
+        //                             $subQuery->
+        //                                 whereMonth('tbl_interest_prog.created_at', $month)->
+        //                                 whereYear('tbl_interest_prog.created_at', $year);
+        //                         });
+        //                     });
+        //             })->
+        //             whereHas('leadStatus', function ($query) use ($month, $year) {
+        //                 $query->
+        //                     // whereMonth('tbl_client_lead_tracking.updated_at', $month)->
+        //                     // whereYear('tbl_client_lead_tracking.updated_at', $year)->
+        //                     where('tbl_initial_program_lead.name', 'Admissions Mentoring')->
+        //                     where('tbl_client_lead_tracking.type', 'Lead')->
+        //                     where('tbl_client_lead_tracking.total_result', '>=', 0.65); # >= 0.65 means HOT
+        //             })->
+        //             groupBy('tbl_client.id')->
+        //             get();
 
         # this was used to get hot leads 
         # from leads including recalculate data
@@ -352,26 +369,25 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $month = date('m', strtotime($now));
         $year = date('Y', strtotime($now));
 
-        return UserClient::withTrashed()->
-                    isStudent()->
-                    whereHas('lead', function ($query) {
-                        $query->where('note', 'Digital');    
-                    })->
-                    where(function ($q) use ($month, $year) {
-                        $q->
-                            whereMonth('tbl_client.created_at', $month)->
-                            whereYear('tbl_client.created_at', $year)->
-                            orWhere(function ($q_2) use ($month, $year) {
-                                $q_2->
-                                whereHas('interestPrograms', function ($subQuery) use ($month, $year) {
-                                    $subQuery->
-                                        whereMonth('tbl_interest_prog.created_at', $month)->
-                                        whereYear('tbl_interest_prog.created_at', $year);
-                                });
+        return ClientLog::with(['master_client', 'lead_source_log'])->
+            whereHas('lead_source_log', function ($query) {
+                $query->where('note', 'Digital');    
+            })->
+            where(function ($q) use ($month, $year) {
+                $q->
+                    whereMonth('tbl_client_log.created_at', $month)->
+                    whereYear('tbl_client_log.created_at', $year)->
+                    orWhere(function ($q_2) use ($month, $year) {
+                        $q_2->
+                        whereHas('master_client', function ($q_3) use ($month, $year) {
+                            $q_3->whereHas('interestPrograms', function ($subQuery) use ($month, $year) {
+                                $subQuery->
+                                    whereMonth('tbl_interest_prog.created_at', $month)->
+                                    whereYear('tbl_interest_prog.created_at', $year);
                             });
-                    })->
-                    groupBy('tbl_client.id')->
-                    get();
+                        });
+                    });
+            })->get();
     }
 
     public function getAchievedHotLeadDigitalByMonth($now)
@@ -379,19 +395,35 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $month = date('m', strtotime($now));
         $year = date('Y', strtotime($now));
 
-        return UserClient::
-                    whereHas('lead', function ($query) {
-                        $query->where('note', 'Digital');    
-                    })->
-                    whereHas('leadStatus', function ($query) use ($month, $year) {
-                        $query->
-                            whereMonth('tbl_client_lead_tracking.updated_at', $month)->
-                            whereYear('tbl_client_lead_tracking.updated_at', $year)->
-                            where('tbl_initial_program_lead.name', 'Admissions Mentoring')->
-                            where('tbl_client_lead_tracking.type', 'Lead')->
-                            where('tbl_client_lead_tracking.total_result', '>=', 0.65); # >= 0.65 means HOT
-                    })->
-                    get();
+        return ClientLog::with(['master_client', 'lead_source_log'])->
+            whereHas('lead_source_log', function ($query) {
+                $query->where('note', 'Digital');
+            })->
+            where(function ($q) use ($month, $year) {
+                $q->
+                    whereMonth('tbl_client_log.created_at', $month)->
+                    whereYear('tbl_client_log.created_at', $year)->
+                    orWhere(function ($q_2) use ($month, $year) {
+                        $q_2->
+                        whereHas('master_client', function ($q_3) use ($month, $year) {
+                            $q_3->whereHas('interestPrograms', function ($subQuery) use ($month, $year) {
+                                $subQuery->
+                                    whereMonth('tbl_interest_prog.created_at', $month)->
+                                    whereYear('tbl_interest_prog.created_at', $year);
+                            });
+                        });
+                    });
+            })->
+            whereHas('master_client', function ($query) {
+
+                $query->whereHas('leadStatus', function ($sub_query) {
+                    $sub_query->
+                        where('tbl_initial_program_lead.name', 'Admissions Mentoring')->
+                        where('tbl_client_lead_tracking.type', 'Lead')->
+                        where('tbl_client_lead_tracking.total_result', '>=', 0.65); # >= 0.65 means HOT
+                });
+            })->
+        get();
     }
 
     public function getAchievedInitConsultDigitalByMonth($now)
