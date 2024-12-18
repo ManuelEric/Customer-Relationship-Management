@@ -23,7 +23,7 @@
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
-                    <h4>{{ $partnerProgram->corp->corp_name }}</h4>
+                    <h4>{{ $partnerProgram->corp->partner_name }}</h4>
                     <a href="{{ route('corporate_prog.detail.show', ['corp' => $partnerProgram->corp->corp_id, 'detail' => $partnerProgram->id]) }}"
                         class="text-primary text-decoration-none cursor-pointer" target="_blank">
                         <div class="card p-2">

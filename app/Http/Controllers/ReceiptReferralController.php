@@ -325,7 +325,7 @@ class ReceiptReferralController extends Controller
         $data['param'] = [
             'receipt_identifier' => $receipt_identifier,
             'currency' => $currency,
-            'fullname' => $receipt->invoiceB2b->referral->partner->corp_name,
+            'fullname' => $receipt->invoiceB2b->referral->partner->partner_name,
             'program_name' => $receipt->invoiceB2b->referral->additional_prog_name,
             'receipt_date' => date('d F Y', strtotime($receipt->created_at)),
         ];
@@ -479,7 +479,7 @@ class ReceiptReferralController extends Controller
         $data['param'] = [
             'receipt_identifier' => $receipt_identifier,
             'currency' => $currency,
-            'fullname' => $receipt->invoiceB2b->referral->partner->corp_name,
+            'fullname' => $receipt->invoiceB2b->referral->partner->partner_name,
             'program_name' => $receipt->invoiceB2b->referral->additional_prog_name,
         ];
 

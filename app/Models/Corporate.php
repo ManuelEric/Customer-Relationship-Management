@@ -94,6 +94,14 @@ class Corporate extends Model
         );
     }
 
+    protected function partnerName(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->type == "Individual Professional" && $this->user_id != null ? $this->individualProfessional->full_name : $this->corp_name
+        );
+    }
+
+
     public static function whereCorpId($id)
     {
         if (is_array($id) && empty($id)) return new Collection;
