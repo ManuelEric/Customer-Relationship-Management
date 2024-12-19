@@ -224,7 +224,7 @@ class ClientProgram extends Model
     protected function invoiceProgramName(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->program->prog_main . ': ' . $this->program->prog_program,
+            get: fn ($value) => $this->program->main_prog->prog_name . ': ' . $this->program->prog_program,
         );
     }
 
