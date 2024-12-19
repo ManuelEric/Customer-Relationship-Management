@@ -93,23 +93,41 @@ class ExtUserController extends Controller
     public function cnGetSubjectsByRole(Request $request)
     {
         $role = $request->route('role');
+        $response = [];
+        $http_code = null;
+        
+        if($role == 'Associate Editor' || $role == 'Senior Editor' || $role == 'Managing Editor'){
+            $role = 'Editor';
+        } 
+
         try {
             $subjects = $this->subjectRepository->rnGetAllSubjectsByRole($role);
             
             if (!$subjects) {
                 return response()->json([
-                    'success' => true,
+                    'success' => false,
                     'message' => 'Subject not found.'
-                ]);
+                ], 503);
             }
         } catch (Exception $e) {
             Log::error('Failed get subject' . $e->getMessage());
+
+            $response = [
+                'success' => false,
+                'message' => 'Failed get subject! '. $e->getMessage(), 
+            ];
+            $http_code = 500;
         }
 
-        return response()->json([
+        $response = [
             'success' => true,
             'message' => 'There are subject found.',
             'data' => $subjects
-        ]);
+        ];
+        $http_code = 200;
+
+        return response()->json(
+            $response, $http_code
+        );
     }
 }

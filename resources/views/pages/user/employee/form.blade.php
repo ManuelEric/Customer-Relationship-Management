@@ -102,7 +102,7 @@
                 </div>
             @endif
 
-            @if(isset($user) && (in_array(4, $user->roles()->pluck('role_id')->toArray()) || in_array(3, $user->roles()->pluck('role_id')->toArray()) || in_array(19, $user->roles()->pluck('role_id')->toArray()) || in_array(20, $user->roles()->pluck('role_id')->toArray())))
+            @if(isset($user) && (in_array(4, $user->roles()->pluck('role_id')->toArray()) || in_array(3, $user->roles()->pluck('role_id')->toArray()) || in_array(19, $user->roles()->pluck('role_id')->toArray()) || in_array(20, $user->roles()->pluck('role_id')->toArray()) || in_array(13, $user->roles()->pluck('role_id')->toArray()) || in_array(14, $user->roles()->pluck('role_id')->toArray()) || in_array(15, $user->roles()->pluck('role_id')->toArray())))
                 @include('pages.user.employee.form-detail.agreement')
             @endif
         </div>

@@ -60,13 +60,6 @@ class UserController extends Controller
         $this->userTypeRepository = $userTypeRepository;
         $this->subjectRepository = $subjectRepository;
 
-        $this->role_type_mentors = [
-            'Competition Project Mentorship',
-            'Research Project Mentorship',
-            'Passion Project Mentorship',
-            'Professional Sharing Session Speaker',
-            'Part Time Subject Mentor'
-        ];
     }
 
     public function index(Request $request): mixed
@@ -168,7 +161,6 @@ class UserController extends Controller
                 'is_external_mentor' => false,
                 'is_editor' => false,
                 'is_professional' => false,
-                'role_type_mentors' => $this->role_type_mentors,
             ]
         );
     }
@@ -252,7 +244,7 @@ class UserController extends Controller
         $subjects = $this->subjectRepository->getAllSubjects();
         $is_tutor = $user->roles()->where('role_name', 'Tutor')->first() != null ? true : false;
         $is_external_mentor = $user->roles()->where('role_name', 'External Mentor')->first() != null ? true : false;
-        $is_editor = $user->roles()->where('role_name', 'Editor')->first() != null ? true : false;
+        $is_editor = $user->roles()->where('role_name', 'Editor')->first() != null || $user->roles()->where('role_name', 'Associate Editor')->first() != null || $user->roles()->where('role_name', 'Senior Editor')->first() != null || $user->roles()->where('role_name', 'Managing Editor')->first() != null ? true : false;
         $is_professional = $user->roles()->where('role_name', 'Individual Professional')->first() != null ? true : false;
 
 
@@ -488,6 +480,8 @@ class UserController extends Controller
         $subject_id = $request->route('subject');
         $year = $request->route('year');
         $user = $this->userRepository->rnGetUserById($user_id);
+        $response = [];
+        $http_code = null;
         
         $user_subject = $user->user_subjects->where('subject_id', $subject_id)->where('year', $year);
 
@@ -496,18 +490,29 @@ class UserController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'User subject not found.'
-                ]);
+                ], 503);
             }
 
         } catch (Exception $e) {
             Log::error('Failed get user subject' . $e->getMessage());
+
+            $response = [
+                'success' => false,
+                'message' => 'Failed get subject! '. $e->getMessage(), 
+            ];
+            $http_code = 500;
         }
 
-        return response()->json([
+        $response = [
             'success' => true,
             'message' => 'There are user agreement found.',
             'data' => $user_subject
-        ]);
+        ];
+        $http_code = 200;
+
+        return response()->json(
+            $response, $http_code
+        );
     }
 
     public function cnDestroyUserAgreement(

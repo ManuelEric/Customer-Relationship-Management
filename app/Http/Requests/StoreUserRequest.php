@@ -75,12 +75,6 @@ class StoreUserRequest extends FormRequest
             'graduation_date.*' => 'nullable',
 
             'role.*' => 'required|in:1,2,3,4,18,19,20',
-            'department' => 'required_unless:role,19', # 20 is professional
-            'position' => 'required_unless:role,19',
-            'hiredate' => 'required_unless:role,19',
-            'type' => 'required_unless:role,19|exists:tbl_user_type,id',
-            'start_period' => 'required_unless:role,19',
-            'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
 
             'curriculum_vitae' => 'nullable|mimes:pdf|max:5000',
             'bank_name' => 'required',
@@ -94,6 +88,17 @@ class StoreUserRequest extends FormRequest
             'empl_insurance' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000'
 
         ];
+
+        if(!in_array(19, $this->input('role'))){
+            $rules += [
+                'department' => 'required', # 19 is professional
+                'position' => 'required',
+                'hiredate' => 'required',
+                'type' => 'required|exists:tbl_user_type,id',
+                'start_period' => 'required',
+                'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
+            ];
+        }
 
         // if($total_roles > 0){
         //     # Tutor || Editor || Individual Professional || External Mentor
@@ -143,12 +148,6 @@ class StoreUserRequest extends FormRequest
             'graduation_date.*' => 'nullable',
 
             'role.*' => 'required|in:1,2,3,4,18,19,20',
-            'department' => 'required_unless:role,19',
-            'position' => 'required_unless:role,19',
-            'hiredate' => 'required_unless:role,19',
-            'type' => 'required_unless:role,19|exists:tbl_user_type,id',
-            'start_period' => 'required_unless:role,19',
-            'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
             
             'curriculum_vitae' => 'nullable|mimes:pdf|max:5000',
             'bank_name' => 'required',
@@ -161,6 +160,17 @@ class StoreUserRequest extends FormRequest
             'empl_insurance' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000'
 
         ];
+
+        if(!in_array(19, $this->input('role'))){
+            $rules += [
+                'department' => 'required', # 19 is professional
+                'position' => 'required',
+                'hiredate' => 'required',
+                'type' => 'required|exists:tbl_user_type,id',
+                'start_period' => 'required',
+                'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
+            ];
+        }
 
         $userId = $this->route('user');
         $user = $this->userRepository->rnGetUserById($userId);

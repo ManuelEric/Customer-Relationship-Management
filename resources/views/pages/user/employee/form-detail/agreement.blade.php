@@ -21,10 +21,8 @@
                     @foreach ($user_subject_by_subject_id as $user_subject_by_year)
                         <hr>
                         @foreach ($user->user_subjects()->where('subject_id', $user_subject_by_year->first()->subject_id)->where('year', $user_subject_by_year->first()->year)->get() as $user_subject)
-                            {{-- {{dd($user_subject)}} --}}
                                 <b>{{ $user_subject->year }} {{ $user_subject->grade != null ? '| ' . $user_subject->grade : '' }}</b>  
                                 @if($user_subject->agreement != null && $loop->index == 0)
-                                    {{-- {{dd($user_subject->subject_id)}} --}}
                                     <div class="d-grid gap-2 d-md-flex mx-auto">
                                         <h6>
                                             <a href="#" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Download" class="download" onclick="downloadAgreement('{{$user_subject->id}}')"><i class="bi bi-download"></i></a>
@@ -62,7 +60,7 @@
                                         <td> {{ $user_subject->head ?? '-' }}</td>
                                     </tr>
                                 </table>
-                               
+    
                         @endforeach
                     @endforeach
                 </div>
@@ -94,7 +92,7 @@
                         <div class="col-md-6 mb-2">
                             <input type="hidden" name="role" id="role-id-user-agreement">
                             <label for="">Role <sup class="text-danger">*</sup></label>
-                            <select name="role_agreement" id="role_agreement" class="agreement-select w-100">
+                            <select name="role_agreement" id="role_agreement" class="role-select w-100">
                                 <option data-placeholder="true"></option>
                                 @foreach ($user->roles as $role)
                                     <option value="{{ $role->pivot->id }}" {{ old('role_agreement') == $role->pivot->id ? 'selected' : '' }} data-role-id="{{ $role->id }}">{{ $role->role_name }}</option>
@@ -135,52 +133,55 @@
                         </div>
                         
                         <div class="detail-subject" id="detail-subject-0">
-                            <div class="row border py-2 px-3 mb-1 subject-detail-field" id="subjectDetailField-0">
-                                <input type="hidden" value="1" name="count_agreement_detail[]">
-                                {{-- @if($is_tutor) --}}
-                                    <div class="input-grade col-md-6 mb-2 d-none">
-                                        <label for="">Grade <sup class="text-danger">*</sup></label>
-                                        <select name="grade[]" class="agreement-select w-100">
-                                            <option data-placeholder="true"></option>
-                                            <option value="9-10">9-10</option>
-                                            <option value="11-12">11-12</option>
-                                        </select>
-                                        @error('grade.0')
-                                            <small class="text-danger fw-light">{{ $message }}</small>
-                                        @enderror
-                                    </div>
-                                {{-- @endif --}}
-                                <div class="col-md-6 mb-2">
-                                    <label for="">Fee Individual <sup class="text-danger">*</sup></label>
-                                    <input class="form-control form-control-sm rounded" type="text" name="fee_individual[]">
-                                    @error('fee_individual.0')
-                                        <small class="text-danger fw-light">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6 mb-2">
-                                    <label for="">Fee Group </label>
-                                    <input class="form-control form-control-sm rounded" type="text" name="fee_group[]">
-                                    @error('fee_group.0')
-                                        <small class="text-danger fw-light">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6 mb-2">
-                                    <label for="">Additional Fee </label>
-                                    <input class="form-control form-control-sm rounded" type="text" name="additional_fee[]">
-                                    @error('additional_fee.0')
-                                        <small class="text-danger fw-light">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6 mb-2 d-flex justify-content-between align-items-start">
-                                    <div style="width: 100%">
-                                        <label for="" class="text-muted">Head</label>
-                                        <input class="form-control form-control-sm rounded" type="text" name="head[]">
-                                        @error('head.0')
-                                            <small class="text-danger fw-light">{{ $message }}</small>
-                                        @enderror
-                                    </div>
-                                    <button type="button" id="btn-add-detail-agreement" class="btn btn-sm btn-outline-primary py-1" onclick="addDetailAgreement()" style="margin-top:18px; margin-left:10px;"><i class="bi bi-plus"></i></button>
-                                </div>
+                            <div class="row subject-detail-field px-3 py-2" id="subjectDetailField-0">
+                                <fieldset class="border p-3">
+                                    <legend  class="float-none w-100" style="font-size: 14px; font-weight:500">Detail Subject</legend>
+                                        <input type="hidden" value="1" name="count_agreement_detail[]">
+                                        <div class="row">
+                                            <div class="input-grade col-md-6 mb-2 d-none">
+                                                <label for="">Grade <sup class="text-danger">*</sup></label>
+                                                <select name="grade[]" class="grade-select w-50">
+                                                    <option data-placeholder="true"></option>
+                                                    <option value="9-10">9-10</option>
+                                                    <option value="11-12">11-12</option>
+                                                </select>
+                                                @error('grade.0')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <label for="">Fee Individual <sup class="text-danger">*</sup></label>
+                                                <input class="form-control form-control-sm rounded" type="text" name="fee_individual[]">
+                                                @error('fee_individual.0')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <label for="">Fee Group </label>
+                                                <input class="form-control form-control-sm rounded" type="text" name="fee_group[]">
+                                                @error('fee_group.0')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <label for="">Additional Fee </label>
+                                                <input class="form-control form-control-sm rounded" type="text" name="additional_fee[]">
+                                                @error('additional_fee.0')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6 mb-2 d-flex justify-content-between align-items-start">
+                                                <div style="width: 100%">
+                                                    <label for="" class="text-muted">Head</label>
+                                                    <input class="form-control form-control-sm rounded" type="text" name="head[]">
+                                                    @error('head.0')
+                                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                                    @enderror
+                                                </div>
+                                                <button type="button" id="btn-add-detail-agreement" class="btn btn-sm btn-outline-primary py-1" onclick="addDetailAgreement()" style="margin-top:18px; margin-left:10px;"><i class="bi bi-plus"></i></button>
+                                            </div>
+                                        </div>
+                                 </fieldset>
                             </div>
                         </div>
                         
@@ -208,6 +209,18 @@
 <script>
     $(document).ready(function() {
         $('.agreement-select').select2({
+            dropdownParent: $('#agreementForm .modal-content'),
+            placeholder: "Select value",
+            allowClear: true
+        });
+
+        $('.grade-select').select2({
+            dropdownParent: $('#agreementForm .modal-content'),
+            placeholder: "Select value",
+            allowClear: true
+        });
+
+        $('.role-select').select2({
             dropdownParent: $('#agreementForm .modal-content'),
             placeholder: "Select value",
             allowClear: true
@@ -259,54 +272,69 @@
         let count_subject_detail_field = $('.subject-detail-field').length        
 
         $("#detail-subject-"+index).append(
-            '<div class="row border py-2 px-3 mb-1 subject-detail-field" id="subjectDetailField-'+id+'">' +
-                '<input type="hidden" value="1" name="count_agreement_detail[]">' +
-                '<div class="input-grade col-md-6 mb-2 '+(selected_role != 'Tutor' ? 'd-none' : '')+'">' +
-                    '<label for="">Grade <sup class="text-danger">*</sup></label>' +
-                    '<select name="grade[]" class="agreement-select w-100">' +
-                        '<option data-placeholder="true"></option>' +
-                        '<option value="9-10">9-10</option>' +
-                        '<option value="11-12">11-12</option>' +
-                    '</select>' +
-                    @error('grade.1')
-                        '<small class="text-danger fw-light">{{ $message }}</small>'
-                    @enderror
-                '</div>' +
-                '<div class="col-md-6 mb-2">' +
-                    '<label for="">Fee Individual <sup class="text-danger">*</sup></label>' +
-                    '<input class="form-control form-control-sm rounded" type="text" name="fee_individual[]">' +
-                    @error('fee_individual.1')
-                        '<small class="text-danger fw-light">{{ $message }}</small>' +
-                    @enderror
-                '</div>' +
-                '<div class="col-md-6 mb-2">' +
-                    '<label for="">Fee Group </label>' +
-                    '<input class="form-control form-control-sm rounded" type="text" name="fee_group[]">' +
-                    @error('fee_group.1')
-                        '<small class="text-danger fw-light">{{ $message }}</small>' +
-                    @enderror
-                '</div>' +
-                '<div class="col-md-6 mb-2">' +
-                    '<label for="">Additional Fee </label>' +
-                    '<input class="form-control form-control-sm rounded" type="text" name="additional_fee[]">' +
-                    @error('additional_fee.1')
-                        '<small class="text-danger fw-light">{{ $message }}</small>' +
-                    @enderror
-                '</div>' +
-                '<div class="col-md-6 mb-2 d-flex justify-content-between align-items-start">' +
-                    '<div style="width: 100%">' +
-                        '<label for="" class="text-muted">Head</label>' +
-                        '<input class="form-control form-control-sm rounded" type="text" name="head[]">' +
-                        @error('head.1')
-                            '<small class="text-danger fw-light">{{ $message }}</small>' +
-                        @enderror
-                    '</div>' +
-                    '<button type="button" class="btn btn-sm btn-danger py-1" onclick="deleteDetailSubject('+id+')" style="margin-top:18px; margin-left:10px;"><i class="bi bi-trash2"></i></button>' +
-                '</div>' +
-
+            '<div class="row subject-detail-field px-3 py-2" id="subjectDetailField-'+id+'">' +
+                '<fieldset class="border p-3">' +
+                    '<legend  class="float-none w-100" style="font-size: 14px; font-weight:500">Detail Subject</legend>' +
+                        '<input type="hidden" value="1" name="count_agreement_detail[]">' +
+                        '<div class="row">' +
+                            '<div class="input-grade col-md-6 mb-2 '+(selected_role != 'Tutor' ? 'd-none' : '')+'">' +
+                            '<label for="">Grade <sup class="text-danger">*</sup></label>' +
+                            '<select name="grade[]" class="grade-select w-100">' +
+                                '<option data-placeholder="true"></option>' +
+                                '<option value="9-10">9-10</option>' +
+                                '<option value="11-12">11-12</option>' +
+                            '</select>' +
+                            @error('grade.1')
+                                '<small class="text-danger fw-light">{{ $message }}</small>'
+                            @enderror
+                            '</div>' +
+                            '<div class="col-md-6 mb-2">' +
+                                '<label for="">Fee Individual <sup class="text-danger">*</sup></label>' +
+                                '<input class="form-control form-control-sm rounded" type="text" name="fee_individual[]">' +
+                                @error('fee_individual.1')
+                                    '<small class="text-danger fw-light">{{ $message }}</small>' +
+                                @enderror
+                            '</div>' +
+                            '<div class="col-md-6 mb-2">' +
+                                '<label for="">Fee Group </label>' +
+                                '<input class="form-control form-control-sm rounded" type="text" name="fee_group[]">' +
+                                @error('fee_group.1')
+                                    '<small class="text-danger fw-light">{{ $message }}</small>' +
+                                @enderror
+                            '</div>' +
+                            '<div class="col-md-6 mb-2">' +
+                                '<label for="">Additional Fee </label>' +
+                                '<input class="form-control form-control-sm rounded" type="text" name="additional_fee[]">' +
+                                @error('additional_fee.1')
+                                    '<small class="text-danger fw-light">{{ $message }}</small>' +
+                                @enderror
+                            '</div>' +
+                            '<div class="col-md-6 mb-2 d-flex justify-content-between align-items-start">' +
+                                '<div style="width: 100%">' +
+                                    '<label for="" class="text-muted">Head</label>' +
+                                    '<input class="form-control form-control-sm rounded" type="text" name="head[]">' +
+                                    @error('head.1')
+                                        '<small class="text-danger fw-light">{{ $message }}</small>' +
+                                    @enderror
+                                '</div>' +
+                                '<button type="button" class="btn btn-sm btn-danger py-1" onclick="deleteDetailSubject('+id+')" style="margin-top:18px; margin-left:10px;"><i class="bi bi-trash2"></i></button>' +
+                            '</div>' +
+                        '</div>' +
+                '</fieldset>' +
             '</div>'
         )
-        initSelect2('.detail-subject ')
+
+        $('.grade-select').select2({
+            dropdownParent: $('#agreementForm .modal-content'),
+            placeholder: "Select value",
+            allowClear: true
+        });
+
+        $('.role-select').select2({
+            dropdownParent: $('#agreementForm .modal-content'),
+            placeholder: "Select value",
+            allowClear: true
+        });
     }
 
     function deleteDetailSubject(id) {
@@ -326,10 +354,6 @@
             
             var html_agreement = '';
             var keys = Object.keys(user_subjects) 
-
-            console.log(keys);
-            
-            console.log(user_subjects[keys[0]].user_roles.role.id);
             
             
             $('#role_agreement').attr('data-edit', 'true');
@@ -369,66 +393,77 @@
                 @endphp
                 
                 var id_field_detail_subject = Math.floor((Math.random() * 100) + 1);
-                new_html_detail_agreement += '<div class="row border py-2 px-3 mb-1 subject-detail-field" id="subjectDetailField-'+id_field_detail_subject+'">' +
-                    '<input type="hidden" value="1" name="count_agreement_detail[]">' +
-                    @if($is_tutor)
-                        '<div class="col-md-6 mb-2">' +
-                            '<label for="">Grade <sup class="text-danger">*</sup></label>' +
-                            '<select name="grade[]" class="agreement-select w-100">' +
-                                '<option data-placeholder="true"></option>' +
-                                '<option value="9-10" '+(user_subjects[key].grade == "9-10" ? "selected" : "")+'>9-10</option>' +
-                                '<option value="11-12" '+(user_subjects[key].grade == "11-12" ? "selected" : "")+'>11-12</option>' +
-                            '</select>' +
-                            @error('grade.'. $index)
-                                '<small class="text-danger fw-light">{{ $message }}</small>'
-                            @enderror
-                        '</div>' +
-                    @endif
-                    '<div class="col-md-6 mb-2">' +
-                        '<label for="">Fee Individual <sup class="text-danger">*</sup></label>' +
-                        '<input class="form-control form-control-sm rounded" type="text" name="fee_individual[]" value="'+(user_subjects[key].fee_individual ?? '')+'">' +
-                        @error('fee_individual.'. $index)
-                            '<small class="text-danger fw-light">{{ $message }}</small>' +
-                        @enderror
-                    '</div>' +
-                    '<div class="col-md-6 mb-2">' +
-                        '<label for="">Fee Group </label>' +
-                        '<input class="form-control form-control-sm rounded" type="text" name="fee_group[]" value="'+(user_subjects[key].fee_group ?? '')+'">' +
-                        @error('fee_group.'. $index)
-                            '<small class="text-danger fw-light">{{ $message }}</small>' +
-                        @enderror
-                    '</div>' +
-                    '<div class="col-md-6 mb-2">' +
-                        '<label for="">Additional Fee </label>' +
-                        '<input class="form-control form-control-sm rounded" type="text" name="additional_fee[]" value="'+(user_subjects[key].additional_fee ?? '')+'">' +
-                        @error('additional_fee.'. $index)
-                            '<small class="text-danger fw-light">{{ $message }}</small>' +
-                        @enderror
-                    '</div>' +
-                    '<div class="col-md-6 mb-2 d-flex justify-content-between align-items-start">' +
-                        '<div style="width: 100%">' +
-                            '<label for="" class="text-muted">Head</label>' +
-                            '<input class="form-control form-control-sm rounded" type="text" name="head[]" value="'+(user_subjects[key].head ?? '')+'">' +
-                            @error('head.'. $index)
-                                '<small class="text-danger fw-light">{{ $message }}</small>' +
-                            @enderror
-                        '</div>' +
-                        (i > 0 ? '<button type="button" class="btn btn-sm btn-danger py-1" onclick="deleteDetailSubject('+id_field_detail_subject+')" style="margin-top:18px; margin-left:10px;"><i class="bi bi-trash2"></i></button>' : '<button type="button" id="btn-add-detail-agreement" class="btn btn-sm btn-outline-primary py-1" onclick="addDetailAgreement('+i+')" style="margin-top:18px; margin-left:10px;"><i class="bi bi-plus"></i></button>')  +
-                    '</div>' +
+                new_html_detail_agreement += '<div class="row subject-detail-field px-3 py-2" id="subjectDetailField-'+id_field_detail_subject+'">' +
+                    '<fieldset class="border p-3">' +
+                        '<legend  class="float-none w-100" style="font-size: 14px; font-weight:500">Detail Subject</legend>' +
+                            '<input type="hidden" value="1" name="count_agreement_detail[]">' +
+                            '<div class="row">' +
+                                @if($is_tutor)
+                                '<div class="col-md-6 mb-2">' +
+                                    '<label for="">Grade <sup class="text-danger">*</sup></label>' +
+                                    '<select name="grade[]" class="grade-select w-100">' +
+                                        '<option data-placeholder="true"></option>' +
+                                        '<option value="9-10" '+(user_subjects[key].grade == "9-10" ? "selected" : "")+'>9-10</option>' +
+                                        '<option value="11-12" '+(user_subjects[key].grade == "11-12" ? "selected" : "")+'>11-12</option>' +
+                                    '</select>' +
+                                    @error('grade.'. $index)
+                                        '<small class="text-danger fw-light">{{ $message }}</small>'
+                                    @enderror
+                                '</div>' +
+                                @endif
+                                '<div class="col-md-6 mb-2">' +
+                                    '<label for="">Fee Individual <sup class="text-danger">*</sup></label>' +
+                                    '<input class="form-control form-control-sm rounded" type="text" name="fee_individual[]" value="'+(user_subjects[key].fee_individual ?? '')+'">' +
+                                    @error('fee_individual.'. $index)
+                                        '<small class="text-danger fw-light">{{ $message }}</small>' +
+                                    @enderror
+                                '</div>' +
+                                '<div class="col-md-6 mb-2">' +
+                                    '<label for="">Fee Group </label>' +
+                                    '<input class="form-control form-control-sm rounded" type="text" name="fee_group[]" value="'+(user_subjects[key].fee_group ?? '')+'">' +
+                                    @error('fee_group.'. $index)
+                                        '<small class="text-danger fw-light">{{ $message }}</small>' +
+                                    @enderror
+                                '</div>' +
+                                '<div class="col-md-6 mb-2">' +
+                                    '<label for="">Additional Fee </label>' +
+                                    '<input class="form-control form-control-sm rounded" type="text" name="additional_fee[]" value="'+(user_subjects[key].additional_fee ?? '')+'">' +
+                                    @error('additional_fee.'. $index)
+                                        '<small class="text-danger fw-light">{{ $message }}</small>' +
+                                    @enderror
+                                '</div>' +
+                                '<div class="col-md-6 mb-2 d-flex justify-content-between align-items-start">' +
+                                    '<div style="width: 100%">' +
+                                        '<label for="" class="text-muted">Head</label>' +
+                                        '<input class="form-control form-control-sm rounded" type="text" name="head[]" value="'+(user_subjects[key].head ?? '')+'">' +
+                                        @error('head.'. $index)
+                                            '<small class="text-danger fw-light">{{ $message }}</small>' +
+                                        @enderror
+                                    '</div>' +
+                                    (i > 0 ? '<button type="button" class="btn btn-sm btn-danger py-1" onclick="deleteDetailSubject('+id_field_detail_subject+')" style="margin-top:18px; margin-left:10px;"><i class="bi bi-trash2"></i></button>' : '<button type="button" id="btn-add-detail-agreement" class="btn btn-sm btn-outline-primary py-1" onclick="addDetailAgreement('+i+')" style="margin-top:18px; margin-left:10px;"><i class="bi bi-plus"></i></button>')  +
+                                '</div>' +
+                            '</div>' +
+                    '</fieldset>' +
+                    '</div>';
 
-                '</div>'
-                @php
-                    $index++;
-                @endphp
-                i++;
+                    @php 
+                        $index++;
+                    @endphp
+                    i++;
             });
 
             $("#detail-subject-"+0).html('');
             $("#detail-subject-"+0).html(new_html_detail_agreement);
 
+            $('.grade-select').select2({
+                dropdownParent: $('#agreementForm .modal-content'),
+                placeholder: "Select value",
+                allowClear: true
+            });
+
             Swal.close()
         })
-        .catch(function(error) {            
+        .catch(function(error) {
             // handle error
             Swal.close()
             notification(error.response.data.success, 'Something went wrong. Please try again or contact the administrator.')
