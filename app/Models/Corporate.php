@@ -37,7 +37,7 @@ class Corporate extends Model
         'corp_note',
         'corp_password',
         'country_type',
-        'status',
+        'corp_status',
         'active_status',
         'type',
         'partnership_type',

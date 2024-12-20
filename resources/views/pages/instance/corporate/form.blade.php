@@ -211,16 +211,16 @@
 
                             <div class="col-md-4 mb-2">
                                 <label for="">Status </label>
-                                <select name="status" class="select w-100"
+                                <select name="corp_status" class="select w-100"
                                     {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
                                     <option data-placeholder="true"></option>
                                     @foreach ($statuses as $status)
                                         <option value="{{ $status }}"
-                                            {{ (isset($corporate->status) && $corporate->status == $status) || old('status') == $status ? 'selected' : null }}>
+                                            {{ (isset($corporate->corp_status) && $corporate->corp_status == $status) || old('status') == $status ? 'selected' : null }}>
                                             {{ $status }}</option>
                                     @endforeach
                                 </select>
-                                @error('status')
+                                @error('corp_status')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
