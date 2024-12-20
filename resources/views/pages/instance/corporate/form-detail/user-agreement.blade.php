@@ -6,11 +6,6 @@
                 User Agreement
             </h6>
         </div>
-        <div class="">
-            <button class="btn btn-sm btn-outline-primary rounded mx-1" id="btn-add-agreement">
-                <i class="bi bi-plus"></i>
-            </button>
-        </div>
     </div>
     <div class="card-body">
         <ol class="list-group list-group-numbered">

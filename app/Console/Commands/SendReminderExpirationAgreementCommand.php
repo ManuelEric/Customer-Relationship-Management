@@ -46,7 +46,6 @@ class SendReminderExpirationAgreementCommand extends Command
     # send mail to Internal Team
     public function handle()
     {
-        # NOTE: CRON DIBIKIN SETIAP JAM 7 PAGI
         Log::debug('[CRON] send reminder expiration partner agreement working properly.');
 
         $partner_agreement_expired_soon = [];
@@ -58,39 +57,65 @@ class SendReminderExpirationAgreementCommand extends Command
             
             foreach ($agreements as $agreement) 
             {
+                # CC Mail (HR + Operation)
                 $cc_mail = [
-                    env('PARTNERSHIP_MAIL_1'),
-                    env('PARTNERSHIP_MAIL_2'),
+                    env('HR_MAIL'),
+                    env('HR_MAIL_2'),
+                    env('OPERATION_MAIL_2'),
+                    env('OPERATION_MAIL_3'),
                 ];
+                
+                # Sharon
+                $recipient = env('OPERATION_MAIL_1');
+
+                $tutor = $editor = $collaborator = false;
 
                 if (!$agreement->partner){
                     Log::error('Failed send reminder expiration partner agreement. Data partner not found!', [$agreement->toArray()]);
                     continue;
                 }
                 
-                if (!$agreement->partnerPic){
-                    Log::error('Failed send reminder expiration partner agreement. Data PIC Partner not found!', [$agreement->toArray()]);
-                    continue;
-                }
+                // if (!$agreement->partnerPic){
+                //     Log::error('Failed send reminder expiration partner agreement. Data PIC Partner not found!', [$agreement->toArray()]);
+                //     continue;
+                // }
                 
-                if ($agreement->partnerPic->pic_mail == NULL || $agreement->partnerPic->pic_mail == ''){
-                    Log::error('Failed send reminder expiration partner agreement. Data PIC mail not found!', [$agreement->toArray()]);
-                    continue;
-                }
+                // if ($agreement->partnerPic->pic_mail == NULL || $agreement->partnerPic->pic_mail == ''){
+                //     Log::error('Failed send reminder expiration partner agreement. Data PIC mail not found!', [$agreement->toArray()]);
+                //     continue;
+                // }
     
                 $partner_agreement_expired_soon = [
-                    'full_name' => $agreement->partnerPic->pic_name,
+                    'full_name' => $agreement->partner->partner_name,
                     'agreement_name' => $agreement->agreement_name,
                     'end_date' => $agreement->end_date,
                 ];
 
-                if(isset($agreement->partner->individualProfessional) && count($agreement->partner->individualProfessional->roles) > 0){
-                    if(in_array(19, $agreement->partner->individualProfessional->roles)){
+                if($agreement->partner->partnership_type != null || $agreement->partner->partnership_type != ''){
+
+                    $collaborator = $agreement->partner->where('partnership_type', 'Market Sharing/Referral Collaboration')->first() || $agreement->partner->where('partnership_type', 'Speaker')->first() ? true : false;
+
+                    if($agreement->partner->partnership_type == 'Individual Professional'){
+                        $roles = $agreement->partner->individualProfessional->roles()->pluck('role_id')->toArray();
+                        $editor = in_array(3, $roles) || in_array(13, $roles) || in_array(14, $roles) || in_array(15, $roles) ? true : false;
+                        $tutor = in_array(4, $roles) ? true : false;
 
                     }
+
                 }
                 
-                $this->partnerService->snSendMailExpirationAgreement($agreement->partnerPic->pic_mail, $partner_agreement_expired_soon);
+                if($tutor){
+                    # Steven
+                    $recipient = env('TUTOR_MAIL');
+                }else if($editor){
+                    # Thalia
+                    $recipient = env('EDITOR_MAIL');
+                }else if($collaborator){
+                    # Tere and Feri
+                    $recipient = [env('PARTNERSHIP_MAIL_1'), env('PARTNERSHIP_MAIL_2')];
+                }
+
+                $this->partnerService->snSendMailExpirationAgreement($partner_agreement_expired_soon, $recipient, $cc_mail);
                 
                 if($agreement->end_date == Date('Y-m-d')){
                     $this->corporateRepository->updateCorporate($agreement->corp_id, ['corp_status' => 'Expired']);

@@ -14,7 +14,7 @@
 @section('content')
     <p style="margin:0;">Hi Team,</p>
     <p>
-        Just a quick reminder that our agreement with {{ $agreement['full_name'] }} is set to expire on {{ $agreement['end_date'] }}, about one month from now.
+        Just a quick reminder that our agreement with {{ $agreement['full_name'] }} is set to expire on {{ date('d M Y', strtotime($agreement['end_date'])) }} about one month from now.
     </p>
     <p>
         Let's discuss any necessary actions or preparations for renewal or adjustments during our next meeting. Please feel free to share any updates or input beforehand.

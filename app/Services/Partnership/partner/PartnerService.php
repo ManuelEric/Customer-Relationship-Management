@@ -8,22 +8,18 @@ use Illuminate\Support\Facades\Mail;
 
 class PartnerService 
 {
-    public function __construct()
-    {
-       
-    }
 
     # Purpose:
     # Send mail reminder expiration agreement to Internal Team
-    public function snSendMailExpirationAgreement(String $pic_mail, array $partner_agreement_expired_soon): void
+    public function snSendMailExpirationAgreement(array $partner_agreement_expired_soon, $recipient, Array $cc_mail): void
     {
         $subject_mail = 'Reminder: Upcoming Agreement Expiry';
         $mail_resources = 'mail-template.reminder.agreement.partner.expiration-agreement-reminder';
         
         try {
-            Mail::send($mail_resources, ['agreement' => $partner_agreement_expired_soon, 'title' => 'Test'], function ($message) use ($subject_mail, $pic_mail) {
-                $message->to($pic_mail)
-                    ->cc(env('PARTNERSHIP_MAIL'))
+            Mail::send($mail_resources, ['agreement' => $partner_agreement_expired_soon, 'title' => 'Test'], function ($message) use ($subject_mail, $recipient, $cc_mail) {
+                $message->to($recipient)
+                    ->cc($cc_mail)
                     ->subject($subject_mail);
             });
 

@@ -52,7 +52,7 @@
                 @include('pages.instance.corporate.form-detail.agreement')
                 @include('pages.instance.corporate.form-detail.event')
                 @include('pages.instance.corporate.form-detail.contact')
-                @if($corporate->user_id != null || $corporate->user_id != '')
+                @if(($corporate->user_id != null || $corporate->user_id != '') && (isset($corporate->individualProfessional) && count($corporate->individualProfessional->user_subjects) > 0))
                     @include('pages.instance.corporate.form-detail.user-agreement')
                 @endif
             @endif

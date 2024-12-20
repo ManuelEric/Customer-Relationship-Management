@@ -87,6 +87,7 @@ class Kernel extends ConsoleKernel
          * 
          */
         $schedule->command('update:grade_and_graduation_year')->cron('0 0 1 7 *');
+        $schedule->command('send:reminder_expiration_agreement')->cron('0 7 * * *');
     }
 
     /**
