@@ -192,6 +192,12 @@ class DigitalDashboardController extends Controller
         $index = 1;
         foreach ($dataAchieved as $achieved) {
             if($typeLead == 'InitConsult' || $typeLead == 'Contribution'){
+                if($typeLead == 'InitConsult'){
+                    $date = $achieved->clientProgram->first()->assessmentsent_date;
+                }else{
+                    $date = $achieved->clientProgram->first()->success_date;
+                }
+
                 $html .= '<tr class="detail" data-clientid="' .$achieved->id. '" style="cursor:pointer">
                             <td>' . $index++ . '</td>
                             <td>' . $achieved->full_name . '</td>
@@ -199,6 +205,7 @@ class DigitalDashboardController extends Controller
                             <td>' . (isset($achieved->school) ? $achieved->school->sch_name : '-') . '</td>
                             <td>' . $achieved->graduation_year_now . '</td>
                             <td>' . $achieved->lead_source . '</td>
+                            <td>' . $date . '</td>
                         </tr>';
             }else{
                 $html .= '<tr class="detail" data-clientid="' .$achieved->master_client->id. '" style="cursor:pointer">
@@ -208,6 +215,7 @@ class DigitalDashboardController extends Controller
                             <td>' . (isset($achieved->master_client->school) ? $achieved->master_client->school->sch_name : '-') . '</td>
                             <td>' . $achieved->master_client->graduation_year_real . '</td>
                             <td>' . $achieved->lead_source_log->main_lead . '</td>
+                            <td>' . $achieved->created_at . '</td>
                         </tr>';
             }
         }

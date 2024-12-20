@@ -312,6 +312,7 @@
                             <th>School Name</th>
                             <th>Graduation Year</th>
                             <th>Lead Source</th>
+                            <th>Date</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-lead-detail">
