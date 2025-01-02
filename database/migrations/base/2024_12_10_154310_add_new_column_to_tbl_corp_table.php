@@ -16,6 +16,7 @@ return new class extends Migration
             $table->bigInteger('corp_subsector_id')->unsigned()->nullable()->after('corp_industry');
             $table->enum('corp_status', ['Contacted', 'Contracted', 'Engaged', 'Expired', 'Prospect'])->nullable()->after('partnership_type');
             $table->boolean('active_status')->default(1)->after('partnership_type');
+            $table->string('corp_city')->after('corp_region')->nullable();
         });
     }
 

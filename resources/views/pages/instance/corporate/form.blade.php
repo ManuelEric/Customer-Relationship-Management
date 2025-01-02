@@ -7,7 +7,7 @@
 @endsection
 @section('content')
     @php
-        $type = ['Corporate', 'Individual Professional', 'Tutoring Center', 'Course Center', 'Agent', 'Community', 'NGO'];
+        $type = ['Corporate', 'Individual/Professionals', 'Course Center', 'Agent', 'Community/NGO', 'University'];
         sort($type);
         
         $partnership_type = ['Market Sharing/Referral Collaboration', 'Program Collaboration', 'Program Contributor', 'Speaker', 'Volunteer', 'Internship', 'Company Visit'];
@@ -230,7 +230,18 @@
                                 <textarea name="corp_address" cols="30" rows="10">{{ isset($corporate->corp_address) ? $corporate->corp_address : old('corp_address') }}</textarea>
                             </div>
 
-                            <div class="col-md-6 mb-2">
+                            <div class="col-md-4 mb-2">
+                                <label>City</label>
+                                <input type="text" name="corp_city"
+                                    value="{{ isset($corporate->corp_city) ? $corporate->corp_city : old('corp_city') }}"
+                                    class="form-control form-control-sm rounded"
+                                    {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
+                                @error('corp_city')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-4 mb-2">
                                 <label for="">Country Type <sup class="text-danger">*</sup></label>
                                 <select name="country_type" class="select w-100"
                                     {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
@@ -247,7 +258,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-6 mb-2">
+                            <div class="col-md-4 mb-2">
                                 <label for="">Partnership Type </label>
                                 <select name="partnership_type" class="select w-100"
                                     {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
@@ -328,7 +339,7 @@
             $('#type').on('change', function(){
                 var selected_type = $(this).select2().find(":selected").val();
                                 
-                if(selected_type == 'Individual Professional'){
+                if(selected_type == 'Individual/Professionals'){
                     $('.professional-name').removeClass('d-none');
                     $('.corporate-name').addClass('d-none');
                 }else{
@@ -370,7 +381,7 @@
                 }
             });
 
-            @if (isset($corporate) && $corporate->type != null && $corporate->type == 'Individual Professional')
+            @if (isset($corporate) && $corporate->type != null && $corporate->type == 'Individual/Professionals')
                 $('.professional-name').removeClass('d-none');
                 $('.corporate-name').addClass('d-none');
             @else

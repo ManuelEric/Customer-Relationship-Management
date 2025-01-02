@@ -65,9 +65,10 @@ class StoreCorporateRequest extends FormRequest
             'corp_address' => 'nullable',
             'corp_note' => 'nullable',
             'corp_password' => 'nullable',
+            'corp_city' => 'nullable',
             'status' => 'nullable|in:Contacted,Contracted,Engaged,Expired,Prospect',
             'country_type' => 'required|in:Indonesia,Overseas',
-            'type' => 'required|in:Corporate,Individual Professional,Tutoring Center,Course Center,Agent,Community,NGO',
+            'type' => 'required|in:Corporate,Individual/Professionals,Course Center,Agent,Community/NGO,University',
             'partnership_type' => 'nullable|in:Market Sharing/Referral Collaboration,Program Collaboration,Program Contributor,Speaker,Volunteer,Internship,Company Visit',
         ];
     }
@@ -90,9 +91,10 @@ class StoreCorporateRequest extends FormRequest
             'corp_address' => 'nullable',
             'corp_note' => 'nullable',
             'corp_password' => 'nullable',
+            'corp_city' => 'nullable',
             'country_type' => 'required|in:Indonesia,Overseas',
             'status' => 'nullable|in:Contacted,Contracted,Engaged,Expired,Prospect',
-            'type' => 'required|in:Corporate,Individual Professional,Tutoring Center,Course Center,Agent,Community,NGO',
+            'type' => 'required|in:Corporate,Individual/Professionals,Course Center,Agent,Community/NGO,University',
             'partnership_type' => 'nullable|in:Market Sharing/Referral Collaboration,Program Collaboration,Program Contributor,Speaker,Volunteer,Internship,Company Visit',
         ];
     }

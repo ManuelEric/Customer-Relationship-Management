@@ -41,6 +41,7 @@ class Corporate extends Model
         'active_status',
         'type',
         'partnership_type',
+        'corp_city',
         'created_at',
         'updated_at',
     ];

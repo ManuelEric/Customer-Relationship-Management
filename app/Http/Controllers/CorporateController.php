@@ -72,6 +72,7 @@ class CorporateController extends Controller
             'corp_address',
             'corp_note',
             'corp_password',
+            'corp_city',
             'country_type',
             'corp_status',
             'type',
@@ -131,6 +132,7 @@ class CorporateController extends Controller
             'corp_note',
             'country_type',
             'corp_status',
+            'corp_city',
             'type',
             'partnership_type',
         ]);
