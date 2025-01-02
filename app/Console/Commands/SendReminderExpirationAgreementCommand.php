@@ -42,7 +42,7 @@ class SendReminderExpirationAgreementCommand extends Command
     }
 
     # Purpose:
-    # get data contracts user that almost meet the end of the contract
+    # get data partnership agreement that almost meet the end of the contract
     # send mail to Internal Team
     public function handle()
     {

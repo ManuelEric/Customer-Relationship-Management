@@ -216,7 +216,7 @@ class User extends Authenticatable
         });
     }
 
-    public function scopeInternship(Builder $query, Carbon $expected_end_date): void
+    public function scopeInternship(Builder $query, $expected_end_date): void
     {
         $query->whereHas('user_type', function($sub) use ($expected_end_date) {
             $sub->

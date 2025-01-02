@@ -398,23 +398,23 @@ class UserRepository implements UserRepositoryInterface
     {
         return User::query()->
             when(ContractUserType::EDITOR, function ($query) {
-                $expected_end_date = Carbon::now()->addMonth(2);
+                $expected_end_date = Carbon::now()->addMonth(2)->format('Y-m-d');
                 $query->editor()->partTime($expected_end_date);
             })->
             when(ContractUserType::EXTERNAL_MENTOR, function ($query) {
-                $expected_end_date = Carbon::now()->addMonth(2);
+                $expected_end_date = Carbon::now()->addMonth(2)->format('Y-m-d');
                 $query->externalMentor()->partTime($expected_end_date);
             })->
             when(ContractUserType::TUTOR, function ($query) {
-                $expected_end_date = Carbon::now()->addMonth(2);
+                $expected_end_date = Carbon::now()->addMonth(2)->format('Y-m-d');
                 $query->tutor()->partTime($expected_end_date);
             })->
             when(ContractUserType::INTERNSHIP, function ($query) {
-                $expected_end_date = Carbon::now()->addMonth(1);
+                $expected_end_date = Carbon::now()->addMonth(1)->format('Y-m-d');
                 $query->internship($expected_end_date);
             })->
             when(ContractUserType::PROBATION, function ($query) {
-                $expected_end_date = Carbon::now()->addWeek(2);
+                $expected_end_date = Carbon::now()->addWeek(2)->format('Y-m-d');
                 $query->partTime($expected_end_date);
             })->
             with(['user_type'])->
