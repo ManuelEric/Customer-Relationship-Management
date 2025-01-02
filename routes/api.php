@@ -64,9 +64,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('get/client/{id}', [ExtClientController::class, 'getClientById']);
 
 # dashboard sales
-Route::middleware('auth:api')->group(function() {
-    Route::get('get/client/{month}/type/{type}', [SalesDashboardControllerV1::class, 'fnGetClientByMonthAndType']);
-});
 Route::get('get/client-status/{month}', [SalesDashboardControllerV1::class, 'fnGetClientStatus']);
 Route::get('get/follow-up-reminder/{month}', [SalesDashboardControllerV1::class, 'fnGetFollowUpReminder']);
 Route::get('get/mentee-birthday/{month}', [SalesDashboardControllerV1::class, 'fnGetMenteesBirthdayByMonth']);
@@ -131,6 +128,7 @@ Route::get('download/excel-template/{type}', [ExcelTemplateController::class, 'g
 Route::get('master/event/{event}/school/{school}', [SchoolEventController::class]);
 
 # client student menu
+
 Route::get('client/{client}/programs', [ClientStudentController::class, 'getClientProgramByStudentId']);
 Route::get('client/{client}/events', [ClientStudentController::class, 'getClientEventByStudentId']);
 Route::get('client/{client}/logs', [ClientStudentController::class, 'getLogsClient']);
@@ -207,7 +205,13 @@ Route::prefix('v1')->group(function () {
 
     # use for select data subject user agreement
     Route::get('get/subjects/{role}', [ExtUserController::class, 'cnGetSubjectsByRole']);
+    
+    # essay editing
+    Route::get('essay/program/list', [ExtClientProgramController::class, 'fnGetSuccessEssayProgram']);
+    Route::get('user/{role}/list', [ExtClientController::class, 'fnGetUserByRole']);
+    Route::get('user/{role}/by/{uuid}', [ExtClientController::class, 'fnGetUserByRoleAndUUID']);
 });
+
 
 # Client Event Attendance
 Route::get('event/attendance/{id}/{status}', [ClientEventController::class, 'updateAttendance']);
@@ -241,9 +245,9 @@ Route::get('get/program/main/{mainProgId}', [APIProgramController::class, 'getPr
 # Get List referral / sub lead referral (All Client)
 Route::get('get/referral/list', [LeadController::class, 'fnGetListReferral']);
 
+
 # Import From google sheet
 Route::group(['middleware' => 'auth:api', 'prefix' => 'import'], function () {
-
     Route::get('parent', [GoogleSheetController::class, 'storeParent']);
     Route::get('client-event', [GoogleSheetController::class, 'storeClientEvent']);
     Route::get('student', [GoogleSheetController::class, 'storeStudent']);
