@@ -331,7 +331,7 @@ return new class extends Migration
         # J
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION SetInitialConsult ( contribution_to_target INTEGER, requested_division VARCHAR(20) COLLATE utf8mb4_general_ci )
+        CREATE OR REPLACE FUNCTION SetInitialConsult ( contribution_to_target INTEGER, requested_division VARCHAR(20) )
         RETURNS INTEGER#
 
             BEGIN
@@ -384,7 +384,7 @@ return new class extends Migration
                     FROM target_tracking
                     WHERE MONTH(month_year) = MONTH(now() - INTERVAL 1 MONTH) 
                         AND YEAR(month_year) = YEAR(now() - INTERVAL 1 MONTH)
-                        AND divisi = requested_division COLLATE utf8mb4_unicode_ci;
+                        AND divisi = requested_division;
 
             RETURN difference;
         END; //
