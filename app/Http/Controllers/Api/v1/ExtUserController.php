@@ -130,4 +130,39 @@ class ExtUserController extends Controller
             $response, $http_code
         );
     }
+
+    public function cnGetUserByUUID(Request $request)
+    {
+        $user_uuid = $request->route('UUID');
+
+        try {
+            $user = $this->userRepository->rnGetUserById($user_uuid);
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found.'
+                ], 503);
+            }
+        } catch (Exception $e) {
+            Log::error('Failed get user' . $e->getMessage());
+
+            $response = [
+                'success' => false,
+                'message' => 'Failed get user! '. $e->getMessage(), 
+            ];
+            $http_code = 500;
+        }
+
+        $response = [
+            'success' => true,
+            'message' => 'There are user found.',
+            'data' => $user
+        ];
+        $http_code = 200;
+
+        return response()->json(
+            $response, $http_code
+        );
+    }
 }

@@ -17,7 +17,7 @@ class PartnerService
         $mail_resources = 'mail-template.reminder.agreement.partner.expiration-agreement-reminder';
         
         try {
-            Mail::send($mail_resources, ['agreement' => $partner_agreement_expired_soon, 'title' => 'Test'], function ($message) use ($subject_mail, $recipient, $cc_mail) {
+            Mail::send($mail_resources, ['agreement' => $partner_agreement_expired_soon], function ($message) use ($subject_mail, $recipient, $cc_mail) {
                 $message->to($recipient)
                     ->cc($cc_mail)
                     ->subject($subject_mail);

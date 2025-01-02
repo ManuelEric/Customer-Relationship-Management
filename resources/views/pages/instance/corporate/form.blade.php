@@ -10,7 +10,7 @@
         $type = ['Corporate', 'Individual Professional', 'Tutoring Center', 'Course Center', 'Agent', 'Community', 'NGO'];
         sort($type);
         
-        $partnership_type = ['Market Sharing', 'Program Collaborator', 'Internship', 'External Mentor'];
+        $partnership_type = ['Market Sharing/Referral Collaboration', 'Program Collaboration', 'Program Contributor', 'Speaker', 'Volunteer', 'Internship', 'Company Visit'];
         sort($partnership_type);
 
         $statuses = ['Contacted', 'Contracted', 'Engaged', 'Expired', 'Prospect'];
@@ -98,7 +98,7 @@
                             <div class="col-md-6 mb-2">
                                 <div class="corporate-name d-none">
                                     <label>Corporate / Partner Name <sup class="text-danger">*</sup></label>
-                                    <input type="text" name="corp_name"
+                                    <input type="text" name="corp_name" id="corp_name"
                                     value="{{ isset($corporate->corp_name) ? $corporate->corp_name : old('corp_name') }}"
                                     class="form-control form-control-sm rounded"
                                     {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
@@ -156,7 +156,7 @@
 
                             <div class="col-md-4 mb-2">
                                 <label>Email <sup class="text-danger">*</sup></label>
-                                <input type="email" name="corp_mail"
+                                <input type="email" name="corp_mail" id="corp_mail"
                                     value="{{ isset($corporate->corp_mail) ? $corporate->corp_mail : old('corp_mail') }}"
                                     class="form-control form-control-sm rounded"
                                     {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
@@ -167,7 +167,7 @@
 
                             <div class="col-md-4 mb-2">
                                 <label>Phone <sup class="text-danger">*</sup></label>
-                                <input type="text" name="corp_phone"
+                                <input type="text" name="corp_phone" id="corp_phone"
                                     value="{{ isset($corporate->corp_phone) ? $corporate->corp_phone : old('corp_phone') }}"
                                     class="form-control form-control-sm rounded"
                                     {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
@@ -334,6 +334,39 @@
                 }else{
                     $('.professional-name').addClass('d-none');
                     $('.corporate-name').removeClass('d-none');
+                }
+            });
+
+            // Professional Name
+            $('#user_id').on('change', function(){
+                var user_id = $(this).val();
+
+                if(user_id){
+                    var baseUrl = "{{ url('/') }}/api/v1/get/user/uuid/" + user_id;             
+
+                    showLoading();
+                    axios.get(baseUrl)
+                    .then(function(response) {
+                        // handle success
+                        
+                        let user = response.data.data
+                        $('#corp_name').val(user.first_name + ' ' + (user.last_name !== '' || user.last_name !== null ? user.last_name : null));
+                        $('#corp_mail').val(user.email);
+                        $('#corp_phone').val(user.phone);
+                        
+                        $('#corp_mail').attr('readonly', true);
+                        $('#corp_phone').attr('readonly', true);
+                    
+                        Swal.close()
+                    })
+                    .catch(function(error) {
+                        // handle error
+                        Swal.close()
+                        notification(error.response.data.success, 'Something went wrong. Please try again or contact the administrator.')
+                    })
+                }else{
+                    $('#corp_mail').prop('readonly', false);
+                    $('#corp_phone').prop('readonly', false);
                 }
             });
 

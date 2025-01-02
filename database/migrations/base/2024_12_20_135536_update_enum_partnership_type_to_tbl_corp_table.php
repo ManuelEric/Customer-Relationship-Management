@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tbl_corp', function (Blueprint $table) {
-            DB::statement("ALTER TABLE tbl_corp CHANGE COLUMN partnership_type partnership_type ENUM('Market Sharing/Referral Collaboration', 'Program Collaboration', 'Program Contributor', 'Speaker', 'Volunteer', 'Internship', 'Company Visit', 'Individual Professional', 'Course Center', 'University') NULL ");
+            DB::statement("ALTER TABLE tbl_corp CHANGE COLUMN partnership_type partnership_type ENUM('Market Sharing/Referral Collaboration', 'Program Collaboration', 'Program Contributor', 'Speaker', 'Volunteer', 'Internship', 'Company Visit') NULL ");
         });
     }
 

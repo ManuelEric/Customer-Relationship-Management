@@ -68,7 +68,7 @@ class StoreCorporateRequest extends FormRequest
             'status' => 'nullable|in:Contacted,Contracted,Engaged,Expired,Prospect',
             'country_type' => 'required|in:Indonesia,Overseas',
             'type' => 'required|in:Corporate,Individual Professional,Tutoring Center,Course Center,Agent,Community,NGO',
-            'partnership_type' => 'nullable|in:Market Sharing,Program Collaborator,Internship,External Mentor',
+            'partnership_type' => 'nullable|in:Market Sharing/Referral Collaboration,Program Collaboration,Program Contributor,Speaker,Volunteer,Internship,Company Visit',
         ];
     }
 
@@ -93,7 +93,7 @@ class StoreCorporateRequest extends FormRequest
             'country_type' => 'required|in:Indonesia,Overseas',
             'status' => 'nullable|in:Contacted,Contracted,Engaged,Expired,Prospect',
             'type' => 'required|in:Corporate,Individual Professional,Tutoring Center,Course Center,Agent,Community,NGO',
-            'partnership_type' => 'nullable|in:Market Sharing,Program Collaborator,Internship,External Mentor',
+            'partnership_type' => 'nullable|in:Market Sharing/Referral Collaboration,Program Collaboration,Program Contributor,Speaker,Volunteer,Internship,Company Visit',
         ];
     }
 }
