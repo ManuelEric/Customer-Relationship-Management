@@ -32,11 +32,11 @@ class Kernel extends ConsoleKernel
          * Contract Expiration Reminder
          * 
          */
-        // $schedule->command('send:reminder_expiration_contracts editor')->daily(); # daily needed!
-        // $schedule->command('send:reminder_expiration_contracts external_mentor')->daily(); # daily needed!
-        // $schedule->command('send:reminder_expiration_contracts internship')->daily(); # daily needed!
-        // $schedule->command('send:reminder_expiration_contracts probation')->daily(); # daily needed!
-        // $schedule->command('send:reminder_expiration_contracts tutor')->daily(); # daily needed!
+        $schedule->command('send:reminder_expiration_contracts editor')->daily(); # daily needed!
+        $schedule->command('send:reminder_expiration_contracts external_mentor')->daily(); # daily needed!
+        $schedule->command('send:reminder_expiration_contracts internship')->daily(); # daily needed!
+        $schedule->command('send:reminder_expiration_contracts probation')->daily(); # daily needed!
+        $schedule->command('send:reminder_expiration_contracts tutor')->daily(); # daily needed!
 
 
         /**
@@ -87,6 +87,9 @@ class Kernel extends ConsoleKernel
          * 
          */
         $schedule->command('update:grade_and_graduation_year')->cron('0 0 1 7 *');
+
+        // Send reminder partnership agreement
+        $schedule->command('send:reminder_expiration_agreement')->cron('0 7 * * *');
     }
 
     /**

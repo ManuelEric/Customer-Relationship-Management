@@ -10,4 +10,5 @@ interface PartnerAgreementRepositoryInterface
     public function deletePartnerAgreement($partnerAgreementId);
     public function createPartnerAgreement(array $partnerAgreements);
     public function updatePartnerAgreement($partnerAgreementId, array $partnerAgreements);
+    public function rnGetExpiringPartnerAgreement(int $days);
 }

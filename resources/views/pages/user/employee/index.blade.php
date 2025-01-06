@@ -29,12 +29,20 @@
                         href="{{ url('user/mentor') }}">Mentor</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link {{ Request::route('user_role') == 'external mentor' ? 'active' : null }}" aria-current="page"
+                        href="{{ url('user/external-mentor') }}">External Mentor</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link {{ Request::route('user_role') == 'editor' ? 'active' : null }}" aria-current="page"
                         href="{{ url('user/editor') }}">Editor</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {{ Request::route('user_role') == 'tutor' ? 'active' : null }}" aria-current="page"
                         href="{{ url('user/tutor') }}">Tutor</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::route('user_role') == 'professional' ? 'active' : null }}" aria-current="page"
+                        href="{{ url('user/professional') }}">Professional</a>
                 </li>
             </ul>
 

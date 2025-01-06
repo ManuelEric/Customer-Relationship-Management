@@ -4,6 +4,7 @@ namespace App\Actions\Partners\Agreement;
 
 use App\Http\Requests\StorePartnerAgreementRequest;
 use App\Http\Traits\UploadFileTrait;
+use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\PartnerAgreementRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -12,10 +13,12 @@ class CreatePartnerAgreementAction
 {
     use UploadFileTrait;
     private PartnerAgreementRepositoryInterface $partnerAgreementRepository;
+    private CorporateRepositoryInterface $corporateRepository;
 
-    public function __construct(PartnerAgreementRepositoryInterface $partnerAgreementRepository)
+    public function __construct(PartnerAgreementRepositoryInterface $partnerAgreementRepository, CorporateRepositoryInterface $corporateRepository)
     {
         $this->partnerAgreementRepository = $partnerAgreementRepository;
+        $this->corporateRepository = $corporateRepository;
     }
 
     public function execute(
@@ -39,6 +42,11 @@ class CreatePartnerAgreementAction
 
         # insert into partner aggrement
         $created_partner_agreement = $this->partnerAgreementRepository->createPartnerAgreement($partner_agreement_details);
+
+        # update status partner to contracted
+        if(isset($created_partner_agreement)){
+            $this->corporateRepository->updateCorporate($created_partner_agreement->corp_id, ['corp_status' => 'Contracted']);
+        }
 
         return $created_partner_agreement;
     }

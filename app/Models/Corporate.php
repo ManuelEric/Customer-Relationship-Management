@@ -25,7 +25,9 @@ class Corporate extends Model
     protected $fillable = [
         'corp_id',
         'corp_name',
+        'user_id',
         'corp_industry',
+        'corp_subsector_id',
         'corp_mail',
         'corp_phone',
         'corp_insta',
@@ -35,8 +37,11 @@ class Corporate extends Model
         'corp_note',
         'corp_password',
         'country_type',
+        'corp_status',
+        'active_status',
         'type',
         'partnership_type',
+        'corp_city',
         'created_at',
         'updated_at',
     ];
@@ -89,6 +94,14 @@ class Corporate extends Model
             get: fn ($value) => date('M d, Y H:i:s', strtotime($value)),
         );
     }
+
+    protected function partnerName(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->type == "Individual Professional" && $this->user_id != null ? $this->individualProfessional->full_name : $this->corp_name
+        );
+    }
+
 
     public static function whereCorpId($id)
     {
@@ -151,5 +164,15 @@ class Corporate extends Model
     public function asCollaboratorInSchoolProgram()
     {
         return $this->belongsToMany(SchoolProg::class, 'tbl_sch_prog_partner', 'corp_id', 'schprog_id')->withTimestamps();
+    }
+
+    public function subSector()
+    {
+        return $this->belongsTo(SubSector::class, 'corp_subsector_id', 'id');
+    }
+    
+    public function individualProfessional()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 }

@@ -485,7 +485,7 @@ return new class extends Migration
         # Q
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION CountRawClientRelation ( raw_client_id INTEGER, roles VARCHAR(50) )
+        CREATE OR REPLACE FUNCTION CountRawClientRelation ( raw_client_id VARCHAR(36), roles VARCHAR(50) )
         RETURNS INTEGER
         
         BEGIN

@@ -28,7 +28,7 @@ class ExtPartnerController extends Controller
         # map the data that being shown to the user
         $mappedPartner = $partner->map(function ($value) {
             return [
-                'partner' => $value->corp_name,
+                'partner' => $value->partner_name,
                 'id' => $value->corp_id,
             ];
         });

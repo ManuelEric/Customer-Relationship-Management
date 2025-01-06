@@ -16,10 +16,14 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
     public function getAllPartnerProgramsDataTables($filter = null)
     {
         return Datatables::eloquent(
-            PartnerProg::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')->leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')->leftJoin('users', 'users.id', '=', 'tbl_partner_prog.empl_id')->select(
+            PartnerProg::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')->leftJoin('users as professional', 'professional.id', '=', 'tbl_corp.user_id')->leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')->leftJoin('users', 'users.id', '=', 'tbl_partner_prog.empl_id')->select(
                 'tbl_corp.corp_id',
                 'tbl_partner_prog.id',
-                'tbl_corp.corp_name as corp_name',
+                DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                    THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
+                    ELSE tbl_corp.corp_name
+                END) as partnership_name'),
+                // 'tbl_corp.corp_name as corp_name',
                 'tbl_partner_prog.first_discuss',
                 'tbl_partner_prog.participants',
                 'tbl_partner_prog.total_fee',
@@ -28,7 +32,10 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                 DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
             )
                 ->when($filter && isset($filter['partner_name']), function ($query) use ($filter) {
-                    $query->whereIn('tbl_corp.corp_name', $filter['partner_name']);
+                    $query->whereIn(DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                            THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
+                            ELSE tbl_corp.corp_name
+                        END)'), $filter['partner_name']);
                 })
                 ->when($filter && isset($filter['program_name']), function ($query) use ($filter) {
                     $query->whereIn('program.prog_program', $filter['program_name']);
@@ -159,7 +166,14 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                 $sql = 'CONCAT(users.first_name," ",users.last_name) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             }
-        )->make(true);
+        )->filterColumn('partnership_name', function ($query, $keyword) {
+            $sql = '(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                        THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
+                        ELSE tbl_corp.corp_name
+                    END) like ?';
+            $query->whereRaw($sql, ["%{$keyword}%"]);
+        })
+        ->make(true);
     }
 
     public function getAllPartnerProgramsByPartnerId($corpId)
