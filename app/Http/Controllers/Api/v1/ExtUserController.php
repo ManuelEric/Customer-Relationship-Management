@@ -3,16 +3,21 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Interfaces\SubjectRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ExtUserController extends Controller
 {
     protected UserRepositoryInterface $userRepository;
+    protected SubjectRepositoryInterface $subjectRepository;
 
-    public function __construct(UserRepositoryInterface $userRepository)
+    public function __construct(UserRepositoryInterface $userRepository, SubjectRepositoryInterface $subjectRepository)
     {
         $this->userRepository = $userRepository;
+        $this->subjectRepository = $subjectRepository;
     }
 
     # used for spreadsheets
@@ -83,5 +88,81 @@ class ExtUserController extends Controller
             'message' => 'Employee are found',
             'data' => $mappingEmployees
         ]);
+    }
+
+    public function cnGetSubjectsByRole(Request $request)
+    {
+        $role = $request->route('role');
+        $response = [];
+        $http_code = null;
+        
+        if($role == 'Associate Editor' || $role == 'Senior Editor' || $role == 'Managing Editor'){
+            $role = 'Editor';
+        } 
+
+        try {
+            $subjects = $this->subjectRepository->rnGetAllSubjectsByRole($role);
+            
+            if (!$subjects) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Subject not found.'
+                ], 503);
+            }
+        } catch (Exception $e) {
+            Log::error('Failed get subject' . $e->getMessage());
+
+            $response = [
+                'success' => false,
+                'message' => 'Failed get subject! '. $e->getMessage(), 
+            ];
+            $http_code = 500;
+        }
+
+        $response = [
+            'success' => true,
+            'message' => 'There are subject found.',
+            'data' => $subjects
+        ];
+        $http_code = 200;
+
+        return response()->json(
+            $response, $http_code
+        );
+    }
+
+    public function cnGetUserByUUID(Request $request)
+    {
+        $user_uuid = $request->route('UUID');
+
+        try {
+            $user = $this->userRepository->rnGetUserById($user_uuid);
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found.'
+                ], 503);
+            }
+        } catch (Exception $e) {
+            Log::error('Failed get user' . $e->getMessage());
+
+            $response = [
+                'success' => false,
+                'message' => 'Failed get user! '. $e->getMessage(), 
+            ];
+            $http_code = 500;
+        }
+
+        $response = [
+            'success' => true,
+            'message' => 'There are user found.',
+            'data' => $user
+        ];
+        $http_code = 200;
+
+        return response()->json(
+            $response, $http_code
+        );
     }
 }

@@ -92,7 +92,7 @@ class SyncDataCommand extends Command
                             break;
 
                         case 'partner':
-                            $result[$key] = [$val->corp_id, $val->corp_name];
+                            $result[$key] = [$val->corp_id, $val->partner_name];
                             break;
 
                         case 'event':

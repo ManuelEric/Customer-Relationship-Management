@@ -29,6 +29,7 @@ class PartnerAgreement extends Model
         'end_date',
         'corp_pic',
         'empl_id',
+        'reminded'
     ];
 
     // public static function whereSchoolProgramId($id)

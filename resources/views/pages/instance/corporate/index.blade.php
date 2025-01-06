@@ -69,10 +69,11 @@
                         }
                     },
                     {
-                        data: 'corp_name',
+                        data: 'partnership_name',
                     },
                     {
-                        data: 'corp_industry',
+                        data: 'industry_name',
+                        name: 'tbl_industry.name',
                         render: function(data, type, row, meta) {
                             return data == null ? '-' : data
                         }

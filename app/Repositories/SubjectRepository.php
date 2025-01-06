@@ -43,4 +43,9 @@ class SubjectRepository implements SubjectRepositoryInterface
     {
         return Subject::destroy($subjectId);
     }
+
+    public function rnGetAllSubjectsByRole(string $role)
+    {
+        return Subject::where('role', $role)->get();
+    }
 }

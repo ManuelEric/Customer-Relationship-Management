@@ -268,7 +268,7 @@ class PartnerDashboardController extends Controller
     
                         $html .= '<tr class="detail" data-corpid="' . $partner->corp_id . '" data-type="partner" style="cursor:pointer">
                             <td>' . $index++ . '</td>
-                            <td>' . $partner->corp_name . '</td>
+                            <td>' . $partner->partner_name . '</td>
                             <td>' . $partner->corp_mail . '</td>
                             <td>' . $partner->corp_phone . '</td>
                             <td>' . $partner->type . '</td>
@@ -384,7 +384,7 @@ class PartnerDashboardController extends Controller
     
                         $html .= '<tr class="detail" data-corpid="' . $agreement->corp_id . '" data-agreementid="' . $agreement->id . '" data-type="agreement" style="cursor:pointer">
                             <td>' . $index++ . '</td>
-                            <td>' . $agreement->partner->corp_name . '</td>
+                            <td>' . $agreement->partner->partner_name . '</td>
                             <td>' . $agreement->agreement_name . '</td>
                             <td>' . $agreementType . '</td>
                             <td>' . date('M d, Y', strtotime($agreement->start_date)) . '</td>

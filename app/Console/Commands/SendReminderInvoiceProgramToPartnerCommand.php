@@ -66,7 +66,7 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
 
                 $program_name = ucwords(strtolower($data->program_name));
 
-                $partner_name = $data->corp_name;
+                $partner_name = $data->partner_name;
                 $partner_pics = $data->partner_prog->corp->pic;
 
                 if ($partner_pics->count() == 0) {

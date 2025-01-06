@@ -214,7 +214,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     case "All-In Partners":
                         $conv_lead = "EduALL Partners";
                         if (isset($clientProgram->partner)) {
-                            $partner_name = $clientProgram->partner->corp_name;
+                            $partner_name = $clientProgram->partner->partner_name;
                             $conv_lead = "EduALL Partners - {$partner_name}";
                         }
 

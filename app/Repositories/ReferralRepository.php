@@ -16,10 +16,14 @@ class ReferralRepository implements ReferralRepositoryInterface
     {
         return Datatables::eloquent(
             Referral::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
+                ->leftJoin('users as professional', 'professional.id', '=', 'tbl_corp.user_id')
                 ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
                 ->leftJoin('users', 'users.id', '=', 'tbl_referral.empl_id')->select(
                     'tbl_referral.id',
-                    'tbl_corp.corp_name as partner_name',
+                    DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                                THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
+                                ELSE tbl_corp.corp_name
+                            END) as partnership_name'),
                     'tbl_referral.referral_type',
                     'program.program_name',
                     'tbl_referral.number_of_student',
@@ -35,8 +39,13 @@ class ReferralRepository implements ReferralRepositoryInterface
                 $sql = 'CONCAT(users.first_name," ",users.last_name) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             }
-        )
-            ->make(true);
+        )->filterColumn('partnership_name', function ($query, $keyword) {
+            $sql = '(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                        THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
+                        ELSE tbl_corp.corp_name
+                    END) like ?';
+            $query->whereRaw($sql, ["%{$keyword}%"]);
+        })->make(true);
     }
 
     public function getAllReferralByTypeAndMonth($type, $monthYear)
