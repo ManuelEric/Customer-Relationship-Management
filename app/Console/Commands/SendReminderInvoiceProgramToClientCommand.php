@@ -65,7 +65,11 @@ class SendReminderInvoiceProgramToClientCommand extends Command
             foreach ($invoice_master as $data) {
 
                 if($data->sign_status != 'signed')
+                {
+                    $this->newLine();
+                    $this->info("Email not sent to {$data->parent_mail} because the sign status is null");
                     continue;
+                }
 
                 $invoice_id = $data->inv_id;
                 $log_exist = $this->generalMailLogRepository->getStatus($invoice_id);
