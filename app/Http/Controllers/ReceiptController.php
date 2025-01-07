@@ -489,6 +489,7 @@ class ReceiptController extends Controller
             # send mail when document has been signed
             Mail::send('pages.receipt.client-program.mail.signed', $data, function ($message) use ($data, $name) {
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
+                    ->cc([env('FINANCE_CC_2')])
                     ->subject($data['title'])
                     ->attach(storage_path('app/public/uploaded_file/receipt/client/' . $name));
             });
@@ -549,6 +550,7 @@ class ReceiptController extends Controller
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),
+            env('FINANCE_CC_2'),
             $pic_mail
         ];
         

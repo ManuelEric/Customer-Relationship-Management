@@ -107,7 +107,7 @@ class SendReminderInvoiceProgramToReferralCommand extends Command
                     try {
                         Mail::send($mail_resources, $params, function ($message) use ($params, $subject) {
                             $message->to($params['partner_mail'], $params['partner_pic'])
-                                ->cc([env('FINANCE_CC'), $params['pic_email']])
+                                ->cc([env('FINANCE_CC'), env('FINANCE_CC_2'), $params['pic_email']])
                                 ->subject($subject);
                         });
                     } catch (Exception $e) {
@@ -149,6 +149,7 @@ class SendReminderInvoiceProgramToReferralCommand extends Command
     
                     Mail::send($mail_resources, $params, function ($message) {
                         $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
+                            ->cc([env('FINANCE_CC_2')])
                             ->subject('There are some partner that can\'t be reminded');
                     });
 
