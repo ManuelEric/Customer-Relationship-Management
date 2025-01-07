@@ -76,8 +76,9 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                 where(function ($q) use ($month, $year) {
                     $q->
                         whereMonth('tbl_client_log.created_at', $month)->
-                        whereYear('tbl_client_log.created_at', $year);
-                })->groupBy('unique_key')->get();
+                        whereYear('tbl_client_log.created_at', $year)->
+                        where('tbl_client_log.category', 'raw');
+                })->groupBy('client_id', 'category', 'lead_source', 'inputted_from')->get();
 
 
         // return ClientLog::with(['master_client', 'lead_source_log'])->
@@ -113,7 +114,8 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                     where(function ($q) use ($month, $year) {
                         $q->
                             whereMonth('tbl_client_log.created_at', $month)->
-                            whereYear('tbl_client_log.created_at', $year);
+                            whereYear('tbl_client_log.created_at', $year)->
+                            where('tbl_client_log.category', 'raw');
                     })->
                     whereHas('master_client', function ($query) {
 
@@ -124,7 +126,7 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                                 where('tbl_client_lead_tracking.total_result', '>=', 0.65); # >= 0.65 means HOT
                         });
                     })->
-                    groupBy('unique_key')->
+                    groupBy('client_id', 'category', 'lead_source', 'inputted_from')->
                     get();
     }
 
@@ -206,8 +208,9 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         where(function ($q) use ($month, $year) {
             $q->
                 whereMonth('tbl_client_log.created_at', $month)->
-                whereYear('tbl_client_log.created_at', $year);
-        })->groupBy('unique_key')->get();
+                whereYear('tbl_client_log.created_at', $year)->
+                where('tbl_client_log.category', 'raw');
+        })->groupBy('client_id', 'category', 'lead_source', 'inputted_from')->get();
          
         return $clients; # because we only get the client where lead id is referral
     }
@@ -224,7 +227,8 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
             where(function ($q) use ($month, $year) {
                 $q->
                     whereMonth('tbl_client_log.created_at', $month)->
-                    whereYear('tbl_client_log.created_at', $year);
+                    whereYear('tbl_client_log.created_at', $year)->
+                    whereYear('tbl_client_log.category', 'raw');
             })->
             whereHas('master_client', function ($query) {
 
@@ -235,7 +239,7 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                         where('tbl_client_lead_tracking.total_result', '>=', 0.65); # >= 0.65 means HOT
                 });
             })->
-            groupBy('unique_key')->
+            groupBy('client_id', 'category', 'lead_source', 'inputted_from')->
             get();
 
         // return UserClient::withTrashed()->
@@ -367,8 +371,9 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
             where(function ($q) use ($month, $year) {
                 $q->
                     whereMonth('tbl_client_log.created_at', $month)->
-                    whereYear('tbl_client_log.created_at', $year);
-            })->groupBy('unique_key')->get();
+                    whereYear('tbl_client_log.created_at', $year)->
+                    where('tbl_client_log.category', 'raw');
+            })->groupBy('client_id', 'category', 'lead_source', 'inputted_from')->get();
     }
 
     public function getAchievedHotLeadDigitalByMonth($now)
@@ -383,7 +388,8 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
             where(function ($q) use ($month, $year) {
                 $q->
                     whereMonth('tbl_client_log.created_at', $month)->
-                    whereYear('tbl_client_log.created_at', $year);
+                    whereYear('tbl_client_log.created_at', $year)->
+                    where('tbl_client_log.category', 'raw');
             })->
             whereHas('master_client', function ($query) {
 
@@ -394,7 +400,7 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                         where('tbl_client_lead_tracking.total_result', '>=', 0.65); # >= 0.65 means HOT
                 });
             })->
-        groupBy('unique_key')->
+        groupBy('client_id', 'category', 'lead_source', 'inputted_from')->
         get();
     }
 
