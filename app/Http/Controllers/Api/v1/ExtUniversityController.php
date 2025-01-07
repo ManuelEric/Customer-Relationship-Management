@@ -30,7 +30,10 @@ class ExtUniversityController extends Controller
             return [
                 'univ_id' => $value->univ_id,
                 'univ_name' => $value->univ_name,
-                'univ_country' => $value->univ_country
+                'univ_country' => $value->univ_country,
+                'univ_country_name' => $value->country->name,
+                'univ_email' => $value->univ_email,
+                'univ_phone' => $value->univ_phone,
             ];
         });
 
