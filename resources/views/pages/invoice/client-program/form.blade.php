@@ -1262,7 +1262,6 @@
         })
 
         $("#submit-form").click(function(e) {
-            alert("A");
             e.preventDefault();
 
             var currency = $("#currency").val();
