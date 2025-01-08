@@ -169,7 +169,7 @@ class ExtClientProgramController extends Controller
                 $type_desc = 'Profile Building & Exploration Mentor';
                 break;
             case 3:
-                $type_desc = 'Application Strategi Mentor';
+                $type_desc = 'Application Strategy Mentor';
                 break;
             case 4:
                 $type_desc = 'Writing Mentor';

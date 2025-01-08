@@ -124,6 +124,7 @@ class SendReminderInvoiceProgramToClientCommand extends Command
                     return $this->error($e->getMessage() . ' | Line ' . $e->getLine());
                 }
 
+                $this->newLine();
                 $this->info('Invoice reminder has been sent to ' . $parent_mail);
 
                 switch ($payment_method) {
