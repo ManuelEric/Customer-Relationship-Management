@@ -408,7 +408,7 @@ class UserController extends Controller
             return response()->json(['message' => 'Failed to set password'], 422);
         }
 
-        $log_service->createSuccessLog(LogModule::SET_USER_PASSWORD, 'The user password has been reset', $updated_user);
+        $log_service->createSuccessLog(LogModule::SET_USER_PASSWORD, 'The user password has been reset', $updated_user->toArray());
         return response()->json(['message' => 'Password has been set'], 200);
     }
 
