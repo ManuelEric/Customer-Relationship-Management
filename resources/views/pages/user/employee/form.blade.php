@@ -6,6 +6,11 @@
 @php
     $departmentId = [];
     $departmentThisUser = null;
+    Request::route('user_role') == 'external-mentor' ? $is_external_mentor = 'a' : 'b';
+    Request::route('user_role') == 'tutor' ? $is_tutor = 1 : null;
+    Request::route('user_role') == 'editor' ? $is_editor = 1 : null;
+    Request::route('user_role') == 'professional' ? $is_professional = 1 : null;
+
     if (isset($user) && $typeInfo = $user->user_type()->where('tbl_user_type_detail.status', 1)->first()) 
         $departmentId = $typeInfo->pivot->department_id;
         $departmentThisUser = $departments->where('id', $departmentId)->first();
@@ -87,16 +92,22 @@
             </div>
             @endif
             @if (isset($user) && $user->roles()->where('role_name', 'mentor')->count() > 0)
-            <div class="card rounded mb-3">
-                <div class="card-header">
-                    <h5 class="p-0 m-0">Mentees</h5>
+                <div class="card rounded mb-3">
+                    <div class="card-header">
+                        <h5 class="p-0 m-0">Mentees</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <h2>{{ $user->mentorClient()->wherePivot('status', 1)->count() }}</h2>
+                    </div>
                 </div>
-                <div class="card-body text-center">
-                    <h2>{{ $user->mentorClient()->wherePivot('status', 1)->count() }}</h2>
-                </div>
-            </div>
+            @endif
+
+            @if(isset($user) && (in_array(4, $user->roles()->pluck('role_id')->toArray()) || in_array(3, $user->roles()->pluck('role_id')->toArray()) || in_array(19, $user->roles()->pluck('role_id')->toArray()) || in_array(20, $user->roles()->pluck('role_id')->toArray()) || in_array(13, $user->roles()->pluck('role_id')->toArray()) || in_array(14, $user->roles()->pluck('role_id')->toArray()) || in_array(15, $user->roles()->pluck('role_id')->toArray())))
+                @include('pages.user.employee.form-detail.agreement')
             @endif
         </div>
+
+
         <div class="col-md-9">
             <div class="card rounded mb-3">
                 <div class="card-header d-flex align-items-center">
@@ -189,9 +200,6 @@
                             </div>
                             <div class="col-md-12 mb-3">
                                 @include('pages.user.employee.form-detail.role')
-                            </div>
-                            <div class="col-md-12 mb-3">
-                                @include('pages.user.employee.form-detail.subject')
                             </div>
                             <div class="col-md-12 mb-3">
                                 @include('pages.user.employee.form-detail.attachment')

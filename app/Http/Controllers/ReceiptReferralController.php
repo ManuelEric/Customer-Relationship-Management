@@ -325,7 +325,7 @@ class ReceiptReferralController extends Controller
         $data['param'] = [
             'receipt_identifier' => $receipt_identifier,
             'currency' => $currency,
-            'fullname' => $receipt->invoiceB2b->referral->partner->corp_name,
+            'fullname' => $receipt->invoiceB2b->referral->partner->partner_name,
             'program_name' => $receipt->invoiceB2b->referral->additional_prog_name,
             'receipt_date' => date('d F Y', strtotime($receipt->created_at)),
         ];
@@ -442,6 +442,7 @@ class ReceiptReferralController extends Controller
             # send mail when document has been signed
             Mail::send('pages.receipt.referral.mail.signed', $data, function ($message) use ($data, $receiptAttachment) {
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
+                    ->cc([env('FINANCE_CC_2')])
                     ->subject($data['title'])
                     ->attach(public_path($receiptAttachment->attachment));
             });
@@ -472,14 +473,15 @@ class ReceiptReferralController extends Controller
         $data['email'] = $receipt->invoiceB2b->referral->user->email;
         $data['cc'] = [
             env('CEO_CC'),
-            env('FINANCE_CC')
+            env('FINANCE_CC'),
+            env('FINANCE_CC_2')
         ];
         $data['recipient'] = $receipt->invoiceB2b->referral->user->email;
         $data['title'] = "Receipt of program " . $program_name;
         $data['param'] = [
             'receipt_identifier' => $receipt_identifier,
             'currency' => $currency,
-            'fullname' => $receipt->invoiceB2b->referral->partner->corp_name,
+            'fullname' => $receipt->invoiceB2b->referral->partner->partner_name,
             'program_name' => $receipt->invoiceB2b->referral->additional_prog_name,
         ];
 

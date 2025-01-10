@@ -349,7 +349,7 @@ class ReceiptPartnerController extends Controller
         $data['param'] = [
             'receipt_identifier' => $receipt_identifier,
             'currency' => $currency,
-            'fullname' => $is_installment === false ? $receipt->invoiceB2b->partner_prog->corp->corp_name : $receipt->invoiceInstallment->inv_b2b->partner_prog->corp->corp_name,
+            'fullname' => $is_installment === false ? $receipt->invoiceB2b->partner_prog->corp->parnter_name : $receipt->invoiceInstallment->inv_b2b->partner_prog->corp->parnter_name,
             'program_name' => $is_installment === false ? $receipt->invoiceB2b->partner_prog->program->program_name : $receipt->invoiceInstallment->inv_b2b->partner_prog->program->program_name,
             'receipt_date' => date('d F Y', strtotime($receipt->created_at)),
         ];
@@ -466,6 +466,7 @@ class ReceiptPartnerController extends Controller
             # send mail when document has been signed
             Mail::send('pages.receipt.corporate-program.mail.signed', $data, function ($message) use ($data, $receiptAttachment) {
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
+                    ->cc([env('FINANCE_CC_2')])
                     ->subject($data['title'])
                     ->attach(public_path($receiptAttachment->attachment));
             });
@@ -503,14 +504,15 @@ class ReceiptPartnerController extends Controller
         $data['email'] = $receipt->invoiceB2b->partner_prog->user->email;
         $data['cc'] = [
             env('CEO_CC'),
-            env('FINANCE_CC')
+            env('FINANCE_CC'),
+            env('FINANCE_CC_2')
         ];
         $data['recipient'] = $receipt->invoiceB2b->partner_prog->user->email;
         $data['title'] = "Receipt of program " . $program_name;
         $data['param'] = [
             'receipt_identifier' => $receipt_identifier,
             'currency' => $currency,
-            'fullname' => $receipt->invoiceB2b->partner_prog->corp->corp_name,
+            'fullname' => $receipt->invoiceB2b->partner_prog->corp->partner_name,
             'program_name' => $receipt->invoiceB2b->partner_prog->program->program_name,
         ];
 

@@ -67,8 +67,7 @@
                                 }
                             },
                             {
-                                data: 'partner_name',
-                                name: 'tbl_corp.corp_name'
+                                data: 'partnership_name',
                             },
                             {
                                 data: 'program_name',

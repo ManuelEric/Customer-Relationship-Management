@@ -43,7 +43,7 @@ class UpdateUserAction
 
 
         # 5. store/update new tutor subject
-        $this->userRepository->rnCreateOrUpdateUserSubject($the_user, $request);
+        // $this->userRepository->rnCreateOrUpdateUserSubject($the_user, $request);
     
 
         # 6. upload curriculum vitae

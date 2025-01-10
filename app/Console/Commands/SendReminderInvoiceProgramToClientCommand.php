@@ -65,7 +65,11 @@ class SendReminderInvoiceProgramToClientCommand extends Command
             foreach ($invoice_master as $data) {
 
                 if($data->sign_status != 'signed')
+                {
+                    $this->newLine();
+                    $this->info("Email not sent to {$data->parent_mail} because the sign status is null");
                     continue;
+                }
 
                 $invoice_id = $data->inv_id;
                 $log_exist = $this->generalMailLogRepository->getStatus($invoice_id);
@@ -111,7 +115,7 @@ class SendReminderInvoiceProgramToClientCommand extends Command
                 try {
                     Mail::send($mail_resources, $params, function ($message) use ($params, $subject) {
                         $message->to($params['parent_mail'], $params['parent_fullname'])
-                            ->cc([env('FINANCE_CC'), $params['pic_email']])
+                            ->cc([env('FINANCE_CC'), env('FINANCE_CC_2'), $params['pic_email']])
                             ->subject($subject);
                     });
                 } catch (Exception $e) {
@@ -120,6 +124,7 @@ class SendReminderInvoiceProgramToClientCommand extends Command
                     return $this->error($e->getMessage() . ' | Line ' . $e->getLine());
                 }
 
+                $this->newLine();
                 $this->info('Invoice reminder has been sent to ' . $parent_mail);
 
                 switch ($payment_method) {
@@ -159,6 +164,7 @@ class SendReminderInvoiceProgramToClientCommand extends Command
 
                     Mail::send($mail_resources, $params, function ($message) {
                         $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
+                            ->cc([env('FINANCE_CC_2')])
                             ->subject('There are Some Client that can\'t be reminded');
                     });
 

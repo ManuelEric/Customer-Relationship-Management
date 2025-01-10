@@ -529,7 +529,7 @@ return new class extends Migration
                 ELSE l.main_lead
             END) AS lead_source,
             (CASE 
-                WHEN rc.referral_code is not null THEN GetReferralNameByRefCode (rc.referral_code)
+                WHEN rc.referral_code is not null THEN (SELECT CONCAT(qcc.first_name, " ", qcc.last_name) FROM tbl_client qcc where qcc.secondary_id = (rc.referral_code))
                 ELSE NUll
             END) AS referral_name,
             sch.sch_id,

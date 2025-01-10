@@ -66,7 +66,7 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
 
                 $program_name = ucwords(strtolower($data->program_name));
 
-                $partner_name = $data->corp_name;
+                $partner_name = $data->partner_name;
                 $partner_pics = $data->partner_prog->corp->pic;
 
                 if ($partner_pics->count() == 0) {
@@ -101,7 +101,13 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
                 $mail_resources = 'pages.invoice.corporate-program.mail.reminder-payment';
 
                 $cc = array();
-                array_push($cc, env('FINANCE_CC'));
+
+                $financeEmail[] = [
+                    env('FINANCE_CC'),
+                    env('FINANCE_CC_2')
+                ];
+
+                array_push($cc, ...$financeEmail);
                 if ($params['pic_email'] !== NULL)
                     array_push($cc, $params['pic_email']);
 
@@ -143,6 +149,7 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
 
                     Mail::send($mail_resources, $params, function ($message) {
                         $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
+                            ->cc([env('FINANCE_CC_2')])
                             ->subject('There are some partner that can\'t be reminded');
                     });
 

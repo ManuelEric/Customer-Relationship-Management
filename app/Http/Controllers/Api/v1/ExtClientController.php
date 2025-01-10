@@ -1986,8 +1986,27 @@ class ExtClientController extends Controller
         $incomingPassword = $request->post('password');
 
         $user = \App\Models\User::with('roles')->where('email', $incomingEmail)->first();
+
+        if ( !$user ) {
+            throw new HttpResponseException(
+                response()->json([
+                    'errors' => 'The user is not registered.'
+                ], JsonResponse::HTTP_BAD_REQUEST)
+            );
+        }
+
+        // check if user is active
+        if ( $user->active == 0 ) {
+
+            throw new HttpResponseException(
+                response()->json([
+                    'errors' => 'The user doesn\'t have access anymore.'
+                ], JsonResponse::HTTP_BAD_REQUEST)
+            );
+        }
         
-        if (!$user || !Hash::check($incomingPassword, $user->password)) {
+        // check if the credential is correct
+        if ( !Hash::check($incomingPassword, $user->password)) {
 
             throw new HttpResponseException(
                 response()->json([

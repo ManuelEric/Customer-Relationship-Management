@@ -7,6 +7,7 @@ use App\Actions\Users\UpdateUserAction;
 use App\Actions\Users\UserDocumentDownloadAction;
 use App\Enum\LogModule;
 use App\Http\Requests\ChangeUserStatusRequest;
+use App\Http\Requests\StoreUserAgreementRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
@@ -47,6 +48,7 @@ class UserController extends Controller
     private PositionRepositoryInterface $positionRepository;
     private UserTypeRepositoryInterface $userTypeRepository;
     private SubjectRepositoryInterface $subjectRepository;
+    private $role_type_mentors;
 
     public function __construct(UserRepositoryInterface $userRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, DepartmentRepositoryInterface $departmentRepository, PositionRepositoryInterface $positionRepository, UserTypeRepositoryInterface $userTypeRepository, SubjectRepositoryInterface $subjectRepository)
     {
@@ -57,6 +59,7 @@ class UserController extends Controller
         $this->positionRepository = $positionRepository;
         $this->userTypeRepository = $userTypeRepository;
         $this->subjectRepository = $subjectRepository;
+
     }
 
     public function index(Request $request): mixed
@@ -155,6 +158,9 @@ class UserController extends Controller
                 'user_types' => $user_types,
                 'subjects' => $subjects,
                 'is_tutor' => false,
+                'is_external_mentor' => false,
+                'is_editor' => false,
+                'is_professional' => false,
             ]
         );
     }
@@ -237,6 +243,9 @@ class UserController extends Controller
         $salesTeams = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
         $subjects = $this->subjectRepository->getAllSubjects();
         $is_tutor = $user->roles()->where('role_name', 'Tutor')->first() != null ? true : false;
+        $is_external_mentor = $user->roles()->where('role_name', 'External Mentor')->first() != null ? true : false;
+        $is_editor = $user->roles()->where('role_name', 'Editor')->first() != null || $user->roles()->where('role_name', 'Associate Editor')->first() != null || $user->roles()->where('role_name', 'Senior Editor')->first() != null || $user->roles()->where('role_name', 'Managing Editor')->first() != null ? true : false;
+        $is_professional = $user->roles()->where('role_name', 'Individual Professional')->first() != null ? true : false;
 
 
         return view('pages.user.employee.form')->with(
@@ -250,7 +259,11 @@ class UserController extends Controller
                 'user' => $user,
                 'salesTeams' => $salesTeams->whereNotIn('id', [$userId]),
                 'subjects' => $subjects,
-                'is_tutor' => $is_tutor
+                'is_tutor' => $is_tutor,
+                'is_external_mentor' => $is_external_mentor,
+                'is_editor' => $is_editor,
+                'is_professional' => $is_professional,
+                'role_type_mentors' => $this->role_type_mentors,
             ]
         );
     }
@@ -395,7 +408,7 @@ class UserController extends Controller
             return response()->json(['message' => 'Failed to set password'], 422);
         }
 
-        $log_service->createSuccessLog(LogModule::SET_USER_PASSWORD, 'The user password has been reset', $updated_user);
+        $log_service->createSuccessLog(LogModule::SET_USER_PASSWORD, 'The user password has been reset', $updated_user->toArray());
         return response()->json(['message' => 'Password has been set'], 200);
     }
 
@@ -438,4 +451,93 @@ class UserController extends Controller
 
         return response($file)->header('Content-Type', 'application/pdf');
     }
+
+    public function cnStoreUserAgreement(StoreUserAgreementRequest $request, LogService $log_service)
+    {
+        $user_id = $request->route('user');
+        $user = $this->userRepository->rnGetUserById($user_id);
+
+        DB::beginTransaction();
+        try {
+            $user_agreement = $this->userRepository->rnCreateOrUpdateUserSubject($user, $request);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+
+            $log_service->createErrorLog(LogModule::STORE_USER_AGREEMENT, $e->getMessage(), $e->getLine(), $e->getFile(), compact('user'));
+            return redirect()->route('user.edit', ['user_role' => $request->route('user_role'), 'user' => $user_id])->withErrors('Failed store user agreement!');
+        }
+
+        $log_service->createSuccessLog(LogModule::STORE_USER_AGREEMENT, 'Successfully store/update user agreement', $user_agreement);
+        
+        return redirect()->route('user.edit', ['user_role' => $request->route('user_role'), 'user' => $user_id])->withSuccess('Successfully store/update user agreement!');
+    }
+    
+    public function cnEditUserAgreement(Request $request)
+    {
+        $user_id = $request->route('user');
+        $subject_id = $request->route('subject');
+        $year = $request->route('year');
+        $user = $this->userRepository->rnGetUserById($user_id);
+        $response = [];
+        $http_code = null;
+        
+        $user_subject = $user->user_subjects->where('subject_id', $subject_id)->where('year', $year);
+
+        try {
+            if(!$user_subject){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User subject not found.'
+                ], 503);
+            }
+
+        } catch (Exception $e) {
+            Log::error('Failed get user subject' . $e->getMessage());
+
+            $response = [
+                'success' => false,
+                'message' => 'Failed get subject! '. $e->getMessage(), 
+            ];
+            $http_code = 500;
+        }
+
+        $response = [
+            'success' => true,
+            'message' => 'There are user agreement found.',
+            'data' => $user_subject
+        ];
+        $http_code = 200;
+
+        return response()->json(
+            $response, $http_code
+        );
+    }
+
+    public function cnDestroyUserAgreement(
+        Request $request,
+        LogService $log_service,
+        )
+    {
+        $user_id = $request->route('user');
+        $subject_id = $request->route('subject');
+        $year = $request->route('year');
+
+        DB::beginTransaction();
+        try {
+
+            $deleted_user_subject = $this->userRepository->rnDeleteUserAgreementBySubjectIdAndYear($subject_id, $year);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            $log_service->createErrorLog(LogModule::DELETE_USER_AGREEMENT, $e->getMessage(), $e->getLine(), $e->getFile(), compact('user_id', 'user_subject_id'));
+            return Redirect::back()->withError('Failed to delete user agreement');
+        }
+
+        $log_service->createSuccessLog(LogModule::DELETE_USER_AGREEMENT, 'The user agreement has been deleted', $deleted_user_subject->toArray());
+        return Redirect::to('user/' . $request->route('user_role') . '/' . $user_id . '/edit')->withSuccess('Successfully deleted the user agreement');
+    }
+
 }

@@ -36,7 +36,7 @@
                             <select name="partner_name[]" id="" class="select form-select form-select-sm w-100"
                                 multiple>
                                 @foreach ($partners as $partner)
-                                    <option value="{{ $partner->corp_name }}">{{ $partner->corp_name }}</option>
+                                    <option value="{{ $partner->partner_name }}">{{ $partner->partner_name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -151,8 +151,7 @@
                         }
                     },
                     {
-                        data: 'corp_name',
-                        name: 'tbl_corp.corp_name'
+                        data: 'partnership_name',
                     },
                     {
                         data: 'program_name',

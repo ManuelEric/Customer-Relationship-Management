@@ -10,7 +10,7 @@
         <div class="col-md-4">
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
-                    <h4>{{ $partner->corp_name }}</h4>
+                    <h4>{{ $partner->partner_name }}</h4>
                     @if(isset($partnerProgram))
                         <h6>{{ $partnerProgram->program->program_name }}</h6>
                     @endif

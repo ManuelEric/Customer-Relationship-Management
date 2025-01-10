@@ -41,6 +41,20 @@
                             @selected(Request::route('user_role') == 'tutor')
                         @endif
                         >Tutor</option>
+                    <option value="20" 
+                        @if (isset($user))
+                            @selected(in_array(20, $roles))
+                        @else
+                            @selected(Request::route('user_role') == 'external-mentor')
+                        @endif
+                        >External Mentor</option>
+                    <option value="19" 
+                        @if (isset($user))
+                            @selected(in_array(19, $roles))
+                        @else
+                            @selected(Request::route('user_role') == 'professional')
+                        @endif
+                        >Individual Professional</option>
                     @if ($isSuperAdmin)
                     <option value="18" 
                         @if (isset($user))
@@ -55,76 +69,80 @@
                     <small class="text-danger fw-light">{{ $message }}</small>
                 @enderror
             </div>
-            <div class="col-md-3 mb-3">
-                <label for="">Department <sup class="text-danger">*</sup></label>
-                <select name="department" id="" class="select w-100">
-                    <option data-placeholder="true"></option>
-                    @foreach ($departments as $department)
-                        <option value="{{ $department->id }}" 
-                            @selected($departmentId == $department->id)
-                            @selected(old('department') == $department->id)>{{ $department->dept_name }}</option>
-                    @endforeach
-                </select>
-                @error('department')
-                    <small class="text-danger fw-light">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="col-md-4 mb-3">
-                <label for="">Position <sup class="text-danger">*</sup></label>
-                <select name="position" id="" class="select w-100">
-                    <option data-placeholder="true"></option>
-                    @foreach ($positions as $position)
-                        <option value="{{ $position->id }}" 
-                            @selected(isset($user) && isset($user->position) && $user->position->id == $position->id) 
-                            @selected(old('position') == $position->id)>{{ $position->position_name }}</option>
-                    @endforeach
-                </select>
-                @error('position')
-                    <small class="text-danger fw-light">{{ $message }}</small>
-                @enderror
-            </div>
+            @if(!$is_professional)
+                <div class="col-md-3 mb-3">
+                    <label for="">Department <sup class="text-danger">*</sup></label>
+                    <select name="department" id="" class="select w-100">
+                        <option data-placeholder="true"></option>
+                        @foreach ($departments as $department)
+                            <option value="{{ $department->id }}" 
+                                @selected($departmentId == $department->id)
+                                @selected(old('department') == $department->id)>{{ $department->dept_name }}</option>
+                        @endforeach
+                    </select>
+                    @error('department')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="">Position <sup class="text-danger">*</sup></label>
+                    <select name="position" id="" class="select w-100">
+                        <option data-placeholder="true"></option>
+                        @foreach ($positions as $position)
+                            <option value="{{ $position->id }}" 
+                                @selected(isset($user) && isset($user->position) && $user->position->id == $position->id) 
+                                @selected(old('position') == $position->id)>{{ $position->position_name }}</option>
+                        @endforeach
+                    </select>
+                    @error('position')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
+                </div>
+            @endif
         </div>
 
-        <div class="row mt-md-0 mt-4">
-            <div class="col-md-3 mt-md-0 mt-3">
-                <label for="">Hire Date <sup class="text-danger">*</sup></label>
-                <input type="date" name="hiredate" id="" class="form-control form-control-sm rounded" value="{{ isset($user->hiredate) ? $user->hiredate : old('hiredate') }}">
-                @error('hiredate')
-                    <small class="text-danger fw-light">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="col-md-3 mt-md-0 mt-3">
-                <label for="">Employee Type <sup class="text-danger">*</sup></label>
-                <select name="type" id="employeeType" class="select w-100" onchange="employeeTypeCheck()">
-                    <option data-placeholder="true"></option>
-                    @foreach ($user_types as $user_type)
-                        <option value="{{ $user_type->id }}"
-                            @selected(isset($user) && in_array($user_type->id, $user->user_type()->where('tbl_user_type_detail.status', 1)->pluck('tbl_user_type.id')->toArray()))
-                            @selected(old('type') == $user_type->id)
-                            >{{ $user_type->type_name }}</option>
-                    @endforeach
-                </select>
-                @error('type')
-                    <small class="text-danger fw-light">{{ $message }}</small>
-                @enderror
-            </div>
+        @if(!$is_professional)
+            <div class="row mt-md-0 mt-4">
+                <div class="col-md-3 mt-md-0 mt-3">
+                    <label for="">Hire Date <sup class="text-danger">*</sup></label>
+                    <input type="date" name="hiredate" id="" class="form-control form-control-sm rounded" value="{{ isset($user->hiredate) ? $user->hiredate : old('hiredate') }}">
+                    @error('hiredate')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
+                </div>
+                <div class="col-md-3 mt-md-0 mt-3">
+                    <label for="">Employee Type <sup class="text-danger">*</sup></label>
+                    <select name="type" id="employeeType" class="select w-100" onchange="employeeTypeCheck()">
+                        <option data-placeholder="true"></option>
+                        @foreach ($user_types as $user_type)
+                            <option value="{{ $user_type->id }}"
+                                @selected(isset($user) && in_array($user_type->id, $user->user_type()->where('tbl_user_type_detail.status', 1)->pluck('tbl_user_type.id')->toArray()))
+                                @selected(old('type') == $user_type->id)
+                                >{{ $user_type->type_name }}</option>
+                        @endforeach
+                    </select>
+                    @error('type')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
+                </div>
 
-            <div class="col-md-3 mt-md-0 mt-3 period start-period">
-                <label for="">Start Period <sup class="text-danger">*</sup></label>
-                <input type="date" name="start_period" id="" class="form-control form-control-sm rounded" value="{{ isset($typeInfo) ? $typeInfo->pivot->start_date : old('start_period') }}">
-                @error('start_period')
-                    <small class="text-danger fw-light">{{ $message }}</small>
-                @enderror
-            </div>
+                <div class="col-md-3 mt-md-0 mt-3 period start-period">
+                    <label for="">Start Period <sup class="text-danger">*</sup></label>
+                    <input type="date" name="start_period" id="" class="form-control form-control-sm rounded" value="{{ isset($typeInfo) ? $typeInfo->pivot->start_date : old('start_period') }}">
+                    @error('start_period')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
+                </div>
 
-            <div class="col-md-3 mt-md-0 mt-3 period end-period">
-                <label for="">End Period <sup class="text-danger">*</sup></label>
-                <input type="date" name="end_period" id="" class="form-control form-control-sm rounded" value="{{ isset($typeInfo) ? $typeInfo->pivot->end_date : old('end_period') }}">
-                @error('end_period')
-                    <small class="text-danger fw-light">{{ $message }}</small>
-                @enderror
+                <div class="col-md-3 mt-md-0 mt-3 period end-period">
+                    <label for="">End Period <sup class="text-danger">*</sup></label>
+                    <input type="date" name="end_period" id="" class="form-control form-control-sm rounded" value="{{ isset($typeInfo) ? $typeInfo->pivot->end_date : old('end_period') }}">
+                    @error('end_period')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
+                </div>
             </div>
-        </div>
+        @endif
     </div>
 </div>
 

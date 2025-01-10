@@ -328,7 +328,7 @@ class PartnerDashboardController extends Controller
     
                         $html .= '<tr class="detail" data-corpid="' . $partner->corp_id . '" data-type="partner" style="cursor:pointer">
                             <td>' . $index++ . '</td>
-                            <td>' . $partner->corp_name . '</td>
+                            <td>' . $partner->partner_name . '</td>
                             <td>' . $partner->corp_mail . '</td>
                             <td>' . $partner->corp_phone . '</td>
                             <td>' . $partner->type . '</td>
@@ -337,7 +337,7 @@ class PartnerDashboardController extends Controller
                         </tr>';
     
                         $data[] = [
-                            'partner_name' => $partner->corp_name,
+                            'partner_name' => $partner->partner_name,
                             'partner_mail' => $partner->corp_mail,
                             'partner_phone' => $partner->corp_phone,
                             'partner_type' => $partner->type,
@@ -471,7 +471,7 @@ class PartnerDashboardController extends Controller
     
                         $html .= '<tr class="detail" data-corpid="' . $agreement->corp_id . '" data-agreementid="' . $agreement->id . '" data-type="agreement" style="cursor:pointer">
                             <td>' . $index++ . '</td>
-                            <td>' . $agreement->partner->corp_name . '</td>
+                            <td>' . $agreement->partner->partner_name . '</td>
                             <td>' . $agreement->agreement_name . '</td>
                             <td>' . $agreementType . '</td>
                             <td>' . date('M d, Y', strtotime($agreement->start_date)) . '</td>
@@ -482,7 +482,7 @@ class PartnerDashboardController extends Controller
                         </tr>';
     
                         $data[] = [
-                            'partner_name' => $agreement->partner->corp_name,
+                            'partner_name' => $agreement->partner->partner_name,
                             'agreement_name' => $agreement->agreement_name,
                             'agreement_type' => $agreementType,
                             'start_date' => date('M d, Y', strtotime($agreement->start_date)),

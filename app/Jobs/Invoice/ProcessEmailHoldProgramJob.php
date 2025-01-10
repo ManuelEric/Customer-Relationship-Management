@@ -84,6 +84,7 @@ class ProcessEmailHoldProgramJob implements ShouldQueue, ShouldBeUniqueUntilProc
             $mentor = $invoiceMaster->clientprog->clientMentor->where('pivot.type', 2);
             $ccMail = [
                 env('FINANCE_CC'),
+                env('FINANCE_CC_2'),
                 env('STUDENT_SUCCESS_CC'),
                 env('HEAD_MENTOR_CC'),
                 $invoiceMaster->clientprog->internalPic->email,
