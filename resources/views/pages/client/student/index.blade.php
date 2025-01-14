@@ -191,6 +191,7 @@
                         <th class="bg-info text-white">Name</th>
                         <th>Assessment</th>
                         <th>PIC</th>
+                        <th>Interest Program</th>
                         <th>Program Suggest</th>
                         <th>Status Lead</th>
                         {{-- @if ($st == 'new-leads')
@@ -209,7 +210,6 @@
                         <th>Location</th>
                         <th>Lead</th>
                         <th>Referral From</th>
-                        <th>Interest Program</th>
                         <th>Level of Interest</th>
                         <th>Country of Study Abroad</th>
                         <th>Joined Date</th>
@@ -608,7 +608,11 @@
                         defaultContent: '-',
                         searchable: false,
                     },
-                  
+                    {
+                        data: 'interest_prog',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
                     {
                         data: 'program_suggest',
                         defaultContent: '-',
@@ -720,11 +724,6 @@
                                 return '-';
                             }
                         }
-                    },
-                    {
-                        data: 'interest_prog',
-                        className: 'text-center',
-                        defaultContent: '-'
                     },
                     {
                         data: 'st_levelinterest',
