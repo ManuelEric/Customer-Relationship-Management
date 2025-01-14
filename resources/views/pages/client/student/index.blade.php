@@ -209,6 +209,7 @@
                         <th>Location</th>
                         <th>Lead</th>
                         <th>Referral From</th>
+                        <th>Interest Program</th>
                         <th>Level of Interest</th>
                         <th>Country of Study Abroad</th>
                         <th>Joined Date</th>
@@ -531,7 +532,7 @@
             var no = 1;
 
             var options = {
-                order: [[23, 'desc']],
+                order: [[24, 'desc']],
                 buttons: [button],
                 scrollX: true,
                 fixedColumns: {
@@ -719,6 +720,11 @@
                                 return '-';
                             }
                         }
+                    },
+                    {
+                        data: 'interest_prog',
+                        className: 'text-center',
+                        defaultContent: '-'
                     },
                     {
                         data: 'st_levelinterest',

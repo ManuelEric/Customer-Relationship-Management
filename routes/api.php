@@ -205,7 +205,7 @@ Route::prefix('v1')->group(function () {
 
     # use for select data subject user agreement
     Route::get('get/subjects/{role}', [ExtUserController::class, 'cnGetSubjectsByRole']);
-    
+   
     # essay editing
     Route::get('essay/program/list', [ExtClientProgramController::class, 'fnGetSuccessEssayProgram']);
     Route::get('user/{role}/list', [ExtClientController::class, 'fnGetUserByRole']);
