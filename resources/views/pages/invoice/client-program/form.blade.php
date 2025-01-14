@@ -13,10 +13,6 @@
         $disabled = isset($status) && $status == 'view' ? 'disabled' : null;
     @endphp
 
-    {{-- @if($errors->any()) 
-        {{ implode('', $errors->all('<div>:message</div>')) }}
-    @endif  --}}
-
     <div class="row">
         <div class="col-md-4">
             <div class="card rounded mb-3">
