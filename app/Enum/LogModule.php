@@ -431,6 +431,7 @@ enum LogModule: string
     case DELETE_BULK_STUDENT_RAW = '[DELETE BULK STUDENT RAW]';
     case ASSIGN_PIC_CLIENT = '[ASSIGN PIC CLIENT]';
     case UPDATE_PIC_CLIENT = '[UPDATE PIC CLIENT]';
+    case GET_CLIENT_SUGGESTION = '[GET CLIENT SUGGESTION]';
 
     /**
      * Teacher
