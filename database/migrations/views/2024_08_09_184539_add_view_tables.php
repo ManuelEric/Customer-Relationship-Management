@@ -520,6 +520,7 @@ return new class extends Migration
                 month(rc.created_at),
                 rc.st_grade
             ) AS real_grade,
+            rc.grade_now
             (SELECT (rc.grade_now - 12)) AS year_gap,
             rc.graduation_year_now,
             rc.graduation_year,
