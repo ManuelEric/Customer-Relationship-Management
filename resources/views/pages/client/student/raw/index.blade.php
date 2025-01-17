@@ -508,7 +508,7 @@
                         className: 'text-center',
                         defaultContent: '-',
                         render: function(data, type, row) {
-                            return moment(data).format('MM/DD/YYYY')
+                            return moment(data).format('DD/MM/YYYY')
                         }
                     },
                     {
@@ -516,7 +516,7 @@
                         className: 'text-center',
                         defaultContent: '-',
                         render: function(data, type, row) {
-                            return moment(data).format('MM/DD/YYYY')
+                            return moment(data).format('DD/MM/YYYY')
                         }
                     },
                     {

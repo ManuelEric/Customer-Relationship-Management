@@ -764,7 +764,7 @@
                         searchable: false,
                         className: 'text-center',
                         render: function(data, type, row) {
-                            return moment(data).format('MM/DD/YYYY')
+                            return moment(data).format('DD/MM/YYYY')
                         }
                     },
                     {
@@ -772,7 +772,7 @@
                         searchable: false,
                         className: 'text-center',
                         render: function(data, type, row) {
-                            return moment(data).format('MM/DD/YYYY')
+                            return moment(data).format('DD/MM/YYYY')
                         }
                     },
                     {
