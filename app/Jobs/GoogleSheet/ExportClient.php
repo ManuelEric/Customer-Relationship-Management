@@ -120,8 +120,8 @@ class ExportClient implements ShouldQueue
                 $this->replaceNullValue($client->dream_major),
                 $this->replaceNullValue($client->scholarship),
                 $this->replaceNullValue($client->took_ia == 0 ? 'Not yet' : 'Filled In'),
-                $this->replaceNullValue(date('m/d/Y', strtotime($client->created_at))),
-                $this->replaceNullValue(date('m/d/Y', strtotime($client->updated_at))),
+                $this->replaceNullValue(date('d/m/Y', strtotime($client->created_at))),
+                $this->replaceNullValue(date('d/m/Y', strtotime($client->updated_at))),
             ];
             $i++;
         }
