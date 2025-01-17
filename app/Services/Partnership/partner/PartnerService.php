@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Mail;
 
 class PartnerService 
 {
-
     # Purpose:
     # Send mail reminder expiration agreement to Internal Team
     public function snSendMailExpirationAgreement(array $partner_agreement_expired_soon, $recipient, Array $cc_mail): void
