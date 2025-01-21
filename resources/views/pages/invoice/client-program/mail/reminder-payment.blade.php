@@ -14,7 +14,7 @@
 @section('content')
     <p style="margin:0;">Dear Mr./Mrs. {{ $parent_fullname }},</p>
     <p>
-        Thank you for trusting ALL-in Eduspace to help your child's future to get into the world's top universities!
+        Thank you for trusting EduALL to help your child's future to get into the world's top universities!
     </p>
     <p>
         Your payment deadline for <b>{{ $program_name }}</b> program is only <b>7 days left,</b> with due on <b>{{ $due_date }}.</b>
@@ -72,6 +72,6 @@
     <p>
         Thank you <br><br>
         Best regards,<br>
-        ALL-in Eduspace
+        EduALL
     </p>
 @endsection
