@@ -293,15 +293,15 @@ class ReceiptSchoolController extends Controller
         $receipt_id = $receipt->receipt_id;
 
         $file_name = str_replace('/', '-', $receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
-        $path = 'uploaded_file/receipt/sch_prog/';
+        $path = 'project/crm/receipt/sch_prog/';
 
         DB::beginTransaction();
         try {
 
-            if ($attachment->storeAs('public/' . $path, $file_name)) {
+            if (Storage::disk('s3')->put($path . $file_name, file_get_contents($attachment))) {
                 # update request status on receipt attachment
                 $attachment = $receipt->receiptAttachment()->where('currency', $currency)->first();
-                $attachment->attachment = 'storage/' . $path . $file_name;
+                $attachment->attachment = $path . $file_name;
                 $attachment->save();
             }
 
@@ -359,7 +359,7 @@ class ReceiptSchoolController extends Controller
             Mail::send('pages.receipt.school-program.mail.view', $data, function ($message) use ($data, $file_name, $currency) {
                 $message->to($data['email'], $data['recipient'])
                     ->subject($data['title'])
-                    ->attach(storage_path('app/public/uploaded_file/receipt/sch_prog/'.$file_name.'-'.$currency.'.pdf'));
+                    ->attach(Storage::url('receipt/sch_prog/'.$file_name.'-'.$currency.'.pdf'));
             });
             DB::commit();
 
@@ -450,7 +450,7 @@ class ReceiptSchoolController extends Controller
             }
 
             $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAttachment->id, $attachmentDetails);
-            if (!$pdfFile->storeAs('public/uploaded_file/receipt/sch_prog/', $name))
+            if (!Storage::disk('s3')->put('project/crm/receipt/sch_prog/'. $name, file_get_contents($pdfFile)))
                 throw new Exception('Failed to store signed receipt file');
 
             $data['title'] = 'Receipt No. ' . $receipt_id . ' has been signed';

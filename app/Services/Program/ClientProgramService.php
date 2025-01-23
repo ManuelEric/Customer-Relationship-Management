@@ -189,11 +189,11 @@ class ClientProgramService
                         # generate the file path
                         $file_path = $file_name.'.'.$file_format;
 
-                        if (Storage::exists('public/uploaded_file/agreement/'.$file_path)) {
-                            Storage::delete('public/uploaded_file/agreement/'.$file_path);
+                        if (Storage::disk('s3')->exists('project/crm/agreement/'.$file_path)) {
+                            Storage::disk('s3')->delete('project/crm/agreement/'.$file_path);
                         }
 
-                        if (!$request->file('agreement')->storeAs('public/uploaded_file/agreement', $file_path))
+                        if (!Storage::disk('s3')->put('project/crm/agreement/'.$file_path, file_get_contents($request->file('agreement'))))
                             throw new Exception('The file cannot be uploaded.');
 
                     }

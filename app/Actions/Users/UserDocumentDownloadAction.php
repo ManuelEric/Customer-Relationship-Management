@@ -44,10 +44,10 @@ class UserDocumentDownloadAction
                 break;
         }
 
-        if ( !Storage::exists($file_path) )
+        if ( !Storage::disk('s3')->exists($file_path) )
             throw new Exception("File does not exist.");
 
-        $file_name = str_replace('public/uploaded_file/user/'.$user_id.'/', '', $file_path);
+        $file_name = str_replace('project/crm/user/'.$user_id.'/', '', $file_path);
         return [$file_path, $file_name];
     }
 }

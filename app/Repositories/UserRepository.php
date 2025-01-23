@@ -253,14 +253,14 @@ class UserRepository implements UserRepositoryInterface
             # case 4 agreement ga ada dan fieldname_agreement = agreement then upload
 
             if((!$user_subject->agreement && $fieldname_agreement == 'agreement') || (!$user_subject->agreement && $fieldname_agreement == 'agreement') || ($user_subject->agreement && $fieldname_agreement == 'agreement')){
-                $agreement = $this->tnUploadFile($request, $fieldname_agreement, 'Agreement-' . str_replace(' ', '_', $user->first_name . '_' . $user->last_name . '-' . $request->subject_id .  '-' . $request_subject_details['year']), 'public/uploaded_file/user/' . $user->id);
+                $agreement = $this->tnUploadFile($request, $fieldname_agreement, 'Agreement-' . str_replace(' ', '_', $user->first_name . '_' . $user->last_name . '-' . $request->subject_id .  '-' . $request_subject_details['year']), 'project/crm/user/' . $user->id);
             }else{
                 $agreement = $user_subject->agreement;
             }
 
-            // $agreement = $user_subject->agreement ?? $this->tnUploadFile($request, $fieldname_agreement, 'Agreement-' . str_replace(' ', '_', $user->first_name . '_' . $user->last_name . '-' . $request->subject_id .  '-' . $request_subject_details['year']), 'public/uploaded_file/user/' . $user->id);
+            // $agreement = $user_subject->agreement ?? $this->tnUploadFile($request, $fieldname_agreement, 'Agreement-' . str_replace(' ', '_', $user->first_name . '_' . $user->last_name . '-' . $request->subject_id .  '-' . $request_subject_details['year']), 'project/crm/user/' . $user->id);
         } else {
-            $agreement = $this->tnUploadFile($request, $fieldname_agreement, 'Agreement-' . str_replace(' ', '_', $user->first_name . '_' . $user->last_name . '-' . $request->subject_id .  '-' . $request_subject_details['year']), 'public/uploaded_file/user/' . $user->id);
+            $agreement = $this->tnUploadFile($request, $fieldname_agreement, 'Agreement-' . str_replace(' ', '_', $user->first_name . '_' . $user->last_name . '-' . $request->subject_id .  '-' . $request_subject_details['year']), 'project/crm/user/' . $user->id);
         }
 
         for($j = 0; $j < count($request_subject_details['fee_individual']); $j++){
@@ -433,9 +433,9 @@ class UserRepository implements UserRepositoryInterface
 
         # if there is no user subject with the same subject id and year then delete file agreement
         $user_subjects_by_subject_id = UserSubject::where('subject_id', $user_subject->subject_id)->where('year', $user_subject->year)->get();
-        if(count($user_subjects_by_subject_id) == 0 && Storage::exists($user_subject->agreement)){
+        if(count($user_subjects_by_subject_id) == 0 && Storage::disk('s3')->exists($user_subject->agreement)){
 
-            Storage::delete($user_subject->agreement);
+            Storage::disk('s3')->delete($user_subject->agreement);
 
         }
 
@@ -453,9 +453,9 @@ class UserRepository implements UserRepositoryInterface
 
         # if there is no user subject with the same subject id and year then delete file agreement
         // $user_subjects_by_subject_id = UserSubject::where('subject_id', $user_subject->subject_id)->where('year', $user_subject->year)->get();
-        if(count($user_subject) == 0 && Storage::exists($user_subject->first()->agreement)){
+        if(count($user_subject) == 0 && Storage::disk('s3')->exists($user_subject->first()->agreement)){
 
-            Storage::delete($user_subject->first()->agreement);
+            Storage::disk('s3')->delete($user_subject->first()->agreement);
 
         }
 

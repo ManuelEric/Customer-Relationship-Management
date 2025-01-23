@@ -704,7 +704,7 @@ class InvoiceProgramController extends Controller
         $client_prog = $this->clientProgramRepository->getClientProgramById($clientprog_id);
         $invoice = $client_prog->invoice;
 
-        return response()->download(storage_path('app/public/uploaded_file/invoice/' . $invoice->attachment));
+        return response()->download(Storage::url('invoice/' . $invoice->attachment));
     }
 
     public function sendToClient(Request $request, LogService $log_service)
@@ -785,7 +785,7 @@ class InvoiceProgramController extends Controller
         try {
 
             $this->invoiceAttachmentRepository->updateInvoiceAttachment($attachment->id, $new_details);
-            if (!$pdf_file->storeAs('public/uploaded_file/invoice/client/', $file_name))
+            if (!Storage::disk('s3')->put('project/crm/invoice/client/'.$file_name, file_get_contents($pdf_file)))
                 throw new Exception('Failed to store signed invoice file');
 
             $data['title'] = 'Invoice No. ' . $inv_id . ' has been signed';
@@ -796,7 +796,7 @@ class InvoiceProgramController extends Controller
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
                     ->cc([env('FINANCE_CC_2')])
                     ->subject($data['title'])
-                    ->attach(storage_path('app/public/uploaded_file/invoice/client/' . $file_name));
+                    ->attach(Storage::url('invoice/client/' . $file_name));
             });
 
             DB::commit();

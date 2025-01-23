@@ -3,6 +3,7 @@
 namespace App\Http\Traits;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 trait UploadFileTrait
 {
@@ -15,7 +16,7 @@ trait UploadFileTrait
             
             $file_format = $request->file($fieldname)->getClientOriginalExtension();
             $file_name = $requested_name . '.' . $file_format;
-            return $request->file($fieldname)->storeAs($directory, $file_name);
+            return Storage::disk('s3')->put($directory . $file_name, file_get_contents($request->file($fieldname)));
         }
 
         return null;

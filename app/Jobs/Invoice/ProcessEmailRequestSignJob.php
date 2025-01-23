@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Invoice;
 
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -71,8 +72,9 @@ class ProcessEmailRequestSignJob implements ShouldQueue
                         'director' => $this->attachmentDetails['director'],
                     ]
                 );
-            Storage::put('public/uploaded_file/invoice/client/' . $this->attachmentDetails['file_name'] . '.pdf', $pdf->output());
-    
+            // Storage::put('public/uploaded_file/invoice/client/' . $this->attachmentDetails['file_name'] . '.pdf', $pdf->output());
+            Storage::disk('s3')->put('project/crm/invoice/client/' . $this->attachmentDetails['file_name'] . 'pdf', file_get_contents($pdf->output()));
+
             # send email to related person that has authority to give a signature
             Mail::send('pages.invoice.client-program.mail.view', $this->mailDetails, function ($message) use ($pdf) {
                     

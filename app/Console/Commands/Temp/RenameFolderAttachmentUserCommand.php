@@ -54,7 +54,7 @@ class RenameFolderAttachmentUserCommand extends Command
                if($user->idcard != null || $user->cv != null || $user->tax != null || $user->health_insurance != null || $user->empl_insurance != null){
                     $extended_id = null; #Extended Id column before adjusment
                 
-                    Storage::move('public/uploaded_file/user/'. $extended_id, 'public/uploaded_file/user/'. $user->id);
+                    Storage::move('project/crm/user/'. $extended_id, 'project/crm/user/'. $user->id);
 
                }
             }

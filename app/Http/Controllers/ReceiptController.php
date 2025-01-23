@@ -324,10 +324,10 @@ class ReceiptController extends Controller
 
             $file_name = $uploadedFile->getClientOriginalName();
             $file_name = str_replace('/', '-', $receipt->receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
-            $path = 'public/uploaded_file/receipt/client/';
+            $path = 'project/crm/receipt/client/';
 
             # generate invoice as a PDF file
-            if ($uploadedFile->storeAs($path, $file_name)) {
+            if (Storage::disk('s3')->put($path.$file_name, file_get_contents($uploadedFile))) {
                 # update request status on receipt attachment
                 $attachment = $receipt->receiptAttachment()->where('currency', $currency)->first();
                 $attachment->attachment = $file_name;
@@ -405,7 +405,7 @@ class ReceiptController extends Controller
             Mail::send('pages.receipt.client-program.mail.view', $data, function ($message) use ($data, $file_name, $type, $receipt) {
                 $message->to($data['email'], $data['recipient'])
                     ->subject($data['title'])
-                    ->attach(storage_path('app/public/uploaded_file/receipt/client/'.$file_name.'-'.$type.'.pdf'));
+                    ->attach(Storage::url('receipt/client/' . $file_name.'-'.$type.'.pdf'));
             });
             DB::commit();
 
@@ -480,7 +480,7 @@ class ReceiptController extends Controller
         try {
 
             $this->receiptAttachmentRepository->updateReceiptAttachment($attachment->id, $newDetails);
-            if (!$pdfFile->storeAs('public/uploaded_file/receipt/client/', $name))
+            if (!Storage::disk('s3')->put('project/crm/receipt/client/'. $name, file_get_contents($pdfFile)))
                 throw new Exception('Failed to store signed receipt file');
 
             $data['title'] = 'Receipt No. ' . $receipt->receipt_id . ' has been signed';
@@ -491,7 +491,7 @@ class ReceiptController extends Controller
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
                     ->cc([env('FINANCE_CC_2')])
                     ->subject($data['title'])
-                    ->attach(storage_path('app/public/uploaded_file/receipt/client/' . $name));
+                    ->attach(Storage::url('receipt/client/' . $name));
             });
 
             DB::commit();
@@ -559,15 +559,15 @@ class ReceiptController extends Controller
         # send mail 
         try {
             
-            $storagePath = storage_path('app/public/uploaded_file/receipt/client/' . $attachment->attachment);
-            if (!File::exists($storagePath)) 
+            $storagePath = Storage::url('receipt/client/' . $attachment->attachment);
+            if (!Storage::disk('s3')->exists($storagePath)) 
                 return response()->json(['message' => "Receipt doesn't exist. Make sure the receipt has already been signed"], 500);
 
             Mail::send('pages.receipt.client-program.mail.client-view', $data, function ($message) use ($data, $attachment) {
                 $message->to($data['email'], $data['recipient'])
                     ->cc($data['cc'])
                     ->subject($data['title'])
-                    ->attach(storage_path('app/public/uploaded_file/receipt/client/' . $attachment->attachment));
+                    ->attach(Storage::url('receipt/client/' . $attachment->attachment));
             });
             $status_mail = 'sent';
 

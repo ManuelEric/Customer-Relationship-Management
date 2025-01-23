@@ -23,7 +23,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <img loading="lazy"  src="{{ asset('storage/uploaded_file/events/'.$event->event_banner) }}" alt="" class="w-100">
+                    <img loading="lazy"  src="{{ Storage::url('events/'.$event->event_banner) }}" alt="" class="w-100">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

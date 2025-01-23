@@ -276,8 +276,8 @@ class ClientProgramController extends Controller
             # if failed storing the data into the database
             # remove the uploaded file from storage
 
-            if (Storage::exists('public/uploaded_file/agreement/'.$file_path) && $file_path !== null) {
-                Storage::delete('public/uploaded_file/agreement/'.$file_path);
+            if (Storage::disk('s3')->exists('project/crm/agreement/'.$file_path) && $file_path !== null) {
+                Storage::disk('s3')->delete('project/crm/agreement/'.$file_path);
             }
 
             return Redirect::back()->withError('Failed to store a new program.');

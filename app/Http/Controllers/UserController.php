@@ -443,7 +443,7 @@ class UserController extends Controller
         $userSubjectId = $request->route('user_subject');
         $userSubject = $this->userRepository->rnGetUserSubjectById($userSubjectId);
 
-        $file = Storage::disk('local')->get($userSubject->agreement);
+        $file = Storage::disk('s3')->get($userSubject->agreement);
 
         # Download success
         # create log success

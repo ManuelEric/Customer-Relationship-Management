@@ -31,7 +31,7 @@ class CreatePurchaseRequestAction
         $new_request_details['purchase_id'] = $purchase_id_with_label;
 
         $file_name = $purchase_id_with_label;
-        $new_request_details['purchase_attachment'] = pathinfo($this->tnUploadFile($request, 'purchase_attachment', $file_name, 'public/uploaded_file/finance'))['basename'];
+        $new_request_details['purchase_attachment'] = pathinfo($this->tnUploadFile($request, 'purchase_attachment', $file_name, 'project/crm/finance'))['basename'];
 
         # store new purchase request
         $new_purchase_request = $this->purchaseRequestRepository->createPurchaseRequest($new_request_details);

@@ -69,9 +69,9 @@
 <script src="https://fastly.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         @if (isset($attachment) && isset($attachment->inv_id))
-            var file = "{{ asset('storage/uploaded_file/invoice/client/'.$attachment->attachment) }}"
+            var file = "{{ Storage::url('invoice/client/'.$attachment->attachment) }}"
         @else
-            var file = "{{ asset($attachment) }}"
+            var file = "{{ Storage::url($attachment) }}"
         @endif
 
         var pdf = new PDFAnnotate("pdf-container", file, {

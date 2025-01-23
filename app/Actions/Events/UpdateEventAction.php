@@ -31,13 +31,13 @@ class UpdateEventAction
             # get existing banner as a file
             if ($existing_banner_name = $request->old_event_banner) {
                 # delete file if exists
-                $this->tnDeleteFile('app/public/uploaded_file/events/', $existing_banner_name);
+                $this->tnDeleteFile('project/crm/events/', $existing_banner_name);
             }
 
             $file_name = time() . '-' . $event_id;
 
             # upload banner 
-            $new_event_details['event_banner'] = $this->tnUploadFile($request, 'event_banner', $file_name, 'app/public/uploaded_file/events');
+            $new_event_details['event_banner'] = $this->tnUploadFile($request, 'event_banner', $file_name, 'project/crm/events');
         }
 
         # Update event
