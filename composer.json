@@ -23,6 +23,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "laravolt/indonesia": "^0.35.0",
+        "league/flysystem-aws-s3-v3": "^3.29",
         "lwwcas/laravel-countries": "^3.5",
         "maatwebsite/excel": "^3.1",
         "mostafaznv/laracache": "^2.4",
