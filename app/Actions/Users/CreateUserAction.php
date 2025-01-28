@@ -51,23 +51,23 @@ class CreateUserAction
         
 
         # 6. upload curriculum vitae
-        $CV_file_path = $this->tnUploadFile($request, 'curriculum_vitae', 'CV-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name), 'project/crm/user/' . $new_user_id);
+        $CV_file_path = $this->tnUploadFile($request, 'curriculum_vitae', 'CV-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name), 'project/crm/user/' . $new_user_id . '/');
 
 
         # 7. upload KTP / idcard
-        $ID_file_path = $this->tnUploadFile($request, 'idcard', 'ID-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name), 'project/crm/user/' . $new_user_id);
+        $ID_file_path = $this->tnUploadFile($request, 'idcard', 'ID-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name), 'project/crm/user/' . $new_user_id . '/');
 
 
         # 8. upload tax
-        $TX_file_path = $this->tnUploadFile($request, 'tax', 'TAX-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name), 'project/crm/user/' . $new_user_id);
+        $TX_file_path = $this->tnUploadFile($request, 'tax', 'TAX-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name), 'project/crm/user/' . $new_user_id . '/');
 
 
         # 9. upload bpjs kesehatan / health insurance
-        $HI_file_path = $this->tnUploadFile($request, 'health_insurance', 'HI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name), 'project/crm/user/' . $new_user_id);
+        $HI_file_path = $this->tnUploadFile($request, 'health_insurance', 'HI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name), 'project/crm/user/' . $new_user_id . '/');
 
 
         # 10. upload bpjs ketenagakerjaan / empl insurance
-        $EI_file_path = $this->tnUploadFile($request, 'empl_insurance', 'EI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name), 'project/crm/user/' . $new_user_id);
+        $EI_file_path = $this->tnUploadFile($request, 'empl_insurance', 'EI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name), 'project/crm/user/' . $new_user_id . '/');
 
 
         # update uploaded data to user table

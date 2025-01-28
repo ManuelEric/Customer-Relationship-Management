@@ -59,7 +59,6 @@ class UserController extends Controller
         $this->positionRepository = $positionRepository;
         $this->userTypeRepository = $userTypeRepository;
         $this->subjectRepository = $subjectRepository;
-
     }
 
     public function index(Request $request): mixed
@@ -75,8 +74,7 @@ class UserController extends Controller
         StoreUserRequest $request,
         CreateUserAction $createUserAction,
         LogService $log_service,
-        ): RedirectResponse
-    {
+    ): RedirectResponse {
         # INITIALIZE VARIABLES START
         $new_user_details = $request->only([
             'first_name',
@@ -104,7 +102,7 @@ class UserController extends Controller
             'degree',
             'graduation_date',
         ]);
-        
+
         # variables for user roles
         $new_user_role_details = $request->safe()->only([
             'role',
@@ -118,15 +116,14 @@ class UserController extends Controller
             'start_period',
             'end_period'
         ]);
-        
+
         # INITIALIZE VARIABLES END
 
         DB::beginTransaction();
         try {
-            
-            $new_user = $createUserAction->execute($request, $new_user_details, $new_user_education_details, $new_user_role_details, $new_user_type_details);            
+
+            $new_user = $createUserAction->execute($request, $new_user_details, $new_user_education_details, $new_user_role_details, $new_user_type_details);
             DB::commit();
-            
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -169,8 +166,7 @@ class UserController extends Controller
         StoreUserRequest $request,
         UpdateUserAction $updateUserAction,
         LogService $log_service,
-        ): RedirectResponse
-    {
+    ): RedirectResponse {
         $new_user_details = $request->only([
             'first_name',
             'last_name',
@@ -217,7 +213,6 @@ class UserController extends Controller
 
             $the_user = $updateUserAction->execute($request, $new_user_details, $new_user_education_details, $new_user_role_details, $new_user_type_details);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -271,8 +266,7 @@ class UserController extends Controller
     public function destroy(
         Request $request,
         LogService $log_service,
-        )
-    {
+    ) {
         $user_id = $request->user;
         $new_status = 0; # inactive
 
@@ -291,7 +285,6 @@ class UserController extends Controller
 
             $the_user = $this->userRepository->rnUpdateStatusUser($selected_user, $new_status_detail);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -305,15 +298,15 @@ class UserController extends Controller
         return Redirect::back()->withSuccess('User successfully temporarily deleted');
     }
 
-    
+
     /**
      * below are functions outside of resources functions
      */
 
     public function changeStatus(
         ChangeUserStatusRequest $request,
-        LogService $log_service)
-    {
+        LogService $log_service
+    ) {
         $selected_user_id = $request->route('user');
         $selected_user = $this->userRepository->rnGetUserById($selected_user_id);
         $new_status_details = $request->only(['active', 'deactivated_at', 'new_pic', 'department']);
@@ -324,7 +317,6 @@ class UserController extends Controller
             # update on users table
             $this->userRepository->rnUpdateStatusUser($selected_user, $new_status_details);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -340,35 +332,30 @@ class UserController extends Controller
         Request $request,
         UserDocumentDownloadAction $document_download_action,
         LogService $log_service,
-        )
-    {
+    ) {
         $user_id = $request->route('user');
         $file_type = $request->route('filetype');
         try {
 
             [$file_path, $file_name] = $document_download_action->execute($user_id, $file_type);
-
         } catch (Exception $e) {
 
             $log_service->createErrorLog(LogModule::DOWNLOAD_USER_DOCUMENT, $e->getMessage(), $e->getLine(), $e->getFile(), compact('user_id', 'file_type'));
             return response()->json([
                 'Cannot download the document.'
             ], 400);
-
         }
 
         $log_service->createSuccessLog(LogModule::DOWNLOAD_USER_DOCUMENT, 'The user document has been downloaded', compact('user_id', 'file_type'));
-        return Storage::download($file_path, $file_name, [
+        return Storage::download($file_path . $file_name, $file_name, [
             'Content-Type' => 'application/pdf'
         ]);
-        
     }
 
     public function destroyUserType(
         Request $request,
         LogService $log_service,
-        )
-    {
+    ) {
         $user_id = $request->route('user');
         $user_type_id = $request->route('user_type');
 
@@ -391,8 +378,7 @@ class UserController extends Controller
     public function setPassword(
         Request $request,
         LogService $log_service
-        )
-    {
+    ) {
         $user_id = $request->route('user');
         $new_password = ['password' => Hash::make('12345678')];
 
@@ -432,8 +418,8 @@ class UserController extends Controller
                 'success' => true,
                 'data' => $salesTeam
             ]
-        );    
-    } 
+        );
+    }
 
     public function downloadAgreement(Request $request)
     {
@@ -447,7 +433,7 @@ class UserController extends Controller
 
         # Download success
         # create log success
-        $this->logSuccess('download', null, 'User', Auth::user()->first_name . ' '. Auth::user()->last_name, ['user' => $user->first_name . ' ' . $user->last_name]);
+        $this->logSuccess('download', null, 'User', Auth::user()->first_name . ' ' . Auth::user()->last_name, ['user' => $user->first_name . ' ' . $user->last_name]);
 
         return response($file)->header('Content-Type', 'application/pdf');
     }
@@ -470,10 +456,10 @@ class UserController extends Controller
         }
 
         $log_service->createSuccessLog(LogModule::STORE_USER_AGREEMENT, 'Successfully store/update user agreement', $user_agreement);
-        
+
         return redirect()->route('user.edit', ['user_role' => $request->route('user_role'), 'user' => $user_id])->withSuccess('Successfully store/update user agreement!');
     }
-    
+
     public function cnEditUserAgreement(Request $request)
     {
         $user_id = $request->route('user');
@@ -482,23 +468,22 @@ class UserController extends Controller
         $user = $this->userRepository->rnGetUserById($user_id);
         $response = [];
         $http_code = null;
-        
+
         $user_subject = $user->user_subjects->where('subject_id', $subject_id)->where('year', $year);
 
         try {
-            if(!$user_subject){
+            if (!$user_subject) {
                 return response()->json([
                     'success' => false,
                     'message' => 'User subject not found.'
                 ], 503);
             }
-
         } catch (Exception $e) {
             Log::error('Failed get user subject' . $e->getMessage());
 
             $response = [
                 'success' => false,
-                'message' => 'Failed get subject! '. $e->getMessage(), 
+                'message' => 'Failed get subject! ' . $e->getMessage(),
             ];
             $http_code = 500;
         }
@@ -511,15 +496,15 @@ class UserController extends Controller
         $http_code = 200;
 
         return response()->json(
-            $response, $http_code
+            $response,
+            $http_code
         );
     }
 
     public function cnDestroyUserAgreement(
         Request $request,
         LogService $log_service,
-        )
-    {
+    ) {
         $user_id = $request->route('user');
         $subject_id = $request->route('subject');
         $year = $request->route('year');
@@ -539,5 +524,4 @@ class UserController extends Controller
         $log_service->createSuccessLog(LogModule::DELETE_USER_AGREEMENT, 'The user agreement has been deleted', $deleted_user_subject->toArray());
         return Redirect::to('user/' . $request->route('user_role') . '/' . $user_id . '/edit')->withSuccess('Successfully deleted the user agreement');
     }
-
 }
