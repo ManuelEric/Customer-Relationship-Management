@@ -232,7 +232,10 @@
                     {
                         data: 'updated_at',
                         className: 'text-center',
-                        defaultContent: '-'
+                        defaultContent: '-',
+                        render: function(data, type, row) {
+                            return moment(data).format('DD/MM/YYYY')
+                        }
                     },
                     {
                         data: '',

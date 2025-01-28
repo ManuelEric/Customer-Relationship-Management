@@ -31,6 +31,7 @@ use App\Interfaces\EmployeeRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\FollowupRepositoryInterface;
 use App\Interfaces\GeneralMailLogRepositoryInterface;
+use App\Interfaces\IndustryRepositoryInterface;
 use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
@@ -70,6 +71,7 @@ use App\Interfaces\SchoolVisitRepositoryInterface;
 use App\Interfaces\SeasonalProgramRepositoryInterface;
 use App\Interfaces\SubjectRepositoryInterface;
 use App\Interfaces\SubProgRepositoryInterface;
+use App\Interfaces\SubSectorRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Interfaces\TargetTrackingRepositoryInterface;
 use App\Interfaces\TargetSignalRepositoryInterface;
@@ -82,6 +84,7 @@ use App\Interfaces\VendorRepositoryInterface;
 use App\Interfaces\VendorTypeRepositoryInterface;
 use App\Interfaces\VolunteerRepositoryInterface;
 use App\Models\ClientLeadTracking;
+use App\Models\Industry;
 use App\Repositories\AcadTutorRepository;
 use App\Repositories\AcceptanceRepository;
 use App\Repositories\AgendaSpeakerRepository;
@@ -111,6 +114,7 @@ use App\Repositories\EmployeeRepository;
 use App\Repositories\EventRepository;
 use App\Repositories\FollowupRepository;
 use App\Repositories\GeneralMailLogRepository;
+use App\Repositories\IndustryRepository;
 use App\Repositories\InvoiceAttachmentRepository;
 use App\Repositories\InvoiceProgramRepository;
 use App\Repositories\InvoiceDetailRepository;
@@ -150,6 +154,7 @@ use App\Repositories\SchoolVisitRepository;
 use App\Repositories\SeasonalProgramRepository;
 use App\Repositories\SubjectRepository;
 use App\Repositories\SubProgRepository;
+use App\Repositories\SubSectorRepository;
 use App\Repositories\TagRepository;
 use App\Repositories\TargetTrackingRepository;
 use App\Repositories\TargetSignalRepository;
@@ -252,6 +257,8 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(TargetSignalRepositoryInterface::class, TargetSignalRepository::class);
         $this->app->bind(AlarmRepositoryInterface::class, AlarmRepository::class);
         $this->app->bind(SubjectRepositoryInterface::class, SubjectRepository::class);
+        $this->app->bind(IndustryRepositoryInterface::class, IndustryRepository::class);
+        $this->app->bind(SubSectorRepositoryInterface::class, SubSectorRepository::class);
     }
 
     /**

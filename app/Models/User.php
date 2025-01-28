@@ -216,7 +216,7 @@ class User extends Authenticatable
         });
     }
 
-    public function scopeInternship(Builder $query, Carbon $expected_end_date): void
+    public function scopeInternship(Builder $query, $expected_end_date): void
     {
         $query->whereHas('user_type', function($sub) use ($expected_end_date) {
             $sub->
@@ -384,7 +384,7 @@ class User extends Authenticatable
 
     public function user_subjects()
     {
-        return $this->hasManyThrough(UserSubject::class, UserRole::class, 'user_id', 'user_role_id', 'id', 'id');
+        return $this->hasManyThrough(UserSubject::class, UserRole::class, 'user_id', 'user_role_id', 'id', 'id')->with('subject', 'user_roles');
     }
 
     # applied when user from sales department

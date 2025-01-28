@@ -371,7 +371,7 @@
                         className: 'text-center',
                         render: function(data, type, row, meta) {
 
-                            return moment(data).format('dddd, DD MMM YYYY');
+                            return moment(data).format('DD/MM/YYYY');
                         }
                     },
                     {

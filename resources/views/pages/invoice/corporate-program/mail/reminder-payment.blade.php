@@ -66,6 +66,6 @@
     <p>
         Thank you <br><br>
         Best regards,<br>
-        ALL-in Eduspace
+        EduALL
     </p>
 @endsection

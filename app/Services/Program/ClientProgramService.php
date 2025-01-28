@@ -117,7 +117,7 @@ class ClientProgramService
             $clientProgramDetails['lead_id'] = $clientProgramDetails['kol_lead_id'];
         }
 
-        if ($clientProgramDetails['lead_id'] != 'LS005') # Referral
+        if ( !in_array($clientProgramDetails['lead_id'], ['LS005', 'LS058', 'LS060', 'LS061']) ) # Referral
         {
             $clientProgramDetails['referral_code'] = null;
         }

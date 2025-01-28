@@ -30,6 +30,7 @@ use App\Http\Controllers\Api\v1\TagController as APITagController;
 use App\Http\Controllers\Api\v1\ClientEventController as APIClientEventController;
 use App\Http\Controllers\Api\v1\EventController as APIEventController;
 use App\Http\Controllers\Api\v1\ExtClientProgramController;
+use App\Http\Controllers\Api\v1\ExtCorporateController;
 use App\Http\Controllers\Api\v1\ExtEventController;
 use App\Http\Controllers\Api\v1\ExtPartnerController;
 use App\Http\Controllers\Api\v1\ExtUniversityController;
@@ -151,6 +152,9 @@ Route::prefix('v1')->group(function () {
     Route::get('get/detail/lead-source', [ExtSalesTrackingController::class, 'getLeadSourceDetail']);
     Route::get('get/detail/conversion-lead', [ExtSalesTrackingController::class, 'getConversionLeadDetail']);
 
+    # used for form partner (Individual Professional)
+    Route::get('get/user/uuid/{UUID}', [ExtUserController::class, 'cnGetUserByUUID']);
+
     # used for spreadsheets syncing data
     Route::get('get/{department}/member', [ExtUserController::class, 'getMemberOfDepartments']);
     Route::get('get/employees', [ExtUserController::class, 'getEmployees']);
@@ -196,6 +200,12 @@ Route::prefix('v1')->group(function () {
         Route::get('client/information/{uuid}', [ExtClientController::class, 'getClientInformation']);
     // });
 
+    # use for select data subsector corporate
+    Route::get('get/subsectors/{industry}', [ExtCorporateController::class, 'cnGetSubSectorByIndustry']);
+
+    # use for select data subject user agreement
+    Route::get('get/subjects/{role}', [ExtUserController::class, 'cnGetSubjectsByRole']);
+   
     # essay editing
     Route::get('essay/program/list', [ExtClientProgramController::class, 'fnGetSuccessEssayProgram']);
     Route::get('user/{role}/list', [ExtClientController::class, 'fnGetUserByRole']);

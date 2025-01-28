@@ -354,7 +354,7 @@ class ClientProgramController extends Controller
             'meeting_notes',
             'status',
             'empl_id',
-            'referral_code'
+            'referral_code',
         ]);
 
         DB::beginTransaction();

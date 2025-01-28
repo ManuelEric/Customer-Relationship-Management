@@ -5,6 +5,7 @@ namespace App\Actions\Users;
 use App\Http\Traits\UploadFileTrait;
 use App\Interfaces\UserRepositoryInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class CreateUserAction
 {
@@ -36,14 +37,17 @@ class CreateUserAction
         
         # 3. store new user role to tbl_user_roles
         $this->userRepository->rnCreateUserRole($new_user, $new_user_role_details);
-
-
+        
+        
+        
         # 4. store new user contract to tbl_user_type
-        $this->userRepository->rnCreateUserType($new_user, $new_user_type_details);
+        if(!in_array(19, $new_user_role_details['role'])){ # role professional
+            $this->userRepository->rnCreateUserType($new_user, $new_user_type_details);
+        }
 
 
         # 5. store/update new tutor subject
-        $this->userRepository->rnCreateOrUpdateUserSubject($new_user, $request);
+        // $this->userRepository->rnCreateOrUpdateUserSubject($new_user, $request);
         
 
         # 6. upload curriculum vitae

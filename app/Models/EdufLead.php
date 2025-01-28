@@ -94,9 +94,9 @@ class EdufLead extends Model
 
         else if ($this->sch_id == NULL && $this->corp_id != NULL)
             if ($this->event_start != NULL)
-                return $this->corps->corp_name . ' (' . date('d M Y', strtotime($this->event_start)) . ')';
+                return $this->corps->partner_name . ' (' . date('d M Y', strtotime($this->event_start)) . ')';
             else
-                return $this->corps->corp_name . ' (' . date('d M Y', strtotime($this->created_at)) . ')';
+                return $this->corps->partner_name . ' (' . date('d M Y', strtotime($this->created_at)) . ')';
     }
 
     public function client()

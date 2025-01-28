@@ -200,6 +200,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
     {   
         return datatables::eloquent(
             PartnerProg::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')
+                ->leftJoin('users as professional', 'professional.id', '=', 'tbl_corp.user_id')
                 ->leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')
                 // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
                 ->leftJoin('users', 'users.id', '=', 'tbl_partner_prog.empl_id')
@@ -207,7 +208,10 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 ->select(
                     'tbl_partner_prog.id',
                     'tbl_corp.corp_id',
-                    'tbl_corp.corp_name as partner_name',
+                    DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                        THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
+                        ELSE tbl_corp.corp_name
+                    END) as partnership_name'),
                     // 'tbl_prog.prog_program as program_name',
                     'program.program_name',
                     'tbl_partner_prog.success_date',
@@ -223,7 +227,14 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 $sql = 'CONCAT(users.first_name," ",users.last_name) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             }
-        )->make(true);
+        )->filterColumn('partnership_name', function ($query, $keyword) {
+            $sql = '(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                        THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
+                        ELSE tbl_corp.corp_name
+                    END) like ?';
+            $query->whereRaw($sql, ["%{$keyword}%"]);
+        })
+        ->make(true);
     }
 
     public function getAllInvoiceCorpDataTables($status)
@@ -233,11 +244,15 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             case 'list':
                 $query = Invb2b::leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
                     ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')
+                    ->leftJoin('users as professional', 'professional.id', '=', 'tbl_corp.user_id')
                     ->leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')
                     // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
                     ->select(
                         'tbl_invb2b.invb2b_num',
-                        'tbl_corp.corp_name',
+                        DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                                THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
+                                ELSE tbl_corp.corp_name
+                            END) as partnership_name'),
                         // 'tbl_prog.prog_program as program_name',
                         'program.program_name',
                         'tbl_invb2b.partnerprog_id',
@@ -259,11 +274,15 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             case 'reminder':
                 $query = Invb2b::leftJoin('tbl_invdtl', 'tbl_invdtl.invb2b_id', '=', 'tbl_invb2b.invb2b_id')->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
                     ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')
+                    ->leftJoin('users as professional', 'professional.id', '=', 'tbl_corp.user_id')
                     ->leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')
                     // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
                     ->select(
                         'tbl_invb2b.invb2b_num',
-                        'tbl_corp.corp_name',
+                        DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                                THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
+                                ELSE tbl_corp.corp_name
+                            END) as partnership_name'),
                         // 'tbl_prog.prog_program as program_name',
                         'program.program_name',
                         'tbl_invb2b.partnerprog_id',
@@ -316,7 +335,15 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                             END)'), '<=', 7);
                 break;
         }
-        $response = DataTables::eloquent($query)->make(true);
+        $response = DataTables::eloquent($query)
+                    ->filterColumn('partnership_name', function ($query, $keyword) {
+                        $sql = '(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                                    THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
+                                    ELSE tbl_corp.corp_name
+                                END) like ?';
+                        $query->whereRaw($sql, ["%{$keyword}%"]);
+                    })
+                    ->make(true);
 
         return $response;
     }
@@ -329,11 +356,15 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')->
             leftJoin('users as u', 'u.id', '=', 'tbl_partner_prog.empl_id')->
             leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')->
+            leftJoin('users as professional', 'professional.id', '=', 'tbl_corp.user_id')->
             leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')->
             // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
             select(
                 'tbl_invb2b.invb2b_num',
-                'tbl_corp.corp_name',
+                DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                            THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
+                            ELSE tbl_corp.corp_name
+                        END) as partnership_name'),
                 // 'tbl_prog.prog_program as program_name',
                 'program.program_name',
                 'tbl_invb2b.partnerprog_id',
@@ -384,13 +415,17 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
     {
         return DataTables::eloquent(
             Referral::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
+                ->leftJoin('users as professional', 'professional.id', '=', 'tbl_corp.user_id')
                 ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
                 ->leftJoin('users', 'users.id', '=', 'tbl_referral.empl_id')
                 ->leftJoin('tbl_invb2b', 'tbl_invb2b.ref_id', '=', 'tbl_referral.id')
                 ->select(
                     'tbl_referral.id',
                     'tbl_corp.corp_id',
-                    'tbl_corp.corp_name as partner_name',
+                    DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                                THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
+                                ELSE tbl_corp.corp_name
+                            END) as partnership_name'),
                     DB::raw('(CASE tbl_referral.referral_type
                                 WHEN "Out" THEN tbl_referral.additional_prog_name
                                 WHEN "In" 
@@ -411,7 +446,14 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 $sql = 'CONCAT(users.first_name," ",users.last_name) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             }
-        )->make(true);
+        )->filterColumn('partnership_name', function ($query, $keyword) {
+            $sql = '(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                        THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
+                        ELSE tbl_corp.corp_name
+                    END) like ?';
+            $query->whereRaw($sql, ["%{$keyword}%"]);
+        })
+        ->make(true);
     }
 
     public function getAllInvoiceReferralDataTables($status)
@@ -420,11 +462,15 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
 
             case 'list':
                 $query = Invb2b::leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
+                    ->leftJoin('users as professional', 'professional.id', '=', 'tbl_corp.user_id')
                     ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
                     ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
                     ->select(
                         'tbl_invb2b.invb2b_num',
-                        'tbl_corp.corp_name as partner_name',
+                        DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                                THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
+                                ELSE tbl_corp.corp_name
+                            END) as partnership_name'),
                         DB::raw('(CASE tbl_referral.referral_type
                                     WHEN "Out" THEN tbl_referral.additional_prog_name
                                     WHEN "In" 
@@ -447,10 +493,14 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             case 'reminder':
                 $query = Invb2b::leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
                     ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
+                    ->leftJoin('users as professional', 'professional.id', '=', 'tbl_corp.user_id')
                     ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
                     ->select(
                         'tbl_invb2b.invb2b_num',
-                        'tbl_corp.corp_name as partner_name',
+                        DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                                    THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
+                                    ELSE tbl_corp.corp_name
+                                END) as partnership_name'),
                         DB::raw('(CASE tbl_referral.referral_type
                                     WHEN "Out" THEN tbl_referral.additional_prog_name
                                     WHEN "In" 
@@ -474,7 +524,15 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 break;
         }
 
-        return datatables::eloquent($query)->make(true);
+        return datatables::eloquent($query)
+                            ->filterColumn('partnership_name', function ($query, $keyword) {
+                                $sql = '(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                                            THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
+                                            ELSE tbl_corp.corp_name
+                                        END) like ?';
+                                $query->whereRaw($sql, ["%{$keyword}%"]);
+                            })
+                            ->make(true);
     }
 
     public function getAllDueDateInvoiceReferralProgram($days)
@@ -484,10 +542,14 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             ->leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
             ->leftJoin('users as u', 'u.id', '=', 'tbl_referral.empl_id')
             ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
+            ->leftJoin('users as professional', 'professional.id', '=', 'tbl_corp.user_id')
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
             ->select(
                 'tbl_invb2b.invb2b_num',
-                'tbl_corp.corp_name as partner_name',
+                DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                            THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
+                            ELSE tbl_corp.corp_name
+                        END) as partnership_name'),
                 DB::raw('(CASE tbl_referral.referral_type
                         WHEN "Out" THEN tbl_referral.additional_prog_name
                         WHEN "In" 

@@ -108,7 +108,7 @@ class SendReminderInvoiceProgramToSchoolCommand extends Command
                 try {
                     Mail::send($mail_resources, $params, function ($message) use ($params, $subject) {
                         $message->to($params['school_pic_mail'], $params['school_pic_name'])
-                            ->cc([env('FINANCE_CC'), $params['pic_email']])
+                            ->cc([env('FINANCE_CC'), env('FINANCE_CC_2'), $params['pic_email']])
                             ->subject($subject);
                     });
                 } catch (Exception $e) {
@@ -141,6 +141,7 @@ class SendReminderInvoiceProgramToSchoolCommand extends Command
     
                     Mail::send($mail_resources, $params, function ($message) {
                         $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
+                            ->cc([env('FINANCE_CC_2')])
                             ->subject('There are some school that can\'t be reminded');
                     });
 

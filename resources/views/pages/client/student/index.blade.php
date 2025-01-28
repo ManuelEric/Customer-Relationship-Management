@@ -191,6 +191,7 @@
                         <th class="bg-info text-white">Name</th>
                         <th>Assessment</th>
                         <th>PIC</th>
+                        <th>Interest Program</th>
                         <th>Program Suggest</th>
                         <th>Status Lead</th>
                         {{-- @if ($st == 'new-leads')
@@ -531,7 +532,7 @@
             var no = 1;
 
             var options = {
-                order: [[23, 'desc']],
+                order: [[24, 'desc']],
                 buttons: [button],
                 scrollX: true,
                 fixedColumns: {
@@ -607,7 +608,11 @@
                         defaultContent: '-',
                         searchable: false,
                     },
-                  
+                    {
+                        data: 'interest_prog',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
                     {
                         data: 'program_suggest',
                         defaultContent: '-',
@@ -759,7 +764,7 @@
                         searchable: false,
                         className: 'text-center',
                         render: function(data, type, row) {
-                            return moment(data).format('MMMM Do YYYY')
+                            return moment(data).format('DD/MM/YYYY')
                         }
                     },
                     {
@@ -767,7 +772,7 @@
                         searchable: false,
                         className: 'text-center',
                         render: function(data, type, row) {
-                            return moment(data).format('MMMM Do YYYY')
+                            return moment(data).format('DD/MM/YYYY')
                         }
                     },
                     {

@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Module;
 
+use App\Enum\LogModule;
 use App\Http\Controllers\Controller;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
+use App\Services\Log\LogService;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -326,11 +329,16 @@ class ClientController extends Controller
         return true;
     }
 
-    public function getClientSuggestion(Request $request)
+    public function getClientSuggestion(Request $request, LogService $log_service)
     {
         $client_ids = $request->get('clientIds');
         $role_name = $request->get('roleName');
-        $client_suggestion = $this->clientRepository->getClientSuggestion($client_ids, $role_name);
+        try {
+            $client_suggestion = $this->clientRepository->getClientSuggestion($client_ids, $role_name);
+        } catch (Exception $e) {
+            $log_service->createErrorLog(LogModule::GET_CLIENT_SUGGESTION, $e->getMessage(), $e->getLine(), $e->getFile(), $client_suggestion->toArray());
+
+        }
         return response()->json(
             [
                 'success' => true,

@@ -57,4 +57,9 @@ class PartnerAgreementRepository implements PartnerAgreementRepositoryInterface
     {
         return PartnerAgreement::find($partnerAgreementId)->update($newAgreements);
     }
+
+    public function rnGetExpiringPartnerAgreement(int $days)
+    {
+        return PartnerAgreement::whereRaw('DATEDIFF(end_date, now()) <= '.$days)->where('reminded', '<', 1)->get();
+    }
 }
