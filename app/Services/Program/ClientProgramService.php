@@ -193,8 +193,13 @@ class ClientProgramService
                             Storage::disk('s3')->delete('project/crm/agreement/'.$file_path);
                         }
 
-                        if (!Storage::disk('s3')->put('project/crm/agreement/'.$file_path, file_get_contents($request->file('agreement'))))
+                        if (!Storage::disk('s3')->put('project/crm/agreement/'.$file_path, file_get_contents($request->file('agreement')))){
                             throw new Exception('The file cannot be uploaded.');
+                        }else{
+                            $clientProgramDetails['agreement'] = $file_path;
+                            $clientProgramDetails['agreement_uploaded_at'] = Carbon::now();
+
+                        }
 
                     }
 

@@ -41,7 +41,7 @@ class CreateClientProgramAction
 
         $additional_attributes = $this->clientProgramService->snSetAdditionalAttributes($request, ['admission' => $admission_prog_list, 'tutoring' => $tutoring_prog_list, 'satact' => $satact_prog_list], $student, $client_program_details);
         $client_program_details = $additional_attributes['client_program_details'];
-        dd($file_path = $additional_attributes['file_path']);
+        $file_path = $additional_attributes['file_path'];
 
         $new_client_program = $this->clientProgramRepository->createClientProgram(['client_id' => $student->id] + $client_program_details);
         $new_client_program_id = $new_client_program->clientprog_id;

@@ -275,9 +275,18 @@ class ClientProgramController extends Controller
 
             # if failed storing the data into the database
             # remove the uploaded file from storage
+            if ($request->hasFile('agreement')) {
 
-            if (Storage::disk('s3')->exists('project/crm/agreement/'.$file_path) && $file_path !== null) {
-                Storage::disk('s3')->delete('project/crm/agreement/'.$file_path);
+                # setting up the agreement request file
+                $file_name = "agreement_".str_replace(' ', '_', trim($student->full_name))."_".$request->prog_id;
+                $file_format = $request->file('agreement')->getClientOriginalExtension();
+                
+                # generate the file path
+                $file_path = $file_name.'.'.$file_format;
+
+                if (Storage::disk('s3')->exists('project/crm/agreement/'.$file_path) && $file_path !== null) {
+                    Storage::disk('s3')->delete('project/crm/agreement/'.$file_path);
+                }
             }
 
             return Redirect::back()->withError('Failed to store a new program.');
