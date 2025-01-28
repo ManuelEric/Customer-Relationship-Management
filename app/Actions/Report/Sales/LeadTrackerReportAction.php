@@ -20,7 +20,6 @@ class LeadTrackerReportAction
         $end_date = $end_date->endOfDay();
 
         $lead_summary = $this->leadTrackerService->summary($start_date, $end_date);
-        dd($lead_summary);
         $lead_by_product = [
             'mentoring' => $this->leadTrackerService->leadMentoring($start_date, $end_date),
             'tutoring' => $this->leadTrackerService->leadTutoring($start_date, $end_date),
