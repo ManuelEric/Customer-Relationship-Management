@@ -1065,12 +1065,13 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
     public function deleteClientProgram($clientProgramId)
     {
-        $clientProgram = ClientProgram::where('clientprog_id', $clientProgramId)->first();
-        
-        # delete file agreement if exists
-        if (Storage::disk('s3')->exists('project/crm/agreement/'.$clientProgram->agreement)) {
-            Storage::disk('s3')->delete('project/crm/agreement/'.$clientProgram->agreement);
+        if($clientProgram = ClientProgram::where('clientprog_id', $clientProgramId)->first()){
+            # delete file agreement if exists
+            if (Storage::disk('s3')->exists('project/crm/agreement/'.$clientProgram->agreement)) {
+                Storage::disk('s3')->delete('project/crm/agreement/'.$clientProgram->agreement);
+            }
         }
+        
 
         return $clientProgram->delete();
     }

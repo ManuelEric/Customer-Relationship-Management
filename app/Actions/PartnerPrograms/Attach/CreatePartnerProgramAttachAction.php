@@ -27,7 +27,7 @@ class CreatePartnerProgramAttachAction
 
         $corprog_file = $this->getFileNameAttachment($partner_program_attach_details['corprog_file']);
 
-        $corprog_attach = $this->attachmentProgram($request->file('corprog_attach'), $partner_program_id, $corprog_file);
+        $corprog_attach = $this->attachmentProgram($request->file('corprog_attach'), $partner_program_id, $corprog_file, 'partner_program');
 
 
         $partner_program_attach_details['corprog_file'] = $corprog_file;
