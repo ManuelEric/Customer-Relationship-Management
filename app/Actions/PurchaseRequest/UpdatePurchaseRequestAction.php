@@ -24,7 +24,9 @@ class UpdatePurchaseRequestAction
     {
         
         $file_name = $purchase_id;
-        $new_request_details['purchase_attachment'] = pathinfo($this->tnUploadFile($request, 'purchase_attachment', $file_name, 'project/crm/finance'))['basename'];
+        $file_format = $request->file('purchase_attachment')->getClientOriginalExtension();
+        $new_request_details['purchase_attachment'] = $file_name . '.' . $file_format;
+        $this->tnUploadFile($request, 'purchase_attachment', $file_name, 'project/crm/finance/');
 
         # update purchase request
         $updated_purchase_request =  $this->purchaseRequestRepository->updatePurchaseRequest($purchase_id, $new_request_details);

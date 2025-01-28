@@ -20,9 +20,8 @@ class CreatePurchaseRequestAction
 
     public function execute(
         StorePurchaseReqRequest $request,
-        Array $new_request_details
-    )
-    {
+        array $new_request_details
+    ) {
         # create purchase id
         $last_id = PurchaseRequest::max('purchase_id');
         $purchase_id_without_label = $this->remove_primarykey_label($last_id, 4);
@@ -31,7 +30,11 @@ class CreatePurchaseRequestAction
         $new_request_details['purchase_id'] = $purchase_id_with_label;
 
         $file_name = $purchase_id_with_label;
-        $new_request_details['purchase_attachment'] = pathinfo($this->tnUploadFile($request, 'purchase_attachment', $file_name, 'project/crm/finance'))['basename'];
+        $file_format = $request->file('purchase_attachment')->getClientOriginalExtension();
+        $new_request_details['purchase_attachment'] = $file_name . '.' . $file_format;
+        
+        $this->tnUploadFile($request, 'purchase_attachment', $file_name, 'project/crm/finance/');
+
 
         # store new purchase request
         $new_purchase_request = $this->purchaseRequestRepository->createPurchaseRequest($new_request_details);
