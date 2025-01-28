@@ -22,7 +22,7 @@
                     @forelse ($schoolProgramAttachs as $schoolProgramAttach)
                     
                         <div class="d-flex me-2 border px-2 py-1 rounded">
-                            <a href="{{ Storage::url('attachment/school_prog_attach/' . $schoolProgramAttach->schprog_id . '/' . $schoolProgramAttach->schprog_attach) }}" class="text-muted text-decoration-none">
+                            <a href="{{ Storage::url('attachment/sch_prog_attach/' . $schoolProgramAttach->schprog_id . '/' . $schoolProgramAttach->schprog_attach) }}" class="text-muted text-decoration-none">
                                     <i class="bi bi-download me-1"></i> {{ $schoolProgramAttach->schprog_file }}
                                 </a>
                                 <div class="text-end cursor-pointer ms-4">
