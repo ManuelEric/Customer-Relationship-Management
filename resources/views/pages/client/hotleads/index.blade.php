@@ -344,14 +344,14 @@
                         data: 'created_at',
                         className: 'text-center',
                         render: function(data, type, row) {
-                            return moment(data).format('MMMM Do YYYY')
+                            return moment(data).format('DD/MM/YYYY')
                         }
                     },
                     {
                         data: 'updated_at',
                         className: 'text-center',
                         render: function(data, type, row) {
-                            return moment(data).format('MMMM Do YYYY')
+                            return moment(data).format('DD/MM/YYYY')
                         }
                     },
                     {

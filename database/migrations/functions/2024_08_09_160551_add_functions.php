@@ -456,15 +456,16 @@ return new class extends Migration
             DECLARE id_similiar TEXT DEFAULT NULL;
 
             IF lname = "" THEN
-                SELECT GROUP_CONCAT(DISTINCT(tbl_client.id)) INTO id_similiar
+                SELECT GROUP_CONCAT(DISTINCT(tbl_client.id) LIMIT 50) INTO id_similiar
                     FROM tbl_client
                     LEFT JOIN tbl_client_roles ON tbl_client_roles.client_id = tbl_client.id
                     WHERE tbl_client.is_verified = "Y"
                     AND tbl_client.deleted_at is null
                     AND tbl_client_roles.role_id = role_id
-                    AND (first_name LIKE (first_name LIKE CONCAT("%", fname, "%")));
+                    AND (first_name LIKE (first_name LIKE CONCAT("%", fname, "%")))
+                    ORDER BY tbl_client.created_at DESC;
             ELSE
-                SELECT GROUP_CONCAT(DISTINCT(tbl_client.id)) INTO id_similiar
+                SELECT GROUP_CONCAT(DISTINCT(tbl_client.id) LIMIT 50) INTO id_similiar
                     FROM tbl_client
                     LEFT JOIN tbl_client_roles ON tbl_client_roles.client_id = tbl_client.id
                     WHERE tbl_client.is_verified = "Y"
@@ -475,7 +476,8 @@ return new class extends Migration
                         OR first_name LIKE CONCAT("%", lname, "%")
                         OR last_name LIKE CONCAT("%", fname, "%")
                         OR last_name LIKE CONCAT("%", mname, "%")
-                        OR last_name LIKE CONCAT("%", lname, "%"));
+                        OR last_name LIKE CONCAT("%", lname, "%"))
+                    ORDER BY tbl_client.created_at DESC;
             END IF;
 
             RETURN id_similiar;

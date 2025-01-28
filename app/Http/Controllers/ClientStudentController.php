@@ -812,8 +812,6 @@ class ClientStudentController extends ClientController
     {
         $student_id = $request->route('student');
 
-     
-
         DB::beginTransaction();
         try {
 
@@ -823,14 +821,14 @@ class ClientStudentController extends ClientController
         } catch (Exception $e) {
 
             DB::rollBack();
-            $log_service->createErrorLog(LogModule::STORE_INTEREST_PROGRAM_FROM_STUDENT, $e->getMessage(), $e->getLine(), $e->getFile(), $request->interest_program);
+            $log_service->createErrorLog(LogModule::STORE_INTEREST_PROGRAM_FROM_STUDENT, $e->getMessage(), $e->getLine(), $e->getFile(), ['student_id' => $student_id, 'interest_program' => $request->interest_program]);
 
             return Redirect::to('client/student/' . $student_id)->withError('Interest program failed to be added.');
         }
 
         # Add interest program success
         # create log success
-        $log_service->createSuccessLog(LogModule::STORE_INTEREST_PROGRAM_FROM_STUDENT, 'Interest program has been added', $request->interest_program);
+        $log_service->createSuccessLog(LogModule::STORE_INTEREST_PROGRAM_FROM_STUDENT, 'Interest program has been added', ['student_id' => $student_id, 'interest_program' => $request->interest_program]);
 
         return Redirect::to('client/student/' . $student_id)->withSuccess('Interest program successfully added.');
     }

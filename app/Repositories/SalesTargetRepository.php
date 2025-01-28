@@ -15,17 +15,22 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
 
     public function getMonthlySalesTarget($programId, $filter)
     {
-
         return SalesTarget::when($programId, function ($query) use ($programId) {
             $query->where('prog_id', $programId);
-        })->when($filter['qdate'], function ($query) use ($filter) {
-            $query->whereMonth('month_year', date('m', strtotime($filter['qdate'])))->whereYear('month_year', date('Y', strtotime($filter['qdate'])));
-        })->select([
-            DB::raw("CAST(YEAR(month_year) AS VARCHAR(4)) + '-' + right('00' + CAST(MONTH(month_year) AS VARCHAR(2)), 2) as month_year"),
+        })
+        ->when($filter['qdate'], function ($query) use ($filter) {
+            $query->whereMonth('month_year', date('m', strtotime($filter['qdate'])))
+                ->whereYear('month_year', date('Y', strtotime($filter['qdate'])));
+        })
+        ->select([
+            DB::raw("CONCAT(CAST(YEAR(month_year) AS CHAR(4)), '-', LPAD(CAST(MONTH(month_year) AS CHAR(2)), 2, '0')) as month_year"),
             DB::raw('SUM(total_participant) as total_participant'),
             DB::raw('SUM(total_target) as total_target'),
-        ])->groupBy(DB::raw("CAST(YEAR(month_year) AS VARCHAR(4)) + '-' + right('00' + CAST(MONTH(month_year) AS VARCHAR(2)), 2)"))->first();
+        ])
+        ->groupBy(DB::raw("CONCAT(CAST(YEAR(month_year) AS CHAR(4)), '-', LPAD(CAST(MONTH(month_year) AS CHAR(2)), 2, '0'))"))
+        ->first();
     }
+
 
     public function getMonthlySalesActual($programId, $filter)
     {

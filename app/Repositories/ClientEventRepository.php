@@ -304,12 +304,22 @@ class ClientEventRepository implements ClientEventRepositoryInterface
     public function getAllClientEventByClientIdDataTables($clientId)
     {
         return datatables::eloquent(
-            ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
+            ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 
+                        DB::raw('CASE 
+                            WHEN tbl_client_event.child_id is not null THEN tbl_client_event.child_id
+                            ELSE tbl_client_event.client_id
+                        END'))
                 ->leftJoin('tbl_events', 'tbl_events.event_id', '=', 'tbl_client_event.event_id')
                 ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client_event.lead_id')
                 ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client_event.eduf_id')
                 ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_client_event.partner_id')
-                ->where('tbl_client_event.client_id', '=', $clientId)
+                ->where(
+                    DB::raw('CASE 
+                        WHEN tbl_client_event.child_id is not null THEN tbl_client_event.child_id
+                        ELSE tbl_client_event.client_id
+                    END'), 
+                    '=', 
+                    $clientId)
                 ->select(
                     'tbl_client_event.clientevent_id',
                     // 'tbl_client_event.event_id',
