@@ -24,6 +24,7 @@ use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 
 class ClientProgramRepository implements ClientProgramRepositoryInterface
 {
@@ -1064,7 +1065,14 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
     public function deleteClientProgram($clientProgramId)
     {
-        return ClientProgram::where('clientprog_id', $clientProgramId)->delete();
+        $clientProgram = ClientProgram::where('clientprog_id', $clientProgramId)->first();
+        
+        # delete file agreement if exists
+        if (Storage::disk('s3')->exists('project/crm/agreement/'.$clientProgram->agreement)) {
+            Storage::disk('s3')->delete('project/crm/agreement/'.$clientProgram->agreement);
+        }
+
+        return $clientProgram->delete();
     }
 
     private function getStatusId($status)
