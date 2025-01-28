@@ -27,7 +27,7 @@ class CreateSchoolProgramAttachAction
 
         $schprog_file =  $this->getFileNameAttachment($sch_prog_attach_details['schprog_file']);
 
-        $schprog_attach = $this->attachmentProgram($request->file('schprog_attach'), $school_program_id, $schprog_file);
+        $schprog_attach = $this->attachmentProgram($request->file('schprog_attach'), $school_program_id, $schprog_file, 'school_program');
 
 
         $sch_prog_attach_details['schprog_file'] = $schprog_file;
