@@ -704,7 +704,7 @@ class InvoiceProgramController extends Controller
         $client_prog = $this->clientProgramRepository->getClientProgramById($clientprog_id);
         $invoice = $client_prog->invoice;
 
-        return response()->download(Storage::url('invoice/' . $invoice->attachment));
+        return response()->download(Storage::url('invoice/client/' . $invoice->attachment));
     }
 
     public function sendToClient(Request $request, LogService $log_service)
