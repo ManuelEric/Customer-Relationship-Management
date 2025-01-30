@@ -33,17 +33,21 @@
 
     {{-- End Alert --}}
 
+    @if($isSuperAdmin)
+        <x-dashboard.nav />
+    @endif
+
     {{-- Sales --}}
-    @includeWhen($isSuperAdmin || $isSalesAdmin || $isSales, 'pages.dashboard.sales.index')
+    @includeWhen(Request::segment(2) == 'sales' && ($isSuperAdmin || $isSalesAdmin || $isSales), 'pages.dashboard.sales.index')
 
     {{-- Partnership --}}
-    @includeWhen($isSuperAdmin || $isPartnership, 'pages.dashboard.partnership.index')
+    @includeWhen(Request::segment(2) == 'partnership' && ($isSuperAdmin || $isPartnership), 'pages.dashboard.partnership.index')
 
     {{-- Digital  --}}
-    @includeWhen($isSuperAdmin || $isSalesAdmin || $isDigital, 'pages.dashboard.digital.index')
+    @includeWhen(Request::segment(2) == 'digital' && ($isSuperAdmin || $isSalesAdmin || $isDigital), 'pages.dashboard.digital.index')
 
     {{-- Finance  --}}
-    @includeWhen($isSuperAdmin || $isFinance, 'pages.dashboard.finance.index')
+    @includeWhen(Request::segment(2) == 'finance' && ($isSuperAdmin || $isFinance), 'pages.dashboard.finance.index')
 
 @endsection
 

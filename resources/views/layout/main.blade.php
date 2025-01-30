@@ -52,10 +52,30 @@
                     </button>
                 </div>
                 <div>
-                    <a class="navbar-brand brand-logo" href="{{ url('dashboard') }}">
+                    <a class="navbar-brand brand-logo" href="
+                        @if ($isSuperAdmin || $isSalesAdmin || $isSales)
+                            {{ url('dashboard/sales') }}">
+                        @elseif ($isPartnership)
+                            {{ url('dashboard/partnership') }}">
+                        @elseif ($isDigital)
+                            {{ url('dashboard/digital') }}">
+                        @elseif ($isFinance)
+                            {{ url('dashboard/finance') }}">
+                        @endif
+                    
                         <img loading="lazy"  src="{{ asset('img/logo.webp') }}" alt="logo" class="h-auto" />
                     </a>
-                    <a class="navbar-brand brand-logo-mini" href="{{ url('dashboard') }}">
+                    <a class="navbar-brand brand-logo-mini" href="
+                        @if ($isSuperAdmin || $isSalesAdmin || $isSales)
+                            {{ url('dashboard/sales') }}">
+                        @elseif ($isPartnership)
+                            {{ url('dashboard/partnership') }}">
+                        @elseif ($isDigital)
+                            {{ url('dashboard/digital') }}">
+                        @elseif ($isFinance)
+                            {{ url('dashboard/finance') }}">
+                        @endif
+                    
                         <img loading="lazy"  src="{{ asset('library/dashboard/images/logo-mini.svg') }}" alt="logo" />
                     </a>
                 </div>
