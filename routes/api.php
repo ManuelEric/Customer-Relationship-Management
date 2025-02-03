@@ -83,7 +83,7 @@ Route::get('get/lead/career-exploration/{month}/{user?}', [SalesDashboardControl
 Route::get('get/all-program/target/{month}/{user?}', [SalesDashboardControllerV1::class, 'fnGetAllProgramTargetByMonth']);
 Route::get('get/client-event/{year}/{user?}', [SalesDashboardControllerV1::class, 'fnGetClientEventByYear']);
 Route::get('get/program-comparison', [SalesDashboardControllerV1::class, 'fnCompareProgram']);
-Route::post('/upload', [InvoiceProgramController::class, 'upload']);
+// Route::post('/upload', [InvoiceProgramController::class, 'upload']);
 Route::get('export/client', [SalesDashboardControllerV1::class, 'fnExportClient']);
 Route::get('get/outstanding-payment', [DashboardController::class, 'fnAjaxDataTablesOutstandingPayment']);
 

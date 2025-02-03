@@ -259,7 +259,7 @@ class InvoiceProgramController extends Controller
             # either idr or other currency
 
             if ($invoice_details['inv_paymentmethod'] == "Installment") {
-
+                
                 # and using param to fetch data based on rupiah or other currency
                 $limit = $param == "idr" ? count($request->invdtl_installment) : count($request->invdtl_installment_other);
 
