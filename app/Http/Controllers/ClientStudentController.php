@@ -213,6 +213,7 @@ class ClientStudentController extends ClientController
             ];
 
             $model = $this->clientRepository->getAllRawClientDataTables('student', true, $advanced_filter);
+
             return $this->clientRepository->getDataTables($model, true);
         }
 
