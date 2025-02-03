@@ -1833,6 +1833,126 @@ class ClientRepository implements ClientRepositoryInterface
 
         // return Datatables::eloquent($model)->make(true);
         
+        return $asDatatables === false ? $query->get() : $query->get();
+    }
+
+    public function getNewAllRawClientDataTables($roleName, $asDatatables = false, $advanced_filter = [])
+    {
+        $query = UserClient::whereHas('roles', function ($query2) use ($roleName) {
+                    switch ($roleName) {
+                        case 'student':
+                            // $query2->whereIn('role_name', ['student', 'parent'])
+                            //     ->whereRaw(DB::raw('(CASE WHEN roles = "Parent" THEN count_second_client = 0 ELSE count_second_client >= 0 END)'));
+                            $query2->whereRoleName('student');
+                            break;
+                        case 'parent':
+                            $query2->where('role_name', $roleName)
+                                ->where('is_verifiedsecond_client', 'Y');
+                            break;
+                        case 'teacher/counselor':
+                            $query2->where('role_name', $roleName);
+                            break;
+                    }
+                })->isRaw()->get();
+
+        $mapping = $query->map(function ($item, $key) use ($roleName){
+            $second_client = null;
+            switch ($roleName) {
+                case 'student':
+                    $second_client = count($item->parents) > 0 ? $item->parents->first() : null;
+                    break;
+
+                case 'parent':
+                    $second_client = count($item->childrens) > 0 ? $item->childrens->first() : null;
+                    break;
+            }
+
+            return [
+                'fullname' => $item->full_name,
+                'suggestion' => DB::select("SELECT GetClientSuggestion('".$item->first_name."', '".$item->last_name."', '".$item->last_name."', '16') as suggestion_id")[0]->suggestion_id,
+                // 'suggestion' => null,
+                'mail' => $item->mail,
+                'phone' => $item->phone,
+                'is_verifiedsecond_client' => $second_client != null ? $second_client->is_verified : null,
+                'second_client_id' => $second_client != null ? $second_client->id : null,
+                'second_client_name' => $second_client != null ? $second_client->full_name : null,
+                'second_client_mail' => $second_client != null ? $second_client->mail : null,
+                'second_client_phone' => $second_client != null ? $second_client->phone : null,
+                'second_school_name' => $second_client != null && isset($second_client->school) ? $second_client->school->sch_name : null,
+                'is_verifiedsecond_school' => $second_client != null && isset($second_client->school) ? $second_client->school->is_verified : null,
+                'second_client_grade_now' => $second_client != null ? $second_client->grade_now : null,
+                'second_client_year_gap' => null,
+                'second_client_graduation_year_now' => $second_client != null ? $second_client->graduation_year_now : null,
+                'second_client_interest_countries' => $second_client != null ? $second_client->list_interest_countries : null,
+                'second_client_joined_event' => $second_client != null ? $second_client->list_joined_events : null,
+                'second_client_interest_prog' => $second_client != null ? $second_client->list_interest_progs : null,
+                // 'second_client_statusact' => $second_client != null ? $second_client->graduation_year_now : null,
+                'grade_now' => $item->grade_now,
+                'year_gap' => null,
+                'graduation_year_now' => $item->graduation_year_now,
+                'graduation_year' => $item->graduation_year,
+                'lead_id' => $item->lead_id,
+                'lead_source' => $item->lead_source,
+                'referral_name' => null,
+                'sch_id' => $item->sch_id,
+                'interest_countries' => $item->list_interest_countries,
+                'created_at' => $item->created_at,
+                'updated_at' => $item->updated_at,
+                'deleted_at' => $item->deleted_at,
+                'school_name' => isset($item->school) ? $item->school->sch_name : null,
+                'is_verifiedschool' => isset($item->school) ? $item->school->is_verified : null,
+                'joined_event' => $item->list_joined_events,
+                'interest_prog' => $item->list_interest_progs,
+                'pic' => $item->pic_id,
+                'pic_name' => $item->pic_name
+            ];
+        });
+        
+        return $mapping;
+
+
+
+
+                when(Session::get('user_role') == 'Employee', function ($subQuery) {
+                    $subQuery->where('pic', auth()->user()->id);
+                })->
+                when(!empty($advanced_filter['school_name']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereIn('school_name', $advanced_filter['school_name']);
+                })->
+                when(!empty($advanced_filter['grade']), function ($querySearch) use ($advanced_filter) {
+                    if(in_array('not_high_school', $advanced_filter['grade'])){
+                        $key = array_search('not_high_school', $advanced_filter['grade']);
+                        unset($advanced_filter["grade"][$key]);
+                        count($advanced_filter['grade']) > 0
+                            ?
+                                $querySearch->where('grade_now', '>', 12)->orWhereIn('grade_now', $advanced_filter['grade'])
+                                    :
+                                        $querySearch->where('grade_now', '>', 12);
+                    }else{
+                        $querySearch->whereIn('grade_now', $advanced_filter['grade']);
+                    }
+                })->
+                when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereIn('graduation_year_now', $advanced_filter['graduation_year']);
+                })->
+                when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereIn('lead_source', $advanced_filter['leads']);
+                })->
+                when(!empty($advanced_filter['roles']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereIn('roles', $advanced_filter['roles']);
+                })->
+                when(!empty($advanced_filter['start_joined_date']) && empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereDate('raw_client.created_at', '>=', $advanced_filter['start_joined_date']);
+                })->
+                when(!empty($advanced_filter['end_joined_date']) && empty($advanced_filter['start_joined_date']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereDate('raw_client.created_at', '<=', $advanced_filter['end_joined_date']);
+                })->
+                when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereBetween('raw_client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
+                });
+
+        // return Datatables::eloquent($model)->make(true);
+        
         return $asDatatables === false ? $query->get() : $query;
     }
 

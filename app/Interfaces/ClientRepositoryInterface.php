@@ -55,6 +55,7 @@ interface ClientRepositoryInterface
     public function createClientLog(Array $client_log_details);
     public function getAllStudents();
     public function updateClientWithTrashed($clientId, array $newDetails);
+    public function getNewAllRawClientDataTables($roleName, $asDatatables = false, $advanced_filter = []);
 
 
     /* ~ END */
