@@ -541,7 +541,6 @@ class ClientStudentController extends ClientController
 
             # case 3
             # create new user client as student
-            $data['student_details']
             if (!$student = $this->clientRepository->updateClient($student_id, $data['student_details']))
                 throw new Exception('Failed to update student information', 3);
 
