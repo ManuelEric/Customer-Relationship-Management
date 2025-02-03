@@ -90,7 +90,7 @@ class StoreInvoiceProgramBundleRequest extends FormRequest
             'inv_tnc' => 'nullable',
 
             # installment validation
-            'invdtl_installment__other.*' => [
+            'invdtl_installment_other.*' => [
                 'required_if:inv_paymentmethod,installment',
                 'distinct',
                 // Rule::unique('tbl_invdtl', 'invdtl_installment')
@@ -98,13 +98,13 @@ class StoreInvoiceProgramBundleRequest extends FormRequest
                 //         return $query->where('inv_id', $inv_id);
                 // })
             ],
-            'invdtl_duedate__other.*' => 'required_if:inv_paymentmethod,installment',
-            'invdtl_percentage__other.*' => 'required_if:inv_paymentmethod,installment',
-            'invdtl_amountidr__other.*' => 'required_if:inv_paymentmethod,installment',
+            'invdtl_duedate_other.*' => 'required_if:inv_paymentmethod,installment',
+            'invdtl_percentage_other.*' => 'required_if:inv_paymentmethod,installment',
+            'invdtl_amountidr_other.*' => 'required_if:inv_paymentmethod,installment',
         ];
 
         if ($this->input('inv_duedate') != NULL && $this->input('inv_paymentmethod') == 'installment')
-            $rules['invdtl_duedate__other.*'] .= '|after_or_equal:inv_duedate';
+            $rules['invdtl_duedate_other.*'] .= '|after_or_equal:inv_duedate';
 
         return $rules;
     }

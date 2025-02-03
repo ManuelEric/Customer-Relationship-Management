@@ -472,7 +472,7 @@
             {{-- Footer  --}}
             @if (request()->get('form_type') == 'cta')
                 <div class="w-full flex justify-center md:my-4 mt-[30px] text-sm text-center text-gray-400">
-                    Copyright © 2023. ALL-in Eduspace. <br> All rights reserved
+                    Copyright © 2023. EduALL. <br> All rights reserved
                 </div>
             @endif
         </div>

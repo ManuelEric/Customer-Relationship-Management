@@ -129,6 +129,8 @@ class ExtClientProgramController extends Controller
             $client_fname = $data->client->first_name;
             $client_lname = $data->client->last_name;
             $client_grade = $data->client->grade;
+            $client_email = $data->client->mail;
+            $client_address = $data->client->address;
             $school_name = $data->client->school ? $data->client->school->sch_name : null;
 
             foreach ($data->clientMentor as $mentor)
@@ -149,6 +151,8 @@ class ExtClientProgramController extends Controller
                     'uuid' => $client_id,
                     'first_name' => $client_fname,
                     'last_name' => $client_lname,
+                    'email' => $client_email,
+                    'address' => $client_address,
                     'school_name' => $school_name,
                     'grade' => $client_grade,
                 ]
