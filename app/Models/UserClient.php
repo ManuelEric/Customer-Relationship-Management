@@ -180,6 +180,37 @@ class UserClient extends Authenticatable
         );
     }
 
+    protected function listInterestCountries(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getListInterestCountries()
+        );
+    }
+    protected function listJoinedEvents(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getListJoinedEvent()
+        );
+    }
+    protected function listInterestProgs(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getListInterestProgs()
+        );
+    }
+    protected function picId(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getListPics()[0]
+        );
+    }
+    protected function picName(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getListPics()[1]
+        );
+    }
+
     // protected function gradeNow(): Attribute
     // {
     //     return Attribute::make(
@@ -300,6 +331,11 @@ class UserClient extends Authenticatable
         });
     }
 
+    public function scopeIsRaw($query)
+    {
+        return $query->where('is_verified', 'N')->where('st_statusact', 1);
+    }
+
     public function getLeadSource($parameter)
     {
         switch ($parameter) {
@@ -328,6 +364,59 @@ class UserClient extends Authenticatable
             default:
                 return $this->lead->main_lead;
         }
+    }
+    public function getListInterestCountries()
+    {
+        $listInterestCountries = [];
+
+        if(count($this->destinationCountries) > 0){
+            foreach ($this->destinationCountries as $destinationCountry) {
+                if($destinationCountry->name == 'Other' && isset($destinationCountry->tagCountry)){
+                    $listInterestCountries[] = $destinationCountry->tagCountry->name;
+                }else{
+                    $listInterestCountries[] = $destinationCountry->name;
+                }
+            }
+        }
+
+        return implode(", ",$listInterestCountries);
+    }
+    public function getListJoinedEvent()
+    {
+        $listJoinedEvents = [];
+
+        if(count($this->clientEvent) > 0){
+            foreach ($this->clientEvent as $clientEvent) {
+                $listJoinedEvents[] = $clientEvent->event->event_title;
+            }
+        }
+
+        return implode(", ",$listJoinedEvents);
+    }
+    public function getListInterestProgs()
+    {
+        $listInterestProgs = [];
+
+        if(count($this->interestPrograms) > 0){
+            foreach ($this->interestPrograms as $interestProgram) {
+                $listInterestProgs[] = $interestProgram->program_name;
+            }
+        }
+
+        return implode(", ",array_unique($listInterestProgs));
+    }
+    public function getListPics()
+    {
+        # index 0 = pic->user_id, index 1 = pic_name
+        $listPics[0] = null;
+        $listPics[1] = null;
+
+        if(count($this->picClient) > 0){
+            $listPics[0] = $this->picClient->where('status', 1)->first()->user_id;
+            $listPics[1] = $this->picClient->where('status', 1)->first()->user->full_name;
+        }
+
+        return $listPics;
     }
 
     // public function getGraduationYearFromView($id)
