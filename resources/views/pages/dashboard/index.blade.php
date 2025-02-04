@@ -33,7 +33,7 @@
 
     {{-- End Alert --}}
 
-    @if($isSuperAdmin)
+    @if($isSuperAdmin || $isSalesAdmin)
         <x-dashboard.nav />
     @endif
 

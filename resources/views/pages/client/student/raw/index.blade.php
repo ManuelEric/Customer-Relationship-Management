@@ -507,17 +507,11 @@
                         data: 'created_at',
                         className: 'text-center',
                         defaultContent: '-',
-                        render: function(data, type, row) {
-                            return moment(data).format('DD/MM/YYYY')
-                        }
                     },
                     {
                         data: 'updated_at',
                         className: 'text-center',
                         defaultContent: '-',
-                        render: function(data, type, row) {
-                            return moment(data).format('DD/MM/YYYY')
-                        }
                     },
                     {
                         data: '',

@@ -333,7 +333,7 @@ class UserClient extends Authenticatable
 
     public function scopeIsRaw($query)
     {
-        return $query->where('is_verified', 'N')->where('st_statusact', 1);
+        return $query->where('is_verified', 'N')->where('st_statusact', 1)->where('deleted_at', null);
     }
 
     public function getLeadSource($parameter)
