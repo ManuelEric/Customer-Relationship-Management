@@ -170,7 +170,8 @@
                                 <i class="bi bi-check"></i>
                             </th>
                             <th class="bg-info text-white">Name</th>
-                            <th class="bg-info text-white">Suggestion</th>
+                            <th class="bg-info text-white">Interest Program</th>
+                            <th>Suggestion</th>
                             <th>Role</th>
                             <th>Mail</th>
                             <th>Phone</th>
@@ -184,7 +185,6 @@
                             <th>Referral Name</th>
                             <th>Country of Study Abroad</th>
                             <th>Joined Event</th>
-                            <th>Interest Program</th>
                             <th>Scholarship Eligible</th>
                             <th>Joined Date</th>
                             <th class="bg-info text-white">Last Update</th>
@@ -409,6 +409,11 @@
                         }
                     },
                     {
+                        data: 'interest_prog',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
                         data: 'suggestion',
                         className: 'text-center',
                         searchable: false,
@@ -507,11 +512,6 @@
                     },
                     {
                         data: 'joined_event',
-                        className: 'text-center',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'interest_prog',
                         className: 'text-center',
                         defaultContent: '-'
                     },
