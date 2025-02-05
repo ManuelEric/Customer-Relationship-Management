@@ -54,13 +54,16 @@
                                 <div class="row p-3">
                                     <div class="col-md-12 mb-2">
                                         <label for="">School Name</label>
-                                        <select name="school_name[]" class="select form-select form-select-sm w-100"
+                                        {{-- <select name="school_name[]" class="select form-select form-select-sm w-100"
                                             multiple id="school-name">
                                             @foreach ($advanced_filter['schools'] as $school)
                                                 <option value="{{ $school->sch_name }}"
                                                     {{ Request::get('sch') == $school->sch_name && Request::get('sch') != '' && Request::get('sch') != null ? 'selected' : null }}>
                                                     {{ $school->sch_name }}</option>
                                             @endforeach
+                                        </select> --}}
+                                        <select name="school_name[]" id="school-name" class="select w-100 select-school"
+                                            multiple>
                                         </select>
                                     </div>
 
@@ -423,6 +426,28 @@
     <script>
         var widthView = $(window).width();
         $(document).ready(function() {
+
+            var baseUrl = "{{ url('/') }}/api/get/school/list";
+
+            $(".select-school").select2({
+                placeholder: 'Select Value',
+                // width: '350px',
+                allowClear: true,
+                ajax: {
+                    url: baseUrl,
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            term: params.term || '',
+                            page: params.page || 1
+                        }
+                    },
+                    cache: true
+                }
+            });
+
+            
             $('.modal-select').select2({
                 dropdownParent: $('#assignForm .modal-content'),
                 placeholder: "Select value",

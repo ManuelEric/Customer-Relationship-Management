@@ -245,6 +245,9 @@ Route::get('get/program/main/{mainProgId}', [APIProgramController::class, 'getPr
 # Get List referral / sub lead referral (All Client)
 Route::get('get/referral/list', [LeadController::class, 'fnGetListReferral']);
 
+# Get List school for select2 filter client student
+Route::get('get/school/list', [APISchoolController::class, 'fnGetListSchool']);
+
 
 # Import From google sheet
 Route::group(['middleware' => 'auth:api', 'prefix' => 'import'], function () {

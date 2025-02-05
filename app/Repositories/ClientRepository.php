@@ -1830,8 +1830,6 @@ class ClientRepository implements ClientRepositoryInterface
                 when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
                     $querySearch->whereBetween('raw_client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
                 });
-
-        // return Datatables::eloquent($model)->make(true);
         
         return $asDatatables === false ? $query->get() : $query->get();
     }

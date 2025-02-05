@@ -40,7 +40,7 @@ class ClientStudentService
         $reasons = $this->reasonRepository->getReasonByType('Hot Lead');
 
         # for advance filter purpose
-        $schools = $this->schoolRepository->getAllSchools();
+        // $schools = $this->schoolRepository->getAllSchools();
         $parents = $this->clientRepository->getAllClientByRole('Parent');
         $max_graduation_year = $this->clientRepository->getMaxGraduationYearFromClient();
         $main_leads = $this->leadRepository->getAllMainLead();
@@ -63,7 +63,7 @@ class ClientStudentService
         return [
             'reasons' => $reasons,
             'advanced_filter' => [
-                'schools' => $schools,
+                // 'schools' => $schools,
                 'parents' => $parents,
                 'leads' => $leads,
                 'max_graduation_year' => $max_graduation_year,
