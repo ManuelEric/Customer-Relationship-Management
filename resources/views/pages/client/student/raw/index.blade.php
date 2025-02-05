@@ -170,7 +170,6 @@
                                 <i class="bi bi-check"></i>
                             </th>
                             <th class="bg-info text-white">Name</th>
-                            <th class="bg-info text-white">Interest Program</th>
                             <th>Suggestion</th>
                             <th>Role</th>
                             <th>Mail</th>
@@ -178,6 +177,7 @@
                             <th>Student/Parents Name</th>
                             <th>Student/Parents Mail</th>
                             <th>Student/Parents Phone</th>
+                            <th>Interest Program</th>
                             <th>School</th>
                             <th>Grade</th>
                             <th>Graduation Year</th>
@@ -366,7 +366,7 @@
                     targets: 0
                 }],
                 fixedColumns: {
-                    left: (widthView < 768) ? 3 : 4,
+                    left: (widthView < 768) ? 2 : 3,
                     right: 2
                 },
                 ajax: {
@@ -409,11 +409,6 @@
                         }
                     },
                     {
-                        data: 'interest_prog',
-                        className: 'text-center',
-                        defaultContent: '-'
-                    },
-                    {
                         data: 'suggestion',
                         className: 'text-center',
                         searchable: false,
@@ -449,6 +444,11 @@
                     },
                     {
                         data: 'second_client_phone',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'interest_prog',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
