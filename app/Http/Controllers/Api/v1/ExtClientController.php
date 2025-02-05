@@ -122,6 +122,7 @@ class ExtClientController extends Controller
 
             return [
                 /* essay editing purposes */
+                'id' => $value->id,
                 'first_name' => $value->first_name,
                 'last_name' => $value->last_name,
                 'phone' => $value->phone,
