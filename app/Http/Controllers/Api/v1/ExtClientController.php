@@ -968,6 +968,18 @@ class ExtClientController extends Controller
             'school_name' => isset($client->school) ? $client->school->sch_name : null,
             'graduation_year' => $client->graduation_year
         ];
+        
+        /**
+         * note:
+         * address that being attached in mail::send could be null
+         * since there are two ways to get the existing client
+         * first: find from tbl_client
+         * second: find from tbl_client_additional_info
+         * 
+         * and to prevent mail::send goes error because no address attached
+         * use the email that being submitted
+         *  
+         */
 
         try {
 
@@ -977,8 +989,9 @@ class ExtClientController extends Controller
                 Mail::send(
                     $template,
                     $passedData,
-                    function ($message) use ($client, $subject) {
-                        $message->to($client->mail, $client->full_name)
+                    function ($message) use ($client, $subject, $validated) {
+                        // $message->to($client->mail, $client->full_name)
+                        $message->to($validated['mail'], $client->full_name)
                             ->subject($subject);
                     }
                 );
@@ -987,8 +1000,8 @@ class ExtClientController extends Controller
         } catch (Exception $e) {
 
             $sent_mail = 0;
-            throw new Exception($e->getMessage());
             Log::error('Failed send email to public registration | error : ' . $e->getMessage() . ' on file ' . $e->getFile() . ' | Line ' . $e->getLine());
+            throw new Exception($e->getMessage());
         }
 
 
@@ -1112,7 +1125,6 @@ class ExtClientController extends Controller
 
     private function storeStudent($incomingRequest)
     {
-
         # check if the client exists in crm database
         $existingClient = $this->checkExistingClient($this->tnSetPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
 
@@ -1159,7 +1171,6 @@ class ExtClientController extends Controller
             
             return $client;
         }
-
 
         $client = $this->clientRepository->createClient('Student', $newClientDetails);
         
