@@ -122,7 +122,6 @@ class ExtClientController extends Controller
 
             return [
                 /* essay editing purposes */
-                'id' => $value->id,
                 'first_name' => $value->first_name,
                 'last_name' => $value->last_name,
                 'phone' => $value->phone,
@@ -970,6 +969,18 @@ class ExtClientController extends Controller
             'graduation_year' => $client->graduation_year
         ];
 
+        /**
+         * note:
+         * address that being attached in mail::send could be null
+         * since there are two ways to get the existing client
+         * first: find from tbl_client
+         * second: find from tbl_client_additional_info
+         * 
+         * and to prevent mail::send goes error because no address attached
+         * use the email that being submitted
+         *  
+         */
+
         try {
 
             if(isset($validated['mail']) && $validated['mail'] != null){
@@ -978,8 +989,9 @@ class ExtClientController extends Controller
                 Mail::send(
                     $template,
                     $passedData,
-                    function ($message) use ($client, $subject) {
-                        $message->to($client->mail, $client->full_name)
+                    function ($message) use ($client, $subject, $validated) {
+                        // $message->to($client->mail, $client->full_name) //! not used
+                        $message->to($validated['mail'], $client->full_name)
                             ->subject($subject);
                     }
                 );

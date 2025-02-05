@@ -159,8 +159,6 @@ class ReportController extends Controller
     {
         $date_range = $request->get('daterange');
         $lead_tracker_report = $leadTrackerReportAction->execute($date_range);
-        return $lead_tracker_report;
-        exit;
         return view('pages.report.lead.index')->with($lead_tracker_report);
     }
 }
