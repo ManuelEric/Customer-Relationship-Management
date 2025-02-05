@@ -94,7 +94,7 @@ class UserClient extends Authenticatable
         parent::boot();
 
         static::creating(function ($model) {
-            $model->id = (string) Str::uuid();
+            $model->id = (string) Str::uuid();  
         });
     }
 
