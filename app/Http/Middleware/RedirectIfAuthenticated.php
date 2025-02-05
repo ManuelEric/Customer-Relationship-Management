@@ -26,6 +26,11 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
+
+                if ( !$request->session()->has('scope') )
+                    return redirect('/login');
+                
+
                 $scopes = $request->session()->get('scope');
 
                 switch ($scopes) {
