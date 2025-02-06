@@ -1019,7 +1019,7 @@ class InvoiceProgramController extends Controller
             Log::error('Failed to dispatch job send email hold mentoring '. $e->getMessage());
         }
             
-        return Redirect::to('dashboard')->withSuccess('Successfully sent email Hold Mentoring.');
+        return Redirect::to('dashboard/finance')->withSuccess('Successfully sent email Hold Mentoring.');
     }
 
     public function updateMail(Request $request)
