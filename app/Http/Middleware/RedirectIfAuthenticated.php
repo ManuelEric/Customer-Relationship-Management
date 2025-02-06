@@ -43,6 +43,8 @@ class RedirectIfAuthenticated
                             return redirect()->intended('/dashboard/digital');
                         }else if($user->department()->where('dept_name', 'Finance & Operation')->exists()){
                             return redirect()->intended('/dashboard/finance');
+                        }else{
+                            return redirect()->intended('/dashboard/sales');
                         }
                         break;            
                     case in_array('super-admin', $scopes):
