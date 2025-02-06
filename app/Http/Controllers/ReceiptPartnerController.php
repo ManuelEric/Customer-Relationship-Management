@@ -308,7 +308,7 @@ class ReceiptPartnerController extends Controller
             if (Storage::disk('s3')->put($path.$file_name, file_get_contents($attachment))) {
                 # update request status on receipt attachment
                 $attachment = $receipt->receiptAttachment()->where('currency', $currency)->first();
-                $attachment->attachment = $path . $file_name;
+                $attachment->attachment = $file_name;
                 $attachment->save();
             }
 
