@@ -75,10 +75,19 @@
     <script src="https://fastly.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
 
+        
         @if (isset($attachment) && gettype($attachment) != "string")
             var file = "{{ Storage::url('receipt/client/'.$attachment->attachment) }}"
         @else
-            var file = "{{ Storage::url($attachment) }}"
+            @if (isset($receipt->invoiceB2b))
+                @if ($receipt->invoiceB2b->partnerprog_id)
+                    var file = "{{ Storage::url('receipt/partner_prog/'.$attachment) }}"
+                @elseif ($receipt->invoiceB2b->schprog_id)
+                    var file = "{{ Storage::url('receipt/sch_prog/'.$attachment) }}"
+                @elseif ($receipt->invoiceB2b->ref_id)
+                    var file = "{{ Storage::url('receipt/referral/'.$attachment) }}"
+                @endif
+            @endif
         @endif
     
         var pdf = new PDFAnnotate("pdf-container", file, {

@@ -133,7 +133,7 @@ class InvoiceB2BBaseController extends Controller
             'invb2b_id' => $invoice_id,
             'currency' => $currency,
             'recipient' => $to,
-            'attachment' => $path . $file_name,
+            'attachment' => $file_name,
         ];
 
         $company_detail = [
