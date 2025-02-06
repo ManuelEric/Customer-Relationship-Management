@@ -462,8 +462,8 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
 
             case 'list':
                 $query = Invb2b::leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
-                    ->leftJoin('users as professional', 'professional.id', '=', 'tbl_corp.user_id')
                     ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
+                    ->leftJoin('users as professional', 'professional.id', '=', 'tbl_corp.user_id')
                     ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
                     ->select(
                         'tbl_invb2b.invb2b_num',
