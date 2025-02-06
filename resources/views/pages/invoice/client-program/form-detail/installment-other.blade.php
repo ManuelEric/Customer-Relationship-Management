@@ -10,16 +10,16 @@
         @endif
     </div>
     <div class="card-body " id="installment_content_other">
-        @if (old('invdtl_installment__other') || (isset($invoice) &&  $invoice->invoiceDetail()->count() > 0))
+        @if (old('invdtl_installment_other') || (isset($invoice) &&  $invoice->invoiceDetail()->count() > 0))
         @php
-            $limit = isset($invoice->invoiceDetail) ? count($invoice->invoiceDetail) : count(old('invdtl_installment__other'))
+            $limit = isset($invoice->invoiceDetail) ? count($invoice->invoiceDetail) : count(old('invdtl_installment_other'))
         @endphp
             @for ($i = 0; $i < $limit ; $i++)
                 <div class="row g-2 installment-others mb-3">
                     <div class="col-md-3">
                         <label for="">Name <sup class="text-danger">*</sup></label>
-                        <input type="text" name="invdtl_installment__other[]" class="form-control form-control-sm installment-name" value="{{ isset($invoice->invoiceDetail) ? $invoice->invoiceDetail[$i]->invdtl_installment : old('invdtl_installment__other')[$i] }}" {{ $disabled }}>
-                        @error('invdtl_installment__other.'.$i)
+                        <input type="text" name="invdtl_installment_other[]" class="form-control form-control-sm installment-name" value="{{ isset($invoice->invoiceDetail) ? $invoice->invoiceDetail[$i]->invdtl_installment : old('invdtl_installment_other')[$i] }}" {{ $disabled }}>
+                        @error('invdtl_installment_other.'.$i)
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
@@ -73,8 +73,8 @@
             <div class="row g-2 installment-others mb-3">
                 <div class="col-md-3">
                     <label for="">Name <sup class="text-danger">*</sup></label>
-                    <input type="text" name="invdtl_installment__other[]" class="form-control form-control-sm installment-name" value="Installment 1">
-                    @error('invdtl_installment__other')
+                    <input type="text" name="invdtl_installment_other[]" class="form-control form-control-sm installment-name" value="Installment 1">
+                    @error('invdtl_installment_other')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
                 </div>

@@ -121,6 +121,7 @@ class DashboardController extends Controller
                 /**
                  * sales data dashboard
                  */
+                
                 if (!Cache::has('sales-data-dashboard')) {
                     $sales = $dashboardService->snSalesDashboard($filter);
                     // $sales = (new SalesDashboardController($this))->get($request);

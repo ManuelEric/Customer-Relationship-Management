@@ -90,7 +90,7 @@ class StoreInvoiceProgramBundleRequest extends FormRequest
             'inv_tnc' => 'nullable',
 
             # installment validation
-            'invdtl_installment__other.*' => [
+            'invdtl_installment_other.*' => [
                 'required_if:inv_paymentmethod,installment',
                 'distinct',
                 // Rule::unique('tbl_invdtl', 'invdtl_installment')
