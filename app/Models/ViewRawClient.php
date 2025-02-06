@@ -23,6 +23,9 @@ class ViewRawClient extends Authenticatable
     protected $fillable = [
         'id',
         'fullname',
+        'fname',
+        'mname',
+        'lname',
         'mail',
         'phone',
         'second_client_name',
