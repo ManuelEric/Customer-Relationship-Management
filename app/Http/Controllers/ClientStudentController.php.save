@@ -212,8 +212,18 @@ class ClientStudentController extends ClientController
                 'end_joined_date' => $end_joined_date
             ];
 
+
+            $model = $this->clientRepository->getAllRawClientDataTables('student', true, $advanced_filter);
+
+
+            // $model = $this->clientRepository->getAllRawClientDataTables('student', true, $advanced_filter);
+            // return $model;
+            // exit;
+
             $model = $this->clientRepository->getNewAllRawClientDataTables('student', true, $advanced_filter);
-            
+            // return $model;
+            // exit;
+
             return $this->clientRepository->getDataTables($model, true);
         }
 
@@ -1194,8 +1204,8 @@ class ClientStudentController extends ClientController
 
             $clients_data_for_log_client[] = [
                 'client_id' => $raw_student->id,
-                'first_name' => $raw_student->fname,
-                'last_name' => $raw_student->lname,
+                'first_name' => $raw_student->first_name,
+                'last_name' => $raw_student->last_name,
                 'inputted_from' => 'trash',                    
             ];
     

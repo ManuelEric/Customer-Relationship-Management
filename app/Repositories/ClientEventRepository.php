@@ -145,10 +145,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     $searchQuery->where('event_title', $filter['event_name']);
                 })->
                 when(!empty($filter['school_name']), function ($searchQuery) use ($filter) {
-                    $searchQuery->whereIn(DB::raw('(CASE
-                            WHEN tbl_roles.role_name = "Parent" THEN child.school_name
-                            WHEN tbl_roles.role_name != "Parent" THEN client.school_name
-                        END)'), $filter['school_name']);
+                    $searchQuery->whereIn(DB::raw('tbl_sch.sch_name'), $filter['school_name']);
                 })->
                 when(!empty($filter['graduation_year']), function ($searchQuery) use ($filter) {
                     $searchQuery->whereIn(DB::raw('(CASE

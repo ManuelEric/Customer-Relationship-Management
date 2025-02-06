@@ -150,16 +150,16 @@ class InvoiceProgramBundleController extends Controller
             if ($invoice_details['inv_paymentmethod'] == "Installment") {
 
                 # and using param to fetch data based on rupiah or other currency
-                $limit = $param == "idr" ? count($request->invdtl_installment) : count($request->invdtl_installment__other);
+                $limit = $param == "idr" ? count($request->invdtl_installment) : count($request->invdtl_installment_other);
 
                 for ($i = 0; $i < $limit; $i++) {
 
                     $installment_details[$i] = [
                         'inv_id' => $inv_id,
-                        'invdtl_installment' => $param == "idr" ? $request->invdtl_installment[$i] : $request->invdtl_installment__other[$i],
-                        'invdtl_duedate' => $param == "idr" ? $request->invdtl_duedate[$i] : $request->invdtl_duedate__other[$i],
-                        'invdtl_percentage' => $param == "idr" ? $request->invdtl_percentage[$i] : $request->invdtl_percentage__other[$i],
-                        'invdtl_amountidr' => $param == "idr" ? $request->invdtl_amountidr[$i] : $request->invdtl_amountidr__other[$i],
+                        'invdtl_installment' => $param == "idr" ? $request->invdtl_installment[$i] : $request->invdtl_installment_other[$i],
+                        'invdtl_duedate' => $param == "idr" ? $request->invdtl_duedate[$i] : $request->invdtl_duedate_other[$i],
+                        'invdtl_percentage' => $param == "idr" ? $request->invdtl_percentage[$i] : $request->invdtl_percentage_other[$i],
+                        'invdtl_amountidr' => $param == "idr" ? $request->invdtl_amountidr[$i] : $request->invdtl_amountidr_other[$i],
                         'invdtl_cursrate' => $param == "other" ? $invoice_details['curs_rate'] : null,
                         'invdtl_currency' => $invoice_details['currency'],
                         'created_at' => Carbon::now(),
@@ -167,7 +167,7 @@ class InvoiceProgramBundleController extends Controller
                     ];
 
                     if ($param == "other")
-                        $installment_details[$i]['invdtl_amount'] = $request->invdtl_amount__other[$i];
+                        $installment_details[$i]['invdtl_amount'] = $request->invdtl_amount_other[$i];
                 }
 
                 $this->invoiceDetailRepository->createInvoiceDetail($installment_details);
@@ -330,16 +330,16 @@ class InvoiceProgramBundleController extends Controller
             if ($invoice_details['inv_paymentmethod'] == "Installment") {
 
                 # and using param to fetch data based on rupiah or other currency
-                $limit = $param == "idr" ? count($request->invdtl_installment) : count($request->invdtl_installment__other);
+                $limit = $param == "idr" ? count($request->invdtl_installment) : count($request->invdtl_installment_other);
 
                 for ($i = 0; $i < $limit; $i++) {
 
                     $installment_details[$i] = [
                         'inv_id' => $invoice_details['inv_id'],
-                        'invdtl_installment' => $param == "idr" ? $request->invdtl_installment[$i] : $request->invdtl_installment__other[$i],
-                        'invdtl_duedate' => $param == "idr" ? $request->invdtl_duedate[$i] : $request->invdtl_duedate__other[$i],
-                        'invdtl_percentage' => $param == "idr" ? $request->invdtl_percentage[$i] : $request->invdtl_percentage__other[$i],
-                        'invdtl_amountidr' => $param == "idr" ? $request->invdtl_amountidr[$i] : $request->invdtl_amountidr__other[$i],
+                        'invdtl_installment' => $param == "idr" ? $request->invdtl_installment[$i] : $request->invdtl_installment_other[$i],
+                        'invdtl_duedate' => $param == "idr" ? $request->invdtl_duedate[$i] : $request->invdtl_duedate_other[$i],
+                        'invdtl_percentage' => $param == "idr" ? $request->invdtl_percentage[$i] : $request->invdtl_percentage_other[$i],
+                        'invdtl_amountidr' => $param == "idr" ? $request->invdtl_amountidr[$i] : $request->invdtl_amountidr_other[$i],
                         'invdtl_cursrate' => $param == "other" ? $invoice_details['curs_rate'] : null,
                         'invdtl_currency' => $invoice_details['currency'],
                         'created_at' => Carbon::now(),
@@ -347,7 +347,7 @@ class InvoiceProgramBundleController extends Controller
                     ];
 
                     if ($param == "other")
-                        $installment_details[$i]['invdtl_amount'] = $request->invdtl_amount__other[$i];
+                        $installment_details[$i]['invdtl_amount'] = $request->invdtl_amount_other[$i];
                 }
 
                 $this->invoiceDetailRepository->updateInvoiceDetailByInvId($invoice_details['inv_id'], $installment_details);
