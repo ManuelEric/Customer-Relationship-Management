@@ -444,7 +444,7 @@ class ReceiptReferralController extends Controller
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
                     ->cc([env('FINANCE_CC_2')])
                     ->subject($data['title'])
-                    ->attach(public_path($receiptAttachment->attachment));
+                    ->attach(Storage::url('receipt/referral/'.$receiptAttachment->attachment));
             });
 
             DB::commit();
@@ -491,7 +491,7 @@ class ReceiptReferralController extends Controller
                 $message->to($data['email'], $data['recipient'])
                     ->cc($data['cc'])
                     ->subject($data['title'])
-                    ->attach(public_path($receiptAttachment->attachment));
+                    ->attach(Storage::url('receipt/referral/'.$receiptAttachment->attachment));
             });
 
             $attachmentDetails = [

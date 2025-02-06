@@ -376,7 +376,7 @@ class InvoiceB2BBaseController extends Controller
                 $message->to($data['email'], $data['recipient'])
                     ->cc($data['cc'])
                     ->subject($data['title'])
-                    ->attach(public_path($invoice_attachment->attachment));
+                    ->attach(Storage::url('invoice/'. $this->module['name'] . '/'. $invoice_attachment->attachment));
             });
 
             $attachment_details = [
