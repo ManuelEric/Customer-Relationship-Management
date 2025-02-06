@@ -261,13 +261,13 @@ class InvoiceProgramController extends Controller
             if ($invoice_details['inv_paymentmethod'] == "Installment") {
 
                 # and using param to fetch data based on rupiah or other currency
-                $limit = $param == "idr" ? count($request->invdtl_installment) : count($request->invdtl_installment_other);
+                $limit = $param == "idr" ? count($request->invdtl_installment) : count($request->invdtl_installment__other);
 
                 for ($i = 0; $i < $limit; $i++) {
 
                     $installment_details[$i] = [
                         'inv_id' => $inv_id,
-                        'invdtl_installment' => $param == "idr" ? $request->invdtl_installment[$i] : $request->invdtl_installment_other[$i],
+                        'invdtl_installment' => $param == "idr" ? $request->invdtl_installment[$i] : $request->invdtl_installment__other[$i],
                         'invdtl_duedate' => $param == "idr" ? $request->invdtl_duedate[$i] : $request->invdtl_duedate_other[$i],
                         'invdtl_percentage' => $param == "idr" ? $request->invdtl_percentage[$i] : $request->invdtl_percentage_other[$i],
                         'invdtl_amountidr' => $param == "idr" ? $request->invdtl_amountidr[$i] : $request->invdtl_amountidr_other[$i],

@@ -3,10 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Module\AlarmController;
-use App\Http\Controllers\Module\DigitalDashboardController;
-use App\Http\Controllers\Module\SalesDashboardController;
-use App\Http\Controllers\Module\FinanceDashboardController;
-use App\Http\Controllers\Module\PartnerDashboardController;
 use App\Http\Requests\DashboardRequest;
 use App\Http\Traits\Modules\GetClientStatusTrait;
 use App\Interfaces\ClientEventRepositoryInterface;
