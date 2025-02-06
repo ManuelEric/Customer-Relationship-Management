@@ -208,7 +208,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 ->select(
                     'tbl_partner_prog.id',
                     'tbl_corp.corp_id',
-                    DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                    DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                         THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                         ELSE tbl_corp.corp_name
                     END) as partnership_name'),
@@ -228,7 +228,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             }
         )->filterColumn('partnership_name', function ($query, $keyword) {
-            $sql = '(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+            $sql = '(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                         THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                         ELSE tbl_corp.corp_name
                     END) like ?';
@@ -249,7 +249,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
                     ->select(
                         'tbl_invb2b.invb2b_num',
-                        DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                        DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                                 THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                                 ELSE tbl_corp.corp_name
                             END) as partnership_name'),
@@ -279,7 +279,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
                     ->select(
                         'tbl_invb2b.invb2b_num',
-                        DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                        DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                                 THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                                 ELSE tbl_corp.corp_name
                             END) as partnership_name'),
@@ -337,7 +337,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
         }
         $response = DataTables::eloquent($query)
                     ->filterColumn('partnership_name', function ($query, $keyword) {
-                        $sql = '(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                        $sql = '(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                                     THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                                     ELSE tbl_corp.corp_name
                                 END) like ?';
@@ -361,7 +361,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
             select(
                 'tbl_invb2b.invb2b_num',
-                DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                             THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                             ELSE tbl_corp.corp_name
                         END) as partnership_name'),
@@ -422,7 +422,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 ->select(
                     'tbl_referral.id',
                     'tbl_corp.corp_id',
-                    DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                    DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                                 THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                                 ELSE tbl_corp.corp_name
                             END) as partnership_name'),
@@ -447,7 +447,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             }
         )->filterColumn('partnership_name', function ($query, $keyword) {
-            $sql = '(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+            $sql = '(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                         THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                         ELSE tbl_corp.corp_name
                     END) like ?';
@@ -467,7 +467,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
                     ->select(
                         'tbl_invb2b.invb2b_num',
-                        DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                        DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                                 THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                                 ELSE tbl_corp.corp_name
                             END) as partnership_name'),
@@ -497,7 +497,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
                     ->select(
                         'tbl_invb2b.invb2b_num',
-                        DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                        DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                                     THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                                     ELSE tbl_corp.corp_name
                                 END) as partnership_name'),
@@ -526,7 +526,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
 
         return datatables::eloquent($query)
                             ->filterColumn('partnership_name', function ($query, $keyword) {
-                                $sql = '(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                                $sql = '(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                                             THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                                             ELSE tbl_corp.corp_name
                                         END) like ?';
@@ -546,7 +546,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
             ->select(
                 'tbl_invb2b.invb2b_num',
-                DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                             THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                             ELSE tbl_corp.corp_name
                         END) as partnership_name'),

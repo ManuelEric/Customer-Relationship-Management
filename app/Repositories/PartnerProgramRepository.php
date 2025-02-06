@@ -19,7 +19,7 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
             PartnerProg::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')->leftJoin('users as professional', 'professional.id', '=', 'tbl_corp.user_id')->leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')->leftJoin('users', 'users.id', '=', 'tbl_partner_prog.empl_id')->select(
                 'tbl_corp.corp_id',
                 'tbl_partner_prog.id',
-                DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                     THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                     ELSE tbl_corp.corp_name
                 END) as partnership_name'),
@@ -32,7 +32,7 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                 DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
             )
                 ->when($filter && isset($filter['partner_name']), function ($query) use ($filter) {
-                    $query->whereIn(DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                    $query->whereIn(DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                             THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                             ELSE tbl_corp.corp_name
                         END)'), $filter['partner_name']);
@@ -167,7 +167,7 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             }
         )->filterColumn('partnership_name', function ($query, $keyword) {
-            $sql = '(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+            $sql = '(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                         THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                         ELSE tbl_corp.corp_name
                     END) like ?';
