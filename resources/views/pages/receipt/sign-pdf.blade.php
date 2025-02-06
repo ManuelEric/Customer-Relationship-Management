@@ -75,15 +75,18 @@
     <script src="https://fastly.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
 
-        @if (isset($attachment))
-            @if (gettype($attachment) != "string")
-                var file = "{{ Storage::url('receipt/client/'.$attachment->attachment) }}"
-            @elseif (isset($attachment->receipt->invb2b_id) && isset($attachment->receipt->invoiceB2b->partnerprog_id))
-                var file = "{{ Storage::url('receipt/partner_prog/'.$attachment->attachment) }}"
-            @elseif (isset($attachment->receipt->invb2b_id) && isset($attachment->receipt->invoiceB2b->schprog_id))
-                var file = "{{ Storage::url('receipt/sch_prog/'.$attachment->attachment) }}"
-            @elseif (isset($attachment->receipt->invb2b_id) && isset($attachment->receipt->invoiceB2b->ref_id))
-                var file = "{{ Storage::url('receipt/referral/'.$attachment->attachment) }}"
+        
+        @if (isset($attachment) && gettype($attachment) != "string")
+            var file = "{{ Storage::url('receipt/client/'.$attachment->attachment) }}"
+        @else
+            @if (isset($receipt->invoiceB2b))
+                @if ($receipt->invoiceB2b->partnerprog_id)
+                    var file = "{{ Storage::url('receipt/partner_prog/'.$attachment) }}"
+                @elseif ($receipt->invoiceB2b->schprog_id)
+                    var file = "{{ Storage::url('receipt/sch_prog/'.$attachment) }}"
+                @elseif ($receipt->invoiceB2b->ref_id)
+                    var file = "{{ Storage::url('receipt/referral/'.$attachment) }}"
+                @endif
             @endif
         @endif
     

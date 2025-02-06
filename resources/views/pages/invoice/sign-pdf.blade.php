@@ -71,12 +71,12 @@
         @if (isset($attachment))
             @if (isset($attachment->inv_id))
                 var file = "{{ Storage::url('invoice/client/'.$attachment->attachment) }}"
-            @elseif (isset($attachment->invoiceB2b->partnerprog_id))
-                var file = "{{ Storage::url('invoice/partner_prog/'.$attachment->attachment) }}"
-            @elseif (isset($attachment->invoiceB2b->schprog_id))
-                var file = "{{ Storage::url('invoice/sch_prog/'.$attachment->attachment) }}"
-            @elseif (isset($attachment->invoiceB2b->ref_id))    
-                var file = "{{ Storage::url('invoice/referral/'.$attachment->attachment) }}"
+            @elseif (isset($invoice->partnerprog_id))
+                var file = "{{ Storage::url('invoice/partner_prog/'.$attachment) }}"
+            @elseif (isset($invoice->schprog_id))
+                var file = "{{ Storage::url('invoice/sch_prog/'.$attachment) }}"
+            @elseif (isset($invoice->ref_id))    
+                var file = "{{ Storage::url('invoice/referral/'.$attachment) }}"
             @endif
         @endif
 
