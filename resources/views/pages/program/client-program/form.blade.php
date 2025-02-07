@@ -892,7 +892,7 @@
                     // Detail Program Check 
                     if (programMainProg.includes('Admission') || programSubProg.includes('Admission')) { // mentoring
                         $('#success_mentoring').removeClass('d-none')
-                    } else if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring')) {
+                    } else if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring') || programName.includes('Tutoring')) {
                         $('#success_tutoring').removeClass('d-none')
                     } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg
                         .includes(
@@ -949,10 +949,10 @@
 
         }
 
-        // changeProgramStatus()
     </script>
     <script>
         $(document).ready(function() {
+            changeProgramStatus()
 
             var baseUrl = "{{ url('/') }}/api/get/referral/list";
 
