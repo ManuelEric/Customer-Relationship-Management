@@ -159,7 +159,7 @@ class InvoiceProgramBundleController extends Controller
                         'invdtl_installment' => $param == "idr" ? $request->invdtl_installment[$i] : $request->invdtl_installment_other[$i],
                         'invdtl_duedate' => $param == "idr" ? $request->invdtl_duedate[$i] : $request->invdtl_duedate_other[$i],
                         'invdtl_percentage' => $param == "idr" ? $request->invdtl_percentage[$i] : $request->invdtl_percentage_other[$i],
-                        'invdtl_amountidr' => $param == "idr" ? $request->invdtl_amountidr[$i] : $request->invdtl_amountidr_other[$i]
+                        'invdtl_amountidr' => $param == "idr" ? $request->invdtl_amountidr[$i] : $request->invdtl_amountidr_other[$i],
                         'invdtl_cursrate' => $param == "other" ? $invoice_details['curs_rate'] : null,
                         'invdtl_currency' => $invoice_details['currency'],
                         'created_at' => Carbon::now(),
