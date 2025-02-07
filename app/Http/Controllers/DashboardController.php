@@ -116,12 +116,15 @@ class DashboardController extends Controller
         $filter = $request->safe()->only(['qdate', 'start', 'end', 'quuid', 'program_id', 'qparam_year1', 'qparam_year2', 'qyear']);
         $division = $request->route('division');
 
+        $sales = $dashboardService->snSalesDashboard($filter);
+        dd($sales);
+
+
         switch ($division) {
             case 'sales':
                 /**
                  * sales data dashboard
                  */
-                
                 if (!Cache::has('sales-data-dashboard')) {
                     $sales = $dashboardService->snSalesDashboard($filter);
                     // $sales = (new SalesDashboardController($this))->get($request);

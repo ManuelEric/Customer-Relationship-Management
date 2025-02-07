@@ -2268,27 +2268,80 @@ class ClientRepository implements ClientRepositoryInterface
         return tap(UserClient::where('id', $uuid)->first())->update($newDetails);
     }
 
+    public function countClientByCategoryAllCategory($month = null)
+    {
+        return ClientLog::whereHas('master_client', function ($query) {
+            $query->whereHas('picClient', function ($query) {
+                $query->where('status', 1);
+            });
+        })->
+        whereIn('category', ['new-lead', 'potential', 'mentee', 'non-mentee', 'alumni-mentee', 'alumni-non-mentee'])->
+        when($month, function ($query) use ($month) {
+            $query->
+            whereMonth('tbl_client_log.created_at', date('m', strtotime($month)))->
+            whereYear('tbl_client_log.created_at', date('Y', strtotime($month)));
+        })->
+        when(auth()->guard('api')->check(), function ($query) {
+            $query->whereHas('master_client.picClient', function ($query) {
+                $query->where('user_id', auth()->guard('api')->user()->id);
+            });
+        })->
+        when(Session::get('user_role') == 'Employee', function ($query) {
+            $query->whereHas('master_client.picClient', function ($query) {
+                $query->where('user_id', auth()->user()->id);
+            });
+        })->
+        groupBy('category')->
+        select([
+            DB::raw('count(*) as client_count'), 
+            'category'
+        ])->get();
+    }
+
     public function countClientByCategory($category, $month = null)
     {
-        $client = DB::table('tbl_client_log')
-            ->select(DB::raw('count(*) as client_count'))
-            ->leftJoin('tbl_client', function ($q) {
-                $q->on('tbl_client.id', '=', 'tbl_client_log.client_id');
-            })
-            ->leftJoin('tbl_pic_client', function ($q) {
-                $q->on('tbl_pic_client.client_id', '=', DB::raw('tbl_client.id AND tbl_pic_client.status = 1'));
-            })
-            ->where('tbl_client_log.category', $category)
-            ->when($month, function ($subQuery) use ($month) {
-                $subQuery->whereMonth('tbl_client_log.created_at', date('m', strtotime($month)))->whereYear('tbl_client_log.created_at', date('Y', strtotime($month)));
-            })
-            ->when(Session::get('user_role') == 'Employee', function ($subQuery) {
-                $subQuery->where('tbl_pic_client.user_id', auth()->user()->id);
-            })
-            ->when(auth()->guard('api')->user(), function ($subQuery) {
-                $subQuery->where('tbl_pic_client.user_id', auth()->guard('api')->user()->id);
-            })
-            ->first();
+        $client = ClientLog::whereHas('master_client', function ($query) {
+            $query->whereHas('picClient', function ($query) {
+                $query->where('status', 1);
+            });
+        })->
+        where('category', $category)->
+        when($month, function ($query) use ($month) {
+            $query->
+            whereMonth('tbl_client_log.created_at', date('m', strtotime($month)))->
+            whereYear('tbl_client_log.created_at', date('Y', strtotime($month)));
+        })->
+        when(auth()->guard('api')->check(), function ($query) {
+            $query->whereHas('master_client.picClient', function ($query) {
+                $query->where('user_id', auth()->guard('api')->user()->id);
+            });
+        })->
+        when(Session::get('user_role') == 'Employee', function ($query) {
+            $query->whereHas('master_client.picClient', function ($query) {
+                $query->where('user_id', auth()->user()->id);
+            });
+        })->
+        selectRaw('count(*) as client_count')->first();
+
+        // $client = DB::table('tbl_client_log')
+        //     ->select(DB::raw('count(*) as client_count'))
+        //     ->leftJoin('tbl_client', function ($q) {
+        //         $q->on('tbl_client.id', '=', 'tbl_client_log.client_id');
+        //     })
+        //     ->leftJoin('tbl_pic_client', function ($q) {
+        //         $q->on('tbl_pic_client.client_id', '=', DB::raw('tbl_client.id AND tbl_pic_client.status = 1'));
+        //     })
+        //     ->where('tbl_client_log.category', $category)
+        //     ->when($month, function ($subQuery) use ($month) {
+        //         $subQuery->whereMonth('tbl_client_log.created_at', date('m', strtotime($month)))->whereYear('tbl_client_log.created_at', date('Y', strtotime($month)));
+        //     })
+        //     ->when(Session::get('user_role') == 'Employee', function ($subQuery) {
+        //         $subQuery->where('tbl_pic_client.user_id', auth()->user()->id);
+        //     })
+        //     ->when(auth()->guard('api')->user(), function ($subQuery) {
+        //         $subQuery->where('tbl_pic_client.user_id', auth()->guard('api')->user()->id);
+        //     })
+        //     ->first();
 
         return $client->client_count;
     }
