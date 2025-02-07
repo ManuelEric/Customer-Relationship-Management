@@ -28,7 +28,7 @@ class RedirectIfAuthenticated
             if (Auth::guard($guard)->check()) {
 
                 if ( !$request->session()->has('scope') )
-                    return redirect('/login');
+                    return redirect('/auth/logout');
                 
 
                 $scopes = $request->session()->get('scope');
