@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use PDF;
-use romanzipp\QueueMonitor\Traits\IsMonitored;
+// use romanzipp\QueueMonitor\Traits\IsMonitored;
 
 // class ProcessEmailRequestSignJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 # Temporary not implementation "ShouldBeUniqueUntilProcessing"
@@ -22,7 +22,8 @@ use romanzipp\QueueMonitor\Traits\IsMonitored;
 class ProcessEmailRequestSignJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    use IsMonitored;
+    # Temporary disable service Monitoring queue
+    // use IsMonitored;
 
     protected $mailDetails;
     protected $attachmentDetails;
