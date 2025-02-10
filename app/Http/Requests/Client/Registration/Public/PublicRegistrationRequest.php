@@ -14,6 +14,18 @@ class PublicRegistrationRequest extends FormRequest
         return false;
     }
 
+    public function messages()
+    {
+        return [
+            'secondary_name.required_if' => 'The child name field is required.',
+            'school_id.required_if' => 'The school field is required.',
+            'school_id.exists' => 'The school field is not valid.',
+            'destination_country.*.exists' => 'The destination country must be one of the following values.',
+            'lead_id.required' => 'Something is not right.', # we hide the lead_id because lead_id comes from get parameter so user should not know
+            'lead_id.exists' => 'Something is not right.', # we hide the lead_id because lead_id comes from get parameter so user should not know
+        ];
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
