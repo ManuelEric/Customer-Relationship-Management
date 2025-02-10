@@ -932,7 +932,7 @@ class ExtClientController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Registration from EduAll website failed: ' . $e->getMessage() . ' | On Line: ' . $e->getLine());
+            Log::error('Registration from EduAll website failed: ' . $e->getMessage() . ' | On Line: ' . $e->getLine() . ' on file ' . $e->getFile());
 
             return response()->json([
                 'success' => false,
