@@ -74,7 +74,8 @@
     <script src="{{ asset('js/index.global.min.js') }}"></script>
     <script src="{{ asset('js/html2canvas.min.js') }}"></script>
     <script src="{{ asset('js/pusher.min.js') }}"></script>
-    <script src="{{ asset('js/ckeditor.js') }}"></script>
+    {{-- <script src="{{ asset('js/ckeditor.js') }}"></script> --}}
+    <script src="https://cdn.ckeditor.com/ckeditor5/12.3.1/classic/ckeditor.js"></script>
     
  
     <script src="{{ asset('js/generate-number.js') }}"></script>
