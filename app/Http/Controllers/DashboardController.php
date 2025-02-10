@@ -107,8 +107,6 @@ class DashboardController extends Controller
         DashboardService $dashboardService,
         )
     {
-        # initiate default variables
-        $sales = $partnership = $finance = $alarm = $digital = $data = [];
         $time_stored_in_second = 60; // cache requirements
         // Cache::flush();
 
@@ -116,23 +114,18 @@ class DashboardController extends Controller
         $filter = $request->safe()->only(['qdate', 'start', 'end', 'quuid', 'program_id', 'qparam_year1', 'qparam_year2', 'qyear']);
         $division = $request->route('division');
 
-        $sales = $dashboardService->snSalesDashboard($filter);
-        dd($sales);
-
-
         switch ($division) {
             case 'sales':
                 /**
                  * sales data dashboard
                  */
                 if (!Cache::has('sales-data-dashboard')) {
-                    $sales = $dashboardService->snSalesDashboard($filter);
-                    // $sales = (new SalesDashboardController($this))->get($request);
-                    Cache::remember('sales-data-dashboard', $time_stored_in_second, function () use ($sales) {
-                        return $sales;
+                    $data = $dashboardService->snSalesDashboard($filter);
+                    Cache::remember('sales-data-dashboard', $time_stored_in_second, function () use ($data) {
+                        return $data;
                     });
                 }
-                $sales = Cache::get('sales-data-dashboard');
+                $data = Cache::get('sales-data-dashboard');
                 break;
 
             case 'partnership':
@@ -140,13 +133,12 @@ class DashboardController extends Controller
                  * partnership data dashboard
                  */
                 if (!Cache::has('partnership-data-dashboard')) {
-                    $partnership = $dashboardService->snPartnershipDashboard();
-                    // $partnership = (new PartnerDashboardController($this))->get($request);
-                    Cache::remember('partnership-data-dashboard', $time_stored_in_second, function () use ($partnership) {
-                        return $partnership;
+                    $data = $dashboardService->snPartnershipDashboard();
+                    Cache::remember('partnership-data-dashboard', $time_stored_in_second, function () use ($data) {
+                        return $data;
                     });
                 }
-                $partnership = Cache::get('partnership-data-dashboard');
+                $data = Cache::get('partnership-data-dashboard');
                 break;
 
             case 'digital':
@@ -154,13 +146,12 @@ class DashboardController extends Controller
                  * digital data dashboard
                  */
                 if (!Cache::has('digital-data-dashboard')) {
-                    $digital = $dashboardService->snDigitalDashboard();
-                    // $digital = (new DigitalDashboardController($this))->get($request);
-                    Cache::remember('digital-data-dashboard', $time_stored_in_second, function () use ($digital) {
-                        return $digital;
+                    $data = $dashboardService->snDigitalDashboard();
+                    Cache::remember('digital-data-dashboard', $time_stored_in_second, function () use ($data) {
+                        return $data;
                     });
                 }
-                $digital = Cache::get('digital-data-dashboard');
+                $data = Cache::get('digital-data-dashboard');
                 break;
 
             case 'finance':
@@ -168,13 +159,13 @@ class DashboardController extends Controller
                  * finance data dashboard
                  */
                 if (!Cache::has('finance-data-dashboard')) {
-                    $finance = $dashboardService->snFinanceDashboard();
-                    // $finance = (new FinanceDashboardController($this))->get($request);
-                    Cache::remember('finance-data-dashboard', $time_stored_in_second, function () use ($finance) {
-                        return $finance;
+                    $data = $dashboardService->snFinanceDashboard();
+                    // $data = (new FinanceDashboardController($this))->get($request);
+                    Cache::remember('finance-data-dashboard', $time_stored_in_second, function () use ($data) {
+                        return $data;
                     });
                 }
-                $finance = Cache::get('finance-data-dashboard');
+                $data = Cache::get('finance-data-dashboard');
                 break;
         }
         
@@ -190,8 +181,8 @@ class DashboardController extends Controller
         $alarm = Cache::get('alarm-data-dashboard');
 
 
-        # combine data from each division
-        $data = array_merge($sales, $partnership, $finance, $alarm, $digital);
+        # combine data with alarm
+        $data = array_merge($data, $alarm);
         return view('pages.dashboard.index')->with($data);
     }
 

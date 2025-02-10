@@ -122,11 +122,9 @@ class DashboardService
 
         # fetching client status data
         $response_of_client_status = $this->clientStatus(Carbon::now()->format('Y-m'));
-        return $response_of_client_status;
 
         # fetching all employee data
         $employees = $this->userRepository->rnGetAllUsersByDepartmentAndRole('employee', 'Client Management');
-        return $employees;
 
         # fetching chart data by no program (all)
         $total_all_client_program_by_status = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => null] + $filter);
@@ -279,35 +277,11 @@ class DashboardService
         $total_alumniNonMentees = $total_client_by_category_all->where('category', 'alumni-non-mentee')->first()->client_count ?? 0;
         $monthly_new_alumniNonMentees = $total_client_by_category_monthly->where('category', 'alumni-non-mentee')->first()->client_count ?? 0;
 
+        $total_parent = $this->clientRepository->countClientByRole('Parent');
+        $monthly_new_parent = $this->clientRepository->countClientByRole('Parent', $month);
 
-        // $total_newLeads = $this->clientRepository->countClientByCategory('new-lead');
-        // $monthly_new_newLeads = $this->clientRepository->countClientByCategory('new-lead', $month);
-
-        // $total_potential_client = $this->clientRepository->countClientByCategory('potential');
-        // $monthly_new_potential_client = $this->clientRepository->countClientByCategory('potential', $month);
-
-        // $total_existingMentees = $this->clientRepository->countClientByCategory('mentee');
-        // $monthly_new_existingMentees = $this->clientRepository->countClientByCategory('mentee', $month);
-
-        // $total_existingNonMentees = $this->clientRepository->countClientByCategory('non-mentee');
-        // $monthly_new_existingNonMentees = $this->clientRepository->countClientByCategory('non-mentee', $month);
-
-        // $total_alumniMentees = $this->clientRepository->countClientByCategory('alumni-mentee');
-        // $monthly_new_alumniMentees = $this->clientRepository->countClientByCategory('alumni-mentee', $month);
-
-        // $total_alumniNonMentees = $this->clientRepository->countClientByCategory('alumni-non-mentee');
-        // $monthly_new_alumniNonMentees = $this->clientRepository->countClientByCategory('alumni-non-mentee', $month);
-
-        // $total_parent = $this->clientRepository->countClientByRole('Parent');
-        // $monthly_new_parent = $this->clientRepository->countClientByRole('Parent', $month);
-
-        // $total_teacher = $this->clientRepository->countClientByRole('Teacher/Counselor');
-        // $monthly_new_teacher = $this->clientRepository->countClientByRole('Teacher/Counselor', $month);
-        $total_parent = 0;
-        $monthly_new_parent = 0;
-
-        $total_teacher = 0;
-        $monthly_new_teacher = 0;
+        $total_teacher = $this->clientRepository->countClientByRole('Teacher/Counselor');
+        $monthly_new_teacher = $this->clientRepository->countClientByRole('Teacher/Counselor', $month);
 
         # data at the top of dashboard
         $response['totalClientInformation'] = [
@@ -352,7 +326,7 @@ class DashboardService
                 'percentage' => $this->calculatePercentage($total_teacher, $monthly_new_teacher)
             ],
             'raw' => [
-                'student' => $this->clientRepository->countClientByCategory('raw'),
+                'student' => $total_client_by_category_all->where('category', 'raw')->first()->client_count ?? 0,
                 'parent' => $this->clientRepository->countClientByRole('Parent', null, true),
                 'teacher' => $this->clientRepository->countClientByRole('Teacher/Counselor', null, true),
             ],
@@ -365,7 +339,7 @@ class DashboardService
         $response['followUpReminder'] = $this->followupRepository->getAllFollowupWithin(7);
         $response['menteesBirthday'] = $this->clientRepository->getMenteesBirthdayMonthly($month);
 
-        return with($response);
+        return $response;
     }
 
     private function calculatePercentage($total_data, $monthly_data)

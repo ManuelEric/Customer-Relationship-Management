@@ -187,6 +187,7 @@ return [
          * Package Service Providers...
          */
         Laravel\Passport\PassportServiceProvider::class,
+        Illuminate\Concurrency\ConcurrencyServiceProvider::class,
 
         /*
          * Application Service Providers...

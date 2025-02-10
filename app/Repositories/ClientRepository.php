@@ -2275,7 +2275,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $query->where('status', 1);
             });
         })->
-        whereIn('category', ['new-lead', 'potential', 'mentee', 'non-mentee', 'alumni-mentee', 'alumni-non-mentee'])->
+        whereIn('category', ['raw', 'new-lead', 'potential', 'mentee', 'non-mentee', 'alumni-mentee', 'alumni-non-mentee'])->
         when($month, function ($query) use ($month) {
             $query->
             whereMonth('tbl_client_log.created_at', date('m', strtotime($month)))->
