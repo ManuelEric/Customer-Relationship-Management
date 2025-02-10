@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Client\Registration\Public\PublicRegistrationRequest;
 use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
@@ -783,7 +784,7 @@ class ExtClientController extends Controller
         ]);
     }
 
-    public function storePublicRegistration(Request $request)
+    public function storePublicRegistration(PublicRegistrationRequest $request)
     {
 
         # validation
@@ -872,8 +873,8 @@ class ExtClientController extends Controller
                     if (isset($validated['secondary_name'])) {
                         $validatedStudent = $request->except(['fullname', 'email', 'phone']);
                         $validatedStudent['fullname'] = $validated['secondary_name'];
-                        $validatedStudent['mail'] = isset($validated['secondary_mail']) || $validated['secondary_mail'] != null ? $validated['secondary_mail'] : null;
-                        $validatedStudent['phone'] = isset($validated['secondary_phone']) || $validated['secondary_phone'] != null ? $validated['secondary_phone'] : null;
+                        $validatedStudent['mail'] = $validated['secondary_mail'] ?? null;
+                        $validatedStudent['phone'] = $validated['secondary_phone'] ?? null;
                         $validatedStudent['scholarship'] = 'N';
                         $validatedStudent['lead_source_id'] = 'LS001'; # Website
 
