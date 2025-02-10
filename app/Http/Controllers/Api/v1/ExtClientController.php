@@ -873,7 +873,7 @@ class ExtClientController extends Controller
                         $validatedStudent = $request->except(['fullname', 'email', 'phone']);
                         $validatedStudent['fullname'] = $validated['secondary_name'];
                         $validatedStudent['mail'] = isset($validated['secondary_mail']) || $validated['secondary_mail'] != null ? $validated['secondary_mail'] : null;
-                        $validatedStudent['phone'] = $validated['secondary_phone'] != null ? $validated['secondary_phone'] : null;
+                        $validatedStudent['phone'] = isset($validated['secondary_phone']) || $validated['secondary_phone'] != null ? $validated['secondary_phone'] : null;
                         $validatedStudent['scholarship'] = 'N';
                         $validatedStudent['lead_source_id'] = 'LS001'; # Website
 
