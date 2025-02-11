@@ -853,7 +853,7 @@ class ExtClientController extends Controller
                         }
 
                         if ($studentId != null && isset($validated['interest_prog'])) {
-                            if (isset($validated['interest_prog'])) {
+                            if (isset($validated['interest_prog']) && $validated['interest_prog'] !== null) {
                                 $this->reAttachInterestPrograms($studentId, $validated['interest_prog']);
                             }
                         }
