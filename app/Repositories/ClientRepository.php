@@ -1699,8 +1699,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function addInterestProgram($studentId, $interestProgram)
     {
-        $student = UserClient::find($studentId);
-        \Illuminate\Support\Facades\Log::debug('student of '. $studentId);
+        $student = UserClient::withTrashed()->find($studentId);
         $student->interestPrograms()->attach($interestProgram);
         return $student;
     }
