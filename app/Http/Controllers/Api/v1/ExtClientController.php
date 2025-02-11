@@ -952,7 +952,7 @@ class ExtClientController extends Controller
                     {
                         $recipient['name'] = $client->full_name;
                         $recipient['email'] = $validated['mail'];
-                        // $this->sendEmailPublicRegistration($template, $passedData, $subject, $recipient);
+                        $this->sendEmailPublicRegistration($template, $passedData, $subject, $recipient);
                     }
                     break;
     
@@ -964,7 +964,7 @@ class ExtClientController extends Controller
                     {
                         $recipient['name'] = $client->full_name;
                         $recipient['email'] = $validated['mail'];
-                        // $this->sendEmailPublicRegistration($template, $passedData, $subject, $recipient);
+                        $this->sendEmailPublicRegistration($template, $passedData, $subject, $recipient);
                     }
                     break;
     
