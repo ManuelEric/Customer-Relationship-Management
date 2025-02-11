@@ -939,8 +939,8 @@ class ExtClientController extends Controller
 
         try {
 
-            if ( !isset($validated['mail']) && $validated['mail'] == null )
-                throw new Exception("Insufficient email address of {$client->full_name}");
+            // if ( !isset($validated['mail']) && $validated['mail'] == null )
+            //     throw new Exception("Insufficient email address of {$client->full_name}");
             
 
             switch ($validated['role'])
@@ -948,18 +948,24 @@ class ExtClientController extends Controller
                 case "student":
                     $subject = 'Your registration is confirmed';
                     $template = 'mail-template.registration.public.thanks-email-student';
-                    $recipient['name'] = $client->full_name;
-                    $recipient['email'] = $validated['mail'];
-                    $this->sendEmailPublicRegistration($template, $passedData, $subject, $recipient);
+                    if ( $validated['mail'] )
+                    {
+                        $recipient['name'] = $client->full_name;
+                        $recipient['email'] = $validated['mail'];
+                        // $this->sendEmailPublicRegistration($template, $passedData, $subject, $recipient);
+                    }
                     break;
     
                 case "parent":
                     $passedData['client']['child_name'] = $validated['secondary_name'];
                     $subject = 'Your registration is confirmed';
                     $template = 'mail-template.registration.public.thanks-email-parent';
-                    $recipient['name'] = $client->full_name;
-                    $recipient['email'] = $validated['mail'];
-                    $this->sendEmailPublicRegistration($template, $passedData, $subject, $recipient);
+                    if ( $validated['mail'] )
+                    {
+                        $recipient['name'] = $client->full_name;
+                        $recipient['email'] = $validated['mail'];
+                        // $this->sendEmailPublicRegistration($template, $passedData, $subject, $recipient);
+                    }
                     break;
     
                 case "teacher/counsellor":
