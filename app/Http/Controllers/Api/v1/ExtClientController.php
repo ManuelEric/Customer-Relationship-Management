@@ -948,6 +948,8 @@ class ExtClientController extends Controller
                 case "student":
                     $subject = 'Your registration is confirmed';
                     $template = 'mail-template.registration.public.thanks-email-student';
+                    # the system will email 
+                    # if they inputted the email address
                     if ( $validated['mail'] )
                     {
                         $recipient['name'] = $client->full_name;
@@ -960,6 +962,8 @@ class ExtClientController extends Controller
                     $passedData['client']['child_name'] = $validated['secondary_name'];
                     $subject = 'Your registration is confirmed';
                     $template = 'mail-template.registration.public.thanks-email-parent';
+                    # the system will email 
+                    # if they inputted the email address
                     if ( $validated['mail'] )
                     {
                         $recipient['name'] = $client->full_name;

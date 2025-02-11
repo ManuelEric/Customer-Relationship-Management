@@ -69,7 +69,7 @@ class PublicRegistrationRequest extends FormRequest
             'secondary_phone' => 'nullable',
             'graduation_year' => 'required_if:role,student,parent',
             'destination_country' => 'nullable|array',
-            'destination_country.*' => 'exists:tbl_country,id',
+            'destination_country.*' => 'nullable|exists:tbl_country,id',
             'interest_prog' => 'nullable|exists:tbl_prog,prog_id',
             'lead_source_id' => 'required|exists:tbl_lead,lead_id',
             'scholarship' => 'nullable' # possibly N or Y
