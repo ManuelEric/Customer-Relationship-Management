@@ -235,6 +235,7 @@ class SchoolController extends Controller
         ]);
 
         $school_id = $request->route('school');
+        dd($school_details);
 
         DB::beginTransaction();
         try {
