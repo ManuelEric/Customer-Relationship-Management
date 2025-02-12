@@ -127,7 +127,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="">Target</label>
-                                <select name="sch_target" id="targetSelect" class="w-100">
+                                <select name="sch_score" id="targetSelect" class="w-100">
                                     <option value=""></option>
                                     <option value="7">
                                         Up Market
