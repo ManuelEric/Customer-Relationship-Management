@@ -103,10 +103,12 @@ class InvoiceProgramController extends Controller
             return Redirect::to('invoice/client-program/create?prog=' . $request->clientprog_id)->withError('Create master invoice bundle first!');
         }
 
-        $raw_currency = [];
-        $raw_currency[0] = $request->currency;
-        $raw_currency[1] = $request->currency != "idr" ? $request->currency_detail : null;
-        # fetching currency till get the currency
+        $raw_currency = [
+            $request->currency,
+            $request->currency != "idr" ? $request->currency_detail : null
+        ];
+
+        # fetching raw currency till get the currency
         $currency = null;
         foreach ($raw_currency as $key => $val) {
             if ($val != NULL)
@@ -115,7 +117,7 @@ class InvoiceProgramController extends Controller
 
         if (in_array('idr', $raw_currency) && $request->is_session == "no") {
 
-            $invoice_details = $request->only([
+            $invoice_details = $request->safe()->only([
                 'clientprog_id',
                 'currency',
                 'is_session',
@@ -132,6 +134,24 @@ class InvoiceProgramController extends Controller
             ]);
             $param = "idr";
         } elseif (in_array('idr', $raw_currency) && $request->is_session == "yes") {
+
+            $invoice_details = $request->safe()->only([
+                'clientprog_id',
+                'currency',
+                'is_session',
+                'session',
+                'duration',
+                'inv_price_idr',
+                'inv_earlybird_idr',
+                'inv_discount_idr',
+                'inv_totalprice_idr',
+                'inv_words_idr',
+                'inv_paymentmethod',
+                'invoice_date',
+                'inv_duedate',
+                'inv_notes',
+                'inv_tnc'
+            ]);
 
             $invoice_details = [
                 'clientprog_id' => $request->clientprog_id,
