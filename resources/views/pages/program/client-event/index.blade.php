@@ -151,6 +151,7 @@
                     <tr>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Client Name</th>
+                        <th>PIC</th>
                         <th>Event Name</th>
                         {{-- <th>Ticket No</th> --}}
                         <th>Audience</th>
@@ -175,7 +176,7 @@
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="19"></td>
+                        <td colspan="20"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -285,6 +286,11 @@
                                     ' <span class="badge text-bg-success" style="font-size:8px";>Existing</span>'
                                 );
                         }
+                    },
+                    {
+                        data: 'pic_name',
+                        className: 'text-center',
+                        defaultContent: '-'
                     },
                     {
                         data: 'event_name',

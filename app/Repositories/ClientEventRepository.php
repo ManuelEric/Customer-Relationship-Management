@@ -18,7 +18,8 @@ class ClientEventRepository implements ClientEventRepositoryInterface
 
     public function getAllClientEventDataTables($filter = [])
     {
-        $query = ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
+        $query = ClientEvent::query()
+                ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
                 ->leftJoin('tbl_client_roles', 'tbl_client_roles.client_id', '=', 'tbl_client.id')
                 ->leftJoin('tbl_roles', 'tbl_roles.id', '=', 'tbl_client_roles.role_id')
                 ->leftJoin('tbl_events', 'tbl_events.event_id', '=', 'tbl_client_event.event_id')
@@ -134,7 +135,12 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                             END)
                         WHEN cllead.main_lead = "All-In Partners" THEN cllead.main_lead
                         ELSE cllead.main_lead
-                    END) AS lead_source'),
+                    END) AS lead_source',
+                    ),
+                    DB::raw('(SELECT CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) 
+                        FROM tbl_pic_client pic
+                        LEFT JOIN users u on u.id = pic.user_id
+                        WHERE pic.client_id = tbl_client.id AND pic.status = 1 LIMIT 1) as pic_name'),
                     DB::raw('CONCAT (cref.first_name, " ", COALESCE(cref.last_name, "")) AS referral_name'),
                 )->
                 when(!empty($filter['audience']), function ($searchQuery) use ($filter) {
@@ -290,6 +296,13 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 }
             )->
+            filterColumn('pic_name', function ($query, $keyword) {
+                $sql = '(SELECT CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) 
+                        FROM tbl_pic_client pic
+                        LEFT JOIN users u on u.id = pic.user_id
+                        WHERE pic.client_id = rc.id AND pic.status = 1 LIMIT 1) as pic_name like ?';
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->
             filterColumn('referral_name', function ($query, $keyword) {
                 $sql = 'CONCAT (cref.first_name, " ", COALESCE(cref.last_name, "")) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
