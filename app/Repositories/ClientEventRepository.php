@@ -140,7 +140,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     DB::raw('(SELECT CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) 
                         FROM tbl_pic_client pic
                         LEFT JOIN users u on u.id = pic.user_id
-                        WHERE pic.client_id = tbl_client.id AND pic.status = 1 LIMIT 1) as pic_name'),
+                        WHERE pic.client_id = child.id AND pic.status = 1 LIMIT 1) as pic_name'),
                     DB::raw('CONCAT (cref.first_name, " ", COALESCE(cref.last_name, "")) AS referral_name'),
                 )->
                 when(!empty($filter['audience']), function ($searchQuery) use ($filter) {

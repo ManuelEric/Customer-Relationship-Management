@@ -3,7 +3,7 @@
         <li class="nav-item">
             <a @class([
                 'nav-link',
-                'bg-secondary text-white' => Request::is('dashboard'),
+                'bg-secondary text-white' => Request::is('dashboard/*'),
             ]) href="
                     @if ($isSuperAdmin || $isSalesAdmin || $isSales)
                         {{ url('dashboard/sales') }}">
