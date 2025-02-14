@@ -47,7 +47,8 @@ class StoreSchoolRequest extends FormRequest
             'sch_phone' => 'nullable',
             'sch_city' => 'nullable',
             'sch_location' => 'nullable',
-            'sch_score' => 'required'
+            'sch_score' => 'required',
+            'status' => 'required|in:1,0'
         ];
     }
 }

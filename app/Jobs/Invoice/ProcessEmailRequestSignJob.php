@@ -73,7 +73,7 @@ class ProcessEmailRequestSignJob implements ShouldQueue
                     ]
                 );
             // Storage::put('public/uploaded_file/invoice/client/' . $this->attachmentDetails['file_name'] . '.pdf', $pdf->output());
-            Storage::disk('s3')->put('project/crm/invoice/client/' . $this->attachmentDetails['file_name'] . 'pdf', file_get_contents($pdf->output()));
+            Storage::disk('s3')->put('project/crm/invoice/client/' . $this->attachmentDetails['file_name'] . '.pdf', $pdf->download());
 
             # send email to related person that has authority to give a signature
             Mail::send('pages.invoice.client-program.mail.view', $this->mailDetails, function ($message) use ($pdf) {

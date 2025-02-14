@@ -537,7 +537,7 @@
                                     <td>{{ $client->register_by }}</td>
                                 </tr>
                                 <tr>
-                                    <td>Have you ever participated ALL-in Event/Program?</td>
+                                    <td>Have you ever participated EduALL Event/Program?</td>
                                     <td width="1%">:</td>
                                     <td>{{ $client->participated ?? '-' }} </td>
                                 </tr>

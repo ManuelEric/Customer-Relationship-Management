@@ -64,7 +64,7 @@ return new class extends Migration
         # a.1
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION CountJoinAdmissionProgramByClientId ( requested_client_id INTEGER )
+        CREATE FUNCTION CountJoinAdmissionProgramByClientId ( requested_client_id INTEGER )
         RETURNS INTEGER
         
         BEGIN
@@ -83,7 +83,7 @@ return new class extends Migration
         # a.2
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION CountJoinNonAdmissionProgramByClientId ( requested_client_id INTEGER )
+        CREATE FUNCTION CountJoinNonAdmissionProgramByClientId ( requested_client_id INTEGER )
         RETURNS INTEGER
         
         BEGIN
@@ -102,7 +102,7 @@ return new class extends Migration
         # a.3
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION GetClientType ( requested_client_id INTEGER )
+        CREATE FUNCTION GetClientType ( requested_client_id INTEGER )
         RETURNS VARCHAR(20)
 
             BEGIN
@@ -128,7 +128,7 @@ return new class extends Migration
         # B 
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION UpdateGradeStudent ( ynow INTEGER, yinput INTEGER, mnow INTEGER, minput INTEGER, ginput INTEGER )
+        CREATE FUNCTION UpdateGradeStudent ( ynow INTEGER, yinput INTEGER, mnow INTEGER, minput INTEGER, ginput INTEGER )
         RETURNS INTEGER
         DETERMINISTIC
 
@@ -156,7 +156,7 @@ return new class extends Migration
         # c.1
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION checkParticipatedProgram ( requested_client_id INTEGER )
+        CREATE FUNCTION checkParticipatedProgram ( requested_client_id INTEGER )
         RETURNS INTEGER
         
         BEGIN
@@ -169,7 +169,7 @@ return new class extends Migration
         # c.2.
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION checkParticipatedEvent ( requested_client_id INTEGER )
+        CREATE FUNCTION checkParticipatedEvent ( requested_client_id INTEGER )
         RETURNS INTEGER
         
         BEGIN
@@ -182,7 +182,7 @@ return new class extends Migration
         # c.3.
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION checkParticipated ( requested_client_id INTEGER )
+        CREATE FUNCTION checkParticipated ( requested_client_id INTEGER )
         RETURNS VARCHAR(10)
 
             BEGIN
@@ -206,7 +206,7 @@ return new class extends Migration
         # D
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION getGradeStudentByGraduationYear ( graduation_year INTEGER )
+        CREATE FUNCTION getGradeStudentByGraduationYear ( graduation_year INTEGER )
         RETURNS INTEGER
         DETERMINISTIC
 
@@ -230,7 +230,7 @@ return new class extends Migration
         # E
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION getGraduationYearReal ( grade_now INTEGER )
+        CREATE FUNCTION getGraduationYearReal ( grade_now INTEGER )
         RETURNS INTEGER
         DETERMINISTIC
 
@@ -255,7 +255,7 @@ return new class extends Migration
         # F
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION GetReferralNameByRefCode ( refCode VARCHAR(50) )
+        CREATE FUNCTION GetReferralNameByRefCode ( refCode VARCHAR(50) )
         RETURNS VARCHAR(255)
         
         BEGIN
@@ -270,7 +270,7 @@ return new class extends Migration
         # G
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION GetTotalScore ( school_score INTEGER, lead_score INTEGER, school_year_left_score INTEGER, destination_country_score INTEGER )
+        CREATE FUNCTION GetTotalScore ( school_score INTEGER, lead_score INTEGER, school_year_left_score INTEGER, destination_country_score INTEGER )
         RETURNS DECIMAL(4,2)
         DETERMINISTIC
 
@@ -294,7 +294,7 @@ return new class extends Migration
         # H
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION GetMonthlyTarget ( requested_month INTEGER, requested_year INTEGER )
+        CREATE FUNCTION GetMonthlyTarget ( requested_month INTEGER, requested_year INTEGER )
         RETURNS INTEGER
         DETERMINISTIC
 
@@ -315,7 +315,7 @@ return new class extends Migration
         # I
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION SetContributionToTarget ( percent DOUBLE, total_target INTEGER )
+        CREATE FUNCTION SetContributionToTarget ( percent DOUBLE, total_target INTEGER )
         RETURNS INTEGER
         DETERMINISTIC
 
@@ -331,7 +331,7 @@ return new class extends Migration
         # J
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION SetInitialConsult ( contribution_to_target INTEGER, requested_division VARCHAR(20) COLLATE utf8mb4_general_ci )
+        CREATE FUNCTION SetInitialConsult ( contribution_to_target INTEGER, requested_division VARCHAR(20) COLLATE utf8mb4_general_ci )
         RETURNS INTEGER#
 
             BEGIN
@@ -349,7 +349,7 @@ return new class extends Migration
         # K
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION SetLeadsNeededByDivision ( hot_leads_target INTEGER, division VARCHAR(20) )
+        CREATE FUNCTION SetLeadsNeededByDivision ( hot_leads_target INTEGER, division VARCHAR(20) )
         RETURNS INTEGER
         DETERMINISTIC
 
@@ -373,7 +373,7 @@ return new class extends Migration
         # L
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION GetDiffFromLastMonth( requested_division VARCHAR(20) )
+        CREATE FUNCTION GetDiffFromLastMonth( requested_division VARCHAR(20) )
         RETURNS INTEGER
         DETERMINISTIC
 
@@ -384,7 +384,7 @@ return new class extends Migration
                     FROM target_tracking
                     WHERE MONTH(month_year) = MONTH(now() - INTERVAL 1 MONTH) 
                         AND YEAR(month_year) = YEAR(now() - INTERVAL 1 MONTH)
-                        AND divisi = requested_division COLLATE utf8mb4_unicode_ci;
+                        AND divisi = requested_division;
 
             RETURN difference;
         END; //
@@ -393,7 +393,7 @@ return new class extends Migration
         # M
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION GetRevenueTarget ( requested_month INTEGER, requested_year INTEGER )
+        CREATE FUNCTION GetRevenueTarget ( requested_month INTEGER, requested_year INTEGER )
         RETURNS INTEGER
         DETERMINISTIC
 
@@ -413,7 +413,7 @@ return new class extends Migration
         # N
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION CreateRefCode ( identifier INTEGER )
+        CREATE FUNCTION CreateRefCode ( identifier INTEGER )
         RETURNS VARCHAR(10)
         DETERMINISTIC
 
@@ -430,7 +430,7 @@ return new class extends Migration
         # O
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION GetRoleClient ( client_id VARCHAR(36) )
+        CREATE FUNCTION GetRoleClient ( client_id VARCHAR(36) )
         RETURNS INTEGER
 
             BEGIN
@@ -449,7 +449,7 @@ return new class extends Migration
         # P
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION GetClientSuggestion ( fname VARCHAR(50), mname VARCHAR(50), lname VARCHAR(50), role_id INTEGER)
+        CREATE FUNCTION GetClientSuggestion ( fname VARCHAR(50), mname VARCHAR(50), lname VARCHAR(50), role_id INTEGER)
         RETURNS TEXT
 
         BEGIN
@@ -487,7 +487,7 @@ return new class extends Migration
         # Q
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION CountRawClientRelation ( raw_client_id VARCHAR(36), roles VARCHAR(50) )
+        CREATE FUNCTION CountRawClientRelation ( raw_client_id VARCHAR(36), roles VARCHAR(50) )
         RETURNS INTEGER
         
         BEGIN
@@ -512,7 +512,7 @@ return new class extends Migration
         # R
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION SetHotLeadsByDivision ( initial_consult_target INTEGER, division VARCHAR(20) )
+        CREATE FUNCTION SetHotLeadsByDivision ( initial_consult_target INTEGER, division VARCHAR(20) )
         RETURNS INTEGER
         DETERMINISTIC
 

@@ -118,7 +118,7 @@
                                 <th>Email</th>
                                 <th>Phone Number</th>
                                 <th>Child Name</th>
-                                <th>Have you ever participated in ALL-in Event/program before</th>
+                                <th>Have you ever participated in EduALL Event/program before</th>
                                 <th>School Name</th>
                                 <th>Grade</th>
                                 <th>Graduation Year</th>

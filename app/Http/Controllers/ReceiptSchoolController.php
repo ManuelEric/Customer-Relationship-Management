@@ -301,7 +301,7 @@ class ReceiptSchoolController extends Controller
             if (Storage::disk('s3')->put($path . $file_name, file_get_contents($attachment))) {
                 # update request status on receipt attachment
                 $attachment = $receipt->receiptAttachment()->where('currency', $currency)->first();
-                $attachment->attachment = $path . $file_name;
+                $attachment->attachment = $file_name;
                 $attachment->save();
             }
 
@@ -461,7 +461,7 @@ class ReceiptSchoolController extends Controller
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
                     ->cc([env('FINANCE_CC_2')])
                     ->subject($data['title'])
-                    ->attach(public_path($receiptAttachment->attachment));
+                    ->attach(Storage::url('receipt/sch_prog/'.$receiptAttachment->attachment));
             });
 
             DB::commit();
@@ -512,7 +512,7 @@ class ReceiptSchoolController extends Controller
                 $message->to($data['email'], $data['recipient'])
                     ->cc($data['cc'])
                     ->subject($data['title'])
-                    ->attach($receiptAttachment->attachment);
+                    ->attach(Storage::url('receipt/sch_prog/'.$receiptAttachment->attachment));
             });
 
             $attachmentDetails = [

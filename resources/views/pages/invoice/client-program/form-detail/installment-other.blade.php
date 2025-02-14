@@ -10,32 +10,32 @@
         @endif
     </div>
     <div class="card-body " id="installment_content_other">
-        @if (old('invdtl_installment__other') || (isset($invoice) &&  $invoice->invoiceDetail()->count() > 0))
+        @if (old('invdtl_installment_other') || (isset($invoice) &&  $invoice->invoiceDetail()->count() > 0))
         @php
-            $limit = isset($invoice->invoiceDetail) ? count($invoice->invoiceDetail) : count(old('invdtl_installment__other'))
+            $limit = isset($invoice->invoiceDetail) ? count($invoice->invoiceDetail) : count(old('invdtl_installment_other'))
         @endphp
             @for ($i = 0; $i < $limit ; $i++)
                 <div class="row g-2 installment-others mb-3">
                     <div class="col-md-3">
                         <label for="">Name <sup class="text-danger">*</sup></label>
-                        <input type="text" name="invdtl_installment__other[]" class="form-control form-control-sm installment-name" value="{{ isset($invoice->invoiceDetail) ? $invoice->invoiceDetail[$i]->invdtl_installment : old('invdtl_installment__other')[$i] }}" {{ $disabled }}>
-                        @error('invdtl_installment__other.'.$i)
+                        <input type="text" name="invdtl_installment_other[]" class="form-control form-control-sm installment-name" value="{{ isset($invoice->invoiceDetail) ? $invoice->invoiceDetail[$i]->invdtl_installment : old('invdtl_installment_other')[$i] }}" {{ $disabled }}>
+                        @error('invdtl_installment_other.'.$i)
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
                     
                     <div class="col-md-3">
                         <label for="">Due Date <sup class="text-danger">*</sup></label>
-                        <input type="date" name="invdtl_duedate__other[]" class="form-control form-control-sm " value="{{ isset($invoice->invoiceDetail) ? date('Y-m-d', strtotime($invoice->invoiceDetail[$i]->invdtl_duedate)) : old('invdtl_duedate__other')[$i] }}" {{ $disabled }}>
-                        @error('invdtl_duedate__other.'.$i)
+                        <input type="date" name="invdtl_duedate_other[]" class="form-control form-control-sm " value="{{ isset($invoice->invoiceDetail) ? date('Y-m-d', strtotime($invoice->invoiceDetail[$i]->invdtl_duedate)) : old('invdtl_duedate_other')[$i] }}" {{ $disabled }}>
+                        @error('invdtl_duedate_other.'.$i)
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
                     <div class="col-md-2">
                         <label for="">Percentage (%) <sup class="text-danger">*</sup></label>
-                        <input type="text" name="invdtl_percentage__other[]" id="percentage_other_{{ $i }}" value="{{ isset($invoice->invoiceDetail) ? $invoice->invoiceDetail[$i]->invdtl_percentage : old('invdtl_percentage__other')[$i] }}" {{ $disabled }}
+                        <input type="text" name="invdtl_percentage_other[]" id="percentage_other_{{ $i }}" value="{{ isset($invoice->invoiceDetail) ? $invoice->invoiceDetail[$i]->invdtl_percentage : old('invdtl_percentage_other')[$i] }}" {{ $disabled }}
                             class="form-control form-control-sm percentage-other" onchange="checkPercentageOther('{{ $i }}')">
-                        @error('invdtl_percentage__other.'.$i)
+                        @error('invdtl_percentage_other.'.$i)
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
@@ -52,18 +52,18 @@
                             <span class="input-group-text currency-icon" id="basic-addon1">
                                 $
                             </span>
-                            <input type="number" name="invdtl_amount__other[]" class="form-control amount-other" id="amount_other_{{ $i }}" value="{{ isset($invoice->invoiceDetail) ? $invoice->invoiceDetail[$i]->invdtl_amount : old('invdtl_amount__other')[$i] }}" {{ $disabled }} onchange="checkAmountOther('{{ $i }}')">
+                            <input type="number" name="invdtl_amount_other[]" class="form-control amount-other" id="amount_other_{{ $i }}" value="{{ isset($invoice->invoiceDetail) ? $invoice->invoiceDetail[$i]->invdtl_amount : old('invdtl_amount_other')[$i] }}" {{ $disabled }} onchange="checkAmountOther('{{ $i }}')">
                         </div>
-                        @error('invdtl_amount__other.'.$i)
+                        @error('invdtl_amount_other.'.$i)
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                         <div class="input-group input-group-sm">
                             <span class="input-group-text" id="basic-addon1">
                                 Rp
                             </span>
-                            <input type="number" name="invdtl_amountidr__other[]" class="form-control amount-other-idr" id="amount_other_idr_{{ $i }}" value="{{ isset($invoice->invoiceDetail) ? $invoice->invoiceDetail[$i]->invdtl_amountidr : old('invdtl_amountidr__other')[$i] }}" {{ $disabled }}>
+                            <input type="number" name="invdtl_amountidr_other[]" class="form-control amount-other-idr" id="amount_other_idr_{{ $i }}" value="{{ isset($invoice->invoiceDetail) ? $invoice->invoiceDetail[$i]->invdtl_amountidr : old('invdtl_amountidr_other')[$i] }}" {{ $disabled }}>
                         </div>
-                        @error('invdtl_amountidr__other.'.$i)
+                        @error('invdtl_amountidr_other.'.$i)
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
@@ -73,24 +73,24 @@
             <div class="row g-2 installment-others mb-3">
                 <div class="col-md-3">
                     <label for="">Name <sup class="text-danger">*</sup></label>
-                    <input type="text" name="invdtl_installment__other[]" class="form-control form-control-sm installment-name" value="Installment 1">
-                    @error('invdtl_installment__other')
+                    <input type="text" name="invdtl_installment_other[]" class="form-control form-control-sm installment-name" value="Installment 1">
+                    @error('invdtl_installment_other')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
                 </div>
                 
                 <div class="col-md-3">
                     <label for="">Due Date <sup class="text-danger">*</sup></label>
-                    <input type="date" name="invdtl_duedate__other[]" class="form-control form-control-sm ">
-                    @error('invdtl_duedate__other')
+                    <input type="date" name="invdtl_duedate_other[]" class="form-control form-control-sm ">
+                    @error('invdtl_duedate_other')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
                 </div>
                 <div class="col-md-2">
                     <label for="">Percentage (%) <sup class="text-danger">*</sup></label>
-                    <input type="text" name="invdtl_percentage__other[]" id="percentage_other_0"
+                    <input type="text" name="invdtl_percentage_other[]" id="percentage_other_0"
                         class="form-control form-control-sm percentage-other" onchange="checkPercentageOther('0')">
-                    @error('invdtl_percentage__other')
+                    @error('invdtl_percentage_other')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
                 </div>
@@ -107,18 +107,18 @@
                         <span class="input-group-text currency-icon" id="basic-addon1">
                             $
                         </span>
-                        <input type="number" name="invdtl_amount__other[]" class="form-control amount-other" id="amount_other_0" onchange="checkAmountOther('0')">
+                        <input type="number" name="invdtl_amount_other[]" class="form-control amount-other" id="amount_other_0" onchange="checkAmountOther('0')">
                     </div>
-                    @error('invdtl_amount__other')
+                    @error('invdtl_amount_other')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
                     <div class="input-group input-group-sm">
                         <span class="input-group-text" id="basic-addon1">
                             Rp
                         </span>
-                        <input type="number" name="invdtl_amountidr__other[]" class="form-control amount-other-idr" id="amount_other_idr_0">
+                        <input type="number" name="invdtl_amountidr_other[]" class="form-control amount-other-idr" id="amount_other_idr_0">
                     </div>
-                    @error('invdtl_amountidr__other')
+                    @error('invdtl_amountidr_other')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
                 </div>

@@ -28,7 +28,6 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 ->leftJoin('tbl_corp as ceduf', 'ceduf.corp_id', '=', 'tbl_eduf_lead.corp_id')
                 ->leftJoin('tbl_sch as seduf', 'seduf.sch_id', '=', 'tbl_eduf_lead.sch_id')
                 ->leftJoin('tbl_client as child', 'child.id', '=', 'tbl_client_event.child_id')
-                ->leftJoin('client_ref_code_view', 'client_ref_code_view.id', '=', DB::raw('SUBSTR(tbl_client_event.referral_code, 4)'))
                 ->leftJoin('tbl_client as cref', 'cref.secondary_id', '=', 'tbl_client_event.referral_code')
                 ->leftJoin('tbl_lead as cllead', 'cllead.lead_id', '=', 'tbl_client.lead_id')
                 ->leftJoin('tbl_eduf_lead as cleduf', 'cleduf.id', '=', 'tbl_client.eduf_id')
@@ -145,10 +144,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     $searchQuery->where('event_title', $filter['event_name']);
                 })->
                 when(!empty($filter['school_name']), function ($searchQuery) use ($filter) {
-                    $searchQuery->whereIn(DB::raw('(CASE
-                            WHEN tbl_roles.role_name = "Parent" THEN child.school_name
-                            WHEN tbl_roles.role_name != "Parent" THEN client.school_name
-                        END)'), $filter['school_name']);
+                    $searchQuery->whereIn(DB::raw('tbl_sch.sch_name'), $filter['school_name']);
                 })->
                 when(!empty($filter['graduation_year']), function ($searchQuery) use ($filter) {
                     $searchQuery->whereIn(DB::raw('(CASE

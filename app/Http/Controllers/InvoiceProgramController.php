@@ -103,10 +103,12 @@ class InvoiceProgramController extends Controller
             return Redirect::to('invoice/client-program/create?prog=' . $request->clientprog_id)->withError('Create master invoice bundle first!');
         }
 
-        $raw_currency = [];
-        $raw_currency[0] = $request->currency;
-        $raw_currency[1] = $request->currency != "idr" ? $request->currency_detail : null;
-        # fetching currency till get the currency
+        $raw_currency = [
+            $request->currency,
+            $request->currency != "idr" ? $request->currency_detail : null
+        ];
+
+        # fetching raw currency till get the currency
         $currency = null;
         foreach ($raw_currency as $key => $val) {
             if ($val != NULL)
@@ -115,7 +117,7 @@ class InvoiceProgramController extends Controller
 
         if (in_array('idr', $raw_currency) && $request->is_session == "no") {
 
-            $invoice_details = $request->only([
+            $invoice_details = $request->safe()->only([
                 'clientprog_id',
                 'currency',
                 'is_session',
@@ -132,6 +134,24 @@ class InvoiceProgramController extends Controller
             ]);
             $param = "idr";
         } elseif (in_array('idr', $raw_currency) && $request->is_session == "yes") {
+
+            $invoice_details = $request->safe()->only([
+                'clientprog_id',
+                'currency',
+                'is_session',
+                'session',
+                'duration',
+                'inv_price_idr',
+                'inv_earlybird_idr',
+                'inv_discount_idr',
+                'inv_totalprice_idr',
+                'inv_words_idr',
+                'inv_paymentmethod',
+                'invoice_date',
+                'inv_duedate',
+                'inv_notes',
+                'inv_tnc'
+            ]);
 
             $invoice_details = [
                 'clientprog_id' => $request->clientprog_id,
@@ -259,7 +279,7 @@ class InvoiceProgramController extends Controller
             # either idr or other currency
 
             if ($invoice_details['inv_paymentmethod'] == "Installment") {
-
+                
                 # and using param to fetch data based on rupiah or other currency
                 $limit = $param == "idr" ? count($request->invdtl_installment) : count($request->invdtl_installment_other);
 
@@ -509,16 +529,16 @@ class InvoiceProgramController extends Controller
             if ($invoice_details['inv_paymentmethod'] == "Installment") {
 
                 # and using param to fetch data based on rupiah or other currency
-                $limit = $param == "idr" ? count($request->invdtl_installment) : count($request->invdtl_installment__other);
+                $limit = $param == "idr" ? count($request->invdtl_installment) : count($request->invdtl_installment_other);
 
                 for ($i = 0; $i < $limit; $i++) {
 
                     $installment_details[$i] = [
                         'inv_id' => $new_inv_id,
-                        'invdtl_installment' => $param == "idr" ? $request->invdtl_installment[$i] : $request->invdtl_installment__other[$i],
-                        'invdtl_duedate' => $param == "idr" ? $request->invdtl_duedate[$i] : $request->invdtl_duedate__other[$i],
-                        'invdtl_percentage' => $param == "idr" ? $request->invdtl_percentage[$i] : $request->invdtl_percentage__other[$i],
-                        'invdtl_amountidr' => $param == "idr" ? $request->invdtl_amountidr[$i] : $request->invdtl_amountidr__other[$i],
+                        'invdtl_installment' => $param == "idr" ? $request->invdtl_installment[$i] : $request->invdtl_installment_other[$i],
+                        'invdtl_duedate' => $param == "idr" ? $request->invdtl_duedate[$i] : $request->invdtl_duedate_other[$i],
+                        'invdtl_percentage' => $param == "idr" ? $request->invdtl_percentage[$i] : $request->invdtl_percentage_other[$i],
+                        'invdtl_amountidr' => $param == "idr" ? $request->invdtl_amountidr[$i] : $request->invdtl_amountidr_other[$i],
                         'invdtl_cursrate' => $param == "other" ? $invoice_details['curs_rate'] : null,
                         'invdtl_currency' => $invoice_details['currency'],
                         'created_at' => Carbon::now(),
@@ -1019,7 +1039,7 @@ class InvoiceProgramController extends Controller
             Log::error('Failed to dispatch job send email hold mentoring '. $e->getMessage());
         }
             
-        return Redirect::to('dashboard')->withSuccess('Successfully sent email Hold Mentoring.');
+        return Redirect::to('dashboard/finance')->withSuccess('Successfully sent email Hold Mentoring.');
     }
 
     public function updateMail(Request $request)

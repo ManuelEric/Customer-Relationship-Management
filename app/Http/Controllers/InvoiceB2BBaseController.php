@@ -133,7 +133,7 @@ class InvoiceB2BBaseController extends Controller
             'invb2b_id' => $invoice_id,
             'currency' => $currency,
             'recipient' => $to,
-            'attachment' => $path . $file_name,
+            'attachment' => $file_name,
         ];
 
         $company_detail = [
@@ -278,7 +278,7 @@ class InvoiceB2BBaseController extends Controller
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
                     ->cc([env('FINANCE_CC_2')])
                     ->subject($data['title'])
-                    ->attach(public_path($invoice_attachment->attachment));
+                    ->attach(Storage::url('invoice/'. $this->module['name'] . '/'. $invoice_attachment->attachment));
             });
 
             DB::commit();
@@ -376,7 +376,7 @@ class InvoiceB2BBaseController extends Controller
                 $message->to($data['email'], $data['recipient'])
                     ->cc($data['cc'])
                     ->subject($data['title'])
-                    ->attach(public_path($invoice_attachment->attachment));
+                    ->attach(Storage::url('invoice/'. $this->module['name'] . '/'. $invoice_attachment->attachment));
             });
 
             $attachment_details = [

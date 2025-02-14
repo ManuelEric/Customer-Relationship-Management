@@ -370,6 +370,8 @@ class ClientRepository implements ClientRepositoryInterface
             when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
+            orderBy('client.updated_at', 'DESC')->
+            orderBy('client.created_at', 'DESC')->
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
@@ -432,6 +434,8 @@ class ClientRepository implements ClientRepositoryInterface
             })->when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
+            orderBy('client.updated_at', 'DESC')->
+            orderBy('client.created_at', 'DESC')->
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
@@ -516,6 +520,8 @@ class ClientRepository implements ClientRepositoryInterface
             })->when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
+            orderBy('client.updated_at', 'DESC')->
+            orderBy('client.created_at', 'DESC')->
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
@@ -598,6 +604,8 @@ class ClientRepository implements ClientRepositoryInterface
             when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
+            orderBy('client.updated_at', 'DESC')->
+            orderBy('client.created_at', 'DESC')->
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
@@ -659,6 +667,8 @@ class ClientRepository implements ClientRepositoryInterface
         when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
             $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
         })->
+        orderBy('client.updated_at', 'DESC')->
+        orderBy('client.created_at', 'DESC')->
         isNotSalesAdmin()->
         isUsingAPI();
 
@@ -805,6 +815,8 @@ class ClientRepository implements ClientRepositoryInterface
             when(!empty($advanced_filter['have_siblings']), function ($subQuery) use ($advanced_filter) {
                 $subQuery->where(DB::raw('IF((SELECT COUNT(*) FROM tbl_client_relation WHERE parent_id = client.id) > 1,true,false)'), $advanced_filter['have_siblings']);
             })->
+            orderBy('client.updated_at', 'DESC')->
+            orderBy('client.created_at', 'DESC')->
             isActive()->
             isVerified();
 
@@ -822,7 +834,11 @@ class ClientRepository implements ClientRepositoryInterface
         $query = Client::when($month, function ($subQuery) use ($month) {
             $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
         })->
-        isTeacher()->isActive()->isVerified();
+        isTeacher()->
+        isActive()->
+        isVerified()->
+        orderBy('client.updated_at', 'DESC')->
+        orderBy('client.created_at', 'DESC');
 
         return $asDatatables === false ? $query->get() : $query;
     }
@@ -1683,7 +1699,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function addInterestProgram($studentId, $interestProgram)
     {
-        $student = UserClient::find($studentId);
+        $student = UserClient::withTrashed()->find($studentId);
         $student->interestPrograms()->attach($interestProgram);
         return $student;
     }
@@ -1829,7 +1845,8 @@ class ClientRepository implements ClientRepositoryInterface
                 })->
                 when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
                     $querySearch->whereBetween('raw_client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
-                });
+                })->
+                orderBy('raw_client.created_at', 'DESC');
         
         return $asDatatables === false ? $query->get() : $query->get();
     }
