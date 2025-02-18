@@ -97,6 +97,9 @@ class SyncDataCommand extends Command
 
                         case 'event':
                             $result[$key] = [$val->event_id, $val->event_title];
+                            // array_push($result, [$key => [$val->event_id, $val->event_title]]);
+                            // Log::debug('Here\'s the data ', $result);
+                            // Log::debug(json_encode([$key => [$val->event_id, $val->event_title]]));
                             break;
 
                         case 'program_b2b':
@@ -177,6 +180,8 @@ class SyncDataCommand extends Command
                     $index += 200;
                 }
 
+                Log::debug('Heres the encode', $result);
+                
                 # Update google sheet based on sheet name
                 Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_SYNC_DATA'))->sheet($query['sheet_name'])->range('A'. $index)->update($result);
                 $i++;
