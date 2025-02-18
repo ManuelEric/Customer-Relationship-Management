@@ -2135,6 +2135,7 @@ class ExtClientController extends Controller
     {
         # NEW CRM client id convert to UUID
         $id = $request->uuid;
+        Log::debug($id . 'trying to update initial assessment');
 
         $rules = [
             'id' => 'required|exists:tbl_client,id'
