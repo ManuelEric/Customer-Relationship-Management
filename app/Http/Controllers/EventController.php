@@ -58,7 +58,7 @@ class EventController extends Controller
 
     public function index(Request $request)
     {
-        // if ($request->ajax())
+        if ($request->ajax())
             return $this->eventRepository->getAllEventDataTables();
 
         return view('pages.master.event.index');
