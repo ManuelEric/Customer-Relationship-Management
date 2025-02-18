@@ -79,7 +79,7 @@
                     <span class="input-group-text currency-icon" id="basic-addon1">
                         $
                     </span>
-                    <input type="number" name="invb2b_totprice" id="invoice_other_total" class="form-control" readonly
+                    <input type="number" name="invb2b_totprice" id="invoice_other_total" class="form-control"
                         value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_totprice : old('invb2b_totprice') }}"
                         {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                 </div>
@@ -151,4 +151,10 @@
             $('#invoice_other_word_idr').val(wordConverter(total * kurs)+' Rupiah')
          }
     }
+
+    $("#invoice_other_total").on('keyup', function () {
+        var val = $(this).val()
+        $("#invoice_other_word").val(wordConverter(val) + ' ' + currencyText(detail))
+        $('#invoice_other_word_idr').val(wordConverter(val * kurs)+' Rupiah')
+    })
 </script>
