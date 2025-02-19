@@ -79,6 +79,7 @@ class StoreInvoiceProgramRequest extends FormRequest
             //             $fail('Is session has to be "yes" based on master program session');
             //     }
             // ],
+            'is_session' => 'nullable',
             'session__si' => Rule::requiredIf(in_array('idr', $currency)),
             'duration__si' => Rule::requiredIf(in_array('idr', $currency)),
             'inv_price_idr__si' => Rule::requiredIf(in_array('idr', $currency)),
@@ -135,6 +136,7 @@ class StoreInvoiceProgramRequest extends FormRequest
             //             $fail('Is session has to be "yes" based on master program session');
             //     }
             // ],
+            'is_session' => 'nullable',
             'curs_rate' => 'required',
             'inv_price__so' => Rule::requiredIf(in_array('other', $currency)),
             'session__so' => Rule::requiredIf(in_array('other', $currency)),
@@ -201,6 +203,7 @@ class StoreInvoiceProgramRequest extends FormRequest
             //             $fail('Is session has to be "yes" based on master program session');
             //     }
             // ],
+            'is_session' => 'nullable',
             'curs_rate' => 'required',
             'inv_price__nso' => Rule::requiredIf(in_array('other', $currency)),
             // 'inv_earlybird__nso' => Rule::requiredIf(in_array('other', $currency)),
@@ -255,6 +258,7 @@ class StoreInvoiceProgramRequest extends FormRequest
         return [
             'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id'.$addQuery,
             'currency' => 'required',
+            'is_session' => 'nullable',
             // 'is_session' => [
             //     function ($attribute, $value, $fail) use ($clientProgram) {
             //         if ($clientProgram->program->prog_payment == "session" && $value == "no")
