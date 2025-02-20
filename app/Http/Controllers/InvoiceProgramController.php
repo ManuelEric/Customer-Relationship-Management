@@ -235,6 +235,7 @@ class InvoiceProgramController extends Controller
         DB::beginTransaction();
         try {
 
+            # if today is not same as invoice created date
             if(date('Y-m-d') != date('Y-m-d', strtotime($invoice_details['created_at']))){
                 $last_id = InvoiceProgram::whereMonth('created_at', Carbon::parse($invoice_details['created_at'])->format('m'))->whereYear('created_at', Carbon::parse($invoice_details['created_at'])->format('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
 
@@ -473,7 +474,7 @@ class InvoiceProgramController extends Controller
 
             # when created date / invoice date has changed 
             # then check if old invoice_id same or not with the new invoice id using created at
-            if ( date('Y-m-d', strtotime($invoice->created_at)) != $invoice_details['created_at']) {
+            if ( date('Y-m-d', strtotime($invoice->created_at)) != Carbon::parse($invoice_details['created_at'])->format('Y-m-d')) {
                 
                 // $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
                 $last_id = InvoiceProgram::whereMonth('created_at', Carbon::parse($invoice_details['created_at'])->format('m'))->whereYear('created_at', Carbon::parse($invoice_details['created_at'])->format('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
@@ -534,7 +535,7 @@ class InvoiceProgramController extends Controller
                 for ($i = 0; $i < $limit; $i++) {
 
                     $installment_details[$i] = [
-                        'inv_id' => $new_inv_id,
+                        'inv_id' => $new_inv_id ?? $inv_id,
                         'invdtl_installment' => $param == "idr" ? $request->invdtl_installment[$i] : $request->invdtl_installment_other[$i],
                         'invdtl_duedate' => $param == "idr" ? $request->invdtl_duedate[$i] : $request->invdtl_duedate_other[$i],
                         'invdtl_percentage' => $param == "idr" ? $request->invdtl_percentage[$i] : $request->invdtl_percentage_other[$i],
@@ -557,9 +558,10 @@ class InvoiceProgramController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
+            dd($e->getMessage());
             $log_service->createErrorLog(LogModule::UPDATE_INVOICE_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $invoice_details);
 
-            return Redirect::to('invoice/client-program/' . $request->clientprog_id . '/edit')->withError('Failed to update invoice program');
+            // return Redirect::to('invoice/client-program/' . $request->clientprog_id . '/edit')->withError('Failed to update invoice program');
         }
 
         # Update success
