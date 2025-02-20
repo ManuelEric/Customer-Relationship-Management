@@ -27,7 +27,15 @@ class ExtClientProgramController extends Controller
             'program' => function ($query) {
                 $query->select('prog_id', 'main_prog_id', 'prog_program');
             }
-        ])->successAndPaid()->select('clientprog_id', 'prog_id', 'client_id')->get();
+        ])->
+        whereHas('program', function ($query) {
+            $query->whereHas('main_prog', function ($query) {
+                $query->where('prog_name', 'Academic & Test Preparation');
+            })->whereHas('sub_prog', function ($query) {
+                $query->whereIn('sub_prog_name', ['Academic Tutoring', 'Subject Tutoring']);
+            });
+        })->
+        successAndPaid()->select('clientprog_id', 'prog_id', 'client_id')->get();
 
         $mappedB2CPrograms = $b2cPrograms->map(function ($data) {
 
