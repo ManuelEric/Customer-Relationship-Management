@@ -158,6 +158,8 @@ class ExtClientProgramController extends Controller
                 ]
             ];
         });
+
+        return response()->json($mapped_program);
     }
 
     public function fnGetSuccessEssayProgram()
