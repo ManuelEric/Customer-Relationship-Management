@@ -188,6 +188,16 @@ class ClientProgram extends Model
         return $instance->newQuery()->where('clientprog_id', $id)->first();
     }
 
+    public function scopePending(Builder $query): void
+    {
+        $query->where('status', 0);
+    }
+
+    public function scopeGetFreeTrial(Builder $query): void
+    {
+        $query->whereNotNull('trial_date');
+    }
+
     public function scopeSuccessAndPaid(Builder $query): void
     {
         $query->

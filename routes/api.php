@@ -197,6 +197,7 @@ Route::prefix('v1')->group(function () {
         Route::get('user/mentor-tutors/{uuid}', [ExtClientController::class, 'showMentorTutor']);
 
         Route::get('program/list', [ExtClientProgramController::class, 'getSuccessPrograms']);
+        Route::get('program/list/free-trial', [ExtClientProgramController::class, 'fnGetFreeTrialPrograms']);
         Route::get('client/information/{uuid}', [ExtClientController::class, 'getClientInformation']);
     });
 
