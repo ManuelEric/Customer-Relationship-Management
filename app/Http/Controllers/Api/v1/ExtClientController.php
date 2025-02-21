@@ -2033,7 +2033,7 @@ class ExtClientController extends Controller
         $paginate = $request->get('paginate'); # true will return paginate results, false will return all results 
         $role = $request->get('role');
 
-        $user = \App\Models\User::query()->select('id', 'first_name', 'last_name', 'email', 'phone')->with([
+        $user = \App\Models\User::query()->select('id', 'first_name', 'last_name', 'email', 'phone', 'npwp')->with([
                 'user_subjects' => function ($query) {
                     $query->select('user_role_id', 'subject_id', 'year', 'agreement', 'head', 'additional_fee', 'grade', 'fee_individual', 'fee_group');
                 },
@@ -2086,6 +2086,7 @@ class ExtClientController extends Controller
                 'last_name' => $data['last_name'],
                 'email' => $data['email'],
                 'phone' => $data['phone'],
+                'has_npwp' => $data['npwp'] ? true : false, 
                 'roles' => $acceptedRole
             ];
         });
