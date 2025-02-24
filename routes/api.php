@@ -83,7 +83,7 @@ Route::get('get/lead/career-exploration/{month}/{user?}', [SalesDashboardControl
 Route::get('get/all-program/target/{month}/{user?}', [SalesDashboardControllerV1::class, 'fnGetAllProgramTargetByMonth']);
 Route::get('get/client-event/{year}/{user?}', [SalesDashboardControllerV1::class, 'fnGetClientEventByYear']);
 Route::get('get/program-comparison', [SalesDashboardControllerV1::class, 'fnCompareProgram']);
-Route::post('/upload', [InvoiceProgramController::class, 'upload']);
+// Route::post('/upload', [InvoiceProgramController::class, 'upload']);
 Route::get('export/client', [SalesDashboardControllerV1::class, 'fnExportClient']);
 Route::get('get/outstanding-payment', [DashboardController::class, 'fnAjaxDataTablesOutstandingPayment']);
 
@@ -188,7 +188,7 @@ Route::prefix('v1')->group(function () {
     Route::get('get/user/by/UUID/{uuid}', [ExtClientController::class, 'getUserByUUID']);
 
     # timesheet
-    // Route::middleware(['timesheet.access'])->group(function () {
+    Route::middleware(['timesheet.access'])->group(function () {
         Route::get('auth/email/check', [ExtClientController::class, 'checkUserEmail']);
         Route::post('auth/token', [ExtClientController::class, 'validateCredentials']);
         Route::post('user/update', [ExtClientController::class, 'updateUser']);
@@ -197,8 +197,9 @@ Route::prefix('v1')->group(function () {
         Route::get('user/mentor-tutors/{uuid}', [ExtClientController::class, 'showMentorTutor']);
 
         Route::get('program/list', [ExtClientProgramController::class, 'getSuccessPrograms']);
+        Route::get('program/list/free-trial', [ExtClientProgramController::class, 'fnGetFreeTrialPrograms']);
         Route::get('client/information/{uuid}', [ExtClientController::class, 'getClientInformation']);
-    // });
+    });
 
     # use for select data subsector corporate
     Route::get('get/subsectors/{industry}', [ExtCorporateController::class, 'cnGetSubSectorByIndustry']);

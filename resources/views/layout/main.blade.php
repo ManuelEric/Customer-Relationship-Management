@@ -289,7 +289,7 @@
         <!-- partial -->
         <div class="container-fluid page-body-wrapper">
             <!-- partial:partials/_sidebar.html -->
-            <x-apps.sidebar />
+            <x-apps.sidebar />s
             <!-- partial -->
             <div class="main-panel position-md-absolute end-0 px-0">
                 <div class="content-wrapper">

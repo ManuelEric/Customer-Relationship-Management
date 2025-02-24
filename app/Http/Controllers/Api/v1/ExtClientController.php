@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Client\Registration\Public\PublicRegistrationRequest;
 use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
@@ -783,31 +784,9 @@ class ExtClientController extends Controller
         ]);
     }
 
-    public function storePublicRegistration(Request $request)
+    public function storePublicRegistration(PublicRegistrationRequest $request)
     {
-
-        # validation
-        $rules = [
-            'role' => 'required|in:parent,student',
-            'fullname' => 'required',
-            'mail' => 'nullable|email',
-            'phone' => 'required',
-            'school_id' => [
-                'nullable',
-                $request->school_id != 'new' ? 'exists:tbl_sch,sch_id' : null
-            ],
-            'other_school' => 'nullable',
-            'secondary_name' => 'required_if:role,parent',
-            'secondary_mail' => 'nullable',
-            'secondary_phone' => 'nullable',
-            'graduation_year' => 'required',
-            'destination_country' => 'nullable|array',
-            'destination_country.*' => 'exists:tbl_country,id',
-            'interest_prog' => 'required|exists:tbl_prog,prog_id',
-            'lead_id' => 'required|exists:tbl_lead,lead_id',
-        ];
-
-        $incomingRequest = $request->only([
+        $validated = $request->safe()->only([
             'role',
             'fullname',
             'mail',
@@ -820,35 +799,10 @@ class ExtClientController extends Controller
             'secondary_name',
             'secondary_mail',
             'secondary_phone',
-            'lead_id'
+            'lead_source_id',
+            'scholarship'
         ]);
 
-        $messages = [
-            'secondary_name.required_if' => 'The child name field is required.',
-            'school_id.required_if' => 'The school field is required.',
-            'school_id.exists' => 'The school field is not valid.',
-            'destination_country.*.exists' => 'The destination country must be one of the following values.',
-            'lead_id.required' => 'Something is not right.', # we hide the lead_id because lead_id comes from get parameter so user should not know
-            'lead_id.exists' => 'Something is not right.', # we hide the lead_id because lead_id comes from get parameter so user should not know
-        ];
-
-
-        $validator = Validator::make($incomingRequest, $rules, $messages);
-
-
-        # threw error if validation fails
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'error' => $validator->errors()
-            ]);
-        }
-
-
-        # after validating incoming request data, then retrieve the incoming request data
-        $validated = $request->collect();
-        $validated['scholarship'] = 'N';
-        $validated['lead_source_id'] = $request->lead_id;
 
         # declaration of default variables that will be used 
         $client = null;
@@ -856,7 +810,6 @@ class ExtClientController extends Controller
         DB::beginTransaction();
         try {
 
-            $validatedArray = $validated->toArray();
 
             # separate the incoming request data
             switch ($validated['role']) {
@@ -872,8 +825,8 @@ class ExtClientController extends Controller
                     if (isset($validated['secondary_name'])) {
                         $validatedStudent = $request->except(['fullname', 'email', 'phone']);
                         $validatedStudent['fullname'] = $validated['secondary_name'];
-                        $validatedStudent['mail'] = $validated['secondary_mail'] != null ? $validated['secondary_mail'] : null;
-                        $validatedStudent['phone'] = $validated['secondary_phone'] != null ? $validated['secondary_phone'] : null;
+                        $validatedStudent['mail'] = $validated['secondary_mail'] ?? null;
+                        $validatedStudent['phone'] = $validated['secondary_phone'] ?? null;
                         $validatedStudent['scholarship'] = 'N';
                         $validatedStudent['lead_source_id'] = 'LS001'; # Website
 
@@ -896,12 +849,12 @@ class ExtClientController extends Controller
                         $this->storeRelationship($parent, $student);
 
                         if ($studentId != null && isset($validated['destination_country'])) {
-                            $this->attachDestinationCountry($studentId, $validatedArray['destination_country']);
+                            $this->attachDestinationCountry($studentId, $validated['destination_country']);
                         }
 
                         if ($studentId != null && isset($validated['interest_prog'])) {
-                            if (isset($validatedArray['interest_prog'])) {
-                                $this->reAttachInterestPrograms($studentId, $validatedArray['interest_prog']);
+                            if (isset($validated['interest_prog']) && $validated['interest_prog'] !== null) {
+                                $this->reAttachInterestPrograms($studentId, $validated['interest_prog']);
                             }
                         }
                     } else {
@@ -910,21 +863,26 @@ class ExtClientController extends Controller
                         }
                     }
                     break;
+
+                case 'teacher/counsellor':
+                    $client = $this->storeTeacher($validated);
+                    $clientId = $client->id;
+                    break;
             }
 
             if ($client != null && isset($validated['destination_country'])) {
-                $this->attachDestinationCountry($clientId, $validatedArray['destination_country']);
+                $this->attachDestinationCountry($clientId, $validated['destination_country']);
             }
 
             if ($client != null && isset($validated['interest_prog'])) {
-                // if(count($validatedArray['interest_prog']) > 0){
-                //     foreach ($validatedArray['interest_prog'] as $interestProg) {
+                // if(count($validated['interest_prog']) > 0){
+                //     foreach ($validated['interest_prog'] as $interestProg) {
                 //         $this->reAttachInterestPrograms($clientId, $interestProg);
                 //     }
                 // }
 
-                if (isset($validatedArray['interest_prog'])) {
-                    $this->reAttachInterestPrograms($clientId, $validatedArray['interest_prog']);
+                if (isset($validated['interest_prog'])) {
+                    $this->reAttachInterestPrograms($clientId, $validated['interest_prog']);
                 }
             }
 
@@ -932,7 +890,7 @@ class ExtClientController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Registration from EduAll website failed: ' . $e->getMessage() . ' | On Line: ' . $e->getLine());
+            Log::error('Registration from EduAll website failed: ' . $e->getMessage() . ' | On Line: ' . $e->getLine() . ' on file ' . $e->getFile());
 
             return response()->json([
                 'success' => false,
@@ -940,22 +898,20 @@ class ExtClientController extends Controller
             ]);
         }
 
-        $prog = $this->programRepository->getProgramById($request->interest_prog);
+        ################################################################
+        ## email requirements ##
+        ################################################################
+
+
+        $prog = array_key_exists('interest_prog', $validated) ? $this->programRepository->getProgramById($validated['interest_prog']) : null;
         $passedData = [
             'client' => [
                 'name' => $client->full_name,
             ],
             'program' => [
-                'name' => $prog->program_name
+                'name' => $prog->program_name ?? null
             ]
         ];
-
-        if ($request->role == 'student') {
-            $template = 'mail-template.registration.public.thanks-email-student';
-        } else {
-            $passedData['client']['child_name'] = $request->secondary_name;
-            $template = 'mail-template.registration.public.thanks-email-parent';
-        }
 
         $dataResponseClient = [
             'role' => $validated['role'],
@@ -968,7 +924,7 @@ class ExtClientController extends Controller
             'school_name' => isset($client->school) ? $client->school->sch_name : null,
             'graduation_year' => $client->graduation_year
         ];
-
+        
         /**
          * note:
          * address that being attached in mail::send could be null
@@ -983,25 +939,57 @@ class ExtClientController extends Controller
 
         try {
 
-            if(isset($validated['mail']) && $validated['mail'] != null){
-                $subject = "Your registration is confirmed";
-    
-                Mail::send(
-                    $template,
-                    $passedData,
-                    function ($message) use ($client, $subject, $validated) {
-                        // $message->to($client->mail, $client->full_name) //! not used
-                        $message->to($validated['mail'], $client->full_name)
-                            ->subject($subject);
+            // if ( !isset($validated['mail']) && $validated['mail'] == null )
+            //     throw new Exception("Insufficient email address of {$client->full_name}");
+            
+
+            switch ($validated['role'])
+            {
+                case "student":
+                    $subject = 'Your registration is confirmed';
+                    $template = 'mail-template.registration.public.thanks-email-student';
+                    # the system will email 
+                    # if they inputted the email address
+                    if ( $validated['mail'] )
+                    {
+                        $recipient['name'] = $client->full_name;
+                        $recipient['email'] = $validated['mail'];
+                        $this->sendEmailPublicRegistration($template, $passedData, $subject, $recipient);
                     }
-                );
-                $sent_mail = 1;
-            }
+                    break;
+    
+                case "parent":
+                    $passedData['client']['child_name'] = $validated['secondary_name'];
+                    $subject = 'Your registration is confirmed';
+                    $template = 'mail-template.registration.public.thanks-email-parent';
+                    # the system will email 
+                    # if they inputted the email address
+                    if ( $validated['mail'] )
+                    {
+                        $recipient['name'] = $client->full_name;
+                        $recipient['email'] = $validated['mail'];
+                        $this->sendEmailPublicRegistration($template, $passedData, $subject, $recipient);
+                    }
+                    break;
+    
+                case "teacher/counsellor":
+                    $passedData['client']['school'] = $validated['school_id'] == 'new' ? $validated['other_school'] : School::find($validated['school_id'])->sch_name;
+                    $passedData['client']['phone'] = $validated['phone'];
+                    $passedData['client']['email'] = $validated['mail'];
+                    $subject = "A new teacher has signed up for the {$passedData['program']['name']}.";
+                    $template = 'mail-template.registration.public.thanks-email-teacher';
+                    $recipient['name'] = 'Theresya Afila'; # hard coded for partnership PIC 
+                    $recipient['email'] = 'theresya.afila@edu-all.com';
+                    $this->sendEmailPublicRegistration($template, $passedData, $subject, $recipient);
+                    break;
+            }                
+            $sent_mail = 1;
+            
         } catch (Exception $e) {
 
             $sent_mail = 0;
-            throw new Exception($e->getMessage());
             Log::error('Failed send email to public registration | error : ' . $e->getMessage() . ' on file ' . $e->getFile() . ' | Line ' . $e->getLine());
+            throw new Exception($e->getMessage(). ' on line ' . $e->getLine() . ' on file ' . $e->getFile());
         }
 
 
@@ -1013,6 +1001,21 @@ class ExtClientController extends Controller
             'data' => $dataResponseClient,
             'message' => "Welcome aboard! Your registration is complete."
         ]);
+    }
+
+    public function sendEmailPublicRegistration($template, $passedData, $subject, $recipient)
+    {
+        Mail::send(
+            $template,
+            $passedData,
+            function ($message) use ($subject, $recipient) {
+
+                // $message->to($client->mail, $client->full_name) //! not used
+
+                $message->to($recipient['email'], $recipient['name'])
+                    ->subject($subject);
+            }
+        );
     }
 
     public function getRole(ClientEvent $clientevent)
@@ -1125,14 +1128,8 @@ class ExtClientController extends Controller
 
     private function storeStudent($incomingRequest)
     {
-
         # check if the client exists in crm database
         $existingClient = $this->checkExistingClient($this->tnSetPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
-
-
-        # if the client is exists
-        if ($existingClient['isExist'])
-            return $this->clientRepository->getClientById($existingClient['id']);
 
 
         # declare some variables
@@ -1172,7 +1169,6 @@ class ExtClientController extends Controller
             
             return $client;
         }
-
 
         $client = $this->clientRepository->createClient('Student', $newClientDetails);
         
@@ -1268,7 +1264,6 @@ class ExtClientController extends Controller
         ];
 
         $client = $this->clientRepository->createClient('Teacher/Counselor', $newClientDetails);
-        $clientId = $client->id;
 
         # trigger to verify teacher
         // ProcessVerifyClient::dispatch([$clientId])->onQueue('verifying_client_teacher');
@@ -2140,6 +2135,7 @@ class ExtClientController extends Controller
     {
         # NEW CRM client id convert to UUID
         $id = $request->uuid;
+        Log::debug($id . 'trying to update initial assessment');
 
         $rules = [
             'id' => 'required|exists:tbl_client,id'

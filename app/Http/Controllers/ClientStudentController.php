@@ -1194,8 +1194,8 @@ class ClientStudentController extends ClientController
 
             $clients_data_for_log_client[] = [
                 'client_id' => $raw_student->id,
-                'first_name' => $raw_student->first_name,
-                'last_name' => $raw_student->last_name,
+                'first_name' => $raw_student->fname,
+                'last_name' => $raw_student->lname,
                 'inputted_from' => 'trash',                    
             ];
     

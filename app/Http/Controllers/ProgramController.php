@@ -50,6 +50,7 @@ class ProgramController extends Controller
         $new_program_details = $request->safe()->only([
             'prog_id',
             'prog_main',
+            'prog_sub',
             'prog_name',
             'prog_type',
             'prog_mentor',

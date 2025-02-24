@@ -53,7 +53,7 @@ class StoreCorporateRequest extends FormRequest
     protected function store()
     {
         return [
-            'corp_name' => 'required_unless:type,Individual Professional|unique:tbl_corp,corp_name',
+            'corp_name' => 'required_unless:type,Individual/Professional|unique:tbl_corp,corp_name',
             'user_id' => 'nullable|exists:users,id',
             'corp_industry' => 'nullable|exists:tbl_industry,id',
             'corp_subsector_id' => 'nullable|exists:tbl_industry_subsector,id',
@@ -80,7 +80,7 @@ class StoreCorporateRequest extends FormRequest
         return [
             'corp_id' => 'required|unique:tbl_corp,corp_id,'.$corp_id.',corp_id',
             'user_id' => 'nullable|exists:users,id',
-            'corp_name' => 'required_unless:type,Individual Professional|unique:tbl_corp,corp_name,'.$corp_id.',corp_id',
+            'corp_name' => 'required_unless:type,Individual/Professional|unique:tbl_corp,corp_name,'.$corp_id.',corp_id',
             'corp_industry' => 'nullable|exists:tbl_industry,id',
             'corp_subsector_id' => 'nullable|exists:tbl_industry_subsector,id',
             'corp_mail' => 'required|email',

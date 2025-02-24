@@ -188,10 +188,21 @@ class ClientProgram extends Model
         return $instance->newQuery()->where('clientprog_id', $id)->first();
     }
 
+    public function scopePending(Builder $query): void
+    {
+        $query->where('status', 0);
+    }
+
+    public function scopeGetFreeTrial(Builder $query): void
+    {
+        $query->whereNotNull('trial_date');
+    }
+
     public function scopeSuccessAndPaid(Builder $query): void
     {
         $query->
-            where('status', 1)->whereNot('prog_running_status', 2)->where('prog_end_date', '>=', Carbon::now())->
+            where('status', 1)->
+            whereNot('prog_running_status', 2)->where('prog_end_date', '>=', Carbon::now())->
             where(function ($query2) {
                 $query2->has('invoice')->has('invoice.receipt');
             });

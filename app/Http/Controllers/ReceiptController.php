@@ -559,8 +559,9 @@ class ReceiptController extends Controller
         # send mail 
         try {
             
-            $storagePath = Storage::url('receipt/client/' . $attachment->attachment);
-            if (!Storage::disk('s3')->exists($storagePath)) 
+            $path = 'project/crm/receipt/client/';
+            $storagePath = Storage::url($path . $attachment->attachment);
+            if (!Storage::disk('s3')->exists($path . $attachment->attachment)) 
                 return response()->json(['message' => "Receipt doesn't exist. Make sure the receipt has already been signed"], 500);
 
             Mail::send('pages.receipt.client-program.mail.client-view', $data, function ($message) use ($data, $attachment) {

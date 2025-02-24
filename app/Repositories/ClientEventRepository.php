@@ -18,7 +18,8 @@ class ClientEventRepository implements ClientEventRepositoryInterface
 
     public function getAllClientEventDataTables($filter = [])
     {
-        $query = ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
+        $query = ClientEvent::query()
+                ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
                 ->leftJoin('tbl_client_roles', 'tbl_client_roles.client_id', '=', 'tbl_client.id')
                 ->leftJoin('tbl_roles', 'tbl_roles.id', '=', 'tbl_client_roles.role_id')
                 ->leftJoin('tbl_events', 'tbl_events.event_id', '=', 'tbl_client_event.event_id')
@@ -28,7 +29,6 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 ->leftJoin('tbl_corp as ceduf', 'ceduf.corp_id', '=', 'tbl_eduf_lead.corp_id')
                 ->leftJoin('tbl_sch as seduf', 'seduf.sch_id', '=', 'tbl_eduf_lead.sch_id')
                 ->leftJoin('tbl_client as child', 'child.id', '=', 'tbl_client_event.child_id')
-                ->leftJoin('client_ref_code_view', 'client_ref_code_view.id', '=', DB::raw('SUBSTR(tbl_client_event.referral_code, 4)'))
                 ->leftJoin('tbl_client as cref', 'cref.secondary_id', '=', 'tbl_client_event.referral_code')
                 ->leftJoin('tbl_lead as cllead', 'cllead.lead_id', '=', 'tbl_client.lead_id')
                 ->leftJoin('tbl_eduf_lead as cleduf', 'cleduf.id', '=', 'tbl_client.eduf_id')
@@ -135,7 +135,12 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                             END)
                         WHEN cllead.main_lead = "All-In Partners" THEN cllead.main_lead
                         ELSE cllead.main_lead
-                    END) AS lead_source'),
+                    END) AS lead_source',
+                    ),
+                    DB::raw('(SELECT CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) 
+                        FROM tbl_pic_client pic
+                        LEFT JOIN users u on u.id = pic.user_id
+                        WHERE pic.client_id = child.id AND pic.status = 1 LIMIT 1) as pic_name'),
                     DB::raw('CONCAT (cref.first_name, " ", COALESCE(cref.last_name, "")) AS referral_name'),
                 )->
                 when(!empty($filter['audience']), function ($searchQuery) use ($filter) {
@@ -145,10 +150,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     $searchQuery->where('event_title', $filter['event_name']);
                 })->
                 when(!empty($filter['school_name']), function ($searchQuery) use ($filter) {
-                    $searchQuery->whereIn(DB::raw('(CASE
-                            WHEN tbl_roles.role_name = "Parent" THEN child.school_name
-                            WHEN tbl_roles.role_name != "Parent" THEN client.school_name
-                        END)'), $filter['school_name']);
+                    $searchQuery->whereIn(DB::raw('tbl_sch.sch_name'), $filter['school_name']);
                 })->
                 when(!empty($filter['graduation_year']), function ($searchQuery) use ($filter) {
                     $searchQuery->whereIn(DB::raw('(CASE
@@ -294,6 +296,13 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 }
             )->
+            filterColumn('pic_name', function ($query, $keyword) {
+                $sql = '(SELECT CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) 
+                        FROM tbl_pic_client pic
+                        LEFT JOIN users u on u.id = pic.user_id
+                        WHERE pic.client_id = rc.id AND pic.status = 1 LIMIT 1) as pic_name like ?';
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->
             filterColumn('referral_name', function ($query, $keyword) {
                 $sql = 'CONCAT (cref.first_name, " ", COALESCE(cref.last_name, "")) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);

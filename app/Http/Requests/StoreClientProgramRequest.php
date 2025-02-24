@@ -153,7 +153,7 @@ class StoreClientProgramRequest extends FormRequest
 
                     $rules['status'] = [
                         'required',
-                        'in:0,1,2,3',
+                        'in:0,1,2,3,5',
                         function ($attribute, $value, $fail) use ($clientProg) {
                             $studentId = $this->route('student');
                             $student = UserClient::find($studentId);
@@ -326,7 +326,7 @@ class StoreClientProgramRequest extends FormRequest
                 'nullable',
                 function ($attribute, $value, $fail) {
                     if (!User::with('roles')->whereHas('roles', function ($q) {
-                        $q->where('role_name', 'Mentor');
+                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');;
                     })->find($value)) {
                         $fail('The submitted mentor was invalid mentor');
                     }
@@ -401,7 +401,7 @@ class StoreClientProgramRequest extends FormRequest
             'supervising_mentor' => [
                 function ($attribute, $value, $fail) {
                     if (!User::with('roles')->whereHas('roles', function ($q) {
-                        $q->where('role_name', 'Mentor');
+                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');;
                     })->find($value)) {
                         $fail('The submitted mentor was invalid mentor');
                     }
@@ -412,7 +412,7 @@ class StoreClientProgramRequest extends FormRequest
             'profile_building_mentor' => [
                 function ($attribute, $value, $fail) use ($studentId) {
                     if (!User::with('roles')->whereHas('roles', function ($q) {
-                        $q->where('role_name', 'Mentor');
+                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');;
                     })->find($value)) {
                         $fail('The submitted mentor was invalid mentor');
                     }
@@ -430,7 +430,7 @@ class StoreClientProgramRequest extends FormRequest
             'subject_specialist_mentor' => [
                 function ($attribute, $value, $fail) use ($studentId) {
                     if (!User::with('roles')->whereHas('roles', function ($q) {
-                        $q->where('role_name', 'Mentor');
+                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');;
                     })->find($value)) {
                         $fail('The submitted mentor was invalid mentor');
                     }
@@ -445,7 +445,7 @@ class StoreClientProgramRequest extends FormRequest
             'aplication_strategy_mentor' => [
                 function ($attribute, $value, $fail) use ($studentId) {
                     if (!User::with('roles')->whereHas('roles', function ($q) {
-                        $q->where('role_name', 'Mentor');
+                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');;
                     })->find($value)) {
                         $fail('The submitted mentor was invalid mentor');
                     }
@@ -463,7 +463,7 @@ class StoreClientProgramRequest extends FormRequest
             'writing_mentor' => [
                 function ($attribute, $value, $fail) use ($studentId) {
                     if (!User::with('roles')->whereHas('roles', function ($q) {
-                        $q->where('role_name', 'Mentor');
+                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');;
                     })->find($value)) {
                         $fail('The submitted mentor was invalid mentor');
                     }
@@ -481,7 +481,7 @@ class StoreClientProgramRequest extends FormRequest
             'mentor_ic' => [
                 function ($attribute, $value, $fail) {
                     if (!User::with('roles')->whereHas('roles', function ($q) {
-                        $q->where('role_name', 'Mentor');
+                        $q->where('role_name', 'Mentor')->orWhere('role_name', 'External Mentor');;
                     })->find($value)) {
                         $fail('The submitted mentor was invalid mentor');
                     }

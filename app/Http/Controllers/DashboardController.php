@@ -3,10 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Module\AlarmController;
-use App\Http\Controllers\Module\DigitalDashboardController;
-use App\Http\Controllers\Module\SalesDashboardController;
-use App\Http\Controllers\Module\FinanceDashboardController;
-use App\Http\Controllers\Module\PartnerDashboardController;
 use App\Http\Requests\DashboardRequest;
 use App\Http\Traits\Modules\GetClientStatusTrait;
 use App\Interfaces\ClientEventRepositoryInterface;
@@ -125,6 +121,7 @@ class DashboardController extends Controller
                 /**
                  * sales data dashboard
                  */
+                
                 if (!Cache::has('sales-data-dashboard')) {
                     $sales = $dashboardService->snSalesDashboard($filter);
                     // $sales = (new SalesDashboardController($this))->get($request);

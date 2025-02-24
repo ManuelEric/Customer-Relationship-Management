@@ -92,6 +92,10 @@
                         </div>
                         <div class="col-md-9 col-8">
                             {{ $student->grade_now <= 12 ? $student->grade_now : 'Not High School' }}
+                            &nbsp;&nbsp;&nbsp;
+                            <label for="" data-toggle="tooltip" data-placement="right" title="Your initial student grade submission {{ $student->st_grade }}">
+                                <i class="bi bi-info-circle"></i>
+                            </label>
                         </div>
                     </div>
                     <div class="row mb-2 g-1">

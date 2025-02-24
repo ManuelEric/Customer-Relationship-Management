@@ -103,10 +103,12 @@ class InvoiceProgramController extends Controller
             return Redirect::to('invoice/client-program/create?prog=' . $request->clientprog_id)->withError('Create master invoice bundle first!');
         }
 
-        $raw_currency = [];
-        $raw_currency[0] = $request->currency;
-        $raw_currency[1] = $request->currency != "idr" ? $request->currency_detail : null;
-        # fetching currency till get the currency
+        $raw_currency = [
+            $request->currency,
+            $request->currency != "idr" ? $request->currency_detail : null
+        ];
+
+        # fetching raw currency till get the currency
         $currency = null;
         foreach ($raw_currency as $key => $val) {
             if ($val != NULL)
@@ -115,7 +117,7 @@ class InvoiceProgramController extends Controller
 
         if (in_array('idr', $raw_currency) && $request->is_session == "no") {
 
-            $invoice_details = $request->only([
+            $invoice_details = $request->safe()->only([
                 'clientprog_id',
                 'currency',
                 'is_session',
@@ -132,6 +134,24 @@ class InvoiceProgramController extends Controller
             ]);
             $param = "idr";
         } elseif (in_array('idr', $raw_currency) && $request->is_session == "yes") {
+
+            $invoice_details = $request->safe()->only([
+                'clientprog_id',
+                'currency',
+                'is_session',
+                'session',
+                'duration',
+                'inv_price_idr',
+                'inv_earlybird_idr',
+                'inv_discount_idr',
+                'inv_totalprice_idr',
+                'inv_words_idr',
+                'inv_paymentmethod',
+                'invoice_date',
+                'inv_duedate',
+                'inv_notes',
+                'inv_tnc'
+            ]);
 
             $invoice_details = [
                 'clientprog_id' => $request->clientprog_id,
@@ -215,6 +235,7 @@ class InvoiceProgramController extends Controller
         DB::beginTransaction();
         try {
 
+            # if today is not same as invoice created date
             if(date('Y-m-d') != date('Y-m-d', strtotime($invoice_details['created_at']))){
                 $last_id = InvoiceProgram::whereMonth('created_at', Carbon::parse($invoice_details['created_at'])->format('m'))->whereYear('created_at', Carbon::parse($invoice_details['created_at'])->format('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
 
@@ -259,7 +280,7 @@ class InvoiceProgramController extends Controller
             # either idr or other currency
 
             if ($invoice_details['inv_paymentmethod'] == "Installment") {
-
+                
                 # and using param to fetch data based on rupiah or other currency
                 $limit = $param == "idr" ? count($request->invdtl_installment) : count($request->invdtl_installment_other);
 
@@ -453,15 +474,28 @@ class InvoiceProgramController extends Controller
 
             # when created date / invoice date has changed 
             # then check if old invoice_id same or not with the new invoice id using created at
-            if ( date('Y-m-d', strtotime($invoice->created_at)) != $invoice_details['created_at']) {
+            if ( date('Y-m-d', strtotime($invoice->created_at)) != Carbon::parse($invoice_details['created_at'])->format('Y-m-d')) 
+            {
+                # after comparing the invoice date and requested created_date
+                # there is a condition where invoice got changed but still in the same month
+                # and to prevent invoice getting updated in the same month
+                # we need to check month before executing $new_inv_id;
+                # if the changes still happen in the same month, then don't update the invoice_id
                 
-                // $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
-                $last_id = InvoiceProgram::whereMonth('created_at', Carbon::parse($invoice_details['created_at'])->format('m'))->whereYear('created_at', Carbon::parse($invoice_details['created_at'])->format('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
-    
-                # Use Trait Create Invoice Id
-                $new_inv_id = $this->getInvoiceId($last_id, $invoice->clientprog->prog_id, $invoice_details['invoice_date']);
-                $invoice_details['inv_id'] = substr($inv_id, 0, 4) == $last_id ? $inv_id : $new_inv_id;
+                $new_inv_id = $inv_id;
+                $invoice_details['inv_id'] = $inv_id;
+                if ( date('m', strtotime($invoice->created_at) != Carbon::parse($invoice_details['created_at'])->format('m')) )
+                {
+                    // $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
+                    $last_id = InvoiceProgram::whereMonth('created_at', Carbon::parse($invoice_details['created_at'])->format('m'))->whereYear('created_at', Carbon::parse($invoice_details['created_at'])->format('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
+        
+                    # Use Trait Create Invoice Id
+                    $new_inv_id = $this->getInvoiceId($last_id, $invoice->clientprog->prog_id, $invoice_details['invoice_date']);
+                    $invoice_details['inv_id'] = substr($inv_id, 0, 4) == $last_id ? $inv_id : $new_inv_id;
+                }
 
+
+                # checking bundle
                 if($request->is_bundle > 0){
                     // $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->where('bundling_id', $invoice->clientprog->bundlingDetail->bundling_id)->max(DB::raw('substr(inv_id, 1, 4)'));
                     $last_id = InvoiceProgram::whereMonth('created_at', Carbon::parse($invoice_details['created_at'])->format('m'))->whereYear('created_at', Carbon::parse($invoice_details['created_at'])->format('Y'))->where('bundling_id', $invoice->clientprog->bundlingDetail->bundling_id)->max(DB::raw('substr(inv_id, 1, 4)'));
@@ -509,16 +543,16 @@ class InvoiceProgramController extends Controller
             if ($invoice_details['inv_paymentmethod'] == "Installment") {
 
                 # and using param to fetch data based on rupiah or other currency
-                $limit = $param == "idr" ? count($request->invdtl_installment) : count($request->invdtl_installment__other);
+                $limit = $param == "idr" ? count($request->invdtl_installment) : count($request->invdtl_installment_other);
 
                 for ($i = 0; $i < $limit; $i++) {
 
                     $installment_details[$i] = [
-                        'inv_id' => $new_inv_id,
-                        'invdtl_installment' => $param == "idr" ? $request->invdtl_installment[$i] : $request->invdtl_installment__other[$i],
-                        'invdtl_duedate' => $param == "idr" ? $request->invdtl_duedate[$i] : $request->invdtl_duedate__other[$i],
-                        'invdtl_percentage' => $param == "idr" ? $request->invdtl_percentage[$i] : $request->invdtl_percentage__other[$i],
-                        'invdtl_amountidr' => $param == "idr" ? $request->invdtl_amountidr[$i] : $request->invdtl_amountidr__other[$i],
+                        'inv_id' => $new_inv_id ?? $inv_id,
+                        'invdtl_installment' => $param == "idr" ? $request->invdtl_installment[$i] : $request->invdtl_installment_other[$i],
+                        'invdtl_duedate' => $param == "idr" ? $request->invdtl_duedate[$i] : $request->invdtl_duedate_other[$i],
+                        'invdtl_percentage' => $param == "idr" ? $request->invdtl_percentage[$i] : $request->invdtl_percentage_other[$i],
+                        'invdtl_amountidr' => $param == "idr" ? $request->invdtl_amountidr[$i] : $request->invdtl_amountidr_other[$i],
                         'invdtl_cursrate' => $param == "other" ? $invoice_details['curs_rate'] : null,
                         'invdtl_currency' => $invoice_details['currency'],
                         'created_at' => Carbon::now(),
@@ -537,6 +571,7 @@ class InvoiceProgramController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
+            // dd($e->getMessage());
             $log_service->createErrorLog(LogModule::UPDATE_INVOICE_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $invoice_details);
 
             return Redirect::to('invoice/client-program/' . $request->clientprog_id . '/edit')->withError('Failed to update invoice program');
@@ -1019,7 +1054,7 @@ class InvoiceProgramController extends Controller
             Log::error('Failed to dispatch job send email hold mentoring '. $e->getMessage());
         }
             
-        return Redirect::to('dashboard')->withSuccess('Successfully sent email Hold Mentoring.');
+        return Redirect::to('dashboard/finance')->withSuccess('Successfully sent email Hold Mentoring.');
     }
 
     public function updateMail(Request $request)

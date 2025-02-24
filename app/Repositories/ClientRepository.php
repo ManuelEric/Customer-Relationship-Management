@@ -370,10 +370,13 @@ class ClientRepository implements ClientRepositoryInterface
             when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
+            orderBy('client.updated_at', 'DESC')->
+            orderBy('client.created_at', 'DESC')->
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            isNotBlacklist();
             
         return $asDatatables === false ? $query->get() : $query;
     }
@@ -432,10 +435,13 @@ class ClientRepository implements ClientRepositoryInterface
             })->when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
+            orderBy('client.updated_at', 'DESC')->
+            orderBy('client.created_at', 'DESC')->
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            isNotBlacklist();
 
         return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
     }
@@ -516,10 +522,13 @@ class ClientRepository implements ClientRepositoryInterface
             })->when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
+            orderBy('client.updated_at', 'DESC')->
+            orderBy('client.created_at', 'DESC')->
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            isNotBlacklist();
             // groupBy('client.id');
 
         return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
@@ -598,10 +607,13 @@ class ClientRepository implements ClientRepositoryInterface
             when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
+            orderBy('client.updated_at', 'DESC')->
+            orderBy('client.created_at', 'DESC')->
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            isNotBlacklist();
             // groupBy('client.id');
 
         return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
@@ -659,6 +671,8 @@ class ClientRepository implements ClientRepositoryInterface
         when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
             $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
         })->
+        orderBy('client.updated_at', 'DESC')->
+        orderBy('client.created_at', 'DESC')->
         isNotSalesAdmin()->
         isUsingAPI();
 
@@ -700,7 +714,8 @@ class ClientRepository implements ClientRepositoryInterface
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            isNotBlacklist();
 
         return $asDatatables === false ?
             ($groupBy === true ? $query->addSelect(DB::raw('YEAR(client.created_at) AS year'))->get()->groupBy('year') : $query->get())
@@ -768,7 +783,8 @@ class ClientRepository implements ClientRepositoryInterface
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            isNotBlacklist();
 
         return $asDatatables === false ?
             ($groupBy === true ? $query->addSelect(DB::raw('YEAR(client.created_at) AS year'))->get()->groupBy('year') : $query->get())
@@ -805,6 +821,8 @@ class ClientRepository implements ClientRepositoryInterface
             when(!empty($advanced_filter['have_siblings']), function ($subQuery) use ($advanced_filter) {
                 $subQuery->where(DB::raw('IF((SELECT COUNT(*) FROM tbl_client_relation WHERE parent_id = client.id) > 1,true,false)'), $advanced_filter['have_siblings']);
             })->
+            orderBy('client.updated_at', 'DESC')->
+            orderBy('client.created_at', 'DESC')->
             isActive()->
             isVerified();
 
@@ -822,7 +840,11 @@ class ClientRepository implements ClientRepositoryInterface
         $query = Client::when($month, function ($subQuery) use ($month) {
             $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
         })->
-        isTeacher()->isActive()->isVerified();
+        isTeacher()->
+        isActive()->
+        isVerified()->
+        orderBy('client.updated_at', 'DESC')->
+        orderBy('client.created_at', 'DESC');
 
         return $asDatatables === false ? $query->get() : $query;
     }
@@ -1683,7 +1705,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function addInterestProgram($studentId, $interestProgram)
     {
-        $student = UserClient::find($studentId);
+        $student = UserClient::withTrashed()->find($studentId);
         $student->interestPrograms()->attach($interestProgram);
         return $student;
     }
@@ -1829,14 +1851,15 @@ class ClientRepository implements ClientRepositoryInterface
                 })->
                 when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
                     $querySearch->whereBetween('raw_client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
-                });
+                })->
+                orderBy('raw_client.created_at', 'DESC');
         
         return $asDatatables === false ? $query->get() : $query->get();
     }
 
     public function getNewAllRawClientDataTables($roleName, $asDatatables = false, $advanced_filter = [])
     {
-        $query = UserClient::isRaw()->
+        $query = UserClient::isRaw()->isNotBlacklist()->
                 whereHas('roles', function ($query2) use ($roleName) {
                     switch ($roleName) {
                         case 'student':

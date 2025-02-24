@@ -26,7 +26,8 @@
                             Received from :
                         </td>
                         <td>
-                            {{ $receipt->invoiceProgram->clientProg->client->parents[0]->full_name }}
+                            <!--{{ $receipt->invoiceProgram->clientProg->client->parents[0]->full_name }}-->
+                            {{ $receipt->invoiceProgram->clientProg->client->full_name }}
                             <br>
                             {{-- @if ($receipt->invoiceProgram->clientProg->client->parents[0]->state != null)
                                         {{ $receipt->invoiceProgram->clientProg->client->parents[0]->state }}
@@ -144,7 +145,7 @@
         <!--    <td colspan="3" align="right"><b>Inward Remittance Fee</b></td>-->
         <!--    <td valign="middle" align="center">-->
         <!--        <b>-->
-        <!--            (Rp. 79,000)-->
+        <!--            ($ 5)-->
         <!--        </b>-->
         <!--    </td>-->
         <!--</tr>-->

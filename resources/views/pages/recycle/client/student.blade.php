@@ -161,6 +161,7 @@
                         <th>Parents Name</th>
                         <th>Parents Mail</th>
                         <th>Parents Phone</th>
+                        <th>PIC</th>
                         <th>School</th>
                         <th>Graduation Year</th>
                         <th>Grade</th>
@@ -185,7 +186,7 @@
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="21"></td>
+                        <td colspan="22"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -352,6 +353,11 @@
                         data: 'parent_phone',
                         name: 'parent_phone',
                         className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'pic_name',
+                        name: 'pic_name',
                         defaultContent: '-'
                     },
                     {

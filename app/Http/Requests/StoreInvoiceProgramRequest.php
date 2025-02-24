@@ -79,6 +79,7 @@ class StoreInvoiceProgramRequest extends FormRequest
             //             $fail('Is session has to be "yes" based on master program session');
             //     }
             // ],
+            'is_session' => 'nullable',
             'session__si' => Rule::requiredIf(in_array('idr', $currency)),
             'duration__si' => Rule::requiredIf(in_array('idr', $currency)),
             'inv_price_idr__si' => Rule::requiredIf(in_array('idr', $currency)),
@@ -135,6 +136,7 @@ class StoreInvoiceProgramRequest extends FormRequest
             //             $fail('Is session has to be "yes" based on master program session');
             //     }
             // ],
+            'is_session' => 'nullable',
             'curs_rate' => 'required',
             'inv_price__so' => Rule::requiredIf(in_array('other', $currency)),
             'session__so' => Rule::requiredIf(in_array('other', $currency)),
@@ -155,7 +157,7 @@ class StoreInvoiceProgramRequest extends FormRequest
             'inv_tnc' => 'nullable',
 
             # installment validation
-            'invdtl_installment__other.*' => [
+            'invdtl_installment_other.*' => [
                 'required_if:inv_paymentmethod,installment',
                 'distinct',
                 // Rule::unique('tbl_invdtl', 'invdtl_installment')
@@ -163,9 +165,9 @@ class StoreInvoiceProgramRequest extends FormRequest
                 //         return $query->where('inv_id', $inv_id);
                 // })
             ],
-            'invdtl_duedate__other.*' => 'required_if:inv_paymentmethod,installment'.$addQueryInvDtlDueDateOther,
-            'invdtl_percentage__other.*' => 'required_if:inv_paymentmethod,installment',
-            'invdtl_amountidr__other.*' => 'required_if:inv_paymentmethod,installment',
+            'invdtl_duedate_other.*' => 'required_if:inv_paymentmethod,installment'.$addQueryInvDtlDueDateOther,
+            'invdtl_percentage_other.*' => 'required_if:inv_paymentmethod,installment',
+            'invdtl_amountidr_other.*' => 'required_if:inv_paymentmethod,installment',
         ];
 
 
@@ -201,6 +203,7 @@ class StoreInvoiceProgramRequest extends FormRequest
             //             $fail('Is session has to be "yes" based on master program session');
             //     }
             // ],
+            'is_session' => 'nullable',
             'curs_rate' => 'required',
             'inv_price__nso' => Rule::requiredIf(in_array('other', $currency)),
             // 'inv_earlybird__nso' => Rule::requiredIf(in_array('other', $currency)),
@@ -219,7 +222,7 @@ class StoreInvoiceProgramRequest extends FormRequest
             'inv_tnc' => 'nullable',
 
             # installment validation
-            'invdtl_installment__other.*' => [
+            'invdtl_installment_other.*' => [
                 'required_if:inv_paymentmethod,installment',
                 'distinct',
                 // Rule::unique('tbl_invdtl', 'invdtl_installment')
@@ -227,13 +230,13 @@ class StoreInvoiceProgramRequest extends FormRequest
                 //         return $query->where('inv_id', $inv_id);
                 // })
             ],
-            'invdtl_duedate__other.*' => 'required_if:inv_paymentmethod,installment',
-            'invdtl_percentage__other.*' => 'required_if:inv_paymentmethod,installment',
-            'invdtl_amountidr__other.*' => 'required_if:inv_paymentmethod,installment',
+            'invdtl_duedate_other.*' => 'required_if:inv_paymentmethod,installment',
+            'invdtl_percentage_other.*' => 'required_if:inv_paymentmethod,installment',
+            'invdtl_amountidr_other.*' => 'required_if:inv_paymentmethod,installment',
         ];
 
         if ($this->input('inv_duedate') != NULL && $this->input('inv_paymentmethod') == 'installment')
-            $rules['invdtl_duedate__other.*'] .= '|after_or_equal:inv_duedate';
+            $rules['invdtl_duedate_other.*'] .= '|after_or_equal:inv_duedate';
 
         return $rules;
     }
@@ -255,6 +258,7 @@ class StoreInvoiceProgramRequest extends FormRequest
         return [
             'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id'.$addQuery,
             'currency' => 'required',
+            'is_session' => 'nullable',
             // 'is_session' => [
             //     function ($attribute, $value, $fail) use ($clientProgram) {
             //         if ($clientProgram->program->prog_payment == "session" && $value == "no")

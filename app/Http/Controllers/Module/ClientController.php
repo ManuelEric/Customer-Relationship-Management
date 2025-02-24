@@ -133,8 +133,8 @@ class ClientController extends Controller
                     'referral_code'
                 ]);
 
-                // update also the gradenow
-                $student_details['grade_now'] = $student_details['st_grade'];
+                // update also the gradenow //! not used
+                // $student_details['grade_now'] = $student_details['st_grade'];
 
                 if (isset($request->is_funding))
                     $student_details['is_funding'] = $request->is_funding;

@@ -15,8 +15,8 @@ class ExtClientProgramController extends Controller
         with([
             'client' => function ($query) {
                 $query->
-                    select('id', 'sch_id', 'first_name', 'last_name')->
-                    selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade');
+                    select('id', 'sch_id', 'first_name', 'last_name', 'grade_now');
+                    // selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade');
             },
             'client.school' => function ($query) {
                 $query->select('sch_id', 'sch_name');
@@ -27,7 +27,15 @@ class ExtClientProgramController extends Controller
             'program' => function ($query) {
                 $query->select('prog_id', 'main_prog_id', 'prog_program');
             }
-        ])->successAndPaid()->select('clientprog_id', 'prog_id', 'client_id')->get();
+        ])->
+        whereHas('program', function ($query) {
+            $query->whereHas('main_prog', function ($query) {
+                $query->where('prog_name', 'Academic & Test Preparation');
+            })->whereHas('sub_prog', function ($query) {
+                $query->whereIn('sub_prog_name', ['Academic Tutoring', 'Subject Tutoring']);
+            });
+        })->
+        successAndPaid()->select('clientprog_id', 'prog_id', 'client_id')->get();
 
         $mappedB2CPrograms = $b2cPrograms->map(function ($data) {
 
@@ -38,7 +46,7 @@ class ExtClientProgramController extends Controller
             $client_id = $data->client->id;
             $client_fname = $data->client->first_name;
             $client_lname = $data->client->last_name;
-            $client_grade = $data->client->grade;
+            $client_grade = $data->client->grade_now;
             $school_name = $data->client->school ? $data->client->school->sch_name : null;
 
             return [
@@ -94,6 +102,66 @@ class ExtClientProgramController extends Controller
         return response()->json($programs);
     }
 
+    public function fnGetFreeTrialPrograms()
+    {
+        $clients_who_own_free_trial_tutor = \App\Models\ClientProgram::
+        with([
+            'client' => function ($query) {
+                $query->
+                    select('id', 'sch_id', 'first_name', 'last_name', 'grade_now');
+                    // selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade');
+            },
+            'client.school' => function ($query) {
+                $query->select('sch_id', 'sch_name');
+            },
+            'invoice' => function ($query) {
+                $query->select('clientprog_id', 'inv_id');
+            },
+            'program' => function ($query) {
+                $query->select('prog_id', 'main_prog_id', 'prog_program');
+            }
+        ])->
+        whereHas('program', function ($query) {
+            $query->whereHas('main_prog', function ($query) {
+                $query->where('prog_name', 'Academic & Test Preparation');
+            })->whereHas('sub_prog', function ($query) {
+                $query->whereIn('sub_prog_name', ['Academic Tutoring', 'Subject Tutoring']);
+            });
+        })->
+        pending()->
+        getFreeTrial()->
+        select('clientprog_id', 'prog_id', 'client_id')->get();
+
+        $mapped_program = $clients_who_own_free_trial_tutor->map(function ($data) {
+
+            $clientprog_id = $data->clientprog_id;
+            $program_name = $data->program->program_name;
+            $require = $data->program->main_prog->id == 4 ? "Tutor" : "Mentor";
+            $client_id = $data->client->id;
+            $client_fname = $data->client->first_name;
+            $client_lname = $data->client->last_name;
+            $client_grade = $data->client->grade_now;
+            $school_name = $data->client->school ? $data->client->school->sch_name : null;
+
+            return [
+                'category' => 'b2c',
+                'clientprog_id' => $clientprog_id,
+                'trial' => true,
+                'program_name' => $program_name,
+                'require' => $require,
+                'client' => [
+                    'uuid' => $client_id,
+                    'first_name' => $client_fname,
+                    'last_name' => $client_lname,
+                    'school_name' => $school_name,
+                    'grade' => $client_grade,
+                ]
+            ];
+        });
+
+        return response()->json($mapped_program);
+    }
+
     public function fnGetSuccessEssayProgram()
     {
         $b2cPrograms = \App\Models\ClientProgram::
@@ -116,7 +184,12 @@ class ExtClientProgramController extends Controller
                 $query->
                     select('users.id', 'phone', 'email', 'password', 'active');
             }
-        ])->successAndPaid()->select('clientprog_id', 'prog_id', 'client_id')->get();
+        ])->
+        whereHas('program.main_prog', function ($query) {
+            $query->where('prog_name', 'Admissions Mentoring');
+        })->
+        successAndPaid()->
+        select('clientprog_id', 'prog_id', 'client_id')->get();
 
         $mappedB2CPrograms = $b2cPrograms->map(function ($data) {
 

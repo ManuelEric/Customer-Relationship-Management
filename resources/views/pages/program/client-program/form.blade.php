@@ -293,6 +293,7 @@
                                             @endif
                                             @if (isset($clientProgram))
                                                 <option value="4">Hold</option>
+                                                <option value="5">Stop</option>
                                             @endif
                                         </select>
                                         @error('status')
