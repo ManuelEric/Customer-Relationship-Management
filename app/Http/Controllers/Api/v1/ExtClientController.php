@@ -1956,7 +1956,7 @@ class ExtClientController extends Controller
 
         $result = $resultInArray = null;
         if ($query->exists()) {
-            $result = $query->select('id', 'first_name', 'last_name', 'email', 'phone', 'password', 'position_id', 'active')->first();
+            $result = $query->select('id', 'first_name', 'last_name', 'email', 'phone', 'password', 'npwp', 'position_id', 'active')->first();
 
             # fetch the roles
             foreach ($result->roles as $role) {
@@ -1983,6 +1983,7 @@ class ExtClientController extends Controller
             $resultInArray['roles'] = $mappedRoles;
 
             unset($resultInArray['user_subjects']);
+            $resultInArray['has_npwp'] = $result->npwp ? true : false;
         }
 
         return response()->json($resultInArray);
