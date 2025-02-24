@@ -68,7 +68,6 @@ class AuthController extends Controller
         # create log success
         $this->logSuccess('auth', null, 'Login', $request->email);
 
-        
         switch ($scopes) {
             case in_array('super-admin', $scopes):
             case in_array('sales-admin', $scopes):
