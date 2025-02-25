@@ -1956,7 +1956,7 @@ class ExtClientController extends Controller
 
         $result = $resultInArray = null;
         if ($query->exists()) {
-            $result = $query->select('id', 'first_name', 'last_name', 'email', 'phone', 'password', 'position_id', 'active')->first();
+            $result = $query->select('id', 'first_name', 'last_name', 'email', 'phone', 'password', 'npwp', 'position_id', 'active')->first();
 
             # fetch the roles
             foreach ($result->roles as $role) {
@@ -1983,6 +1983,7 @@ class ExtClientController extends Controller
             $resultInArray['roles'] = $mappedRoles;
 
             unset($resultInArray['user_subjects']);
+            $resultInArray['has_npwp'] = $result->npwp ? true : false;
         }
 
         return response()->json($resultInArray);
@@ -2033,7 +2034,7 @@ class ExtClientController extends Controller
         $paginate = $request->get('paginate'); # true will return paginate results, false will return all results 
         $role = $request->get('role');
 
-        $user = \App\Models\User::query()->select('id', 'first_name', 'last_name', 'email', 'phone')->with([
+        $user = \App\Models\User::query()->select('id', 'first_name', 'last_name', 'email', 'phone', 'npwp')->with([
                 'user_subjects' => function ($query) {
                     $query->select('user_role_id', 'subject_id', 'year', 'agreement', 'head', 'additional_fee', 'grade', 'fee_individual', 'fee_group');
                 },
@@ -2086,6 +2087,7 @@ class ExtClientController extends Controller
                 'last_name' => $data['last_name'],
                 'email' => $data['email'],
                 'phone' => $data['phone'],
+                'has_npwp' => $data['npwp'] ? true : false, 
                 'roles' => $acceptedRole
             ];
         });
