@@ -52,6 +52,8 @@
 
             @include('pages.program.client-program.detail.client')
 
+            @include('pages.program.client-program.detail.program-phase')
+
             @if (isset($clientProgram) && $clientProgram->status == 0)
                 @include('pages.program.client-program.detail.plan-followup')
             @endif
@@ -955,6 +957,34 @@
     <script>
         $(document).ready(function() {
 
+            // Check Package
+            $('.check-package').on('click', function(){
+                var package_id = $(this).data('package');
+                if(!$('#check-'+ package_id).is(":checked")){
+                    $('#qty-' + package_id).addClass('uncheck')
+                }else{
+                    $('#qty-' + package_id).removeClass('uncheck')
+                }
+            });
+
+            // Counting
+            $('.count').prop('disabled', true);
+            $('.plus').on('click', function(){
+                var package_id = $(this).data('package');
+                $('#counting-' + package_id).val(parseInt($('#counting-' + package_id).val()) + 1 );
+            });
+
+            $('.minus').on('click', function(){
+                var package_id = $(this).data('package');
+
+                $('#counting-' + package_id).val(parseInt($('#counting-' + package_id).val()) - 1 );
+                if ($('#counting-' + package_id).val() == 0) {
+                    $('#counting-' + package_id).val(1);
+                }
+            });
+
+
+   		
             var baseUrl = "{{ url('/') }}/api/get/referral/list";
 
             $(".select-referral").select2({

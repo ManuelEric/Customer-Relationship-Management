@@ -154,4 +154,70 @@ input.dt-button {
     0% { background-position: 100% 0%; }
     100% { background-position: 0% 0%; }
   }
+
+  /* Counting in card program bought */
+  .qty .count {
+    /* color: #000; */
+    display: inline-block;
+    vertical-align: top;
+    font-size: 12px;
+    /* font-weight: 700; */
+    line-height: 30px;
+    padding: 0 1px
+    ;min-width: 15px;
+    text-align: center;
+}
+.qty .plus {
+    cursor: pointer;
+    display: inline-block;
+    vertical-align: middle;
+    /* color: black; */
+    width: 15px;
+    height: 15px;
+    font: 15px/1 Arial,sans-serif;
+    text-align: center;
+    border-radius: 50%;
+    }
+.qty .minus {
+    cursor: pointer;
+    display: inline-block;
+    vertical-align: middle;
+    /* color: black; */
+    width: 15px;
+    height: 15px;
+    font: 15px/1 Arial,sans-serif;
+    text-align: center;
+    border-radius: 50%;
+    /* background-clip: padding-box; */
+}
+.minus:hover{
+    background-color: #e7f1ff !important;
+}
+.plus:hover{
+    background-color: #e7f1ff !important;
+}
+/*Prevent text selection*/
+span{
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+input.count{  
+    border: 0;
+    width: 2%;
+}
+input.count::-webkit-outer-spin-button,
+input.count::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.uncheck{
+    color:rgb(54, 53, 53) !important
+}
+
+/* input:disabled{
+    background-color:white;
+} */
+     
   
