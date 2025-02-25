@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class PhaseLibrariesSeeder extends Seeder
 {
@@ -469,5 +470,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
         ];
+
+        DB::table('phase_libraries')->insert($seeds);
     }
 }
