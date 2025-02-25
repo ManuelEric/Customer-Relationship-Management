@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('phase_id')->constrained(
                 table: 'phases', indexName: 'phase_details_phase_id'
             )->onUpdate('cascade')->onDelete('cascade');
+            $table->string('phase_detail_name');
             $table->timestamps();
         });
     }

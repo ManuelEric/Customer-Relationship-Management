@@ -20,7 +20,7 @@ class PhaseLibrary extends Model
     protected $fillable = [
         'nation',
         'grade',
-        'slot'
+        'quota'
     ];
 
     public function phase_detail()
