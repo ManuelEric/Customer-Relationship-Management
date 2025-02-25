@@ -187,9 +187,13 @@ Route::prefix('v1')->group(function () {
     Route::get('get/user/by/TKT/{ticket_no}', [ExtClientController::class, 'getUserByTicket']);
     Route::get('get/user/by/UUID/{uuid}', [ExtClientController::class, 'getUserByUUID']);
 
-    # timesheet
-    Route::middleware(['timesheet.access'])->group(function () {
+    # essay editing & timesheet API use
+    Route::middleware(['resource:timesheet,editing'])->group(function () {
         Route::get('auth/email/check', [ExtClientController::class, 'checkUserEmail']);
+    });
+
+    # timesheet
+    Route::middleware(['resource:timesheet'])->group(function () {
         Route::post('auth/token', [ExtClientController::class, 'validateCredentials']);
         Route::post('user/update', [ExtClientController::class, 'updateUser']);
 
