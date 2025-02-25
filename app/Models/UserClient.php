@@ -78,6 +78,7 @@ class UserClient extends Authenticatable
         'category',
         'took_ia',
         'took_ia_date',
+        'blacklist',
         'created_at',
         'updated_at',
     ];
@@ -240,6 +241,11 @@ class UserClient extends Authenticatable
     }
 
     # Scopes
+    public function scopeIsNotBlacklist($query)
+    {
+        return $query->where('tbl_client.blacklist', 0);
+    }
+
     public function scopeIsVerified($query)
     {
         return $query->where('tbl_client.is_verified', 'Y');

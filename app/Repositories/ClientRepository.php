@@ -375,7 +375,8 @@ class ClientRepository implements ClientRepositoryInterface
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            isNotBlacklist();
             
         return $asDatatables === false ? $query->get() : $query;
     }
@@ -439,7 +440,8 @@ class ClientRepository implements ClientRepositoryInterface
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            isNotBlacklist();
 
         return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
     }
@@ -525,7 +527,8 @@ class ClientRepository implements ClientRepositoryInterface
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            isNotBlacklist();
             // groupBy('client.id');
 
         return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
@@ -609,7 +612,8 @@ class ClientRepository implements ClientRepositoryInterface
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            isNotBlacklist();
             // groupBy('client.id');
 
         return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
@@ -710,7 +714,8 @@ class ClientRepository implements ClientRepositoryInterface
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            isNotBlacklist();
 
         return $asDatatables === false ?
             ($groupBy === true ? $query->addSelect(DB::raw('YEAR(client.created_at) AS year'))->get()->groupBy('year') : $query->get())
@@ -778,7 +783,8 @@ class ClientRepository implements ClientRepositoryInterface
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            isNotBlacklist();
 
         return $asDatatables === false ?
             ($groupBy === true ? $query->addSelect(DB::raw('YEAR(client.created_at) AS year'))->get()->groupBy('year') : $query->get())
@@ -1853,7 +1859,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getNewAllRawClientDataTables($roleName, $asDatatables = false, $advanced_filter = [])
     {
-        $query = UserClient::isRaw()->
+        $query = UserClient::isRaw()->isNotBlacklist()->
                 whereHas('roles', function ($query2) use ($roleName) {
                     switch ($roleName) {
                         case 'student':

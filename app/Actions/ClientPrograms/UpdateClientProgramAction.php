@@ -5,6 +5,7 @@ namespace App\Actions\ClientPrograms;
 use App\Http\Requests\StoreClientProgramRequest;
 use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
+use App\Interfaces\ClientRepositoryInterface;
 use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\Client\ProcessInsertLogClient;
 use App\Services\Program\ClientProgramService;
@@ -14,12 +15,14 @@ class UpdateClientProgramAction
     private ClientProgramRepositoryInterface $clientProgramRepository;
     private ClientProgramService $clientProgramService;
     private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
+    private ClientRepositoryInterface $clientRepository;
 
-    public function __construct(ClientProgramRepositoryInterface $clientProgramRepository, ClientProgramService $clientProgramService, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository)
+    public function __construct(ClientProgramRepositoryInterface $clientProgramRepository, ClientProgramService $clientProgramService, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ClientRepositoryInterface $clientRepository)
     {
         $this->clientProgramRepository = $clientProgramRepository;
         $this->clientProgramService = $clientProgramService;
         $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
+        $this->clientRepository = $clientRepository;
     }
 
     public function execute(
@@ -45,6 +48,12 @@ class UpdateClientProgramAction
 
         $updated_client_program = $this->clientProgramRepository->updateClientProgram($clientprogram_id, ['client_id' => $student->id] + $client_program_details);
         $updated_client_program_id = $updated_client_program->clientprog_id;
+        
+        # when status == 5 ('stop') Update client blacklist true
+        if($request->status == 5){
+            $this->clientRepository->updateClient($student->id, ['blacklist' => 1]);
+        }
+
         # update the path into clientprogram table
         $this->clientProgramRepository->updateFewField($updated_client_program_id, ['agreement' => $file_path]);
         
