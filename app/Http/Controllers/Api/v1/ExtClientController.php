@@ -1951,7 +1951,7 @@ class ExtClientController extends Controller
                 }
             ])->
             withAndWhereHas('roles', function ($query) {
-                $query->whereIn('role_name', ['Mentor', 'Tutor', 'Editor'])->select('role_name');
+                $query->whereIn('role_name', ['Mentor', 'External Mentor', 'Tutor', 'Editor'])->select('role_name');
             })->where('email', $incomingEmail);
 
         $result = $resultInArray = null;
@@ -2035,50 +2035,44 @@ class ExtClientController extends Controller
         $role = $request->get('role');
 
         $user = \App\Models\User::query()->select('id', 'first_name', 'last_name', 'email', 'phone', 'npwp')->with([
-                'user_subjects' => function ($query) {
-                    $query->select('user_role_id', 'subject_id', 'year', 'agreement', 'head', 'additional_fee', 'grade', 'fee_individual', 'fee_group');
-                },
-                'user_subjects.subject',
-                'user_subjects.user_roles',
-                'user_subjects.user_roles.role',
+                'roles',
             ])->whereHas('roles', function ($query) use ($role) {
                 $query->when($role, function ($sub) use ($role) {
                     $sub->where('role_name', $role);
                 }, function ($sub) use ($role) {
-                    $sub->whereIn('role_name', ['Mentor', 'Tutor']);
+                    $sub->whereIn('role_name', ['Mentor', 'External Mentor', 'Tutor']);
                 });
             })->when($keyword, function ($query) use ($keyword) {
                 $query->where(function ($sub) use ($keyword) {
-                        $sub->whereRaw('CONCAT(first_name, " ", COALESCE(last_name)) like ?', ['%' . $keyword . '%'])->orWhereRaw('email like ?', ['%' . $keyword . '%'])->orWhereRaw('phone like ?', ['%' . $keyword . '%']);
+                        $sub->
+                        whereRaw('CONCAT(first_name, " ", COALESCE(last_name)) like ?', ['%' . $keyword . '%'])->
+                        orWhereRaw('email like ?', ['%' . $keyword . '%'])->
+                        orWhereRaw('phone like ?', ['%' . $keyword . '%']);
                     });
             })->whereNotNull('email')->isActive()->get();
 
         $mappedUser = $user->map(function ($data) {
 
-            $userSubjects = $data->user_subjects;
-
+            $userRole = $data->roles;
             $acceptedRole = [];
+            
+            # remove duplication using array as comparison
+            $storedRole = [];
 
-            foreach ($userSubjects as $user_subject) {
-
-                $user_role = $user_subject['user_roles'];
-                $role = $user_role['role'];
-
-                if (!in_array($role['role_name'], ['Mentor', 'Tutor']))
+            foreach ($userRole as $user_role) {
+                $role_name = $user_role['role_name'];
+                if (!in_array($role_name, ['Mentor', 'External Mentor', 'Tutor']))
                     continue;
 
+                if ( array_search($role_name, $storedRole) )
+                    continue;
+                
                 $acceptedRole[] = [
-                    'role' => $role['role_name'],
-                    'subjects' => [
-                        'name' => $user_subject['subject']['name'],
-                        'year' => $user_subject['year'],
-                        'head' => $user_subject['head'],
-                        'additional_fee' => $user_subject['additional_fee'],
-                        'grade' => $user_subject['grade'],
-                        'fee_individual' => $user_subject['fee_individual'],
-                        'fee_group' => $user_subject['fee_group'],
-                    ],
+                    'role' => $role_name,
                 ];
+
+                # array $storedRole uses for removing duplication purposes only
+                array_push($storedRole, $role_name);
             }
 
             return [

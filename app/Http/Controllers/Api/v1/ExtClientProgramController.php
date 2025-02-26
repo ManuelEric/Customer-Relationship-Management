@@ -3,14 +3,20 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Traits\MainProgramTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ExtClientProgramController extends Controller
 {
+    use MainProgramTrait;
+    
     public function getSuccessPrograms(Request $request, $authorization = null): JsonResponse
     {
 
+        [$main_program, $sub_program] = $this->tnGetMainProgramName($request->route('main_program_name'));
+
+        
         $b2cPrograms = \App\Models\ClientProgram::
         with([
             'client' => function ($query) {
@@ -28,11 +34,11 @@ class ExtClientProgramController extends Controller
                 $query->select('prog_id', 'main_prog_id', 'prog_program');
             }
         ])->
-        whereHas('program', function ($query) {
-            $query->whereHas('main_prog', function ($query) {
-                $query->where('prog_name', 'Academic & Test Preparation');
-            })->whereHas('sub_prog', function ($query) {
-                $query->whereIn('sub_prog_name', ['Academic Tutoring', 'Subject Tutoring']);
+        whereHas('program', function ($query) use ($main_program, $sub_program) {
+            $query->whereHas('main_prog', function ($query) use ($main_program) {
+                $query->where('prog_name', $main_program);
+            })->whereHas('sub_prog', function ($query) use ($sub_program) {
+                $query->whereIn('sub_prog_name', $sub_program);
             });
         })->
         successAndPaid()->select('clientprog_id', 'prog_id', 'client_id')->get();
