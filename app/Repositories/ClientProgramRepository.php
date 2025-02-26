@@ -9,6 +9,7 @@ use App\Models\BundlingDetail;
 use App\Models\ClientProgram;
 use App\Models\InvoiceProgram;
 use App\Models\Lead;
+use App\Models\Phase;
 use App\Models\pivot\ClientMentor;
 use App\Models\Reason;
 use App\Models\Receipt;
@@ -2062,6 +2063,21 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             $is_admission = true;
 
         return $is_admission;
+    }
+
+    public function getProgramBought(int $clientprog_id)
+    {
+        $phases = Phase::with(['phase_detail.phase_libraries.client_program'])
+                        ->whereHas('phase_detail', function($subQuery) use($clientprog_id){
+                            $subQuery->whereHas('phase_libraries', function($subQuery2) use($clientprog_id){
+                                $subQuery2->whereHas('client_program', function($subQuery3) use($clientprog_id){
+                                    $subQuery3->where('tbl_client_prog.clientprog_id', $clientprog_id);
+                                });
+                            });
+                        })
+                        ->get();
+        
+        return $phases;
     }
 
     # CRM

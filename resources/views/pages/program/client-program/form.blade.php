@@ -52,7 +52,10 @@
 
             @include('pages.program.client-program.detail.client')
 
-            @include('pages.program.client-program.detail.program-phase')
+            {{-- Check program is admission & status success --}}
+            @if(isset($clientProgram->program->main_prog_id) && $clientProgram->program->main_prog_id == 1 && $clientProgram->status == 1)
+                @include('pages.program.client-program.detail.program-phase')
+            @endif
 
             @if (isset($clientProgram) && $clientProgram->status == 0)
                 @include('pages.program.client-program.detail.plan-followup')

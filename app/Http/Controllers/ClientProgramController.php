@@ -154,6 +154,11 @@ class ClientProgramController extends Controller
         // $viewStudent = $this->clientRepository->getViewClientById($student_id);
         $client_program = $this->clientProgramRepository->getClientProgramById($client_program_id);
 
+        # If status program success && program is mentoring then fetch program bought
+        if($client_program->status == 1 && $client_program->program->main_prog_id == 1){
+            $program_bought = $this->clientProgramRepository->getProgramBought($client_program_id);
+        }
+
         # programs
         $programs = $this->programService->snGetProgramsB2c();
 
@@ -183,7 +188,8 @@ class ClientProgramController extends Controller
                 'internalPIC' => $internal_pic,
                 'tutors' => $tutors,
                 'mentors' => $mentors,
-                'reasons' => $reasons
+                'reasons' => $reasons,
+                'programBought' => $program_bought ?? null
             ]
         );
     }
