@@ -3,14 +3,20 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Traits\MainProgramTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ExtClientProgramController extends Controller
 {
+    use MainProgramTrait;
+    
     public function getSuccessPrograms(Request $request, $authorization = null): JsonResponse
     {
+        $requested_main_program_name = $request->route('main_program_name');
+        [$main_program, $sub_program] = $this->tnGetMainProgramName($requested_main_program_name);
 
+        
         $b2cPrograms = \App\Models\ClientProgram::
         with([
             'client' => function ($query) {
@@ -28,11 +34,13 @@ class ExtClientProgramController extends Controller
                 $query->select('prog_id', 'main_prog_id', 'prog_program');
             }
         ])->
-        whereHas('program', function ($query) {
-            $query->whereHas('main_prog', function ($query) {
-                $query->where('prog_name', 'Academic & Test Preparation');
-            })->whereHas('sub_prog', function ($query) {
-                $query->whereIn('sub_prog_name', ['Academic Tutoring', 'Subject Tutoring']);
+        whereHas('program', function ($query) use ($main_program, $sub_program) {
+            $query->whereHas('main_prog', function ($query) use ($main_program) {
+                $query->where('prog_name', $main_program);
+            })->whereHas('sub_prog', function ($query) use ($sub_program) {
+                $query->when($sub_program != 'all', function ($query) use ($sub_program) {
+                    $query->whereIn('sub_prog_name', $sub_program);
+                });
             });
         })->
         successAndPaid()->select('clientprog_id', 'prog_id', 'client_id')->get();
@@ -65,39 +73,47 @@ class ExtClientProgramController extends Controller
             ];
         });
 
-        $b2bPrograms = \App\Models\SchoolProgram::
-        with([
-            'school' => function ($query) {
-                $query->select('sch_id', 'sch_name');
-            },
-            'invoiceB2b' => function ($query) {
-                $query->select('schprog_id', 'invb2b_id');
-            },
-            'program' => function ($query) {
-                $query->select('prog_id', 'main_prog_id', 'prog_program');
-            }
-        ])->success()->programIs('Academic & Test Preparation')->select('tbl_sch_prog.id', 'prog_id', 'sch_id')->get();
+        # take academic & test preparation b2b success program
+        # if main program is 'Academic & Test Preparation'
+        if ( $main_program == 'Academic & Test Preparation' )
+        {
 
-        $mappedB2BPrograms = $b2bPrograms->map(function ($data) {
+            $b2bPrograms = \App\Models\SchoolProgram::
+            with([
+                'school' => function ($query) {
+                    $query->select('sch_id', 'sch_name');
+                },
+                'invoiceB2b' => function ($query) {
+                    $query->select('schprog_id', 'invb2b_id');
+                },
+                'program' => function ($query) {
+                    $query->select('prog_id', 'main_prog_id', 'prog_program');
+                }
+            ])->success()->programIs('Academic & Test Preparation')->select('tbl_sch_prog.id', 'prog_id', 'sch_id')->get();
+    
+            $mappedB2BPrograms = $b2bPrograms->map(function ($data) {
+    
+                $schprog_id = $data->id;
+                $invoiceb2b_id = $data->invoiceB2b->invb2b_id;
+                $program_name = $data->program->program_name;
+                $school_name = $data->school->sch_name;
+    
+                return [
+                    'category' => 'b2b',
+                    'schprog_id' => $schprog_id,
+                    'invoice_id' => $invoiceb2b_id,
+                    'program_name' => $program_name,
+                    'client' => [
+                        'school_name' => $school_name,
+                    ]
+                ];
+            });
+        }
 
-            $schprog_id = $data->id;
-            $invoiceb2b_id = $data->invoiceB2b->invb2b_id;
-            $program_name = $data->program->program_name;
-            $school_name = $data->school->sch_name;
 
-            return [
-                'category' => 'b2b',
-                'schprog_id' => $schprog_id,
-                'invoice_id' => $invoiceb2b_id,
-                'program_name' => $program_name,
-                'client' => [
-                    'school_name' => $school_name,
-                ]
-            ];
-        });
-        
-
-        $programs = $mappedB2CPrograms->merge($mappedB2BPrograms);
+        # if requested program is not academic tutoring
+        # then return only B2C Programs
+        $programs = isset($mappedB2BPrograms) ? $mappedB2CPrograms->merge($mappedB2BPrograms) : $mappedB2CPrograms;
 
         return response()->json($programs);
     }

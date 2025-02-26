@@ -194,16 +194,17 @@ Route::prefix('v1')->group(function () {
     });
 
     # timesheet
-    Route::middleware(['resource:timesheet'])->group(function () {
+    // Route::middleware(['resource:timesheet'])->group(function () {
         Route::post('user/update', [ExtClientController::class, 'updateUser']);
 
         Route::get('user/mentor-tutors', [ExtClientController::class, 'getMentorTutors']);
         Route::get('user/mentor-tutors/{uuid}', [ExtClientController::class, 'showMentorTutor']);
 
-        Route::get('program/list', [ExtClientProgramController::class, 'getSuccessPrograms']);
+        # main_program_name could be : academic, admissions
+        Route::get('program/{main_program_name}/list', [ExtClientProgramController::class, 'getSuccessPrograms']);
         Route::get('program/list/free-trial', [ExtClientProgramController::class, 'fnGetFreeTrialPrograms']);
         Route::get('client/information/{uuid}', [ExtClientController::class, 'getClientInformation']);
-    });
+    // });
 
     # use for select data subsector corporate
     Route::get('get/subsectors/{industry}', [ExtCorporateController::class, 'cnGetSubSectorByIndustry']);
