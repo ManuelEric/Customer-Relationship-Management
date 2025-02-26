@@ -200,7 +200,7 @@ Route::prefix('v1')->group(function () {
         Route::get('user/mentor-tutors', [ExtClientController::class, 'getMentorTutors']);
         Route::get('user/mentor-tutors/{uuid}', [ExtClientController::class, 'showMentorTutor']);
 
-        # main_program_name could be : academic tutoring, admissions mentoring
+        # main_program_name could be : academic, admissions
         Route::get('program/{main_program_name}/list', [ExtClientProgramController::class, 'getSuccessPrograms']);
         Route::get('program/list/free-trial', [ExtClientProgramController::class, 'fnGetFreeTrialPrograms']);
         Route::get('client/information/{uuid}', [ExtClientController::class, 'getClientInformation']);

@@ -1994,7 +1994,7 @@ class ExtClientController extends Controller
         $incomingEmail = $request->post('email');
         $incomingPassword = $request->post('password');
 
-        $user = \App\Models\User::with('roles')->where('email', $incomingEmail)->first();
+        $user = \App\Models\User::with('roles')->where(column: 'email', $incomingEmail)->first();
 
         if ( !$user ) {
             throw new HttpResponseException(

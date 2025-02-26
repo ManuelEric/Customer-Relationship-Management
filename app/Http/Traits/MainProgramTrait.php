@@ -8,7 +8,8 @@ trait MainProgramTrait
 {
     public function tnGetMainProgramName(String $requested_program): array
     {
-        $main_program = $sub_program = false; # default value 
+        $main_program = false; # default value 
+        $sub_program = [];
         switch ($requested_program)
         {
             case "academic":
@@ -16,7 +17,7 @@ trait MainProgramTrait
                 $sub_program = ['Academic Tutoring', 'Subject Tutoring'];
                 break;
 
-            case "mentoring":
+            case "admissions":
                 $main_program = 'Admissions Mentoring';
                 $sub_program = 'all';
                 break;
