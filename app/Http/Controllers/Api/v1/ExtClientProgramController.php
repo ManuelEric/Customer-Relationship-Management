@@ -60,7 +60,7 @@ class ExtClientProgramController extends Controller
             $client_id = $data->client->id;
             $client_fname = $data->client->first_name;
             $client_lname = $data->client->last_name;
-            $client_grade = $data->client->grade_now;
+            $client_grade = $data->client->grade_now ?? 0;
             $school_name = $data->client->school ? $data->client->school->sch_name : null;
 
             return [
