@@ -13,6 +13,7 @@ class ExtClientProgramController extends Controller
     
     public function getSuccessPrograms(Request $request, $authorization = null): JsonResponse
     {
+        $mentor_uuid = $request->get('k');
         $requested_main_program_name = $request->route('main_program_name');
         [$main_program, $sub_program] = $this->tnGetMainProgramName($requested_main_program_name);
 
@@ -41,6 +42,11 @@ class ExtClientProgramController extends Controller
                 $query->when($sub_program != 'all', function ($query) use ($sub_program) {
                     $query->whereIn('sub_prog_name', $sub_program);
                 });
+            });
+        })->
+        when($mentor_uuid, function ($query) use ($mentor_uuid) {
+            $query->whereHas('clientMentor', function ($query) use ($mentor_uuid) {
+                $query->where('id', $mentor_uuid);
             });
         })->
         successAndPaid()->select('clientprog_id', 'prog_id', 'client_id')->get();

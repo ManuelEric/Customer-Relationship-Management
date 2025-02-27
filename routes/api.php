@@ -147,6 +147,9 @@ Route::prefix('v1')->group(function () {
     Route::get('get/parent-mentees', [ExtClientController::class, 'getParentMentee']);
     Route::get('get/alumni-mentees', [ExtClientController::class, 'getAlumniMentees']);
     Route::get('get/mentees', [ExtClientController::class, 'getClientFromAdmissionMentoring']);
+    # detail of mentees
+    Route::get('get/mentee/{user_client}', [ExtClientController::class, 'fnGetMenteeDetails']);
+
     Route::get('get/mentors', [ExtClientController::class, 'getMentors']);
     Route::get('get/alumnis', [ExtClientController::class, 'getAlumnis']);
     Route::get('get/detail/lead-source', [ExtSalesTrackingController::class, 'getLeadSourceDetail']);
@@ -194,7 +197,7 @@ Route::prefix('v1')->group(function () {
     });
 
     # timesheet
-    // Route::middleware(['resource:timesheet'])->group(function () {
+    Route::middleware(['resource:timesheet'])->group(function () {
         Route::post('user/update', [ExtClientController::class, 'updateUser']);
 
         Route::get('user/mentor-tutors', [ExtClientController::class, 'getMentorTutors']);
@@ -204,7 +207,7 @@ Route::prefix('v1')->group(function () {
         Route::get('program/{main_program_name}/list', [ExtClientProgramController::class, 'getSuccessPrograms']);
         Route::get('program/list/free-trial', [ExtClientProgramController::class, 'fnGetFreeTrialPrograms']);
         Route::get('client/information/{uuid}', [ExtClientController::class, 'getClientInformation']);
-    // });
+    });
 
     # use for select data subsector corporate
     Route::get('get/subsectors/{industry}', [ExtCorporateController::class, 'cnGetSubSectorByIndustry']);

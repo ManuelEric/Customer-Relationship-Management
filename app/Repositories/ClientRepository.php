@@ -1244,7 +1244,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getClientById($clientId)
     {
-        return UserClient::with(['childrens'])->withTrashed()->find($clientId);
+        return UserClient::with(['childrens', 'parents'])->withTrashed()->find($clientId);
     }
 
     public function getClientWithTrashedByUUID($clientUUID)

@@ -1994,7 +1994,7 @@ class ExtClientController extends Controller
         $incomingEmail = $request->post('email');
         $incomingPassword = $request->post('password');
 
-        $user = \App\Models\User::with('roles')->where(column: 'email', $incomingEmail)->first();
+        $user = \App\Models\User::with('roles')->where('email', $incomingEmail)->first();
 
         if ( !$user ) {
             throw new HttpResponseException(
@@ -2198,5 +2198,30 @@ class ExtClientController extends Controller
             $query->where('role_name', $role);
         })->where('id', $uuid)->first();
         return response()->json($users);
+    }
+
+    /**
+     * Mentoring
+     */
+    public function fnGetMenteeDetails(Request $request): JsonResponse
+    {
+        $requested_mentee_id = $request->route('user_client');
+        $details = $this->clientRepository->getClientById($requested_mentee_id);
+        $response = [
+            'mentee_id' => $details->id,
+            'mentee_name' => $details->first_name . ' ' . $details->last_name,
+            'mentee_phone' => $details->phone,
+            'mentee_email' => $details->mail,
+            'grade' => $details->grade_now,
+            'application_year' => null,
+            'address' => [
+                'detail' => $details->address,
+                'city' => $details->city,
+            ],
+            'birthdate' => $details->dob,
+            // 'parent_name' => 
+
+        ];
+        return response()->json($details);
     }
 }
