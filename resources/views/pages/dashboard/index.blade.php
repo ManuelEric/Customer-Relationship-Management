@@ -72,7 +72,7 @@
     
             var use_filter_by_month = $("#use-filter-by-month").prop('checked');
     
-            var url = window.location.origin + '/api/get/program-comparison'
+            var url = window.location.origin + '/api/v1/dashboard/program-comparison'
     
             axios.get(url, {
                     params: {

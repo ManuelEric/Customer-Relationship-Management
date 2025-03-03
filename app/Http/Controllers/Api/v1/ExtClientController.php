@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\Registration\Public\PublicRegistrationRequest;
 use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
+use App\Http\Traits\ClientMentorTrait;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\SplitLeadEdufairTrait;
@@ -17,10 +17,7 @@ use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
-use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\Client\ProcessInsertLogClient;
-use App\Jobs\RawClient\ProcessVerifyClient;
-use App\Jobs\RawClient\ProcessVerifyClientParent;
 use App\Models\ClientEvent;
 use App\Models\Event;
 use App\Models\School;
@@ -50,6 +47,8 @@ class ExtClientController extends Controller
     use CreateCustomPrimaryKeyTrait;
     use LoggingTrait;
     use SplitLeadEdufairTrait;
+    use ClientMentorTrait;
+
     private ClientRepositoryInterface $clientRepository;
     private SchoolRepositoryInterface $schoolRepository;
     private ClientEventRepositoryInterface $clientEventRepository;
@@ -2123,7 +2122,7 @@ class ExtClientController extends Controller
 
     public function getClientInformation($uuid): JsonResponse
     {
-        $userClient = UserClient::where('id', $uuid)->select('*')->selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade')->first();
+        $userClient = UserClient::where('id', $uuid)->select('*')->selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade')->withTrashed()->first();
         return response()->json($userClient);
     }
 
@@ -2207,7 +2206,7 @@ class ExtClientController extends Controller
     {
         $requested_mentee_id = $request->route('user_client');
         $details = $this->clientRepository->getClientById($requested_mentee_id);
-        $response = [
+        $response_of_student_information = [
             'mentee_id' => $details->id,
             'mentee_name' => $details->first_name . ' ' . $details->last_name,
             'mentee_phone' => $details->phone,
@@ -2219,9 +2218,27 @@ class ExtClientController extends Controller
                 'city' => $details->city,
             ],
             'birthdate' => $details->dob,
-            // 'parent_name' => 
-
+            'parent_name' => $details->parents()->select(['first_name', 'last_name', 'mail', 'phone'])->get()->toArray() 
         ];
-        return response()->json($details);
+
+        $response_of_student_mentor = array();
+        // foreach ($details->clientProgram as $client_program) {
+        //     foreach ($client_program->clientMentor as $client_mentor) {
+        //         array_push($response_of_student_mentor, [
+        //             'user_id' => $client_mentor->id,
+        //             'mentor_name' => $client_mentor->first_name . ' ' . $client_mentor->last_name,
+        //             'act_as' => $this->translateType($client_mentor->pivot->type),
+        //         ]);
+        //     }
+        // }
+
+        $response = array_merge($response_of_student_information, $response_of_student_mentor);
+
+        return response()->json($response);
+    }
+
+    public function fnGetGraduatedMentee()
+    {
+        
     }
 }

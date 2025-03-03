@@ -81,7 +81,7 @@
         if (!user)
             user = '';
 
-        var url = window.location.origin + '/api/get/client-event/' + year + '/' + user
+        var url = window.location.origin + '/api/v1/dashboard/client-event/' + year + '/' + user
 
         axios.get(url)
             .then(function(response) {
