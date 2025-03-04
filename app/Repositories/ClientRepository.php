@@ -722,6 +722,63 @@ class ClientRepository implements ClientRepositoryInterface
             : $query;
     }
 
+    public function rnGetGraduatedMentees()
+    {
+        $graduated_mentees = UserClient::with([
+                'school' => function ($query) {
+                    $query->select('sch_id', 'sch_name', 'sch_city');
+                },
+            ])->isGraduated()->getMentoredStudents()->select([
+                'id',
+                DB::raw('CONCAT(first_name, " ", last_name) as full_name'),
+                'mail',
+                'phone',
+                'dob',
+                'city',
+                'address',
+                'sch_id'
+            ])->get();
+        $mapped_graduated_mentees = $graduated_mentees->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'full_name' => $item->full_name,
+                'mail' => $item->mail,
+                'phone' => $item->phone,
+                'dob' => $item->dob,
+                'city' => $item->city,
+                'address' => $item->address,
+                'sch_name' => $item->school->sch_name ?? null,
+                'sch_city' => $item->school->sch_city ?? null,
+            ];
+        });
+        
+        return $mapped_graduated_mentees;
+    }
+
+    public function rnGetActiveMentees()
+    {
+        $active_mentees = UserClient::with([
+            'school' => function ($query) {
+                $query->select('sch_id', 'sch_name', 'sch_city');
+            },
+        ])->isActiveMentee()->getMentoredStudents()->get();
+        $mapped_active_mentees = $active_mentees->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'full_name' => $item->full_name,
+                'mail' => $item->mail,
+                'phone' => $item->phone,
+                'dob' => $item->dob,
+                'city' => $item->city,
+                'address' => $item->address,
+                'sch_name' => $item->school->sch_name ?? null,
+                'sch_city' => $item->school->sch_city ?? null,
+            ];
+        });
+        
+        return $mapped_active_mentees;
+    }
+
     public function getAlumniMenteesSiblings()
     {
         $query = Client::with(['parents', 'parents.childrens'])->whereHas('clientProgram.program.main_prog', function ($subQuery) {

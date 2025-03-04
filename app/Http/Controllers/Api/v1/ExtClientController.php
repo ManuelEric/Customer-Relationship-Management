@@ -2239,6 +2239,13 @@ class ExtClientController extends Controller
 
     public function fnGetGraduatedMentee()
     {
-        
+        $graduated_mentees = $this->clientRepository->rnGetGraduatedMentees();
+        return response()->json($graduated_mentees);
+    }
+
+    public function fnGetActiveMentee()
+    {
+        $active_mentees = $this->clientRepository->rnGetActiveMentees();
+        return response()->json($active_mentees);
     }
 }

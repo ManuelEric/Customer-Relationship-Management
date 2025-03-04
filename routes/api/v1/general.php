@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\v1\ExtPartnerController;
 use App\Http\Controllers\Api\v1\ExtUniversityController;
 use App\Http\Controllers\Api\v1\ExtClientController;
 use App\Http\Controllers\Api\v1\SchoolController as APISchoolController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CurrencyRateController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\GoogleSheetController;
@@ -23,8 +24,13 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ReceiptPartnerController;
 use App\Http\Controllers\ReceiptReferralController;
 use App\Http\Controllers\ReceiptSchoolController;
+use App\Http\Controllers\Api\v1\AuthController as V1APIAuthController;
 
 Route::middleware(['throttle:120,1'])->group(function () {
+
+    # auth
+    Route::post('auth/login', [V1APIAuthController::class, 'login']);
+
     Route::get('get/parent-mentees', [ExtClientController::class, 'getParentMentee']);
     Route::get('get/alumni-mentees', [ExtClientController::class, 'getAlumniMentees']);
     Route::get('get/mentees', [ExtClientController::class, 'getClientFromAdmissionMentoring']);
@@ -33,8 +39,8 @@ Route::middleware(['throttle:120,1'])->group(function () {
 
     # try to use header fields for carrying the mentor ID information
     # so that we don't have to use /{mentor_id} or ?id=<mentor_id>
-    # but for now, we'll just use /{mentor_id}
-    Route::get('get/graduated/mentee/{mentor_id}', [ExtClientController::class, 'fnGetGraduatedMentee']);
+    Route::get('get/graduated/mentees', [ExtClientController::class, 'fnGetGraduatedMentee']);
+    Route::get('get/active/mentees', [ExtClientController::class, 'fnGetActiveMentee']);
 
     Route::get('get/mentors', [ExtClientController::class, 'getMentors']);
     Route::get('get/alumnis', [ExtClientController::class, 'getAlumnis']);
