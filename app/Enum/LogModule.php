@@ -177,6 +177,12 @@ enum LogModule: string
     case DELETE_CLIENT_PROGRAM = '[DELETE CLIENT PROGRAM]';
 
     /**
+     * Program Phase
+     */
+    case STORE_PROGRAM_PHASE = '[STORE PROGRAM PHASE]';
+    case DELETE_PROGRAM_PHASE = '[DELETE PROGRAM PHASE]';
+
+    /**
      * Bundle Program
      */
     case STORE_BUNDLE_PROGRAM = '[STORE BUNDLE PROGRAM]';

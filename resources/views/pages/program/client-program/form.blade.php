@@ -962,11 +962,53 @@
 
             // Check Package
             $('.check-package').on('click', function(){
-                var package_id = $(this).data('package');
+                var clientprog_id = $(this).data('clientprog-id');
+                var phase_lib_id = $(this).data('phase-lib-id');
+                var package_id = $(this).data('package-id');
+                var link = null;
                 if(!$('#check-'+ package_id).is(":checked")){
                     $('#qty-' + package_id).addClass('uncheck')
+                    link = '{{ url('api/program-phase') }}/' + clientprog_id + '/' + phase_lib_id
+                    
+                    axios.delete(link, {
+                        headers:{
+                            'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
+                        }
+                    })
+                    .then(function(response) {
+
+                        let obj = response.data;
+                        notification('success', "Successfully remove item program bought");
+                    })
+                    .catch(function(error) {
+                        notification('error', error)
+                    })
                 }else{
                     $('#qty-' + package_id).removeClass('uncheck')
+                    link = '{{ url('api/program-phase') }}'
+                    
+                    var data = {
+                        clientprog_id: clientprog_id,
+                        phase_lib_id: phase_lib_id
+                    }
+
+                    axios.post(link, data,
+                        {
+                            headers:{
+                                'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
+                            }
+                        }
+                    )
+                    .then(function(response) {
+
+                        let obj = response.data;
+                        console.log(obj);
+                        
+                        notification('success', "Successfully add item program bought");
+                    })
+                    .catch(function(error) {
+                        notification('error', error)
+                    })
                 }
             });
 

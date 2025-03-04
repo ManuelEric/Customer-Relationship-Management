@@ -793,4 +793,75 @@ class ClientProgramController extends Controller
             'data' => $deleted_bundle_program
         ]);
     }
+
+    public function fnRemoveProgramPhase(Request $request, LogService $log_service)
+    {
+        $clientprog_id = $request->route('clientprog_id');
+        $phase_lib_id = $request->route('phase_lib_id');
+
+        DB::beginTransaction();
+        try {
+            $deleted_program_phase = $this->clientProgramRepository->rnDeleteProgramPhase($clientprog_id, $phase_lib_id);
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            $log_service->createErrorLog(LogModule::DELETE_PROGRAM_PHASE, $e->getMessage(), $e->getLine(), $e->getFile(), ['clientprog_id' => $clientprog_id, 'phase_lib_id' => $phase_lib_id]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Something went wrong. Please try again'
+            ], 500);
+        }
+
+        # create log success
+        $log_service->createSuccessLog(LogModule::DELETE_PROGRAM_PHASE, 'Program phase has been deleted', $deleted_program_phase->toArray());
+
+        return response()->json([
+            'success' => true,
+            'data' => $deleted_program_phase
+        ]);
+    }
+
+    public function fnStoreProgramPhase(Request $request, LogService $log_service)
+    {
+        $program_phase_details = $request->only(['clientprog_id', 'phase_lib_id']);
+
+        DB::beginTransaction();
+        try {
+            $clientprogram = $this->clientProgramRepository->getClientProgramById($program_phase_details['clientprog_id']);
+            
+            # add new attribute 
+            $program_phase_details['grade'] = $clientprogram->client->grade_now ?? null;
+            $program_phase_details['quota'] = 0;
+            // return response()->json([
+            //     'success' => true,
+            //     'data' => $program_phase_details
+            // ]);
+
+
+            $created_program_phase = $this->clientProgramRepository->rnStoreProgramPhase($program_phase_details);
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            $log_service->createErrorLog(LogModule::STORE_PROGRAM_PHASE, $e->getMessage(), $e->getLine(), $e->getFile(), $program_phase_details);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Something went wrong. Please try again'
+            ], 500);
+        }
+
+        # create log success
+
+        $log_service->createSuccessLog(LogModule::STORE_PROGRAM_PHASE, 'Successfully Add Item Program phase', $created_program_phase->toArray());
+
+        return response()->json([
+            'success' => true,
+            'data' => $created_program_phase
+        ]);
+    }
 }

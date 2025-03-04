@@ -34,6 +34,7 @@ use App\Http\Controllers\Api\v1\ExtCorporateController;
 use App\Http\Controllers\Api\v1\ExtEventController;
 use App\Http\Controllers\Api\v1\ExtPartnerController;
 use App\Http\Controllers\Api\v1\ExtUniversityController;
+use App\Http\Controllers\ClientProgramController;
 use App\Http\Controllers\GoogleSheetController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\ReceiptSchoolController;
@@ -332,6 +333,11 @@ Route::middleware('auth:api')->get('sync/{type}', [GoogleSheetController::class,
 
 Route::group(['middleware' => 'crm.key'], function () {
     Route::post('assessment/update', [ExtClientController::class, 'updateTookIA']);
+});
 
 
+# Program Phase
+Route::group(['middleware' => 'auth:api'], function () {
+    Route::delete('program-phase/{clientprog_id}/{phase_lib_id}', [ClientProgramController::class, 'fnRemoveProgramPhase']);
+    Route::post('program-phase/', [ClientProgramController::class, 'fnStoreProgramPhase']);
 });

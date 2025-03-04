@@ -10,7 +10,9 @@ use App\Models\ClientProgram;
 use App\Models\InvoiceProgram;
 use App\Models\Lead;
 use App\Models\Phase;
+use App\Models\PhaseLibrary;
 use App\Models\pivot\ClientMentor;
+use App\Models\pivot\ClientProgramDetail;
 use App\Models\Reason;
 use App\Models\Receipt;
 use App\Models\School;
@@ -2068,16 +2070,31 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     public function getProgramBought(int $clientprog_id)
     {
         $phases = Phase::with(['phase_detail.phase_libraries.client_program'])
-                        ->whereHas('phase_detail', function($subQuery) use($clientprog_id){
-                            $subQuery->whereHas('phase_libraries', function($subQuery2) use($clientprog_id){
-                                $subQuery2->whereHas('client_program', function($subQuery3) use($clientprog_id){
-                                    $subQuery3->where('tbl_client_prog.clientprog_id', $clientprog_id);
-                                });
-                            });
-                        })
+                        // ->whereHas('phase_detail', function($subQuery) use($clientprog_id){
+                        //     $subQuery->whereHas('phase_libraries', function($subQuery2) use($clientprog_id){
+                        //         $subQuery2->whereHas('client_program', function($subQuery3) use($clientprog_id){
+                        //             $subQuery3->where('tbl_client_prog.clientprog_id', $clientprog_id);
+                        //         });
+                        //     });
+                        // })
                         ->get();
         
         return $phases;
+    }
+
+    public function rnDeleteProgramPhase(int $clientprog_id, int $phase_lib_id)
+    {
+        $phase_library = PhaseLibrary::find($phase_lib_id);
+        ClientProgramDetail::where('clientprog_id', $clientprog_id)->where('phase_lib_id', $phase_lib_id)->delete();
+        
+        return $phase_library;
+    }
+
+    public function rnStoreProgramPhase(Array $program_phase_details)
+    {
+        $created_client_program_detail = ClientProgramDetail::create($program_phase_details);
+        
+        return $created_client_program_detail;
     }
 
     # CRM

@@ -30,6 +30,6 @@ class PhaseLibrary extends Model
 
     public function client_program()
     {
-        return $this->belongsToMany(ClientProgram::class, 'client_program_details', 'phase_lib_id', 'clientprog_id')->using(ClientProgramDetail::class);
+        return $this->belongsToMany(ClientProgram::class, 'client_program_details', 'phase_lib_id', 'clientprog_id')->using(ClientProgramDetail::class)->withPivot('quota');
     }
 }

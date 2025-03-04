@@ -23,20 +23,23 @@
                                         @foreach ($pb->phase_detail as $pd)
                                             {{-- Package --}}
                                             @php
-                                                $data_quota = null;
+                                                $data_phase_lib[$pd->id] = [];
+                                                $is_check_program_phase = false;
                                                 foreach ($pd->phase_libraries as $pl) {
+                                                    $data_phase_lib[$pl->phase_detail_id] = $pl;
                                                     if(count($pl->client_program) > 0){
-                                                        $data_quota = $pl->quota;
+                                                        $is_check_program_phase = true;
                                                     }
                                                 }
                                             @endphp
                                             <tr align="left">
-                                                <td><input class="form-check-input check-package" type="checkbox" value="" data-package="{{$pd->id}}" id="check-{{$pd->id}}" {{ $data_quota != null ? 'checked' : '' }}></td>
+                                                <td><input class="form-check-input check-package" type="checkbox" value="" data-package-id="{{$pd->id}}" data-phase-lib-id="{{$data_phase_lib[$pd->id]->id ?? '-'}}" data-clientprog-id="{{ isset($clientProgram) ? $clientProgram->clientprog_id : '-' }}" id="check-{{$pd->id}}" {{ $data_phase_lib[$pd->id] != null && $is_check_program_phase != null ? 'checked' : '' }}></td>
                                                 <td>{{ $pd->phase_detail_name }}</td>
                                                 <td>
                                                     <div class="qty" id="qty-{{$pd->id}}">
                                                         <span class="minus border border-dark mt-2" data-package="{{$pd->id}}">-</span>
-                                                        <input type="number" class="count" name="qty" id="counting-{{$pd->id}}" value="{{ $data_quota != null ? $data_quota : '0'}}">
+                                                        <input type="number" class="count" name="qty" id="counting-{{$pd->id}}" value="
+                                                        {{ $data_phase_lib[$pd->id] != null && $data_phase_lib[$pd->id]->quota != null ? $data_phase_lib[$pd->id]->quota : '0'}}">
                                                         <span class="plus border border-dark mt-2" data-package="{{$pd->id}}">+</span>
                                                     </div>
                                                 </td>
