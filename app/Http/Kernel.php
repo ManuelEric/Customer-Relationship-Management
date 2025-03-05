@@ -69,6 +69,7 @@ class Kernel extends HttpKernel
         'auth.api.expires' => \App\Http\Middleware\RedirectIfSessionExpired::class,
         'scopes' => \Laravel\Passport\Http\Middleware\CheckScopes::class,
         'scope' => \Laravel\Passport\Http\Middleware\CheckForAnyScope::class,
-        'timesheet.access' => \App\Http\Middleware\TimesheetAccess::class,
+        'resources' => \App\Http\Middleware\CheckExternalResources::class,
+        'resource' => \App\Http\Middleware\CheckForAnyExternalResource::class,
     ];
 }

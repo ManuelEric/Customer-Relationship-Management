@@ -21,6 +21,7 @@ use App\Models\InvoiceProgram;
 use App\Services\Log\LogService;
 use DateTime;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Carbon;
@@ -730,7 +731,7 @@ class InvoiceProgramController extends Controller
         # create log success
         $log_service->createSuccessLog(LogModule::REQUEST_SIGN_INVOICE_PROGRAM, 'Successfully send request sign', $attachment_details);
 
-        return response()->json(['message' => 'Invoice sent successfully.']);
+        return response()->json(['message' => 'Invoice sent successfully.'], JsonResponse::HTTP_OK, [], options: JSON_INVALID_UTF8_IGNORE);
     }
 
     public function download(Request $request)
