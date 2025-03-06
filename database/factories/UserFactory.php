@@ -35,11 +35,17 @@ class UserFactory extends Factory
             'position_id' => \App\Models\Position::inRandomOrder()->first()->id,
             'password' => Hash::make('password'),
             'hiredate' => Carbon::now(),
-            'nik' => fake()->randomNumber(16),
+            'nik' => fake()->randomNumber(9),
             'idcard' => NULL,
             'cv' => NULL,
             'bank_name' => 'BCA',
             'account_name' => fake()->name(),
+            'account_no' => fake()->randomNumber(9),
+            'npwp' => fake()->randomNumber(9),
+            'tax' => Str::random(30),
+            'active' => 1,
+            'health_insurance' => Str::random(50),
+            'empl_insurance' => Str::random(50),
             'remember_token' => Str::random(10),
         ];
     }
