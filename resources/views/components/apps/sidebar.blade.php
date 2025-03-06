@@ -64,6 +64,10 @@
                                     if ( $url[0] == 'recycle' )
                                         $submenu_active = $url[0].'/'.$url[1].'/'.$url[2];
                                 }
+
+                                /* Condition for users menu */
+                                if (end($url) == 'employee')
+                                    $submenu_active = 'user';
                                 
                                 
                             @endphp
