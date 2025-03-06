@@ -10,6 +10,7 @@ use App\Interfaces\AssetRepositoryInterface;
 use App\Interfaces\AssetReturnedRepositoryInterface;
 use App\Interfaces\AssetUsedRepositoryInterface;
 use App\Interfaces\AxisRepositoryInterface;
+use App\Interfaces\BankRepositoryInterface;
 use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientLeadRepositoryInterface;
@@ -93,6 +94,7 @@ use App\Repositories\AssetRepository;
 use App\Repositories\AssetReturnedRepository;
 use App\Repositories\AssetUsedRepository;
 use App\Repositories\AxisRepository;
+use App\Repositories\BankRepository;
 use App\Repositories\ClientEventLogMailRepository;
 use App\Repositories\ClientEventRepository;
 use App\Repositories\ClientLeadRepository;
@@ -259,6 +261,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(SubjectRepositoryInterface::class, SubjectRepository::class);
         $this->app->bind(IndustryRepositoryInterface::class, IndustryRepository::class);
         $this->app->bind(SubSectorRepositoryInterface::class, SubSectorRepository::class);
+        $this->app->bind(BankRepositoryInterface::class, BankRepository::class);
     }
 
     /**

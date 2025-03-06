@@ -92,7 +92,7 @@
             $("#menus").removeClass('d-none');
             
             //   Axios Here
-            var link = "{{ url('/') }}/api/department/access/" + department 
+            var link = "{{ url('/') }}/api/v1/department/access/" + department 
             axios.get(link)
                 .then(function (response) {
                     resetCheckboxes()
@@ -110,7 +110,7 @@
                     notification('error', 'Something went wrong. Please try again.')
                 })
             
-            var link = '{{ url("/") }}/api/employee/department/' + department
+            var link = '{{ url("/") }}/api/v1/employee/department/' + department
             axios.get(link)
                 .then(function (response) {
                     var obj = response.data;
@@ -134,7 +134,7 @@
             $('#user_id').val(user_id)
 
             //   Axios Here 
-            var link = "{{ url('/') }}/api/department/access/" + department + "/" + user_id
+            var link = "{{ url('/') }}/api/v1/department/access/" + department + "/" + user_id
             axios.get(link)
                 .then(function (response) {
                     $(".user-menu").removeClass('active rounded')

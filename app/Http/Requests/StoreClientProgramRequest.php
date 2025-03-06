@@ -153,7 +153,7 @@ class StoreClientProgramRequest extends FormRequest
 
                     $rules['status'] = [
                         'required',
-                        'in:0,1,2,3',
+                        'in:0,1,2,3,5',
                         function ($attribute, $value, $fail) use ($clientProg) {
                             $studentId = $this->route('student');
                             $student = UserClient::find($studentId);

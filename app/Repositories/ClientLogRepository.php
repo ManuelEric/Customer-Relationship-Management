@@ -75,8 +75,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
      */
     public function filteredOnlinePaidLeads(Carbon $start_date, Carbon $end_date): Array
     {
-        $unfiltered_leads = $this->unfilteredOnlinePaidLeads($start_date, $end_date)[1];
-        $query = ClientLog::onlinePaidFilteredLeads()->whereBetween('created_at', [$start_date, $end_date])->whereIn('client_id', $unfiltered_leads);
+        $query = ClientLog::onlinePaidFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -85,8 +84,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function filteredOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): Array
     {
-        $unfiltered_leads = $this->unfilteredOnlineOrganicLeads($start_date, $end_date)[1];
-        $query = ClientLog::onlineOrganicFilteredLeads()->whereBetween('created_at', [$start_date, $end_date])->whereIn('client_id', $unfiltered_leads);
+        $query = ClientLog::onlineOrganicFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -95,8 +93,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function filteredOfflineLeads(Carbon $start_date, Carbon $end_date): Array
     {
-        $unfiltered_leads = $this->unfilteredOfflineLeads($start_date, $end_date)[1];
-        $query = ClientLog::offlineFilteredLeads()->whereBetween('created_at', [$start_date, $end_date])->whereIn('client_id', $unfiltered_leads);
+        $query = ClientLog::offlineFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -105,8 +102,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function filteredReferralSales(Carbon $start_date, Carbon $end_date): Array
     {
-        $unfiltered_leads = $this->unfilteredReferralLeads($start_date, $end_date)[1];
-        $query = ClientLog::referralFromExistingClientsFilteredLeads()->whereBetween('created_at', [$start_date, $end_date])->whereIn('client_id', $unfiltered_leads);
+        $query = ClientLog::referralFromExistingClientsFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -121,8 +117,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
      */
     public function potentialOnlinePaidLeads(Carbon $start_date, Carbon $end_date): Array
     {
-        $filtered_leads = $this->filteredOnlinePaidLeads($start_date, $end_date)[1];
-        $query = ClientLog::onlinePaidPotentialLeads()->whereBetween('created_at', [$start_date, $end_date])->whereIn('client_id', $filtered_leads);
+        $query = ClientLog::onlinePaidPotentialLeads()->whereBetween('created_at', [$start_date, $end_date]);
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -131,8 +126,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function potentialOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): Array
     {
-        $filtered_leads = $this->filteredOnlineOrganicLeads($start_date, $end_date)[1];
-        $query = ClientLog::onlineOrganicPotentialLeads()->whereBetween('created_at', [$start_date, $end_date])->whereIn('client_id', $filtered_leads);
+        $query = ClientLog::onlineOrganicPotentialLeads()->whereBetween('created_at', [$start_date, $end_date]);
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -141,8 +135,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function potentialOfflineLeads(Carbon $start_date, Carbon $end_date): Array
     {
-        $filtered_leads = $this->filteredOfflineLeads($start_date, $end_date)[1];
-        $query = ClientLog::offlinePotentialLeads()->whereBetween('created_at', [$start_date, $end_date])->whereIn('client_id', $filtered_leads);
+        $query = ClientLog::offlinePotentialLeads()->whereBetween('created_at', [$start_date, $end_date]);
         return [
             $query->get()->count(),
             $query->pluck('client_id' )->toArray()
@@ -151,8 +144,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function potentialReferralExistingClientLeads(Carbon $start_date, Carbon $end_date): Array
     {
-        $filtered_leads = $this->filteredReferralSales($start_date, $end_date)[1];
-        $query = ClientLog::referralFromExistingClientsPotentialLeads()->whereBetween('created_at', [$start_date, $end_date])->whereIn('client_id', $filtered_leads);
+        $query = ClientLog::referralFromExistingClientsPotentialLeads()->whereBetween('created_at', [$start_date, $end_date]);
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()

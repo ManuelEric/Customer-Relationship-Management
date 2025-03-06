@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Interfaces\TagRepositoryInterface;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class TagController extends Controller
@@ -40,6 +41,6 @@ class TagController extends Controller
             'success' => true,
             'message' => 'There are destination country found.',
             'data' => $mapped_tags->values()
-        ]);
+        ], JsonResponse::HTTP_OK, [], options: JSON_INVALID_UTF8_IGNORE);
     }
 }

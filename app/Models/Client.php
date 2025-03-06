@@ -63,6 +63,7 @@ class Client extends Model
         'pic_id',
         'status_lead',
         'status_lead_score',
+        'blacklist'
     ];
 
     # attributes
@@ -80,6 +81,11 @@ class Client extends Model
     }
 
     # Scopes
+    public function scopeIsNotBlacklist($query)
+    {
+        return $query->where('blacklist', 0);
+    }
+    
     public function scopeIsVerified($query)
     {
         return $query->where('client.is_verified', 'Y');

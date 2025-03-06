@@ -102,7 +102,7 @@
         var widthView = $(window).width();
         $(document).ready(function() {
 
-            var baseUrl = "{{ url('/') }}/api/get/school/list";
+            var baseUrl = "{{ url('/') }}/api/v1/get/school/list";
 
             $(".select-school-alumni").select2({
                 placeholder: 'Select Value',
