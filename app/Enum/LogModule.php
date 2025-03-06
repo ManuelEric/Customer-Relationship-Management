@@ -181,6 +181,7 @@ enum LogModule: string
      */
     case STORE_PROGRAM_PHASE = '[STORE PROGRAM PHASE]';
     case DELETE_PROGRAM_PHASE = '[DELETE PROGRAM PHASE]';
+    case UPDATE_PROGRAM_PHASE = '[UPDATE PROGRAM PHASE]';
 
     /**
      * Bundle Program

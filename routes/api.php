@@ -43,6 +43,7 @@ use App\Http\Controllers\ReceiptReferralController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolEventController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProgramPhaseController as APIProgramPhaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -338,6 +339,10 @@ Route::group(['middleware' => 'crm.key'], function () {
 
 # Program Phase
 Route::group(['middleware' => 'auth:api'], function () {
-    Route::delete('program-phase/{clientprog_id}/{phase_lib_id}', [ClientProgramController::class, 'fnRemoveProgramPhase']);
-    Route::post('program-phase/', [ClientProgramController::class, 'fnStoreProgramPhase']);
+    Route::delete('program-phase/{clientprog}/phase-detail/{phase_detail}/phase-lib/{phase_lib?}', [APIProgramPhaseController::class, 'fnRemoveProgramPhase']);
+    Route::post('program-phase/{clientprog}/phase-detail/{phase_detail}/phase-lib/{phase_lib?}', [APIProgramPhaseController::class, 'fnStoreProgramPhase']);
+    
+    # Update quota for program phase
+    Route::patch('program-phase/{clientprog}/phase-detail/{phase_detail}/phase-lib/{phase_lib?}/quota', [APIProgramPhaseController::class, 'fnUpdateQuotaProgramPhase']);
+
 });

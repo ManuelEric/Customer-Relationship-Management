@@ -955,20 +955,20 @@
 
         }
 
-        // changeProgramStatus()
     </script>
     <script>
         $(document).ready(function() {
 
-            // Check Package
+            // Check Program bought
             $('.check-package').on('click', function(){
                 var clientprog_id = $(this).data('clientprog-id');
-                var phase_lib_id = $(this).data('phase-lib-id');
-                var package_id = $(this).data('package-id');
+                var phase_lib_id = $(this).data('phase-lib-id') == '-' ? 'null' : $(this).data('phase-lib-id');
+                var phase_detail_id = $(this).data('phase-detail-id');
                 var link = null;
-                if(!$('#check-'+ package_id).is(":checked")){
-                    $('#qty-' + package_id).addClass('uncheck')
-                    link = '{{ url('api/program-phase') }}/' + clientprog_id + '/' + phase_lib_id
+
+                if(!$('#check-'+ phase_detail_id).is(":checked")){
+                    $('#qty-' + phase_detail_id).addClass('uncheck')
+                    link = '{{ url('api/program-phase') }}/' + clientprog_id + '/phase-detail/' + phase_detail_id + '/phase-lib/' + phase_lib_id
                     
                     axios.delete(link, {
                         headers:{
@@ -978,21 +978,18 @@
                     .then(function(response) {
 
                         let obj = response.data;
+                        $('#quota-' + phase_detail_id).prop("disabled", true);
+                        $('#quota-' + phase_detail_id).val(0);
                         notification('success', "Successfully remove item program bought");
                     })
                     .catch(function(error) {
                         notification('error', error)
                     })
                 }else{
-                    $('#qty-' + package_id).removeClass('uncheck')
-                    link = '{{ url('api/program-phase') }}'
+                    $('#qty-' + phase_detail_id).removeClass('uncheck')
+                    link = '{{ url('api/program-phase/') }}/' + clientprog_id + '/phase-detail/' + phase_detail_id + '/phase-lib/' + phase_lib_id
                     
-                    var data = {
-                        clientprog_id: clientprog_id,
-                        phase_lib_id: phase_lib_id
-                    }
-
-                    axios.post(link, data,
+                    axios.post(link, null,
                         {
                             headers:{
                                 'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
@@ -1002,8 +999,9 @@
                     .then(function(response) {
 
                         let obj = response.data;
-                        console.log(obj);
                         
+                        $('#quota-' + phase_detail_id).prop("disabled", false);
+
                         notification('success', "Successfully add item program bought");
                     })
                     .catch(function(error) {
@@ -1012,23 +1010,29 @@
                 }
             });
 
-            // Counting
-            $('.count').prop('disabled', true);
-            $('.plus').on('click', function(){
-                var package_id = $(this).data('package');
-                $('#counting-' + package_id).val(parseInt($('#counting-' + package_id).val()) + 1 );
+            // Counting program bought
+            $('.quota-program-bought').on('change', function(){
+                var clientprog_id = $(this).data('clientprog-id');
+                var phase_lib_id = $(this).data('phase-lib-id') == '-' ? 'null' : $(this).data('phase-lib-id');
+                var phase_detail_id = $(this).data('phase-detail-id');
+                var quota = this.value;
+
+                link = '{{ url('api/program-phase') }}/' + clientprog_id + '/phase-detail/' + phase_detail_id + '/phase-lib/' + phase_lib_id + '/quota'
+                    
+                axios.patch(link, {quota: quota}, {
+                    headers:{
+                        'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
+                    }
+                })
+                .then(function(response) {
+
+                    let obj = response.data;
+                    notification('success', "Successfully update quota program bought");
+                })
+                .catch(function(error) {
+                    notification('error', error)
+                })
             });
-
-            $('.minus').on('click', function(){
-                var package_id = $(this).data('package');
-
-                $('#counting-' + package_id).val(parseInt($('#counting-' + package_id).val()) - 1 );
-                if ($('#counting-' + package_id).val() == 0) {
-                    $('#counting-' + package_id).val(1);
-                }
-            });
-
-
    		
             var baseUrl = "{{ url('/') }}/api/get/referral/list";
 

@@ -18,6 +18,7 @@ class ClientProgramDetail extends Pivot
      */
     protected $fillable = [
         'clientprog_id',
+        'phase_detail_id',
         'phase_lib_id',
         'slot',
         'quota',

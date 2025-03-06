@@ -22,9 +22,6 @@ interface ClientProgramRepositoryInterface
     public function endedClientPrograms(array $clientprog_ids, array $newDetails);
     public function deleteClientProgram($clientProgramId);
     public function checkProgramIsAdmission($clientprog_id);
-    public function getProgramBought(int $clientprog_id);
-    public function rnDeleteProgramPhase(int $clientprog_id, int $phase_lib_id);
-    public function rnStoreProgramPhase(Array $program_phase_details);
 
     # bundling
     public function getBundleProgramByUUID($uuid);

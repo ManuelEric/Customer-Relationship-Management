@@ -26,6 +26,7 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\ClientProgramLogMailRepositoryInterface;
+use App\Interfaces\ProgramPhaseRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\Client\ProcessInsertLogClient;
@@ -72,13 +73,14 @@ class ClientProgramController extends Controller
     private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
     private ClientProgramService $clientProgramService;
     private ProgramService $programService;
+    private ProgramPhaseRepositoryInterface $programPhaseRepository;
     private $admission_prog_list;
     private $tutoring_prog_list;
     private $satact_prog_list;
 
     use CreateCustomPrimaryKeyTrait;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository, TagRepositoryInterface $tagRepository, ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ClientProgramService $clientProgramService, ProgramService $programService)
+    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository, TagRepositoryInterface $tagRepository, ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ClientProgramService $clientProgramService, ProgramService $programService, ProgramPhaseRepositoryInterface $programPhaseRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->programRepository = $programRepository;
@@ -96,6 +98,7 @@ class ClientProgramController extends Controller
         $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
         $this->clientProgramService = $clientProgramService;
         $this->programService = $programService;
+        $this->programPhaseRepository = $programPhaseRepository;
 
         $this->admission_prog_list = Program::admissionProgList()->pluck('prog_id')->toArray();
 
@@ -156,8 +159,9 @@ class ClientProgramController extends Controller
 
         # If status program success && program is mentoring then fetch program bought
         if($client_program->status == 1 && $client_program->program->main_prog_id == 1){
-            $program_bought = $this->clientProgramRepository->getProgramBought($client_program_id);
+            $program_phases = $this->programPhaseRepository->getProgramPhase();
         }
+
 
         # programs
         $programs = $this->programService->snGetProgramsB2c();
@@ -189,7 +193,7 @@ class ClientProgramController extends Controller
                 'tutors' => $tutors,
                 'mentors' => $mentors,
                 'reasons' => $reasons,
-                'programBought' => $program_bought ?? null
+                'programPhases' => $program_phases ?? null
             ]
         );
     }
@@ -794,74 +798,4 @@ class ClientProgramController extends Controller
         ]);
     }
 
-    public function fnRemoveProgramPhase(Request $request, LogService $log_service)
-    {
-        $clientprog_id = $request->route('clientprog_id');
-        $phase_lib_id = $request->route('phase_lib_id');
-
-        DB::beginTransaction();
-        try {
-            $deleted_program_phase = $this->clientProgramRepository->rnDeleteProgramPhase($clientprog_id, $phase_lib_id);
-
-            DB::commit();
-        } catch (Exception $e) {
-            DB::rollBack();
-
-            $log_service->createErrorLog(LogModule::DELETE_PROGRAM_PHASE, $e->getMessage(), $e->getLine(), $e->getFile(), ['clientprog_id' => $clientprog_id, 'phase_lib_id' => $phase_lib_id]);
-
-            return response()->json([
-                'success' => false,
-                'error' => 'Something went wrong. Please try again'
-            ], 500);
-        }
-
-        # create log success
-        $log_service->createSuccessLog(LogModule::DELETE_PROGRAM_PHASE, 'Program phase has been deleted', $deleted_program_phase->toArray());
-
-        return response()->json([
-            'success' => true,
-            'data' => $deleted_program_phase
-        ]);
-    }
-
-    public function fnStoreProgramPhase(Request $request, LogService $log_service)
-    {
-        $program_phase_details = $request->only(['clientprog_id', 'phase_lib_id']);
-
-        DB::beginTransaction();
-        try {
-            $clientprogram = $this->clientProgramRepository->getClientProgramById($program_phase_details['clientprog_id']);
-            
-            # add new attribute 
-            $program_phase_details['grade'] = $clientprogram->client->grade_now ?? null;
-            $program_phase_details['quota'] = 0;
-            // return response()->json([
-            //     'success' => true,
-            //     'data' => $program_phase_details
-            // ]);
-
-
-            $created_program_phase = $this->clientProgramRepository->rnStoreProgramPhase($program_phase_details);
-
-            DB::commit();
-        } catch (Exception $e) {
-            DB::rollBack();
-
-            $log_service->createErrorLog(LogModule::STORE_PROGRAM_PHASE, $e->getMessage(), $e->getLine(), $e->getFile(), $program_phase_details);
-
-            return response()->json([
-                'success' => false,
-                'error' => 'Something went wrong. Please try again'
-            ], 500);
-        }
-
-        # create log success
-
-        $log_service->createSuccessLog(LogModule::STORE_PROGRAM_PHASE, 'Successfully Add Item Program phase', $created_program_phase->toArray());
-
-        return response()->json([
-            'success' => true,
-            'data' => $created_program_phase
-        ]);
-    }
 }
