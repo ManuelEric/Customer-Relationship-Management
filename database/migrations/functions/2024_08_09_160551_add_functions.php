@@ -446,6 +446,7 @@ return new class extends Migration
             END; //
         DELIMITER ;
 
+
         # P
         DELIMITER //
 
@@ -456,7 +457,7 @@ return new class extends Migration
             DECLARE id_similiar TEXT DEFAULT NULL;
 
             IF lname = "" THEN
-                SELECT GROUP_CONCAT(DISTINCT(tbl_client.id) LIMIT 50) INTO id_similiar
+                SELECT SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT(tbl_client.id)), \',\', 10) INTO id_similiar
                     FROM tbl_client
                     LEFT JOIN tbl_client_roles ON tbl_client_roles.client_id = tbl_client.id
                     WHERE tbl_client.is_verified = "Y"
@@ -465,7 +466,7 @@ return new class extends Migration
                     AND (first_name LIKE (first_name LIKE CONCAT("%", fname, "%")))
                     ORDER BY tbl_client.created_at DESC;
             ELSE
-                SELECT GROUP_CONCAT(DISTINCT(tbl_client.id) LIMIT 50) INTO id_similiar
+                SELECT SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT(tbl_client.id)), \',\', 10) INTO id_similiar
                     FROM tbl_client
                     LEFT JOIN tbl_client_roles ON tbl_client_roles.client_id = tbl_client.id
                     WHERE tbl_client.is_verified = "Y"
@@ -533,6 +534,27 @@ return new class extends Migration
         END; //
 
         DELIMITER ;
+
+        # S
+        DELIMITER //
+            CREATE FUNCTION `ExistRawClientRelation`(raw_client_id VARCHAR(36), roles VARCHAR(255)) RETURNS int(11)
+            BEGIN
+                IF roles = "student" OR roles = "parent" THEN
+                    RETURN EXISTS (
+                        SELECT 1  -- Just need to find any match
+                        FROM tbl_client_relation cr
+                        WHERE (
+                            CASE
+                                WHEN roles = "student" THEN child_id
+                                WHEN roles = "parent" THEN parent_id
+                            END
+                        ) = raw_client_id
+                    );
+                ELSE
+                    RETURN 0;  -- Return FALSE if the role is not student or parent
+                END IF;
+            END; //
+        DELIMITER ; 
         ');
     }
 
