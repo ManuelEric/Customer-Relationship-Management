@@ -254,7 +254,7 @@ $(document).ready(function(){
         var progId = $(this).data('prog');
         var month = $(".qdate").val();
         var user = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val();
-        var link = "{{ url('/') }}/api/get/detail/successful-program/" + month + "/" + progId;
+        var link = "{{ url('/') }}/api/v1/dashboard/detail/successful-program/" + month + "/" + progId;
 
         if (user !== null)
             link += "/" + user;
@@ -290,7 +290,7 @@ $(document).ready(function(){
         if (!user)
             user = '';
 
-        var url = window.location.origin + '/api/get/successful-program/' + month + '/' + user
+        var url = window.location.origin + '/api/v1/dashboard/successful-program/' + month + '/' + user
 
         axios.get(url)
             .then(function(response) {
@@ -312,7 +312,7 @@ $(document).ready(function(){
         if (!user)
             user = '';
 
-        var url = window.location.origin + '/api/get/client-program/' + month + '/' + user
+        var url = window.location.origin + '/api/v1/dashboard/client-program/' + month + '/' + user
 
         axios.get(url, {
                 headers: {
@@ -341,7 +341,7 @@ $(document).ready(function(){
         if (!user)
             user = '';
 
-        var url = window.location.origin + '/api/get/admissions-mentoring/' + month + '/' + user
+        var url = window.location.origin + '/api/v1/dashboard/admissions-mentoring/' + month + '/' + user
 
         axios.get(url)
             .then(function(response) {
@@ -364,7 +364,7 @@ $(document).ready(function(){
         if (!user)
             user = '';
 
-        var url = window.location.origin + '/api/get/initial-consultation/' + month + '/' + user
+        var url = window.location.origin + '/api/v1/dashboard/initial-consultation/' + month + '/' + user
 
         axios.get(url)
             .then(function(response) {
@@ -391,7 +391,7 @@ $(document).ready(function(){
         if (!user)
             user = '';
 
-        var url = window.location.origin + '/api/get/academic-prep/' + month + '/' + user
+        var url = window.location.origin + '/api/v1/dashboard/academic-prep/' + month + '/' + user
 
         axios.get(url)
             .then(function(response) {
@@ -416,7 +416,7 @@ $(document).ready(function(){
         if (!user)
             user = '';
 
-        var url = window.location.origin + '/api/get/career-exploration/' + month + '/' + user
+        var url = window.location.origin + '/api/v1/dashboard/career-exploration/' + month + '/' + user
 
         axios.get(url)
             .then(function(response) {
@@ -561,7 +561,7 @@ $(document).ready(function(){
 
                 var month = $(".qdate").val();
                 var user = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val()
-                var link = "{{ url('/') }}/api/get/detail/client-program/" + month + "/admissions-mentoring";
+                var link = "{{ url('/') }}/api/v1/dashboard/detail/client-program/" + month + "/admissions-mentoring";
                 if (user !== null)
                     link += "/" + user;
 
@@ -633,7 +633,7 @@ $(document).ready(function(){
 
                 var month = $(".qdate").val();
                 var user = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val()
-                var link = "{{ url('/') }}/api/get/detail/client-program/" + month + "/academic-prep";
+                var link = "{{ url('/') }}/api/v1/dashboard/detail/client-program/" + month + "/academic-prep";
                 if (user !== null)
                     link += "/" + user;
 
@@ -704,7 +704,7 @@ $(document).ready(function(){
 
                 var month = $(".qdate").val();
                 var user = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val()
-                var link = "{{ url('/') }}/api/get/detail/client-program/" + month + "/career-exploration";
+                var link = "{{ url('/') }}/api/v1/dashboard/detail/client-program/" + month + "/career-exploration";
                 if (user !== null)
                     link += "/" + user;
 
@@ -773,7 +773,7 @@ $(document).ready(function(){
 
                 var month = $(".qdate").val();
                 var user = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val()
-                var link = "{{ url('/') }}/api/get/detail/initial-consultation/" + month;
+                var link = "{{ url('/') }}/api/v1/dashboard/detail/initial-consultation/" + month;
                 if (user !== null)
                     link += "/" + user;
 
