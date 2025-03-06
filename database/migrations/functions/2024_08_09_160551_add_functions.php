@@ -554,7 +554,25 @@ return new class extends Migration
                     RETURN 0;  -- Return FALSE if the role is not student or parent
                 END IF;
             END; //
-        DELIMITER ; 
+        DELIMITER ;
+        
+        # T
+        DELIMITER //
+            CREATE FUNCTION `SplitNameClient`(fullname VARCHAR(255), section VARCHAR(50)) RETURNS varchar(255)
+            BEGIN
+                    DECLARE name VARCHAR(255);
+
+                    IF (section = "first") THEN
+                        SET name = SUBSTRING_INDEX(SUBSTRING_INDEX(fullname, " ", 1), " ", -1); 
+                    ELSEIF (section = "middle") THEN
+                        SET name = SUBSTRING_INDEX(SUBSTRING_INDEX(fullname, " ", 2), " ", -1);
+                    ELSEIF (section = "last") THEN
+                        SET name = SUBSTRING_INDEX(SUBSTRING_INDEX(fullname, " ", 3), " ", -1);  
+                    END IF;
+
+                RETURN name;
+            END; //
+        DELIMITER ;  
         ');
     }
 
