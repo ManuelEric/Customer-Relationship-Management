@@ -13,6 +13,7 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\UploadFileTrait;
+use App\Interfaces\BankRepositoryInterface;
 use App\Interfaces\DepartmentRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\PositionRepositoryInterface;
@@ -48,9 +49,19 @@ class UserController extends Controller
     private PositionRepositoryInterface $positionRepository;
     private UserTypeRepositoryInterface $userTypeRepository;
     private SubjectRepositoryInterface $subjectRepository;
+    private BankRepositoryInterface $bankRepository;
     private $role_type_mentors;
 
-    public function __construct(UserRepositoryInterface $userRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, DepartmentRepositoryInterface $departmentRepository, PositionRepositoryInterface $positionRepository, UserTypeRepositoryInterface $userTypeRepository, SubjectRepositoryInterface $subjectRepository)
+    public function __construct(
+        UserRepositoryInterface $userRepository, 
+        UniversityRepositoryInterface $universityRepository, 
+        MajorRepositoryInterface $majorRepository, 
+        DepartmentRepositoryInterface $departmentRepository, 
+        PositionRepositoryInterface $positionRepository, 
+        UserTypeRepositoryInterface $userTypeRepository, 
+        SubjectRepositoryInterface $subjectRepository,
+        BankRepositoryInterface $bankRepository,
+        )
     {
         $this->userRepository = $userRepository;
         $this->universityRepository = $universityRepository;
@@ -59,6 +70,7 @@ class UserController extends Controller
         $this->positionRepository = $positionRepository;
         $this->userTypeRepository = $userTypeRepository;
         $this->subjectRepository = $subjectRepository;
+        $this->bankRepository = $bankRepository;
     }
 
     public function index(Request $request): mixed
@@ -144,6 +156,7 @@ class UserController extends Controller
         $positions = $this->positionRepository->getAllPositions();
         $user_types = $this->userTypeRepository->getAllUserType();
         $subjects = $this->subjectRepository->getAllSubjects();
+        $banks = $this->bankRepository->getBanks();
 
         return view('pages.user.employee.form')->with(
             [
@@ -158,6 +171,7 @@ class UserController extends Controller
                 'is_external_mentor' => false,
                 'is_editor' => false,
                 'is_professional' => false,
+                'banks' => $banks
             ]
         );
     }
@@ -241,7 +255,7 @@ class UserController extends Controller
         $is_external_mentor = $user->roles()->where('role_name', 'External Mentor')->first() != null ? true : false;
         $is_editor = $user->roles()->where('role_name', 'Editor')->first() != null || $user->roles()->where('role_name', 'Associate Editor')->first() != null || $user->roles()->where('role_name', 'Senior Editor')->first() != null || $user->roles()->where('role_name', 'Managing Editor')->first() != null ? true : false;
         $is_professional = $user->roles()->where('role_name', 'Individual Professional')->first() != null ? true : false;
-
+        $banks = $this->bankRepository->getBanks();
 
         return view('pages.user.employee.form')->with(
             [
@@ -259,6 +273,7 @@ class UserController extends Controller
                 'is_editor' => $is_editor,
                 'is_professional' => $is_professional,
                 'role_type_mentors' => $this->role_type_mentors,
+                'banks' => $banks
             ]
         );
     }
