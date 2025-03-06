@@ -12,6 +12,7 @@ use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\SplitLeadEdufairTrait;
 use App\Http\Traits\SplitNameTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Http\Traits\TranslateProgramStatusTrait;
 use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
@@ -48,6 +49,7 @@ class ExtClientController extends Controller
     use LoggingTrait;
     use SplitLeadEdufairTrait;
     use ClientMentorTrait;
+    use TranslateProgramStatusTrait;
 
     private ClientRepositoryInterface $clientRepository;
     private SchoolRepositoryInterface $schoolRepository;
@@ -2247,5 +2249,35 @@ class ExtClientController extends Controller
     {
         $active_mentees = $this->clientRepository->rnGetActiveMentees();
         return response()->json($active_mentees);
+    }
+
+    public function fnGetMentorsByMentee(UserClient $user_client): JsonResponse
+    {
+        $latest_admission_program = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first();
+        $mentors = $latest_admission_program->clientMentor()->where('tbl_client_mentor.status', 1)->get();
+        $mapped_mentors = $mentors->map(function ($item) {
+            return [
+                'mentor_id' => $item->id,
+                'mentor_name' => $item->first_name . ' ' . $item->last_name,
+                'act_as' => $this->translateType($item->pivot->type)
+            ];
+        });
+        return response()->json($mapped_mentors);
+    }
+
+    public function fnGetJoinedProgramsByMentee(UserClient $user_client)
+    {
+        $program_besides_admissions = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', '!=', 'Admissions Mentoring')->has('invoice.receipt')->get();
+        $mapped_program = $program_besides_admissions->map(function ($item) {
+            return [
+                'clientprog_id' => $item->clientprog_id,
+                'main_program' => $item->program->main_prog->prog_name,
+                'sub_program' => $item->program->sub_prog->sub_prog_name,
+                'program_name' => $item->program->prog_program,
+                'success_date' => $item->success_date,
+                'status' => $this->translate($item->prog_running_status)
+            ];
+        }); 
+        return response()->json($mapped_program);
     }
 }

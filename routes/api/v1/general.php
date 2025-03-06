@@ -34,13 +34,18 @@ Route::middleware(['throttle:120,1'])->group(function () {
     Route::get('get/parent-mentees', [ExtClientController::class, 'getParentMentee']);
     Route::get('get/alumni-mentees', [ExtClientController::class, 'getAlumniMentees']);
     Route::get('get/mentees', [ExtClientController::class, 'getClientFromAdmissionMentoring']);
+
+
     # detail of mentees
     Route::get('get/mentee/{user_client}', [ExtClientController::class, 'fnGetMenteeDetails']);
+    Route::get('get/mentee/{user_client}/mentors', [ExtClientController::class, 'fnGetMentorsByMentee']);
+    Route::get('get/mentee/{user_client}/programs', [ExtClientController::class, 'fnGetJoinedProgramsByMentee']);
 
     # try to use header fields for carrying the mentor ID information
     # so that we don't have to use /{mentor_id} or ?id=<mentor_id>
     Route::get('get/graduated/mentees', [ExtClientController::class, 'fnGetGraduatedMentee']);
     Route::get('get/active/mentees', [ExtClientController::class, 'fnGetActiveMentee']);
+
 
     Route::get('get/mentors', [ExtClientController::class, 'getMentors']);
     Route::get('get/alumnis', [ExtClientController::class, 'getAlumnis']);
