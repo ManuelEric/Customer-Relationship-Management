@@ -11,10 +11,20 @@ use App\Http\Controllers\InvoiceProgramController;
 use App\Http\Controllers\Module\ClientController;
 use App\Http\Controllers\Api\v1\SchoolController as APISchoolController;
 use App\Http\Controllers\Api\v1\ProgramController as APIProgramController;
+use App\Http\Controllers\Api\v1\TagController as APITagController;
+use App\Http\Controllers\Api\v1\ClientEventController as APIClientEventController;
+use App\Http\Controllers\Api\v1\EventController as APIEventController;
+use App\Http\Controllers\Api\v1\ExtClientProgramController;
+use App\Http\Controllers\Api\v1\ExtCorporateController;
+use App\Http\Controllers\Api\v1\ExtEventController;
+use App\Http\Controllers\Api\v1\ExtPartnerController;
+use App\Http\Controllers\Api\v1\ExtUniversityController;
+use App\Http\Controllers\ClientProgramController;
 use App\Http\Controllers\GoogleSheetController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolEventController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProgramPhaseController as APIProgramPhaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -95,4 +105,15 @@ Route::get('get/program/main/{mainProgId}', [APIProgramController::class, 'getPr
 
 Route::group(['middleware' => 'crm.key'], function () {
     Route::post('assessment/update', [ExtClientController::class, 'updateTookIA']);
+});
+
+
+# Program Phase
+Route::group(['middleware' => 'auth:api'], function () {
+    Route::delete('program-phase/{clientprog}/phase-detail/{phase_detail}/phase-lib/{phase_lib?}', [APIProgramPhaseController::class, 'fnRemoveProgramPhase']);
+    Route::post('program-phase/{clientprog}/phase-detail/{phase_detail}/phase-lib/{phase_lib?}', [APIProgramPhaseController::class, 'fnStoreProgramPhase']);
+    
+    # Update quota for program phase
+    Route::patch('program-phase/{clientprog}/phase-detail/{phase_detail}/phase-lib/{phase_lib?}/quota', [APIProgramPhaseController::class, 'fnUpdateQuotaProgramPhase']);
+
 });

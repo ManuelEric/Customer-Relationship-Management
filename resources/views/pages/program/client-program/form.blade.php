@@ -52,6 +52,11 @@
 
             @include('pages.program.client-program.detail.client')
 
+            {{-- Check program is admission & status success --}}
+            @if(isset($clientProgram->program->main_prog_id) && $clientProgram->program->main_prog_id == 1 && $clientProgram->status == 1)
+                @include('pages.program.client-program.detail.program-phase')
+            @endif
+
             @if (isset($clientProgram) && $clientProgram->status == 0)
                 @include('pages.program.client-program.detail.plan-followup')
             @endif
@@ -950,11 +955,86 @@
 
         }
 
-        // changeProgramStatus()
     </script>
     <script>
         $(document).ready(function() {
 
+
+            // Check Program bought
+            $('.check-package').on('click', function(){
+                var clientprog_id = $(this).data('clientprog-id');
+                var phase_lib_id = $(this).data('phase-lib-id') == '-' ? 'null' : $(this).data('phase-lib-id');
+                var phase_detail_id = $(this).data('phase-detail-id');
+                var link = null;
+
+                if(!$('#check-'+ phase_detail_id).is(":checked")){
+                    $('#qty-' + phase_detail_id).addClass('uncheck')
+                    link = '{{ url('api/program-phase') }}/' + clientprog_id + '/phase-detail/' + phase_detail_id + '/phase-lib/' + phase_lib_id
+                    
+                    axios.delete(link, {
+                        headers:{
+                            'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
+                        }
+                    })
+                    .then(function(response) {
+
+                        let obj = response.data;
+                        $('#quota-' + phase_detail_id).prop("disabled", true);
+                        $('#quota-' + phase_detail_id).val(0);
+                        notification('success', "Successfully remove item program bought");
+                    })
+                    .catch(function(error) {
+                        notification('error', error)
+                    })
+                }else{
+                    $('#qty-' + phase_detail_id).removeClass('uncheck')
+                    link = '{{ url('api/program-phase/') }}/' + clientprog_id + '/phase-detail/' + phase_detail_id + '/phase-lib/' + phase_lib_id
+                    
+                    axios.post(link, null,
+                        {
+                            headers:{
+                                'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
+                            }
+                        }
+                    )
+                    .then(function(response) {
+
+                        let obj = response.data;
+                        
+                        $('#quota-' + phase_detail_id).prop("disabled", false);
+
+                        notification('success', "Successfully add item program bought");
+                    })
+                    .catch(function(error) {
+                        notification('error', error)
+                    })
+                }
+            });
+
+            // Counting program bought
+            $('.quota-program-bought').on('change', function(){
+                var clientprog_id = $(this).data('clientprog-id');
+                var phase_lib_id = $(this).data('phase-lib-id') == '-' ? 'null' : $(this).data('phase-lib-id');
+                var phase_detail_id = $(this).data('phase-detail-id');
+                var quota = this.value;
+
+                link = '{{ url('api/program-phase') }}/' + clientprog_id + '/phase-detail/' + phase_detail_id + '/phase-lib/' + phase_lib_id + '/quota'
+                    
+                axios.patch(link, {quota: quota}, {
+                    headers:{
+                        'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
+                    }
+                })
+                .then(function(response) {
+
+                    let obj = response.data;
+                    notification('success', "Successfully update quota program bought");
+                })
+                .catch(function(error) {
+                    notification('error', error)
+                })
+            });
+   		
             var baseUrl = "{{ url('/') }}/api/v1/get/referral/list";
 
             $(".select-referral").select2({
