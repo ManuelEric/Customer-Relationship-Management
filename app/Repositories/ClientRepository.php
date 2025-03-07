@@ -1316,6 +1316,7 @@ class ClientRepository implements ClientRepositoryInterface
                     $query->select('prog_id', 'main_prog_id');
                 }
             ])->
+            withTrashed()->
             find($clientId);
     }
 
