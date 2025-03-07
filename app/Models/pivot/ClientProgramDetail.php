@@ -17,7 +17,11 @@ class ClientProgramDetail extends Pivot
      * @var array
      */
     protected $fillable = [
+        'clientprog_id',
+        'phase_detail_id',
+        'phase_lib_id',
         'slot',
+        'quota',
         'grade', 
         'nation',
     ];

@@ -26,6 +26,7 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\ClientProgramLogMailRepositoryInterface;
+use App\Interfaces\ProgramPhaseRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\Client\ProcessInsertLogClient;
@@ -72,13 +73,14 @@ class ClientProgramController extends Controller
     private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
     private ClientProgramService $clientProgramService;
     private ProgramService $programService;
+    private ProgramPhaseRepositoryInterface $programPhaseRepository;
     private $admission_prog_list;
     private $tutoring_prog_list;
     private $satact_prog_list;
 
     use CreateCustomPrimaryKeyTrait;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository, TagRepositoryInterface $tagRepository, ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ClientProgramService $clientProgramService, ProgramService $programService)
+    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository, TagRepositoryInterface $tagRepository, ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ClientProgramService $clientProgramService, ProgramService $programService, ProgramPhaseRepositoryInterface $programPhaseRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->programRepository = $programRepository;
@@ -96,6 +98,7 @@ class ClientProgramController extends Controller
         $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
         $this->clientProgramService = $clientProgramService;
         $this->programService = $programService;
+        $this->programPhaseRepository = $programPhaseRepository;
 
         $this->admission_prog_list = Program::admissionProgList()->pluck('prog_id')->toArray();
 
@@ -154,6 +157,12 @@ class ClientProgramController extends Controller
         // $viewStudent = $this->clientRepository->getViewClientById($student_id);
         $client_program = $this->clientProgramRepository->getClientProgramById($client_program_id);
 
+        # If status program success && program is mentoring then fetch program bought
+        if($client_program->status == 1 && $client_program->program->main_prog_id == 1){
+            $program_phases = $this->programPhaseRepository->getProgramPhase();
+        }
+
+
         # programs
         $programs = $this->programService->snGetProgramsB2c();
 
@@ -183,7 +192,8 @@ class ClientProgramController extends Controller
                 'internalPIC' => $internal_pic,
                 'tutors' => $tutors,
                 'mentors' => $mentors,
-                'reasons' => $reasons
+                'reasons' => $reasons,
+                'programPhases' => $program_phases ?? null
             ]
         );
     }
@@ -787,4 +797,5 @@ class ClientProgramController extends Controller
             'data' => $deleted_bundle_program
         ]);
     }
+
 }

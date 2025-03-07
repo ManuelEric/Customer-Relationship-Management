@@ -154,4 +154,12 @@ input.dt-button {
     0% { background-position: 100% 0%; }
     100% { background-position: 0% 0%; }
   }
+
+  /* Counting in card program bought */
+  
+
+/* input:disabled{
+    background-color:white;
+} */
+     
   
