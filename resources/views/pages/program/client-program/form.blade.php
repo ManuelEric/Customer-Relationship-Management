@@ -959,6 +959,7 @@
     <script>
         $(document).ready(function() {
 
+
             // Check Program bought
             $('.check-package').on('click', function(){
                 var clientprog_id = $(this).data('clientprog-id');
@@ -1034,7 +1035,7 @@
                 })
             });
    		
-            var baseUrl = "{{ url('/') }}/api/get/referral/list";
+            var baseUrl = "{{ url('/') }}/api/v1/get/referral/list";
 
             $(".select-referral").select2({
                 placeholder: 'Referral Name...',

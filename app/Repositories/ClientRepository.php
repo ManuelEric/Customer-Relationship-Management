@@ -722,6 +722,63 @@ class ClientRepository implements ClientRepositoryInterface
             : $query;
     }
 
+    public function rnGetGraduatedMentees()
+    {
+        $graduated_mentees = UserClient::with([
+                'school' => function ($query) {
+                    $query->select('sch_id', 'sch_name', 'sch_city');
+                },
+            ])->isGraduated()->getMentoredStudents()->select([
+                'id',
+                DB::raw('CONCAT(first_name, " ", last_name) as full_name'),
+                'mail',
+                'phone',
+                'dob',
+                'city',
+                'address',
+                'sch_id'
+            ])->get();
+        $mapped_graduated_mentees = $graduated_mentees->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'full_name' => $item->full_name,
+                'mail' => $item->mail,
+                'phone' => $item->phone,
+                'dob' => $item->dob,
+                'city' => $item->city,
+                'address' => $item->address,
+                'sch_name' => $item->school->sch_name ?? null,
+                'sch_city' => $item->school->sch_city ?? null,
+            ];
+        });
+        
+        return $mapped_graduated_mentees;
+    }
+
+    public function rnGetActiveMentees()
+    {
+        $active_mentees = UserClient::with([
+            'school' => function ($query) {
+                $query->select('sch_id', 'sch_name', 'sch_city');
+            },
+        ])->isActiveMentee()->getMentoredStudents()->get();
+        $mapped_active_mentees = $active_mentees->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'full_name' => $item->full_name,
+                'mail' => $item->mail,
+                'phone' => $item->phone,
+                'dob' => $item->dob,
+                'city' => $item->city,
+                'address' => $item->address,
+                'sch_name' => $item->school->sch_name ?? null,
+                'sch_city' => $item->school->sch_city ?? null,
+            ];
+        });
+        
+        return $mapped_active_mentees;
+    }
+
     public function getAlumniMenteesSiblings()
     {
         $query = Client::with(['parents', 'parents.childrens'])->whereHas('clientProgram.program.main_prog', function ($subQuery) {
@@ -1244,8 +1301,47 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getClientById($clientId)
     {
-        return UserClient::with(['childrens'])->withTrashed()->find($clientId);
+        return UserClient::with([
+                'childrens',
+                'parents',
+                'clientProgram' => function ($query) {
+                    $query->select('clientprog_id', 'client_id', 'prog_id')->whereHas('program', function ($query) {
+                        $query->where('main_prog_id', 1);
+                    });
+                },
+                'clientProgram.clientMentor' => function ($query) {
+                    $query->select('users.id', 'nip', 'first_name', 'last_name')->withPivot('type', 'status');
+                },
+                'clientProgram.program' => function ($query) {
+                    $query->select('prog_id', 'main_prog_id');
+                }
+            ])->
+            find($clientId);
     }
+
+    // public function getClientByIdForAdmission($clientId)
+    // {
+    //     return UserClient::with([
+    //             'childrens',
+    //             'parents',
+    //             'clientProgram' => function ($query) {
+    //                 $query->select('clientprog_id', 'client_id', 'prog_id')->whereHas('program', function ($query) {
+    //                     $query->where('main_prog_id', 1);
+    //                 });
+    //             },
+    //             'clientProgram.clientMentor' => function ($query) {
+    //                 $query->select('users.id', 'nip', 'first_name', 'last_name')->withPivot('type', 'status');
+    //             },
+    //             'clientProgram.program' => function ($query) {
+    //                 $query->select('prog_id', 'main_prog_id');
+    //             }
+    //         ])->
+    //         whereHas('clientProgram.program', function ($query) {
+    //             $query->where('main_prog_id', 1);
+    //         })->
+    //         withTrashed()->
+    //         find($clientId);
+    // }
 
     public function getClientWithTrashedByUUID($clientUUID)
     {

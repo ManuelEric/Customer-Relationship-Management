@@ -2003,7 +2003,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
     public function deleteBundleProgram($bundling_id)
     {
-        return Bundling::where('uuid', $bundling_id)->delete();
+        $bundling = Bundling::where('uuid', $bundling_id)->first();
+        Bundling::where('uuid', $bundling_id)->delete();
+        return $bundling;
     }
 
     // ===================== End Bundling ====================

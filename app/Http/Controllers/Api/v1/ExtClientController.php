@@ -2,25 +2,23 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\Registration\Public\PublicRegistrationRequest;
 use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
+use App\Http\Traits\ClientMentorTrait;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\SplitLeadEdufairTrait;
 use App\Http\Traits\SplitNameTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Http\Traits\TranslateProgramStatusTrait;
 use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
-use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\Client\ProcessInsertLogClient;
-use App\Jobs\RawClient\ProcessVerifyClient;
-use App\Jobs\RawClient\ProcessVerifyClientParent;
 use App\Models\ClientEvent;
 use App\Models\Event;
 use App\Models\School;
@@ -50,6 +48,9 @@ class ExtClientController extends Controller
     use CreateCustomPrimaryKeyTrait;
     use LoggingTrait;
     use SplitLeadEdufairTrait;
+    use ClientMentorTrait;
+    use TranslateProgramStatusTrait;
+
     private ClientRepositoryInterface $clientRepository;
     private SchoolRepositoryInterface $schoolRepository;
     private ClientEventRepositoryInterface $clientEventRepository;
@@ -742,18 +743,20 @@ class ExtClientController extends Controller
 
         # if the event is online then 
         # system will not send the email
-        if ($validated['event_type'] == 'offline') {
 
-            try {
+        
+        // if ($validated['event_type'] == 'offline') {
 
-                # send an registration success email
-                $this->sendEmailRegistrationSuccess($validated, $storedClientEvent);
-                Log::notice('Email registration sent sucessfully to ' . $incomingRequest['mail'] . ' refer to ticket ID : ' . $storedClientEvent->ticket_id);
-            } catch (Exception $e) {
+        //     try {
 
-                Log::error('Failed to send email registration to ' . $incomingRequest['mail'] . ' refer to ticket ID : ' . $storedClientEvent->ticket_id . ' | ' . $e->getMessage());
-            }
-        }
+        //         # send an registration success email
+        //         $this->sendEmailRegistrationSuccess($validated, $storedClientEvent);
+        //         Log::notice('Email registration sent sucessfully to ' . $incomingRequest['mail'] . ' refer to ticket ID : ' . $storedClientEvent->ticket_id);
+        //     } catch (Exception $e) {
+
+        //         Log::error('Failed to send email registration to ' . $incomingRequest['mail'] . ' refer to ticket ID : ' . $storedClientEvent->ticket_id . ' | ' . $e->getMessage());
+        //     }
+        // }
 
 
 
@@ -1994,7 +1997,7 @@ class ExtClientController extends Controller
         $incomingEmail = $request->post('email');
         $incomingPassword = $request->post('password');
 
-        $user = \App\Models\User::with('roles')->where(column: 'email', $incomingEmail)->first();
+        $user = \App\Models\User::with('roles')->where('email', $incomingEmail)->first();
 
         if ( !$user ) {
             throw new HttpResponseException(
@@ -2123,7 +2126,7 @@ class ExtClientController extends Controller
 
     public function getClientInformation($uuid): JsonResponse
     {
-        $userClient = UserClient::where('id', $uuid)->select('*')->selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade')->first();
+        $userClient = UserClient::where('id', $uuid)->select('*')->selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade')->withTrashed()->first();
         return response()->json($userClient);
     }
 
@@ -2198,5 +2201,85 @@ class ExtClientController extends Controller
             $query->where('role_name', $role);
         })->where('id', $uuid)->first();
         return response()->json($users);
+    }
+
+    /**
+     * Mentoring
+     */
+    public function fnGetMenteeDetails(Request $request): JsonResponse
+    {
+        $requested_mentee_id = $request->route('user_client');
+        $details = $this->clientRepository->getClientById($requested_mentee_id);
+        $response_of_student_information = [
+            'mentee_id' => $details->id,
+            'mentee_name' => $details->first_name . ' ' . $details->last_name,
+            'mentee_phone' => $details->phone,
+            'mentee_email' => $details->mail,
+            'grade' => $details->grade_now,
+            'application_year' => null,
+            'address' => [
+                'detail' => $details->address,
+                'city' => $details->city,
+            ],
+            'birthdate' => $details->dob,
+            'parent_name' => $details->parents()->select(['first_name', 'last_name', 'mail', 'phone'])->get()->toArray() 
+        ];
+
+        $response_of_student_mentor = array();
+        // foreach ($details->clientProgram as $client_program) {
+        //     foreach ($client_program->clientMentor as $client_mentor) {
+        //         array_push($response_of_student_mentor, [
+        //             'user_id' => $client_mentor->id,
+        //             'mentor_name' => $client_mentor->first_name . ' ' . $client_mentor->last_name,
+        //             'act_as' => $this->translateType($client_mentor->pivot->type),
+        //         ]);
+        //     }
+        // }
+
+        $response = array_merge($response_of_student_information, $response_of_student_mentor);
+
+        return response()->json($response);
+    }
+
+    public function fnGetGraduatedMentee()
+    {
+        $graduated_mentees = $this->clientRepository->rnGetGraduatedMentees();
+        return response()->json($graduated_mentees);
+    }
+
+    public function fnGetActiveMentee()
+    {
+        $active_mentees = $this->clientRepository->rnGetActiveMentees();
+        return response()->json($active_mentees);
+    }
+
+    public function fnGetMentorsByMentee(UserClient $user_client): JsonResponse
+    {
+        $latest_admission_program = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first();
+        $mentors = $latest_admission_program->clientMentor()->where('tbl_client_mentor.status', 1)->get();
+        $mapped_mentors = $mentors->map(function ($item) {
+            return [
+                'mentor_id' => $item->id,
+                'mentor_name' => $item->first_name . ' ' . $item->last_name,
+                'act_as' => $this->translateType($item->pivot->type)
+            ];
+        });
+        return response()->json($mapped_mentors);
+    }
+
+    public function fnGetJoinedProgramsByMentee(UserClient $user_client)
+    {
+        $program_besides_admissions = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', '!=', 'Admissions Mentoring')->has('invoice.receipt')->get();
+        $mapped_program = $program_besides_admissions->map(function ($item) {
+            return [
+                'clientprog_id' => $item->clientprog_id,
+                'main_program' => $item->program->main_prog->prog_name,
+                'sub_program' => $item->program->sub_prog->sub_prog_name,
+                'program_name' => $item->program->prog_program,
+                'success_date' => $item->success_date,
+                'status' => $this->translate($item->prog_running_status)
+            ];
+        }); 
+        return response()->json($mapped_program);
     }
 }

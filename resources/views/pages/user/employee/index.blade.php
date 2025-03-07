@@ -29,7 +29,7 @@
                         href="{{ url('user/mentor') }}">Mentor</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::route('user_role') == 'external mentor' ? 'active' : null }}" aria-current="page"
+                    <a class="nav-link {{ Request::route('user_role') == 'external-mentor' ? 'active' : null }}" aria-current="page"
                         href="{{ url('user/external-mentor') }}">External Mentor</a>
                 </li>
                 <li class="nav-item">

@@ -13,6 +13,7 @@ class ExtClientProgramController extends Controller
     
     public function getSuccessPrograms(Request $request, $authorization = null): JsonResponse
     {
+        $mentor_uuid = $request->get('k');
         $requested_main_program_name = $request->route('main_program_name');
         [$main_program, $sub_program] = $this->tnGetMainProgramName($requested_main_program_name);
 
@@ -43,6 +44,11 @@ class ExtClientProgramController extends Controller
                 });
             });
         })->
+        when($mentor_uuid, function ($query) use ($mentor_uuid) {
+            $query->whereHas('clientMentor', function ($query) use ($mentor_uuid) {
+                $query->where('id', $mentor_uuid);
+            });
+        })->
         successAndPaid()->select('clientprog_id', 'prog_id', 'client_id')->get();
 
         $mappedB2CPrograms = $b2cPrograms->map(function ($data) {
@@ -54,7 +60,7 @@ class ExtClientProgramController extends Controller
             $client_id = $data->client->id;
             $client_fname = $data->client->first_name;
             $client_lname = $data->client->last_name;
-            $client_grade = $data->client->grade_now;
+            $client_grade = $data->client->grade_now ?? 0;
             $school_name = $data->client->school ? $data->client->school->sch_name : null;
 
             return [

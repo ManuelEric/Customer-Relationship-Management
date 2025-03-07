@@ -167,7 +167,7 @@
         
         showLoading()
         // Axios here ...
-        axios.get('{{ url("api/finance/outstanding/") }}/' + month)
+        axios.get('{{ url("api/v1/dashboard/finance/outstanding/") }}/' + month)
         .then((response) => {
 
                 var result = response.data.data
@@ -252,7 +252,7 @@
 
         showLoading()
         // Axios here ...
-            axios.get('{{ url("api/finance/outstanding/period") }}/' + start_date + '/' + end_date)
+            axios.get('{{ url("api/v1/dashboard/finance/outstanding/period") }}/' + start_date + '/' + end_date)
             .then((response) => {
 
                 var result = response.data.data
