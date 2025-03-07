@@ -17,12 +17,12 @@ class ApiCheck
      */
     public function handle(Request $request, Closure $next)
     {
-        if($request->header('crm_authorization') == env('CRM_AUTHORIZATION_KEY')){
-            return $next($request);
-        }else{
+        if( $request->header('crm_authorization') != env('CRM_AUTHORIZATION_KEY')){
             return response()->json([
                 'error' => 'Unauthorized'
-            ], status: JsonResponse::HTTP_UNAUTHORIZED);
+            ], JsonResponse::HTTP_UNAUTHORIZED);
         }
+        return $next($request);
+        
     }
 }
