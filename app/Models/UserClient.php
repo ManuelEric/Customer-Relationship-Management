@@ -445,7 +445,7 @@ class UserClient extends Authenticatable
 
         if(count($this->picClient) > 0){
             $listPics[0] = $this->picClient->where('status', 1)->first()->user_id ?? null;
-            $listPics[1] = $this->picClient->where('status', 1)->first()->user->full_name ?? null
+            $listPics[1] = $this->picClient->where('status', 1)->first()->user->full_name ?? null;
         }
 
         return $listPics;
