@@ -18,7 +18,7 @@ class ApiCheck
      */
     public function handle(Request $request, Closure $next)
     {
-        Log::debug('crm key from crm:' . env('CRM_AUTHORIZATION_KEY'));
+        Log::debug('crm key from crm:' . $request->header('crm_authorization'));
 
         if( $request->header('crm_authorization') != env('CRM_AUTHORIZATION_KEY')){
             return response()->json([
