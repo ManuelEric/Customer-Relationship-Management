@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ApiCheck
@@ -18,6 +19,10 @@ class ApiCheck
     {
         if($request->header('crm_authorization') == env('CRM_AUTHORIZATION_KEY')){
             return $next($request);
+        }else{
+            return response()->json([
+                'error' => 'Unauthorized'
+            ], status: JsonResponse::HTTP_UNAUTHORIZED);
         }
     }
 }
