@@ -35,11 +35,11 @@ class PhaseSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
-            [
-                'phase_name' => 'BONUS',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
-            ],
+            // [
+            //     'phase_name' => 'BONUS',
+            //     'created_at' => Carbon::now(),
+            //     'updated_at' => Carbon::now()
+            // ],
         ];
 
         DB::table('phases')->insert($seeds);

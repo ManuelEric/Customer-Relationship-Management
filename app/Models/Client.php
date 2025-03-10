@@ -83,7 +83,7 @@ class Client extends Model
     # Scopes
     public function scopeIsNotBlacklist($query)
     {
-        return $query->where('blacklist', 0);
+        return $query->where('client.blacklist', 0);
     }
     
     public function scopeIsVerified($query)

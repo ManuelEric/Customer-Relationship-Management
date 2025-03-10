@@ -1316,13 +1316,34 @@ class ClientRepository implements ClientRepositoryInterface
                     $query->select('prog_id', 'main_prog_id');
                 }
             ])->
-            whereHas('clientProgram.program', function ($query) {
-                $query->where('main_prog_id', 1);
-            })->
             withTrashed()->
             find($clientId);
     }
-  
+
+    // public function getClientByIdForAdmission($clientId)
+    // {
+    //     return UserClient::with([
+    //             'childrens',
+    //             'parents',
+    //             'clientProgram' => function ($query) {
+    //                 $query->select('clientprog_id', 'client_id', 'prog_id')->whereHas('program', function ($query) {
+    //                     $query->where('main_prog_id', 1);
+    //                 });
+    //             },
+    //             'clientProgram.clientMentor' => function ($query) {
+    //                 $query->select('users.id', 'nip', 'first_name', 'last_name')->withPivot('type', 'status');
+    //             },
+    //             'clientProgram.program' => function ($query) {
+    //                 $query->select('prog_id', 'main_prog_id');
+    //             }
+    //         ])->
+    //         whereHas('clientProgram.program', function ($query) {
+    //             $query->where('main_prog_id', 1);
+    //         })->
+    //         withTrashed()->
+    //         find($clientId);
+    // }
+
     public function getClientWithTrashedByUUID($clientUUID)
     {
         return UserClient::where('uuid', $clientUUID)->withTrashed()->first();

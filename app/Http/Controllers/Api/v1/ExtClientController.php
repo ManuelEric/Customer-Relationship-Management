@@ -2132,6 +2132,12 @@ class ExtClientController extends Controller
 
     public function updateTookIA(Request $request)
     {
+        // if($request->header('crm_authorization') != env('CRM_AUTHORIZATION_KEY')){
+        //     return response()->json([
+        //         'error' => 'Unauthorized'
+        //     ], status: JsonResponse::HTTP_UNAUTHORIZED);
+        // }
+
         # NEW CRM client id convert to UUID
         $id = $request->uuid;
         Log::debug($id . 'trying to update initial assessment');
