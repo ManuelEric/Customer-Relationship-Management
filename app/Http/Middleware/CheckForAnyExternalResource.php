@@ -45,6 +45,10 @@ class CheckForAnyExternalResource
                 case "editing":
                     $key = "Header-EE";
                     break;
+
+                case "mentoring":
+                    $key = "Header-M";
+                    break;
             }
 
             if (! $key)
