@@ -1322,7 +1322,7 @@ class ClientRepository implements ClientRepositoryInterface
             withTrashed()->
             find($clientId);
     }
-
+  
     public function getClientWithTrashedByUUID($clientUUID)
     {
         return UserClient::where('uuid', $clientUUID)->withTrashed()->first();

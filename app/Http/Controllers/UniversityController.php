@@ -58,6 +58,8 @@ class UniversityController extends Controller
             'univ_phone',
             'univ_country',
             'univ_address',
+            'univ_application_deadline'
+            
         ]);
 
         DB::beginTransaction();
@@ -153,6 +155,7 @@ class UniversityController extends Controller
             'univ_country',
             // 'tag',
             'univ_address',
+            'univ_application_deadline'
         ]);
 
         # retrieve vendor id from url
