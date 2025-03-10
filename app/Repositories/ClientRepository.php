@@ -15,12 +15,10 @@ use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Traits\StandardizePhoneNumberTrait;
-use App\Interfaces\ClientProgramRepositoryInterface;
-use App\Jobs\Client\ProcessUpdateGradeAndGraduationYearNow;
-use App\Models\ClientAcceptance;
 use App\Models\ClientEvent;
 use App\Models\ClientLog;
 use App\Models\PicClient;
+use App\Models\pivot\ClientAcceptance as PivotClientAcceptance;
 use App\Models\User;
 use App\Models\ViewRawClient;
 use Illuminate\Database\Eloquent\Collection;
@@ -1797,7 +1795,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getClientHasUniversityAcceptance()
     {
-        return Datatables::eloquent(ClientAcceptance::query())->make(true);
+        return Datatables::eloquent(PivotClientAcceptance::query())->make(true);
     }
 
     public function addInterestProgram($studentId, $interestProgram)
