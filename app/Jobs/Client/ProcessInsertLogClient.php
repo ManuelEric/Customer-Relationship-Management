@@ -244,9 +244,11 @@ class ProcessInsertLogClient implements ShouldQueue
                         }
                         
                         $define_category_from_all_program = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
-                        # update category from tbl_client
-                        $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
-                        break;
+                        
+			# update category from tbl_client
+                        $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
+                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
+			break;
 
                     case 'update-client-program':
                         $latest_client_log = $this->fnGetLatestClientLog($clientRepository, $client_data);
