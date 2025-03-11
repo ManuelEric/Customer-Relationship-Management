@@ -63,7 +63,7 @@
         if (!user)
             user = '';
 
-        var url = window.location.origin + '/api/get/conversion-lead/' + month + '/' + user
+        var url = window.location.origin + '/api/v1/dashboard/conversion-lead/' + month + '/' + user
 
         axios.get(url)
             .then(function(response) {
@@ -93,7 +93,7 @@
         if (!user)
             user = '';
 
-        var url = window.location.origin + '/api/get/lead/admissions-mentoring/' + month + '/' + user
+        var url = window.location.origin + '/api/v1/dashboard/lead/admissions-mentoring/' + month + '/' + user
 
         axios.get(url)
             .then(function(response) {
@@ -118,7 +118,7 @@
         if (!user)
             user = '';
 
-        var url = window.location.origin + '/api/get/lead/academic-prep/' + month + '/' + user
+        var url = window.location.origin + '/api/v1/dashboard/lead/academic-prep/' + month + '/' + user
 
         axios.get(url)
             .then(function(response) {
@@ -143,7 +143,7 @@
         if (!user)
             user = '';
 
-        var url = window.location.origin + '/api/get/lead/career-exploration/' + month + '/' + user
+        var url = window.location.origin + '/api/v1/dashboard/lead/career-exploration/' + month + '/' + user
 
         axios.get(url)
             .then(function(response) {

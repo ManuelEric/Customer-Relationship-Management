@@ -48,7 +48,7 @@
                             <option value=""></option>
                             @foreach($banks as $bank)
                                 <option value="{{ $bank->bank_name }}" 
-                                    @selected($user->bank_name == $bank->bank_name || old('bank_name') == $bank->bank_name)
+                                    @selected(isset($user->bank_name) && $user->bank_name == $bank->bank_name || isset($user->bank_name) && old('bank_name') == $bank->bank_name)
                                     >{{ $bank->bank_name }}</option>
                             @endforeach
                         </select>

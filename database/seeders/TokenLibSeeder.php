@@ -15,6 +15,6 @@ class TokenLibSeeder extends Seeder
      */
     public function run()
     {
-        \App\Models\TokenLib::factory(2)->create();
+        \App\Models\TokenLib::factory(3)->create();
     }
 }

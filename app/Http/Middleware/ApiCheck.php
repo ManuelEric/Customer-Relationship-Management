@@ -3,7 +3,9 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ApiCheck
 {
@@ -16,8 +18,14 @@ class ApiCheck
      */
     public function handle(Request $request, Closure $next)
     {
-        if($request->header('crm_authorization') == env('CRM_AUTHORIZATION_KEY')){
-            return $next($request);
+        Log::debug('crm key from crm:' . $request->header('crm-authorization'));
+
+        if( $request->header('crm-authorization') != env('CRM_AUTHORIZATION_KEY')){
+            return response()->json([
+                'error' => 'Unauthorized'
+            ], JsonResponse::HTTP_UNAUTHORIZED);
         }
+        return $next($request);
+        
     }
 }

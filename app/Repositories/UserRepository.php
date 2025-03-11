@@ -40,7 +40,7 @@ class UserRepository implements UserRepositoryInterface
         return DataTables::eloquent(
             User::leftJoin('tbl_position', 'tbl_position.id', '=', 'users.position_id')->
             whereHas('roles', function ($query) use ($role) {
-                $query->where('role_name', 'like', '%'.$role);
+                $query->where('role_name', 'like', '%'.$role.'%');
             })
                 ->select([
                     'users.id as id',

@@ -45,13 +45,16 @@ class CheckForAnyExternalResource
                 case "editing":
                     $key = "Header-EE";
                     break;
+
+                case "mentoring":
+                    $key = "Header-M";
+                    break;
             }
 
             if (! $key)
                 throw new Exception('Invalid resource');
 
-            $a = \App\Models\TokenLib::where('header_name', $key)->where('value', $request->header($key))->where('expires_at', '>', Carbon::now())->exists() ? 'a' : 'b';
-            Log::debug('resource: '. $resource . ' and key '. $key . ' with header ' . $request->header($key) . ' and exist '. $a);
+
             if (\App\Models\TokenLib::where('header_name', $key)->where('value', $request->header($key))->where('expires_at', '>', Carbon::now())->exists())
                 return $next($request);
         }

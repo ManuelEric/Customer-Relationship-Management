@@ -31,6 +31,7 @@ class University extends Model
         'univ_country',
         'univ_email',
         'univ_phone',
+        'univ_application_deadline'
     ];
 
     # Modify methods Model

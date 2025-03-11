@@ -45,5 +45,9 @@ class ImportBank extends Command
             'code' => '535',
             'bank_name' => 'BANK SEABANK'
         ]);
+        Bank::firstOrCreate([
+            'code' => '535',
+            'bank_name' => 'BANK JAGO'
+        ]);
     }
 }

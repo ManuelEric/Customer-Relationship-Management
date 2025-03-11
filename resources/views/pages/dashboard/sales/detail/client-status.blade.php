@@ -441,7 +441,7 @@
                 month = 'all'
             // month = moment(today).format('YYYY-MM')
 
-            var url = window.location.origin + '/api/get/client-status/' + month
+            var url = window.location.origin + '/api/v1/dashboard/client-status/' + month
             $(".card-client").data('f-date', month);
 
             axios.get(url, {

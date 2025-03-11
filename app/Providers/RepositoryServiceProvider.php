@@ -51,6 +51,7 @@ use App\Interfaces\PartnerAgreementRepositoryInterface;
 use App\Interfaces\PartnerProgramAttachRepositoryInterface;
 use App\Interfaces\PartnerProgramCollaboratorsRepositoryInterface;
 use App\Interfaces\PositionRepositoryInterface;
+use App\Interfaces\ProgramPhaseRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\PurchaseDetailRepositoryInterface;
 use App\Interfaces\PurchaseRequestRepositoryInterface;
@@ -135,6 +136,7 @@ use App\Repositories\PartnerAgreementRepository;
 use App\Repositories\PartnerProgramAttachRepository;
 use App\Repositories\PartnerProgramCollaboratorsRepository;
 use App\Repositories\PositionRepository;
+use App\Repositories\ProgramPhaseRepository;
 use App\Repositories\ProgramRepository;
 use App\Repositories\PurchaseDetailRepository;
 use App\Repositories\PurchaseRequestRepository;
@@ -261,6 +263,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(SubjectRepositoryInterface::class, SubjectRepository::class);
         $this->app->bind(IndustryRepositoryInterface::class, IndustryRepository::class);
         $this->app->bind(SubSectorRepositoryInterface::class, SubSectorRepository::class);
+        $this->app->bind(ProgramPhaseRepositoryInterface::class, ProgramPhaseRepository::class);
         $this->app->bind(BankRepositoryInterface::class, BankRepository::class);
     }
 

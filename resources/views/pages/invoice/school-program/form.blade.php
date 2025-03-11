@@ -643,7 +643,7 @@
                 var base_currency = $(this).val();
                 var to_currency = 'IDR';
 
-                var link = "{{ url('/') }}/api/current/rate/" + base_currency + "/" + to_currency
+                var link = "{{ url('/') }}/api/v1/current/rate/" + base_currency + "/" + to_currency
 
                 axios.get(link)
                     .then(function(response) {

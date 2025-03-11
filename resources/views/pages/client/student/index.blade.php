@@ -427,7 +427,7 @@
         var widthView = $(window).width();
         $(document).ready(function() {
 
-            var baseUrl = "{{ url('/') }}/api/get/school/list";
+            var baseUrl = "{{ url('/') }}/api/v1/get/school/list";
 
             $(".select-school").select2({
                 placeholder: 'Select Value',
@@ -1203,7 +1203,7 @@
             showLoading()
             type = type === '' ? 'all' : type;
             axios
-                .get("{{ url('api/export') }}/" + type + '/model', {
+                .get("{{ url('api/v1/export') }}/" + type + '/model', {
                     headers:{
                         'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
                     }
@@ -1228,7 +1228,7 @@
 
                     let myInterval = setInterval(() => {
                         axios
-                        .get("{{ url('api/batch') }}/" + batch_id, {
+                        .get("{{ url('api/v1/batch') }}/" + batch_id, {
                             headers:{
                                 'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
                             }

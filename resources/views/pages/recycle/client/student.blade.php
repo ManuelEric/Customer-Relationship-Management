@@ -234,7 +234,7 @@
     <script>
         $(document).ready(function() {
 
-            var baseUrl = "{{ url('/') }}/api/get/school/list";
+            var baseUrl = "{{ url('/') }}/api/v1/get/school/list";
 
             $(".select-school").select2({
                 placeholder: 'Select Value',

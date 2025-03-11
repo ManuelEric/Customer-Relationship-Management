@@ -180,7 +180,7 @@
                 month = $('#partner_status_month').val()
             }
             
-            let url = window.location.origin + '/api/partner/detail/'+ month +'/'+ type;
+            let url = window.location.origin + '/api/v1/dashboard/partner/detail/'+ month +'/'+ type;
             var html;
 
             switch (type) {
@@ -316,7 +316,7 @@
         showLoading()
 
         // Axios here...
-        axios.get('{{ url("api/partner/total/") }}/' + month + '/' + type)
+        axios.get('{{ url("api/v1/dashboard/partner/total/") }}/' + month + '/' + type)
             .then((response) => {
 
                 var result = response.data.data

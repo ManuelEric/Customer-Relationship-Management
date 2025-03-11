@@ -10,11 +10,15 @@ class ClientAcceptance extends Pivot
 {
     use HasFactory;
 
+    protected $table = 'tbl_client_acceptance';
+
     protected $fillable = [
         'client_id',
         'univ_id',
+        'major_group',
         'major_id',
-        'status'
+        'status',
+        'is_picked',
     ];
 
     public function major()

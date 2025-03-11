@@ -75,7 +75,7 @@ class UserController extends Controller
 
     public function index(Request $request): mixed
     {
-        $role = $request->route('user_role');
+        $role = str_replace('-', ' ', $request->route('user_role'));
         if ($request->ajax())
             return $this->userRepository->rnGetAllUsersByRoleDataTables($role);
 

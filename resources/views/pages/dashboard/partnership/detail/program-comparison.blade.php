@@ -243,7 +243,7 @@
             comparison_referral_chart.data.labels = [start, end]
 
             // Axios here ...
-            axios.get('{{ url('api/partner/partnership-program/program-comparison') }}/' + start + '/' + end)
+            axios.get('{{ url('api/v1/dashboard/partner/partnership-program/program-comparison') }}/' + start + '/' + end)
                 .then((response) => {
 
                     var result = response.data.data

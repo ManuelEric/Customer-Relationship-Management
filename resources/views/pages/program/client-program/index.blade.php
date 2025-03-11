@@ -123,7 +123,7 @@
                         <div class="col-md-12 mb-2">
                             <label for="">Program Status</label>
                             @php
-                                $program_status = ['Pending', 'Success', 'Failed', 'Refund'];
+                                $program_status = ['Pending', 'Success', 'Failed', 'Refund', 'Hold', 'Stop'];
                             @endphp
                             <select name="program_status[]" class="select form-select form-select-sm w-100" multiple
                                 id="program-status">
@@ -480,6 +480,14 @@
                                 case 3:
                                     return '<i class="bi bi-arrow-counterclockwise me-2 text-info"></i>Refund'
                                     break;
+
+                                case 4:
+                                    return '<i class="bi bi-pause me-2 text-secondary"></i>Hold'
+                                    break;
+
+                                case 5:
+                                    return '<i class="bi bi-stop me-2 text-dark"></i>Stop'
+                                    break;
                             }
                         }
                     },
@@ -780,7 +788,7 @@
                 showLoading()
                 type = type === '' ? 'all' : type;
                 axios
-                    .get("{{ url('api/export') }}/" + type + '/model', {
+                    .get("{{ url('api/v1/export') }}/" + type + '/model', {
                         headers:{
                             'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
                         }
@@ -804,7 +812,7 @@
 
                         let myInterval = setInterval(() => {
                             axios
-                            .get("{{ url('api/batch') }}/" + batch_id, {
+                            .get("{{ url('api/v1/batch') }}/" + batch_id, {
                                 headers:{
                                     'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
                                 }

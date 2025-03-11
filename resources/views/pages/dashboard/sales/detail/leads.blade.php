@@ -545,7 +545,7 @@
         }
 
         Swal.showLoading()
-        axios.get('{{ url('api/digital/all-leads') }}/' + month)
+        axios.get('{{ url('api/v1/dashboard/digital/all-leads') }}/' + month)
             .then((response) => {
                 var result = response.data
 
@@ -566,7 +566,7 @@
         let month = $('#digital_lead_month').val()
 
         Swal.showLoading()
-        axios.get('{{ url('api/digital/detail/') }}/' + month + '/type-lead/' + type + '/division/' + depart)
+        axios.get('{{ url('api/v1/dashboard/digital/detail/') }}/' + month + '/type-lead/' + type + '/division/' + depart)
             .then((response) => {
                 var result = response.data
 

@@ -198,7 +198,7 @@
         var prog_id = $('#prog_id_digital').val()
 
         Swal.showLoading()
-        axios.get('{{ url('api/digital/detail') }}/' + month + '/lead-source/' + lead + '/' + prog_id) 
+        axios.get('{{ url('api/v1/dashboard/digital/detail') }}/' + month + '/lead-source/' + lead + '/' + prog_id) 
             .then((response) => {
                 var result = response.data
 
@@ -224,7 +224,7 @@
         var prog_id = $('#prog_id_digital').val()
 
         Swal.showLoading()
-        axios.get('{{ url('api/digital/detail') }}/' + month + '/conversion-lead/' + lead + '/' + prog_id)
+        axios.get('{{ url('api/v1/dashboard/digital/detail') }}/' + month + '/conversion-lead/' + lead + '/' + prog_id)
             .then((response) => {
                 var result = response.data
                 console.log(result)
@@ -249,7 +249,7 @@
         var month = $('#month_year_digital').val()
         var prog_id = $('#prog_id_digital').val()
         Swal.showLoading()
-        axios.get('{{ url('api/digital/leads') }}/' + month + '/' + prog_id)
+        axios.get('{{ url('api/v1/dashboard/digital/leads') }}/' + month + '/' + prog_id)
             .then((response) => {
                 var result = response.data.data
                 // console.log(result);

@@ -342,6 +342,32 @@ class UserClient extends Authenticatable
         return $query->where('is_verified', 'N')->where('st_statusact', 1)->where('deleted_at', null);
     }
 
+    public function scopeIsGraduated(Builder $query)
+    {
+        $query->
+        where('grade_now', '>', 12)->
+        whereDoesntHave('clientProgram', function ($query) {
+            $query->whereIn('status', [0, 2, 3, 5]);
+        })->
+        whereHas('clientProgram', function ($query) {
+            $query->whereIn('status', [1, 4]);
+        });
+    }
+
+    public function scopeIsActiveMentee(Builder $query)
+    {
+        $query->whereRelation('clientProgram.program.main_prog', 'prog_name', 'Admissions Mentoring')->whereRelation('clientProgram', 'status', 1)->whereRelation('clientProgram', 'prog_running_status', '!=', 2);
+    }
+
+    public function scopeGetMentoredStudents(Builder $query)
+    {
+        $query->whereHas('clientProgram.clientMentor', function ($query) {
+            $query->where('users.id', auth()->guard('api')->user()->id)->where('tbl_client_mentor.status', 1);
+        });
+    }
+
+
+
     public function getLeadSource($parameter)
     {
         switch ($parameter) {
@@ -418,8 +444,8 @@ class UserClient extends Authenticatable
         $listPics[1] = null;
 
         if(count($this->picClient) > 0){
-            $listPics[0] = $this->picClient->where('status', 1)->first()->user ? $this->picClient->where('status', 1)->first()->user_id : null;
-            $listPics[1] = $this->picClient->where('status', 1)->first()->user ? $this->picClient->where('status', 1)->first()->user->full_name : null;
+            $listPics[0] = $this->picClient->where('status', 1)->first()->user_id ?? null;
+            $listPics[1] = $this->picClient->where('status', 1)->first()->user->full_name ?? null;
         }
 
         return $listPics;
@@ -569,7 +595,7 @@ class UserClient extends Authenticatable
 
     public function universityAcceptance()
     {
-        return $this->belongsToMany(University::class, 'tbl_client_acceptance', 'client_id', 'univ_id')->using(ClientAcceptance::class)->withPivot('id', 'status', 'major_id')->withTimestamps();
+        return $this->belongsToMany(University::class, 'tbl_client_acceptance', 'client_id', 'univ_id')->using(ClientAcceptance::class)->withPivot('id', 'major_group', 'status', 'major_id', 'is_picked')->withTimestamps();
     }
 
     public function picClient()

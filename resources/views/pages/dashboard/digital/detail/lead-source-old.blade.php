@@ -164,7 +164,7 @@
 
     function checkLeadSourceDetail(lead){
         Swal.showLoading()
-        axios.get('{{ url('api/digital/detail/') }}/' + lead + '/lead-source')
+        axios.get('{{ url('api/v1/dashboard/digital/detail/') }}/' + lead + '/lead-source')
             .then((response) => {
                 var result = response.data
 
@@ -187,7 +187,7 @@
 
     function checkConversionLeadDetail(lead){
         Swal.showLoading()
-        axios.get('{{ url('api/digital/detail/') }}/' + lead + '/conversion-lead')
+        axios.get('{{ url('api/v1/dashboard/digital/detail/') }}/' + lead + '/conversion-lead')
             .then((response) => {
                 var result = response.data
                 console.log(result)

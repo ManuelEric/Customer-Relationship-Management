@@ -62,6 +62,7 @@ class AcceptanceController extends Controller
         $alumni = $this->clientRepository->getClientById($alumni_id);
 
         $univ_id = $request->uni_id;
+        $major_group = $request->major_group;
         $major_id = $request->major;
         $status = $request->status;
 
@@ -70,6 +71,7 @@ class AcceptanceController extends Controller
 
             $new_details[] = [
                 'univ_id' => $univ_id[$index],
+                'major_group' => $major_group[$index],
                 'major_id' => $major_id[$index],
                 'status' => $status[$index]
             ];
@@ -127,6 +129,7 @@ class AcceptanceController extends Controller
         $alumni = $this->clientRepository->getClientById($alumni_id);
 
         $univ_id = $request->uni_id;
+        $major_group = $request->major_group;
         $major_id = $request->major;
         $status = $request->status;
 
@@ -135,6 +138,7 @@ class AcceptanceController extends Controller
 
             $new_details[] = [
                 'univ_id' => $univ_id[$index],
+                'major_group' => $major_group[$index],
                 'major_id' => $major_id[$index],
                 'status' => $status[$index]
             ];

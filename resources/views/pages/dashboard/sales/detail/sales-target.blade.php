@@ -109,7 +109,7 @@
         if (!user)
             user = '';
 
-        var url = window.location.origin + '/api/get/all-program/target/' + month + '/' + user
+        var url = window.location.origin + '/api/v1/dashboard/all-program/target/' + month + '/' + user
 
         axios.get(url)
             .then(function(response) {

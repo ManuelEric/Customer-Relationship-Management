@@ -48,7 +48,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: '{{ url("/") }}/api/get/outstanding-payment',
+                    url: '{{ url("/") }}/api/v1/dashboard/outstanding-payment',
                     // beforeSend : function( xhr ) {
                     //     xhr.setRequestHeader( 'Authorization', bearer_token);
                     // },

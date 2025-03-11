@@ -24,6 +24,9 @@ class TokenLibFactory extends Factory
             ],
             [
                 'name' => 'Header-EE'
+            ],
+            [
+                'name' => 'Header-M'
             ]
         ];
         $randomize_token = base64_encode(Str::uuid());
