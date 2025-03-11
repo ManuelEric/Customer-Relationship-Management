@@ -21,6 +21,7 @@ class StoreAcceptanceRequest extends FormRequest
         return [
             'alumni' => 'alumni',
             'uni_id' => 'university',
+            'major_group' => 'major group',
             'major' => 'major',
             'status' => 'status'
         ];
@@ -35,12 +36,25 @@ class StoreAcceptanceRequest extends FormRequest
     {
         $rules = [
             'uni_id.*' => 'required|exists:tbl_univ,univ_id',
+            'major_group.*' => 'required',
             'major.*' => 'required|exists:tbl_major,id',
             'status.*' => 'required|in:waitlisted,accepted,denied,chosen'
         ];
         
-        if($this->isMethod('POST')) 
+        /**
+         * if method is post
+         * then add validation for column alumni
+         */
+        if ($this->isMethod('POST')) 
             $rules['alumni'] = 'required|exists:tbl_client,id';
+
+
+        /**
+         * if method is patch
+         * then add validation for column is_picked
+         */
+        if ($this->isMethod('PATCH'))
+            $rules['is_picked'] = 'required';
 
         return $rules;
     }
