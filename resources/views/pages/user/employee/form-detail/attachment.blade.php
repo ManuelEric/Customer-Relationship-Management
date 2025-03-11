@@ -46,6 +46,11 @@
                         <small>Bank Name <sup class="text-danger">*</sup></small>
                         <select name="bank_name" id="bank_name" class="select w-100">
                             <option value=""></option>
+                            @foreach($banks as $bank)
+                                <option value="{{ $bank->bank_name }}" 
+                                    @selected($user->bank_name == $bank->bank_name || old('bank_name') == $bank->bank_name)
+                                    >{{ $bank->bank_name }}</option>
+                            @endforeach
                         </select>
                         @error('bank_name')
                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -231,38 +236,3 @@
         </div>
     </div>
 </div>
-<script>
-
-    $(document).ready(function() {
-        axios.get('https://bios.kemenkeu.go.id/api/ws/ref/bank')
-                .then(function (response){
-    
-                    let obj = response.data;
-                    
-                    var html = '<option data-placeholder="true"></option>'
-    
-                    for (var key in obj.data){
-                        var selected = '';
-        
-                        if('{{ !empty(old("bank_name")) }}' && '{{ old("bank_name") }}' === obj.data[key].uraian)
-                            selected = "selected";
-
-                        @if (isset($user) && isset($user->bank_name))
-                            if('{{ $user->bank_name }}' === obj.data[key].uraian){
-                                selected = "selected";
-                            }    
-                        @endif
-                            
-                        html += "<option value='" + obj.data[key].uraian + "' " + selected +">" + obj.data[key].uraian + "</option>"
-                            
-                    }
-    
-                    $("#bank_name").html(html)
-                       
-                    swal.close();
-                }).catch(function (error) {
-                    console.log(error)
-                    swal.close();
-                })
-    });
-</script>

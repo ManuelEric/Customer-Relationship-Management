@@ -101,7 +101,9 @@ class ExtUserController extends Controller
         } 
 
         try {
-            $subjects = $this->subjectRepository->rnGetAllSubjectsByRole($role);
+            # Temporary change to get all subject
+            // $subjects = $this->subjectRepository->rnGetAllSubjectsByRole($role);
+            $subjects = $this->subjectRepository->getAllSubjects();
             
             if (!$subjects) {
                 return response()->json([

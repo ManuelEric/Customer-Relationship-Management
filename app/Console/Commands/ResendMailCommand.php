@@ -6,6 +6,7 @@ use App\Http\Controllers\ClientEventController;
 use App\Http\Traits\MailingEventOfflineTrait;
 use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
+use App\Jobs\Event\General\ProcessEmailConfirmation;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
@@ -199,6 +200,10 @@ class ResendMailCommand extends Command
                         # repeat the function to send the email 
                         # the purpose is to re-send the email that failed to sent
                         app('App\Http\Controllers\Api\v1\ExtClientController')->sendEmailVerificationSuccess($request, $clientEvent);
+                        break;
+
+                    case 'email-confirmation-event':
+                        ProcessEmailConfirmation::dispatch($clientEvent)->onQueue('email-confirmation-event');
                         break;
                 }
                     

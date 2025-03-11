@@ -161,7 +161,7 @@ class ImportClientEvent implements ShouldQueue
 
             $existClientEvent = ClientEvent::where('event_id', $data['event_id'])
                 ->where('client_id', $createdMainClient)
-                ->where('joined_date', $data['joined_date'])
+                // ->where('joined_date', $data['joined_date'])
                 ->first();
 
             if (!isset($existClientEvent)) {
