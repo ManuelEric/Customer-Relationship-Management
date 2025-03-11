@@ -40,11 +40,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('get/client/{id}', [ExtClientController::class, 'getClientById']);
+Route::get('get/client/{id}', [ExtClientController::class, 'getClientById'])->middleware('auth:api');
 
 
 
@@ -109,11 +109,10 @@ Route::group(['middleware' => 'crm.key'], function () {
 
 
 # Program Phase
-// Route::group(['middleware' => 'auth:api'], function () {
+Route::group(['middleware' => 'auth:api'], function () {
     Route::delete('program-phase/{clientprog}/phase-detail/{phase_detail}/phase-lib/{phase_lib?}', [APIProgramPhaseController::class, 'fnRemoveProgramPhase']);
     Route::post('program-phase/{clientprog}/phase-detail/{phase_detail}/phase-lib/{phase_lib?}', [APIProgramPhaseController::class, 'fnStoreProgramPhase']);
     
     # Update quota for program phase
     Route::patch('program-phase/{clientprog}/phase-detail/{phase_detail}/phase-lib/{phase_lib?}/quota', [APIProgramPhaseController::class, 'fnUpdateQuotaProgramPhase']);
-
-// });
+});

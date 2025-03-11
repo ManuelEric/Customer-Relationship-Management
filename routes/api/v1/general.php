@@ -132,7 +132,7 @@ Route::middleware(['throttle:120,1'])->group(function () {
         });
     
         # timesheet
-        Route::middleware(['resource:timesheet'])->group(function () {
+        Route::middleware(  ['resource:timesheet'])->group(function () {
             Route::post('user/update', [ExtClientController::class, 'updateUser']);
     
             Route::get('user/mentor-tutors', [ExtClientController::class, 'getMentorTutors']);
