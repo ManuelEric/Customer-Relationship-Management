@@ -12,7 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tbl_client_acceptance', function (Blueprint $table) {
-            $table->string('major_group')->nullable()->after('univ_id');
+            $table->string('major_name')->nullable()->after('univ_id');
+            $table->foreignId('major_group_id')->nullable()->after('univ_id')->constrained(
+                table: 'major_groups', indexName: 'tbl_client_acceptance_major_group_id'
+            )->onUpdate('cascade')->onDelete('cascade');
+            
         });
     }
 

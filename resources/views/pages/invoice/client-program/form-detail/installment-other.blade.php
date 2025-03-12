@@ -171,7 +171,7 @@
         if (isNaN(sum))
             sum = 0
 
-        if (sum <= 100) {
+        // if (sum <= 100) {
             let percent = $('#percentage_other_' + id).val()
             let kurs = $('#current_rate').val()
             let tot_other = $('#total_other').val()
@@ -180,13 +180,13 @@
             $('#amount_other_' + id).val(total)
             $('#amount_other_idr_' + id).val(total * kurs)
 
-        } else {
-            $('#percentage_other_' + id).val(null)
-            $('#amount_other_' + id).val(null)
-            $('#amount_other_idr_' + id).val(null)
+        // } else {
+        //     $('#percentage_other_' + id).val(null)
+        //     $('#amount_other_' + id).val(null)
+        //     $('#amount_other_idr_' + id).val(null)
 
-            notification('error', 'Percentage is more than 100')
-        }
+        //     notification('error', 'Percentage is more than 100')
+        // }
     }
 
     function checkAmountOther(id) {
@@ -200,14 +200,14 @@
 
         let tot_other = $('#total_other').val()
 
-        if (sum <= tot_other) {
+        // if (sum <= tot_other) {
             let amount = $('#amount_other_' + id).val()
             let total = Math.round((amount / tot_idr) * 100)
             $("#percentage_other_" + id).val(total)
-        } else {
-            $('#percentage_other_' + id).val(null)
-            $('#amount_other_' + id).val(null)
-            notification('error', 'Installment amount should be less than total invoice')
-        }
+        // } else {
+        //     $('#percentage_other_' + id).val(null)
+        //     $('#amount_other_' + id).val(null)
+        //     notification('error', 'Installment amount should be less than total invoice')
+        // }
     }
 </script>

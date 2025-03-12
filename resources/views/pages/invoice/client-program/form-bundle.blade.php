@@ -1247,45 +1247,45 @@
             if (currency == "other")
                 currency = $("#currency_detail").val();
             var payment_method = $("#payment_method").val();
-            if (payment_method == "installment") {
+            // if (payment_method == "installment") {
 
-                if (currency == "idr") {
+            //     if (currency == "idr") {
 
-                    var tot_percent = 0;
-                    $('.percentage').each(function() {
-                        tot_percent += parseInt($(this).val())
-                    })
+            //         var tot_percent = 0;
+            //         $('.percentage').each(function() {
+            //             tot_percent += parseInt($(this).val())
+            //         })
 
-                    var tot_amount = 0;
-                    $('.amount').each(function() {
-                        tot_amount += parseInt($(this).val())
-                    })
+            //         var tot_amount = 0;
+            //         $('.amount').each(function() {
+            //             tot_amount += parseInt($(this).val())
+            //         })
 
-                    var real_total_amount = $("#not_session_idr_total").val();
+            //         var real_total_amount = $("#not_session_idr_total").val();
 
-                    if ( (tot_percent < 100) && (tot_amount != real_total_amount)) {
-                        notification('error',
-                            'Installment amount is not right. Please double check before create an invoice')
-                        return;
-                    }
+            //         if ( (tot_percent < 100) && (tot_amount != real_total_amount)) {
+            //             notification('error',
+            //                 'Installment amount is not right. Please double check before create an invoice')
+            //             return;
+            //         }
 
-                } else if (currency == "other") {
+            //     } else if (currency == "other") {
 
-                    var tot_percent = 0;
-                    $('.percentage-other').each(function() {
-                        tot_percent += parseInt($(this).val())
-                    })
+            //         var tot_percent = 0;
+            //         $('.percentage-other').each(function() {
+            //             tot_percent += parseInt($(this).val())
+            //         })
 
-                    if ( (tot_percent < 100) && (tot_amount != real_total_amount)) {
-                        notification('error',
-                            'Installment amount is not right. Please double check before create an invoice')
-                        return;
-                    }
+            //         if ( (tot_percent < 100) && (tot_amount != real_total_amount)) {
+            //             notification('error',
+            //                 'Installment amount is not right. Please double check before create an invoice')
+            //             return;
+            //         }
 
-                }
+            //     }
 
 
-            }
+            // }
             $("#invoice-form").submit()
 
 
