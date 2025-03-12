@@ -15,12 +15,10 @@ use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Traits\StandardizePhoneNumberTrait;
-use App\Interfaces\ClientProgramRepositoryInterface;
-use App\Jobs\Client\ProcessUpdateGradeAndGraduationYearNow;
-use App\Models\ClientAcceptance;
 use App\Models\ClientEvent;
 use App\Models\ClientLog;
 use App\Models\PicClient;
+use App\Models\pivot\ClientAcceptance as PivotClientAcceptance;
 use App\Models\User;
 use App\Models\ViewRawClient;
 use Illuminate\Database\Eloquent\Collection;
@@ -1301,23 +1299,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getClientById($clientId)
     {
-        return UserClient::with([
-                'childrens',
-                'parents',
-                'clientProgram' => function ($query) {
-                    $query->select('clientprog_id', 'client_id', 'prog_id')->whereHas('program', function ($query) {
-                        $query->where('main_prog_id', 1);
-                    });
-                },
-                'clientProgram.clientMentor' => function ($query) {
-                    $query->select('users.id', 'nip', 'first_name', 'last_name')->withPivot('type', 'status');
-                },
-                'clientProgram.program' => function ($query) {
-                    $query->select('prog_id', 'main_prog_id');
-                }
-            ])->
-            withTrashed()->
-            find($clientId);
+        return UserClient::with(['childrens'])->withTrashed()->find($clientId);
     }
 
     // public function getClientByIdForAdmission($clientId)
@@ -1797,7 +1779,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getClientHasUniversityAcceptance()
     {
-        return Datatables::eloquent(ClientAcceptance::query())->make(true);
+        return Datatables::eloquent(PivotClientAcceptance::query())->make(true);
     }
 
     public function addInterestProgram($studentId, $interestProgram)
