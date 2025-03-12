@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use app\Actions\Meta\Handle as HandleMetaLeads;
+use App\Actions\Meta\Handle as HandleMetaLeads;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Exception;
