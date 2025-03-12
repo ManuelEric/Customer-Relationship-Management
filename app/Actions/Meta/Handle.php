@@ -37,8 +37,8 @@ class Handle
             'child_school' => $collections->where('name', 'sekolah_anak_anda')->first()['value'][0],
         ];
         Log::debug('Incoming lead from meta', $incoming_data);
-        return;
         FailedMetaLead::create($incoming_data);
+        return;
 
         /**
          * check if the parent is exists
