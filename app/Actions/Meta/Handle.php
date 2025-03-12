@@ -151,7 +151,7 @@ class Handle
          */
         if ( $selected_child )
         {
-            $log_client_details = [
+            $log_client_details[] = [
                 'client_id' => $selected_child->id,
                 'first_name' => $selected_child->first_name,
                 'last_name' => $selected_child->last_name,
