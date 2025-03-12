@@ -245,14 +245,14 @@
 
         let tot_idr = $('#total_idr').val()
 
-        if (sum <= tot_idr) {
+        // if (sum <= tot_idr) {
             let amount = $('#amount_' + id).val()
             let total = Math.round((amount / tot_idr) * 100)
             $("#percentage_" + id).val(total)
-        } else {
-            $('#percentage_' + id).val(null)
-            $('#amount_' + id).val(null)
-            notification('error', 'Installment amount should be less than total invoice')
-        }
+        // } else {
+        //     $('#percentage_' + id).val(null)
+        //     $('#amount_' + id).val(null)
+        //     notification('error', 'Installment amount should be less than total invoice')
+        // }
     }
 </script>
