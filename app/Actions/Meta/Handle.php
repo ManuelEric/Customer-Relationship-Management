@@ -160,7 +160,7 @@ class Handle
                 'clientprog_id' => null
             ];
 
-            ProcessInsertLogClient::dispatch($log_client_details, true)->onQueue('insert-log-client');
+            ProcessInsertLogClient::dispatch($log_client_details)->onQueue('insert-log-client');
         }
 
     }
