@@ -17,10 +17,12 @@ use App\Http\Requests\ReportSalesRequest;
 use App\Http\Requests\ReportUnpaidPaymentRequest;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
+use App\Services\LeadTrackerService;
 use App\Services\Log\LogService;
 use Illuminate\Support\Collection;
 use Exception;
 use Illuminate\Http\Request;
+use PDO;
 
 class ReportController extends Controller
 {
@@ -160,5 +162,19 @@ class ReportController extends Controller
         $date_range = $request->get('daterange');
         $lead_tracker_report = $leadTrackerReportAction->execute($date_range);
         return view('pages.report.lead.index')->with($lead_tracker_report);
+    }
+
+    public function fnDetailLeadTracking(
+        Request $request,
+        LeadTrackerService $lead_tracker_service
+    ){
+        $type = $request->get('type');
+        $date_range = $request->get('daterange');
+
+        return $lead_tracker_service->detailLead($type, $date_range);
+        // if ($request->ajax()) {
+        // }
+
+        // return view('pages.report.lead.detail.index');
     }
 }

@@ -5,7 +5,9 @@ namespace App\Repositories;
 use App\Interfaces\ClientLogRepositoryInterface;
 use App\Models\ClientLog;
 use App\Models\ClientProgram;
+use App\Models\UserClient;
 use Illuminate\Support\Carbon;
+use DataTables;
 
 class ClientLogRepository implements ClientLogRepositoryInterface 
 {
@@ -24,6 +26,68 @@ class ClientLogRepository implements ClientLogRepositoryInterface
         return ClientLog::where('clientprog_id', $clientprog_id)->where('client_id', $client_id)->delete();
     }
 
+    /**
+     * Query for summary
+     */
+    public function queryUnfilteredOnlinePaidLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::onlinePaidUnfilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
+    }
+
+    public function queryUnfilteredOnlineOrganicLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::onlineOrganicUnfilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
+    }
+
+    public function queryUnfilteredOfflineLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::offlineUnfilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
+    }
+
+    public function queryUnfilteredReferralLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::referralFromExistingClientsUnfilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
+    }
+
+    public function queryFilteredOnlinePaidLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::onlinePaidFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
+    }
+
+    public function queryFilteredOnlineOrganicLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::onlineOrganicFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
+    }
+
+    public function queryFilteredOfflineLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::onlineOrganicFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
+    }
+
+    public function queryFilteredReferralSales(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::referralFromExistingClientsFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
+    }
+
+    public function queryPotentialOnlinePaidLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::onlinePaidPotentialLeads()->whereBetween('created_at', [$start_date, $end_date]);
+    }
+
+    public function queryPotentialOnlineOrganicLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::onlineOrganicPotentialLeads()->whereBetween('created_at', [$start_date, $end_date]);
+    }
+
+    public function queryPotentialOfflineLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::offlinePotentialLeads()->whereBetween('created_at', [$start_date, $end_date]);
+    }
+
+    public function queryPotentialReferralExistingClientLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::referralFromExistingClientsPotentialLeads()->whereBetween('created_at', [$start_date, $end_date]);
+    }
 
     /**
      * Summary of unfilteredOnlinePaidLeads
@@ -33,7 +97,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
      */
     public function unfilteredOnlinePaidLeads(Carbon $start_date, Carbon $end_date): Array
     {
-        $query = ClientLog::onlinePaidUnfilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
+        $query = $this->queryUnfilteredOnlinePaidLeads($start_date, $end_date);
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray(),
@@ -42,7 +106,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     
     public function unfilteredOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): Array
     {
-        $query = ClientLog::onlineOrganicUnfilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
+        $query = $this->queryUnfilteredOnlineOrganicLeads($start_date, $end_date);
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -51,7 +115,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function unfilteredOfflineLeads(Carbon $start_date, Carbon $end_date): Array
     {
-        $query = ClientLog::offlineUnfilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
+        $query = $this->queryUnfilteredOfflineLeads($start_date, $end_date);
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -60,7 +124,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function unfilteredReferralLeads(Carbon $start_date, Carbon $end_date): Array
     {
-        $query = ClientLog::referralFromExistingClientsUnfilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
+        $query = $this->queryUnfilteredReferralLeads($start_date, $end_date);
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -75,7 +139,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
      */
     public function filteredOnlinePaidLeads(Carbon $start_date, Carbon $end_date): Array
     {
-        $query = ClientLog::onlinePaidFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
+        $query = $this->queryFilteredOnlinePaidLeads($start_date, $end_date);
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -84,7 +148,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function filteredOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): Array
     {
-        $query = ClientLog::onlineOrganicFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
+        $query = $this->queryFilteredOnlineOrganicLeads($start_date, $end_date);
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -93,7 +157,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function filteredOfflineLeads(Carbon $start_date, Carbon $end_date): Array
     {
-        $query = ClientLog::offlineFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
+        $query = $this->queryFilteredOfflineLeads($start_date, $end_date);
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -102,7 +166,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function filteredReferralSales(Carbon $start_date, Carbon $end_date): Array
     {
-        $query = ClientLog::referralFromExistingClientsFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
+        $query = $this->queryFilteredReferralSales($start_date, $end_date);
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -117,7 +181,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
      */
     public function potentialOnlinePaidLeads(Carbon $start_date, Carbon $end_date): Array
     {
-        $query = ClientLog::onlinePaidPotentialLeads()->whereBetween('created_at', [$start_date, $end_date]);
+        $query = $this->queryPotentialOnlinePaidLeads($start_date, $end_date);
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -126,7 +190,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function potentialOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): Array
     {
-        $query = ClientLog::onlineOrganicPotentialLeads()->whereBetween('created_at', [$start_date, $end_date]);
+        $query = $this->queryPotentialOnlineOrganicLeads($start_date, $end_date);
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -135,7 +199,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function potentialOfflineLeads(Carbon $start_date, Carbon $end_date): Array
     {
-        $query = ClientLog::offlinePotentialLeads()->whereBetween('created_at', [$start_date, $end_date]);
+        $query = $this->queryPotentialOfflineLeads($start_date, $end_date);
         return [
             $query->get()->count(),
             $query->pluck('client_id' )->toArray()
@@ -144,7 +208,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function potentialReferralExistingClientLeads(Carbon $start_date, Carbon $end_date): Array
     {
-        $query = ClientLog::referralFromExistingClientsPotentialLeads()->whereBetween('created_at', [$start_date, $end_date]);
+        $query = $this->queryPotentialReferralExistingClientLeads($start_date, $end_date);
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -1040,4 +1104,31 @@ class ClientLogRepository implements ClientLogRepositoryInterface
         return $mapped->groupBy('pic_id');
     }
 
+    public function getDetailLeadTracking(String $type, Carbon $start_date, Carbon $end_date)
+    {
+        switch ($type) {
+            case 'unfiltered_leads_online_paid':
+                $clients = $this->queryUnfilteredOnlinePaidLeads($start_date, $end_date)->get();
+                break;
+            
+            default:
+                # code...
+                break;
+        }
+        
+        $mapped = $clients->map(function ($item){
+            return [
+                'id' => $item->id,
+                'client_id' => $item->client_id,
+                'full_name' => $item->master_client->full_name,
+                'mail' => $item->master_client->mail,
+                'phone' => $item->master_client->phone,
+                'grade_now' => $item->master_client->grade_now,
+                'lead_source' => $item->client_program ? $item->client_program->conversion_lead : $item->master_client->lead_source,
+                'program_name' => $item->client_program ? $item->client_program->program->program_name : '-',
+            ];
+        });
+
+        return $mapped->paginate(10);
+    }
 }

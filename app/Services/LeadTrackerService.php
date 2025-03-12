@@ -229,4 +229,23 @@ class LeadTrackerService
             'payment' => $this->clientLogRepository->GIPPaymentTotalToDate($start_date, $end_date)
         ];
     }
+
+    public function detailLead(String $type, $date_range)
+    {  
+        [$start_date, $end_date] = ($date_range) ? array_map([$this, "castToCarbon"], explode('-', $date_range)) : $this->selectCurrentWeek();
+        $end_date = $end_date->endOfDay();
+        return $this->clientLogRepository->getDetailLeadTracking($type, $start_date, $end_date);
+    }
+
+    private function castToCarbon(String $item): Carbon
+    {
+        return Carbon::parse($item);
+    }
+
+    private function selectCurrentWeek(): Array
+    {
+        $week_start_date = Carbon::now()->startOfWeek();
+        $week_end_date = Carbon::now()->endOfWeek();
+        return [$week_start_date, $week_end_date];
+    }
 }

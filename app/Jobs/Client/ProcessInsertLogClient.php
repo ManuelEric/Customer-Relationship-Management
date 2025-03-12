@@ -127,7 +127,8 @@ class ProcessInsertLogClient implements ShouldQueue
                         $new_client_log = $clientRepository->createClientLog($client_data);
         
                         # update category from tbl_client to new-lead
-                        $clientRepository->updateClient($client_data['client_id'], ['category' => $client_data['category'], 'is_verified' => 'N']);
+                        $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $client_data['category'], 'is_verified' => 'N']);
+                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
                         break;
                     
                     case 'import-parent':
@@ -140,7 +141,8 @@ class ProcessInsertLogClient implements ShouldQueue
                         $clientRepository->createClientLog($client_data);
                         
                         # update category from tbl_client to new-lead
-                        $clientRepository->updateClient($client_data['client_id'], ['category' => $client_data['category'], 'is_verified' => 'N', 'deleted_at' => null, 'is_many_request' => $this->is_many_request]);
+                        $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $client_data['category'], 'is_verified' => 'N', 'deleted_at' => null, 'is_many_request' => $this->is_many_request]);
+                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
                         break;
 
                     case 'restore':
@@ -194,7 +196,8 @@ class ProcessInsertLogClient implements ShouldQueue
                         $define_category_from_all_program = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
                       
                         # update category from tbl_client
-                        $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
+                        $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
+                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
                         break;
 
                     # create or client program
@@ -245,7 +248,8 @@ class ProcessInsertLogClient implements ShouldQueue
                         
                         $define_category_from_all_program = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
                         # update category from tbl_client
-                        $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
+                        $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
+                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
                         break;
 
                     case 'update-client-program':
@@ -293,8 +297,8 @@ class ProcessInsertLogClient implements ShouldQueue
 
                         $define_category_from_all_program = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
                         # update category from tbl_client
-                        $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
-                        
+                        $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
+                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
                         break;
                         
                     case 'delete-client-program':
@@ -302,7 +306,8 @@ class ProcessInsertLogClient implements ShouldQueue
                         
                         $define_category_from_all_program = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
                         # update category from tbl_client
-                        $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
+                        $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
+                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
                         break;
 
                     case 'trash':
@@ -314,8 +319,9 @@ class ProcessInsertLogClient implements ShouldQueue
                         $clientRepository->createClientLog($client_data);
                             
                         # update category from tbl_client to new-lead
-                        $clientRepository->updateClient($client_data['client_id'], ['category' => $client_data['category'], 'is_many_request' => $this->is_many_request]);
-                            
+                        $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $client_data['category'], 'is_many_request' => $this->is_many_request]);
+                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
+ 
                         # only temporarily and will be removed in crm adjusted
                         $get_client = $clientRepository->getClientById($client_data['client_id']);
                             

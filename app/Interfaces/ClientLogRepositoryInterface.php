@@ -239,4 +239,11 @@ interface ClientLogRepositoryInterface
     public function gipPotentialLeadsTotalToDate(Carbon $start_date, Carbon $end_date);
     public function gipDealTotalToDate(Carbon $start_date, Carbon $end_date);
     public function gipPaymentTotalToDate(Carbon $start_date, Carbon $end_date);
+
+
+    /**
+    * Detail Lead
+    */
+    public function getDetailLeadTracking(String $type, Carbon $start_date, Carbon $end_date);
+
 }
