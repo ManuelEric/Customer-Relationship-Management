@@ -26,6 +26,7 @@ use App\Http\Controllers\ReceiptPartnerController;
 use App\Http\Controllers\ReceiptReferralController;
 use App\Http\Controllers\ReceiptSchoolController;
 use App\Http\Controllers\Api\v1\AuthController as V1APIAuthController;
+use App\Http\Controllers\Api\v1\CallbackController as V1APICallbackController;
 
 Route::middleware(['throttle:120,1'])->group(function () {
 
@@ -151,5 +152,10 @@ Route::middleware(['throttle:120,1'])->group(function () {
             Route::put('student/{student}/acceptance/{acceptance}', [V1APIAcceptanceController::class, 'fnUpdateUni']);
             Route::delete('student/{student}/acceptance/{acceptance}', [V1APIAcceptanceController::class, 'fnDeleteUni']);
         });
+
+        # meta ads
+        // WebHook 
+        Route::get('callback/facebook', [V1APICallbackController::class, 'verify']);
+        Route::post('callback/facebook', [V1APICallbackController::class, 'read_lead']);
 
 });
