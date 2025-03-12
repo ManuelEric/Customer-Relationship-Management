@@ -32,7 +32,7 @@ class Handle
          * insert client to failed meta lead
          */
         $collections = collect($leads);
-        Log::error('incoming data', $collections->where('name', 'nama_anda')->first());
+        Log::error('incoming data', $collections->where('name', 'nama_anda')->first()['values']);
         $incoming_data = [
             'parent_name' => $collections->where('name', 'nama_anda')->first()['value'][0],
             'parent_phone' => $collections->where('name', 'nomor_hp_anda_')->first()['value'][0],
