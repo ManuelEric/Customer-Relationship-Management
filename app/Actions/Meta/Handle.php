@@ -36,7 +36,6 @@ class Handle
             'child_school' => $collections->where('name', 'sekolah_anak_anda')->first()['value'][0],
         ];
         FailedMetaLead::create($incoming_data);
-        exit;
 
         /**
          * check if the parent is exists
@@ -83,7 +82,10 @@ class Handle
             elseif (! $child['isExist'] )
             {
                 $childName = $this->explodeName($incoming_data['child_name']);
-                $childSchool = School::where('sch_name', $incoming_data['child_school'])->first(); 
+                
+
+                if (! $childSchool = School::where('sch_name', $incoming_data['child_school'])->first() )
+                    $childSchool = $this->createSchoolIfNotExists($incoming_data['child_school']);
             }
         }
 
