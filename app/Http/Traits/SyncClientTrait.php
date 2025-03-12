@@ -17,6 +17,7 @@ trait SyncClientTrait
 {
     use SplitNameTrait;
     use CheckExistingClientImport;
+    use CreateCustomPrimaryKeyTrait;
 
     public function syncInterestProgram($interestPrograms, $client, $joinedDate)
     {

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use app\Actions\Meta\Handle as HandleMetaLeads;
+use App\Actions\Meta\Handle as HandleMetaLeads;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Exception;
@@ -19,7 +19,7 @@ class CallbackController extends Controller
     protected $access_token;
     protected HandleMetaLeads $handleMetaLeads;
 
-    public function __construct($app_id, $app_secret, $access_token, HandleMetaLeads $handleMetaLeads)
+    public function __construct(HandleMetaLeads $handleMetaLeads)
     {
         $this->app_id = env('META_APP_ID');
         $this->app_secret = env('META_APP_SECRET');
@@ -40,11 +40,11 @@ class CallbackController extends Controller
         // Verify the token matches what you expect
         if ($mode === 'subscribe' && $verify_token === $verify_token_received) {
             // Return the challenge code to complete the verification
-            Log::info('Verification success : ' . $challenge);
+            Log::info('[META API] Verification success : ' . $challenge);
             return response($challenge);
         } else {
             // If the verification fails
-            Log::error('Verification failed.');
+            Log::error('[META API] Verification failed.');
             return response('Verification failed.', 400);
         }
     }
@@ -56,9 +56,6 @@ class CallbackController extends Controller
             'raw_post_data' => $request->getContent(),
             'headers' => $request->headers->all()
         ];
-
-        // Log the raw POST data for debugging
-        Log::info('Webhook received', $log_data);
 
         // Extract Leadgen ID from the POST data
         $input_data = json_decode($request->getContent(), true);
@@ -91,9 +88,9 @@ class CallbackController extends Controller
 
         if ($response->successful()) {
 
-            $this->handleMetaLeads->execute($form->json(), $response->json()->field_data);
+            $this->handleMetaLeads->execute($form->json(), $response->json()['field_data']);
+            Log::notice('[META API] Lead received successfully', ['Form' => $form->json(), 'Lead' => $response->json()['field_data']]);
 
-            // Log::notice('Lead received successfully', ['Form' => $form->json(), 'Lead' => $response->json()]);
         } else {
             Log::error("Error fetching lead data: " . $response->body());
         }
