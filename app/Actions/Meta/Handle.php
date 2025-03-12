@@ -118,11 +118,12 @@ class Handle
             case "PR":
                 if ( $selected_child )
                 {
-                    $interest_program_details = [
+                    $interest_program_details[] = [
                         'prog_id' => $identifier,
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now(),
                     ];
+                    
                     $selected_child->interestPrograms()->syncWithoutDetaching($interest_program_details);
                 }
                 break;
@@ -137,7 +138,8 @@ class Handle
                     'registration_type' => 'PR',
                     'number_of_attend' => 1
                 ];
-                // ClientEvent
+                
+                
                 break;
         }
 
