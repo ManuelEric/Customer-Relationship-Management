@@ -19,7 +19,7 @@ class CallbackController extends Controller
     protected $access_token;
     protected HandleMetaLeads $handleMetaLeads;
 
-    public function __construct($app_id, $app_secret, $access_token, HandleMetaLeads $handleMetaLeads)
+    public function __construct(HandleMetaLeads $handleMetaLeads)
     {
         $this->app_id = env('META_APP_ID');
         $this->app_secret = env('META_APP_SECRET');
