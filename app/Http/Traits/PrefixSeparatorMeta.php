@@ -6,7 +6,9 @@ trait PrefixSeparatorMeta
 {
     public function getPrefix(string $form_name): string
     {
-        return substr($form_name, 0, 2);
+        $explode = explode('-', $form_name);
+        return $explode[0];
+        // return substr($form_name, 0, 2);
     }
 
     public function getIdentifier(string $form_name): string
