@@ -3,6 +3,7 @@
 namespace App\Actions\Meta;
 
 use App\Http\Traits\CheckExistingClientImport;
+use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\GetGradeAndGraduationYear;
 use App\Http\Traits\PrefixSeparatorMeta;
 use App\Http\Traits\StandardizePhoneNumberTrait;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Log;
 
 class Handle
 {
-    use PrefixSeparatorMeta, StandardizePhoneNumberTrait, SyncClientTrait, CheckExistingClientImport, GetGradeAndGraduationYear;
+    use PrefixSeparatorMeta, StandardizePhoneNumberTrait, SyncClientTrait, CheckExistingClientImport, GetGradeAndGraduationYear, CreateCustomPrimaryKeyTrait;
 
     public function execute($form_details, $leads)
     {
