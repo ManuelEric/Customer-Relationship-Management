@@ -3,19 +3,22 @@
 namespace App\Actions\Meta;
 
 use App\Http\Traits\CheckExistingClientImport;
+use App\Http\Traits\GetGradeAndGraduationYear;
 use App\Http\Traits\PrefixSeparatorMeta;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\SyncClientTrait;
 use App\Models\FailedMetaLead;
+use App\Models\Program;
 use App\Models\Role;
 use App\Models\School;
 use App\Models\UserClient;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 class Handle
 {
-    use PrefixSeparatorMeta, StandardizePhoneNumberTrait, SyncClientTrait, CheckExistingClientImport;
+    use PrefixSeparatorMeta, StandardizePhoneNumberTrait, SyncClientTrait, CheckExistingClientImport, GetGradeAndGraduationYear;
 
     public function execute($form_details, $leads)
     {
@@ -73,22 +76,37 @@ class Handle
          * check if the children is exists
          * but we need to check if the field `child` has been filled beforehand
          */
-        $selected_child = null;
+        $selected_child = $st_grade = null;
         if ( isset($incoming_data['child_name']) && isset($incoming_data['child_graduation_year']) && isset($incoming_data['child_school']) )
         {
             $child = $this->checkExistClientRelation('parent', $parent, $incoming_data['child_name']);
             if ( $child['isExist'] && $child['client'] != null )
             {
                 $selected_child = $child['client'];
-                $selected_child_id[] = $selected_child;
             }
             elseif (! $child['isExist'] )
             {
                 $childName = $this->explodeName($incoming_data['child_name']);
-                
-
                 if (! $childSchool = School::where('sch_name', $incoming_data['child_school'])->first() )
                     $childSchool = $this->createSchoolIfNotExists($incoming_data['child_school']);
+
+                if ( isset($incoming_data['child_graduation_year']) )
+                    $st_grade = $this->getGradeByGraduationYear($incoming_data['child_graduation_year']);
+
+                $childDetails = [
+                    'first_name' => $childName['firstname'],
+                    'last_name' => isset($childName['lastname']) ? $childName['lastname'] : null,
+                    'sch_id' => $childSchool->sch_id,
+                    'graduation_year' => $incoming_data['child_graduation_year'],
+                    'st_grade' => $st_grade,
+                    'lead_id' => 'LS045',
+                ];
+
+                $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['student'])->first();
+
+                $selected_child = UserClient::create($childDetails);
+                $selected_child->roles()->attach($roleId);
+                $parent->childrens()->attach($selected_child);
             }
         }
 
@@ -98,12 +116,26 @@ class Handle
         switch ($prefix) 
         {
             case "PR":
-
+                if ( $selected_child )
+                {
+                    $interest_program_details = [
+                        'prog_id' => $identifier,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ];
+                    $selected_child->interestPrograms()->syncWithoutDetaching($interest_program_details);
+                }
                 break;
 
             case "EV":
 
                 break;
         }
+
+
+        /**
+         * insert into client log
+         */
+
     }
 }
