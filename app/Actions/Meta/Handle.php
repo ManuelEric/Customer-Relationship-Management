@@ -3,7 +3,7 @@
 namespace App\Actions\Meta;
 
 use App\Http\Traits\CheckExistingClientImport;
-use app\Http\Traits\PrefixSeparatorMeta;
+use App\Http\Traits\PrefixSeparatorMeta;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\SyncClientTrait;
 use App\Models\FailedMetaLead;
