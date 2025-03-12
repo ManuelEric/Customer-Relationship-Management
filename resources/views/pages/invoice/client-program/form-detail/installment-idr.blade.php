@@ -218,7 +218,7 @@
         if (isNaN(sum))
             sum = 0
 
-        if (sum <= 100) {
+        // if (sum <= 100) {
             let percent = $('#percentage_' + id).val()
             let kurs = $('#current_rate').val()
             let tot_idr = $('#total_idr').val()
@@ -226,11 +226,11 @@
             let total = (percent / 100) * tot_idr
 
             $('#amount_' + id).val(total)
-        } else {
-            $('#percentage_' + id).val(null)
-            $('#amount_' + id).val(null)
-            notification('error', 'Percentage is more than 100')
-        }
+        // } else {
+        //     $('#percentage_' + id).val(null)
+        //     $('#amount_' + id).val(null)
+        //     notification('error', 'Percentage is more than 100')
+        // }
 
     }
 
