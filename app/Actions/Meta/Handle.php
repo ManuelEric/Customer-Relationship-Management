@@ -40,9 +40,7 @@ class Handle
             'child_graduation_year' => $collections->where('name', 'tahun_kelulusan_anak_anda')->first()['values'][0],
             'child_school' => $collections->where('name', 'nama_sekolah_anak_anda')->first()['values'][0],
         ];
-        Log::debug('Incoming lead from meta', $incoming_data);
         FailedMetaLead::create($incoming_data);
-        return;
 
         /**
          * check if the parent is exists
@@ -136,7 +134,9 @@ class Handle
                     'event_id' => $identifier,
                     'lead_id' => 'LS045', # facebook ads
                     'registration_type' => 'PR',
+                    'number_of_attend' => 1
                 ];
+                // ClientEvent
                 break;
         }
 
