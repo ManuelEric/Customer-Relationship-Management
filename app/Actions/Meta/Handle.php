@@ -11,6 +11,7 @@ use App\Models\Role;
 use App\Models\School;
 use App\Models\UserClient;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class Handle
 {
@@ -35,6 +36,8 @@ class Handle
             'child_graduation_year' => $collections->where('name', 'tahun_kelulusan_anak_anda')->first()['value'][0],
             'child_school' => $collections->where('name', 'sekolah_anak_anda')->first()['value'][0],
         ];
+        Log::debug('Incoming lead from meta', $incoming_data);
+        return;
         FailedMetaLead::create($incoming_data);
 
         /**
