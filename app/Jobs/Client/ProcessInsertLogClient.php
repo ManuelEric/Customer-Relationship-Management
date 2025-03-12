@@ -135,6 +135,7 @@ class ProcessInsertLogClient implements ShouldQueue
                     case 'import-client-event':
                     case 'import-client-program':
                     case 'form-embed':
+                    case 'facebook-api':
                         # add log client with category raw
                         $client_data['category'] = 'raw';
                         $clientRepository->createClientLog($client_data);
