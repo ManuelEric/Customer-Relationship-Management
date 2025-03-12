@@ -7,6 +7,7 @@ use App\Http\Traits\GetGradeAndGraduationYear;
 use App\Http\Traits\PrefixSeparatorMeta;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\SyncClientTrait;
+use App\Jobs\Client\ProcessInsertLogClient;
 use App\Models\FailedMetaLead;
 use App\Models\Program;
 use App\Models\Role;
@@ -22,7 +23,7 @@ class Handle
 
     public function execute($form_details, $leads)
     {
-        $form_name = $form_details->name;
+        $form_name = $form_details['name'];
         $prefix = $this->getPrefix($form_name);
         $identifier = $this->getIdentifier($form_name);
 
@@ -128,14 +129,35 @@ class Handle
                 break;
 
             case "EV":
-
+                $client_event_details = [
+                    'ticket_id' => NULL,
+                    'client_id' => $parent->id,
+                    'child_id' => $selected_child ? $selected_child->id : NULL,
+                    'event_id' => $identifier,
+                    'lead_id' => 'LS045', # facebook ads
+                    'registration_type' => 'PR',
+                ];
                 break;
         }
 
 
         /**
          * insert into client log
+         * only if they're submitted child's information
          */
+        if ( $selected_child )
+        {
+            $log_client_details = [
+                'client_id' => $selected_child->id,
+                'first_name' => $selected_child->first_name,
+                'last_name' => $selected_child->last_name,
+                'lead_source' => 'LS045', # facebook ads
+                'inputted_from' => 'facebook-api',
+                'clientprog_id' => null
+            ];
+
+            ProcessInsertLogClient::dispatch($log_client_details, true)->onQueue('insert-log-client');
+        }
 
     }
 }
