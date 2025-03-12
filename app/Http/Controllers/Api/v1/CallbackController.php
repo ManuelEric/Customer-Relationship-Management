@@ -93,7 +93,7 @@ class CallbackController extends Controller
 
             $this->handleMetaLeads->execute($form->json(), $response->json()->field_data);
 
-            // Log::notice('Lead received successfully', ['Form' => $form->json(), 'Lead' => $response->json()]);
+            Log::notice('Lead received successfully', ['Form' => $form->json(), 'Lead' => $response->json()]);
         } else {
             Log::error("Error fetching lead data: " . $response->body());
         }
