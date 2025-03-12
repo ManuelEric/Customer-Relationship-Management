@@ -38,7 +38,7 @@ class Handle
             'parent_email' => $collections->where('name', 'email_anda_')->first()['values'][0],
             'child_name' => $collections->where('name', 'nama_anak_anda')->first()['values'][0],
             'child_graduation_year' => $collections->where('name', 'tahun_kelulusan_anak_anda')->first()['values'][0],
-            'child_school' => $collections->where('name', 'sekolah_anak_anda')->first()['values'][0],
+            'child_school' => $collections->where('name', 'nama_sekolah_anak_anda')->first()['values'][0],
         ];
         Log::debug('Incoming lead from meta', $incoming_data);
         FailedMetaLead::create($incoming_data);
