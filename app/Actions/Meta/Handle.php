@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Actions\Meta;
+namespace App\Actions\Meta;
 
 use App\Http\Traits\CheckExistingClientImport;
 use app\Http\Traits\PrefixSeparatorMeta;
