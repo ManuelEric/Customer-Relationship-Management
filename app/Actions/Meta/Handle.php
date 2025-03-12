@@ -32,14 +32,13 @@ class Handle
          * insert client to failed meta lead
          */
         $collections = collect($leads);
-        Log::error('incoming data', $collections->where('name', 'nama_anda')->first()['values']);
         $incoming_data = [
-            'parent_name' => $collections->where('name', 'nama_anda')->first()['value'][0],
-            'parent_phone' => $collections->where('name', 'nomor_hp_anda_')->first()['value'][0],
-            'parent_email' => $collections->where('name', 'email_anda_')->first()['value'][0],
-            'child_name' => $collections->where('name', 'nama_anak_anda')->first()['value'][0],
-            'child_graduation_year' => $collections->where('name', 'tahun_kelulusan_anak_anda')->first()['value'][0],
-            'child_school' => $collections->where('name', 'sekolah_anak_anda')->first()['value'][0],
+            'parent_name' => $collections->where('name', 'nama_anda')->first()['values'][0],
+            'parent_phone' => $collections->where('name', 'nomor_hp_anda_')->first()['values'][0],
+            'parent_email' => $collections->where('name', 'email_anda_')->first()['values'][0],
+            'child_name' => $collections->where('name', 'nama_anak_anda')->first()['values'][0],
+            'child_graduation_year' => $collections->where('name', 'tahun_kelulusan_anak_anda')->first()['values'][0],
+            'child_school' => $collections->where('name', 'sekolah_anak_anda')->first()['values'][0],
         ];
         Log::debug('Incoming lead from meta', $incoming_data);
         FailedMetaLead::create($incoming_data);
