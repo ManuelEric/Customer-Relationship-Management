@@ -9,6 +9,7 @@ use App\Http\Traits\PrefixSeparatorMeta;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\SyncClientTrait;
 use App\Jobs\Client\ProcessInsertLogClient;
+use App\Models\ClientEvent;
 use App\Models\FailedMetaLead;
 use App\Models\Program;
 use App\Models\Role;
@@ -138,8 +139,8 @@ class Handle
                     'registration_type' => 'PR',
                     'number_of_attend' => 1
                 ];
-                
-                
+
+                ClientEvent::create($client_event_details);
                 break;
         }
 
