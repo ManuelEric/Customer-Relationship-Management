@@ -22,7 +22,7 @@ class StoreAcceptanceRequest extends FormRequest
             'alumni' => 'alumni',
             'uni_id' => 'university',
             'major_group' => 'major group',
-            'major' => 'major',
+            'major_name' => 'major',
             'status' => 'status'
         ];
     }
@@ -36,8 +36,8 @@ class StoreAcceptanceRequest extends FormRequest
     {
         $rules = [
             'uni_id.*' => 'required|exists:tbl_univ,univ_id',
-            'major_group.*' => 'required',
-            'major.*' => 'required|exists:tbl_major,id',
+            'major_group.*' => 'required|exists:major_groups,id',
+            'major_name.*' => 'nullable',
             'status.*' => 'required|in:waitlisted,accepted,denied,chosen'
         ];
         

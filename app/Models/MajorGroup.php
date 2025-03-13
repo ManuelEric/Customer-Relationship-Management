@@ -9,4 +9,5 @@ class MajorGroup extends Model
     protected $fillable = [
         'mg_name',
     ];
+
 }

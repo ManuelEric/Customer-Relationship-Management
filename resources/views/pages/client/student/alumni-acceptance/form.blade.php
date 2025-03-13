@@ -72,22 +72,22 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <label>Major Group <sup class="text-danger">*</sup></label>
-                                                <input type="text" class="form-control form-control-sm" name="major_group[]" placeholder="Business Administration / Business Management / Marketing" />
+                                                <select  name="major_group[]" id="" class="select w-100">
+                                                    <option data-placeholder="true"></option>
+                                                    @forelse ($major_groups as $major_group)
+                                                        <option value="{{ $major_group->id }}">{{ $major_group->mg_name }}</option>
+                                                    @empty
+                                                        
+                                                    @endforelse
+                                                </select>
                                                 @error('major_group.0')
                                                     <small class="text-danger">{{ $message }}</small>
                                                 @enderror
                                             </div>
                                             <div class="col-md-6">
                                                 <label>Major <sup class="text-danger">*</sup></label>
-                                                <select  name="major[]" id="" class="select w-100">
-                                                    <option data-placeholder="true"></option>
-                                                    @forelse ($majors as $major)
-                                                        <option value="{{ $major->id }}">{{ $major->name }}</option>
-                                                    @empty
-                                                        
-                                                    @endforelse
-                                                </select>
-                                                @error('major.0')
+                                                <input type="text" name="major_name[]" class="form-control form-control-sm" />
+                                                @error('major_name.0')
                                                     <small class="text-danger">{{ $message }}</small>
                                                 @enderror
                                             </div>
@@ -146,8 +146,8 @@
                                         <td>{{ $loop->iteration }}.</td>
                                         <td>{{ $acceptance->univ_name }}</td>
                                         <td>{{ $acceptance->tags->tagCountry->name }}</td>
-                                        <td>{{ $acceptance->pivot->major_group }}</td>
-                                        <td>{{ $acceptance->pivot->major->name }}</td>
+                                        <td>{{ $acceptance->major_group->mg_name }}</td>
+                                        <td>{{ $acceptance->pivot->major_name }}</td>
                                         <td>{{ ucfirst($acceptance->pivot->status) }}</td>
                                         <td class="text-end">
                                             <button class="btn btn-sm btn-danger"
@@ -243,8 +243,8 @@
                 '<label>Major</label>' +
                 '<select  name="major[]" id="" class="select w-100">' +
                     '<option data-placeholder="true"></option>' +
-                    @forelse ($majors as $major)
-                        '<option value="{{ $major->id }}">{{ $major->name }}</option>' +
+                    @forelse ($major_groups as $major_group)
+                        '<option value="{{ $major_group->id }}">{{ $major_group->mg_name }}</option>' +
                     @empty
                         
                     @endforelse
