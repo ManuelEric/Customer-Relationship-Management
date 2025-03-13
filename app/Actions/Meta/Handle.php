@@ -39,7 +39,7 @@ class Handle
         $incoming_data = [
             'parent_name' => $collections->where('name', 'nama_anda')->first()['values'][0],
             'parent_phone' => $collections->where('name', 'nomor_hp_anda_')->first()['values'][0],
-            'parent_email' => $collections->where('name', 'email_anda_')->first()['values'][0],
+            'parent_email' => $collections->where('name', 'email_anda')->first()['values'][0],
             'child_name' => $collections->where('name', 'nama_anak_anda')->first()['values'][0],
             'child_graduation_year' => $collections->where('name', 'tahun_kelulusan_anak_anda')->first()['values'][0],
             'child_school' => $collections->where('name', 'nama_sekolah_anak_anda')->first()['values'][0],
