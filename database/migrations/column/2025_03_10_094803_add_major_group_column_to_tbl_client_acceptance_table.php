@@ -16,7 +16,9 @@ return new class extends Migration
             $table->foreignId('major_group_id')->nullable()->after('univ_id')->constrained(
                 table: 'major_groups', indexName: 'tbl_client_acceptance_major_group_id'
             )->onUpdate('cascade')->onDelete('cascade');
-            
+            $table->foreignId('major_id')->nullable()->constrained(
+                table: 'tbl_major', indexName: 'tbl_client_acceptance_major_id'
+            )->change();
         });
     }
 
