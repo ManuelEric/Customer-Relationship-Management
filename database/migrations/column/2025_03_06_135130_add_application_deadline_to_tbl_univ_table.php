@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tbl_univ', function (Blueprint $table) {
+            $table->text('univ_requirement_link')->nullable()->after('univ_phone');
             $table->datetime('univ_application_deadline')->nullable()->after('univ_phone');
         });
     }
@@ -23,6 +24,6 @@ return new class extends Migration
     {
         Schema::table('tbl_univ', function (Blueprint $table) {
             $table->dropColumn('univ_application_deadline');
-        });
+        }); 
     }
 };
