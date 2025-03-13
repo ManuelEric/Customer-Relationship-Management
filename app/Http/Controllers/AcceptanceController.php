@@ -6,6 +6,7 @@ use App\Enum\LogModule;
 use App\Http\Requests\StoreAcceptanceRequest;
 use App\Interfaces\AcceptanceRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Interfaces\MajorGroupRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Services\Log\LogService;
@@ -22,13 +23,21 @@ class AcceptanceController extends Controller
     protected MajorRepositoryInterface $majorRepository;
     protected UniversityRepositoryInterface $universityRepository;
     protected AcceptanceRepositoryInterface $acceptanceRepository;
+    protected MajorGroupRepositoryInterface $majorGroupRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, MajorRepositoryInterface $majorRepository, UniversityRepositoryInterface $universityRepository, AcceptanceRepositoryInterface $acceptanceRepository)
+    public function __construct(
+        ClientRepositoryInterface $clientRepository, 
+        MajorRepositoryInterface $majorRepository, 
+        UniversityRepositoryInterface $universityRepository, 
+        AcceptanceRepositoryInterface $acceptanceRepository,
+        MajorGroupRepositoryInterface $majorGroupRepository
+        )
     {
         $this->clientRepository = $clientRepository;
         $this->majorRepository  = $majorRepository;
         $this->universityRepository = $universityRepository;
         $this->acceptanceRepository = $acceptanceRepository;
+        $this->majorGroupRepository = $majorGroupRepository;
     }
 
     public function index(Request $request)
@@ -43,7 +52,8 @@ class AcceptanceController extends Controller
     {
         $alumnis = $this->clientRepository->getAlumniMentees();
         $universities = $this->universityRepository->getAllUniversities();
-        $majors = $this->majorRepository->getAllMajors();
+        // $majors = $this->majorRepository->getAllMajors();
+        $major_groups = $this->majorGroupRepository->getMajorGroups();
         $form_url = route('acceptance.store');
 
         return view('pages.client.student.alumni-acceptance.form')->with(
@@ -51,7 +61,8 @@ class AcceptanceController extends Controller
                 'url' => $form_url,
                 'alumnis' => $alumnis,
                 'universities' => $universities,
-                'majors' => $majors,
+                // 'majors' => $majors,
+                'major_groups' => $major_groups
             ]
         );
     }
@@ -62,7 +73,8 @@ class AcceptanceController extends Controller
         $alumni = $this->clientRepository->getClientById($alumni_id);
 
         $univ_id = $request->uni_id;
-        $major_id = $request->major;
+        $major_group = $request->major_group;
+        $major_name = $request->major_name;
         $status = $request->status;
 
         $index = 0;
@@ -70,7 +82,8 @@ class AcceptanceController extends Controller
 
             $new_details[] = [
                 'univ_id' => $univ_id[$index],
-                'major_id' => $major_id[$index],
+                'major_group_id' => $major_group[$index],
+                'major_name' => $major_name[$index],
                 'status' => $status[$index]
             ];
 
@@ -104,7 +117,8 @@ class AcceptanceController extends Controller
 
         $alumnis = $this->clientRepository->getAlumniMentees();
         $universities = $this->universityRepository->getAllUniversities();
-        $majors = $this->majorRepository->getAllMajors();
+        // $majors = $this->majorRepository->getAllMajors();
+        $major_groups = $this->majorGroupRepository->getMajorGroups();
 
         $form_url = route('acceptance.update', ['client' => $client->id]);
 
@@ -116,7 +130,9 @@ class AcceptanceController extends Controller
                 'acceptances' => $acceptances,
                 'alumnis' => $alumnis,
                 'universities' => $universities,
-                'majors' => $majors,
+                // 'majors' => $majors,
+                'major_groups' => $major_groups
+
             ]
         );
     }
@@ -127,6 +143,7 @@ class AcceptanceController extends Controller
         $alumni = $this->clientRepository->getClientById($alumni_id);
 
         $univ_id = $request->uni_id;
+        $major_group = $request->major_group;
         $major_id = $request->major;
         $status = $request->status;
 
@@ -135,6 +152,7 @@ class AcceptanceController extends Controller
 
             $new_details[] = [
                 'univ_id' => $univ_id[$index],
+                'major_group' => $major_group[$index],
                 'major_id' => $major_id[$index],
                 'status' => $status[$index]
             ];

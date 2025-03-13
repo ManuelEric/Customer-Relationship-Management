@@ -56,7 +56,7 @@
                                     </div>
                                     <div id="univ_list">
                                         <div class="row align-items-end g-2 mb-3">
-                                            <div class="col-md-4">
+                                            <div class="col-md-6">
                                                 <label>University Name <sup class="text-danger">*</sup></label>
                                                 <select name="uni_id[]" id="" class="select w-100">
                                                     <option data-placeholder="true"></option>
@@ -70,21 +70,28 @@
                                                     <small class="text-danger">{{ $message }}</small>
                                                 @enderror
                                             </div>
-                                            <div class="col-md-4">
-                                                <label>Major <sup class="text-danger">*</sup></label>
-                                                <select  name="major[]" id="" class="select w-100">
+                                            <div class="col-md-6">
+                                                <label>Major Group <sup class="text-danger">*</sup></label>
+                                                <select  name="major_group[]" id="" class="select w-100">
                                                     <option data-placeholder="true"></option>
-                                                    @forelse ($majors as $major)
-                                                        <option value="{{ $major->id }}">{{ $major->name }}</option>
+                                                    @forelse ($major_groups as $major_group)
+                                                        <option value="{{ $major_group->id }}">{{ $major_group->mg_name }}</option>
                                                     @empty
                                                         
                                                     @endforelse
                                                 </select>
-                                                @error('major.0')
+                                                @error('major_group.0')
                                                     <small class="text-danger">{{ $message }}</small>
                                                 @enderror
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-6">
+                                                <label>Major <sup class="text-danger">*</sup></label>
+                                                <input type="text" name="major_name[]" class="form-control form-control-sm" />
+                                                @error('major_name.0')
+                                                    <small class="text-danger">{{ $message }}</small>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6">
                                                 <label>Status <sup class="text-danger">*</sup></label>
                                                 <select name="status[]" id="" class="select w-100">
                                                     <option value="waitlisted">Waitlisted</option>
@@ -110,16 +117,24 @@
                         </form>
                     </div>
                     {{-- End of view  --}}
+                </div>
+            </div>
 
-                    @if (isset($acceptances))
-                    {{-- View of Edit  --}}
-                    <hr>
-                    <h4 class="pt-3">University Acceptance Tracker</h4>
+            {{-- View of Edit  --}}
+            @if (isset($acceptances))
+            <div class="card mt-2">
+                <div class="card-header">
+                    <h6 class="p-2 m-0">University Acceptance Tracker</h6>
+                </div>
+                <div class="card-body">
                     <div class="border rounded mt-4 ps-2 pe-2"> 
                         <table class="table">
                             <thead>
                                 <tr>
+                                    <th>#</th>
                                     <th>University Name</th>
+                                    <th>Country</th>
+                                    <th>Major Group</th>
                                     <th>Major</th>
                                     <th>Status</th>
                                     <th class="text-end">Action</th>
@@ -128,9 +143,12 @@
                             <tbody>
                                 @foreach ($acceptances as $acceptance)
                                     <tr>
+                                        <td>{{ $loop->iteration }}.</td>
                                         <td>{{ $acceptance->univ_name }}</td>
-                                        <td>{{ $acceptance->pivot->major->name }}</td>
-                                        <td>{{ $acceptance->pivot->status }}</td>
+                                        <td>{{ $acceptance->tags->tagCountry->name }}</td>
+                                        <td>{{ $acceptance->major_group->mg_name }}</td>
+                                        <td>{{ $acceptance->pivot->major_name }}</td>
+                                        <td>{{ ucfirst($acceptance->pivot->status) }}</td>
                                         <td class="text-end">
                                             <button class="btn btn-sm btn-danger"
                                                 onclick="confirmDelete('client/acceptance', {{ $acceptance->pivot->id }})">
@@ -144,11 +162,11 @@
                     </div>
                     {{-- End of view  --}}
 
-                    @endif
                 </div>
             </div>
         </div>
     </div>
+    @endif
 
 @endsection
 
@@ -225,8 +243,8 @@
                 '<label>Major</label>' +
                 '<select  name="major[]" id="" class="select w-100">' +
                     '<option data-placeholder="true"></option>' +
-                    @forelse ($majors as $major)
-                        '<option value="{{ $major->id }}">{{ $major->name }}</option>' +
+                    @forelse ($major_groups as $major_group)
+                        '<option value="{{ $major_group->id }}">{{ $major_group->mg_name }}</option>' +
                     @empty
                         
                     @endforelse

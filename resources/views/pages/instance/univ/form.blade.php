@@ -164,6 +164,17 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-5">
+                                <div class="mb-2">
+                                    <label for="">Application Deadline <i class="text-danger font-weight-bold">*</i></label>
+                                    <input type="date" name="univ_application_deadline" class="form-control form-control-sm rounded"
+                                        {{ empty($university) || isset($edit) ? '' : 'disabled' }} 
+                                        value="{{ isset($university) ? date('Y-m-d', strtotime($university->univ_application_deadline)) : old('univ_application_deadline') }}" />
+                                    @error('tag')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
                             {{-- <div class="col-md-5">
                                 <div class="mb-2">
                                     <label for="">Tags <i class="text-danger font-weight-bold">*</i></label>

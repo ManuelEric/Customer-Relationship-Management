@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\v1\AcceptanceController as V1APIAcceptanceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\v1\ExtLeadController;
 use App\Http\Controllers\Api\v1\ExtProgramController;
@@ -25,6 +26,7 @@ use App\Http\Controllers\ReceiptPartnerController;
 use App\Http\Controllers\ReceiptReferralController;
 use App\Http\Controllers\ReceiptSchoolController;
 use App\Http\Controllers\Api\v1\AuthController as V1APIAuthController;
+use App\Http\Controllers\Api\v1\CallbackController as V1APICallbackController;
 
 Route::middleware(['throttle:120,1'])->group(function () {
 
@@ -87,25 +89,6 @@ Route::middleware(['throttle:120,1'])->group(function () {
     Route::get('get/user/by/TKT/{ticket_no}', [ExtClientController::class, 'getUserByTicket']);
     Route::get('get/user/by/UUID/{uuid}', [ExtClientController::class, 'getUserByUUID']);
 
-    # essay editing & timesheet API use
-    Route::middleware(['resource:timesheet,editing'])->group(function () {
-        Route::get('auth/email/check', [ExtClientController::class, 'checkUserEmail']);
-        Route::post('auth/token', [ExtClientController::class, 'validateCredentials']);
-    });
-
-    # timesheet
-    Route::middleware(['resource:timesheet'])->group(function () {
-        Route::post('user/update', [ExtClientController::class, 'updateUser']);
-
-        Route::get('user/mentor-tutors', [ExtClientController::class, 'getMentorTutors']);
-        Route::get('user/mentor-tutors/{uuid}', [ExtClientController::class, 'showMentorTutor']);
-
-        # main_program_name could be : academic, admissions
-        Route::get('program/{main_program_name}/list', [ExtClientProgramController::class, 'getSuccessPrograms']);
-        Route::get('program/list/free-trial', [ExtClientProgramController::class, 'fnGetFreeTrialPrograms']);
-        Route::get('client/information/{uuid}', [ExtClientController::class, 'getClientInformation']);
-    });
-
     # use for select data subsector corporate
     Route::get('get/subsectors/{industry}', [ExtCorporateController::class, 'cnGetSubSectorByIndustry']);
 
@@ -142,5 +125,37 @@ Route::middleware(['throttle:120,1'])->group(function () {
         # sync data to google sheets
         Route::get('sync/{type}', [GoogleSheetController::class, 'sync']);
     });
+
+        # essay editing & timesheet API use
+        Route::middleware(['resource:timesheet,editing'])->group(function () {
+            Route::get('auth/email/check', [ExtClientController::class, 'checkUserEmail']);
+            Route::post('auth/token', [ExtClientController::class, 'validateCredentials']);
+        });
+    
+        # timesheet
+        Route::middleware(  ['resource:timesheet'])->group(function () {
+            Route::post('user/update', [ExtClientController::class, 'updateUser']);
+    
+            Route::get('user/mentor-tutors', [ExtClientController::class, 'getMentorTutors']);
+            Route::get('user/mentor-tutors/{uuid}', [ExtClientController::class, 'showMentorTutor']);
+    
+            # main_program_name could be : academic, admissions
+            Route::get('program/{main_program_name}/list', [ExtClientProgramController::class, 'getSuccessPrograms']);
+            Route::get('program/list/free-trial', [ExtClientProgramController::class, 'fnGetFreeTrialPrograms']);
+            Route::get('client/information/{uuid}', [ExtClientController::class, 'getClientInformation']);
+        });
+    
+        # mentoring 
+        Route::middleware(['resource:mentoring'])->group(function () {
+            Route::get('student/{student}/acceptance', [V1APIAcceptanceController::class, 'fnListOfUniApplication']);
+            Route::post('student/{student}/acceptance', [V1APIAcceptanceController::class, 'fnAddUni']);
+            Route::put('student/{student}/acceptance/{acceptance}', [V1APIAcceptanceController::class, 'fnUpdateUni']);
+            Route::delete('student/{student}/acceptance/{acceptance}', [V1APIAcceptanceController::class, 'fnDeleteUni']);
+        });
+
+        # meta ads
+        // WebHook 
+        Route::get('callback/facebook', [V1APICallbackController::class, 'verify']);
+        Route::post('callback/facebook', [V1APICallbackController::class, 'read_lead']);
 
 });
