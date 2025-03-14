@@ -50,7 +50,7 @@
                     <form action="" method="GET">
                         <div class="mb-3">
                             <label for="daterange">Date Range</label>
-                            <input type="text" name="daterange" value=""
+                            <input type="text" name="daterange" id="daterange" value=""
                                 class="form-control form-control-sm text-center" id="daterange" />
                         </div>
                         <div class="text-center">
@@ -91,8 +91,8 @@
                             @foreach ($lead_summary as $title => $summary)
                             <tr class="text-center">
                                 <th class="bg-secondary text-white">{{ ucwords(str_replace('_', ' ', $title)) }}</th>
-                                @foreach ($summary as $detail)
-                                <td>{{ $detail }}</td>
+                                @foreach ($summary as $key => $detail)
+                                <td class="detail" data-type={{ $title .'_'. $key }}>{{ $detail }}</td>
                                 @endforeach
                             </tr>
                             @endforeach
@@ -453,4 +453,11 @@
             </div>
         </div>
     </div>
+    <script>
+        $('.detail').click(function(){
+            var daterange = $('#daterange').val();
+            var link = "{{ url('/') }}/report/lead/detail?daterange=" + daterange + "&type=" + $(this).data('type')
+            window.open(link, '_blank');
+        })
+    </script>
 @endsection
