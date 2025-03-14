@@ -177,9 +177,9 @@ class ClientStudentController extends ClientController
             return $this->clientRepository->getDataTables($model);
         }
 
-        $entries = app('App\Services\ClientStudentService')->advancedFilterClient();
+        // $entries = app('App\Services\ClientStudentService')->advancedFilterClient();
 
-        return view('pages.client.student.index')->with($entries + ['st' => $status_client]);
+        return view('pages.client.student.index')->with(['st' => $status_client]);
     }
 
     public function indexRaw(Request $request)
