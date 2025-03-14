@@ -721,46 +721,59 @@ class ClientRepository implements ClientRepositoryInterface
             : $query;
     }
 
-    public function rnGetGraduatedMentees()
+    public function rnGetGraduatedMentees(mixed $search)
     {
         $graduated_mentees = UserClient::with([
-                'school' => function ($query) {
-                    $query->select('sch_id', 'sch_name', 'sch_city');
+                'universityAcceptance' => function ($query) {
+                    $query->where('tbl_client_acceptance.status', 'final decision');
                 },
-            ])->isGraduated()->getMentoredStudents()->select([
+            ])->
+            isGraduated()->
+            // getMentoredStudents()->
+            search($search)->
+            select([
                 'id',
-                DB::raw('CONCAT(first_name, " ", last_name) as full_name'),
-                'mail',
-                'phone',
-                'dob',
-                'city',
-                'address',
-                'sch_id'
+                'first_name',
+                'last_name',
+                'application_year',
             ])->get();
+            
         $mapped_graduated_mentees = $graduated_mentees->map(function ($item) {
+
+            $have_university_acceptance = count($item->universityAcceptance) > 0 ? true : false;
+            $university_acceptance = $have_university_acceptance ? $item->universityAcceptance[0] : null;
+            $university_name = $have_university_acceptance ? $university_acceptance->univ_name : null;
+            $major_group = $have_university_acceptance ? $university_acceptance->pivot->major_group->mg_name : null;
+            $major = $have_university_acceptance ? $university_acceptance->pivot->get_major_name : null;
+            $created_university_acceptance_at = $have_university_acceptance 
+                ? Carbon::parse($university_acceptance->pivot->created_at)->format('Y-m-d H:i:s') 
+                : null;
+
             return [
                 'id' => $item->id,
                 'full_name' => $item->full_name,
-                'mail' => $item->mail,
-                'phone' => $item->phone,
-                'dob' => $item->dob,
-                'city' => $item->city,
-                'address' => $item->address,
-                'sch_name' => $item->school->sch_name ?? null,
-                'sch_city' => $item->school->sch_city ?? null,
+                'university_name' => $university_name,
+                'major_group' => $major_group,
+                'major' => $major,
+                'application_year' => $item->application_year,
+                'created_at' => $created_university_acceptance_at
             ];
         });
         
         return $mapped_graduated_mentees;
     }
 
-    public function rnGetActiveMentees()
+    public function rnGetActiveMentees(mixed $search)
     {
         $active_mentees = UserClient::with([
             'school' => function ($query) {
                 $query->select('sch_id', 'sch_name', 'sch_city');
             },
-        ])->isActiveMentee()->getMentoredStudents()->get();
+        ])->
+        isActiveMentee()->
+        search($search)->
+        getMentoredStudents()->
+        get();
         $mapped_active_mentees = $active_mentees->map(function ($item) {
             return [
                 'id' => $item->id,
@@ -772,6 +785,9 @@ class ClientRepository implements ClientRepositoryInterface
                 'address' => $item->address,
                 'sch_name' => $item->school->sch_name ?? null,
                 'sch_city' => $item->school->sch_city ?? null,
+                'grade' => $item->grade_now,
+                'application_year' => $item->application_year,
+                'mentoring_progress_status' => $item->mentoring_progress_status
             ];
         });
         

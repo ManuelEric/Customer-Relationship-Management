@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tbl_client_acceptance', function (Blueprint $table) {
-            // $table->string('major_name')->nullable()->after('univ_id');
-            // $table->foreignId('major_group_id')->nullable()->after('univ_id')->constrained(
-            //     table: 'major_groups', indexName: 'tbl_client_acceptance_major_group_id'
-            // )->onUpdate('cascade')->onDelete('cascade');
-            // $table->foreignId('major_id')->nullable()->change()->constrained(
-            //     table: 'tbl_major', indexName: 'tbl_client_acceptance_major_id'
-            // );
+            $table->string('major_name')->nullable()->after('univ_id');
+            $table->foreignId('major_group_id')->nullable()->after('univ_id')->constrained(
+                table: 'major_groups', indexName: 'tbl_client_acceptance_major_group_id'
+            )->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('major_id')->nullable()->change()->constrained(
+                table: 'tbl_major', indexName: 'tbl_client_acceptance_major_id'
+            );
             $table->enum('category', ['reach', 'competitive', 'safety'])->nullable()->after('major_id');
             # former value : waitlisted, accepted, denied, chosen
             # new value : submitted, waitlisted, accepted, denied, deferred, final decision

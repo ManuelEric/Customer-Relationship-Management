@@ -79,6 +79,7 @@ class UserClient extends Authenticatable
         'took_ia',
         'took_ia_date',
         'blacklist',
+        'mentoring_progress_status',
         'mentoring_google_drive_link',
         'created_at',
         'updated_at',
@@ -242,6 +243,44 @@ class UserClient extends Authenticatable
     }
 
     # Scopes
+    public function scopeSearch($query, $search)
+    {
+        $terms = $search['terms'];
+        $uni = $search['uni'];
+        $major = $search['major'];
+
+        return $query->
+            when($terms, function ($query) use ($terms) {
+                $query->whereRaw('CONCAT(first_name, " ", last_name) like "%'.$terms.'%"');
+            })->
+            when($uni, function ($query) use ($uni) {
+                $query->
+                where(function ($query) use ($uni) {
+                    $query->
+                        whereRelation('universityAcceptance', 'tbl_client_acceptance.status', 'final decision')->
+                        whereHas('universityAcceptance', function ($query) use ($uni) {
+                            $query->where('univ_name', 'like', '%'.$uni.'%');
+                        });
+                });
+            })->
+            when($major, function ($query) use ($major) {
+                $query->
+                where(function ($query) use ($major) {
+                    $query->
+                        whereRelation('universityAcceptance', 'tbl_client_acceptance.status', 'final decision')->
+                        where(function ($query) use ($major) {
+                            $query->
+                            whereHas('universityAcceptance', function ($query) use ($major) {
+                                $query->where('tbl_client_acceptance.major_name', 'like', '%'.$major.'%');
+                            })->
+                            orWhereHas('majorAcceptance', function ($query) use ($major) {
+                                $query->where('name', 'like', '%'.$major.'%');
+                            });
+                        });
+                });
+            });
+    }
+
     public function scopeIsNotBlacklist($query)
     {
         return $query->where('tbl_client.blacklist', 0);
@@ -592,6 +631,11 @@ class UserClient extends Authenticatable
     public function leadStatus()
     {
         return $this->belongsToMany(InitialProgram::class, 'tbl_client_lead_tracking', 'client_id', 'initialprogram_id')->using(ClientLeadTracking::class)->withPivot('type', 'total_result', 'status')->withTimestamps();
+    }
+
+    public function majorAcceptance()
+    {
+        return $this->belongsToMany(Major::class, 'tbl_client_acceptance', 'client_id', 'major_id');
     }
 
     public function universityAcceptance()
