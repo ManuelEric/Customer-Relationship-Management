@@ -1,119 +1,62 @@
 @extends('layout.main')
 
-@section('title', 'Lead Tracking')
+@section('title', 'List Lead Tracking')
 
 @section('content')
 
-    <div class="card bg-secondary mb-1 p-2">
-        <div class="d-flex align-items-center justify-content-between">
-            <h5 class="text-white m-0">
-                <i class="bi bi-tag me-1"></i>
-                Lead Tracking
-            </h5>
-            <a href="{{ url('master/asset/create') }}" class="btn btn-sm btn-info"><i class="bi bi-plus-square me-1"></i>
-                Add
-                Asset</a>
+<div class="card">
+    <div class="card-body">
+      <div class="card-title">
+        <div class="row g-3 align-items-center">
+            <div class="col-auto me-auto">
+                <h4>Leads Tracker</h4>
+            </div>
+            <div class="col-auto">
+                <form action="">
+                    <input type="text" id="search" name="search" placeholder="Search" class="form-control">
+                    <input type="hidden" id="daterange" name="daterange" value="{{Request::get('daterange')}}" class="form-control">
+                    <input type="hidden" id="type" name="type" value="{{Request::get('type')}}" class="form-control">
+                </form>
+            </div>
         </div>
-    </div>
-
-    <div class="card rounded">
-        <div class="card-body">
-            <table class="table table-bordered table-hover nowrap align-middle w-100" id="leadTrackingTable">
-                <thead class="bg-secondary text-white">
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Grade Now</th>
+                <th>Lead Source</th>
+                <th>Program Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($leads_tracker as $key => $lead_tracker)
                     <tr>
-                        <th class="bg-info text-white">#</th>
-                        <th class="bg-info text-white">Full Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Grade</th>
-                        <th>Lead Source</th>
-                        <th>Program Name</th>
-                        <th class="bg-info text-white">Action</th>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $lead_tracker['full_name'] }}</td>
+                        <td>{{ $lead_tracker['mail'] }}</td>
+                        <td>{{ $lead_tracker['phone'] }}</td>
+                        <td>{{ $lead_tracker['grade_now'] }}</td>
+                        <td>{{ $lead_tracker['lead_source'] }}</td>
+                        <td>{{ $lead_tracker['program_name'] }}</td>
                     </tr>
-                </thead>
-                <tfoot class="bg-light text-white">
+                @empty
                     <tr>
-                        <td colspan="8"></td>
+                        <td colspan="7" class="text-center">There is not data yet</td>
                     </tr>
-                </tfoot>
-            </table>
-        </div>
+                @endforelse
+            </tbody>
+        </table>
+      </div>
+      <div class="mt-4">
+          {{ $leads_tracker->links() }}
+      </div>
     </div>
+  </div>
 
-    <script>
-        $(document).ready(function() {
-
-            var options = {
-                order: [[2, 'asc']],
-                buttons: [
-                    'pageLength', {
-                        extend: 'excel',
-                        text: 'Export to Excel',
-                    }
-                ],
-                fixedColumns: {
-                    left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
-                    right: 1
-                },
-                ajax: '',
-                columns: [{
-                        data: 'id',
-                        className: 'text-center',
-                        render: function(data, type, row, meta) {
-                            return meta.row + meta.settings._iDisplayStart + 1;
-                        }
-                    },
-                    {
-                        data: 'full_name',
-                    },
-                    {
-                        data: 'mail',
-                    },
-                    {
-                        data: 'phone',
-                    },
-                    {
-                        data: 'grade_now',
-                    },
-                    {
-                        data: 'lead_source',
-                    },
-                    {
-                        data: 'program_name',
-                    },
-                    {
-                        data: '',
-                        className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning ms-1 showDetail"><i class="bi bi-eye"></i></button>'
-                    }
-                ],
-                pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
-            };
-
-            var table = initializeDataTable('#leadTrackingTable', options, 'rt_client');
-
-            @php
-                $privilage = $menus['Report']->where('submenu_name', 'Lead Tracker')->first();
-            @endphp
-
-            @if ($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false");
-
-                $('body').bind('cut copy paste', function(event) {
-                    event.preventDefault();
-                });
-            @endif
-
-            @if ($privilage['export'] == 0)
-                table.button(1).disable();
-            @endif
-
-
-            $('#leadTrackingTable tbody').on('click', '.showDetail', function() {
-                var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('client/student') }}/" + data.client_id.toLowerCase();
-            });
-
-        });
-    </script>
 @endsection
+

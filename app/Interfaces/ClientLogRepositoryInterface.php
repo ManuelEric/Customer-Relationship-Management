@@ -244,6 +244,6 @@ interface ClientLogRepositoryInterface
     /**
     * Detail Lead
     */
-    public function getDetailLeadTracking(String $type, Carbon $start_date, Carbon $end_date);
+    public function getDetailLeadTracking(String $type, Carbon $start_date, Carbon $end_date, $search = null);
 
 }

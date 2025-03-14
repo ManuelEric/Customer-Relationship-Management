@@ -170,11 +170,14 @@ class ReportController extends Controller
     ){
         $type = $request->get('type');
         $date_range = $request->get('daterange');
+        $search = $request->get('search');
 
-        return $lead_tracker_service->detailLead($type, $date_range);
-        // if ($request->ajax()) {
-        // }
+        $leads_tracker = $lead_tracker_service->detailLead($type, $date_range, $search);
 
-        // return view('pages.report.lead.detail.index');
+        return view('pages.report.lead.detail.index')->with(
+            [
+                'leads_tracker' => $leads_tracker->appends($request->query())
+            ]
+        );
     }
 }

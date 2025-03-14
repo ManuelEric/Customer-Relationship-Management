@@ -230,11 +230,11 @@ class LeadTrackerService
         ];
     }
 
-    public function detailLead(String $type, $date_range)
+    public function detailLead(String $type, $date_range, $search = null)
     {  
         [$start_date, $end_date] = ($date_range) ? array_map([$this, "castToCarbon"], explode('-', $date_range)) : $this->selectCurrentWeek();
         $end_date = $end_date->endOfDay();
-        return $this->clientLogRepository->getDetailLeadTracking($type, $start_date, $end_date);
+        return $this->clientLogRepository->getDetailLeadTracking($type, $start_date, $end_date, $search);
     }
 
     private function castToCarbon(String $item): Carbon

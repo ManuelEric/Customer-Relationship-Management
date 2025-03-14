@@ -29,6 +29,8 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     /**
      * Query for summary
      */
+
+    # Unfiltered
     public function queryUnfilteredOnlinePaidLeads(Carbon $start_date, Carbon $end_date)
     {
         return ClientLog::onlinePaidUnfilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
@@ -49,6 +51,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
         return ClientLog::referralFromExistingClientsUnfilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
     }
 
+    # Filtered
     public function queryFilteredOnlinePaidLeads(Carbon $start_date, Carbon $end_date)
     {
         return ClientLog::onlinePaidFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
@@ -69,6 +72,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
         return ClientLog::referralFromExistingClientsFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
     }
 
+    # Potential
     public function queryPotentialOnlinePaidLeads(Carbon $start_date, Carbon $end_date)
     {
         return ClientLog::onlinePaidPotentialLeads()->whereBetween('created_at', [$start_date, $end_date]);
@@ -87,6 +91,69 @@ class ClientLogRepository implements ClientLogRepositoryInterface
     public function queryPotentialReferralExistingClientLeads(Carbon $start_date, Carbon $end_date)
     {
         return ClientLog::referralFromExistingClientsPotentialLeads()->whereBetween('created_at', [$start_date, $end_date]);
+    }
+
+    # Deal
+    public function queryDealOnlinePaidLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::onlinePaidDealLeads($start_date, $end_date);
+    }
+
+    public function queryDealOnlineOrganicLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::onlineOrganicDealLeads($start_date, $end_date);
+    }
+
+    public function queryDealOfflineLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::offlineDealLeads($start_date, $end_date);
+    }
+
+    public function queryDealReferralExistingClientLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::referralFromExistingClientsDealLeads($start_date, $end_date);
+    }
+
+    # Agreement
+    public function queryAgreementOnlinePaidLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::onlinePaidAgreement()->whereBetween('created_at', [$start_date, $end_date]);
+    }
+
+    public function queryAgreementOnlineOrganicLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::onlineOrganicAgreement()->whereBetween('created_at', [$start_date, $end_date]);
+    }
+
+    public function queryAgreementOfflineLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::offlineAgreement()->whereBetween('created_at', [$start_date, $end_date]);
+    }
+
+    public function queryAgreementReferralExistingClientLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::referralFromExistingClientsAgreement()->whereBetween('created_at', [$start_date, $end_date]);
+    }
+
+    # Payment
+    public function queryPaymentOnlinePaidLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::onlinePaidPaymentLeads($start_date, $end_date)->whereBetween('created_at', [$start_date, $end_date]);
+    }
+
+    public function queryPaymentOnlineOrganicLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::onlineOrganicPaymentLeads($start_date, $end_date)->whereBetween('created_at', [$start_date, $end_date]);
+    }
+    
+    public function queryPaymentOfflineLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::offlinePaymentLeads($start_date, $end_date)->whereBetween('created_at', [$start_date, $end_date]);
+    }
+
+    public function queryPaymentReferralExistingClientLeads(Carbon $start_date, Carbon $end_date)
+    {
+        return ClientLog::referralFromExistingClientsPaymentLeads($start_date, $end_date)->whereBetween('created_at', [$start_date, $end_date]);
     }
 
     /**
@@ -223,22 +290,22 @@ class ClientLogRepository implements ClientLogRepositoryInterface
      */
     public function dealOnlinePaidLeads(Carbon $start_date, Carbon $end_date): Int
     {
-        return ClientLog::onlinePaidDealLeads($start_date, $end_date)->get()->count();
+        return $this->queryDealOnlinePaidLeads($start_date, $end_date)->get()->count();
     }
 
     public function dealOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): Int
     {
-        return ClientLog::onlineOrganicDealLeads($start_date, $end_date)->get()->count();
+        return $this->queryDealOnlineOrganicLeads($start_date, $end_date)->get()->count();
     }
 
     public function dealOfflineLeads(Carbon $start_date, Carbon $end_date): Int
     {
-        return ClientLog::offlineDealLeads($start_date, $end_date)->get()->count();
+        return $this->queryDealOfflineLeads($start_date, $end_date)->get()->count();
     }
 
     public function dealReferralExistingClientLeads(Carbon $start_date, Carbon $end_date): Int
     {
-        return ClientLog::referralFromExistingClientsDealLeads($start_date, $end_date)->get()->count();
+        return $this->queryDealReferralExistingClientLeads($start_date, $end_date)->get()->count();
     }
 
     /**
@@ -249,22 +316,22 @@ class ClientLogRepository implements ClientLogRepositoryInterface
      */
     public function agreementOnlinePaidLeads(Carbon $start_date, Carbon $end_date): Int
     {
-        return ClientLog::onlinePaidAgreement()->whereBetween('created_at', [$start_date, $end_date])->get()->count();
+        return $this->queryAgreementOnlinePaidLeads($start_date, $end_date)->get()->count();
     }
 
     public function agreementOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): Int
     {
-        return ClientLog::onlineOrganicAgreement()->whereBetween('created_at', [$start_date, $end_date])->get()->count();
+        return $this->queryAgreementOnlineOrganicLeads($start_date, $end_date)->get()->count();
     }
 
     public function agreementOfflineLeads(Carbon $start_date, Carbon $end_date): Int
     {
-        return ClientLog::offlineAgreement()->whereBetween('created_at', [$start_date, $end_date])->get()->count();
+        return $this->queryAgreementOfflineLeads($start_date, $end_date)->get()->count();
     }
 
     public function agreementReferralExistingClientLeads(Carbon $start_date, Carbon $end_date): Int
     {
-        return ClientLog::referralFromExistingClientsAgreement()->whereBetween('created_at', [$start_date, $end_date])->get()->count();
+        return $this->queryAgreementReferralExistingClientLeads($start_date, $end_date)->get()->count();
     }
 
     /**
@@ -275,20 +342,20 @@ class ClientLogRepository implements ClientLogRepositoryInterface
      */
     public function paymentOnlinePaidLeads(Carbon $start_date, Carbon $end_date): Int
     {
-        return ClientLog::onlinePaidPaymentLeads($start_date, $end_date)->whereBetween('created_at', [$start_date, $end_date])->get()->count();
+        return $this->queryPaymentOnlinePaidLeads($start_date, $end_date)->get()->count();
     }
 
     public function paymentOnlineOrganicLeads(Carbon $start_date, Carbon $end_date): Int
     {
-        return ClientLog::onlineOrganicPaymentLeads($start_date, $end_date)->whereBetween('created_at', [$start_date, $end_date])->get()->count();
+        return $this->queryPaymentOnlineOrganicLeads($start_date, $end_date)->get()->count();
     }
     public function paymentOfflineLeads(Carbon $start_date, Carbon $end_date): Int
     {
-        return ClientLog::offlinePaymentLeads($start_date, $end_date)->whereBetween('created_at', [$start_date, $end_date])->get()->count();
+        return $this->queryPaymentOfflineLeads($start_date, $end_date)->get()->count();
     }
     public function paymentReferralExistingClientLeads(Carbon $start_date, Carbon $end_date): Int
     {
-        return ClientLog::referralFromExistingClientsPaymentLeads($start_date, $end_date)->whereBetween('created_at', [$start_date, $end_date])->get()->count();
+        return $this->queryPaymentReferralExistingClientLeads($start_date, $end_date)->get()->count();
     }
 
     /**
@@ -1104,15 +1171,81 @@ class ClientLogRepository implements ClientLogRepositoryInterface
         return $mapped->groupBy('pic_id');
     }
 
-    public function getDetailLeadTracking(String $type, Carbon $start_date, Carbon $end_date)
+    public function getDetailLeadTracking(String $type, Carbon $start_date, Carbon $end_date, $search = null)
     {
         switch ($type) {
+            # Unfiltered
             case 'unfiltered_leads_online_paid':
-                $clients = $this->queryUnfilteredOnlinePaidLeads($start_date, $end_date)->get();
+                $clients = $this->queryUnfilteredOnlinePaidLeads($start_date, $end_date)->search($search)->get();
                 break;
-            
+            case 'unfiltered_leads_online_organic':
+                $clients = $this->queryUnfilteredOnlineOrganicLeads($start_date, $end_date)->search($search)->get();
+                break;
+            case 'unfiltered_leads_offline':
+                $clients = $this->queryUnfilteredOfflineLeads($start_date, $end_date)->search($search)->get();
+                break;
+            case 'unfiltered_leads_referral':
+                $clients = $this->queryUnfilteredReferralLeads($start_date, $end_date)->search($search)->get();
+                break;
+
+            # Filtered
+            case 'filtered_leads_online_paid':
+                $clients = $this->queryFilteredOnlinePaidLeads($start_date, $end_date)->search($search)->get();
+                break;
+            case 'filtered_leads_online_organic':
+                $clients = $this->queryFilteredOnlineOrganicLeads($start_date, $end_date)->search($search)->get();
+                break;
+            case 'filtered_leads_offline':
+                $clients = $this->queryFilteredOfflineLeads($start_date, $end_date)->search($search)->get();
+                break;
+            case 'filtered_leads_referral':
+                $clients = $this->queryFilteredReferralSales($start_date, $end_date)->search($search)->get();
+                break;
+
+            # Potential
+            case 'potential_leads_online_paid':
+                $clients = $this->queryPotentialOnlinePaidLeads($start_date, $end_date)->search($search)->get();
+                break;
+            case 'potential_leads_online_organic':
+                $clients = $this->queryPotentialOnlineOrganicLeads($start_date, $end_date)->search($search)->get();
+                break;
+            case 'potential_leads_offline':
+                $clients = $this->queryPotentialOfflineLeads($start_date, $end_date)->search($search)->get();
+                break;
+            case 'potential_leads_referral':
+                $clients = $this->queryPotentialReferralExistingClientLeads($start_date, $end_date)->search($search)->get();
+                break;
+
+            # Deal
+            case 'deal_online_paid':
+                $clients = $this->queryDealOnlinePaidLeads($start_date, $end_date)->search($search)->get();
+                break;
+            case 'deal_online_organic':
+                $clients = $this->queryDealOnlineOrganicLeads($start_date, $end_date)->search($search)->get();
+                break;
+            case 'deal_offline':
+                $clients = $this->queryDealOfflineLeads($start_date, $end_date)->search($search)->get();
+                break;
+            case 'deal_referral':
+                $clients = $this->queryDealReferralExistingClientLeads($start_date, $end_date)->search($search)->get();
+                break;
+
+            # Payment
+            case 'payment_online_paid':
+                $clients = $this->queryPaymentOnlinePaidLeads($start_date, $end_date)->search($search)->get();
+                break;
+            case 'payment_online_organic':
+                $clients = $this->queryPaymentOnlineOrganicLeads($start_date, $end_date)->search($search)->get();
+                break;
+            case 'payment_offline':
+                $clients = $this->queryPaymentOfflineLeads($start_date, $end_date)->search($search)->get();
+                break;
+            case 'payment_referral':
+                $clients = $this->queryPaymentReferralExistingClientLeads($start_date, $end_date)->search($search)->get();
+                break;
+
             default:
-                # code...
+                return abort(404);
                 break;
         }
         
@@ -1120,12 +1253,13 @@ class ClientLogRepository implements ClientLogRepositoryInterface
             return [
                 'id' => $item->id,
                 'client_id' => $item->client_id,
-                'full_name' => $item->master_client->full_name,
-                'mail' => $item->master_client->mail,
-                'phone' => $item->master_client->phone,
-                'grade_now' => $item->master_client->grade_now,
-                'lead_source' => $item->client_program ? $item->client_program->conversion_lead : $item->master_client->lead_source,
-                'program_name' => $item->client_program ? $item->client_program->program->program_name : '-',
+                'full_name' => $item->master_client->full_name ?? null,
+                'mail' => $item->master_client->mail ?? null,
+                'phone' => $item->master_client->phone ?? null,
+                'grade_now' => $item->master_client->grade_now ?? null,
+                'lead_source' => $item->client_program ? $item->client_program->conversion_lead ?? null : $item->master_client->lead_source ?? null,
+                'program_name' => $item->client_program ? $item->client_program->program->program_name ?? null : '-',
+                'is_deleted' => $item->deleted_at,
             ];
         });
 
