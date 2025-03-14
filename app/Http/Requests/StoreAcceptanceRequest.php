@@ -23,7 +23,8 @@ class StoreAcceptanceRequest extends FormRequest
             'uni_id' => 'university',
             'major_group' => 'major group',
             'major_name' => 'major',
-            'status' => 'status'
+            'status' => 'status',
+            'requirement_link' => 'requirement link'
         ];
     }
 
@@ -38,7 +39,8 @@ class StoreAcceptanceRequest extends FormRequest
             'uni_id.*' => 'required|exists:tbl_univ,univ_id',
             'major_group.*' => 'required|exists:major_groups,id',
             'major_name.*' => 'nullable',
-            'status.*' => 'required|in:waitlisted,accepted,denied,chosen'
+            'status.*' => 'required|in:waitlisted,accepted,denied,chosen',
+            'requirement_link' => 'nullable'
         ];
         
         /**

@@ -26,7 +26,18 @@ class AcceptanceController extends Controller
 
     public function fnListOfUniApplication(UserClient $student): JsonResponse
     {
-        return response()->json($student->universityAcceptance);
+        $mapped = $student->universityAcceptance->map(function ($item) {
+            return [
+                'univ_id' => $item->univ_id,
+                'univ_name' => $item->univ_name,
+                'univ_application_deadline' => $item->univ_application_deadline,
+                'major_group' => $item->pivot->major_group->mg_name ?? null,
+                'major' => $item->pivot->get_major_name,
+                'category' => $item->pivot->category,
+                'requirement_link' => $item->pivot->requirement_link
+            ]; 
+        });
+        return response()->json($mapped);
     }
 
     public function fnAddUni(
@@ -36,19 +47,21 @@ class AcceptanceController extends Controller
     {
         $validated = $request->safe()->only([
             'univ_id',
-            'major_group',
-            'major_id',
+            'category',
+            'major_group_id',
+            'major_name',
             'status',
-            'is_picked',
+            'requirement_link',
         ]);
 
         DB::beginTransaction();
         try {
             $student->universityAcceptance()->attach($validated['univ_id'], [
-                'major_group' => $validated['major_group'],
-                'major_id' => $validated['major_id'],
+                'category' => $validated['category'],
+                'major_group_id' => $validated['major_group_id'],
+                'major_name' => $validated['major_name'],
                 'status' => $validated['status'],
-                'is_picked' => $validated['is_picked']
+                'requirement_link' => $validated['requirement_link'], 
             ]);
             DB::commit();
         } catch (Exception $err) {
@@ -60,7 +73,9 @@ class AcceptanceController extends Controller
         }
 
         $log_service->createSuccessLog(LogModule::STORE_ALUMNI_ACCEPTANCE, 'New uni has been added to shortlist', $validated);
-        return response()->json($student->universityAcceptance);
+        return response()->json([
+            'message' => 'Uni has successfully added',
+        ]);
     }
 
     public function fnUpdateUni(
@@ -71,10 +86,11 @@ class AcceptanceController extends Controller
     {
         $validated = $request->safe()->only([
             'univ_id',
-            'major_group',
-            'major_id',
+            'category',
+            'major_group_id',
+            'major_name',
             'status',
-            'is_picked',
+            'requirement_link',
             'acceptance_id'
         ]);
 
@@ -82,10 +98,11 @@ class AcceptanceController extends Controller
         try {
             ClientAcceptance::find($validated['acceptance_id'])->update([
                 'univ_id' => $validated['univ_id'],
-                'major_group' => $validated['major_group'],
-                'major_id' => $validated['major_id'],
+                'category' => $validated['category'],
+                'major_group_id' => $validated['major_group_id'],
+                'major_name' => $validated['major_name'],
                 'status' => $validated['status'],
-                'is_picked' => $validated['is_picked']
+                'requirement_link' => $validated['requirement_link'],
             ]);
             DB::commit();
         } catch (Exception $err) {
@@ -97,7 +114,9 @@ class AcceptanceController extends Controller
         }
 
         $log_service->createSuccessLog(LogModule::UPDATE_ALUMNI_ACCEPTANCE, 'The uni has been updated to shortlist', $validated);
-        return response()->json($student->universityAcceptance);
+        return response()->json([
+            'message' => 'Uni application has been updated'
+        ]);
     }
 
     public function fnDeleteUni(
@@ -108,17 +127,19 @@ class AcceptanceController extends Controller
     {
         DB::beginTransaction();
         try {
-            ClientAcceptance::find($acceptance_id)->delete();
+            ClientAcceptance::findOrFail($acceptance_id)->delete();
             DB::commit();
         } catch (Exception $err) {
             DB::rollBack();
-            $log_service->createErrorLog(LogModule::DELETE_ALUMNI_ACCEPTANCE, $err->getMessage(), $err->getLine(), $err->getFile(), $validated);
+            $log_service->createErrorLog(LogModule::DELETE_ALUMNI_ACCEPTANCE, $err->getMessage(), $err->getLine(), $err->getFile());
             throw new HttpResponseException(
                 response()->json(['errors' => 'Failed to delete uni shortlist'], JsonResponse::HTTP_BAD_REQUEST)
             );
         }
 
         $log_service->createSuccessLog(LogModule::DELETE_ALUMNI_ACCEPTANCE, 'The uni has been deleted to shortlist');
-        return response()->json($student->universityAcceptance);
+        return response()->json([
+            'message' => 'Uni application has been deleted'
+        ]);
     }
 }

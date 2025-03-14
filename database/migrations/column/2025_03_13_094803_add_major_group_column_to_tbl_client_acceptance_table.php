@@ -19,6 +19,11 @@ return new class extends Migration
             $table->foreignId('major_id')->nullable()->constrained(
                 table: 'tbl_major', indexName: 'tbl_client_acceptance_major_id'
             )->change();
+            $table->enum('category', ['reach', 'competitive', 'safety'])->nullable()->after('major_id');
+            # former value : waitlisted, accepted, denied, chosen
+            # new value : submitted, waitlisted, accepted, denied, deferred, final decision
+            $table->string('status')->change()->default('submitted');
+            $table->text('requirement_link')->nullable()->after('is_picked');
         });
     }
 

@@ -79,6 +79,7 @@ class UserClient extends Authenticatable
         'took_ia',
         'took_ia_date',
         'blacklist',
+        'mentoring_google_drive_link',
         'created_at',
         'updated_at',
     ];
@@ -595,7 +596,7 @@ class UserClient extends Authenticatable
 
     public function universityAcceptance()
     {
-        return $this->belongsToMany(University::class, 'tbl_client_acceptance', 'client_id', 'univ_id')->using(ClientAcceptance::class)->withPivot('id', 'major_group_id', 'major_name', 'status', 'major_id', 'is_picked')->withTimestamps();
+        return $this->belongsToMany(University::class, 'tbl_client_acceptance', 'client_id', 'univ_id')->using(ClientAcceptance::class)->withPivot('id', 'major_group_id', 'major_name', 'status', 'major_id', 'category', 'requirement_link')->withTimestamps();
     }
 
     public function picClient()

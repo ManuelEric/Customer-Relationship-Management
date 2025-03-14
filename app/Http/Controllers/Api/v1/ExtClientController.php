@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Enum\LogModule;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\v1\UpdateMenteeGDriveRequest;
 use App\Http\Requests\Client\Registration\Public\PublicRegistrationRequest;
 use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
@@ -24,6 +26,7 @@ use App\Models\Event;
 use App\Models\School;
 use App\Models\UserClient;
 use App\Repositories\ProgramRepository;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
@@ -2289,5 +2292,30 @@ class ExtClientController extends Controller
             ];
         }); 
         return response()->json($mapped_program);
+    }
+
+    public function fnUpdateMenteeGDriveLink(
+        UserClient $user_client, 
+        UpdateMenteeGDriveRequest $request,
+        LogService $log_service
+        )
+    {
+        $validated = $request->safe()->only(['gdrive_link']);
+        DB::beginTransaction();
+        try {
+            $user_client->mentoring_google_drive_link = $validated['gdrive_link'];
+            $user_client->save();
+            DB::commit();
+        } catch (Exception $err) {
+            DB::rollBack();
+            $log_service->createErrorLog(LogModule::UPDATE_MENTEE_GDRIVE, $err->getMessage(), $err->getLine(), $err->getFile(), $validated);
+            throw new HttpResponseException(
+                response()->json(['errors' => 'Failed to update gdrive link'], JsonResponse::HTTP_BAD_REQUEST)
+            );
+        }
+        $log_service->createSuccessLog(LogModule::UPDATE_MENTEE_GDRIVE, 'The gdrive link has been updated', $validated);
+        return response()->json([
+            'message' => 'Mentee gdrive has been updated'
+        ]);
     }
 }

@@ -76,6 +76,7 @@ class AcceptanceController extends Controller
         $major_group = $request->major_group;
         $major_name = $request->major_name;
         $status = $request->status;
+        $requirement_link = $request->requirement_link;
 
         $index = 0;
         while ($index < count($univ_id)) {
@@ -84,7 +85,8 @@ class AcceptanceController extends Controller
                 'univ_id' => $univ_id[$index],
                 'major_group_id' => $major_group[$index],
                 'major_name' => $major_name[$index],
-                'status' => $status[$index]
+                'status' => $status[$index],
+                'requirement_link' => $requirement_link[$index],
             ];
 
             $index++;
@@ -144,17 +146,19 @@ class AcceptanceController extends Controller
 
         $univ_id = $request->uni_id;
         $major_group = $request->major_group;
-        $major_id = $request->major;
+        $major_name = $request->major_name;
         $status = $request->status;
+        $requirement_link = $request->requirement_link;
 
         $index = 0;
         while ($index < count($univ_id)) {
 
             $new_details[] = [
                 'univ_id' => $univ_id[$index],
-                'major_group' => $major_group[$index],
-                'major_id' => $major_id[$index],
-                'status' => $status[$index]
+                'major_group_id' => $major_group[$index],
+                'major_name' => $major_name[$index],
+                'status' => $status[$index],
+                'requirement_link' => $requirement_link[$index]
             ];
 
             $index++;

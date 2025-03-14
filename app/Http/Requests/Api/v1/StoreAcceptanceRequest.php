@@ -43,11 +43,12 @@ class StoreAcceptanceRequest extends FormRequest
     {
         $rules = [
             'univ_id' => 'required|exists:tbl_univ,univ_id',
-            'major_group' => 'required',
-            'major_id' => 'required|exists:tbl_major,id',
-            'status' => 'required|in:waitlisted,accepted,denied,chosen',
-            'is_picked' => 'required',
-        ];
+            'category' => 'required|in:reach,competitive,safety',
+            'major_group_id' => 'required|exists:major_groups,id',
+            'major_name' => 'nullable',
+            'status' => 'required|in:submitted,waitlisted,accepted,denied,deferred,final decision',
+            'requirement_link' => 'nullable',
+         ];
 
         if ( $this->isMethod('PUT') )
             $rules['acceptance_id'] = 'required';
@@ -63,9 +64,10 @@ class StoreAcceptanceRequest extends FormRequest
     {
         return [
             'univ_id' => 'university',
-            'major_group' => 'major group',
-            'major_id' => 'major',
-            'status' => 'status'
+            'major_group_id' => 'major group',
+            'major_name' => 'major name',
+            'status' => 'status',
+            'requirement_link' => 'requirement link',
         ];
     }
 }
