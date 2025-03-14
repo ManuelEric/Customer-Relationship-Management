@@ -15,6 +15,7 @@ use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Models\ClientAcceptance;
 use App\Models\ClientEvent;
 use App\Models\ClientLog;
 use App\Models\PicClient;
@@ -1779,7 +1780,8 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getClientHasUniversityAcceptance()
     {
-        return Datatables::eloquent(PivotClientAcceptance::query())->make(true);
+        $model = ClientAcceptance::query();
+        return Datatables::eloquent($model)->make(true);
     }
 
     public function addInterestProgram($studentId, $interestProgram)

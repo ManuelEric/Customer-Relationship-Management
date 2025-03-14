@@ -85,8 +85,8 @@
                                                 @enderror
                                             </div>
                                             <div class="col-md-6">
-                                                <label>Major <sup class="text-danger">*</sup></label>
-                                                <input type="text" name="major_name[]" class="form-control form-control-sm" />
+                                                <label>Major </label>
+                                                <input type="text" name="major_name[]" class="form-control form-control-sm" placeholder="Write the major" />
                                                 @error('major_name.0')
                                                     <small class="text-danger">{{ $message }}</small>
                                                 @enderror
@@ -102,6 +102,10 @@
                                                 @error('status.0')
                                                     <small class="text-danger">{{ $message }}</small>
                                                 @enderror
+                                            </div>
+                                            <div class="col-md-12">
+                                                <label>Requirement Link </label>
+                                                <textarea name="requirement_link[]"></textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -146,8 +150,8 @@
                                         <td>{{ $loop->iteration }}.</td>
                                         <td>{{ $acceptance->univ_name }}</td>
                                         <td>{{ $acceptance->tags->tagCountry->name }}</td>
-                                        <td>{{ $acceptance->major_group->mg_name }}</td>
-                                        <td>{{ $acceptance->pivot->major_name }}</td>
+                                        <td>{{ $acceptance->pivot->major_group->mg_name ?? null }}</td>
+                                        <td>{{ $acceptance->pivot->get_major_name }}</td>
                                         <td>{{ ucfirst($acceptance->pivot->status) }}</td>
                                         <td class="text-end">
                                             <button class="btn btn-sm btn-danger"
