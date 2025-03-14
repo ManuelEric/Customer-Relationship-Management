@@ -141,7 +141,7 @@
         Swal.showLoading()
 
         // Axios here...
-        axios.get('{{ url("api/partner/agenda/") }}/' + date)
+        axios.get('{{ url("api/v1/dashboard/partner/agenda/") }}/' + date)
             .then((response) => {
                 var result = response.data.data.allSpeaker
                 var start_listgroup = '<ul class="list-group">' +

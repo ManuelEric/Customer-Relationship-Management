@@ -177,6 +177,13 @@ enum LogModule: string
     case DELETE_CLIENT_PROGRAM = '[DELETE CLIENT PROGRAM]';
 
     /**
+     * Program Phase
+     */
+    case STORE_PROGRAM_PHASE = '[STORE PROGRAM PHASE]';
+    case DELETE_PROGRAM_PHASE = '[DELETE PROGRAM PHASE]';
+    case UPDATE_PROGRAM_PHASE = '[UPDATE PROGRAM PHASE]';
+
+    /**
      * Bundle Program
      */
     case STORE_BUNDLE_PROGRAM = '[STORE BUNDLE PROGRAM]';
@@ -452,4 +459,9 @@ enum LogModule: string
     case STORE_ALUMNI_ACCEPTANCE = '[STORE ALUMNI ACCEPTANCE]';
     case UPDATE_ALUMNI_ACCEPTANCE = '[UPDATE ALUMNI ACCEPTANCE]';
     case DELETE_ALUMNI_ACCEPTANCE = '[DELETE ALUMNI ACCEPTANCE]';
+
+    /**
+     * Mentee Update
+     */
+    case UPDATE_MENTEE_GDRIVE = '[UPDATE MENTEE GDRIVE]';
 }

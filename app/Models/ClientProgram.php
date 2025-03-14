@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use App\Models\pivot\ClientProgramDetail;
 
 class ClientProgram extends Model
 {
@@ -429,6 +430,16 @@ class ClientProgram extends Model
     public function client_log()
     {
         return $this->hasMany(ClientLog::class, 'clientprog_id', 'clientprog_id');
+    }
+
+    public function phase_library()
+    {
+        return $this->belongsToMany(PhaseLibrary::class, 'client_program_details', 'clientprog_id', 'phase_lib_id')->using(ClientProgramDetail::class)->withPivot('quota');
+    }
+
+    public function phase_detail()
+    {
+        return $this->belongsToMany(PhaseDetail::class, 'client_program_details', 'clientprog_id', 'phase_detail_id')->using(ClientProgramDetail::class)->withPivot('quota');
     }
 
 }

@@ -79,6 +79,8 @@ class UserClient extends Authenticatable
         'took_ia',
         'took_ia_date',
         'blacklist',
+        'mentoring_progress_status',
+        'mentoring_google_drive_link',
         'created_at',
         'updated_at',
     ];
@@ -241,6 +243,44 @@ class UserClient extends Authenticatable
     }
 
     # Scopes
+    public function scopeSearch($query, $search)
+    {
+        $terms = $search['terms'];
+        $uni = $search['uni'];
+        $major = $search['major'];
+
+        return $query->
+            when($terms, function ($query) use ($terms) {
+                $query->whereRaw('CONCAT(first_name, " ", last_name) like "%'.$terms.'%"');
+            })->
+            when($uni, function ($query) use ($uni) {
+                $query->
+                where(function ($query) use ($uni) {
+                    $query->
+                        whereRelation('universityAcceptance', 'tbl_client_acceptance.status', 'final decision')->
+                        whereHas('universityAcceptance', function ($query) use ($uni) {
+                            $query->where('univ_name', 'like', '%'.$uni.'%');
+                        });
+                });
+            })->
+            when($major, function ($query) use ($major) {
+                $query->
+                where(function ($query) use ($major) {
+                    $query->
+                        whereRelation('universityAcceptance', 'tbl_client_acceptance.status', 'final decision')->
+                        where(function ($query) use ($major) {
+                            $query->
+                            whereHas('universityAcceptance', function ($query) use ($major) {
+                                $query->where('tbl_client_acceptance.major_name', 'like', '%'.$major.'%');
+                            })->
+                            orWhereHas('majorAcceptance', function ($query) use ($major) {
+                                $query->where('name', 'like', '%'.$major.'%');
+                            });
+                        });
+                });
+            });
+    }
+
     public function scopeIsNotBlacklist($query)
     {
         return $query->where('tbl_client.blacklist', 0);
@@ -342,6 +382,32 @@ class UserClient extends Authenticatable
         return $query->where('is_verified', 'N')->where('st_statusact', 1)->where('deleted_at', null);
     }
 
+    public function scopeIsGraduated(Builder $query)
+    {
+        $query->
+        where('grade_now', '>', 12)->
+        whereDoesntHave('clientProgram', function ($query) {
+            $query->whereIn('status', [0, 2, 3, 5]);
+        })->
+        whereHas('clientProgram', function ($query) {
+            $query->whereIn('status', [1, 4]);
+        });
+    }
+
+    public function scopeIsActiveMentee(Builder $query)
+    {
+        $query->whereRelation('clientProgram.program.main_prog', 'prog_name', 'Admissions Mentoring')->whereRelation('clientProgram', 'status', 1)->whereRelation('clientProgram', 'prog_running_status', '!=', 2);
+    }
+
+    public function scopeGetMentoredStudents(Builder $query)
+    {
+        $query->whereHas('clientProgram.clientMentor', function ($query) {
+            $query->where('users.id', auth()->guard('api')->user()->id)->where('tbl_client_mentor.status', 1);
+        });
+    }
+
+
+
     public function getLeadSource($parameter)
     {
         switch ($parameter) {
@@ -418,8 +484,8 @@ class UserClient extends Authenticatable
         $listPics[1] = null;
 
         if(count($this->picClient) > 0){
-            $listPics[0] = $this->picClient->where('status', 1)->first()->user ? $this->picClient->where('status', 1)->first()->user_id : null;
-            $listPics[1] = $this->picClient->where('status', 1)->first()->user ? $this->picClient->where('status', 1)->first()->user->full_name : null;
+            $listPics[0] = $this->picClient->where('status', 1)->first()->user_id ?? null;
+            $listPics[1] = $this->picClient->where('status', 1)->first()->user->full_name ?? null;
         }
 
         return $listPics;
@@ -567,9 +633,14 @@ class UserClient extends Authenticatable
         return $this->belongsToMany(InitialProgram::class, 'tbl_client_lead_tracking', 'client_id', 'initialprogram_id')->using(ClientLeadTracking::class)->withPivot('type', 'total_result', 'status')->withTimestamps();
     }
 
+    public function majorAcceptance()
+    {
+        return $this->belongsToMany(Major::class, 'tbl_client_acceptance', 'client_id', 'major_id');
+    }
+
     public function universityAcceptance()
     {
-        return $this->belongsToMany(University::class, 'tbl_client_acceptance', 'client_id', 'univ_id')->using(ClientAcceptance::class)->withPivot('id', 'status', 'major_id')->withTimestamps();
+        return $this->belongsToMany(University::class, 'tbl_client_acceptance', 'client_id', 'univ_id')->using(ClientAcceptance::class)->withPivot('id', 'major_group_id', 'major_name', 'status', 'major_id', 'category', 'requirement_link')->withTimestamps();
     }
 
     public function picClient()

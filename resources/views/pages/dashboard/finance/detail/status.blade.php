@@ -317,7 +317,7 @@
                 let type = $(this).data('finance-type')
                 let month = $('#finance_status_month').val()
 
-                let url = window.location.origin + '/api/finance/detail/' + month + '/' + type;
+                let url = window.location.origin + '/api/v1/dashboard/finance/detail/' + month + '/' + type;
                 var html;
 
                 switch (type) {
@@ -698,7 +698,7 @@
                 return arr.reduce((a, v) => a + v);
             }
 
-            axios.get('{{ url('api/finance/total/') }}/' + month)
+            axios.get('{{ url('api/v1/dashboard/finance/total/') }}/' + month)
                 .then((response) => {
                     var result = response.data.data
                     var html = '';

@@ -42,6 +42,7 @@ use App\Interfaces\InvoicesRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\LeadTargetRepositoryInterface;
 use App\Interfaces\MainProgRepositoryInterface;
+use App\Interfaces\MajorGroupRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\MentorRepositoryInterface;
 use App\Interfaces\MenuRepositoryInterface;
@@ -51,6 +52,7 @@ use App\Interfaces\PartnerAgreementRepositoryInterface;
 use App\Interfaces\PartnerProgramAttachRepositoryInterface;
 use App\Interfaces\PartnerProgramCollaboratorsRepositoryInterface;
 use App\Interfaces\PositionRepositoryInterface;
+use App\Interfaces\ProgramPhaseRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\PurchaseDetailRepositoryInterface;
 use App\Interfaces\PurchaseRequestRepositoryInterface;
@@ -126,6 +128,7 @@ use App\Repositories\InvoicesRepository;
 use App\Repositories\LeadRepository;
 use App\Repositories\LeadTargetRepository;
 use App\Repositories\MainProgRepository;
+use App\Repositories\MajorGroupRepository;
 use App\Repositories\MajorRepository;
 use App\Repositories\MentorRepository;
 use App\Repositories\MenuRepository;
@@ -135,6 +138,7 @@ use App\Repositories\PartnerAgreementRepository;
 use App\Repositories\PartnerProgramAttachRepository;
 use App\Repositories\PartnerProgramCollaboratorsRepository;
 use App\Repositories\PositionRepository;
+use App\Repositories\ProgramPhaseRepository;
 use App\Repositories\ProgramRepository;
 use App\Repositories\PurchaseDetailRepository;
 use App\Repositories\PurchaseRequestRepository;
@@ -261,7 +265,9 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(SubjectRepositoryInterface::class, SubjectRepository::class);
         $this->app->bind(IndustryRepositoryInterface::class, IndustryRepository::class);
         $this->app->bind(SubSectorRepositoryInterface::class, SubSectorRepository::class);
+        $this->app->bind(ProgramPhaseRepositoryInterface::class, ProgramPhaseRepository::class);
         $this->app->bind(BankRepositoryInterface::class, BankRepository::class);
+        $this->app->bind(MajorGroupRepositoryInterface::class, MajorGroupRepository::class);
     }
 
     /**
