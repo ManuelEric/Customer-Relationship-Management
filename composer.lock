@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "af876af6d3bdcc06afaf5672d415a0f1",
+    "content-hash": "6914df917905762b6815ccbcf2720e23",
     "packages": [
         {
             "name": "arcanedev/log-viewer",
@@ -7963,6 +7963,71 @@
             "time": "2021-02-08T20:43:55+00:00"
         },
         {
+            "name": "spatie/fork",
+            "version": "1.2.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/fork.git",
+                "reference": "24cd50797eae6dd3e1a4978f9fe0b9266520bc99"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/fork/zipball/24cd50797eae6dd3e1a4978f9fe0b9266520bc99",
+                "reference": "24cd50797eae6dd3e1a4978f9fe0b9266520bc99",
+                "shasum": ""
+            },
+            "require": {
+                "ext-pcntl": "*",
+                "ext-sockets": "*",
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "nesbot/carbon": "^2.66",
+                "pestphp/pest": "^1.23",
+                "phpunit/phpunit": "^9.5",
+                "spatie/ray": "^1.10"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\Fork\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Brent Roose",
+                    "email": "brent@spatie.be",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A lightweight solution for running code concurrently in PHP",
+            "homepage": "https://github.com/spatie/fork",
+            "keywords": [
+                "fork",
+                "spatie"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/fork/issues",
+                "source": "https://github.com/spatie/fork/tree/1.2.4"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/spatie",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-01-27T09:34:15+00:00"
+        },
+        {
             "name": "spatie/laravel-package-tools",
             "version": "1.19.0",
             "source": {
@@ -13551,13 +13616,13 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {},
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.2",
         "ext-gd": "*"
     },
-    "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "platform-dev": [],
+    "plugin-api-version": "2.3.0"
 }
