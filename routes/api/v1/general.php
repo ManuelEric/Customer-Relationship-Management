@@ -27,6 +27,7 @@ use App\Http\Controllers\ReceiptReferralController;
 use App\Http\Controllers\ReceiptSchoolController;
 use App\Http\Controllers\Api\v1\AuthController as V1APIAuthController;
 use App\Http\Controllers\Api\v1\CallbackController as V1APICallbackController;
+use App\Http\Controllers\Api\v1\MentoringLogController as V1APIMentoringLogController;
 
 Route::middleware(['throttle:120,1'])->group(function () {
 
@@ -42,6 +43,7 @@ Route::middleware(['throttle:120,1'])->group(function () {
     Route::get('get/mentee/{user_client}', [ExtClientController::class, 'fnGetMenteeDetails']);
     Route::get('get/mentee/{user_client}/mentors', [ExtClientController::class, 'fnGetMentorsByMentee']);
     Route::get('get/mentee/{user_client}/programs', [ExtClientController::class, 'fnGetJoinedProgramsByMentee']);
+
 
     # try to use header fields for carrying the mentor ID information
     # so that we don't have to use /{mentor_id} or ?id=<mentor_id>
@@ -151,6 +153,9 @@ Route::middleware(['throttle:120,1'])->group(function () {
             Route::post('student/{student}/acceptance', [V1APIAcceptanceController::class, 'fnAddUni']);
             Route::put('student/{student}/acceptance/{acceptance}', [V1APIAcceptanceController::class, 'fnUpdateUni']);
             Route::delete('student/{student}/acceptance/{acceptance}', [V1APIAcceptanceController::class, 'fnDeleteUni']);
+            
+            # add/update google drive mentee
+            Route::put('update/mentee/{user_client}/gdrive', [ExtClientController::class, 'fnUpdateMenteeGDriveLink']);
         });
 
         # meta ads

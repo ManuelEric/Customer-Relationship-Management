@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Actions\Meta\Handle as HandleMetaLeads;
+use App\Actions\Meta\Handler as HandlerMetaLeads;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Exception;
@@ -17,14 +17,14 @@ class CallbackController extends Controller
     protected $app_id;
     protected $app_secret;
     protected $access_token;
-    protected HandleMetaLeads $handleMetaLeads;
+    protected HandlerMetaLeads $handlerMetaLeads;
 
-    public function __construct(HandleMetaLeads $handleMetaLeads)
+    public function __construct(HandlerMetaLeads $handlerMetaLeads)
     {
         $this->app_id = env('META_APP_ID');
         $this->app_secret = env('META_APP_SECRET');
         $this->access_token = env('META_ACCESS_TOKEN');
-        $this->handleMetaLeads = $handleMetaLeads;
+        $this->handlerMetaLeads = $handlerMetaLeads;
     }
 
     public function verify(Request $request)
@@ -88,7 +88,7 @@ class CallbackController extends Controller
 
         if ($response->successful()) {
             Log::debug('[META API] Lead received successfully', ['Form' => $form->json(), 'Lead' => $response->json()['field_data']]);
-            $this->handleMetaLeads->execute($form->json(), $response->json()['field_data']);
+            $this->handlerMetaLeads->execute($form->json(), $response->json()['field_data']);
             Log::notice('[META API] Lead received successfully', ['Form' => $form->json(), 'Lead' => $response->json()['field_data']]);
 
         } else {

@@ -21,7 +21,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class Handle
+class Handler
 {
     use PrefixSeparatorMeta, StandardizePhoneNumberTrait, SyncClientTrait, CheckExistingClientImport, GetGradeAndGraduationYear, CreateCustomPrimaryKeyTrait;
 
@@ -36,13 +36,21 @@ class Handle
          * insert client to failed meta lead
          */
         $collections = collect($leads);
+
+        $possibilities_of_parent_name = ['nama_anda', 'nama_anda_'];
+        $possibilities_of_parent_phone = ['nomor_hp_anda', 'nomor_hp_anda_'];
+        $possibilities_of_parent_email = ['email_anda', 'email_anda_'];
+        $possibilities_of_child_name = ['nama_anak_anda', 'nama_anak_anda_'];
+        $possibilities_of_child_graduation_year = ['tahun_kelulusan_anak_anda', 'tahun_kelulusan_anak_anda_'];
+        $possibilities_of_child_school = ['nama_sekolah_anak_anda', 'nama_sekolah_anak_anda_', 'sekolah_anak_anda', 'sekolah_anak_anda_'];
+
         $incoming_data = [
-            'parent_name' => $collections->where('name', 'nama_anda')->first()['values'][0],
-            'parent_phone' => $collections->where('name', 'nomor_hp_anda_')->first()['values'][0],
-            'parent_email' => $collections->where('name', 'email_anda_')->first()['values'][0],
-            'child_name' => $collections->where('name', 'nama_anak_anda')->first()['values'][0],
-            'child_graduation_year' => $collections->where('name', 'tahun_kelulusan_anak_anda')->first()['values'][0],
-            'child_school' => $collections->where('name', 'nama_sekolah_anak_anda')->first()['values'][0],
+            'parent_name' => $collections->whereIn('name', $possibilities_of_parent_name)->first()['values'][0],
+            'parent_phone' => $collections->whereIn('name', $possibilities_of_parent_phone)->first()['values'][0],
+            'parent_email' => $collections->whereIn('name', $possibilities_of_parent_email)->first()['values'][0],
+            'child_name' => $collections->whereIn('name', $possibilities_of_child_name)->first()['values'][0],
+            'child_graduation_year' => $collections->whereIn('name', $possibilities_of_child_graduation_year)->first()['values'][0],
+            'child_school' => $collections->whereIn('name', $possibilities_of_child_school)->first()['values'][0],
         ];
         
         DB::beginTransaction();
