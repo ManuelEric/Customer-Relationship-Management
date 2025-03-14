@@ -92,7 +92,7 @@
                             <tr class="text-center">
                                 <th class="bg-secondary text-white">{{ ucwords(str_replace('_', ' ', $title)) }}</th>
                                 @foreach ($summary as $key => $detail)
-                                <td class="detail" data-type={{ $title .'_'. $key }}>{{ $detail }}</td>
+                                <td class="detail" data-type={{ $title .'_'. $key }} data-key="{{ $key }}" style="{{ ($key == 'total' || $key == 'conversion_rate' ? '' : 'cursor: pointer')}}">{{ $detail }}</td>
                                 @endforeach
                             </tr>
                             @endforeach
@@ -457,7 +457,11 @@
         $('.detail').click(function(){
             var daterange = $('#daterange').val();
             var link = "{{ url('/') }}/report/lead/detail?daterange=" + daterange + "&type=" + $(this).data('type')
-            window.open(link, '_blank');
+            if($(this).data('key') == 'total' || $(this).data('key') == 'conversion_rate'){
+                return;
+            }else{
+                window.open(link, '_blank');
+            }
         })
     </script>
 @endsection
