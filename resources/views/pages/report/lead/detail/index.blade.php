@@ -4,6 +4,35 @@
 
 @section('content')
 
+<div class="row align-items-stretch mb-3">
+    <div class="statistics-details d-flex align-items-center justify-content-start">
+        @if($percentage_division['Digital'] > 0)
+            <div class="card p-2 me-2" style="min-width: 120px">
+                <p class="statistics-title text-center">Digital Leads</p>
+                <h3 class="rate-percentage text-primary text-center">{{ $percentage_division['Digital'] }}%</h3>
+            </div>
+        @endif
+        @if($percentage_division['Sales'] > 0)
+            <div class="card p-2 me-2" style="min-width: 120px">
+                <p class="statistics-title text-center">Sales Leads</p>
+                <h3 class="rate-percentage text-warning text-center">{{ $percentage_division['Sales'] }}%</h3>
+            </div>
+        @endif
+        @if($percentage_division['Partnership'] > 0)
+            <div class="card p-2 me-2" style="min-width: 100px">
+                <p class="statistics-title text-center">Partnership Leads</p>
+                <h3 class="rate-percentage text-success text-center">{{ $percentage_division['Partnership'] }}%</h3>
+            </div>
+        @endif
+        @if($percentage_division['Other'] > 0)
+            <div class="card p-2 me-2" style="min-width: 100px">
+                <p class="statistics-title text-center">Other Leads</p>
+                <h3 class="rate-percentage text-success text-center">{{ $percentage_division['Other'] }}%</h3>
+            </div>
+        @endif
+    </div>
+</div>
+
 <div class="card">
     <div class="card-body">
       <div class="card-title">

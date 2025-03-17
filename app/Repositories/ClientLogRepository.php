@@ -1259,10 +1259,11 @@ class ClientLogRepository implements ClientLogRepositoryInterface
                 'grade_now' => $item->master_client->grade_now ?? null,
                 'lead_source' => $item->client_program ? $item->client_program->conversion_lead ?? null : $item->master_client->lead_source ?? null,
                 'program_name' => $item->client_program ? $item->client_program->program->program_name ?? null : '-',
+                'lead_from_division' => $item->lead_source_log->note ?? null,
                 'is_deleted' => $item->deleted_at,
             ];
         });
 
-        return $mapped->paginate(10);
+        return $mapped;
     }
 }
