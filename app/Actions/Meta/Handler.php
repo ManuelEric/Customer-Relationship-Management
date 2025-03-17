@@ -146,7 +146,7 @@ class Handler
                     }
                     break;
 
-                case "EVT":
+                case "EV":
                     $client_event_details = [
                         'ticket_id' => NULL,
                         'client_id' => $parent->id,
