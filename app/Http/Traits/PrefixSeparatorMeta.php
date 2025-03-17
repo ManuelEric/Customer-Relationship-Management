@@ -14,7 +14,7 @@ trait PrefixSeparatorMeta
     public function getIdentifier(string $form_name): string
     {
         $prefix = $this->getPrefix($form_name);
-        $offset = $prefix == "PR" ? 3 : 4;
+        $offset = /*$prefix == "PR" ? 3 : 4*/ 3;
         $form_name_without_prefix = substr($form_name, $offset);
         
         
