@@ -16,6 +16,11 @@ class PhaseSeeder extends Seeder
     {
         $seeds = [
             [
+                'phase_name' => 'ALL',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ],
+            [
                 'phase_name' => 'Interests & Career Exploration',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
