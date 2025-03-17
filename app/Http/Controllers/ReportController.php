@@ -174,9 +174,18 @@ class ReportController extends Controller
 
         $leads_tracker = $lead_tracker_service->detailLead($type, $date_range, $search);
 
+        $total_leads_tracker = $leads_tracker->count();
+        $precentage_division = [
+            'Digital' => toPercentage($total_leads_tracker, $leads_tracker->where('lead_from_division', 'Digital')->count()),
+            'Sales' => toPercentage($total_leads_tracker, $leads_tracker->where('lead_from_division', 'Sales')->count()),
+            'Partnership' => toPercentage($total_leads_tracker, $leads_tracker->where('lead_from_division', 'Partnership')->count()),
+            'Other' => toPercentage($total_leads_tracker, $leads_tracker->where('lead_from_division', null)->count()),
+        ];
+
         return view('pages.report.lead.detail.index')->with(
             [
-                'leads_tracker' => $leads_tracker->appends($request->query())
+                'leads_tracker' => $leads_tracker->paginate(10)->appends($request->query()),
+                'percentage_division' => $precentage_division
             ]
         );
     }
