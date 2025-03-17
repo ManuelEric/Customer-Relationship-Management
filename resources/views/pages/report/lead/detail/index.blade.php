@@ -9,7 +9,7 @@
       <div class="card-title">
         <div class="row g-3 align-items-center">
             <div class="col-auto me-auto">
-                <h4>Leads Tracker</h4>
+                <h4>Leads Tracker - {{ ucwords(str_replace('_', ' ', Request::get('type'))) }}</h4>
             </div>
             <div class="col-auto">
                 <form action="">
@@ -21,7 +21,7 @@
         </div>
       </div>
       <div class="table-responsive">
-        <table class="table table-hover">
+        <table class="table table-hover table-bordered">
             <thead>
                 <tr>
                 <th>#</th>
