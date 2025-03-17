@@ -58,6 +58,7 @@
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Grade Now</th>
+                <th>School Name</th>
                 <th>Lead Source</th>
                 <th>Program Name</th>
                 </tr>
@@ -70,6 +71,7 @@
                         <td>{{ $lead_tracker['mail'] }}</td>
                         <td>{{ $lead_tracker['phone'] }}</td>
                         <td>{{ $lead_tracker['grade_now'] }}</td>
+                        <td>{{ $lead_tracker['school_name'] }}</td>
                         <td>{{ $lead_tracker['lead_source'] }}</td>
                         <td>{{ $lead_tracker['program_name'] }}</td>
                     </tr>
