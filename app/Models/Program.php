@@ -171,7 +171,7 @@ class Program extends Model
     public function scopeTutoringProgList($query)
     {
         return $query->whereHas('sub_prog', function ($query) {
-            $query->where('sub_prog_name', 'like', '%Tutoring%');
+            $query->where('sub_prog_name', 'like', '%Tutoring%')->orWhere('sub_prog_name', 'like', '%Competition%');
         });
     }
 
