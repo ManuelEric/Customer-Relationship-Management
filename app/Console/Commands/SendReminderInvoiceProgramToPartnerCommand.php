@@ -111,6 +111,7 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
                 if ($params['pic_email'] !== NULL)
                     array_push($cc, $params['pic_email']);
 
+                Log::debug('Data cc reminder', $cc);
                 try {
                     Mail::send($mail_resources, $params, function ($message) use ($params, $cc, $subject) {
                         Log::debug('Data mailing reminder: ', $params);
