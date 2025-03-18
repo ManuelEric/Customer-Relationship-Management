@@ -102,7 +102,7 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
 
                 $cc = array();
 
-                $financeEmail[] = [
+                $financeEmail = [
                     env('FINANCE_CC'),
                     env('FINANCE_CC_2')
                 ];
