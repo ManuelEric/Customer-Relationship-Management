@@ -120,7 +120,7 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
 
                 } catch (Exception $e) {
 
-                    Log::error('Failed to send invoice reminder to ' . $partner_pic_mail . ' caused by : ' . $e->getMessage() . ' | Line ' . $e->getLine());
+                    Log::error('Failed to send invoice partner reminder to ' . $partner_pic_mail . ' caused by : ' . $e->getMessage() . ' | Line ' . $e->getLine(). ' | File ' . $e->getFile());
                     return $this->error($e->getMessage() . ' | Line ' . $e->getLine());
                 }
 
