@@ -113,6 +113,7 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
 
                 try {
                     Mail::send($mail_resources, $params, function ($message) use ($params, $cc, $subject) {
+                        Log::debug('Data mailing reminder: ', $params);
                         $message->to($params['partner_mail'], $params['partner_pic'])
                             ->cc($cc)
                             ->subject($subject);
