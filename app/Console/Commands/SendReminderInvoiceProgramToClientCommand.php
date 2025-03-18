@@ -120,7 +120,7 @@ class SendReminderInvoiceProgramToClientCommand extends Command
                     });
                 } catch (Exception $e) {
 
-                    Log::error('Failed to send invoice reminder to ' . $parent_mail . ' caused by : ' . $e->getMessage() . ' | Line ' . $e->getLine());
+                    Log::error('Failed to send invoice client reminder to ' . $parent_mail . ' caused by : ' . $e->getMessage() . ' | Line ' . $e->getLine() . ' | File ' . $e->getFile());
                     return $this->error($e->getMessage() . ' | Line ' . $e->getLine());
                 }
 
