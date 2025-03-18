@@ -359,10 +359,10 @@ class InvoiceB2BBaseController extends Controller
             return response()->json(['message' => "Please complete their email in order to send the invoice mail"], 500);
         
 
-        // $data['email'] = $invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['email']}; # email to pic of the partner program
-        $data['email'] = env('PARTNERSHIP_MAIL_1');
+        $data['email'] = $invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['email']}; # email to pic of the partner program
+        // $data['email'] = env('PARTNERSHIP_MAIL_1');
         $data['recipient'] = $invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['name']}; # name of the pic of the partner program
-        $data['cc'] = [env('CEO_CC'), env('FINANCE_CC'), env('FINANCE_CC_2')];
+        $data['cc'] = [env('CEO_CC'), env('FINANCE_CC'), env('FINANCE_CC_2'), env('PARTNERSHIP_MAIL_1')];
         $data['title'] = "Invoice of program " . $program_name;
         $data['param'] = [
             'invb2b_num' => $inv_num,
