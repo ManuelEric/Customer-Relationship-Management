@@ -14,7 +14,7 @@ trait MainProgramTrait
         {
             case "academic":
                 $main_program = 'Academic & Test Preparation';
-                $sub_program = ['Academic Tutoring', 'Subject Tutoring'];
+                $sub_program = ['Academic Tutoring', 'Subject Tutoring', 'SAT Prep'];
                 break;
 
             case "admissions":
