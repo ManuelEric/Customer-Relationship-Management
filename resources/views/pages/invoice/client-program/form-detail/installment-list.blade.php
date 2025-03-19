@@ -33,20 +33,26 @@
                         </div>
                     </div>
                     <div class="mt-2 text-end">
-                        @if ($detail->receipt)
-                            <a href="{{ isset($invoice->bundling) ? route('receipt.client-program.show', ['receipt' => $detail->receipt->id, 'b' => true]) : route('receipt.client-program.show', ['receipt' => $detail->receipt->id]) }}">
-                                <button class="btn btn-sm btn-outline-warning py-1" style="font-size: 11px">
-                                    <i class="bi bi-eye"></i> View
+                        <div class="d-flex justify-content-end">
+                            @php
+                            $invdtl_id = $detail->invdtl_id;
+                            @endphp
+                            <x-forms.invoice.payment.dropdown :installment=true :id=$invdtl_id />
+                            @if ($detail->receipt)
+                                <a href="{{ isset($invoice->bundling) ? route('receipt.client-program.show', ['receipt' => $detail->receipt->id, 'b' => true]) : route('receipt.client-program.show', ['receipt' => $detail->receipt->id]) }}">
+                                    <button class="btn btn-sm btn-outline-warning py-1" style="font-size: 11px">
+                                        <i class="bi bi-eye"></i> View
+                                    </button>
+                                </a>
+                            @else
+                                @if (!isset($invoice->refund) && $clientProg->status != 3)
+                                <button class="btn btn-sm btn-outline-primary py-1" style="font-size: 11px" data-bs-toggle="modal"
+                                data-bs-target="#addReceipt" onclick="checkReceipt();setIdentifier('Installment', '{{ $detail->invdtl_id }}');setDefault('{{ $detail->invdtl_amount }}', '{{ $detail->invdtl_amountidr }}')">
+                                    <i class="bi bi-plus"></i> Receipt
                                 </button>
-                            </a>
-                        @else
-                            @if (!isset($invoice->refund) && $clientProg->status != 3)
-                            <button class="btn btn-sm btn-outline-primary py-1" style="font-size: 11px" data-bs-toggle="modal"
-                            data-bs-target="#addReceipt" onclick="checkReceipt();setIdentifier('Installment', '{{ $detail->invdtl_id }}');setDefault('{{ $detail->invdtl_amount }}', '{{ $detail->invdtl_amountidr }}')">
-                                <i class="bi bi-plus"></i> Receipt
-                            </button>
+                                @endif
                             @endif
-                        @endif
+                        </div>
                     </div>
                 </div>
 
