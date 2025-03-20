@@ -7,29 +7,42 @@ use App\Http\Requests\Payment\GenerateLinkRequest;
 use App\Http\Traits\BankCodeTrait;
 use App\Http\Traits\RandomDigitTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Interfaces\ClientProgramRepositoryInterface;
+use App\Interfaces\ReceiptRepositoryInterface;
 use App\Models\InvDetail;
 use App\Models\InvoiceProgram;
 use App\Models\Transaction;
 use App\Services\Log\LogService;
+use App\Services\Receipt\ReceiptService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Riskihajar\Terbilang\Facades\Terbilang;
 
 class PaymentGatewayController extends Controller
 {
     use BankCodeTrait, RandomDigitTrait, StandardizePhoneNumberTrait;
 
     protected $log_service;
+    protected ClientProgramRepositoryInterface $clientProgramRepository;
+    protected ReceiptRepositoryInterface $receiptRepository;
 
-    public function __construct(LogService $log_service)
+    public function __construct(
+        LogService $log_service, 
+        ClientProgramRepositoryInterface $clientProgramRepository,
+        ReceiptRepositoryInterface $receiptRepository
+        )
     {
         $this->log_service = $log_service;
+        $this->clientProgramRepository = $clientProgramRepository;
+        $this->receiptRepository = $receiptRepository;
     }
 
     public function redirectPayment(Request $request)
@@ -51,11 +64,14 @@ class PaymentGatewayController extends Controller
     {
         $validated = $request->safe()->only(['payment_method', 'bank', 'installment', 'id']);
         $payment_method = $validated['payment_method'];
+        $va_fee = $payment_method == "VA" ? 4000 : 0;
         $bank_name = $validated['bank'];
         $bank_id = $this->getCodeBank($bank_name);
         $installment = $validated['installment'];
         $identifier = $validated['id'];
         $trx_currency = 'IDR';
+
+        # need validation to prevent payment link generated twice
 
         $invoice_id = $invoice_dtl_id = null;
         if ( $installment == 1 )
@@ -86,18 +102,19 @@ class PaymentGatewayController extends Controller
         $parent_address = $client->parents->count() > 0 ? $client->parents[0]->address : $client->address;
 
         $trx_id = $this->tnRandomDigit();
+        $merchant_ref_no = (string) $parent_number . $trx_id;
         
         # create request body
         $request_body = [
             'merchant_key_id' => env('MERCHANT_KEY_ID'),
             'merchant_id' => env('MERCHANT_ID'),
-            'merchant_ref_no' => (string) $parent_number ."7",
+            'merchant_ref_no' => $merchant_ref_no,
             'backend_callback_url' => env('PAYMENT_BACKEND_CALLBACK_URI'),
             'frontend_callback_url' => env('PAYMENT_FRONTEND_CALLBACK_URI'),
             'transaction_date_time' => Carbon::now()->format('Y-m-d H:i:s.v O'),
             'transmission_date_time' => Carbon::now()->format('Y-m-d H:i:s.v O'),
             'transaction_currency' => $trx_currency,
-            'transaction_amount' => $trx_amount + 4000,
+            'transaction_amount' => $trx_amount + $va_fee,
             'product_details' => json_encode([[
                 'item_code' => $trx_id,
                 'item_title' => $product_name,
@@ -121,14 +138,17 @@ class PaymentGatewayController extends Controller
             'invoice_number' => $invoice_number,
             'integration_type' => '01',
             'payment_method' => $payment_method,
-            'other_bills' => json_encode([[
-                'title' => 'admin fee',
-                'value' => 4000,
-            ]]),
             'bank_id' => $bank_id,
             'external_id' => (string) $trx_id
         ];
-        // dd($request_body);
+
+        if ($payment_method == "VA")
+        {
+            $request_body['other_bills'] = json_encode([[
+                'title' => 'admin fee',
+                'value' => $va_fee,
+            ]]);
+        }
 
         $response = Http::withHeaders([
             'mac' => hash_hmac('sha256', json_encode($request_body), env('PAYMENT_SECRET_KEY')),
@@ -156,6 +176,7 @@ class PaymentGatewayController extends Controller
             'bank_name' => $va_number_list->bank,
             'payment_page_url' => $response['payment_page_url'],
             'va_number' => $va_number_list->va,
+            'merchant_ref_no' => $merchant_ref_no,
             'plink_ref_no' => $response['plink_ref_no'],
             'validity' => Carbon::parse($response['validity']),
             'payment_status' => $response['transaction_status']
@@ -179,8 +200,56 @@ class PaymentGatewayController extends Controller
         ]);
     }
 
-    public function callback(Request $request)
+    public function callback(
+        Request $request,
+        ReceiptService $receipt_service,
+        LogService $log_service,
+        )
     {
         Log::debug('Callback triggered', $request->all());
+        $payment_ref_no = $request->payment_ref_no;
+        $merchant_ref_no = $request->merchant_ref_no;
+        $payment_status = $request->payment_status;
+
+        DB::beginTransaction();
+        try {
+            # update transaction status
+            $transaction = tap(Transaction::where('merchant_ref_no', $merchant_ref_no))->update(['payment_status' => $payment_status]);
+
+            # get client_prog eloquent
+            $invoice_model = $transaction->invoice_id === null ? InvDetail::query() : InvoiceProgram::query();
+            $client_prog_model = $transaction->invoice_id === null ? $invoice_model->invoiceProgram->clientprog : $invoice_model->clientprog;
+            $client_prog = $this->clientProgramRepository->getClientProgramById($client_prog_model->clientprog_id);
+
+            # if payment is SETLD 
+            # it has to trigger to generate receipt as well
+            if ( $payment_status == "SETLD" )
+            {
+                $is_child_program_bundle = $client_prog->bundlingDetail()->count();
+                $receipt_details = [
+                    'receipt_id' => $receipt_service->generateReceiptId(['receipt_date' => $request->payment_date], $client_prog, $is_child_program_bundle),
+                    'rec_currency' => 'IDR', # by default it would be IDR
+                    'receipt_amount' => null,
+                    'receipt_amount_idr' => $request->transaction_amount,
+                    'receipt_date' => $request->payment_date,
+                    'receipt_words' => null,
+                    'receipt_words_idr' => Terbilang::make($request->transaction_amount) . ' rupiah only',
+                    'receipt_method' => $request->payment_method,
+                    'receipt_cheque' => null,
+                    'receipt_cat' => 'student', # by default it would be student
+                    'created_at' => $request->payment_date,
+                ];
+
+                $receipt_created = $this->receiptRepository->createReceipt($receipt_details);
+            }
+            DB::commit();
+        } catch (Exception $err) {
+            DB::rollBack();
+            $log_service->createErrorLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, $err->getMessage(), $err->getLine(), $err->getFile(), $receipt_details);
+            return false;
+        }
+
+        $this->log_service->createSuccessLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, 'Receipt created successfully', $receipt_created->toArray());
+        return true;
     }
 }

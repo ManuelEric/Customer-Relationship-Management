@@ -377,6 +377,12 @@ enum LogModule: string
     case DELETE_INVOICE_SCHOOL = '[DELETE INVOICE SCHOOL]';
 
     /**
+     * Receipt 
+     */
+    case STORE_RECEIPT_PROGRAM = '[STORE RECEIPT PROGRAM]';
+    case STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA = '[STORE RECEIPT PROGRAM FROM PAYMENT GA]';
+
+    /**
      * Report
      */
     case REPORT_SALES_TRACKING = '[SALES TRACKING]';

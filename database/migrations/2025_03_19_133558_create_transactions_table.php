@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('bank_name')->nullable();
             $table->text('payment_page_url');
             $table->string('va_number');
+            $table->string('merchant_ref_no');
             $table->string('plink_ref_no');
             $table->timestamp('validity');
             $table->enum('payment_status', ['SETLD', 'REJEC', 'PNDNG'])->comment('settled, rejected, pending')->default('PNDNG');
