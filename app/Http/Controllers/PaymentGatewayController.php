@@ -19,6 +19,7 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class PaymentGatewayController extends Controller
 {
@@ -178,8 +179,8 @@ class PaymentGatewayController extends Controller
         ]);
     }
 
-    public function callback()
+    public function callback(Request $request)
     {
-
+        Log::debug('Callback triggered', $request->all());
     }
 }
