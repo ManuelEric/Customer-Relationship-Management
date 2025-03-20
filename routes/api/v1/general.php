@@ -165,5 +165,7 @@ Route::middleware(['throttle:120,1'])->group(function () {
         Route::post('callback/facebook', [V1APICallbackController::class, 'read_lead']);
 
         # payment gateway
+        Route::get('generate/payment/link/{payment_method}', [PaymentGatewayController::class, 'redirectPayment'])->name('redirect.payment.link');
         Route::post('generate/payment/link/{payment_method}', [PaymentGatewayController::class, 'generateLink'])->name('generate.payment.link');
+        Route::post('payment/callback', [PaymentGatewayController::class, 'callback']);
 });

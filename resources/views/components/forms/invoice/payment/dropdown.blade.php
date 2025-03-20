@@ -5,11 +5,11 @@
             Payment Link
         </button>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" style="font-size: 11px">
-            <li><a class="dropdown-item" href="{{ route('generate.payment.link', ['payment_method' => 'CC', 'installment' => $installment, 'id' => $id]) }}">Credit Card</a></li>
-            <li><a class="dropdown-item" href="{{ route('generate.payment.link', ['payment_method' => 'VA', 'bank' => 'BCA', 'installment' => $installment, 'id' => $id]) }}">Virtual Account - BCA</a></li>
-            <li><a class="dropdown-item" href="{{ route('generate.payment.link', ['payment_method' => 'VA', 'bank' => 'BRI', 'installment' => $installment, 'id' => $id]) }}">Virtual Account - BRI</a></li>
-            <li><a class="dropdown-item" href="{{ route('generate.payment.link', ['payment_method' => 'VA', 'bank' => 'NIAGA', 'installment' => $installment, 'id' => $id]) }}">Virtual Account - CIMB NIAGA</a></li>
-            <li><a class="dropdown-item" href="{{ route('generate.payment.link', ['payment_method' => 'VA', 'bank' => 'MANDIRI', 'installment' => $installment, 'id' => $id]) }}">Virtual Account - MANDIRI</a></li>
+            <li><a class="dropdown-item" href="{{ route('redirect.payment.link', ['payment_method' => 'CC', 'installment' => $installment, 'id' => $id]) }}">Credit Card</a></li>
+            <li><a class="dropdown-item" href="{{ route('redirect.payment.link', ['payment_method' => 'VA', 'bank' => 'BCA', 'installment' => $installment, 'id' => $id]) }}">Virtual Account - BCA</a></li>
+            <li><a class="dropdown-item" href="{{ route('redirect.payment.link', ['payment_method' => 'VA', 'bank' => 'BRI', 'installment' => $installment, 'id' => $id]) }}">Virtual Account - BRI</a></li>
+            <li><a class="dropdown-item" href="{{ route('redirect.payment.link', ['payment_method' => 'VA', 'bank' => 'NIAGA', 'installment' => $installment, 'id' => $id]) }}">Virtual Account - CIMB NIAGA</a></li>
+            <li><a class="dropdown-item" href="{{ route('redirect.payment.link', ['payment_method' => 'VA', 'bank' => 'MANDIRI', 'installment' => $installment, 'id' => $id]) }}">Virtual Account - MANDIRI</a></li>
         </ul>
     </div>
 </div>
