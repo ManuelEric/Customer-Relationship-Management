@@ -206,7 +206,6 @@ class PaymentGatewayController extends Controller
         LogService $log_service,
         )
     {
-        Log::debug('Callback triggered', $request->all());
         $payment_ref_no = $request->payment_ref_no;
         $merchant_ref_no = $request->merchant_ref_no;
         $payment_status = $request->payment_status;
@@ -239,13 +238,14 @@ class PaymentGatewayController extends Controller
                     'receipt_cat' => 'student', # by default it would be student
                     'created_at' => $request->payment_date,
                 ];
+                Log::debug('receipt details', $receipt_details);
 
                 $receipt_created = $this->receiptRepository->createReceipt($receipt_details);
             }
             DB::commit();
         } catch (Exception $err) {
             DB::rollBack();
-            $log_service->createErrorLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, $err->getMessage(), $err->getLine(), $err->getFile(), $receipt_details);
+            $log_service->createErrorLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, $err->getMessage(), $err->getLine(), $err->getFile(), $request->all());
             return false;
         }
 
