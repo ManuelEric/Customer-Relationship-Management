@@ -464,4 +464,9 @@ enum LogModule: string
      * Mentee Update
      */
     case UPDATE_MENTEE_GDRIVE = '[UPDATE MENTEE GDRIVE]';
+
+    /**
+     * Payment Link
+     */
+    case CREATE_PAYMENT_LINK = '[CREATE PAYMENT LINK]';
 }

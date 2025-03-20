@@ -1306,6 +1306,8 @@
             $("#invoice-form").submit()
 
 
+            /* create payment */
+            
         })
     </script>
 @endsection
