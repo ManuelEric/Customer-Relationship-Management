@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Transaction extends Model
 {
     
+    protected $primary = 'trx_id';
+
     protected $fillable = [
         'trx_id',
         'invoice_id',
