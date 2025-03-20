@@ -218,7 +218,7 @@ class PaymentGatewayController extends Controller
             $transaction->save();
 
             # get client_prog eloquent
-            $invoice_model = $transaction->invoice_id === null ? InvDetail::query() : InvoiceProgram::query();
+            $invoice_model = $transaction->invoice_id === null ? InvDetail::find($transaction->installment_id) : InvoiceProgram::find($transaction->invoice_id);
             $client_prog_model = $transaction->invoice_id === null ? $invoice_model->invoiceProgram->clientprog : $invoice_model->clientprog;
             $client_prog = $this->clientProgramRepository->getClientProgramById($client_prog_model->clientprog_id);
 
