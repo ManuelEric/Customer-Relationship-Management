@@ -213,7 +213,9 @@ class PaymentGatewayController extends Controller
         DB::beginTransaction();
         try {
             # update transaction status
-            $transaction = tap(Transaction::where('merchant_ref_no', $merchant_ref_no))->update(['payment_status' => $payment_status]);
+            $transaction = Transaction::where('merchant_ref_no', $merchant_ref_no)->first();
+            $transaction->payment_status = $payment_status;
+            $transaction->save();
 
             # get client_prog eloquent
             $invoice_model = $transaction->invoice_id === null ? InvDetail::query() : InvoiceProgram::query();
