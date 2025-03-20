@@ -229,18 +229,19 @@ class PaymentGatewayController extends Controller
                 $is_child_program_bundle = $client_prog->bundlingDetail()->count();
                 $receipt_details = [
                     'receipt_id' => $receipt_service->generateReceiptId(['receipt_date' => $request->payment_date], $client_prog, $is_child_program_bundle),
+                    'inv_id' => $invoice_model->inv_id,
+                    'invdtl_id' => $transaction->installment_id,
                     'rec_currency' => 'IDR', # by default it would be IDR
                     'receipt_amount' => null,
                     'receipt_amount_idr' => $request->transaction_amount,
                     'receipt_date' => $request->payment_date,
                     'receipt_words' => null,
-                    'receipt_words_idr' => Terbilang::make($request->transaction_amount) . ' rupiah only',
+                    'receipt_words_idr' => ucfirst(str_replace(',' ,'', Terbilang::make($request->transaction_amount))) . ' Rupiah',
                     'receipt_method' => $request->payment_method,
                     'receipt_cheque' => null,
                     'receipt_cat' => 'student', # by default it would be student
                     'created_at' => $request->payment_date,
                 ];
-                Log::debug('receipt details', $receipt_details);
 
                 $receipt_created = $this->receiptRepository->createReceipt($receipt_details);
             }
