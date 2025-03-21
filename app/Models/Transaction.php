@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Transaction extends Model
 {
     
+    protected $primaryKey  = 'trx_id';
+    public $incrementing = false;
+
     protected $fillable = [
         'trx_id',
         'invoice_id',
@@ -20,6 +23,7 @@ class Transaction extends Model
         'bank_name',
         'payment_page_url',
         'va_number',
+        'merchant_ref_no',
         'plink_ref_no',
         'validity',
         'payment_status'
