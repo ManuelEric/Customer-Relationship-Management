@@ -89,7 +89,7 @@
                 <div class="col-md-2">
                     <label for="">Percentage (%) <sup class="text-danger">*</sup></label>
                     <input type="text" name="invdtl_percentage_other[]" id="percentage_other_0"
-                        class="form-control form-control-sm percentage-other" onchange="checkPercentageOther('{{ $i }}')">
+                        class="form-control form-control-sm percentage-other" onchange="checkPercentageOther('0')">
                     @error('invdtl_percentage_other')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
@@ -99,7 +99,7 @@
                         <div class="">
                             Amount <sup class="text-danger">*</sup>
                         </div>
-                        <div class="cursor-pointer" onclick="removeInstallmentOther('{{ $i }}')">
+                        <div class="cursor-pointer" onclick="removeInstallmentOther('0')">
                             <i class="bi bi-trash2 text-danger"></i>
                         </div>
                     </div>
@@ -107,7 +107,7 @@
                         <span class="input-group-text currency-icon" id="basic-addon1">
                             $
                         </span>
-                        <input type="number" name="invdtl_amount_other[]" class="form-control amount-other" id="amount_other_{{ $i }}" onchange="checkAmountOther('{{ $i }}')">
+                        <input type="number" name="invdtl_amount_other[]" class="form-control amount-other" id="amount_other_0" onchange="checkAmountOther('0')">
                     </div>
                     @error('invdtl_amount_other')
                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -116,7 +116,7 @@
                         <span class="input-group-text" id="basic-addon1">
                             Rp
                         </span>
-                        <input type="number" name="invdtl_amountidr_other[]" class="form-control amount-other-idr" id="amount_other_idr_{{ $i }}" onchange="checkAmount('{{ $i }}')">
+                        <input type="number" name="invdtl_amountidr_other[]" class="form-control amount-other-idr" id="amount_other_idr_0" onchange="checkAmount('0')">
                     </div>
                     @error('invdtl_amountidr_other')
                         <small class="text-danger fw-light">{{ $message }}</small>
