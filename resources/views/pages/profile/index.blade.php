@@ -12,7 +12,7 @@
 @endpush
 
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('index') }}">Your profile</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('profile.index') }}">Your profile</a></li>
     <li class="breadcrumb-item active" aria-current="page">Change Password</li>
 @endsection
 

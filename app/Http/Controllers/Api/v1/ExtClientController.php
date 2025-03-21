@@ -23,6 +23,7 @@ use App\Interfaces\SchoolRepositoryInterface;
 use App\Jobs\Client\ProcessInsertLogClient;
 use App\Models\ClientEvent;
 use App\Models\Event;
+use App\Models\Phase;
 use App\Models\School;
 use App\Models\UserClient;
 use App\Repositories\ProgramRepository;
@@ -2323,5 +2324,37 @@ class ExtClientController extends Controller
         return response()->json([
             'message' => 'Mentee gdrive has been updated'
         ]);
+    }
+
+    public function fnGetPackagesBoughtByMentee(
+        UserCLient $user_client        
+        )
+    {
+        try {
+            $mapped_packages_bought = [];
+            $packages_bought = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->has('phase_detail')->get();
+
+            if(count($packages_bought) > 0){
+
+                $mapped_packages_bought = $packages_bought->map(function($item){
+
+                    $mapped_phase_detail = $item->phase_detail->map(function($item) {
+                        return [
+                            'phase_detail_name' => $item->phase_detail_name,
+                            'allocate' => $item->pivot->quota
+                        ];
+                    });
+                    return $mapped_phase_detail;
+                });
+                
+            }
+
+            return response()->json($mapped_packages_bought);
+        } catch (Exception $err) {
+
+            throw new HttpResponseException(
+                response()->json(['errors' => 'Failed to get packages bought'], JsonResponse::HTTP_BAD_REQUEST)
+            );
+        }
     }
 }
