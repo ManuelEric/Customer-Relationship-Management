@@ -119,7 +119,7 @@ class AppServiceProvider extends ServiceProvider
                         }
                     }
     
-                    $cacheMenu = Cache::put('menu', $this->checkRoles($user, $collection));
+                    $cacheMenu = Cache::pull('menu', $this->checkRoles($user, $collection));
                     $cacheRoleScopeData = $cacheMenu;
                 }else{
                     $cacheRoleScopeData = Cache::get('menu');
