@@ -674,6 +674,27 @@
         </div>
     </div>
 
+    <!-- Modal -->
+    <div class="modal fade" id="payment-ga-container-link" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>&nbsp;</span>
+                <i class="bi bi-pencil-square"></i>
+            </div>
+            <div class="modal-body">
+                <label for="">
+                    Payment Link
+                </label>
+                <div class="input-group flex-nowrap">
+                    <input type="text" class="form-control form-control-sm" id="payment-ga-link" readonly>
+                    <span class="input-group-text" id="copy-clipboard"><i class="bi bi-clipboard"></i></span>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
     {{-- @if ($clientProg->client->parents->count() > 0) --}}
     <div class="modal fade" id="sendToClientModal" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -1305,9 +1326,45 @@
             // }
             $("#invoice-form").submit()
 
-
-            /* create payment */
-            
         })
+
+        $(".btn-generate-payment").each(function () {
+            $(this).click(function () {
+
+                showLoading();
+
+                const payment_method = $(this).data('pmethod');
+                const bank_name = $(this).data('bname');
+                const installment = $(this).parents().eq(1).data('installment');
+                const id = $(this).parents().eq(1).data('index');
+
+                const target_uri = "{{ url('/') }}/api/v1/generate/payment/link/" + payment_method;
+                axios.post(target_uri, {
+                    payment_method : payment_method,
+                    bank : bank_name,
+                    installment : installment,
+                    id : id
+                })
+                .then(function (response) {
+                    Swal.close();
+                    $("#payment-ga-container-link").modal('show');
+                    $("#payment-ga-link").val(response.data.payment_link)
+                })
+                .catch(function (error) {
+                    Swal.close()
+                    notification('error', error)
+                })
+            })
+        });
+
+        $("#copy-clipboard").on('click', function () {
+            var copyText = $("#payment-ga-link");
+            copyText.select();
+            navigator.clipboard.writeText(copyText.val())
+            
+            $(this).html('<i class="bi bi-clipboard-check"></i>');
+
+            notification('info', 'Payment link copied');
+        });
     </script>
 @endsection

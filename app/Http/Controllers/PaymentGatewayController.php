@@ -21,6 +21,7 @@ use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -71,7 +72,7 @@ class PaymentGatewayController extends Controller
         $identifier = $validated['id'];
         $trx_currency = 'IDR';
 
-        # need validation to prevent payment link generated twice
+        //! need validation to prevent payment link generated twice if the bills has already paid
 
         $invoice_id = $invoice_dtl_id = null;
         if ( $installment == 1 )
@@ -156,10 +157,17 @@ class PaymentGatewayController extends Controller
         post(env('PAYMENT_API_URI') . '/payment/integration/transaction/api/submit-trx', $request_body)->
         throw(function (Response $response, RequestException $err) use ($request_body) {
             $this->log_service->createErrorLog(LogModule::CREATE_PAYMENT_LINK, $err->getMessage(), $err->getLine(), $err->getFile(), $request_body);
+            throw new HttpResponseException(
+                response()->json($err->getMessage(), JsonResponse::HTTP_BAD_REQUEST)
+            );
         })->json();
 
         if ( $response['response_code'] != "PL000" )
-            throw new Exception($response['response_message']);
+        {
+            throw new HttpResponseException(
+                response()->json($response['response_message'], JsonResponse::HTTP_BAD_REQUEST)
+            );
+        }
 
         $va_number_list = json_decode($response['va_number_list'])[0];
     
@@ -191,12 +199,13 @@ class PaymentGatewayController extends Controller
             $this->log_service->createErrorLog(LogModule::CREATE_PAYMENT_LINK, $err->getMessage(), $err->getLine(), $err->getFile(), $trx_detail_to_store);
             return response()->json([
                 'response_description' => 'ERR',
-            ]);
+            ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $this->log_service->createSuccessLog(LogModule::CREATE_PAYMENT_LINK, 'Payment link created successfully', $trx->toArray());
         return response()->json([
-            'response_description' => 'SUCCESS'
+            'response_description' => 'SUCCESS',
+            'payment_link' => env('PAYMENT_WEB_URI').$response['payment_page_url']
         ]);
     }
 
