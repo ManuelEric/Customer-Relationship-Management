@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('bank_id')->nullable();
             $table->string('bank_name')->nullable();
             $table->text('payment_page_url');
-            $table->string('va_number');
+            $table->string('va_number')->nullable();
             $table->string('merchant_ref_no');
             $table->string('plink_ref_no');
             $table->timestamp('validity');

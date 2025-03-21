@@ -66,8 +66,8 @@ class PaymentGatewayController extends Controller
         $validated = $request->safe()->only(['payment_method', 'bank', 'installment', 'id']);
         $payment_method = $validated['payment_method'];
         $va_fee = $payment_method == "VA" ? 4000 : 0;
-        $bank_name = $validated['bank'];
-        $bank_id = $this->getCodeBank($bank_name);
+        $bank_name = $validated['bank'] ?? null;
+        $bank_id = $bank_name ? $this->getCodeBank($bank_name) : null;
         $installment = $validated['installment'];
         $identifier = $validated['id'];
         $trx_currency = 'IDR';
@@ -140,7 +140,11 @@ class PaymentGatewayController extends Controller
             'integration_type' => '01',
             'payment_method' => $payment_method,
             'bank_id' => $bank_id,
-            'external_id' => (string) $trx_id
+            'external_id' => (string) $trx_id,
+            'other_bills' => json_encode([[
+                'title' => 'admin fee',
+                'value' => 0
+            ]])
         ];
 
         if ($payment_method == "VA")
@@ -169,8 +173,7 @@ class PaymentGatewayController extends Controller
             );
         }
 
-        $va_number_list = json_decode($response['va_number_list'])[0];
-    
+
         $trx_detail_to_store = [
             'trx_id' => $trx_id,
             'invoice_id' => $invoice_id,
@@ -180,15 +183,24 @@ class PaymentGatewayController extends Controller
             'trx_amount' => $trx_amount,
             'item_title' => $product_name,
             'payment_method' => $payment_method,
-            'bank_id' => $va_number_list->bank_id,
-            'bank_name' => $va_number_list->bank,
+            'bank_id' => null,
+            'bank_name' => null,
             'payment_page_url' => $response['payment_page_url'],
-            'va_number' => $va_number_list->va,
+            'va_number' => null,
             'merchant_ref_no' => $merchant_ref_no,
             'plink_ref_no' => $response['plink_ref_no'],
             'validity' => Carbon::parse($response['validity']),
             'payment_status' => $response['transaction_status']
         ];
+
+        if ($payment_method == "VA")
+        {
+            $va_number_list = json_decode($response['va_number_list'])[0];
+            $trx_detail_to_store['bank_id'] = $va_number_list->bank_id;
+            $trx_detail_to_store['bank_name'] = $va_number_list->bank;
+            $trx_detail_to_store['va_number'] = $va_number_list->va;
+        }
+        
 
         DB::beginTransaction();
         try {    
