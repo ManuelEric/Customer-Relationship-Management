@@ -69,6 +69,7 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => 365,
             'permission' => 0777,
+            'tap' => [\App\Logging\LogInjector::class]
         ],
 
         'slack' => [

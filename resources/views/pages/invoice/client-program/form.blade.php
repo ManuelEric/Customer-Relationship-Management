@@ -323,10 +323,16 @@
                     <div class="">
                         {{-- @if ($invoice === null && isset($invoice->receipt)) --}}
                         @if (isset($invoice) && $invoice->inv_paymentmethod == 'Full Payment' && !isset($invoice->receipt))
-                            <button class="btn btn-sm btn-outline-primary py-1"
-                                onclick="checkReceipt();setIdentifier('Full Payment', '{{ $invoice->id }}');setDefault('{{ $invoice->inv_totalprice }}', '{{ $invoice->inv_totalprice_idr }}')">
-                                <i class="bi bi-plus"></i> Receipt
-                            </button>
+                            @php
+                                $invoice_id_inc = $invoice->id;
+                            @endphp
+                            <div class="d-flex justify-content-end">
+                                <x-forms.invoice.payment.dropdown :installment=false :id=$invoice_id_inc />
+                                <button class="btn btn-sm btn-outline-primary py-1"
+                                    onclick="checkReceipt();setIdentifier('Full Payment', '{{ $invoice->id }}');setDefault('{{ $invoice->inv_totalprice }}', '{{ $invoice->inv_totalprice_idr }}')">
+                                    <i class="bi bi-plus"></i> Receipt
+                                </button>
+                            </div>
                         @endif
                         @if (isset($invoice->receipt) && $invoice->inv_paymentmethod == 'Full Payment')
                             <a href="{{ route('receipt.client-program.show', ['receipt' => $invoice->receipt->id]) }}">
@@ -671,6 +677,27 @@
                     </form>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="payment-ga-container-link" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Generated Payment Link</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <label for="">
+                    Payment Link
+                </label>
+                <div class="input-group flex-nowrap">
+                    <input type="text" class="form-control form-control-sm" id="payment-ga-link" readonly>
+                    <span class="input-group-text" id="copy-clipboard"><i class="bi bi-clipboard"></i></span>
+                </div>
+            </div>
+        </div>
         </div>
     </div>
 
@@ -1305,7 +1332,44 @@
             // }
             $("#invoice-form").submit()
 
-
         })
+
+        $(".btn-generate-payment").each(function () {
+            $(this).click(function () {
+
+                showLoading();
+                const payment_method = $(this).data('pmethod');
+                const bank_name = $(this).data('bname');
+                const installment = $(this).parents().eq(1).data('installment');
+                const id = $(this).parents().eq(1).data('index');
+
+                const target_uri = "{{ url('/') }}/api/v1/generate/payment/link/" + payment_method;
+                axios.post(target_uri, {
+                    payment_method : payment_method,
+                    bank : bank_name,
+                    installment : installment,
+                    id : id
+                })
+                .then(function (response) {
+                    Swal.close();
+                    $("#payment-ga-container-link").modal('show');
+                    $("#payment-ga-link").val(response.data.payment_link)
+                })
+                .catch(function (error) {
+                    Swal.close()
+                    notification('error', error)
+                })
+            })
+        });
+
+        $("#copy-clipboard").on('click', function () {
+            var copyText = $("#payment-ga-link");
+            copyText.select();
+            navigator.clipboard.writeText(copyText.val())
+            
+            $(this).html('<i class="bi bi-clipboard-check"></i>');
+
+            notification('info', 'Payment link copied');
+        });
     </script>
 @endsection
