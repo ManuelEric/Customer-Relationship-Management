@@ -44,6 +44,7 @@ Route::middleware(['throttle:120,1'])->group(function () {
     Route::get('get/mentee/{user_client}', [ExtClientController::class, 'fnGetMenteeDetails']);
     Route::get('get/mentee/{user_client}/mentors', [ExtClientController::class, 'fnGetMentorsByMentee']);
     Route::get('get/mentee/{user_client}/programs', [ExtClientController::class, 'fnGetJoinedProgramsByMentee']);
+    Route::get('get/mentee/{user_client}/packages-bought', [ExtClientController::class, 'fnGetPackagesBoughtByMentee']);
 
 
     # try to use header fields for carrying the mentor ID information
