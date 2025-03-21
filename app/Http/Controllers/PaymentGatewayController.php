@@ -34,6 +34,7 @@ class PaymentGatewayController extends Controller
     protected $log_service;
     protected ClientProgramRepositoryInterface $clientProgramRepository;
     protected ReceiptRepositoryInterface $receiptRepository;
+    protected $admin_fee;
 
     public function __construct(
         LogService $log_service, 
@@ -44,6 +45,7 @@ class PaymentGatewayController extends Controller
         $this->log_service = $log_service;
         $this->clientProgramRepository = $clientProgramRepository;
         $this->receiptRepository = $receiptRepository;
+        $this->admin_fee = 4000;
     }
 
     public function redirectPayment(Request $request)
@@ -65,7 +67,7 @@ class PaymentGatewayController extends Controller
     {
         $validated = $request->safe()->only(['payment_method', 'bank', 'installment', 'id']);
         $payment_method = $validated['payment_method'];
-        $va_fee = $payment_method == "VA" ? 4000 : 0;
+        $va_fee = $payment_method == "VA" ? $this->admin_fee : 0;
         $bank_name = $validated['bank'] ?? null;
         $bank_id = $bank_name ? $this->getCodeBank($bank_name) : null;
         $installment = $validated['installment'];
@@ -247,6 +249,10 @@ class PaymentGatewayController extends Controller
             # it has to trigger to generate receipt as well
             if ( $payment_status == "SETLD" )
             {
+                $transaction_amount = $request->transaction_amount;
+                if ( $transaction->payment_method == "VA" )
+                    $transaction_amount -= $this->admin_fee;
+
                 $is_child_program_bundle = $client_prog->bundlingDetail()->count();
                 $receipt_details = [
                     'receipt_id' => $receipt_service->generateReceiptId(['receipt_date' => $request->payment_date], $client_prog, $is_child_program_bundle),
@@ -254,10 +260,10 @@ class PaymentGatewayController extends Controller
                     'invdtl_id' => $transaction->installment_id,
                     'rec_currency' => 'IDR', # by default it would be IDR
                     'receipt_amount' => null,
-                    'receipt_amount_idr' => $request->transaction_amount,
+                    'receipt_amount_idr' => $transaction_amount,
                     'receipt_date' => $request->payment_date,
                     'receipt_words' => null,
-                    'receipt_words_idr' => ucfirst(str_replace(',' ,'', Terbilang::make($request->transaction_amount))) . ' Rupiah',
+                    'receipt_words_idr' => ucfirst(str_replace(',' ,'', Terbilang::make($transaction_amount))) . ' Rupiah',
                     'receipt_method' => $request->payment_method,
                     'receipt_cheque' => null,
                     'receipt_cat' => 'student', # by default it would be student

@@ -323,10 +323,16 @@
                     <div class="">
                         {{-- @if ($invoice === null && isset($invoice->receipt)) --}}
                         @if (isset($invoice) && $invoice->inv_paymentmethod == 'Full Payment' && !isset($invoice->receipt))
-                            <button class="btn btn-sm btn-outline-primary py-1"
-                                onclick="checkReceipt();setIdentifier('Full Payment', '{{ $invoice->id }}');setDefault('{{ $invoice->inv_totalprice }}', '{{ $invoice->inv_totalprice_idr }}')">
-                                <i class="bi bi-plus"></i> Receipt
-                            </button>
+                            @php
+                                $invoice_id_inc = $invoice->id;
+                            @endphp
+                            <div class="d-flex justify-content-end">
+                                <x-forms.invoice.payment.dropdown :installment=false :id=$invoice_id_inc />
+                                <button class="btn btn-sm btn-outline-primary py-1"
+                                    onclick="checkReceipt();setIdentifier('Full Payment', '{{ $invoice->id }}');setDefault('{{ $invoice->inv_totalprice }}', '{{ $invoice->inv_totalprice_idr }}')">
+                                    <i class="bi bi-plus"></i> Receipt
+                                </button>
+                            </div>
                         @endif
                         @if (isset($invoice->receipt) && $invoice->inv_paymentmethod == 'Full Payment')
                             <a href="{{ route('receipt.client-program.show', ['receipt' => $invoice->receipt->id]) }}">
@@ -1332,7 +1338,6 @@
             $(this).click(function () {
 
                 showLoading();
-
                 const payment_method = $(this).data('pmethod');
                 const bank_name = $(this).data('bname');
                 const installment = $(this).parents().eq(1).data('installment');
