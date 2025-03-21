@@ -21,6 +21,7 @@ use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -33,6 +34,7 @@ class PaymentGatewayController extends Controller
     protected $log_service;
     protected ClientProgramRepositoryInterface $clientProgramRepository;
     protected ReceiptRepositoryInterface $receiptRepository;
+    protected $admin_fee;
 
     public function __construct(
         LogService $log_service, 
@@ -43,6 +45,7 @@ class PaymentGatewayController extends Controller
         $this->log_service = $log_service;
         $this->clientProgramRepository = $clientProgramRepository;
         $this->receiptRepository = $receiptRepository;
+        $this->admin_fee = 4000;
     }
 
     public function redirectPayment(Request $request)
@@ -64,14 +67,14 @@ class PaymentGatewayController extends Controller
     {
         $validated = $request->safe()->only(['payment_method', 'bank', 'installment', 'id']);
         $payment_method = $validated['payment_method'];
-        $va_fee = $payment_method == "VA" ? 4000 : 0;
-        $bank_name = $validated['bank'];
-        $bank_id = $this->getCodeBank($bank_name);
+        $va_fee = $payment_method == "VA" ? $this->admin_fee : 0;
+        $bank_name = $validated['bank'] ?? null;
+        $bank_id = $bank_name ? $this->getCodeBank($bank_name) : null;
         $installment = $validated['installment'];
         $identifier = $validated['id'];
         $trx_currency = 'IDR';
 
-        # need validation to prevent payment link generated twice
+        //! need validation to prevent payment link generated twice if the bills has already paid
 
         $invoice_id = $invoice_dtl_id = null;
         if ( $installment == 1 )
@@ -139,7 +142,11 @@ class PaymentGatewayController extends Controller
             'integration_type' => '01',
             'payment_method' => $payment_method,
             'bank_id' => $bank_id,
-            'external_id' => (string) $trx_id
+            'external_id' => (string) $trx_id,
+            'other_bills' => json_encode([[
+                'title' => 'admin fee',
+                'value' => 0
+            ]])
         ];
 
         if ($payment_method == "VA")
@@ -156,13 +163,19 @@ class PaymentGatewayController extends Controller
         post(env('PAYMENT_API_URI') . '/payment/integration/transaction/api/submit-trx', $request_body)->
         throw(function (Response $response, RequestException $err) use ($request_body) {
             $this->log_service->createErrorLog(LogModule::CREATE_PAYMENT_LINK, $err->getMessage(), $err->getLine(), $err->getFile(), $request_body);
+            throw new HttpResponseException(
+                response()->json($err->getMessage(), JsonResponse::HTTP_BAD_REQUEST)
+            );
         })->json();
 
         if ( $response['response_code'] != "PL000" )
-            throw new Exception($response['response_message']);
+        {
+            throw new HttpResponseException(
+                response()->json($response['response_message'], JsonResponse::HTTP_BAD_REQUEST)
+            );
+        }
 
-        $va_number_list = json_decode($response['va_number_list'])[0];
-    
+
         $trx_detail_to_store = [
             'trx_id' => $trx_id,
             'invoice_id' => $invoice_id,
@@ -172,15 +185,24 @@ class PaymentGatewayController extends Controller
             'trx_amount' => $trx_amount,
             'item_title' => $product_name,
             'payment_method' => $payment_method,
-            'bank_id' => $va_number_list->bank_id,
-            'bank_name' => $va_number_list->bank,
+            'bank_id' => null,
+            'bank_name' => null,
             'payment_page_url' => $response['payment_page_url'],
-            'va_number' => $va_number_list->va,
+            'va_number' => null,
             'merchant_ref_no' => $merchant_ref_no,
             'plink_ref_no' => $response['plink_ref_no'],
             'validity' => Carbon::parse($response['validity']),
             'payment_status' => $response['transaction_status']
         ];
+
+        if ($payment_method == "VA")
+        {
+            $va_number_list = json_decode($response['va_number_list'])[0];
+            $trx_detail_to_store['bank_id'] = $va_number_list->bank_id;
+            $trx_detail_to_store['bank_name'] = $va_number_list->bank;
+            $trx_detail_to_store['va_number'] = $va_number_list->va;
+        }
+        
 
         DB::beginTransaction();
         try {    
@@ -191,12 +213,13 @@ class PaymentGatewayController extends Controller
             $this->log_service->createErrorLog(LogModule::CREATE_PAYMENT_LINK, $err->getMessage(), $err->getLine(), $err->getFile(), $trx_detail_to_store);
             return response()->json([
                 'response_description' => 'ERR',
-            ]);
+            ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $this->log_service->createSuccessLog(LogModule::CREATE_PAYMENT_LINK, 'Payment link created successfully', $trx->toArray());
         return response()->json([
-            'response_description' => 'SUCCESS'
+            'response_description' => 'SUCCESS',
+            'payment_link' => env('PAYMENT_WEB_URI').$response['payment_page_url']
         ]);
     }
 
@@ -226,6 +249,10 @@ class PaymentGatewayController extends Controller
             # it has to trigger to generate receipt as well
             if ( $payment_status == "SETLD" )
             {
+                $transaction_amount = $request->transaction_amount;
+                if ( $transaction->payment_method == "VA" )
+                    $transaction_amount -= $this->admin_fee;
+
                 $is_child_program_bundle = $client_prog->bundlingDetail()->count();
                 $receipt_details = [
                     'receipt_id' => $receipt_service->generateReceiptId(['receipt_date' => $request->payment_date], $client_prog, $is_child_program_bundle),
@@ -233,10 +260,10 @@ class PaymentGatewayController extends Controller
                     'invdtl_id' => $transaction->installment_id,
                     'rec_currency' => 'IDR', # by default it would be IDR
                     'receipt_amount' => null,
-                    'receipt_amount_idr' => $request->transaction_amount,
+                    'receipt_amount_idr' => $transaction_amount,
                     'receipt_date' => $request->payment_date,
                     'receipt_words' => null,
-                    'receipt_words_idr' => ucfirst(str_replace(',' ,'', Terbilang::make($request->transaction_amount))) . ' Rupiah',
+                    'receipt_words_idr' => ucfirst(str_replace(',' ,'', Terbilang::make($transaction_amount))) . ' Rupiah',
                     'receipt_method' => $request->payment_method,
                     'receipt_cheque' => null,
                     'receipt_cat' => 'student', # by default it would be student
