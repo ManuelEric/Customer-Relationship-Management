@@ -31,7 +31,7 @@ class GenerateLinkRequest extends FormRequest
         return [
             'payment_method' => 'required|in:CC,VA',
             'bank' => 'required_if:payment_method,VA|in:BCA,BRI,NIAGA,MANDIRI',
-            'installment' => 'required',
+            'installment' => 'required|boolean',
             'id' => 'required'
         ];
     }
