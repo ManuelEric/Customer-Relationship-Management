@@ -35,7 +35,7 @@ Route::middleware('guest')->group(function () {
     
     Route::get('login', function () {
         return view('auth.login');
-    })->name('login')->withoutMiddleware('web');
+    })->name('login');
 
     Route::post('auth/login', [AuthController::class, 'login'])->name('login.action');
     Route::get('login/expired', [AuthController::class, 'logoutFromExpirationTime'])->name('logout.expiration');
@@ -44,7 +44,7 @@ Route::middleware('guest')->group(function () {
 
 
 Route::group(['middleware' => ['auth', 'auth.department']], function () {
-    Route::get('auth/logout', [AuthController::class, 'logout'])->name('logout')->withoutMiddleware('web');
+    Route::get('auth/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('dashboard/{division}', [DashboardController::class, 'index'])->name('index');
 

@@ -236,7 +236,7 @@ class PaymentGatewayController extends Controller
         DB::beginTransaction();
         try {
             # update transaction status
-            $transaction = Transaction::where('merchant_ref_no', $merchant_ref_no)->first();
+            $transaction = Transaction::where('merchant_ref_no', $merchant_ref_no)->firstOrFail();
             $transaction->payment_status = $payment_status;
             $transaction->save();
 

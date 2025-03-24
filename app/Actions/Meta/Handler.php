@@ -29,7 +29,7 @@ class Handler
     {
         $form_name = $form_details['name'];
         $prefix = $this->getPrefix($form_name);
-        if ( $prefix == 'NA') # prefix that supposed to be not
+        if ( $prefix == 'NA') # prefix that supposed to be not inserted to CRM
             return;
 
         $identifier = $this->getIdentifier($form_name);
