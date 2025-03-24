@@ -80,7 +80,7 @@ class RouteServiceProvider extends ServiceProvider
                     ->namespace($this->namespace)
                     ->group(base_path('routes/master.php'));
     
-                Route::middleware('web')
+                Route::middleware(['web', 'cache.headers'])
                     ->prefix('client')
                     ->namespace($this->namespace)
                     ->group(base_path('routes/client.php'));
