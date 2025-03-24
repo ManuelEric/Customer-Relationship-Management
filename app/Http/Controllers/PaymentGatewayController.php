@@ -69,7 +69,6 @@ class PaymentGatewayController extends Controller
     {
         $validated = $request->safe()->only(['payment_method', 'bank', 'installment', 'id']);
         $payment_method = $validated['payment_method'];
-        $va_fee = $payment_method == "VA" ? $this->admin_fee_va : $this->admin_fee_cc;
         $bank_name = $validated['bank'] ?? null;
         $bank_id = $bank_name ? $this->getCodeBank($bank_name) : null;
         $installment = $validated['installment'];
@@ -98,6 +97,8 @@ class PaymentGatewayController extends Controller
             $remarks = $invoice->clientprog->invoice_program_name;
         }
         
+        $va_fee = $payment_method == "VA" ? $this->admin_fee_va : $trx_amount*(2.8/100) + $this->admin_fee_cc;
+        
         $invoice_number = $invoice->inv_id;
         $parent_number = $client->parents->count() > 0 ? $client->parents[0]->secondary_id : $client->secondary_id;
         $parent_name = $client->parents->count() > 0 ? $client->parents[0]->full_name : $client->full_name;
@@ -109,9 +110,7 @@ class PaymentGatewayController extends Controller
         $trx_id = $this->tnRandomDigit();
         $merchant_ref_no = (string) $parent_number . $trx_id;
 
-        $total_transaction_with_fee = $payment_method == "VA" 
-            ? $trx_amount + $va_fee 
-            : $trx_amount + ($trx_amount*(2.8/100)) + $va_fee;
+        $total_transaction_with_fee = $trx_amount + $va_fee;
         
         # create request body
         $request_body = [
@@ -151,17 +150,9 @@ class PaymentGatewayController extends Controller
             'external_id' => (string) $trx_id,
             'other_bills' => json_encode([[
                 'title' => 'admin fee',
-                'value' => 0
+                'value' => round($va_fee)
             ]])
         ];
-
-        if ($payment_method == "VA")
-        {
-            $request_body['other_bills'] = json_encode([[
-                'title' => 'admin fee',
-                'value' => $va_fee,
-            ]]);
-        }
 
         Log::debug('Request to Prismalink', $request_body);
 
@@ -260,9 +251,16 @@ class PaymentGatewayController extends Controller
             # it has to trigger to generate receipt as well
             if ( $payment_status == "SETLD" )
             {
+                # store in Log if the client has paid more than it should be
+                if ( $request->transaction_amount != $transaction->trx_amount )
+                    Log::warning("Please double check the transaction no. ". $transaction->trx_id);
+
+
                 $transaction_amount = $request->transaction_amount;
                 if ( $transaction->payment_method == "VA" )
                     $transaction_amount -= $this->admin_fee_va;
+                else
+                    $transaction_amount -= $transaction->trx_amount*(2.8/100) + $this->admin_fee_cc;
 
                 $is_child_program_bundle = $client_prog->bundlingDetail()->count();
                 $receipt_details = [
