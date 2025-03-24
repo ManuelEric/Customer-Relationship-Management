@@ -17,6 +17,8 @@ return [
         'time' => '{HOUR} {SEPARATOR} {MINUTE} {MINUTE_LABEL} {SECOND} {SECOND_LABEL}',
     ],
 
+    'locale' => 'en',
+
     /*
     |--------------------------------------------------------------------------
     | Distance Between Date Output Format

@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('tbl_client_acceptance', function (Blueprint $table) {
-            $table->string('major_group')->nullable()->after('univ_id');
+        Schema::create('major_groups', function (Blueprint $table) {
+            $table->id();
+            $table->string('mg_name');
+            $table->timestamps();
         });
     }
 
@@ -21,8 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('tbl_client_acceptance', function (Blueprint $table) {
-            $table->dropColumn('major_group');
-        });
+        Schema::dropIfExists('major_groups');
     }
 };

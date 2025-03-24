@@ -16,7 +16,6 @@ class ExtClientProgramController extends Controller
         $mentor_uuid = $request->get('k');
         $requested_main_program_name = $request->route('main_program_name');
         [$main_program, $sub_program] = $this->tnGetMainProgramName($requested_main_program_name);
-
         
         $b2cPrograms = \App\Models\ClientProgram::
         with([

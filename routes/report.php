@@ -31,3 +31,6 @@ Route::get('unpaid', [ReportController::class, 'fnUnpaidPaymentReport'])->name('
 Route::get('program', [ReportController::class, 'fnProgramTracking'])->name('report.program.tracking');
 
 Route::get('lead', [ReportController::class, 'fnLeadTracking'])->name('report.lead');
+
+Route::get('lead/detail/', [ReportController::class, 'fnDetailLeadTracking'])->name('report.lead.detail');
+

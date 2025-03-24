@@ -42,6 +42,7 @@ use App\Interfaces\InvoicesRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\LeadTargetRepositoryInterface;
 use App\Interfaces\MainProgRepositoryInterface;
+use App\Interfaces\MajorGroupRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\MentorRepositoryInterface;
 use App\Interfaces\MenuRepositoryInterface;
@@ -127,6 +128,7 @@ use App\Repositories\InvoicesRepository;
 use App\Repositories\LeadRepository;
 use App\Repositories\LeadTargetRepository;
 use App\Repositories\MainProgRepository;
+use App\Repositories\MajorGroupRepository;
 use App\Repositories\MajorRepository;
 use App\Repositories\MentorRepository;
 use App\Repositories\MenuRepository;
@@ -265,6 +267,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(SubSectorRepositoryInterface::class, SubSectorRepository::class);
         $this->app->bind(ProgramPhaseRepositoryInterface::class, ProgramPhaseRepository::class);
         $this->app->bind(BankRepositoryInterface::class, BankRepository::class);
+        $this->app->bind(MajorGroupRepositoryInterface::class, MajorGroupRepository::class);
     }
 
     /**

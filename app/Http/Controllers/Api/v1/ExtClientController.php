@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Enum\LogModule;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\v1\UpdateMenteeGDriveRequest;
 use App\Http\Requests\Client\Registration\Public\PublicRegistrationRequest;
 use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
@@ -21,9 +23,11 @@ use App\Interfaces\SchoolRepositoryInterface;
 use App\Jobs\Client\ProcessInsertLogClient;
 use App\Models\ClientEvent;
 use App\Models\Event;
+use App\Models\Phase;
 use App\Models\School;
 use App\Models\UserClient;
 use App\Repositories\ProgramRepository;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
@@ -162,8 +166,9 @@ class ExtClientController extends Controller
         );
     }
 
-    public function getClientById(int $id)
+    public function getClientById(string $id)
     {
+        echo 'a';exit;
         $client = $this->clientRepository->getClientById($id);
 
         return response()->json(
@@ -2150,6 +2155,7 @@ class ExtClientController extends Controller
 
         # threw error if validation fails
         if ($validator->fails()) {
+	    Log::warning('Failed update took ia, error validation: ' . json_encode($validator->errors()));
             return response()->json([
                 'success' => false,
                 'error' => $validator->errors()
@@ -2247,15 +2253,21 @@ class ExtClientController extends Controller
         return response()->json($response);
     }
 
-    public function fnGetGraduatedMentee()
+    public function fnGetGraduatedMentee(Request $request)
     {
-        $graduated_mentees = $this->clientRepository->rnGetGraduatedMentees();
+        $terms = $request->get('terms');
+        $uni = $request->get('uni');
+        $major = $request->get('major');
+        $search = compact('terms', 'uni', 'major');
+        $graduated_mentees = $this->clientRepository->rnGetGraduatedMentees($search);
         return response()->json($graduated_mentees);
     }
 
-    public function fnGetActiveMentee()
+    public function fnGetActiveMentee(Request $request)
     {
-        $active_mentees = $this->clientRepository->rnGetActiveMentees();
+        $terms = $request->get('terms');
+        $search = compact('terms');
+        $active_mentees = $this->clientRepository->rnGetActiveMentees($search);
         return response()->json($active_mentees);
     }
 
@@ -2287,5 +2299,62 @@ class ExtClientController extends Controller
             ];
         }); 
         return response()->json($mapped_program);
+    }
+
+    public function fnUpdateMenteeGDriveLink(
+        UserClient $user_client, 
+        UpdateMenteeGDriveRequest $request,
+        LogService $log_service
+        )
+    {
+        $validated = $request->safe()->only(['gdrive_link']);
+        DB::beginTransaction();
+        try {
+            $user_client->mentoring_google_drive_link = $validated['gdrive_link'];
+            $user_client->save();
+            DB::commit();
+        } catch (Exception $err) {
+            DB::rollBack();
+            $log_service->createErrorLog(LogModule::UPDATE_MENTEE_GDRIVE, $err->getMessage(), $err->getLine(), $err->getFile(), $validated);
+            throw new HttpResponseException(
+                response()->json(['errors' => 'Failed to update gdrive link'], JsonResponse::HTTP_BAD_REQUEST)
+            );
+        }
+        $log_service->createSuccessLog(LogModule::UPDATE_MENTEE_GDRIVE, 'The gdrive link has been updated', $validated);
+        return response()->json([
+            'message' => 'Mentee gdrive has been updated'
+        ]);
+    }
+
+    public function fnGetPackagesBoughtByMentee(
+        UserCLient $user_client        
+        )
+    {
+        try {
+            $mapped_packages_bought = [];
+            $packages_bought = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->has('phase_detail')->get();
+
+            if(count($packages_bought) > 0){
+
+                $mapped_packages_bought = $packages_bought->map(function($item){
+
+                    $mapped_phase_detail = $item->phase_detail->map(function($item) {
+                        return [
+                            'phase_detail_name' => $item->phase_detail_name,
+                            'allocate' => $item->pivot->quota
+                        ];
+                    });
+                    return $mapped_phase_detail;
+                });
+                
+            }
+
+            return response()->json($mapped_packages_bought);
+        } catch (Exception $err) {
+
+            throw new HttpResponseException(
+                response()->json(['errors' => 'Failed to get packages bought'], JsonResponse::HTTP_BAD_REQUEST)
+            );
+        }
     }
 }

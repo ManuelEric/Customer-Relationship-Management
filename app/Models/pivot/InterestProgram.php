@@ -2,6 +2,7 @@
 
 namespace App\Models\pivot;
 
+use App\Models\Program;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,11 +19,11 @@ class InterestProgram extends Pivot
      *
      * @var array
      */
-    // protected $fillable = [
-    //     'id',
-    //     'user_id', 
-    //     'status',
-    // ];
+    protected $fillable = [
+        'id',
+        'user_id', 
+        'status',
+    ];
 
     public function program()
     {

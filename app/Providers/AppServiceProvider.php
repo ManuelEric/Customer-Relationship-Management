@@ -7,6 +7,7 @@ use App\Repositories\AlarmRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\FollowupRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -53,6 +54,8 @@ class AppServiceProvider extends ServiceProvider
     
             return $paginator->withPath(Request::url());
         });
+
+        Paginator::defaultView('vendor.pagination.bootstrap-5');
 
 
         /* queue logger */

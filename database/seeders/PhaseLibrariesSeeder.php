@@ -17,7 +17,7 @@ class PhaseLibrariesSeeder extends Seeder
         $seeds = [
             # hands-on activities (workshop/site visit)
             [
-                'phase_detail_id' => 1,
+                'phase_detail_id' => 2,
                 'nation' => 'all',
                 'grade' => '7',
                 'quota' => '1',
@@ -25,7 +25,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 1,
+                'phase_detail_id' => 2,
                 'nation' => 'all',
                 'grade' => '8',
                 'quota' => '1',
@@ -33,7 +33,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 1,
+                'phase_detail_id' => 2,
                 'nation' => 'all',
                 'grade' => '9',
                 'quota' => '1',
@@ -41,7 +41,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 1,
+                'phase_detail_id' => 2,
                 'nation' => 'US',
                 'grade' => '10',
                 'quota' => '1',
@@ -49,7 +49,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 1,
+                'phase_detail_id' => 2,
                 'nation' => 'UK',
                 'grade' => '10',
                 'quota' => '1',
@@ -57,7 +57,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 1,
+                'phase_detail_id' => 2,
                 'nation' => 'US',
                 'grade' => '11',
                 'quota' => '1',
@@ -65,7 +65,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 1,
+                'phase_detail_id' => 2,
                 'nation' => 'UK',
                 'grade' => '11',
                 'quota' => '1',
@@ -73,7 +73,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 1,
+                'phase_detail_id' => 2,
                 'nation' => 'US',
                 'grade' => '12',
                 'quota' => '1',
@@ -82,7 +82,7 @@ class PhaseLibrariesSeeder extends Seeder
             ],
             # talk to professionals
             [
-                'phase_detail_id' => 2,
+                'phase_detail_id' => 3,
                 'nation' => 'all',
                 'grade' => '7',
                 'quota' => '5',
@@ -90,7 +90,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 2,
+                'phase_detail_id' => 3,
                 'nation' => 'all',
                 'grade' => '8',
                 'quota' => '5',
@@ -98,7 +98,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 2,
+                'phase_detail_id' => 3,
                 'nation' => 'all',
                 'grade' => '9',
                 'quota' => '5',
@@ -106,7 +106,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 2,
+                'phase_detail_id' => 3,
                 'nation' => 'US',
                 'grade' => '10',
                 'quota' => '5',
@@ -114,7 +114,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 2,
+                'phase_detail_id' => 3,
                 'nation' => 'UK',
                 'grade' => '10',
                 'quota' => '3',
@@ -122,7 +122,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 2,
+                'phase_detail_id' => 3,
                 'nation' => 'Asia',
                 'grade' => '10',
                 'quota' => '2',
@@ -130,7 +130,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 2,
+                'phase_detail_id' => 3,
                 'nation' => 'US',
                 'grade' => '11',
                 'quota' => '3',
@@ -138,7 +138,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 2,
+                'phase_detail_id' => 3,
                 'nation' => 'UK',
                 'grade' => '11',
                 'quota' => '2',
@@ -146,7 +146,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 2,
+                'phase_detail_id' => 3,
                 'nation' => 'Asia',
                 'grade' => '11',
                 'quota' => '1',
@@ -155,7 +155,7 @@ class PhaseLibrariesSeeder extends Seeder
             ],
             # Competition Mentoring
             [
-                'phase_detail_id' => 3,
+                'phase_detail_id' => 5,
                 'nation' => 'all',
                 'grade' => '7',
                 'quota' => '5',
@@ -163,7 +163,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 3,
+                'phase_detail_id' => 5,
                 'nation' => 'all',
                 'grade' => '8',
                 'quota' => '5',
@@ -171,7 +171,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 3,
+                'phase_detail_id' => 5,
                 'nation' => 'all',
                 'grade' => '9',
                 'quota' => '5',
@@ -179,7 +179,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 3,
+                'phase_detail_id' => 5,
                 'nation' => 'US',
                 'grade' => '10',
                 'quota' => '4',
@@ -187,7 +187,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 3,
+                'phase_detail_id' => 5,
                 'nation' => 'UK',
                 'grade' => '10',
                 'quota' => '2',
@@ -195,7 +195,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 3,
+                'phase_detail_id' => 5,
                 'nation' => 'Asia',
                 'grade' => '10',
                 'quota' => '3',
@@ -203,7 +203,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 3,
+                'phase_detail_id' => 5,
                 'nation' => 'US',
                 'grade' => '11',
                 'quota' => '2',
@@ -211,7 +211,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 3,
+                'phase_detail_id' => 5,
                 'nation' => 'UK',
                 'grade' => '11',
                 'quota' => '1',
@@ -219,7 +219,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 3,
+                'phase_detail_id' => 5,
                 'nation' => 'Asia',
                 'grade' => '11',
                 'quota' => '2',
@@ -227,7 +227,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 3,
+                'phase_detail_id' => 5,
                 'nation' => 'US',
                 'grade' => '12',
                 'quota' => '1',
@@ -236,7 +236,7 @@ class PhaseLibrariesSeeder extends Seeder
             ],
             # Personal Project(15 Hours)
             [
-                'phase_detail_id' => 4,
+                'phase_detail_id' => 7,
                 'nation' => 'US',
                 'grade' => '7',
                 'quota' => '2',
@@ -244,7 +244,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 4,
+                'phase_detail_id' => 7,
                 'nation' => 'UK',
                 'grade' => '7',
                 'quota' => '1',
@@ -252,7 +252,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 4,
+                'phase_detail_id' => 7,
                 'nation' => 'Asia',
                 'grade' => '7',
                 'quota' => '1',
@@ -260,7 +260,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 4,
+                'phase_detail_id' => 7,
                 'nation' => 'US',
                 'grade' => '8',
                 'quota' => '2',
@@ -268,7 +268,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 4,
+                'phase_detail_id' => 7,
                 'nation' => 'UK',
                 'grade' => '8',
                 'quota' => '1',
@@ -276,7 +276,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 4,
+                'phase_detail_id' => 7,
                 'nation' => 'Asia',
                 'grade' => '8',
                 'quota' => '1',
@@ -284,7 +284,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 4,
+                'phase_detail_id' => 7,
                 'nation' => 'US',
                 'grade' => '9',
                 'quota' => '2',
@@ -292,7 +292,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 4,
+                'phase_detail_id' => 7,
                 'nation' => 'UK',
                 'grade' => '9',
                 'quota' => '1',
@@ -300,7 +300,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 4,
+                'phase_detail_id' => 7,
                 'nation' => 'Asia',
                 'grade' => '9',
                 'quota' => '1',
@@ -308,7 +308,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 4,
+                'phase_detail_id' => 7,
                 'nation' => 'US',
                 'grade' => '10',
                 'quota' => '2',
@@ -316,7 +316,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 4,
+                'phase_detail_id' => 7,
                 'nation' => 'UK',
                 'grade' => '10',
                 'quota' => '1',
@@ -324,7 +324,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 4,
+                'phase_detail_id' => 7,
                 'nation' => 'US',
                 'grade' => '11',
                 'quota' => '1',
@@ -332,7 +332,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 4,
+                'phase_detail_id' => 7,
                 'nation' => 'UK',
                 'grade' => '11',
                 'quota' => '1',
@@ -341,7 +341,7 @@ class PhaseLibrariesSeeder extends Seeder
             ],
             # Research Project(10 Hours)
             [
-                'phase_detail_id' => 5,
+                'phase_detail_id' => 6,
                 'nation' => 'US',
                 'grade' => '7',
                 'quota' => '2',
@@ -349,7 +349,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 5,
+                'phase_detail_id' => 6,
                 'nation' => 'UK',
                 'grade' => '7',
                 'quota' => '1',
@@ -357,7 +357,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 5,
+                'phase_detail_id' => 6,
                 'nation' => 'Asia',
                 'grade' => '7',
                 'quota' => '1',
@@ -365,7 +365,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 5,
+                'phase_detail_id' => 6,
                 'nation' => 'US',
                 'grade' => '8',
                 'quota' => '2',
@@ -373,7 +373,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 5,
+                'phase_detail_id' => 6,
                 'nation' => 'UK',
                 'grade' => '8',
                 'quota' => '1',
@@ -381,7 +381,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 5,
+                'phase_detail_id' => 6,
                 'nation' => 'Asia',
                 'grade' => '8',
                 'quota' => '1',
@@ -389,7 +389,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 5,
+                'phase_detail_id' => 6,
                 'nation' => 'US',
                 'grade' => '9',
                 'quota' => '2',
@@ -397,7 +397,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 5,
+                'phase_detail_id' => 6,
                 'nation' => 'UK',
                 'grade' => '9',
                 'quota' => '1',
@@ -405,7 +405,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 5,
+                'phase_detail_id' => 6,
                 'nation' => 'Asia',
                 'grade' => '9',
                 'quota' => '1',
@@ -413,7 +413,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 5,
+                'phase_detail_id' => 6,
                 'nation' => 'US',
                 'grade' => '10',
                 'quota' => '2',
@@ -421,7 +421,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 5,
+                'phase_detail_id' => 6,
                 'nation' => 'UK',
                 'grade' => '10',
                 'quota' => '1',
@@ -429,7 +429,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 5,
+                'phase_detail_id' => 6,
                 'nation' => 'US',
                 'grade' => '11',
                 'quota' => '1',
@@ -437,7 +437,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 5,
+                'phase_detail_id' => 6,
                 'nation' => 'UK',
                 'grade' => '11',
                 'quota' => '1',
@@ -446,7 +446,7 @@ class PhaseLibrariesSeeder extends Seeder
             ],
             # Community Service Trip (domestic - summer only by batch)
             [
-                'phase_detail_id' => 6,
+                'phase_detail_id' => 8,
                 'nation' => 'US',
                 'grade' => '7',
                 'quota' => '1',
@@ -454,7 +454,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 6,
+                'phase_detail_id' => 8,
                 'nation' => 'UK',
                 'grade' => '7',
                 'quota' => '1',
@@ -462,7 +462,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 6,
+                'phase_detail_id' => 8,
                 'nation' => 'Asia',
                 'grade' => '7',
                 'quota' => '1',
@@ -470,7 +470,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 6,
+                'phase_detail_id' => 8,
                 'nation' => 'US',
                 'grade' => '8',
                 'quota' => '1',
@@ -478,7 +478,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 6,
+                'phase_detail_id' => 8,
                 'nation' => 'UK',
                 'grade' => '8',
                 'quota' => '1',
@@ -486,7 +486,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 6,
+                'phase_detail_id' => 8,
                 'nation' => 'Asia',
                 'grade' => '8',
                 'quota' => '1',
@@ -494,7 +494,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 6,
+                'phase_detail_id' => 8,
                 'nation' => 'US',
                 'grade' => '9',
                 'quota' => '1',
@@ -502,7 +502,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 6,
+                'phase_detail_id' => 8,
                 'nation' => 'UK',
                 'grade' => '9',
                 'quota' => '1',
@@ -510,7 +510,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 6,
+                'phase_detail_id' => 8,
                 'nation' => 'Asia',
                 'grade' => '9',
                 'quota' => '1',
@@ -518,7 +518,7 @@ class PhaseLibrariesSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'phase_detail_id' => 6,
+                'phase_detail_id' => 8,
                 'nation' => 'US',
                 'grade' => '10',
                 'quota' => '1',

@@ -110,15 +110,15 @@ class Program extends Model
 
             if ($this->main_prog->prog_name == $this->sub_prog->sub_prog_name) {
                 return Attribute::make(
-                    get: fn ($value) => $this->main_prog->prog_name . ' : ' . $this->prog_program,
+                    get: fn ($value) => $this->main_prog->prog_name . ': ' . $this->prog_program,
                 );
             }
             return Attribute::make(
-                get: fn ($value) => $this->main_prog->prog_name . ' / ' . $this->sub_prog->sub_prog_name . ' : ' . $this->prog_program,
+                get: fn ($value) => $this->main_prog->prog_name . ' / ' . $this->sub_prog->sub_prog_name . ': ' . $this->prog_program,
             );
         } else {
             return Attribute::make(
-                get: fn ($value) => $this->main_prog->prog_name . ' : ' . $this->prog_program,
+                get: fn ($value) => $this->main_prog->prog_name . ': ' . $this->prog_program,
             );
         }
     }
@@ -171,7 +171,7 @@ class Program extends Model
     public function scopeTutoringProgList($query)
     {
         return $query->whereHas('sub_prog', function ($query) {
-            $query->where('sub_prog_name', 'like', '%Tutoring%');
+            $query->where('sub_prog_name', 'like', '%Tutoring%')->orWhere('sub_prog_name', 'like', '%Competition%');
         });
     }
 

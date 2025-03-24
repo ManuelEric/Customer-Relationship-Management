@@ -506,7 +506,8 @@ class ReceiptPartnerController extends Controller
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),
-            env('FINANCE_CC_2')
+            env('FINANCE_CC_2'),
+            env('PARTNERSHIP_MAIL_1')
         ];
         $data['recipient'] = $receipt->invoiceB2b->partner_prog->user->email;
         $data['title'] = "Receipt of program " . $program_name;

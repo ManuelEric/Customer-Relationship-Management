@@ -26,6 +26,9 @@ use App\Http\Controllers\ReceiptPartnerController;
 use App\Http\Controllers\ReceiptReferralController;
 use App\Http\Controllers\ReceiptSchoolController;
 use App\Http\Controllers\Api\v1\AuthController as V1APIAuthController;
+use App\Http\Controllers\Api\v1\CallbackController as V1APICallbackController;
+use App\Http\Controllers\Api\v1\MentoringLogController as V1APIMentoringLogController;
+use App\Http\Controllers\PaymentGatewayController;
 
 Route::middleware(['throttle:120,1'])->group(function () {
 
@@ -41,6 +44,8 @@ Route::middleware(['throttle:120,1'])->group(function () {
     Route::get('get/mentee/{user_client}', [ExtClientController::class, 'fnGetMenteeDetails']);
     Route::get('get/mentee/{user_client}/mentors', [ExtClientController::class, 'fnGetMentorsByMentee']);
     Route::get('get/mentee/{user_client}/programs', [ExtClientController::class, 'fnGetJoinedProgramsByMentee']);
+    Route::get('get/mentee/{user_client}/packages-bought', [ExtClientController::class, 'fnGetPackagesBoughtByMentee']);
+
 
     # try to use header fields for carrying the mentor ID information
     # so that we don't have to use /{mentor_id} or ?id=<mentor_id>
@@ -132,7 +137,7 @@ Route::middleware(['throttle:120,1'])->group(function () {
         });
     
         # timesheet
-        Route::middleware(['resource:timesheet'])->group(function () {
+        Route::middleware(  ['resource:timesheet'])->group(function () {
             Route::post('user/update', [ExtClientController::class, 'updateUser']);
     
             Route::get('user/mentor-tutors', [ExtClientController::class, 'getMentorTutors']);
@@ -150,6 +155,18 @@ Route::middleware(['throttle:120,1'])->group(function () {
             Route::post('student/{student}/acceptance', [V1APIAcceptanceController::class, 'fnAddUni']);
             Route::put('student/{student}/acceptance/{acceptance}', [V1APIAcceptanceController::class, 'fnUpdateUni']);
             Route::delete('student/{student}/acceptance/{acceptance}', [V1APIAcceptanceController::class, 'fnDeleteUni']);
+            
+            # add/update google drive mentee
+            Route::put('update/mentee/{user_client}/gdrive', [ExtClientController::class, 'fnUpdateMenteeGDriveLink']);
         });
 
+        # meta ads
+        // WebHook 
+        Route::get('callback/facebook', [V1APICallbackController::class, 'verify']);
+        Route::post('callback/facebook', [V1APICallbackController::class, 'read_lead']);
+
+        # payment gateway
+        Route::get('generate/payment/link/{payment_method}', [PaymentGatewayController::class, 'redirectPayment'])->name('redirect.payment.link');
+        Route::post('generate/payment/link/{payment_method}', [PaymentGatewayController::class, 'generateLink'])->name('generate.payment.link');
+        Route::post('payment/callback', [PaymentGatewayController::class, 'callback']);
 });

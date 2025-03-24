@@ -886,7 +886,7 @@
 
                         $('#pending_mentoring').removeClass('d-none')
 
-                    } else if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring')) {
+                    } else if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring') || programSubProg.includes('Competition')) {
 
                         $('#pending_tutoring').removeClass('d-none')
 
@@ -898,7 +898,7 @@
                     // Detail Program Check 
                     if (programMainProg.includes('Admission') || programSubProg.includes('Admission')) { // mentoring
                         $('#success_mentoring').removeClass('d-none')
-                    } else if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring')) {
+                    } else if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring') || programSubProg.includes('Competition')) {
                         $('#success_tutoring').removeClass('d-none')
                     } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg
                         .includes(
@@ -918,7 +918,7 @@
                         case "Tutor":
                             $("#available-mentor").addClass("d-none")
                             $("#available-tutor").removeClass("d-none")
-                            if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring')) {
+                            if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring') || programSubProg.includes('Competition')) {
                                 $('#tutoring').removeClass('d-none')
                                 $('#sat-act').addClass('d-none')
                             } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg

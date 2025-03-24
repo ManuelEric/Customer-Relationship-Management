@@ -762,7 +762,7 @@
 
     $(document).ready(function() {
 
-        var baseUrl = "{{ url('/') }}/api/get/referral/list";
+        var baseUrl = "{{ url('/') }}/api/v1/get/referral/list";
 
         $(".select-referral").select2({
             placeholder: 'Referral Name...',

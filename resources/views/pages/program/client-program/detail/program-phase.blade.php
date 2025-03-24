@@ -12,7 +12,7 @@
             <div class="accordion-body p-2">
                 <div class="card">
                     <div class="card-body" style="overflow: auto;">
-                        @if($programPhases != null)
+                        @if(isset($programPhases) && $programPhases != null)
                             <table class="table table-borderless" id="list-program-bought">
                                 <tbody>
                                     @foreach ($programPhases as $programPhase)

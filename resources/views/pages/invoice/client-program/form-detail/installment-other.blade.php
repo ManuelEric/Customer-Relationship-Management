@@ -61,7 +61,7 @@
                             <span class="input-group-text" id="basic-addon1">
                                 Rp
                             </span>
-                            <input type="number" name="invdtl_amountidr_other[]" class="form-control amount-other-idr" id="amount_other_idr_{{ $i }}" value="{{ isset($invoice->invoiceDetail) ? $invoice->invoiceDetail[$i]->invdtl_amountidr : old('invdtl_amountidr_other')[$i] }}" {{ $disabled }}>
+                            <input type="number" name="invdtl_amountidr_other[]" class="form-control amount-other-idr" id="amount_other_idr_{{ $i }}" value="{{ isset($invoice->invoiceDetail) ? $invoice->invoiceDetail[$i]->invdtl_amountidr : old('invdtl_amountidr_other')[$i] }}" {{ $disabled }} onchange="checkAmount('{{ $i }}')">
                         </div>
                         @error('invdtl_amountidr_other.'.$i)
                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -99,7 +99,7 @@
                         <div class="">
                             Amount <sup class="text-danger">*</sup>
                         </div>
-                        <div class="cursor-pointer" onclick="removeInstallmentOther(0)">
+                        <div class="cursor-pointer" onclick="removeInstallmentOther('0')">
                             <i class="bi bi-trash2 text-danger"></i>
                         </div>
                     </div>
@@ -116,7 +116,7 @@
                         <span class="input-group-text" id="basic-addon1">
                             Rp
                         </span>
-                        <input type="number" name="invdtl_amountidr_other[]" class="form-control amount-other-idr" id="amount_other_idr_0">
+                        <input type="number" name="invdtl_amountidr_other[]" class="form-control amount-other-idr" id="amount_other_idr_0" onchange="checkAmount('0')">
                     </div>
                     @error('invdtl_amountidr_other')
                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -165,13 +165,13 @@
     function checkPercentageOther(id) {
         var sum = 0
         $('.percentage-other').each(function() {
-            sum += parseInt($(this).val())
+            sum += $(this).val()
         })
 
         if (isNaN(sum))
             sum = 0
 
-        if (sum <= 100) {
+        // if (sum <= 100) {
             let percent = $('#percentage_other_' + id).val()
             let kurs = $('#current_rate').val()
             let tot_other = $('#total_other').val()
@@ -180,13 +180,13 @@
             $('#amount_other_' + id).val(total)
             $('#amount_other_idr_' + id).val(total * kurs)
 
-        } else {
-            $('#percentage_other_' + id).val(null)
-            $('#amount_other_' + id).val(null)
-            $('#amount_other_idr_' + id).val(null)
+        // } else {
+        //     $('#percentage_other_' + id).val(null)
+        //     $('#amount_other_' + id).val(null)
+        //     $('#amount_other_idr_' + id).val(null)
 
-            notification('error', 'Percentage is more than 100')
-        }
+        //     notification('error', 'Percentage is more than 100')
+        // }
     }
 
     function checkAmountOther(id) {
@@ -200,14 +200,38 @@
 
         let tot_other = $('#total_other').val()
 
-        if (sum <= tot_other) {
+        // if (sum <= tot_other) {
             let amount = $('#amount_other_' + id).val()
-            let total = Math.round((amount / tot_idr) * 100)
+            let total = (amount / tot_other) * 100
             $("#percentage_other_" + id).val(total)
-        } else {
-            $('#percentage_other_' + id).val(null)
-            $('#amount_other_' + id).val(null)
-            notification('error', 'Installment amount should be less than total invoice')
-        }
+        // } else {
+        //     $('#percentage_other_' + id).val(null)
+        //     $('#amount_other_' + id).val(null)
+        //     notification('error', 'Installment amount should be less than total invoice')
+        // }
+    }
+
+    function checkAmount(id) {
+        var sum = 0
+        $('.amount').each(function() {
+            sum += parseInt($(this).val())
+        })
+
+        if (isNaN(sum))
+            sum = 0
+
+        let tot_idr = $('#total_idr').val()
+
+        // if (sum <= tot_idr) {
+            let amount = $('#amount_other_idr_' + id).val()
+            console.log('total : ' + tot_idr);
+            console.log('amount : ' + amount);
+            let total = (amount / tot_idr) * 100
+            $("#percentage_other_" + id).val(total)
+        // } else {
+        //     $('#percentage_' + id).val(null)
+        //     $('#amount_' + id).val(null)
+        //     notification('error', 'Installment amount should be less than total invoice')
+        // }
     }
 </script>

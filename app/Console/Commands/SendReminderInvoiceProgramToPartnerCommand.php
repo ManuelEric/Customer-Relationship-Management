@@ -102,7 +102,7 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
 
                 $cc = array();
 
-                $financeEmail[] = [
+                $financeEmail = [
                     env('FINANCE_CC'),
                     env('FINANCE_CC_2')
                 ];
@@ -111,8 +111,10 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
                 if ($params['pic_email'] !== NULL)
                     array_push($cc, $params['pic_email']);
 
+                Log::debug('Data cc reminder', $cc);
                 try {
                     Mail::send($mail_resources, $params, function ($message) use ($params, $cc, $subject) {
+                        Log::debug('Data mailing reminder: ', $params);
                         $message->to($params['partner_mail'], $params['partner_pic'])
                             ->cc($cc)
                             ->subject($subject);
@@ -120,7 +122,7 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
 
                 } catch (Exception $e) {
 
-                    Log::error('Failed to send invoice reminder to ' . $partner_pic_mail . ' caused by : ' . $e->getMessage() . ' | Line ' . $e->getLine());
+                    Log::error('Failed to send invoice partner reminder to ' . $partner_pic_mail . ' caused by : ' . $e->getMessage() . ' | Line ' . $e->getLine(). ' | File ' . $e->getFile());
                     return $this->error($e->getMessage() . ' | Line ' . $e->getLine());
                 }
 

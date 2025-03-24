@@ -40,7 +40,7 @@ class StoreClientProgramRequest extends FormRequest
         $this->tutoring_prog_id = Program::whereHas('main_prog', function($query) {
                                         $query->where('prog_name', 'Academic & Test Preparation');
                                     })->orWhereHas('sub_prog', function ($query) {
-                                        $query->where('sub_prog_name', 'like', '%Tutoring%');
+                                        $query->where('sub_prog_name', 'like', '%Tutoring%')->orWhere('sub_prog_name', 'like', '%Competition%');;
                                     })->pluck('prog_id')->toArray();
                                     
         $this->clientRepository = $clientRepository;
@@ -63,7 +63,7 @@ class StoreClientProgramRequest extends FormRequest
                             })->pluck('prog_id')->toArray();
 
         $tutoring_prog_id = Program::whereHas('sub_prog', function ($query) {
-                                $query->where('sub_prog_name', 'like', '%Tutoring%');
+                                $query->where('sub_prog_name', 'like', '%Tutoring%')->orWhere('sub_prog_name', 'like', '%Competition%');;
                             })->pluck('prog_id')->toArray();
 
         $satact_prog_id = Program::whereHas('sub_prog', function ($query) {
