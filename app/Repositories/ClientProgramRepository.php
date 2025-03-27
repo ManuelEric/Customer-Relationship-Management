@@ -2117,7 +2117,8 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ];
         });
 
-        return $mapped;
+        $collection = Collect($mapped);
+        return $collection->sortByDesc('count');
     }
 
     private function castToCarbon(String $item): Carbon
