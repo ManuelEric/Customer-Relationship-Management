@@ -2344,8 +2344,10 @@ class ExtClientController extends Controller
 
                     $mapped_phase_detail = $item->phase_detail->map(function($item) {
                         return [
+                            'phase_detail_id' => $item->id,
                             'phase_detail_name' => $item->phase_detail_name,
-                            'allocate' => $item->pivot->quota
+                            'allocate' => $item->pivot->quota,
+                            'use' => $item->pivot->use
                         ];
                     });
                     return $mapped_phase_detail;
@@ -2353,7 +2355,7 @@ class ExtClientController extends Controller
                 
             }
 
-            return response()->json($mapped_packages_bought);
+            return response()->json(count($mapped_packages_bought) > 0 ? $mapped_packages_bought->first() : $mapped_packages_bought);
         } catch (Exception $err) {
 
             throw new HttpResponseException(

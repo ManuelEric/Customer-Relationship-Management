@@ -605,6 +605,14 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         return ClientProgram::where('client_id', $clientId)->get();
     }
 
+    # use for mentoring platform
+    # - Update use package bought
+    public function getClientProgramAdmissionByClientId($clientId)
+    {
+        return ClientProgram::where('client_id', $clientId)->where('status', 1)->mentoring()->orderBy('updated_at', 'desc')->first();
+    }
+
+
     public function getClientProgramByDetail(array $detail)
     {
         return ClientProgram::
@@ -2069,6 +2077,52 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             $is_admission = true;
 
         return $is_admission;
+    }
+
+    public function rnDomicileTracker($date_range, $uuid)
+    {
+        [$start_date, $end_date] = ($date_range) ? array_map([$this, "castToCarbon"], explode('-', $date_range)) : [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()];
+        
+        $clientprog = ClientProgram::
+                        whereHas('client', function($query){
+                            $query->whereHas('school', function($query){
+                                $query->whereNot('sch_city', null);
+                            });
+                        })
+                        ->where(function($query) use($uuid, $start_date, $end_date) {
+                            $query
+                            ->where('status', 1)
+                            ->whereBetween('success_date', [$start_date, $end_date])
+                            ->when($uuid != null && $uuid != 'all', function ($subQuery) use($uuid) {
+                                $subQuery->where(function ($query) use($uuid){
+                                    $query->whereHas('internalPic', function ($query2) use($uuid) {
+                                        $query2->where('users.id', $uuid);
+                                    })->orWhereHas('handledBy', function ($subQuery2) use($uuid){
+                                        $subQuery2->where('user_id', $uuid);
+                                    });
+                                }); 
+                            });
+                        })
+                        ->get()
+                        ->groupBy(function($item, $key){
+                            return $item->client->school->sch_city."-".$item->program->main_prog->prog_name;
+                        });
+        
+        $mapped = $clientprog->map(function ($items){
+            return [
+                'clientprog_id' => $items->first()->clientprog_id,
+                'domicile' => $items->first()->client->school->sch_city,
+                'main_prog' => $items->first()->program->main_prog->prog_name,
+                'count' => count($items)
+            ];
+        });
+
+        return $mapped;
+    }
+
+    private function castToCarbon(String $item): Carbon
+    {
+        return Carbon::parse($item);
     }
 
     # CRM
