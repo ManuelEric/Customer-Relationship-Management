@@ -115,9 +115,4 @@ Route::group(['middleware' => 'crm.key'], function () {
     
     # Update quota for program phase
     Route::patch('program-phase/{clientprog}/phase-detail/{phase_detail}/phase-lib/{phase_lib?}/quota', [APIProgramPhaseController::class, 'fnUpdateQuotaProgramPhase']);
-
-    # Temporary without middleware until Implemented SSO for all platform
-    # Update use for program phase
-    Route::patch('program-phase/{mentee}/phase-detail/{phase_detail}/use', [APIProgramPhaseController::class, 'fnUpdateUseProgramPhase']);
 //});
-
