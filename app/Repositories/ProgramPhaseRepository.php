@@ -9,6 +9,7 @@ use App\Models\Phase;
 use App\Models\PhaseDetail;
 use App\Models\PhaseLibrary;
 use App\Models\pivot\ClientProgramDetail;
+use Illuminate\Support\Facades\DB;
 
 class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
 {
@@ -42,15 +43,13 @@ class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
 
     public function rnUpdateUseProgramPhase(ClientProgram $clientprogram, int $phase_detail_id, int $use)
     {
+        // $clientprogram->phase_detail()->updateExistingPivot($phase_detail_id, ['use' => $use]);
+        
+        // return $clientprogram->phase_detail()->wherePivot('phase_detail_id', $phase_detail_id)->first();
+        
+        DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->increment('use', $use);
 
-        // if ($phase_lib_id != 'null'){
-        //     $clientprogram->phase_library()->updateExistingPivot($phase_lib_id, ['use' => $use]);
-            
-        //     return $clientprogram->phase_library()->wherePivot('phase_lib_id', $phase_lib_id)->first();
-        // }
-        $clientprogram->phase_detail()->updateExistingPivot($phase_detail_id, ['use' => $use]);
-              
-        return $clientprogram->phase_detail()->wherePivot('phase_detail_id', $phase_detail_id)->first();
+        return DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->first();
     }
 
     public function rnUpdateQuotaProgramPhase(int $clientprog_id, int $phase_detail_id, $phase_lib_id, int $quota)
