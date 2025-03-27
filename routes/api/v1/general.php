@@ -29,6 +29,7 @@ use App\Http\Controllers\Api\v1\AuthController as V1APIAuthController;
 use App\Http\Controllers\Api\v1\CallbackController as V1APICallbackController;
 use App\Http\Controllers\Api\v1\MentoringLogController as V1APIMentoringLogController;
 use App\Http\Controllers\PaymentGatewayController;
+use App\Http\Controllers\ProgramPhaseController as V1APIProgramPhaseController;
 
 Route::middleware(['throttle:120,1'])->group(function () {
 
@@ -169,4 +170,9 @@ Route::middleware(['throttle:120,1'])->group(function () {
         Route::get('generate/payment/link/{payment_method}', [PaymentGatewayController::class, 'redirectPayment'])->name('redirect.payment.link');
         Route::post('generate/payment/link/{payment_method}', [PaymentGatewayController::class, 'generateLink'])->name('generate.payment.link');
         Route::post('payment/callback', [PaymentGatewayController::class, 'callback']);
+
+        # Temporary without middleware until Implemented SSO for all platform
+        # Update use for program phase
+        Route::patch('program-phase/{mentee}/phase-detail/{phase_detail}/use', [V1APIProgramPhaseController::class, 'fnUpdateUseProgramPhase']);
+
 });
