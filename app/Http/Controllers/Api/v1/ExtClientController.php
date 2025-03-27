@@ -2155,6 +2155,7 @@ class ExtClientController extends Controller
 
         # threw error if validation fails
         if ($validator->fails()) {
+	    Log::warning('Failed update took ia, error validation: ' . json_encode($validator->errors()));
             return response()->json([
                 'success' => false,
                 'error' => $validator->errors()
