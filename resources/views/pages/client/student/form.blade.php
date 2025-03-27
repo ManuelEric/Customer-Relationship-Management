@@ -6,6 +6,7 @@
     <li class="breadcrumb-item active" aria-current="page">Form Student</li>
 @endsection
 @section('content')
+
     <div class="card rounded">
         <div class="card-header">
             <h5 class="my-1 p-0">
