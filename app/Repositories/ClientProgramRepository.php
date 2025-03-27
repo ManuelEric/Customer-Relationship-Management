@@ -605,6 +605,14 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         return ClientProgram::where('client_id', $clientId)->get();
     }
 
+    # use for mentoring platform
+    # - Update use package bought
+    public function getClientProgramAdmissionByClientId($clientId)
+    {
+        return ClientProgram::where('client_id', $clientId)->where('status', 1)->mentoring()->orderBy('updated_at', 'desc')->first();
+    }
+
+
     public function getClientProgramByDetail(array $detail)
     {
         return ClientProgram::

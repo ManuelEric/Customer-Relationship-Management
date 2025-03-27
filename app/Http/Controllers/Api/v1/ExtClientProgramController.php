@@ -45,7 +45,7 @@ class ExtClientProgramController extends Controller
         })->
         when($mentor_uuid, function ($query) use ($mentor_uuid) {
             $query->whereHas('clientMentor', function ($query) use ($mentor_uuid) {
-                $query->where('id', $mentor_uuid);
+                $query->where('users.id', $mentor_uuid);
             });
         })->
         successAndPaid()->select('clientprog_id', 'prog_id', 'client_id')->get();

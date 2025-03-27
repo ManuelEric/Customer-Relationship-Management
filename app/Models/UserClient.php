@@ -246,8 +246,8 @@ class UserClient extends Authenticatable
     public function scopeSearch($query, $search)
     {
         $terms = $search['terms'];
-        $uni = $search['uni'];
-        $major = $search['major'];
+        $uni = $search['uni'] ?? null;
+        $major = $search['major'] ?? null;
 
         return $query->
             when($terms, function ($query) use ($terms) {

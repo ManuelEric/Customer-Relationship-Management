@@ -439,12 +439,12 @@ class ClientProgram extends Model
 
     public function phase_library()
     {
-        return $this->belongsToMany(PhaseLibrary::class, 'client_program_details', 'clientprog_id', 'phase_lib_id')->using(ClientProgramDetail::class)->withPivot('quota');
+        return $this->belongsToMany(PhaseLibrary::class, 'client_program_details', 'clientprog_id', 'phase_lib_id')->using(ClientProgramDetail::class)->withPivot('quota', 'use');
     }
 
     public function phase_detail()
     {
-        return $this->belongsToMany(PhaseDetail::class, 'client_program_details', 'clientprog_id', 'phase_detail_id')->using(ClientProgramDetail::class)->withPivot('quota');
+        return $this->belongsToMany(PhaseDetail::class, 'client_program_details', 'clientprog_id', 'phase_detail_id')->using(ClientProgramDetail::class)->withPivot('quota', 'use');
     }
 
 }

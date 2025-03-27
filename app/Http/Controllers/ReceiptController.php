@@ -617,7 +617,10 @@ class ReceiptController extends Controller
 
     // ============ Bundling ==============
 
-    public function storeBundle(StoreReceiptRequest $request)
+    public function storeBundle(
+        StoreReceiptRequest $request,
+        ReceiptService $receiptService
+    )
     {
         // return $request->all();
         // exit;
@@ -647,7 +650,7 @@ class ReceiptController extends Controller
         $last_id = Receipt::whereMonth('created_at', isset($request->receipt_date) ? date('m', strtotime($request->receipt_date)) : date('m'))->whereYear('created_at', isset($request->receipt_date) ? date('Y', strtotime($request->receipt_date)) : date('Y'))->max(DB::raw('substr(receipt_id, 1, 4)'));
 
         # Use Trait Create Invoice Id
-        $receiptDetails['receipt_id'] = $this->getLatestReceiptId($last_id, 'BDL', $receiptDetails);
+        $receiptDetails['receipt_id'] = $receiptService->getLatestReceiptId($last_id, 'BDL', $receiptDetails);
 
         $receiptDetails['inv_id'] = $invoice->inv_id;
         $invoice_payment_method = $invoice->inv_paymentmethod;
