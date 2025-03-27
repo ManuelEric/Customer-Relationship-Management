@@ -51,7 +51,7 @@
                                         <td>Rp. {{ number_format($paidPayment->total, '2', ',', '.') }}</td>
                                     </tr>
                                     @php
-                                        $total_paid_diff += $paidPayment->total > $paidPayment->total_price_inv ? $paidPayment->total - $PaidPayment->total_price_inv : 0;
+                                        $total_paid_diff += $paidPayment->total > $paidPayment->total_price_inv ? $paidPayment->total - $paidPayment->total_price_inv : 0;
                                     @endphp
                                 @endforeach
                             </tbody>
