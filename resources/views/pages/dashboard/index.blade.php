@@ -137,8 +137,9 @@
         var month = $(".qdate").val()
         var uuid = $(this).val() == "all" ? null : $(this).val()
         var year = $("#qclient-event-year").val()
+        var daterange = $('#daterange').val();
 
-        reloadChart(month, uuid, year)
+        reloadChart(month, uuid, year, daterange)
 
     })
 
@@ -170,7 +171,7 @@
         }
     })
 
-    function reloadChart(month, uuid, year) {
+    function reloadChart(month, uuid, year, daterange) {
 
         get_client_program_status(month, uuid)
         get_successful_program(month, uuid)
@@ -184,6 +185,7 @@
         get_career_exp_lead(month, uuid)
         get_all_program(month, uuid)
         get_program_comparison()
+        get_domicile(uuid, daterange)
 
         // get_client_event(year, uuid)
     }
