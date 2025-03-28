@@ -193,16 +193,17 @@ class PaymentGatewayController extends Controller
 
         if ( $response['response_code'] != "PL000" )
         {
+            if ( $response['response_code'] == "PL032" )
+            {
+                throw new HttpResponseException(
+                    response()->json($response['response_description'], JsonResponse::HTTP_OK)
+                );
+            }
 
             throw new HttpResponseException(
                 response()->json($response['response_message'], JsonResponse::HTTP_BAD_REQUEST)
             );
-        } else if ( $response['response_code'] == "PL032" )
-        {
-            throw new HttpResponseException(
-                response()->json($response['response_description'], JsonResponse::HTTP_OK)
-            );
-        }
+        } 
 
 
         $trx_detail_to_store = [
