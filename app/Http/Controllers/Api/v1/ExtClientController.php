@@ -2155,6 +2155,7 @@ class ExtClientController extends Controller
 
         # threw error if validation fails
         if ($validator->fails()) {
+	    Log::warning('Failed update took ia, error validation: ' . json_encode($validator->errors()));
             return response()->json([
                 'success' => false,
                 'error' => $validator->errors()
@@ -2208,7 +2209,12 @@ class ExtClientController extends Controller
 
     public function fnGetUserByRoleAndUUID(string $role, string $uuid)
     {
-        $users = \App\Models\User::whereHas('roles', function ($query) use ($role, $uuid) {
+        # Added 'with (user_type)' for editing platform -> get contract date editor
+        // $users = \App\Models\User::with(['user_type'])
+        $users = \App\Models\User::with(['user_type' => function($query){
+            $query->orderBy('tbl_user_type_detail.id', 'desc');
+        }])
+        ->whereHas('roles', function ($query) use ($role, $uuid) {
             $query->where('role_name', $role);
         })->where('id', $uuid)->first();
         return response()->json($users);
@@ -2339,8 +2345,10 @@ class ExtClientController extends Controller
 
                     $mapped_phase_detail = $item->phase_detail->map(function($item) {
                         return [
+                            'phase_detail_id' => $item->id,
                             'phase_detail_name' => $item->phase_detail_name,
-                            'allocate' => $item->pivot->quota
+                            'allocate' => $item->pivot->quota,
+                            'use' => $item->pivot->use
                         ];
                     });
                     return $mapped_phase_detail;
@@ -2348,7 +2356,7 @@ class ExtClientController extends Controller
                 
             }
 
-            return response()->json($mapped_packages_bought);
+            return response()->json(count($mapped_packages_bought) > 0 ? $mapped_packages_bought->first() : $mapped_packages_bought);
         } catch (Exception $err) {
 
             throw new HttpResponseException(
