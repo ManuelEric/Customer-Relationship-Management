@@ -54,6 +54,10 @@ Route::middleware(['throttle:120,1'])->group(function () {
         Route::get('get/graduated/mentees', [ExtClientController::class, 'fnGetGraduatedMentee']);
         Route::get('get/active/mentees', [ExtClientController::class, 'fnGetActiveMentee']);
     });
+    
+
+    # payment gateway
+    Route::get('payment/check-status', [PaymentGatewayController::class, 'checkStatus']);
 
 
     Route::get('get/mentors', [ExtClientController::class, 'getMentors']);

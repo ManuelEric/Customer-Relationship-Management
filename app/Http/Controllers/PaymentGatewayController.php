@@ -249,6 +249,11 @@ class PaymentGatewayController extends Controller
         ]);
     }
 
+    public function checkStatus(Request $request)
+    {
+        
+    }
+
     public function callback(
         Request $request,
         ReceiptService $receipt_service,
