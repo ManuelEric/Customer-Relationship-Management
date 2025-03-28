@@ -196,7 +196,7 @@ class PaymentGatewayController extends Controller
             if ( $response['response_code'] == "PL032" )
             {
                 throw new HttpResponseException(
-                    response()->json($response['response_description'], JsonResponse::HTTP_OK)
+                    response()->json(['error' => "Transaction Exists"], JsonResponse::HTTP_BAD_REQUEST)
                 );
             }
 
