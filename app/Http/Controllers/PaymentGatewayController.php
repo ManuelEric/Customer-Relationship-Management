@@ -171,6 +171,18 @@ class PaymentGatewayController extends Controller
         post(env('PAYMENT_API_URI') . '/payment/integration/transaction/api/submit-trx', $request_body)->
         throw(function (Response $response, RequestException $err) use ($request_body) {
             $this->log_service->createErrorLog(LogModule::CREATE_PAYMENT_LINK, $err->getMessage(), $err->getLine(), $err->getFile(), $request_body);
+
+            # in order to return error but display message to user
+            # so we have to put the error into HTTP_OK
+            # here's some condition only for duplicate transaction
+            # other than that will using exception Error 
+            if ( $err->getMessage() == 'INVALID_TRANSACTION_DUPLICATE' )
+            {
+                throw new HttpResponseException(
+                    response()->json('Transaction has already been paid. Please refresh the page', JsonResponse::HTTP_OK)
+                );    
+            }
+
             throw new HttpResponseException(
                 response()->json($err->getMessage(), JsonResponse::HTTP_BAD_REQUEST)
             );
@@ -234,29 +246,6 @@ class PaymentGatewayController extends Controller
             'response_description' => 'SUCCESS',
             'payment_link' => env('PAYMENT_WEB_URI').$response['payment_page_url']
         ]);
-    }
-
-    public function checkStatus(array $transaction)
-    {
-        /* on progress */
-        $request_body = [
-            'plink_ref_no' => $transaction['plink_ref_no'],
-            'merchant_key_id' => env('MERCHANT_KEY_ID'),
-            'transmission_date_time' => Carbon::now()->format('Y-m-d H:i:s.v O'),
-            'merchant_ref_no' => $transaction['merchant_ref_no'],
-            'merchant_id' => env('MERCHANT_ID')
-        ];
-
-        $response = Http::withHeaders([
-            'mac' => hash_hmac('sha256', json_encode($request_body), env('PAYMENT_SECRET_KEY')),
-        ])->
-        post(env('PAYMENT_API_URI') . '/payment/integration/transaction/api/inquiry-transaction', $request_body)->
-        throw(function (Response $response, RequestException $err) use ($request_body) {
-            $this->log_service->createErrorLog(LogModule::CHECK_PAYMENT_STATUS, $err->getMessage(), $err->getLine(), $err->getFile(), $request_body);
-            throw new HttpResponseException(
-                response()->json($err->getMessage(), JsonResponse::HTTP_BAD_REQUEST)
-            );
-        })->json();
     }
 
     public function callback(
