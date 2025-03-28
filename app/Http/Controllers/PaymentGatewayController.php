@@ -156,7 +156,7 @@ class PaymentGatewayController extends Controller
             'integration_type' => '01',
             'payment_method' => $payment_method,
             'bank_id' => $bank_id,
-            'validity' => Carbon::now()->addMinutes(10)->format('Y-m-d H:i:s.v O'),
+            // 'validity' => Carbon::now()->addMinutes(10)->format('Y-m-d H:i:s.v O'),
             'external_id' => (string) $trx_id,
             'other_bills' => json_encode([[
                 'title' => 'admin fee',
@@ -172,18 +172,6 @@ class PaymentGatewayController extends Controller
         post(env('PAYMENT_API_URI') . '/payment/integration/transaction/api/submit-trx', $request_body)->
         throw(function (Response $response, RequestException $err) use ($request_body) {
             $this->log_service->createErrorLog(LogModule::CREATE_PAYMENT_LINK, $err->getMessage(), $err->getLine(), $err->getFile(), $request_body);
-
-            # in order to return error but display message to user
-            # so we have to put the error into HTTP_OK
-            # here's some condition only for duplicate transaction
-            # other than that will using exception Error 
-            if ( $err->getMessage() == 'INVALID_TRANSACTION_DUPLICATE' )
-            {
-                throw new HttpResponseException(
-                    response()->json('Transaction has already been paid. Please refresh the page', JsonResponse::HTTP_OK)
-                );    
-            }
-
             throw new HttpResponseException(
                 response()->json($err->getMessage(), JsonResponse::HTTP_BAD_REQUEST)
             );
@@ -193,10 +181,14 @@ class PaymentGatewayController extends Controller
 
         if ( $response['response_code'] != "PL000" )
         {
+            # in order to return error but display message to user
+            # so we have to put the error into HTTP_OK
+            # here's some condition only for duplicate transaction
+            # other than that will using exception Error 
             if ( $response['response_code'] == "PL032" )
             {
                 throw new HttpResponseException(
-                    response()->json(['error' => "Transaction Exists"], JsonResponse::HTTP_BAD_REQUEST)
+                    response()->json(['error' => "Transaction Exists. Please refresh the page"], JsonResponse::HTTP_BAD_REQUEST)
                 );
             }
 

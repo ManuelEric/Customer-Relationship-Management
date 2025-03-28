@@ -1357,7 +1357,7 @@
                 })
                 .catch(function (error) {
                     Swal.close()
-                    notification('error', error)
+                    notification('error', error?.response?.data?.error)
                 })
             })
         });
