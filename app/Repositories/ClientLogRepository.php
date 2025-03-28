@@ -1249,7 +1249,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
                 break;
         }
         
-        $mapped = $clients->map(function ($item){
+        $mapped = $clients->map(function ($item) use($start_date, $end_date){
             return [
                 'id' => $item->id,
                 'client_id' => $item->client_id,
@@ -1259,6 +1259,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
                 'grade_now' => $item->master_client->grade_now != null ? ($item->master_client->grade_now > 12 ? 'Not High School' : $item->master_client->grade_now) : null,
                 'school_name' => $item->master_client->school->sch_name ?? null,
                 'lead_source' => $item->client_program ? $item->client_program->conversion_lead ?? null : $item->master_client->lead_source ?? null,
+                'interest_program' => count($item->master_client->interestPrograms) > 0 ? $item->master_client->interestPrograms->where('pivot.updated_at', '>=', $start_date . ' 00:00:00')->where('pivot.updated_at', '<=', $end_date . ' 23:59:59')->last()->program_name ?? null : null,
                 'program_name' => $item->client_program ? $item->client_program->program->program_name ?? null : '-',
                 'lead_from_division' => $item->lead_source_log->note ?? null,
                 'is_deleted' => $item->deleted_at,
