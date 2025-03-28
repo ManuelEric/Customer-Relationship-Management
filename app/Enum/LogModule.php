@@ -475,4 +475,5 @@ enum LogModule: string
      * Payment Link
      */
     case CREATE_PAYMENT_LINK = '[CREATE PAYMENT LINK]';
+    case CHECK_PAYMENT_STATUS = '[CHECK PAYMENT STATUS]';
 }

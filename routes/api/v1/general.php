@@ -49,8 +49,10 @@ Route::middleware(['throttle:120,1'])->group(function () {
 
     # try to use header fields for carrying the mentor ID information
     # so that we don't have to use /{mentor_id} or ?id=<mentor_id>
-    Route::get('get/graduated/mentees', [ExtClientController::class, 'fnGetGraduatedMentee']);
-    Route::get('get/active/mentees', [ExtClientController::class, 'fnGetActiveMentee']);
+    Route::middleware('auth:api')->group(function () {
+        Route::get('get/graduated/mentees', [ExtClientController::class, 'fnGetGraduatedMentee']);
+        Route::get('get/active/mentees', [ExtClientController::class, 'fnGetActiveMentee']);
+    });
 
 
     Route::get('get/mentors', [ExtClientController::class, 'getMentors']);

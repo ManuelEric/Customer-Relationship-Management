@@ -110,6 +110,15 @@ class PaymentGatewayController extends Controller
         $trx_id = $this->tnRandomDigit();
         $merchant_ref_no = (string) $parent_number . $trx_id;
 
+        # prevent transaction generated more than once by
+        # checking the transaction table using invoice_id, installment_id, and invoice_number
+        # if by those data transaction could be found, then use the transaction ID of existing data
+        if ( $transaction = Transaction::where('invoice_id', $invoice_id)->where('installment_id', $invoice_dtl_id)->where('invoice_number', $invoice_number)->first() )
+        {
+            $trx_id = $transaction->trx_id;
+            $merchant_ref_no = $transaction->merchant_ref_no;
+        }
+
         $total_transaction_with_fee = $trx_amount + $va_fee;
         
         # create request body
@@ -207,7 +216,10 @@ class PaymentGatewayController extends Controller
 
         DB::beginTransaction();
         try {    
-            $trx = Transaction::create($trx_detail_to_store);
+            $trx = Transaction::updateOrCreate([
+                'trx_id' => $trx_id,
+                'merchant_ref_no' => $merchant_ref_no
+            ], $trx_detail_to_store);
             DB::commit();
         } catch (Exception $err) {
             DB::rollBack();
@@ -222,6 +234,29 @@ class PaymentGatewayController extends Controller
             'response_description' => 'SUCCESS',
             'payment_link' => env('PAYMENT_WEB_URI').$response['payment_page_url']
         ]);
+    }
+
+    public function checkStatus(array $transaction)
+    {
+        /* on progress */
+        $request_body = [
+            'plink_ref_no' => $transaction['plink_ref_no'],
+            'merchant_key_id' => env('MERCHANT_KEY_ID'),
+            'transmission_date_time' => Carbon::now()->format('Y-m-d H:i:s.v O'),
+            'merchant_ref_no' => $transaction['merchant_ref_no'],
+            'merchant_id' => env('MERCHANT_ID')
+        ];
+
+        $response = Http::withHeaders([
+            'mac' => hash_hmac('sha256', json_encode($request_body), env('PAYMENT_SECRET_KEY')),
+        ])->
+        post(env('PAYMENT_API_URI') . '/payment/integration/transaction/api/inquiry-transaction', $request_body)->
+        throw(function (Response $response, RequestException $err) use ($request_body) {
+            $this->log_service->createErrorLog(LogModule::CHECK_PAYMENT_STATUS, $err->getMessage(), $err->getLine(), $err->getFile(), $request_body);
+            throw new HttpResponseException(
+                response()->json($err->getMessage(), JsonResponse::HTTP_BAD_REQUEST)
+            );
+        })->json();
     }
 
     public function callback(
@@ -255,6 +290,15 @@ class PaymentGatewayController extends Controller
                 if ( $request->transaction_amount != $transaction->trx_amount )
                     Log::warning("Please double check the transaction no. ". $transaction->trx_id);
 
+                $invoice_type = $transaction->invoice_id != NULL && $transaction->installment_id ? "Program" : "Installment";
+                $identifier = $transaction->invoice_id != NULL && $transaction->installment_id ? $invoice_model->inv_id : $transaction->installment_id;
+                if ( $this->receiptRepository->getReceiptByInvoiceIdentifier($invoice_type, $identifier) )
+                {
+                    Log::warning("Transaction no. {$transaction->trx_id} had been triggered but already has receipt" );
+                    return response()->json([
+                        'message' => 'Payment received'
+                    ]);
+                }
 
                 $transaction_amount = $request->transaction_amount;
                 if ( $transaction->payment_method == "VA" )
@@ -285,10 +329,14 @@ class PaymentGatewayController extends Controller
         } catch (Exception $err) {
             DB::rollBack();
             $log_service->createErrorLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, $err->getMessage(), $err->getLine(), $err->getFile(), $request->all());
-            return false;
+            return response()->json([
+                'message' => 'There\'s a  problem when receiving payment'
+            ]);
         }
 
         $this->log_service->createSuccessLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, 'Receipt created successfully', $receipt_created->toArray());
-        return true;
+        return response()->json([
+            'message' => 'Payment received'
+        ]);
     }
 }
