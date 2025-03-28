@@ -156,6 +156,7 @@ class PaymentGatewayController extends Controller
             'integration_type' => '01',
             'payment_method' => $payment_method,
             'bank_id' => $bank_id,
+            'validity' => Carbon::now()->addMinutes(10)->format('Y-m-d H:i:s.v O'),
             'external_id' => (string) $trx_id,
             'other_bills' => json_encode([[
                 'title' => 'admin fee',
