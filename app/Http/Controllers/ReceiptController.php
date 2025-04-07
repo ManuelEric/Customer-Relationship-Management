@@ -90,9 +90,11 @@ class ReceiptController extends Controller
         LogService $log_service,
         )
     {
-        #initialize
-        $identifier = $request->identifier; #invdtl_id
-        $paymethod = $request->paymethod;
+        #initialize variables for payment gateway
+        $identifier = $request->identifier; // could be primary id of invoice or invoice detail
+        $paymethod = $request->paymethod; // could be full payment or installment
+        $clientprog_id = $request->clientprog_id;
+        $is_child_program_bundle = $request->is_child_program_bundle;
 
         $receiptDetails = $request->safe()->only([
             'rec_currency',
@@ -107,17 +109,16 @@ class ReceiptController extends Controller
             'created_at',
         ]);
 
-        $client_prog = $this->clientProgramRepository->getClientProgramById($request->clientprog_id);
+        $client_prog = $this->clientProgramRepository->getClientProgramById($clientprog_id);
         
         # validation child receipt bundle
         # master receipt bundle must be created first 
         # master receipt also meaning as invoice bundle
-        if ( $request->is_child_program_bundle > 0 && !isset($client_prog->bundlingDetail->bundling->invoice_b2c->receipt) )
-            return Redirect::to('invoice/client-program/' . $request->clientprog_id)->withError('Create master receipt bundle first!');
+        if ( $is_child_program_bundle > 0 && !isset($client_prog->bundlingDetail->bundling->invoice_b2c->receipt) )
+            return Redirect::to('invoice/client-program/' . $clientprog_id)->withError('Create master receipt bundle first!');
         
 
-        $invoice = $client_prog->invoice()->first();
-        $is_child_program_bundle = $request->is_child_program_bundle; # sum of program bundled (ex: admission & academic tutor)
+        $invoice = $client_prog->invoice()->first();# sum of program bundled (ex: admission & academic tutor)
 
         # generate receipt ID
         $receipt_id = $receipt_service->generateReceiptId($receiptDetails, $client_prog, $is_child_program_bundle);
@@ -132,7 +133,7 @@ class ReceiptController extends Controller
 
         
         # check if receipt of selected invoice / installment has already been created
-        if ( $this->receiptRepository->getReceiptByInvoiceId($invoice->inv_id, $identifier) )
+        if ( $this->receiptRepository->getReceiptByInvoiceId($invoice->inv_id, $invoice_payment_method, $identifier) )
             return Redirect::back()->withError('Receipt has already been created.');
 
 
@@ -664,7 +665,7 @@ class ReceiptController extends Controller
             $receiptDetails['invdtl_id'] = $identifier;
 
         # check if receipt of selected invoice / installment has already been created
-        if ( $this->receiptRepository->getReceiptByInvoiceId($invoice->inv_id, $identifier) )
+        if ( $this->receiptRepository->getReceiptByInvoiceId($invoice->inv_id, $invoice_payment_method, $identifier) )
             return Redirect::back()->withError('Receipt has already been created.');
 
         # validation nominal

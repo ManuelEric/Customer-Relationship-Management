@@ -80,6 +80,21 @@ class PaymentGatewayController extends Controller
         $trx_currency = 'IDR';
 
         //! need validation to prevent payment link generated twice if the bills has already paid
+        if ( $existing_trx = Transaction::whereIdentifier($installment, $identifier)->whereBankName($bank_name)->available()->first() )
+        {
+            response()->json([
+                'error' => "You've been created the payment link.",
+                'payment_link' => env('PAYMENT_WEB_URI') . $existing_trx->payment_page_url
+            ], JsonResponse::HTTP_OK);
+        }
+
+        if ( $existing_trx = Transaction::whereIdentifier($installment, $identifier)->whereBankName($bank_name)->paid()->first() )
+        {
+            throw new HttpResponseException(
+                response()->json(['error' => "There's a problem. The transaction is done, but the receipt is missing. Please reach out to our administrator."], JsonResponse::HTTP_BAD_REQUEST)
+            );
+        }
+
 
         $invoice_id = $invoice_dtl_id = null;
         if ( $installment == 1 )
@@ -126,7 +141,7 @@ class PaymentGatewayController extends Controller
                 'merchant_ref_no' => $transaction->merchant_ref_no
             ]);
 
-            # response from prismalink should bring the status payment inside "response_description"
+            # response from prismalink should bring the status payment inside of "response_description"
             # in that case, we need to identify if "response_description" contains "CANCL" or no
             $pattern = '/CANCL/';
             $response_description = $response['response_description'];
