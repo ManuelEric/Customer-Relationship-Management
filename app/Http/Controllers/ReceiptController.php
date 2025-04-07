@@ -663,6 +663,10 @@ class ReceiptController extends Controller
         if ($invoice_payment_method == "Installment")
             $receiptDetails['invdtl_id'] = $identifier;
 
+        # check if receipt of selected invoice / installment has already been created
+        if ( $this->receiptRepository->getReceiptByInvoiceId($invoice->inv_id, $identifier) )
+            return Redirect::back()->withError('Receipt has already been created.');
+
         # validation nominal
         # to catch if total invoice not equal to total receipt 
         if ($invoice_payment_method == "Full Payment") {
