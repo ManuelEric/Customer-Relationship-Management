@@ -4,7 +4,9 @@ namespace App\Console\Commands\PaymentGateway;
 
 use App\Actions\PaymentGateway\PrismaLinkCheckStatusAction;
 use App\Models\Transaction;
+use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class CheckStatus extends Command
 {
@@ -36,9 +38,15 @@ class CheckStatus extends Command
                 'plink_ref_no' => $trx->plink_ref_no,
                 'merchant_ref_no' => $trx->merchant_ref_no
             ];
-            $this->info('Plink_ref_no : ' . $request['plink_ref_no'] . ' and merchant_ref_no : ' . $request['merchant_ref_no']);
-            [$response, $result, $message] = $check_status->execute($request);
-            $this->info('Result : ' . json_encode($result));
+
+            try {
+                $this->info('Plink_ref_no : ' . $request['plink_ref_no'] . ' and merchant_ref_no : ' . $request['merchant_ref_no']);
+                [$response, $result, $message] = $check_status->execute($request);
+                $this->info('Result : ' . json_encode($result));
+            } catch (Exception $e) {
+                Log::error('Check status : ' . $e->getMessage(). ' on line ' . $e->getLine() . ' and file ' . $e->getFile() );    
+                $this->error($e->getCode(), $e->getMessage());
+            }
         }
     }
 }

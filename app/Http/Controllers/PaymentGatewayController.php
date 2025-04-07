@@ -80,6 +80,7 @@ class PaymentGatewayController extends Controller
         $trx_currency = 'IDR';
 
         //! need validation to prevent payment link generated twice if the bills has already paid
+        
 
         $invoice_id = $invoice_dtl_id = null;
         if ( $installment == 1 )
