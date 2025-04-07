@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\PaymentGateway\PrismaLinkCheckStatusAction;
 use App\Enum\LogModule;
 use App\Http\Requests\Payment\GenerateLinkRequest;
 use App\Http\Traits\BankCodeTrait;
@@ -65,7 +66,10 @@ class PaymentGatewayController extends Controller
         return $response->json();
     }
 
-    public function generateLink(GenerateLinkRequest $request)
+    public function generateLink(
+        GenerateLinkRequest $request,
+        PrismaLinkCheckStatusAction $prismaLinkCheckStatusAction
+        )
     {
         $validated = $request->safe()->only(['payment_method', 'bank', 'installment', 'id']);
         $payment_method = $validated['payment_method'];
@@ -115,8 +119,23 @@ class PaymentGatewayController extends Controller
         # if by those data transaction could be found, then use the transaction ID of existing data
         if ( $transaction = Transaction::where('invoice_id', $invoice_id)->where('installment_id', $invoice_dtl_id)->where('invoice_number', $invoice_number)->first() )
         {
-            $trx_id = $transaction->trx_id;
-            $merchant_ref_no = $transaction->merchant_ref_no;
+            # before submit-trx 
+            # check if the transaction has been cancelled or not
+            [$response, $result, $message] = $prismaLinkCheckStatusAction->execute([
+                'plink_ref_no' => $transaction->plink_ref_no,
+                'merchant_ref_no' => $transaction->merchant_ref_no
+            ]);
+
+            # response from prismalink should bring the status payment inside "response_description"
+            # in that case, we need to identify if "response_description" contains "CANCL" or no
+            $pattern = '/CANCL/';
+            $response_description = $response['response_description'];
+            if ( !preg_match($pattern, $response_description) )
+            {
+                $trx_id = $transaction->trx_id;
+                $merchant_ref_no = $transaction->merchant_ref_no;
+            }
+
         }
 
         $total_transaction_with_fee = $trx_amount + $va_fee;
@@ -165,6 +184,7 @@ class PaymentGatewayController extends Controller
         ];
 
         Log::debug('Request to Prismalink', $request_body);
+
 
         $response = Http::withHeaders([
             'mac' => hash_hmac('sha256', json_encode($request_body), env('PAYMENT_SECRET_KEY')),
@@ -250,7 +270,7 @@ class PaymentGatewayController extends Controller
 
     public function checkStatus(Request $request)
     {
-
+        
     }
 
     public function callback(

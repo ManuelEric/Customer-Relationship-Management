@@ -37,7 +37,7 @@ class CheckStatus extends Command
                 'merchant_ref_no' => $trx->merchant_ref_no
             ];
             $this->info('Plink_ref_no : ' . $request['plink_ref_no'] . ' and merchant_ref_no : ' . $request['merchant_ref_no']);
-            $result = $check_status->execute($request);
+            [$response, $result, $message] = $check_status->execute($request);
             $this->info('Result : ' . json_encode($result));
         }
     }
