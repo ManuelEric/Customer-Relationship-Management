@@ -729,7 +729,7 @@ class ClientRepository implements ClientRepositoryInterface
                 },
             ])->
             isGraduated()->
-            // getMentoredStudents()->
+            getMentoredStudents()->
             search($search)->
             select([
                 'id',
@@ -2548,7 +2548,7 @@ class ClientRepository implements ClientRepositoryInterface
         }
 
         $active = $categories->where('id', $client->id)->where('category', 'active')->count();
-        $alumni = $categories->where('id', $client->id)->where('category', 'alumni')->count();
+        $alumni = $categories->where('id', operator: $client->id)->where('category', 'alumni')->count();
         $potential = $categories->where('id', $client->id)->where('category', 'potential')->count();
 
         if ($active > 0) {

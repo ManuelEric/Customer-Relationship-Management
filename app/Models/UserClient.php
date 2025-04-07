@@ -411,11 +411,11 @@ class UserClient extends Authenticatable
     public function getLeadSource($parameter)
     {
         switch ($parameter) {
-            case "All-In Event":
+            case "EduALL Event":
                 if ($this->event != NULL)
-                    return "ALL-In Event - " . $this->event->event_title;
+                    return "EduALL Event - " . $this->event->event_title;
                 else
-                    return "ALL-In Event";
+                    return "EduALL Event";
                 break;
 
             case "External Edufair":

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\PaymentGateway\PrismaLinkCheckStatusAction;
 use App\Enum\LogModule;
 use App\Http\Requests\Payment\GenerateLinkRequest;
 use App\Http\Traits\BankCodeTrait;
@@ -65,7 +66,10 @@ class PaymentGatewayController extends Controller
         return $response->json();
     }
 
-    public function generateLink(GenerateLinkRequest $request)
+    public function generateLink(
+        GenerateLinkRequest $request,
+        PrismaLinkCheckStatusAction $prismaLinkCheckStatusAction
+        )
     {
         $validated = $request->safe()->only(['payment_method', 'bank', 'installment', 'id']);
         $payment_method = $validated['payment_method'];
@@ -110,6 +114,30 @@ class PaymentGatewayController extends Controller
         $trx_id = $this->tnRandomDigit();
         $merchant_ref_no = (string) $parent_number . $trx_id;
 
+        # prevent transaction generated more than once by
+        # checking the transaction table using invoice_id, installment_id, and invoice_number
+        # if by those data transaction could be found, then use the transaction ID of existing data
+        if ( $transaction = Transaction::where('invoice_id', $invoice_id)->where('installment_id', $invoice_dtl_id)->where('invoice_number', $invoice_number)->first() )
+        {
+            # before submit-trx 
+            # check if the transaction has been cancelled or not
+            [$response, $result, $message] = $prismaLinkCheckStatusAction->execute([
+                'plink_ref_no' => $transaction->plink_ref_no,
+                'merchant_ref_no' => $transaction->merchant_ref_no
+            ]);
+
+            # response from prismalink should bring the status payment inside "response_description"
+            # in that case, we need to identify if "response_description" contains "CANCL" or no
+            $pattern = '/CANCL/';
+            $response_description = $response['response_description'];
+            if ( !preg_match($pattern, $response_description) )
+            {
+                $trx_id = $transaction->trx_id;
+                $merchant_ref_no = $transaction->merchant_ref_no;
+            }
+
+        }
+
         $total_transaction_with_fee = $trx_amount + $va_fee;
         
         # create request body
@@ -147,6 +175,7 @@ class PaymentGatewayController extends Controller
             'integration_type' => '01',
             'payment_method' => $payment_method,
             'bank_id' => $bank_id,
+            // 'validity' => Carbon::now()->addMinutes(10)->format('Y-m-d H:i:s.v O'),
             'external_id' => (string) $trx_id,
             'other_bills' => json_encode([[
                 'title' => 'admin fee',
@@ -155,6 +184,7 @@ class PaymentGatewayController extends Controller
         ];
 
         Log::debug('Request to Prismalink', $request_body);
+
 
         $response = Http::withHeaders([
             'mac' => hash_hmac('sha256', json_encode($request_body), env('PAYMENT_SECRET_KEY')),
@@ -171,10 +201,21 @@ class PaymentGatewayController extends Controller
 
         if ( $response['response_code'] != "PL000" )
         {
+            # in order to return error but display message to user
+            # so we have to put the error into HTTP_OK
+            # here's some condition only for duplicate transaction
+            # other than that will using exception Error 
+            if ( $response['response_code'] == "PL032" )
+            {
+                throw new HttpResponseException(
+                    response()->json(['error' => "Transaction Exists. Please refresh the page"], JsonResponse::HTTP_BAD_REQUEST)
+                );
+            }
+
             throw new HttpResponseException(
                 response()->json($response['response_message'], JsonResponse::HTTP_BAD_REQUEST)
             );
-        }
+        } 
 
 
         $trx_detail_to_store = [
@@ -207,7 +248,10 @@ class PaymentGatewayController extends Controller
 
         DB::beginTransaction();
         try {    
-            $trx = Transaction::create($trx_detail_to_store);
+            $trx = Transaction::updateOrCreate([
+                'trx_id' => $trx_id,
+                'merchant_ref_no' => $merchant_ref_no
+            ], $trx_detail_to_store);
             DB::commit();
         } catch (Exception $err) {
             DB::rollBack();
@@ -222,6 +266,11 @@ class PaymentGatewayController extends Controller
             'response_description' => 'SUCCESS',
             'payment_link' => env('PAYMENT_WEB_URI').$response['payment_page_url']
         ]);
+    }
+
+    public function checkStatus(Request $request)
+    {
+        
     }
 
     public function callback(
@@ -255,6 +304,15 @@ class PaymentGatewayController extends Controller
                 if ( $request->transaction_amount != $transaction->trx_amount )
                     Log::warning("Please double check the transaction no. ". $transaction->trx_id);
 
+                $invoice_type = $transaction->invoice_id != NULL && $transaction->installment_id ? "Program" : "Installment";
+                $identifier = $transaction->invoice_id != NULL && $transaction->installment_id ? $invoice_model->inv_id : $transaction->installment_id;
+                if ( $this->receiptRepository->getReceiptByInvoiceIdentifier($invoice_type, $identifier) )
+                {
+                    Log::warning("Transaction no. {$transaction->trx_id} had been triggered but already has receipt" );
+                    return response()->json([
+                        'message' => 'Payment received'
+                    ]);
+                }
 
                 $transaction_amount = $request->transaction_amount;
                 if ( $transaction->payment_method == "VA" )
@@ -285,10 +343,14 @@ class PaymentGatewayController extends Controller
         } catch (Exception $err) {
             DB::rollBack();
             $log_service->createErrorLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, $err->getMessage(), $err->getLine(), $err->getFile(), $request->all());
-            return false;
+            return response()->json([
+                'message' => 'There\'s a  problem when receiving payment'
+            ]);
         }
 
         $this->log_service->createSuccessLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, 'Receipt created successfully', $receipt_created->toArray());
-        return true;
+        return response()->json([
+            'message' => 'Payment received'
+        ]);
     }
 }

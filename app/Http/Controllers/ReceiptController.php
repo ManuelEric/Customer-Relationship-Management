@@ -94,7 +94,7 @@ class ReceiptController extends Controller
         $identifier = $request->identifier; #invdtl_id
         $paymethod = $request->paymethod;
 
-        $receiptDetails = $request->only([
+        $receiptDetails = $request->safe()->only([
             'rec_currency',
             'receipt_amount',
             'receipt_amount_idr',
@@ -129,6 +129,12 @@ class ReceiptController extends Controller
         $invoice_payment_method = $invoice->inv_paymentmethod;
         if ($invoice_payment_method == "Installment")
             $receiptDetails['invdtl_id'] = $identifier;
+
+        
+        # check if receipt of selected invoice / installment has already been created
+        if ( $this->receiptRepository->getReceiptByInvoiceId($invoice->inv_id, $identifier) )
+            return Redirect::back()->withError('Receipt has already been created.');
+
 
         # here is some price validation
         # to catch if total invoice is not equal to total receipt
@@ -656,6 +662,10 @@ class ReceiptController extends Controller
         $invoice_payment_method = $invoice->inv_paymentmethod;
         if ($invoice_payment_method == "Installment")
             $receiptDetails['invdtl_id'] = $identifier;
+
+        # check if receipt of selected invoice / installment has already been created
+        if ( $this->receiptRepository->getReceiptByInvoiceId($invoice->inv_id, $identifier) )
+            return Redirect::back()->withError('Receipt has already been created.');
 
         # validation nominal
         # to catch if total invoice not equal to total receipt 

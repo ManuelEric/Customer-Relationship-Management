@@ -42,7 +42,13 @@ class StoreReceiptRequest extends FormRequest
             'receipt_cheque' => 'required_if:receipt_method,Cheque',
             'pph23' => 'nullable',
             'receipt_cat' => 'nullable',
-            'created_at' => 'nullable'
+            'created_at' => 'nullable',
+
+            # from form blade
+            'identifier' => 'nullable',
+            'paymethod' => 'nullable',
+            'clientprog_id' => 'required',
+            'is_child_program_bundle' => 'nullable',
         ];
     }
 }
