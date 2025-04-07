@@ -121,6 +121,13 @@ class ReceiptRepository implements ReceiptRepositoryInterface
         return Receipt::find($receiptId);
     }
 
+    public function getReceiptByInvoiceId($invoiceId, $installmentId = null)
+    {
+        return Receipt::where('inv_id', $invoiceId)->when($installmentId, function ($query) use ($installmentId) {
+            $query->where('invdtl_id', $installmentId);
+        })->first();
+    }
+
 
     public function getAllReceiptByStatusDataTables($status = null) # client program
     {
