@@ -74,6 +74,10 @@ class PrismaLinkCheckStatusAction
 
         switch ($response['transaction_status'])
         {
+            case "PNDNG":
+                $message = "Check status complete";
+                break;
+
             case "SETLD":
                 # update the transaction status
                 $transaction = Transaction::where('plink_ref_no', $request_body['plink_ref_no'])->first();
