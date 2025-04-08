@@ -47,7 +47,7 @@ class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
         
         // return $clientprogram->phase_detail()->wherePivot('phase_detail_id', $phase_detail_id)->first();
         
-        DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->increment('use', $use);
+        DB::table('client_program_details')->where('clientprog_id', operator: $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->increment('use', $use);
 
         return DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->first();
     }
