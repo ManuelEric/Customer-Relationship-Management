@@ -629,6 +629,7 @@ class ReceiptController extends Controller
         ReceiptService $receiptService
     )
     {
+        Log::debug($request->all());
         #initialize
         $identifier = $request->identifier; #invdtl_id
         $paymethod = $request->paymethod;
