@@ -34,6 +34,8 @@ class ProgramPhaseController extends Controller
     {
         $program_phase_details = $request->safe()->only(['clientprog_id', 'phase_detail_id', 'phase_lib_id']);
        
+        // TODO :
+        // disable delete program phase if use > 0
         DB::beginTransaction();
         try {
             $deleted_program_phase = $this->programPhaseRepository->rnDeleteProgramPhase($program_phase_details);
@@ -125,6 +127,9 @@ class ProgramPhaseController extends Controller
 
     public function fnUpdateUseProgramPhase(UpdateUseProgramPhaseRequest $request, LogService $log_service)
     {
+        // TODO: Add type for: Accumulation or update
+        // Accumulation : increment use
+        // Update : update use
         $program_phase_details = $request->safe()->only(['mentee_id', 'phase_detail_id', 'use']);
 
         # select program admission

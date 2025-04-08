@@ -41,6 +41,11 @@
                                                 }
                                             @endphp
                                             <tr align="left">
+                                                {{-- 
+                                                    TODO:
+                                                    Create validation 
+                                                    if use > 0 then disable uncheck 
+                                                --}}
                                                 <td><input class="form-check-input check-package" type="checkbox" value="" data-phase-detail-id="{{$phase_detail->id}}" data-phase-lib-id="{{$data_phase_lib[$phase_detail->id]->id ?? '-'}}" data-clientprog-id="{{ isset($clientProgram) ? $clientProgram->clientprog_id : '-' }}" id="check-{{$phase_detail->id}}" {{ $is_check_program_phase != null ? 'checked' : '' }}></td>
                                                 <td>{{ $phase_detail->phase_detail_name }}</td>
                                                 <td style="min-width: 70px">
