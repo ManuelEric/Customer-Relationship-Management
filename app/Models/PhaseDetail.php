@@ -18,7 +18,8 @@ class PhaseDetail extends Model
      * @var array
      */
     protected $fillable = [
-        'phase_detail_name'
+        'phase_detail_name',
+        'type'
     ];
 
     public function phase()

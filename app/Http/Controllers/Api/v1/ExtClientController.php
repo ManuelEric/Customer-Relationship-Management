@@ -2332,25 +2332,55 @@ class ExtClientController extends Controller
     }
 
     public function fnGetPackagesBoughtByMentee(
-        UserCLient $user_client        
+        UserCLient $user_client,
+        Request $request        
         )
     {
         try {
             $mapped_packages_bought = [];
+            $type = $request->get('type'); 
             $packages_bought = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->has('phase_detail')->get();
 
             if(count($packages_bought) > 0){
 
-                $mapped_packages_bought = $packages_bought->map(function($item){
+                $mapped_packages_bought = $packages_bought->map(function($item) use($type){
 
-                    $mapped_phase_detail = $item->phase_detail->map(function($item) {
-                        return [
-                            'phase_detail_id' => $item->id,
-                            'phase_detail_name' => $item->phase_detail_name,
-                            'allocate' => $item->pivot->quota,
-                            'use' => $item->pivot->use
-                        ];
-                    });
+                    $clientprog = $item;
+
+                    switch ($type) {
+                        case 'all':
+                            $mapped_phase_detail = $item->phase_detail->map(function($item)use($clientprog) {
+                                return [
+                                    'clientprog_id' => $clientprog->clientprog_id,
+                                    'phase_detail_id' => $item->id,
+                                    'phase_detail_name' => $item->phase_detail_name,
+                                    'allocate' => $item->pivot->quota,
+                                    'use' => $item->pivot->use
+                                ];
+                            });
+                            break;
+
+                        case 'manual':
+                            $mapped_phase_detail = $item->phase_detail->where('type', 'manual')->map(function($item)use($clientprog) {
+                                return [
+                                    'clientprog_id' => $clientprog->clientprog_id,
+                                    'phase_detail_id' => $item->id,
+                                    'phase_detail_name' => $item->phase_detail_name,
+                                    'allocate' => $item->pivot->quota,
+                                    'use' => $item->pivot->use
+                                ];
+                            });
+                            break;
+                        
+                        default:
+                            return response()->json([
+                                'success' => false,
+                                'error' => 'Failed to get packages bought, Undefined type!'
+                            ], JsonResponse::HTTP_BAD_REQUEST);
+                            break;
+                    }
+                   
+
                     return $mapped_phase_detail;
                 });
                 
