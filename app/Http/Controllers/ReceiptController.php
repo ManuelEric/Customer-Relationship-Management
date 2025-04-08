@@ -681,8 +681,10 @@ class ReceiptController extends Controller
             $total_receipt = $request->receipt_amount_idr;
         }
 
-        if ($total_receipt < $total_invoice)
+        if ($total_receipt < $total_invoice){
+            Log::debug('Kena validasi total reciept < total invoice ');
             return Redirect::back()->withError('Do double check the amount. Make sure the amount on invoice and the amount on receipt is equal');
+        }
 
         // return $receiptDetails;
         DB::beginTransaction();
