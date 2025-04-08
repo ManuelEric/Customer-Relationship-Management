@@ -629,7 +629,6 @@ class ReceiptController extends Controller
         ReceiptService $receiptService
     )
     {
-        Log::debug($request->all());
         #initialize
         $identifier = $request->identifier; #invdtl_id
         $paymethod = $request->paymethod;
@@ -665,10 +664,7 @@ class ReceiptController extends Controller
 
         # check if receipt of selected invoice / installment has already been created
         if ( $this->receiptRepository->getReceiptByInvoiceId($invoice->inv_id, $invoice_payment_method, $identifier) )
-        {
-            Log::debug('Kena validasi already created ');
             return Redirect::back()->withError('Receipt has already been created.');
-        }
 
         # validation nominal
         # to catch if total invoice not equal to total receipt 
@@ -682,10 +678,8 @@ class ReceiptController extends Controller
             $total_receipt = $request->receipt_amount_idr;
         }
 
-        if ($total_receipt < $total_invoice){
-            Log::debug('Kena validasi total reciept < total invoice ');
+        if ($total_receipt < $total_invoice)
             return Redirect::back()->withError('Do double check the amount. Make sure the amount on invoice and the amount on receipt is equal');
-        }
 
         // return $receiptDetails;
         DB::beginTransaction();

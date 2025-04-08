@@ -17,9 +17,6 @@
         <div class="col-md-4">
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
-                    @if($errors->any())
-    {!! implode('', $errors->all('<div>:message</div>')) !!}
-@endif
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $clientProg->client->full_name }}</h4>
 

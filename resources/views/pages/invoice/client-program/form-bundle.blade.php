@@ -14,9 +14,9 @@
         $clientProg = $bundle->details->first()->client_program;
     @endphp
 
-    @if($errors->any())
+    {{-- @if($errors->any())
         {{ implode('', $errors->all('<div>:message</div>')) }}
-    @endif
+    @endif --}}
 
     <div class="row">
         <div class="col-md-4">
