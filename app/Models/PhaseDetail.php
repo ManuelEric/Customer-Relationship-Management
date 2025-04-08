@@ -33,6 +33,6 @@ class PhaseDetail extends Model
 
     public function client_program()
     {
-        return $this->belongsToMany(ClientProgram::class, 'client_program_details', 'phase_detail_id', 'clientprog_id')->using(ClientProgramDetail::class)->withPivot('quota');
+        return $this->belongsToMany(ClientProgram::class, 'client_program_details', 'phase_detail_id', 'clientprog_id')->using(ClientProgramDetail::class)->withPivot('quota', 'use');
     }
 }
