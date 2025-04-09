@@ -58,7 +58,7 @@
                      <span class="input-group-text" id="basic-addon1">
                          Rp
                      </span>
-                     <input type="number" name="invb2b_totpriceidr" id="invoice_idr_total" class="form-control" readonly
+                     <input type="number" name="invb2b_totpriceidr" id="invoice_idr_total" class="form-control"
                      value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_totpriceidr : old('invb2b_totpriceidr') }}"
                      {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                  </div>
@@ -104,4 +104,9 @@
             $('#invoice_idr_word').val(wordConverter(total)+ ' Rupiah')
          }
      }
+
+    $("#invoice_idr_total").on('keyup', function () {
+        var val = $(this).val()
+        $("#invoice_idr_word").val(wordConverter(val)+ ' Rupiah')
+    })
  </script>

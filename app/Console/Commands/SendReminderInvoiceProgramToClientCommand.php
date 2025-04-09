@@ -115,12 +115,12 @@ class SendReminderInvoiceProgramToClientCommand extends Command
                 try {
                     Mail::send($mail_resources, $params, function ($message) use ($params, $subject) {
                         $message->to($params['parent_mail'], $params['parent_fullname'])
-                            ->cc([env('FINANCE_CC'), env('FINANCE_CC_2'), $params['pic_email']])
+                            ->cc([env(key: 'FINANCE_CC'), env('FINANCE_CC_2'), $params['pic_email']])
                             ->subject($subject);
                     });
                 } catch (Exception $e) {
 
-                    Log::error('Failed to send invoice reminder to ' . $parent_mail . ' caused by : ' . $e->getMessage() . ' | Line ' . $e->getLine());
+                    Log::error('Failed to send invoice client reminder to ' . $parent_mail . ' caused by : ' . $e->getMessage() . ' | Line ' . $e->getLine() . ' | File ' . $e->getFile());
                     return $this->error($e->getMessage() . ' | Line ' . $e->getLine());
                 }
 

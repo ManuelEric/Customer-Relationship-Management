@@ -51,7 +51,7 @@
                                         <td>Rp. {{ number_format($paidPayment->total, '2', ',', '.') }}</td>
                                     </tr>
                                     @php
-                                        $total_paid_diff += $paidPayment->total > $paidPayment->total_price_inv ? $paidPayment->total - $PaidPayment->total_price_inv : 0;
+                                        $total_paid_diff += $paidPayment->total > $paidPayment->total_price_inv ? $paidPayment->total - $paidPayment->total_price_inv : 0;
                                     @endphp
                                 @endforeach
                             </tbody>
@@ -97,7 +97,7 @@
         let year = $('#revenue_year').val()
 
         showLoading()
-        axios.get('{{ url('api/finance/revenue') }}/' + year)
+        axios.get('{{ url('api/v1/dashboard/finance/revenue') }}/' + year)
             .then((response) => {
 
                 $('#tbl_revenue').empty();
@@ -224,7 +224,7 @@
 
 
                 showLoading()
-                axios.get('{{ url('api/finance/revenue/detail') }}/' + year + '/' + month)
+                axios.get('{{ url('api/v1/dashboard/finance/revenue/detail') }}/' + year + '/' + month)
                     .then((response) => {
                         var result = response.data.data
 

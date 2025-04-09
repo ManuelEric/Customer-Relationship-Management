@@ -177,6 +177,8 @@ class SyncDataCommand extends Command
                     $index += 200;
                 }
 
+                Log::debug('Heres the encode', $result);
+                
                 # Update google sheet based on sheet name
                 Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_SYNC_DATA'))->sheet($query['sheet_name'])->range('A'. $index)->update($result);
                 $i++;

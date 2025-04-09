@@ -25,7 +25,7 @@ class DeletePurchaseRequestAction
 
             if($purchase->purchase_attachment != null){
                 # delete file if does exist
-                $this->tnDeleteFile('storage/uploaded_file/finance/', $purchase->purchase_attachment);
+                $this->tnDeleteFile('project/crm/finance/', $purchase->purchase_attachment);
             }
         }
 

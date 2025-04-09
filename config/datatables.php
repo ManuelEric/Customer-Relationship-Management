@@ -115,7 +115,7 @@ return [
      */
     'json'           => [
         'header'  => [],
-        'options' => 0,
+        'options' => JSON_INVALID_UTF8_IGNORE,
     ],
 
     /*

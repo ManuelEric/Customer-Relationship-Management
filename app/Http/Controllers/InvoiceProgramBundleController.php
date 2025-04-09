@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use PDF;
 use DateTime;
+use Illuminate\Support\Facades\Storage;
 
 class InvoiceProgramBundleController extends Controller
 {
@@ -547,7 +548,7 @@ class InvoiceProgramBundleController extends Controller
         try {
 
             $this->invoiceAttachmentRepository->updateInvoiceAttachment($attachment->id, $new_details);
-            if (!$pdf_file->storeAs('public/uploaded_file/invoice/client/', $file_name))
+            if (!Storage::disk('s3')->put('project/crm/invoice/client/'.$file_name, file_get_contents($pdf_file)))
                 throw new Exception('Failed to store signed invoice file');
 
             $data['title'] = 'Invoice No. ' . $inv_id . ' has been signed';
@@ -558,7 +559,7 @@ class InvoiceProgramBundleController extends Controller
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
                     ->cc([env('FINANCE_CC_2')])
                     ->subject($data['title'])
-                    ->attach(storage_path('app/public/uploaded_file/invoice/client/' . $file_name));
+                    ->attach(Storage::url('invoice/client/' . $file_name));
             });
 
             DB::commit();

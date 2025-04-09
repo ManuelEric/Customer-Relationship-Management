@@ -7,6 +7,7 @@ use App\Http\Traits\UploadFileTrait;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\PartnerAgreementRepositoryInterface;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class CreatePartnerAgreementAction
@@ -33,10 +34,10 @@ class CreatePartnerAgreementAction
         $file = $request->file('attachment');
         $file_name = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME), "_").'_'.Str::slug(Carbon::now(),"_");
         $extension = $file->getClientOriginalExtension();
-        $file_location = 'attachment/partner_agreement/'.strtolower($corp_id).'/'; 
+        $file_location = 'project/crm/attachment/partner_agreement/'.strtolower($corp_id).'/'; 
         $attachment = $file_name.'.'.$extension;
 
-        $file->move($file_location, $file_name.'.'.$extension);
+        Storage::disk('s3')->put($file_location . $attachment, file_get_contents($file));
       
         $partner_agreement_details['attachment'] = $attachment;
 

@@ -67,7 +67,7 @@ class ProcessEmailRequestSignJobBundle implements ShouldQueue, ShouldBeUniqueUnt
                         'director' => $this->attachmentDetails['director'],
                     ]
                 );
-        Storage::put('public/uploaded_file/invoice/client/' . $this->attachmentDetails['file_name'] . '.pdf', $pdf->output());
+        Storage::disk('s3')->put('project/crm/invoice/client/' . $this->attachmentDetails['file_name'] . '.pdf', $pdf->output());
 
         # send email to related person that has authority to give a signature
         Mail::send('pages.invoice.client-program.mail.view-bundle', $this->mailDetails, function ($message) use ($pdf) {

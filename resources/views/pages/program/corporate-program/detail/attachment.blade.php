@@ -19,7 +19,7 @@
                     @forelse ($partnerProgramAttachs as $partnerProgramAttach)
                     
                         <div class="d-flex me-2 border px-2 py-1 rounded">
-                            <a href="{{ url($partnerProgramAttach->corprog_attach) }}" class="text-muted text-decoration-none">
+                            <a href="{{ Storage::url('attachment/partner_prog_attach/' . $partnerProgramAttach->partner_prog_id . '/' . $partnerProgramAttach->corprog_attach) }}" class="text-muted text-decoration-none">
                                     <i class="bi bi-download me-1"></i> {{ $partnerProgramAttach->corprog_file }}
                                 </a>
                                 <div class="text-end cursor-pointer ms-4">

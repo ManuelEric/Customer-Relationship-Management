@@ -3,10 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Module\AlarmController;
-use App\Http\Controllers\Module\DigitalDashboardController;
-use App\Http\Controllers\Module\SalesDashboardController;
-use App\Http\Controllers\Module\FinanceDashboardController;
-use App\Http\Controllers\Module\PartnerDashboardController;
 use App\Http\Requests\DashboardRequest;
 use App\Http\Traits\Modules\GetClientStatusTrait;
 use App\Interfaces\ClientEventRepositoryInterface;
@@ -118,59 +114,67 @@ class DashboardController extends Controller
 
         # filter for sales dashboard
         $filter = $request->safe()->only(['qdate', 'start', 'end', 'quuid', 'program_id', 'qparam_year1', 'qparam_year2', 'qyear']);
+        $division = $request->route('division');
 
-        /**
-         * sales data dashboard
-         */
-        if (!Cache::has('sales-data-dashboard')) {
-            $sales = $dashboardService->snSalesDashboard($filter);
-            // $sales = (new SalesDashboardController($this))->get($request);
-            Cache::remember('sales-data-dashboard', $time_stored_in_second, function () use ($sales) {
-                return $sales;
-            });
+        switch ($division) {
+            case 'sales':
+                /**
+                 * sales data dashboard
+                 */
+                
+                if (!Cache::has('sales-data-dashboard')) {
+                    $sales = $dashboardService->snSalesDashboard($filter);
+                    // $sales = (new SalesDashboardController($this))->get($request);
+                    Cache::remember('sales-data-dashboard', $time_stored_in_second, function () use ($sales) {
+                        return $sales;
+                    });
+                }
+                $sales = Cache::get('sales-data-dashboard');
+                break;
+
+            case 'partnership':
+                /**
+                 * partnership data dashboard
+                 */
+                if (!Cache::has('partnership-data-dashboard')) {
+                    $partnership = $dashboardService->snPartnershipDashboard();
+                    // $partnership = (new PartnerDashboardController($this))->get($request);
+                    Cache::remember('partnership-data-dashboard', $time_stored_in_second, function () use ($partnership) {
+                        return $partnership;
+                    });
+                }
+                $partnership = Cache::get('partnership-data-dashboard');
+                break;
+
+            case 'digital':
+                /**
+                 * digital data dashboard
+                 */
+                if (!Cache::has('digital-data-dashboard')) {
+                    $digital = $dashboardService->snDigitalDashboard();
+                    // $digital = (new DigitalDashboardController($this))->get($request);
+                    Cache::remember('digital-data-dashboard', $time_stored_in_second, function () use ($digital) {
+                        return $digital;
+                    });
+                }
+                $digital = Cache::get('digital-data-dashboard');
+                break;
+
+            case 'finance':
+                /**
+                 * finance data dashboard
+                 */
+                if (!Cache::has('finance-data-dashboard')) {
+                    $finance = $dashboardService->snFinanceDashboard();
+                    // $finance = (new FinanceDashboardController($this))->get($request);
+                    Cache::remember('finance-data-dashboard', $time_stored_in_second, function () use ($finance) {
+                        return $finance;
+                    });
+                }
+                $finance = Cache::get('finance-data-dashboard');
+                break;
         }
-        $sales = Cache::get('sales-data-dashboard');
-
-
-        /**
-         * partnership data dashboard
-         */
-        if (!Cache::has('partnership-data-dashboard')) {
-            $partnership = $dashboardService->snPartnershipDashboard();
-            // $partnership = (new PartnerDashboardController($this))->get($request);
-            Cache::remember('partnership-data-dashboard', $time_stored_in_second, function () use ($partnership) {
-                return $partnership;
-            });
-        }
-        $partnership = Cache::get('partnership-data-dashboard');
         
-
-        /**
-         * finance data dashboard
-         */
-        if (!Cache::has('finance-data-dashboard')) {
-            $finance = $dashboardService->snFinanceDashboard();
-            // $finance = (new FinanceDashboardController($this))->get($request);
-            Cache::remember('finance-data-dashboard', $time_stored_in_second, function () use ($finance) {
-                return $finance;
-            });
-        }
-        $finance = Cache::get('finance-data-dashboard');
-        
-
-        /**
-         * digital data dashboard
-         */
-        if (!Cache::has('digital-data-dashboard')) {
-            $digital = $dashboardService->snDigitalDashboard();
-            // $digital = (new DigitalDashboardController($this))->get($request);
-            Cache::remember('digital-data-dashboard', $time_stored_in_second, function () use ($digital) {
-                return $digital;
-            });
-        }
-        $digital = Cache::get('digital-data-dashboard');
-
-
         /**
          * alarm data dashboard
          */

@@ -15,12 +15,11 @@ use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Traits\StandardizePhoneNumberTrait;
-use App\Interfaces\ClientProgramRepositoryInterface;
-use App\Jobs\Client\ProcessUpdateGradeAndGraduationYearNow;
 use App\Models\ClientAcceptance;
 use App\Models\ClientEvent;
 use App\Models\ClientLog;
 use App\Models\PicClient;
+use App\Models\pivot\ClientAcceptance as PivotClientAcceptance;
 use App\Models\User;
 use App\Models\ViewRawClient;
 use Illuminate\Database\Eloquent\Collection;
@@ -214,7 +213,7 @@ class ClientRepository implements ClientRepositoryInterface
     public function getDataTables($model, $raw = false)
     {
 
-        if ($raw === true) 
+        if ($raw === true)
             return DataTables::of($model)->make(true);
 
         return DataTables::eloquent($model)->
@@ -370,10 +369,13 @@ class ClientRepository implements ClientRepositoryInterface
             when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
+            orderBy('client.updated_at', 'DESC')->
+            orderBy('client.created_at', 'DESC')->
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            isNotBlacklist();
             
         return $asDatatables === false ? $query->get() : $query;
     }
@@ -432,10 +434,13 @@ class ClientRepository implements ClientRepositoryInterface
             })->when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
+            orderBy('client.updated_at', 'DESC')->
+            orderBy('client.created_at', 'DESC')->
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            isNotBlacklist();
 
         return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
     }
@@ -516,10 +521,13 @@ class ClientRepository implements ClientRepositoryInterface
             })->when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
+            orderBy('client.updated_at', 'DESC')->
+            orderBy('client.created_at', 'DESC')->
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            isNotBlacklist();
             // groupBy('client.id');
 
         return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
@@ -598,10 +606,13 @@ class ClientRepository implements ClientRepositoryInterface
             when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
             })->
+            orderBy('client.updated_at', 'DESC')->
+            orderBy('client.created_at', 'DESC')->
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            isNotBlacklist();
             // groupBy('client.id');
 
         return $asDatatables === false ? $query->orderBy('client.updated_at', 'desc')->get() : $query;
@@ -659,6 +670,8 @@ class ClientRepository implements ClientRepositoryInterface
         when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
             $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
         })->
+        orderBy('client.updated_at', 'DESC')->
+        orderBy('client.created_at', 'DESC')->
         isNotSalesAdmin()->
         isUsingAPI();
 
@@ -700,11 +713,85 @@ class ClientRepository implements ClientRepositoryInterface
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            isNotBlacklist();
 
         return $asDatatables === false ?
             ($groupBy === true ? $query->addSelect(DB::raw('YEAR(client.created_at) AS year'))->get()->groupBy('year') : $query->get())
             : $query;
+    }
+
+    public function rnGetGraduatedMentees(mixed $search)
+    {
+        $graduated_mentees = UserClient::with([
+                'universityAcceptance' => function ($query) {
+                    $query->where('tbl_client_acceptance.status', 'final decision');
+                },
+            ])->
+            isGraduated()->
+            getMentoredStudents()->
+            search($search)->
+            select([
+                'id',
+                'first_name',
+                'last_name',
+                'application_year',
+            ])->get();
+            
+        $mapped_graduated_mentees = $graduated_mentees->map(function ($item) {
+
+            $have_university_acceptance = count($item->universityAcceptance) > 0 ? true : false;
+            $university_acceptance = $have_university_acceptance ? $item->universityAcceptance[0] : null;
+            $university_name = $have_university_acceptance ? $university_acceptance->univ_name : null;
+            $major_group = $have_university_acceptance ? $university_acceptance->pivot->major_group->mg_name : null;
+            $major = $have_university_acceptance ? $university_acceptance->pivot->get_major_name : null;
+            $created_university_acceptance_at = $have_university_acceptance 
+                ? Carbon::parse($university_acceptance->pivot->created_at)->format('Y-m-d H:i:s') 
+                : null;
+
+            return [
+                'id' => $item->id,
+                'full_name' => $item->full_name,
+                'university_name' => $university_name,
+                'major_group' => $major_group,
+                'major' => $major,
+                'application_year' => $item->application_year,
+                'created_at' => $created_university_acceptance_at
+            ];
+        });
+        
+        return $mapped_graduated_mentees;
+    }
+
+    public function rnGetActiveMentees(mixed $search)
+    {
+        $active_mentees = UserClient::with([
+            'school' => function ($query) {
+                $query->select('sch_id', 'sch_name', 'sch_city');
+            },
+        ])->
+        isActiveMentee()->
+        search($search)->
+        getMentoredStudents()->
+        get();
+        $mapped_active_mentees = $active_mentees->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'full_name' => $item->full_name,
+                'mail' => $item->mail,
+                'phone' => $item->phone,
+                'dob' => $item->dob,
+                'city' => $item->city,
+                'address' => $item->address,
+                'sch_name' => $item->school->sch_name ?? null,
+                'sch_city' => $item->school->sch_city ?? null,
+                'grade' => $item->grade_now,
+                'application_year' => $item->application_year,
+                'mentoring_progress_status' => $item->mentoring_progress_status
+            ];
+        });
+        
+        return $mapped_active_mentees;
     }
 
     public function getAlumniMenteesSiblings()
@@ -768,7 +855,8 @@ class ClientRepository implements ClientRepositoryInterface
             isNotSalesAdmin()->
             isUsingAPI()->
             isActive()->
-            isVerified();
+            isVerified()->
+            isNotBlacklist();
 
         return $asDatatables === false ?
             ($groupBy === true ? $query->addSelect(DB::raw('YEAR(client.created_at) AS year'))->get()->groupBy('year') : $query->get())
@@ -805,6 +893,8 @@ class ClientRepository implements ClientRepositoryInterface
             when(!empty($advanced_filter['have_siblings']), function ($subQuery) use ($advanced_filter) {
                 $subQuery->where(DB::raw('IF((SELECT COUNT(*) FROM tbl_client_relation WHERE parent_id = client.id) > 1,true,false)'), $advanced_filter['have_siblings']);
             })->
+            orderBy('client.updated_at', 'DESC')->
+            orderBy('client.created_at', 'DESC')->
             isActive()->
             isVerified();
 
@@ -822,7 +912,11 @@ class ClientRepository implements ClientRepositoryInterface
         $query = Client::when($month, function ($subQuery) use ($month) {
             $subQuery->whereMonth('client.created_at', date('m', strtotime($month)))->whereYear('client.created_at', date('Y', strtotime($month)));
         })->
-        isTeacher()->isActive()->isVerified();
+        isTeacher()->
+        isActive()->
+        isVerified()->
+        orderBy('client.updated_at', 'DESC')->
+        orderBy('client.created_at', 'DESC');
 
         return $asDatatables === false ? $query->get() : $query;
     }
@@ -1224,6 +1318,30 @@ class ClientRepository implements ClientRepositoryInterface
     {
         return UserClient::with(['childrens'])->withTrashed()->find($clientId);
     }
+
+    // public function getClientByIdForAdmission($clientId)
+    // {
+    //     return UserClient::with([
+    //             'childrens',
+    //             'parents',
+    //             'clientProgram' => function ($query) {
+    //                 $query->select('clientprog_id', 'client_id', 'prog_id')->whereHas('program', function ($query) {
+    //                     $query->where('main_prog_id', 1);
+    //                 });
+    //             },
+    //             'clientProgram.clientMentor' => function ($query) {
+    //                 $query->select('users.id', 'nip', 'first_name', 'last_name')->withPivot('type', 'status');
+    //             },
+    //             'clientProgram.program' => function ($query) {
+    //                 $query->select('prog_id', 'main_prog_id');
+    //             }
+    //         ])->
+    //         whereHas('clientProgram.program', function ($query) {
+    //             $query->where('main_prog_id', 1);
+    //         })->
+    //         withTrashed()->
+    //         find($clientId);
+    // }
 
     public function getClientWithTrashedByUUID($clientUUID)
     {
@@ -1678,12 +1796,13 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getClientHasUniversityAcceptance()
     {
-        return Datatables::eloquent(ClientAcceptance::query())->make(true);
+        $model = ClientAcceptance::query();
+        return Datatables::eloquent($model)->make(true);
     }
 
     public function addInterestProgram($studentId, $interestProgram)
     {
-        $student = UserClient::find($studentId);
+        $student = UserClient::withTrashed()->find($studentId);
         $student->interestPrograms()->attach($interestProgram);
         return $student;
     }
@@ -1829,11 +1948,130 @@ class ClientRepository implements ClientRepositoryInterface
                 })->
                 when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
                     $querySearch->whereBetween('raw_client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
-                });
-
-        // return Datatables::eloquent($model)->make(true);
+                })->
+                orderBy('raw_client.created_at', 'DESC');
         
-        return $asDatatables === false ? $query->get() : $query;
+        return $asDatatables === false ? $query->get() : $query->get();
+    }
+
+    public function getNewAllRawClientDataTables($roleName, $asDatatables = false, $advanced_filter = [])
+    {
+        $query = UserClient::isRaw()->isNotBlacklist()->
+                whereHas('roles', function ($query2) use ($roleName) {
+                    switch ($roleName) {
+                        case 'student':
+                            $query2->whereIn('role_name', ['student', 'parent'])
+                                    ->whereRaw(DB::raw('(CASE WHEN role_name = "parent" THEN ExistRawClientRelation((SELECT tbl_client.id), "parent") = 0 ELSE ExistRawClientRelation((SELECT tbl_client.id), "student") >= 0 END)'));
+                            break;
+                    }
+                })->               
+                when(Session::get('user_role') == 'Employee', function ($subQuery) {
+                    $subQuery->whereHas('picClient', function($subQuery_2){
+                        $subQuery_2->where('user_id', auth()->user()->id)->where('status', 1);
+                    });
+                })->
+                when(!empty($advanced_filter['school_name']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereHas('school', function($subQuery_2) use($advanced_filter){
+                        $subQuery_2->whereIn('sch_name', $advanced_filter['school_name']);
+                    });
+                })->
+                when(!empty($advanced_filter['grade']), function ($querySearch) use ($advanced_filter) {
+                    if(in_array('not_high_school', $advanced_filter['grade'])){
+                        $key = array_search('not_high_school', $advanced_filter['grade']);
+                        unset($advanced_filter["grade"][$key]);
+                        count($advanced_filter['grade']) > 0
+                            ?
+                                $querySearch->where('grade_now', '>', 12)->orWhereIn('grade_now', $advanced_filter['grade'])
+                                    :
+                                        $querySearch->where('grade_now', '>', 12);
+                    }else{
+                        $querySearch->whereIn('grade_now', $advanced_filter['grade']);
+                    }
+                })->
+                when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereIn('graduation_year_now', $advanced_filter['graduation_year']);
+                })->
+                when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereHas('lead', function($subQuery_2) use($advanced_filter){
+                        $subQuery_2->whereIn('main_lead', $advanced_filter['leads']);
+                    });
+                })->
+                when(!empty($advanced_filter['roles']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereRoleName($advanced_filter['roles']);
+                })->
+                when(!empty($advanced_filter['start_joined_date']) && empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereDate('created_at', '>=', $advanced_filter['start_joined_date']);
+                })->
+                when(!empty($advanced_filter['end_joined_date']) && empty($advanced_filter['start_joined_date']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereDate('created_at', '<=', $advanced_filter['end_joined_date']);
+                })->
+                when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
+                    $querySearch->whereBetween('created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
+                })
+                ->get();
+
+        $mapping = $query->map(function ($item, $key){
+            $roles = $item->roles->pluck('role_name')->toArray();
+            $second_client = null;
+            switch ($roles) {
+                case in_array('Student', $roles):
+                    $second_client = count($item->parents) > 0 ? $item->parents->first() : null;
+                    break;
+
+                case in_array('Parent', $roles):
+                    $second_client = count($item->childrens) > 0 ? $item->childrens->first() : null;
+                    break;
+            }
+
+        $first_name = DB::select("SELECT SplitNameClient('".$item->full_name."', 'first') as name")[0]->name;
+        $middle_name = DB::select("SELECT SplitNameClient('".$item->full_name."', 'middle') as name")[0]->name;
+        $last_name = DB::select("SELECT SplitNameClient('".$item->full_name."', 'last') as name")[0]->name;
+        $role_id = in_array('Student', $roles) ? '16' : '6';
+ 
+            return [
+                'id' => $item->id,
+                'fullname' => $item->full_name,
+                'suggestion' => DB::select("SELECT GetClientSuggestion('".$first_name."', '".$middle_name."', '".$last_name."', '".$role_id."') as suggestion_id")[0]->suggestion_id,
+                'mail' => $item->mail,
+                'phone' => $item->phone,
+                'roles' => in_array('Student', $roles) ? 'student' : 'parent',
+                'scholarship' => $item->scholarship,
+                'is_verifiedsecond_client' => $second_client != null ? $second_client->is_verified : null,
+                'second_client_id' => $second_client != null ? $second_client->id : null,
+                'second_client_name' => $second_client != null ? $second_client->full_name : null,
+                'second_client_mail' => $second_client != null ? $second_client->mail : null,
+                'second_client_phone' => $second_client != null ? $second_client->phone : null,
+                'second_school_name' => $second_client != null && isset($second_client->school) ? $second_client->school->sch_name : null,
+                'is_verifiedsecond_school' => $second_client != null && isset($second_client->school) ? $second_client->school->is_verified : null,
+                'second_client_grade_now' => $second_client != null ? $second_client->grade_now : null,
+                'second_client_year_gap' => null,
+                'second_client_graduation_year_now' => $second_client != null ? $second_client->graduation_year_now : null,
+                'second_client_interest_countries' => $second_client != null ? $second_client->list_interest_countries : null,
+                'second_client_joined_event' => $second_client != null ? $second_client->list_joined_events : null,
+                'second_client_interest_prog' => $second_client != null ? $second_client->list_interest_progs : null,
+                'second_client_statusact' => $second_client != null ? $second_client->st_statusact : null,
+                'grade_now' => $item->grade_now,
+                'year_gap' => null,
+                'graduation_year_now' => $item->graduation_year_now,
+                'graduation_year' => $item->graduation_year,
+                'lead_id' => $item->lead_id,
+                'lead_source' => $item->lead_source,
+                'referral_name' => $item->referral_name,
+                'sch_id' => $item->sch_id,
+                'interest_countries' => $item->list_interest_countries,
+                'created_at' => Carbon::parse($item->created_at)->format('d/m/Y H:i:s'),
+                'updated_at' => Carbon::parse($item->updated_at)->format('d/m/Y H:i:s'),
+                'deleted_at' => Carbon::parse($item->deleted_at)->format('d/m/Y H:i:s'),
+                'school_name' => isset($item->school) ? $item->school->sch_name : null,
+                'is_verifiedschool' => isset($item->school) ? $item->school->is_verified : null,
+                'joined_event' => $item->list_joined_events,
+                'interest_prog' => $item->list_interest_progs,
+                'pic' => $item->pic_id,
+                'pic_name' => $item->pic_name
+            ];
+        });
+        
+        return $mapping;
     }
 
     public function getViewRawClientById($rawClientId)
@@ -2310,7 +2548,7 @@ class ClientRepository implements ClientRepositoryInterface
         }
 
         $active = $categories->where('id', $client->id)->where('category', 'active')->count();
-        $alumni = $categories->where('id', $client->id)->where('category', 'alumni')->count();
+        $alumni = $categories->where('id', operator: $client->id)->where('category', 'alumni')->count();
         $potential = $categories->where('id', $client->id)->where('category', 'potential')->count();
 
         if ($active > 0) {

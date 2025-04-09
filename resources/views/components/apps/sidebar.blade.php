@@ -3,8 +3,18 @@
         <li class="nav-item">
             <a @class([
                 'nav-link',
-                'bg-secondary text-white' => Request::is('dashboard'),
-            ]) href="{{ url('dashboard') }}">
+                'bg-secondary text-white' => Request::is('dashboard/*'),
+            ]) href="
+                    @if ($isSuperAdmin || $isSalesAdmin || $isSales)
+                        {{ url('dashboard/sales') }}">
+                    @elseif ($isPartnership)
+                        {{ url('dashboard/partnership') }}">
+                    @elseif ($isDigital)
+                        {{ url('dashboard/digital') }}">
+                    @elseif ($isFinance)
+                        {{ url('dashboard/finance') }}">
+                    @endif
+
                 <i class="bi bi-speedometer2 mx-2"></i>
                 <span class="menu-title">Dashboard</span>
             </a>
@@ -54,6 +64,10 @@
                                     if ( $url[0] == 'recycle' )
                                         $submenu_active = $url[0].'/'.$url[1].'/'.$url[2];
                                 }
+
+                                /* Condition for users menu */
+                                if (end($url) == 'employee')
+                                    $submenu_active = 'user';
                                 
                                 
                             @endphp

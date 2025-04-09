@@ -11,15 +11,13 @@
     <link rel="shortcut icon" href="{{ asset('img/favicon.webp') }}" type="image/x-icon">
 
     {{-- CSS  --}}
-    <link href="https://fastly.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
     <link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/@splidejs/splide@3.6.12/dist/css/splide.min.css"
-        integrity="sha256-sB1O2oXn5yaSW1T/92q2mGU86IDhZ0j1Ya8eSv+6QfM=" crossorigin="anonymous">
-    <link rel="stylesheet" href="//cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="//cdn.datatables.net/fixedcolumns/4.1.0/css/fixedColumns.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
-    <link href="https://fastly.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('css/bootstrap/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/splide.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dataTables/dataTables.bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dataTables/fixedColumns.dataTables.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dataTables/buttons.dataTables.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
     @yield('css')
     <style>
@@ -32,46 +30,56 @@
 
 
     {{-- JS  --}}
-    {{-- <script src="{{ asset('library/dashboard/vendors/js/vendor.bundle.base.js') }}"></script> --}}
-    {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> --}}
-    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-    <script src="//fastly.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://fastly.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous">
-    </script>
-    <script src="https://fastly.jsdelivr.net/npm/@splidejs/splide@3.6.12/dist/js/splide.min.js"
-        integrity="sha256-b/fLMBwSqO9vy/phDPv6OufPpR+VfUL+OsTEkJMPg+Q=" crossorigin="anonymous"></script>
-    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-    <script src="//cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
-    <script src="//cdn.datatables.net/fixedcolumns/4.1.0/js/dataTables.fixedColumns.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script> --}}
-    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script> --}}
-    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
-    {{-- <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script> --}}
-    
-    <!--<script src="https://cdn.tiny.cloud/1/2q9m55m7htm3r3r2vxdsfky8m4mqzba6h25dj5ea83oge61i/tinymce/6/tinymce.min.js"-->
-    <!--    referrerpolicy="origin"></script>-->
-     <!--<script src="https://cdn.tiny.cloud/1/665k5cso7x9x0errf1h417cn6fgnxs67ayozubvhomg0vony/tinymce/6/tinymce.min.js"-->
-     <!--   referrerpolicy="origin"></script> -->
-    <!--<script src="https://cdn.tiny.cloud/1/h7t62ozvqkx2ifkeh051fsy3k9irz7axx1g2zitzpbaqfo8m/tinymce/6/tinymce.min.js"-->
-    <!--    referrerpolicy="origin"></script>-->
-    {{-- <script src="https://cdn.tiny.cloud/1/6rtskj4e67x7o5h9g4gu406k5ba49e4fzsjcgw2v5ueihahb/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script> --}}
-    
-    <script src="https://fastly.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://fastly.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://fastly.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://fastly.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    <script src="https://fastly.jsdelivr.net/npm/fullcalendar@6.0.3/index.global.min.js"
-        integrity="sha256-3ytVDiLNNR0KlhglNHqXDFL94uOszVxoQeU7AZEALYo=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+    {{-- <script src="https://code.jquery.com/jquery-3.5.1.js"></script> --}}
+    {{-- <script src="//fastly.jsdelivr.net/npm/sweetalert2@11"></script> --}}
+    {{-- <script src="https://fastly.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script> --}}
+    {{-- <script src="https://fastly.jsdelivr.net/npm/@splidejs/splide@3.6.12/dist/js/splide.min.js"
+        integrity="sha256-b/fLMBwSqO9vy/phDPv6OufPpR+VfUL+OsTEkJMPg+Q=" crossorigin="anonymous"></script> --}}
+    {{-- <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script> --}}
+    {{-- <script src="//cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script> --}}
+    {{-- <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script> --}}
+    {{-- <script src="//cdn.datatables.net/fixedcolumns/4.1.0/js/dataTables.fixedColumns.min.js"></script> --}}
+    {{-- <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script> --}}
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script> --}}
+    {{-- <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script> --}}
+    {{-- <script src="https://fastly.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> --}}
+    {{-- <script src="https://fastly.jsdelivr.net/npm/axios/dist/axios.min.js"></script> --}}
+    {{-- <script src="https://fastly.jsdelivr.net/npm/chart.js"></script> --}}
+    {{-- <script src="https://fastly.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script> --}}
+    {{-- <script src="https://fastly.jsdelivr.net/npm/fullcalendar@6.0.3/index.global.min.js"
+        integrity="sha256-3ytVDiLNNR0KlhglNHqXDFL94uOszVxoQeU7AZEALYo=" crossorigin="anonymous"></script> --}}
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
         integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script> --}}
+    {{-- <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script> --}}
+    {{-- <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script> --}}
+    
+    <script src="{{ asset('js/jquery/jquery.js') }}"></script>
+    <script src="{{ asset('js/sweetalert2/sweetalert2.js') }}"></script>
+    <script src="{{ asset('js/bootstrap/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('js/splide.min.js') }}"></script>
+    <script src="{{ asset('js/dataTables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('js/dataTables/dataTables.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('js/moment.min.js') }}"></script>
+    <script src="{{ asset('js/dataTables/dataTables.fixedColumns.min.js') }}"></script>
+    <script src="{{ asset('js/dataTables/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ asset('js/jszip.min.js') }}"></script>
+    <script src="{{ asset('js/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('js/select2.min.js') }}"></script>
+    <script src="{{ asset('js/axios.min.js') }}"></script>
+    <script src="{{ asset('js/chart.js') }}"></script>
+    <script src="{{ asset('js/chartjs-plugin-datalabels.js') }}"></script>
+    <script src="{{ asset('js/fullcalendar.min.js') }}"></script>
+    <script src="{{ asset('js/index.global.min.js') }}"></script>
+    <script src="{{ asset('js/html2canvas.min.js') }}"></script>
+    <script src="{{ asset('js/pusher.min.js') }}"></script>
+    {{-- <script src="{{ asset('js/ckeditor.js') }}"></script> --}}
+    <script src="https://cdn.ckeditor.com/ckeditor5/12.3.1/classic/ckeditor.js"></script>
+    
+ 
     <script src="{{ asset('js/generate-number.js') }}"></script>
     <script src="{{ asset('js/currency.js') }}"></script>
-    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 
     {{-- Laravel Reverb --}}
     @vite(['resources/js/app.js', 'resources/css/app.css'])
@@ -93,8 +101,6 @@
         window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
     </script>
 
-    {{-- Editor --}}
-    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
     <script>
         var myEditor;
 

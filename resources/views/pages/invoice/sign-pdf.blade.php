@@ -68,10 +68,16 @@
 @section('script')
 <script src="https://fastly.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        @if (isset($attachment) && isset($attachment->inv_id))
-            var file = "{{ asset('storage/uploaded_file/invoice/client/'.$attachment->attachment) }}"
-        @else
-            var file = "{{ asset($attachment) }}"
+        @if (isset($attachment))
+            @if (isset($attachment->inv_id))
+                var file = "{{ Storage::url('invoice/client/'.$attachment->attachment) }}"
+            @elseif (isset($invoice->partnerprog_id))
+                var file = "{{ Storage::url('invoice/partner_prog/'.$attachment) }}"
+            @elseif (isset($invoice->schprog_id))
+                var file = "{{ Storage::url('invoice/sch_prog/'.$attachment) }}"
+            @elseif (isset($invoice->ref_id))    
+                var file = "{{ Storage::url('invoice/referral/'.$attachment) }}"
+            @endif
         @endif
 
         var pdf = new PDFAnnotate("pdf-container", file, {

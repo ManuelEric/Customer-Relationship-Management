@@ -20,7 +20,7 @@ class CorporateRepository implements CorporateRepositoryInterface
                 leftJoin('tbl_industry_subsector', 'tbl_industry_subsector.id', '=', 'tbl_corp.corp_subsector_id')->
                 select(
                     'corp_id',
-                    DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                    DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                                 THEN CONCAT(users.first_name, " ", COALESCE(users.last_name, ""))
                                 ELSE tbl_corp.corp_name
                             END) as partnership_name'),
@@ -37,7 +37,7 @@ class CorporateRepository implements CorporateRepositoryInterface
                 ))
                 ->rawColumns(['corp_address'])
                 ->filterColumn('partnership_name', function ($query, $keyword) {
-                    $sql = '(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                    $sql = '(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                                 THEN CONCAT(users.first_name, " ", COALESCE(users.last_name, ""))
                                 ELSE tbl_corp.corp_name
                             END) like ?';

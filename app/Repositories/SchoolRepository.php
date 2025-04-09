@@ -393,4 +393,18 @@ class SchoolRepository implements SchoolRepositoryInterface
         return SchoolAliases::find($aliasid)->delete();
     }
 
+    # use for select2 filter client student
+    public function rnGetPaginateSchool($selectColumns = [], $filter = [])
+    {
+        $query = School::query();
+        if ($selectColumns)
+            $query->select($selectColumns);
+
+            
+        return $query->
+            when(!empty($filter['sch_name']), function ($querySearch) use ($filter) {
+                $querySearch->whereRaw("sch_name like ?", "%{$filter['sch_name']}%");
+            })
+            ->simplePaginate(10);
+    }
 }

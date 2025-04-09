@@ -31,7 +31,7 @@ class CreateEventAction
         $file_name = time() . '-' . $event_id_with_label;
 
         #upload banner 
-        $new_event_details['event_banner'] = $this->tnUploadFile($request, 'event_banner', $file_name, 'app/public/uploaded_file/events');
+        $new_event_details['event_banner'] = $this->tnUploadFile($request, 'event_banner', $file_name, 'project/crm/events');
         
         $new_event = $this->eventRepository->createEvent($new_event_details);
 

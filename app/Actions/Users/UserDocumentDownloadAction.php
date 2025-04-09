@@ -20,34 +20,35 @@ class UserDocumentDownloadAction
     }
     public function execute(string $user_id, string $file_type)
     {
-        
+
         $user = $this->userRepository->rnGetUserById($user_id);
         switch ($file_type) {
             case "CV":
-                $file_path = $user->cv;
+                $file_name = $user->cv;
                 break;
 
             case "ID":
-                $file_path = $user->idcard;
+                $file_name = $user->idcard;
                 break;
 
             case "TX":
-                $file_path = $user->tax;
+                $file_name = $user->tax;
                 break;
 
             case "HI":
-                $file_path = $user->health_insurance;
+                $file_name = $user->health_insurance;
                 break;
 
             case "EI":
-                $file_path = $user->empl_insurance;
+                $file_name = $user->empl_insurance;
                 break;
         }
 
-        if ( !Storage::exists($file_path) )
+        $file_path = 'project/crm/user/' . $user_id . '/';
+
+        if (!Storage::disk('s3')->exists($file_path . $file_name))
             throw new Exception("File does not exist.");
 
-        $file_name = str_replace('public/uploaded_file/user/'.$user_id.'/', '', $file_path);
         return [$file_path, $file_name];
     }
 }

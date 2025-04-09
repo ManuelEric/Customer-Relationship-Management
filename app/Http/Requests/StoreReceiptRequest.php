@@ -16,6 +16,14 @@ class StoreReceiptRequest extends FormRequest
         return true;
     }
 
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'receipt_cat' => 'student',
+            'created_at' => $this->receipt_date,
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -32,7 +40,15 @@ class StoreReceiptRequest extends FormRequest
             'receipt_words_idr' => 'required_if:rec_currency,idr',
             'receipt_method' => 'required|in:Wire Transfer,Cash,Cheque',
             'receipt_cheque' => 'required_if:receipt_method,Cheque',
-            'pph23' => 'nullable'
+            'pph23' => 'nullable',
+            'receipt_cat' => 'nullable',
+            'created_at' => 'nullable',
+
+            # from form blade
+            'identifier' => 'nullable',
+            'paymethod' => 'nullable',
+            'clientprog_id' => 'required',
+            'is_child_program_bundle' => 'nullable',
         ];
     }
 }

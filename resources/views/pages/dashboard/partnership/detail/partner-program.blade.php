@@ -135,7 +135,7 @@
             'referral': [0, 0],
         }
 
-        axios.get('{{ url("api/partner/partnership-program/") }}/' + month)
+        axios.get('{{ url("api/v1/dashboard/partner/partnership-program/") }}/' + month)
             .then((response) => {
                 var result = response.data.data
                 var html = ""
@@ -269,7 +269,7 @@
                     let label = e.chart.data.labels[dataIndex];
                     let month = $('#month_partner_program').val()
 
-                    axios.get('{{ url("api/partner/partnership-program/detail") }}/partner/' + label + '/' +  month)
+                    axios.get('{{ url("api/v1/dashboard/partner/partnership-program/detail") }}/partner/' + label + '/' +  month)
                         .then((response) => {
                             var result = response.data.data
 
@@ -327,7 +327,7 @@
                     let label = e.chart.data.labels[dataIndex];
                     let month = $('#month_partner_program').val()
 
-                    axios.get('{{ url("api/partner/partnership-program/detail") }}/school/' + label + '/' +  month)
+                    axios.get('{{ url("api/v1/dashboard/partner/partnership-program/detail") }}/school/' + label + '/' +  month)
                         .then((response) => {
                             var result = response.data.data
                   
@@ -387,7 +387,7 @@
 
                     Swal.showLoading()
 
-                    axios.get('{{ url("api/partner/partnership-program/detail") }}/referral/' + label + '/' +  month)
+                    axios.get('{{ url("api/v1/dashboard/partner/partnership-program/detail") }}/referral/' + label + '/' +  month)
                         .then((response) => {
                             var result = response.data.data
 

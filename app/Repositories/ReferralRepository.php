@@ -20,7 +20,7 @@ class ReferralRepository implements ReferralRepositoryInterface
                 ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
                 ->leftJoin('users', 'users.id', '=', 'tbl_referral.empl_id')->select(
                     'tbl_referral.id',
-                    DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                    DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                                 THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                                 ELSE tbl_corp.corp_name
                             END) as partnership_name'),
@@ -40,7 +40,7 @@ class ReferralRepository implements ReferralRepositoryInterface
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             }
         )->filterColumn('partnership_name', function ($query, $keyword) {
-            $sql = '(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+            $sql = '(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                         THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                         ELSE tbl_corp.corp_name
                     END) like ?';

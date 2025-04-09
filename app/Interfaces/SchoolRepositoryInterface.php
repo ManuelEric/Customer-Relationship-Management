@@ -38,6 +38,7 @@ interface SchoolRepositoryInterface
     public function getFeederSchools($eventId);
     public function getUncompeteSchools();
     public function updateActiveStatus($school_id, $new_status);
+    public function rnGetPaginateSchool($selectColumns = [], $filter = []);
 
     # CRM v1
     public function getAllSchoolFromV1();

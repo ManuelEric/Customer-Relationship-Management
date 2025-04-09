@@ -70,7 +70,7 @@
     <script>
         PSPDFKit.load({
             container: "#pspdfkit",
-              document: "{{ asset('storage/uploaded_file/invoice/0009_INV-JEI_ACTP_I_23.pdf') }}" // Add the path to your document here.
+              document: "{{ Storage::url('invoice/0009_INV-JEI_ACTP_I_23.pdf') }}" // Add the path to your document here.
         })
         .then(async (instance) => {
             console.log("PSPDFKit loaded", instance);

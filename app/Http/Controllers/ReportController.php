@@ -17,10 +17,12 @@ use App\Http\Requests\ReportSalesRequest;
 use App\Http\Requests\ReportUnpaidPaymentRequest;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
+use App\Services\LeadTrackerService;
 use App\Services\Log\LogService;
 use Illuminate\Support\Collection;
 use Exception;
 use Illuminate\Http\Request;
+use PDO;
 
 class ReportController extends Controller
 {
@@ -160,5 +162,31 @@ class ReportController extends Controller
         $date_range = $request->get('daterange');
         $lead_tracker_report = $leadTrackerReportAction->execute($date_range);
         return view('pages.report.lead.index')->with($lead_tracker_report);
+    }
+
+    public function fnDetailLeadTracking(
+        Request $request,
+        LeadTrackerService $lead_tracker_service
+    ){
+        $type = $request->get('type');
+        $date_range = $request->get('daterange');
+        $search = $request->get('search');
+
+        $leads_tracker = $lead_tracker_service->detailLead($type, $date_range, $search);
+
+        $total_leads_tracker = $leads_tracker->count();
+        $precentage_division = [
+            'Digital' => toPercentage($total_leads_tracker, $leads_tracker->where('lead_from_division', 'Digital')->count()),
+            'Sales' => toPercentage($total_leads_tracker, $leads_tracker->where('lead_from_division', 'Sales')->count()),
+            'Partnership' => toPercentage($total_leads_tracker, $leads_tracker->where('lead_from_division', 'Partnership')->count()),
+            'Other' => toPercentage($total_leads_tracker, $leads_tracker->where('lead_from_division', null)->count()),
+        ];
+
+        return view('pages.report.lead.detail.index')->with(
+            [
+                'leads_tracker' => $leads_tracker->paginate(10)->appends($request->query()),
+                'percentage_division' => $precentage_division
+            ]
+        );
     }
 }

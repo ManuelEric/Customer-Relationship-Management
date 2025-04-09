@@ -126,14 +126,14 @@ class InvoiceB2BBaseController extends Controller
         $invoice_num = $invoice_b2b->invb2b_num;
         $file_name = str_replace('/', '-', $invoice_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_INV_JEI_EF_I_23_idr.pdf
 
-        $path = 'uploaded_file/invoice/'.$this->module['name'].'/';
+        $path = 'project/crm/invoice/'.$this->module['name'].'/';
         $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 
         $attachment_details = [
             'invb2b_id' => $invoice_id,
             'currency' => $currency,
             'recipient' => $to,
-            'attachment' => 'storage/' . $path . $file_name,
+            'attachment' => $file_name,
         ];
 
         $company_detail = [
@@ -171,7 +171,7 @@ class InvoiceB2BBaseController extends Controller
 
             # Generate PDF file
             $content = $pdf->download();
-            Storage::disk('public')->put($path . $file_name, $content);
+            Storage::disk('s3')->put($path . $file_name, $content);
 
             # if attachment exist then update attachement else insert attachement
             if (isset($attachment)) {
@@ -267,7 +267,7 @@ class InvoiceB2BBaseController extends Controller
 
             $this->invoiceAttachmentRepository->updateInvoiceAttachment($invoice_attachment->id, $attachment_details);
 
-            if (!$pdf_file->storeAs('public/uploaded_file/invoice/'.$this->module['name'].'/', $name))
+            if (!Storage::disk('s3')->put('project/crm/invoice/'.$this->module['name'].'/'. $name, file_get_contents($pdf_file)))
                 throw new Exception('Failed to store signed invoice file');
 
             $data['title'] = 'Invoice No. ' . $invoice_id . ' has been signed';
@@ -278,7 +278,7 @@ class InvoiceB2BBaseController extends Controller
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
                     ->cc([env('FINANCE_CC_2')])
                     ->subject($data['title'])
-                    ->attach(public_path($invoice_attachment->attachment));
+                    ->attach(Storage::url('invoice/'. $this->module['name'] . '/'. $invoice_attachment->attachment));
             });
 
             DB::commit();
@@ -360,8 +360,9 @@ class InvoiceB2BBaseController extends Controller
         
 
         $data['email'] = $invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['email']}; # email to pic of the partner program
+        // $data['email'] = env('PARTNERSHIP_MAIL_1');
         $data['recipient'] = $invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['name']}; # name of the pic of the partner program
-        $data['cc'] = [env('CEO_CC'), env('FINANCE_CC'), env('FINANCE_CC_2')];
+        $data['cc'] = [env('CEO_CC'), env('FINANCE_CC'), env('FINANCE_CC_2'), env('PARTNERSHIP_MAIL_1')];
         $data['title'] = "Invoice of program " . $program_name;
         $data['param'] = [
             'invb2b_num' => $inv_num,
@@ -376,7 +377,7 @@ class InvoiceB2BBaseController extends Controller
                 $message->to($data['email'], $data['recipient'])
                     ->cc($data['cc'])
                     ->subject($data['title'])
-                    ->attach(public_path($invoice_attachment->attachment));
+                    ->attach(Storage::url('invoice/'. $this->module['name'] . '/'. $invoice_attachment->attachment));
             });
 
             $attachment_details = [

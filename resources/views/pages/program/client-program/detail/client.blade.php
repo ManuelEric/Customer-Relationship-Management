@@ -302,7 +302,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8 col-8">
-                                <a target="_blank" href="{{ url('/') }}/storage/uploaded_file/agreement/{{ $clientProgram->agreement }}">{{ $clientProgram->agreement }}</a>
+                                <a target="_blank" href="{{ Storage::url('agreement/' . $clientProgram->agreement) }}">{{ $clientProgram->agreement }}</a>
                             </div>
                         </div>
                     </div>

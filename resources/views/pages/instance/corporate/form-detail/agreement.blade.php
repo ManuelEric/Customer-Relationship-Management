@@ -49,7 +49,7 @@
                             {{ date('d/m/Y', strtotime($partnerAgreement->start_date)) }} - {{ date('d/m/Y', strtotime($partnerAgreement->end_date)) }}
                         </div>
                         <div class="">
-                            <a href="{{url('/')}}/attachment/partner_agreement/{{ strtolower($corporate->corp_id) }}/{{ $partnerAgreement->attachment }}" download="{{ $partnerAgreement->attachment }}" class="btn btn-sm btn-outline-success">
+                            <a href="{{Storage::url('/')}}attachment/partner_agreement/{{ strtolower($corporate->corp_id) }}/{{ $partnerAgreement->attachment }}" download="{{ $partnerAgreement->attachment }}" class="btn btn-sm btn-outline-success" target="_blank">
                                 <i class="bi bi-download"></i>
                             </a>
                         </div>

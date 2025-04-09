@@ -10,4 +10,5 @@ class ClientAcceptance extends Model
     use HasFactory;
 
     protected $table = 'client_acceptance';
+    
 }

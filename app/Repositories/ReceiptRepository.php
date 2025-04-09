@@ -55,7 +55,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 ->select(
                     'tbl_receipt.id as increment_receipt',
                     // 'tbl_corp.corp_name',
-                    DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                    DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                                 THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                                 ELSE tbl_corp.corp_name
                             END) as partnership_name'),
@@ -73,7 +73,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 ->where('tbl_receipt.receipt_status', 1)
                 // ->orderBy('tbl_receipt.created_at', 'DESC')
         )->filterColumn('partnership_name', function ($query, $keyword) {
-            $sql = '(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+            $sql = '(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                         THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                         ELSE tbl_corp.corp_name
                     END) like ?';
@@ -90,7 +90,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 ->leftJoin('users as professional', 'professional.id', '=', 'tbl_corp.user_id')
                 ->select(
                     'tbl_receipt.id as increment_receipt',
-                    DB::raw('(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+                    DB::raw('(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                                 THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                                 ELSE tbl_corp.corp_name
                             END) as partnership_name'),
@@ -108,7 +108,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 ->where('tbl_referral.referral_type', 'Out')
                 // ->orderBy('tbl_receipt.created_at', 'DESC')
         )->filterColumn('partnership_name', function ($query, $keyword) {
-            $sql = '(CASE WHEN tbl_corp.type = "Individual Professional" AND tbl_corp.user_id is not null 
+            $sql = '(CASE WHEN tbl_corp.type = "Individual/Professional" AND tbl_corp.user_id is not null 
                         THEN CONCAT(professional.first_name, " ", COALESCE(professional.last_name, ""))
                         ELSE tbl_corp.corp_name
                     END) like ?';
@@ -119,6 +119,13 @@ class ReceiptRepository implements ReceiptRepositoryInterface
     public function getReceiptById($receiptId)
     {
         return Receipt::find($receiptId);
+    }
+
+    public function getReceiptByInvoiceId($invoiceId, $paymentMethod, $installmentId = null)
+    {
+        return Receipt::where('inv_id', $invoiceId)->when($paymentMethod == "Installment", function ($query) use ($installmentId) {
+            $query->where('invdtl_id', $installmentId);
+        })->first();
     }
 
 

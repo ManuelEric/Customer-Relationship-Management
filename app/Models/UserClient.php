@@ -78,6 +78,9 @@ class UserClient extends Authenticatable
         'category',
         'took_ia',
         'took_ia_date',
+        'blacklist',
+        'mentoring_progress_status',
+        'mentoring_google_drive_link',
         'created_at',
         'updated_at',
     ];
@@ -94,7 +97,7 @@ class UserClient extends Authenticatable
         parent::boot();
 
         static::creating(function ($model) {
-            $model->id = (string) Str::uuid();
+            $model->id = (string) Str::uuid();  
         });
     }
 
@@ -180,6 +183,37 @@ class UserClient extends Authenticatable
         );
     }
 
+    protected function listInterestCountries(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getListInterestCountries()
+        );
+    }
+    protected function listJoinedEvents(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getListJoinedEvent()
+        );
+    }
+    protected function listInterestProgs(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getListInterestProgs()
+        );
+    }
+    protected function picId(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getListPics()[0]
+        );
+    }
+    protected function picName(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getListPics()[1]
+        );
+    }
+
     // protected function gradeNow(): Attribute
     // {
     //     return Attribute::make(
@@ -209,6 +243,49 @@ class UserClient extends Authenticatable
     }
 
     # Scopes
+    public function scopeSearch($query, $search)
+    {
+        $terms = $search['terms'];
+        $uni = $search['uni'] ?? null;
+        $major = $search['major'] ?? null;
+
+        return $query->
+            when($terms, function ($query) use ($terms) {
+                $query->whereRaw('CONCAT(first_name, " ", last_name) like "%'.$terms.'%"');
+            })->
+            when($uni, function ($query) use ($uni) {
+                $query->
+                where(function ($query) use ($uni) {
+                    $query->
+                        whereRelation('universityAcceptance', 'tbl_client_acceptance.status', 'final decision')->
+                        whereHas('universityAcceptance', function ($query) use ($uni) {
+                            $query->where('univ_name', 'like', '%'.$uni.'%');
+                        });
+                });
+            })->
+            when($major, function ($query) use ($major) {
+                $query->
+                where(function ($query) use ($major) {
+                    $query->
+                        whereRelation('universityAcceptance', 'tbl_client_acceptance.status', 'final decision')->
+                        where(function ($query) use ($major) {
+                            $query->
+                            whereHas('universityAcceptance', function ($query) use ($major) {
+                                $query->where('tbl_client_acceptance.major_name', 'like', '%'.$major.'%');
+                            })->
+                            orWhereHas('majorAcceptance', function ($query) use ($major) {
+                                $query->where('name', 'like', '%'.$major.'%');
+                            });
+                        });
+                });
+            });
+    }
+
+    public function scopeIsNotBlacklist($query)
+    {
+        return $query->where('tbl_client.blacklist', 0);
+    }
+
     public function scopeIsVerified($query)
     {
         return $query->where('tbl_client.is_verified', 'Y');
@@ -300,14 +377,45 @@ class UserClient extends Authenticatable
         });
     }
 
+    public function scopeIsRaw($query)
+    {
+        return $query->where('is_verified', 'N')->where('st_statusact', 1)->where('deleted_at', null);
+    }
+
+    public function scopeIsGraduated(Builder $query)
+    {
+        $query->
+        where('grade_now', '>', 12)->
+        whereDoesntHave('clientProgram', function ($query) {
+            $query->whereIn('status', [0, 2, 3, 5]);
+        })->
+        whereHas('clientProgram', function ($query) {
+            $query->whereIn('status', [1, 4]);
+        });
+    }
+
+    public function scopeIsActiveMentee(Builder $query)
+    {
+        $query->whereRelation('clientProgram.program.main_prog', 'prog_name', 'Admissions Mentoring')->whereRelation('clientProgram', 'status', 1)->whereRelation('clientProgram', 'prog_running_status', '!=', 2);
+    }
+
+    public function scopeGetMentoredStudents(Builder $query)
+    {
+        $query->whereHas('clientProgram.clientMentor', function ($query) {
+            $query->where('users.id', auth()->guard('api')->user()->id)->where('tbl_client_mentor.status', 1);
+        });
+    }
+
+
+
     public function getLeadSource($parameter)
     {
         switch ($parameter) {
-            case "All-In Event":
+            case "EduALL Event":
                 if ($this->event != NULL)
-                    return "ALL-In Event - " . $this->event->event_title;
+                    return "EduALL Event - " . $this->event->event_title;
                 else
-                    return "ALL-In Event";
+                    return "EduALL Event";
                 break;
 
             case "External Edufair":
@@ -328,6 +436,59 @@ class UserClient extends Authenticatable
             default:
                 return $this->lead->main_lead;
         }
+    }
+    public function getListInterestCountries()
+    {
+        $listInterestCountries = [];
+
+        if(count($this->destinationCountries) > 0){
+            foreach ($this->destinationCountries as $destinationCountry) {
+                if($destinationCountry->name == 'Other' && isset($destinationCountry->tagCountry)){
+                    $listInterestCountries[] = $destinationCountry->tagCountry->name;
+                }else{
+                    $listInterestCountries[] = $destinationCountry->name;
+                }
+            }
+        }
+
+        return implode(", ",$listInterestCountries);
+    }
+    public function getListJoinedEvent()
+    {
+        $listJoinedEvents = [];
+
+        if(count($this->clientEvent) > 0){
+            foreach ($this->clientEvent as $clientEvent) {
+                $listJoinedEvents[] = $clientEvent->event->event_title;
+            }
+        }
+
+        return implode(", ",$listJoinedEvents);
+    }
+    public function getListInterestProgs()
+    {
+        $listInterestProgs = [];
+
+        if(count($this->interestPrograms) > 0){
+            foreach ($this->interestPrograms as $interestProgram) {
+                $listInterestProgs[] = $interestProgram->program_name;
+            }
+        }
+
+        return implode(", ",array_unique($listInterestProgs));
+    }
+    public function getListPics()
+    {
+        # index 0 = pic->user_id, index 1 = pic_name
+        $listPics[0] = null;
+        $listPics[1] = null;
+
+        if(count($this->picClient) > 0){
+            $listPics[0] = $this->picClient->where('status', 1)->first()->user_id ?? null;
+            $listPics[1] = $this->picClient->where('status', 1)->first()->user->full_name ?? null;
+        }
+
+        return $listPics;
     }
 
     // public function getGraduationYearFromView($id)
@@ -472,9 +633,14 @@ class UserClient extends Authenticatable
         return $this->belongsToMany(InitialProgram::class, 'tbl_client_lead_tracking', 'client_id', 'initialprogram_id')->using(ClientLeadTracking::class)->withPivot('type', 'total_result', 'status')->withTimestamps();
     }
 
+    public function majorAcceptance()
+    {
+        return $this->belongsToMany(Major::class, 'tbl_client_acceptance', 'client_id', 'major_id');
+    }
+
     public function universityAcceptance()
     {
-        return $this->belongsToMany(University::class, 'tbl_client_acceptance', 'client_id', 'univ_id')->using(ClientAcceptance::class)->withPivot('id', 'status', 'major_id')->withTimestamps();
+        return $this->belongsToMany(University::class, 'tbl_client_acceptance', 'client_id', 'univ_id')->using(ClientAcceptance::class)->withPivot('id', 'major_group_id', 'major_name', 'status', 'major_id', 'category', 'requirement_link')->withTimestamps();
     }
 
     public function picClient()

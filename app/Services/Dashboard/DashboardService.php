@@ -142,9 +142,6 @@ class DashboardService
         # fetching only already from initial consultation chart data
         $already = $initial_consultation[1];
 
-        # fetching only already from initial consultation chart data
-        $already = $initial_consultation[1];
-
         # fetching only success program from initial consultation chart data
         $success_program = $initial_consultation[2];
 

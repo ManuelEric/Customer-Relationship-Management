@@ -2,29 +2,32 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Http\Controllers\ClientEventController;
+use App\Enum\LogModule;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\v1\UpdateMenteeGDriveRequest;
+use App\Http\Requests\Client\Registration\Public\PublicRegistrationRequest;
 use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
+use App\Http\Traits\ClientMentorTrait;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Http\Traits\SplitLeadEdufairTrait;
 use App\Http\Traits\SplitNameTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Http\Traits\TranslateProgramStatusTrait;
 use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
-use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\Client\ProcessInsertLogClient;
-use App\Jobs\RawClient\ProcessVerifyClient;
-use App\Jobs\RawClient\ProcessVerifyClientParent;
 use App\Models\ClientEvent;
 use App\Models\Event;
+use App\Models\Phase;
 use App\Models\School;
 use App\Models\UserClient;
 use App\Repositories\ProgramRepository;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
@@ -49,6 +52,9 @@ class ExtClientController extends Controller
     use CreateCustomPrimaryKeyTrait;
     use LoggingTrait;
     use SplitLeadEdufairTrait;
+    use ClientMentorTrait;
+    use TranslateProgramStatusTrait;
+
     private ClientRepositoryInterface $clientRepository;
     private SchoolRepositoryInterface $schoolRepository;
     private ClientEventRepositoryInterface $clientEventRepository;
@@ -160,8 +166,9 @@ class ExtClientController extends Controller
         );
     }
 
-    public function getClientById(int $id)
+    public function getClientById(string $id)
     {
+        echo 'a';exit;
         $client = $this->clientRepository->getClientById($id);
 
         return response()->json(
@@ -741,18 +748,20 @@ class ExtClientController extends Controller
 
         # if the event is online then 
         # system will not send the email
-        if ($validated['event_type'] == 'offline') {
 
-            try {
+        
+        // if ($validated['event_type'] == 'offline') {
 
-                # send an registration success email
-                $this->sendEmailRegistrationSuccess($validated, $storedClientEvent);
-                Log::notice('Email registration sent sucessfully to ' . $incomingRequest['mail'] . ' refer to ticket ID : ' . $storedClientEvent->ticket_id);
-            } catch (Exception $e) {
+        //     try {
 
-                Log::error('Failed to send email registration to ' . $incomingRequest['mail'] . ' refer to ticket ID : ' . $storedClientEvent->ticket_id . ' | ' . $e->getMessage());
-            }
-        }
+        //         # send an registration success email
+        //         $this->sendEmailRegistrationSuccess($validated, $storedClientEvent);
+        //         Log::notice('Email registration sent sucessfully to ' . $incomingRequest['mail'] . ' refer to ticket ID : ' . $storedClientEvent->ticket_id);
+        //     } catch (Exception $e) {
+
+        //         Log::error('Failed to send email registration to ' . $incomingRequest['mail'] . ' refer to ticket ID : ' . $storedClientEvent->ticket_id . ' | ' . $e->getMessage());
+        //     }
+        // }
 
 
 
@@ -783,31 +792,9 @@ class ExtClientController extends Controller
         ]);
     }
 
-    public function storePublicRegistration(Request $request)
+    public function storePublicRegistration(PublicRegistrationRequest $request)
     {
-
-        # validation
-        $rules = [
-            'role' => 'required|in:parent,student',
-            'fullname' => 'required',
-            'mail' => 'nullable|email',
-            'phone' => 'required',
-            'school_id' => [
-                'nullable',
-                $request->school_id != 'new' ? 'exists:tbl_sch,sch_id' : null
-            ],
-            'other_school' => 'nullable',
-            'secondary_name' => 'required_if:role,parent',
-            'secondary_mail' => 'nullable',
-            'secondary_phone' => 'nullable',
-            'graduation_year' => 'required',
-            'destination_country' => 'nullable|array',
-            'destination_country.*' => 'exists:tbl_country,id',
-            'interest_prog' => 'required|exists:tbl_prog,prog_id',
-            'lead_id' => 'required|exists:tbl_lead,lead_id',
-        ];
-
-        $incomingRequest = $request->only([
+        $validated = $request->safe()->only([
             'role',
             'fullname',
             'mail',
@@ -820,35 +807,10 @@ class ExtClientController extends Controller
             'secondary_name',
             'secondary_mail',
             'secondary_phone',
-            'lead_id'
+            'lead_source_id',
+            'scholarship'
         ]);
 
-        $messages = [
-            'secondary_name.required_if' => 'The child name field is required.',
-            'school_id.required_if' => 'The school field is required.',
-            'school_id.exists' => 'The school field is not valid.',
-            'destination_country.*.exists' => 'The destination country must be one of the following values.',
-            'lead_id.required' => 'Something is not right.', # we hide the lead_id because lead_id comes from get parameter so user should not know
-            'lead_id.exists' => 'Something is not right.', # we hide the lead_id because lead_id comes from get parameter so user should not know
-        ];
-
-
-        $validator = Validator::make($incomingRequest, $rules, $messages);
-
-
-        # threw error if validation fails
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'error' => $validator->errors()
-            ]);
-        }
-
-
-        # after validating incoming request data, then retrieve the incoming request data
-        $validated = $request->collect();
-        $validated['scholarship'] = 'N';
-        $validated['lead_source_id'] = $request->lead_id;
 
         # declaration of default variables that will be used 
         $client = null;
@@ -856,7 +818,6 @@ class ExtClientController extends Controller
         DB::beginTransaction();
         try {
 
-            $validatedArray = $validated->toArray();
 
             # separate the incoming request data
             switch ($validated['role']) {
@@ -872,8 +833,8 @@ class ExtClientController extends Controller
                     if (isset($validated['secondary_name'])) {
                         $validatedStudent = $request->except(['fullname', 'email', 'phone']);
                         $validatedStudent['fullname'] = $validated['secondary_name'];
-                        $validatedStudent['mail'] = $validated['secondary_mail'] != null ? $validated['secondary_mail'] : null;
-                        $validatedStudent['phone'] = $validated['secondary_phone'] != null ? $validated['secondary_phone'] : null;
+                        $validatedStudent['mail'] = $validated['secondary_mail'] ?? null;
+                        $validatedStudent['phone'] = $validated['secondary_phone'] ?? null;
                         $validatedStudent['scholarship'] = 'N';
                         $validatedStudent['lead_source_id'] = 'LS001'; # Website
 
@@ -896,12 +857,12 @@ class ExtClientController extends Controller
                         $this->storeRelationship($parent, $student);
 
                         if ($studentId != null && isset($validated['destination_country'])) {
-                            $this->attachDestinationCountry($studentId, $validatedArray['destination_country']);
+                            $this->attachDestinationCountry($studentId, $validated['destination_country']);
                         }
 
                         if ($studentId != null && isset($validated['interest_prog'])) {
-                            if (isset($validatedArray['interest_prog'])) {
-                                $this->reAttachInterestPrograms($studentId, $validatedArray['interest_prog']);
+                            if (isset($validated['interest_prog']) && $validated['interest_prog'] !== null) {
+                                $this->reAttachInterestPrograms($studentId, $validated['interest_prog']);
                             }
                         }
                     } else {
@@ -910,21 +871,26 @@ class ExtClientController extends Controller
                         }
                     }
                     break;
+
+                case 'teacher/counsellor':
+                    $client = $this->storeTeacher($validated);
+                    $clientId = $client->id;
+                    break;
             }
 
             if ($client != null && isset($validated['destination_country'])) {
-                $this->attachDestinationCountry($clientId, $validatedArray['destination_country']);
+                $this->attachDestinationCountry($clientId, $validated['destination_country']);
             }
 
             if ($client != null && isset($validated['interest_prog'])) {
-                // if(count($validatedArray['interest_prog']) > 0){
-                //     foreach ($validatedArray['interest_prog'] as $interestProg) {
+                // if(count($validated['interest_prog']) > 0){
+                //     foreach ($validated['interest_prog'] as $interestProg) {
                 //         $this->reAttachInterestPrograms($clientId, $interestProg);
                 //     }
                 // }
 
-                if (isset($validatedArray['interest_prog'])) {
-                    $this->reAttachInterestPrograms($clientId, $validatedArray['interest_prog']);
+                if (isset($validated['interest_prog'])) {
+                    $this->reAttachInterestPrograms($clientId, $validated['interest_prog']);
                 }
             }
 
@@ -932,7 +898,7 @@ class ExtClientController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Registration from EduAll website failed: ' . $e->getMessage() . ' | On Line: ' . $e->getLine());
+            Log::error('Registration from EduAll website failed: ' . $e->getMessage() . ' | On Line: ' . $e->getLine() . ' on file ' . $e->getFile());
 
             return response()->json([
                 'success' => false,
@@ -940,22 +906,20 @@ class ExtClientController extends Controller
             ]);
         }
 
-        $prog = $this->programRepository->getProgramById($request->interest_prog);
+        ################################################################
+        ## email requirements ##
+        ################################################################
+
+
+        $prog = array_key_exists('interest_prog', $validated) ? $this->programRepository->getProgramById($validated['interest_prog']) : null;
         $passedData = [
             'client' => [
                 'name' => $client->full_name,
             ],
             'program' => [
-                'name' => $prog->program_name
+                'name' => $prog->program_name ?? null
             ]
         ];
-
-        if ($request->role == 'student') {
-            $template = 'mail-template.registration.public.thanks-email-student';
-        } else {
-            $passedData['client']['child_name'] = $request->secondary_name;
-            $template = 'mail-template.registration.public.thanks-email-parent';
-        }
 
         $dataResponseClient = [
             'role' => $validated['role'],
@@ -968,27 +932,72 @@ class ExtClientController extends Controller
             'school_name' => isset($client->school) ? $client->school->sch_name : null,
             'graduation_year' => $client->graduation_year
         ];
+        
+        /**
+         * note:
+         * address that being attached in mail::send could be null
+         * since there are two ways to get the existing client
+         * first: find from tbl_client
+         * second: find from tbl_client_additional_info
+         * 
+         * and to prevent mail::send goes error because no address attached
+         * use the email that being submitted
+         *  
+         */
 
         try {
 
-            if(isset($validated['mail']) && $validated['mail'] != null){
-                $subject = "Your registration is confirmed";
-    
-                Mail::send(
-                    $template,
-                    $passedData,
-                    function ($message) use ($client, $subject) {
-                        $message->to($client->mail, $client->full_name)
-                            ->subject($subject);
+            // if ( !isset($validated['mail']) && $validated['mail'] == null )
+            //     throw new Exception("Insufficient email address of {$client->full_name}");
+            
+
+            switch ($validated['role'])
+            {
+                case "student":
+                    $subject = 'Your registration is confirmed';
+                    $template = 'mail-template.registration.public.thanks-email-student';
+                    # the system will email 
+                    # if they inputted the email address
+                    if ( $validated['mail'] )
+                    {
+                        $recipient['name'] = $client->full_name;
+                        $recipient['email'] = $validated['mail'];
+                        $this->sendEmailPublicRegistration($template, $passedData, $subject, $recipient);
                     }
-                );
-                $sent_mail = 1;
-            }
+                    break;
+    
+                case "parent":
+                    $passedData['client']['child_name'] = $validated['secondary_name'];
+                    $subject = 'Your registration is confirmed';
+                    $template = 'mail-template.registration.public.thanks-email-parent';
+                    # the system will email 
+                    # if they inputted the email address
+                    if ( $validated['mail'] )
+                    {
+                        $recipient['name'] = $client->full_name;
+                        $recipient['email'] = $validated['mail'];
+                        $this->sendEmailPublicRegistration($template, $passedData, $subject, $recipient);
+                    }
+                    break;
+    
+                case "teacher/counsellor":
+                    $passedData['client']['school'] = $validated['school_id'] == 'new' ? $validated['other_school'] : School::find($validated['school_id'])->sch_name;
+                    $passedData['client']['phone'] = $validated['phone'];
+                    $passedData['client']['email'] = $validated['mail'];
+                    $subject = "A new teacher has signed up for the {$passedData['program']['name']}.";
+                    $template = 'mail-template.registration.public.thanks-email-teacher';
+                    $recipient['name'] = 'Theresya Afila'; # hard coded for partnership PIC 
+                    $recipient['email'] = 'theresya.afila@edu-all.com';
+                    $this->sendEmailPublicRegistration($template, $passedData, $subject, $recipient);
+                    break;
+            }                
+            $sent_mail = 1;
+            
         } catch (Exception $e) {
 
             $sent_mail = 0;
-            throw new Exception($e->getMessage());
             Log::error('Failed send email to public registration | error : ' . $e->getMessage() . ' on file ' . $e->getFile() . ' | Line ' . $e->getLine());
+            throw new Exception($e->getMessage(). ' on line ' . $e->getLine() . ' on file ' . $e->getFile());
         }
 
 
@@ -1000,6 +1009,21 @@ class ExtClientController extends Controller
             'data' => $dataResponseClient,
             'message' => "Welcome aboard! Your registration is complete."
         ]);
+    }
+
+    public function sendEmailPublicRegistration($template, $passedData, $subject, $recipient)
+    {
+        Mail::send(
+            $template,
+            $passedData,
+            function ($message) use ($subject, $recipient) {
+
+                // $message->to($client->mail, $client->full_name) //! not used
+
+                $message->to($recipient['email'], $recipient['name'])
+                    ->subject($subject);
+            }
+        );
     }
 
     public function getRole(ClientEvent $clientevent)
@@ -1112,14 +1136,8 @@ class ExtClientController extends Controller
 
     private function storeStudent($incomingRequest)
     {
-
         # check if the client exists in crm database
         $existingClient = $this->checkExistingClient($this->tnSetPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
-
-
-        # if the client is exists
-        if ($existingClient['isExist'])
-            return $this->clientRepository->getClientById($existingClient['id']);
 
 
         # declare some variables
@@ -1159,7 +1177,6 @@ class ExtClientController extends Controller
             
             return $client;
         }
-
 
         $client = $this->clientRepository->createClient('Student', $newClientDetails);
         
@@ -1255,7 +1272,6 @@ class ExtClientController extends Controller
         ];
 
         $client = $this->clientRepository->createClient('Teacher/Counselor', $newClientDetails);
-        $clientId = $client->id;
 
         # trigger to verify teacher
         // ProcessVerifyClient::dispatch([$clientId])->onQueue('verifying_client_teacher');
@@ -1943,12 +1959,12 @@ class ExtClientController extends Controller
                 }
             ])->
             withAndWhereHas('roles', function ($query) {
-                $query->whereIn('role_name', ['Mentor', 'Tutor', 'Editor'])->select('role_name');
+                $query->whereIn('role_name', ['Mentor', 'External Mentor', 'Tutor', 'Editor'])->select('role_name');
             })->where('email', $incomingEmail);
 
         $result = $resultInArray = null;
         if ($query->exists()) {
-            $result = $query->select('id', 'first_name', 'last_name', 'email', 'phone', 'password', 'position_id', 'active')->first();
+            $result = $query->select('id', 'first_name', 'last_name', 'email', 'phone', 'password', 'npwp', 'position_id', 'active')->first();
 
             # fetch the roles
             foreach ($result->roles as $role) {
@@ -1975,6 +1991,7 @@ class ExtClientController extends Controller
             $resultInArray['roles'] = $mappedRoles;
 
             unset($resultInArray['user_subjects']);
+            $resultInArray['has_npwp'] = $result->npwp ? true : false;
         }
 
         return response()->json($resultInArray);
@@ -2025,51 +2042,45 @@ class ExtClientController extends Controller
         $paginate = $request->get('paginate'); # true will return paginate results, false will return all results 
         $role = $request->get('role');
 
-        $user = \App\Models\User::query()->select('id', 'first_name', 'last_name', 'email', 'phone')->with([
-                'user_subjects' => function ($query) {
-                    $query->select('user_role_id', 'subject_id', 'year', 'agreement', 'head', 'additional_fee', 'grade', 'fee_individual', 'fee_group');
-                },
-                'user_subjects.subject',
-                'user_subjects.user_roles',
-                'user_subjects.user_roles.role',
+        $user = \App\Models\User::query()->select('id', 'first_name', 'last_name', 'email', 'phone', 'npwp')->with([
+                'roles',
             ])->whereHas('roles', function ($query) use ($role) {
                 $query->when($role, function ($sub) use ($role) {
                     $sub->where('role_name', $role);
                 }, function ($sub) use ($role) {
-                    $sub->whereIn('role_name', ['Mentor', 'Tutor']);
+                    $sub->whereIn('role_name', ['Mentor', 'External Mentor', 'Tutor']);
                 });
             })->when($keyword, function ($query) use ($keyword) {
                 $query->where(function ($sub) use ($keyword) {
-                        $sub->whereRaw('CONCAT(first_name, " ", COALESCE(last_name)) like ?', ['%' . $keyword . '%'])->orWhereRaw('email like ?', ['%' . $keyword . '%'])->orWhereRaw('phone like ?', ['%' . $keyword . '%']);
+                        $sub->
+                        whereRaw('CONCAT(first_name, " ", COALESCE(last_name)) like ?', ['%' . $keyword . '%'])->
+                        orWhereRaw('email like ?', ['%' . $keyword . '%'])->
+                        orWhereRaw('phone like ?', ['%' . $keyword . '%']);
                     });
             })->whereNotNull('email')->isActive()->get();
 
         $mappedUser = $user->map(function ($data) {
 
-            $userSubjects = $data->user_subjects;
-
+            $userRole = $data->roles;
             $acceptedRole = [];
+            
+            # remove duplication using array as comparison
+            $storedRole = [];
 
-            foreach ($userSubjects as $user_subject) {
-
-                $user_role = $user_subject['user_roles'];
-                $role = $user_role['role'];
-
-                if (!in_array($role['role_name'], ['Mentor', 'Tutor']))
+            foreach ($userRole as $user_role) {
+                $role_name = $user_role['role_name'];
+                if (!in_array($role_name, ['Mentor', 'External Mentor', 'Tutor']))
                     continue;
 
+                if ( array_search($role_name, $storedRole) )
+                    continue;
+                
                 $acceptedRole[] = [
-                    'role' => $role['role_name'],
-                    'subjects' => [
-                        'name' => $user_subject['subject']['name'],
-                        'year' => $user_subject['year'],
-                        'head' => $user_subject['head'],
-                        'additional_fee' => $user_subject['additional_fee'],
-                        'grade' => $user_subject['grade'],
-                        'fee_individual' => $user_subject['fee_individual'],
-                        'fee_group' => $user_subject['fee_group'],
-                    ],
+                    'role' => $role_name,
                 ];
+
+                # array $storedRole uses for removing duplication purposes only
+                array_push($storedRole, $role_name);
             }
 
             return [
@@ -2078,6 +2089,7 @@ class ExtClientController extends Controller
                 'last_name' => $data['last_name'],
                 'email' => $data['email'],
                 'phone' => $data['phone'],
+                'has_npwp' => $data['npwp'] ? true : false, 
                 'roles' => $acceptedRole
             ];
         });
@@ -2119,14 +2131,21 @@ class ExtClientController extends Controller
 
     public function getClientInformation($uuid): JsonResponse
     {
-        $userClient = UserClient::where('id', $uuid)->select('*')->selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade')->first();
+        $userClient = UserClient::where('id', $uuid)->select('*')->selectRaw('UpdateGradeStudent (year(CURDATE()),year(created_at),month(CURDATE()),month(created_at),st_grade) as grade')->withTrashed()->first();
         return response()->json($userClient);
     }
 
     public function updateTookIA(Request $request)
     {
+        // if($request->header('crm_authorization') != env('CRM_AUTHORIZATION_KEY')){
+        //     return response()->json([
+        //         'error' => 'Unauthorized'
+        //     ], status: JsonResponse::HTTP_UNAUTHORIZED);
+        // }
+
         # NEW CRM client id convert to UUID
         $id = $request->uuid;
+        Log::debug($id . 'trying to update initial assessment');
 
         $rules = [
             'id' => 'required|exists:tbl_client,id'
@@ -2136,6 +2155,7 @@ class ExtClientController extends Controller
 
         # threw error if validation fails
         if ($validator->fails()) {
+	    Log::warning('Failed update took ia, error validation: ' . json_encode($validator->errors()));
             return response()->json([
                 'success' => false,
                 'error' => $validator->errors()
@@ -2189,9 +2209,159 @@ class ExtClientController extends Controller
 
     public function fnGetUserByRoleAndUUID(string $role, string $uuid)
     {
-        $users = \App\Models\User::whereHas('roles', function ($query) use ($role, $uuid) {
+        # Added 'with (user_type)' for editing platform -> get contract date editor
+        // $users = \App\Models\User::with(['user_type'])
+        $users = \App\Models\User::with(['user_type' => function($query){
+            $query->orderBy('tbl_user_type_detail.id', 'desc');
+        }])
+        ->whereHas('roles', function ($query) use ($role, $uuid) {
             $query->where('role_name', $role);
         })->where('id', $uuid)->first();
         return response()->json($users);
+    }
+
+    /**
+     * Mentoring
+     */
+    public function fnGetMenteeDetails(Request $request): JsonResponse
+    {
+        $requested_mentee_id = $request->route('user_client');
+        $details = $this->clientRepository->getClientById($requested_mentee_id);
+        $response_of_student_information = [
+            'mentee_id' => $details->id,
+            'mentee_name' => $details->first_name . ' ' . $details->last_name,
+            'mentee_phone' => $details->phone,
+            'mentee_email' => $details->mail,
+            'grade' => $details->grade_now,
+            'application_year' => null,
+            'address' => [
+                'detail' => $details->address,
+                'city' => $details->city,
+            ],
+            'birthdate' => $details->dob,
+            'parent_name' => $details->parents()->select(['first_name', 'last_name', 'mail', 'phone'])->get()->toArray() 
+        ];
+
+        $response_of_student_mentor = array();
+        // foreach ($details->clientProgram as $client_program) {
+        //     foreach ($client_program->clientMentor as $client_mentor) {
+        //         array_push($response_of_student_mentor, [
+        //             'user_id' => $client_mentor->id,
+        //             'mentor_name' => $client_mentor->first_name . ' ' . $client_mentor->last_name,
+        //             'act_as' => $this->translateType($client_mentor->pivot->type),
+        //         ]);
+        //     }
+        // }
+
+        $response = array_merge($response_of_student_information, $response_of_student_mentor);
+
+        return response()->json($response);
+    }
+
+    public function fnGetGraduatedMentee(Request $request)
+    {
+        $terms = $request->get('terms');
+        $uni = $request->get('uni');
+        $major = $request->get('major');
+        $search = compact('terms', 'uni', 'major');
+        $graduated_mentees = $this->clientRepository->rnGetGraduatedMentees($search);
+        return response()->json($graduated_mentees);
+    }
+
+    public function fnGetActiveMentee(Request $request)
+    {
+        $terms = $request->get('terms');
+        $search = compact('terms');
+        $active_mentees = $this->clientRepository->rnGetActiveMentees($search);
+        return response()->json($active_mentees);
+    }
+
+    public function fnGetMentorsByMentee(UserClient $user_client): JsonResponse
+    {
+        $latest_admission_program = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first();
+        $mentors = $latest_admission_program->clientMentor()->where('tbl_client_mentor.status', 1)->get();
+        $mapped_mentors = $mentors->map(function ($item) {
+            return [
+                'mentor_id' => $item->id,
+                'mentor_name' => $item->first_name . ' ' . $item->last_name,
+                'act_as' => $this->translateType($item->pivot->type)
+            ];
+        });
+        return response()->json($mapped_mentors);
+    }
+
+    public function fnGetJoinedProgramsByMentee(UserClient $user_client)
+    {
+        $program_besides_admissions = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', '!=', 'Admissions Mentoring')->has('invoice.receipt')->get();
+        $mapped_program = $program_besides_admissions->map(function ($item) {
+            return [
+                'clientprog_id' => $item->clientprog_id,
+                'main_program' => $item->program->main_prog->prog_name,
+                'sub_program' => $item->program->sub_prog->sub_prog_name,
+                'program_name' => $item->program->prog_program,
+                'success_date' => $item->success_date,
+                'status' => $this->translate($item->prog_running_status)
+            ];
+        }); 
+        return response()->json($mapped_program);
+    }
+
+    public function fnUpdateMenteeGDriveLink(
+        UserClient $user_client, 
+        UpdateMenteeGDriveRequest $request,
+        LogService $log_service
+        )
+    {
+        $validated = $request->safe()->only(['gdrive_link']);
+        DB::beginTransaction();
+        try {
+            $user_client->mentoring_google_drive_link = $validated['gdrive_link'];
+            $user_client->save();
+            DB::commit();
+        } catch (Exception $err) {
+            DB::rollBack();
+            $log_service->createErrorLog(LogModule::UPDATE_MENTEE_GDRIVE, $err->getMessage(), $err->getLine(), $err->getFile(), $validated);
+            throw new HttpResponseException(
+                response()->json(['errors' => 'Failed to update gdrive link'], JsonResponse::HTTP_BAD_REQUEST)
+            );
+        }
+        $log_service->createSuccessLog(LogModule::UPDATE_MENTEE_GDRIVE, 'The gdrive link has been updated', $validated);
+        return response()->json([
+            'message' => 'Mentee gdrive has been updated'
+        ]);
+    }
+
+    public function fnGetPackagesBoughtByMentee(
+        UserCLient $user_client        
+        )
+    {
+        try {
+            $mapped_packages_bought = [];
+            $packages_bought = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->has('phase_detail')->get();
+
+            if(count($packages_bought) > 0){
+
+                $mapped_packages_bought = $packages_bought->map(function($item){
+
+                    $mapped_phase_detail = $item->phase_detail->map(function($item) {
+                        return [
+                            'phase_detail_id' => $item->id,
+                            'phase_detail_name' => $item->phase_detail_name,
+                            'allocate' => $item->pivot->quota,
+                            'use' => $item->pivot->use
+                        ];
+                    });
+                    return $mapped_phase_detail;
+                });
+                
+            }
+
+            return response()->json(count($mapped_packages_bought) > 0 ? $mapped_packages_bought->first() : $mapped_packages_bought);
+        } catch (Exception $err) {
+
+            throw new HttpResponseException(
+                response()->json(['errors' => 'Failed to get packages bought'], JsonResponse::HTTP_BAD_REQUEST)
+            );
+        }
     }
 }

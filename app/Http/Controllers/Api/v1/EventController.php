@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Interfaces\EventRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class EventController extends Controller
 {
@@ -34,7 +35,7 @@ class EventController extends Controller
             'data' => [
                 'event_id' => $found_event->event_id,
                 'event_name' => $found_event->event_title,
-                'event_banner' => $found_event->event_banner !== null ? url("/storage/uploaded_file/events/{$found_event->event_banner}") : null,
+                'event_banner' => $found_event->event_banner !== null ? Storage::url("events/{$found_event->event_banner}") : null,
                 'active_event' => $this->checkActiveEvent($found_event->event_startdate, $found_event->event_enddate)
             ]
         ]);

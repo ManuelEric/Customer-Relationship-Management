@@ -67,8 +67,25 @@ class AuthController extends Controller
         # login Success
         # create log success
         $this->logSuccess('auth', null, 'Login', $request->email);
-        
-        return redirect()->intended('/dashboard');
+
+        switch ($scopes) {
+            case in_array('super-admin', $scopes):
+            case in_array('sales-admin', $scopes):
+                return redirect()->intended('/dashboard/sales');
+                break;
+
+            case in_array('employee', $scopes):
+                if($user->department()->where('dept_name', 'Client Management')->exists()){
+                    return redirect()->intended('/dashboard/sales');
+                }else if($user->department()->where('dept_name', 'Business Development')->exists()){
+                    return redirect()->intended('/dashboard/partnership');
+                }else if($user->department()->where('dept_name', 'Digital')->exists()){
+                    return redirect()->intended('/dashboard/digital');
+                }else if($user->department()->where('dept_name', 'Finance & Operation')->exists()){
+                    return redirect()->intended('/dashboard/finance');
+                }
+                break;            
+        }
     }
 
     public function logout(Request $request)

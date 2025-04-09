@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 
 class PurchaseRequestController extends Controller
 {
@@ -220,9 +221,9 @@ class PurchaseRequestController extends Controller
     public function download($filename)
     {
         # Check if file exists in public/uploaded_file/finance folder
-        $file_path = public_path() . '/storage/uploaded_file/finance/' . $filename;
+        $file_path = 'project/crm/finance/' . $filename;
 
-        if (file_exists($file_path)) {
+        if (Storage::disk('s3')->exists($file_path)) {
 
             # Download success
             # create log success

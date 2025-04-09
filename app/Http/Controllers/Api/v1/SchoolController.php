@@ -4,16 +4,19 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Interfaces\SchoolRepositoryInterface;
+use App\Services\Instance\SchoolService;
 use Illuminate\Http\Request;
 
 class SchoolController extends Controller
 {
 
     protected SchoolRepositoryInterface $schoolRepository;
+    protected SchoolService $schoolService;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository)
+    public function __construct(SchoolRepositoryInterface $schoolRepository, SchoolService $schoolService)
     {
         $this->schoolRepository = $schoolRepository;
+        $this->schoolService = $schoolService;
     }
     
     public function search(Request $request)
@@ -141,5 +144,10 @@ class SchoolController extends Controller
         }
 
 
+    }
+
+    public function fnGetListSchool(Request $request)
+    {
+        return $this->schoolService->snGetListSchool($request);
     }
 }

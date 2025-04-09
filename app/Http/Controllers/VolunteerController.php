@@ -252,32 +252,32 @@ class VolunteerController extends Controller
         # retrieve volunteer data by id
         $volunteer = $this->volunteerRepository->getVolunteerById($volunteerId);
 
-        $path = 'public/uploaded_file/volunteer/' . $volunteerId . '/';
+        $path = 'project/crm/volunteer/' . $volunteerId . '/';
 
         switch ($request->route('filetype')) {
 
             case "CV":
-                $file = Storage::disk('local')->get($path . $volunteer->volunt_cv);
+                $file = Storage::disk('s3')->get($path . $volunteer->volunt_cv);
                 $extension = pathinfo(storage_path($path . $volunteer->volunt_cv), PATHINFO_EXTENSION);
                 break;
 
             case "ID":
-                $file = Storage::disk('local')->get($path . $volunteer->volunt_idcard);
+                $file = Storage::disk('s3')->get($path . $volunteer->volunt_idcard);
                 $extension = pathinfo(storage_path($path . $volunteer->volunt_idcard), PATHINFO_EXTENSION);
                 break;
 
             case "TX":
-                $file = Storage::disk('local')->get($path . $volunteer->volunt_npwp);
+                $file = Storage::disk('s3')->get($path . $volunteer->volunt_npwp);
                 $extension = pathinfo(storage_path($path . $volunteer->volunt_npwp), PATHINFO_EXTENSION);
                 break;
 
             case "HI":
-                $file = Storage::disk('local')->get($path . $volunteer->health_insurance);
+                $file = Storage::disk('s3')->get($path . $volunteer->health_insurance);
                 $extension = pathinfo(storage_path($path . $volunteer->health_insurance), PATHINFO_EXTENSION);
                 break;
 
             case "EI":
-                $file = Storage::disk('local')->get($path . $volunteer->empl_insurance);
+                $file = Storage::disk('s3')->get($path . $volunteer->empl_insurance);
                 $extension = pathinfo(storage_path($path . $volunteer->empl_insurance), PATHINFO_EXTENSION);
                 break;
         }
@@ -297,14 +297,14 @@ class VolunteerController extends Controller
     public function destroy(Request $request)
     {
         $volunteerId = $request->route('volunteer');
-        $path = 'attachment/volunteer_attach/' . $volunteerId . '/';
+        $path = 'project/crm/attachment/volunteer_attach/' . $volunteerId . '/';
 
         DB::beginTransaction();
         try {
 
             if ($this->volunteerRepository->deleteVolunteer($volunteerId)) {
-                if (File::exists($path)) {
-                    File::deleteDirectory($path);
+                if (Storage::disk('s3')->exists($path)) {
+                    Storage::disk('s3')->deleteDirectory($path);
                 }
             }
 
@@ -358,8 +358,10 @@ class VolunteerController extends Controller
         $extension = $file->getClientOriginalExtension();
         // $file_location = 'attachment/volunteer_attach/' . $volunt_id . '/';
         $attach = $file_name . '.' . $extension;
-        $file->storeAs('public/uploaded_file/volunteer/' . $volunt_id, $file_name . '.' . $extension);
+        // $file->storeAs('public/uploaded_file/volunteer/' . $volunt_id, $file_name . '.' . $extension);
 
+        Storage::disk('s3')->put('project/crm/volunteer/' . $volunt_id, $file_name . '.' . $extension, file_get_contents($file));
+        
         # Upload success
         # create log success
         $this->logSuccess('upload', null, 'Attachment Volunteer', Auth::user()->first_name . ' '. Auth::user()->last_name, ['filename' => $file_name]);

@@ -3,6 +3,7 @@
 namespace App\Interfaces;
 
 use App\Models\UserClient;
+use Illuminate\Support\Collection;
 
 interface ClientRepositoryInterface
 {
@@ -55,8 +56,10 @@ interface ClientRepositoryInterface
     public function createClientLog(Array $client_log_details);
     public function getAllStudents();
     public function updateClientWithTrashed($clientId, array $newDetails);
+    public function getNewAllRawClientDataTables($roleName, $asDatatables = false, $advanced_filter = []);
 
-
+    public function rnGetGraduatedMentees(mixed $search); //* the difference between getAlumniMentees is that the graduated mentees only receive students
+    public function rnGetActiveMentees(mixed $search);
     /* ~ END */
 
     /* trash */

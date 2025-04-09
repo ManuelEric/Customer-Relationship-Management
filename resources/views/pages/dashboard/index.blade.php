@@ -33,17 +33,21 @@
 
     {{-- End Alert --}}
 
+    @if($isSuperAdmin || $isSalesAdmin)
+        <x-dashboard.nav />
+    @endif
+
     {{-- Sales --}}
-    @includeWhen($isSuperAdmin || $isSalesAdmin || $isSales, 'pages.dashboard.sales.index')
+    @includeWhen(Request::segment(2) == 'sales' && ($isSuperAdmin || $isSalesAdmin || $isSales), 'pages.dashboard.sales.index')
 
     {{-- Partnership --}}
-    @includeWhen($isSuperAdmin || $isPartnership, 'pages.dashboard.partnership.index')
+    @includeWhen(Request::segment(2) == 'partnership' && ($isSuperAdmin || $isPartnership), 'pages.dashboard.partnership.index')
 
     {{-- Digital  --}}
-    @includeWhen($isSuperAdmin || $isSalesAdmin || $isDigital, 'pages.dashboard.digital.index')
+    @includeWhen(Request::segment(2) == 'digital' && ($isSuperAdmin || $isSalesAdmin || $isDigital), 'pages.dashboard.digital.index')
 
     {{-- Finance  --}}
-    @includeWhen($isSuperAdmin || $isFinance, 'pages.dashboard.finance.index')
+    @includeWhen(Request::segment(2) == 'finance' && ($isSuperAdmin || $isFinance), 'pages.dashboard.finance.index')
 
 @endsection
 
@@ -68,7 +72,7 @@
     
             var use_filter_by_month = $("#use-filter-by-month").prop('checked');
     
-            var url = window.location.origin + '/api/get/program-comparison'
+            var url = window.location.origin + '/api/v1/dashboard/program-comparison'
     
             axios.get(url, {
                     params: {
@@ -133,8 +137,9 @@
         var month = $(".qdate").val()
         var uuid = $(this).val() == "all" ? null : $(this).val()
         var year = $("#qclient-event-year").val()
+        var daterange = $('#daterange').val();
 
-        reloadChart(month, uuid, year)
+        reloadChart(month, uuid, year, daterange)
 
     })
 
@@ -166,7 +171,7 @@
         }
     })
 
-    function reloadChart(month, uuid, year) {
+    function reloadChart(month, uuid, year, daterange) {
 
         get_client_program_status(month, uuid)
         get_successful_program(month, uuid)
@@ -180,6 +185,7 @@
         get_career_exp_lead(month, uuid)
         get_all_program(month, uuid)
         get_program_comparison()
+        get_domicile(uuid, daterange)
 
         // get_client_event(year, uuid)
     }

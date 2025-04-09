@@ -12,6 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use romanzipp\QueueMonitor\Traits\IsMonitored;
 
 // class ProcessEmailToClientJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
@@ -69,7 +70,7 @@ class ProcessEmailToClientJob implements ShouldQueue
             $message->to($this->mailDetails['email'], $this->mailDetails['recipient'])
                 ->cc($this->mailDetails['cc'])
                 ->subject($this->mailDetails['title'])
-                ->attach(storage_path('app/public/uploaded_file/invoice/client/' . $this->attachment->attachment));
+                ->attach(Storage::url('invoice/client/' . $this->attachment->attachment));
         });
         
         # update status send to client

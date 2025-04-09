@@ -288,7 +288,7 @@
 
         showLoading()
         axios
-            .get("{{ url('api/import') }}/" + category + "?start=" + start + "&end=" + end, {
+            .get("{{ url('api/v1/import') }}/" + category + "?start=" + start + "&end=" + end, {
                 headers:{
                     'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
                 }
@@ -341,7 +341,7 @@
 
                         let myInterval = setInterval(() => {
                             axios
-                            .get("{{ url('api/batch') }}/" + localStorage.getItem("batch_id"), {
+                            .get("{{ url('api/v1/batch') }}/" + localStorage.getItem("batch_id"), {
                                 headers:{
                                     'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
                                 }
@@ -399,7 +399,7 @@
 
         showLoading()
         axios
-            .get("{{ url('api/sync') }}/" + type, {
+            .get("{{ url('api/v1/sync') }}/" + type, {
                 headers:{
                     'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
                 }

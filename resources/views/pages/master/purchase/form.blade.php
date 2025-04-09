@@ -84,7 +84,7 @@
             </div>
         </div>
     </div>
-    
+
     <form
         action="{{ isset($purchaseRequest) ? route('purchase.update', ['purchase' => $purchaseRequest->purchase_id]) : route('purchase.store') }}"
         method="POST" enctype="multipart/form-data">
@@ -96,7 +96,8 @@
             <div class="col-md-4 text-center">
                 <div class="card rounded">
                     <div class="card-body">
-                        <img loading="lazy"  loading="lazy" src="{{ asset('img/icon/purchase.webp') }}" alt="" class="w-25">
+                        <img loading="lazy" loading="lazy" src="{{ asset('img/icon/purchase.webp') }}" alt=""
+                            class="w-25">
                         <h5>
                             {{ isset($purchaseRequest->purchase_id) ? 'Purchase Request No. ' . $purchaseRequest->purchase_id : 'Add New Purchase Request' }}
                         </h5>
@@ -216,9 +217,9 @@
                                     @enderror
                                     @if (isset($purchaseRequest->purchase_attachment) && !$edit)
                                         <small class="text-info fw-light">
-                                            {{-- <a href="{{ public_path('storage/uploaded_file/finance/').$purchaseRequest->purchase_attachment }}">Download file</a> --}}
                                             <a
-                                                href="{{ route('purchase.download', ['file_name' => $purchaseRequest->purchase_attachment]) }}">Download</a>
+                                                href="{{ Storage::url('finance/') . $purchaseRequest->purchase_attachment }}">Download
+                                                file</a>
                                         </small>
                                     @endif
                                 </div>
@@ -242,15 +243,15 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         @if (empty($purchaseRequest) || isset($edit))
-                        <div class="text-right">
-                            <button type="submit" class="btn btn-primary btn-sm">
-                                <i class="bi bi-save2 me-1"></i>
-                                Save</button>
-                        </div>
+                            <div class="text-right">
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-save2 me-1"></i>
+                                    Save</button>
+                            </div>
                         @endif
-                        
+
                     </div>
                 </div>
             </div>

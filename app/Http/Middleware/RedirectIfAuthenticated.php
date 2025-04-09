@@ -6,6 +6,7 @@ use App\Providers\RouteServiceProvider;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class RedirectIfAuthenticated
 {
@@ -21,10 +22,38 @@ class RedirectIfAuthenticated
     {
         $guards = empty($guards) ? [null] : $guards;
 
+        $user = Auth::user();
+
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return redirect(RouteServiceProvider::ADMIN);
+
+                if ( !$request->session()->has('scope') )
+                    return redirect('/auth/logout');
+                
+
+                $scopes = $request->session()->get('scope');
+
+                switch ($scopes) {
+                    case in_array('employee', $scopes):
+                        if($user->department()->where('dept_name', 'Client Management')->exists()){
+                            return redirect()->intended('/dashboard/sales');
+                        }else if($user->department()->where('dept_name', 'Business Development')->exists()){
+                            return redirect()->intended('/dashboard/partnership');
+                        }else if($user->department()->where('dept_name', 'Digital')->exists()){
+                            return redirect()->intended('/dashboard/digital');
+                        }else if($user->department()->where('dept_name', 'Finance & Operation')->exists()){
+                            return redirect()->intended('/dashboard/finance');
+                        }else{
+                            return redirect()->intended('/dashboard/sales');
+                        }
+                        break;            
+                    case in_array('super-admin', $scopes):
+                    case in_array('sales-admin', $scopes):
+                        return redirect()->intended('/dashboard/sales');
+                        break;
+                }
             }
+            
         }
 
         return $next($request);

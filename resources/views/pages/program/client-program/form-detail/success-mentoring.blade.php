@@ -120,7 +120,7 @@
                                     id="agreementFile">
                                 <div class="d-flex justify-content-between align-items-center" id="agreementView">
                                     <a target="_blank"
-                                        href="{{ url('/') }}/storage/uploaded_file/agreement/{{ $clientProgram->agreement }}">{{ $clientProgram->agreement }}</a>
+                                        href="{{ Storage::url('agreement/' . $clientProgram->agreement) }}">{{ $clientProgram->agreement }}</a>
                                     <button type="button" class="btn btn-danger btn-sm" id="showUploadInput"
                                         {{ $disabled }}><i class="bi bi-upload"></i></button>
                                 </div>

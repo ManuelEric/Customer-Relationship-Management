@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\LogModule;
 use App\Http\Requests\StoreReceiptRequest;
 use App\Http\Traits\CreateReceiptIdTrait;
 use App\Http\Traits\DirectorListTrait;
@@ -12,6 +13,8 @@ use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Jobs\Receipt\ProcessUploadReceiptJob;
 use App\Models\Receipt;
+use App\Services\Log\LogService;
+use App\Services\Receipt\ReceiptService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -28,7 +31,6 @@ use PDF;
 class ReceiptController extends Controller
 {
     use DirectorListTrait;
-    use CreateReceiptIdTrait;
     use LoggingTrait;
     private ReceiptRepositoryInterface $receiptRepository;
     private ClientProgramRepositoryInterface $clientProgramRepository;
@@ -82,13 +84,19 @@ class ReceiptController extends Controller
 
     }
 
-    public function store(StoreReceiptRequest $request)
+    public function store(
+        StoreReceiptRequest $request,
+        ReceiptService $receipt_service,
+        LogService $log_service,
+        )
     {
-        #initialize
-        $identifier = $request->identifier; #invdtl_id
-        $paymethod = $request->paymethod;
+        #initialize variables for payment gateway
+        $identifier = $request->identifier; // could be primary id of invoice or invoice detail
+        $paymethod = $request->paymethod; // could be full payment or installment
+        $clientprog_id = $request->clientprog_id;
+        $is_child_program_bundle = $request->is_child_program_bundle;
 
-        $receiptDetails = $request->only([
+        $receiptDetails = $request->safe()->only([
             'rec_currency',
             'receipt_amount',
             'receipt_amount_idr',
@@ -96,90 +104,73 @@ class ReceiptController extends Controller
             'receipt_words',
             'receipt_words_idr',
             'receipt_method',
-            'receipt_cheque'
+            'receipt_cheque',
+            'receipt_cat',
+            'created_at',
         ]);
-        $receiptDetails['receipt_cat'] = 'student';
 
-        $receiptDetails['created_at'] = $receiptDetails['receipt_date'];
-        // $receiptDetails['updated_at'] = Carbon::now();
-
-        $client_prog = $this->clientProgramRepository->getClientProgramById($request->clientprog_id);
+        $client_prog = $this->clientProgramRepository->getClientProgramById($clientprog_id);
         
         # validation child receipt bundle
-        # master receipt bundle must be created first
-        if($request->is_child_program_bundle > 0 && !isset($client_prog->bundlingDetail->bundling->invoice_b2c->receipt)){
-            return Redirect::to('invoice/client-program/' . $request->clientprog_id)->withError('Create master receipt bundle first!');
-        }
-
-        $invoice = $client_prog->invoice()->first();
-
-        # generate receipt id
-        $last_id = Receipt::whereMonth('created_at', isset($request->receipt_date) ? date('m', strtotime($request->receipt_date)) : date('m'))->whereYear('created_at', isset($request->receipt_date) ? date('Y', strtotime($request->receipt_date)) : date('Y'))->max(DB::raw('substr(receipt_id, 1, 4)'));
-
-        # Use Trait Create Invoice Id
-        $receiptDetails['receipt_id'] = $this->getLatestReceiptId($last_id, $client_prog->prog_id, $receiptDetails);
-
-        if($request->is_child_program_bundle > 0){
-            $last_id = Receipt::
-                    whereMonth('created_at', isset($request->receipt_date) ? date('m', strtotime($request->receipt_date)) : date('m'))->
-                    whereYear('created_at', isset($request->receipt_date) ? date('Y', strtotime($request->receipt_date)) : date('Y'))->
-                    whereRelation('invoiceProgram', 'bundling_id', $client_prog->bundlingDetail->bundling_id)->
-                    max(DB::raw('substr(receipt_id, 1, 4)'));
-           
-            $bundlingDetails = $this->clientProgramRepository->getBundleProgramDetailByBundlingId($client_prog->bundlingDetail->bundling_id);
-
-            $clientIdsBundle = $incrementBundle = [];
-            $is_cross_client = false;
-            
-            foreach ($bundlingDetails as $key => $bundlingDetail) {
-                $incrementBundle[$bundlingDetail->client_program->clientprog_id] = $key + 1;
-                $clientIdsBundle[] = $bundlingDetail->client_program->client->id;
-            }
-    
-            if(count(array_count_values($clientIdsBundle)) > 1)
-                $is_cross_client = true;
-
-            # Use Trait Create Invoice Id
-            $receiptDetails['receipt_id'] = $this->getLatestReceiptId($last_id, $invoice->clientprog->program->prog_id, $receiptDetails, ['is_bundle' => 1, 'is_cross_client' => $is_cross_client, 'increment_bundle' => $incrementBundle[$invoice->clientprog->clientprog_id]]);
+        # master receipt bundle must be created first 
+        # master receipt also meaning as invoice bundle
+        if ( $is_child_program_bundle > 0 && !isset($client_prog->bundlingDetail->bundling->invoice_b2c->receipt) )
+            return Redirect::to('invoice/client-program/' . $clientprog_id)->withError('Create master receipt bundle first!');
         
-        }
 
+        $invoice = $client_prog->invoice()->first();# sum of program bundled (ex: admission & academic tutor)
+
+        # generate receipt ID
+        $receipt_id = $receipt_service->generateReceiptId($receiptDetails, $client_prog, $is_child_program_bundle);
+        $receiptDetails['receipt_id'] = $receipt_id;
+        
+
+        # add details to receiptDetails
         $receiptDetails['inv_id'] = $invoice->inv_id;
         $invoice_payment_method = $invoice->inv_paymentmethod;
         if ($invoice_payment_method == "Installment")
             $receiptDetails['invdtl_id'] = $identifier;
 
-        # validation nominal
-        # to catch if total invoice not equal to total receipt 
-        if ($invoice_payment_method == "Full Payment") {
+        
+        # check if receipt of selected invoice / installment has already been created
+        if ( $this->receiptRepository->getReceiptByInvoiceId($invoice->inv_id, $invoice_payment_method, $identifier) )
+            return Redirect::back()->withError('Receipt has already been created.');
 
-            $total_invoice = $invoice->inv_totalprice_idr;
-            $total_receipt = $request->receipt_amount_idr;
-        } elseif ($invoice_payment_method == "Installment") {
 
-            $total_invoice = $invoice->invoiceDetail()->where('invdtl_id', $identifier)->first()->invdtl_amountidr;
-            $total_receipt = $request->receipt_amount_idr;
+        # here is some price validation
+        # to catch if total invoice is not equal to total receipt
+        # but before we do validate, first we create variables for totall of invoice and total of receipt
+        switch ($invoice_payment_method)
+        {
+            case "Full Payment":
+                $total_invoice = $invoice->inv_totalprice_idr;
+                $total_receipt = $request->receipt_amount_idr;
+                break;
+
+            case "Installment":
+                $total_invoice = $invoice->invoiceDetail()->where('invdtl_id', $identifier)->first()->invdtl_amountidr;
+                $total_receipt = $request->receipt_amount_idr;
+                break;
         }
+        
+        # here is the checking / validation
+        if ( $total_receipt < $total_invoice )
+            return Redirect::back()->withError('Do double check the amount. Make sure the amount on invoice and the amount on receipt is equal');
 
-        // if ($total_receipt < $total_invoice)
-            // return Redirect::back()->withError('Do double check the amount. Make sure the amount on invoice and the amount on receipt is equal');
 
         DB::beginTransaction();
         try {
 
             $receiptCreated = $this->receiptRepository->createReceipt($receiptDetails);
             DB::commit();
-        } catch (Exception $e) {
+        } catch (Exception $err) {
 
             DB::rollBack();
-            Log::error('Store receipt failed : ' . $e->getMessage());
-            return Redirect::back()->withError('Failed to create receipt');
+            $log_service->createErrorLog(LogModule::STORE_RECEIPT_PROGRAM, $err->getMessage(), $err->getLine(), $err->getFile(), $receiptDetails);
+            return Redirect::back()->withError('Failed to create a receipt');
         }
 
-        # store Success
-        # create log success
-        $this->logSuccess('store', 'Form Input', 'Receipt Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, $receiptCreated);
-
+        $log_service->createSuccessLog(LogModule::STORE_RECEIPT_PROGRAM, 'Receipt of Invoice ID : '. $invoice->inv_id .'created successfully', $receiptCreated->toArray());
         return Redirect::to('invoice/client-program/' . $request->clientprog_id)->withSuccess('A receipt has been made');
     }
 
@@ -324,10 +315,10 @@ class ReceiptController extends Controller
 
             $file_name = $uploadedFile->getClientOriginalName();
             $file_name = str_replace('/', '-', $receipt->receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
-            $path = 'public/uploaded_file/receipt/client/';
+            $path = 'project/crm/receipt/client/';
 
             # generate invoice as a PDF file
-            if ($uploadedFile->storeAs($path, $file_name)) {
+            if (Storage::disk('s3')->put($path.$file_name, file_get_contents($uploadedFile))) {
                 # update request status on receipt attachment
                 $attachment = $receipt->receiptAttachment()->where('currency', $currency)->first();
                 $attachment->attachment = $file_name;
@@ -405,7 +396,7 @@ class ReceiptController extends Controller
             Mail::send('pages.receipt.client-program.mail.view', $data, function ($message) use ($data, $file_name, $type, $receipt) {
                 $message->to($data['email'], $data['recipient'])
                     ->subject($data['title'])
-                    ->attach(storage_path('app/public/uploaded_file/receipt/client/'.$file_name.'-'.$type.'.pdf'));
+                    ->attach(Storage::url('receipt/client/' . $file_name.'-'.$type.'.pdf'));
             });
             DB::commit();
 
@@ -480,7 +471,7 @@ class ReceiptController extends Controller
         try {
 
             $this->receiptAttachmentRepository->updateReceiptAttachment($attachment->id, $newDetails);
-            if (!$pdfFile->storeAs('public/uploaded_file/receipt/client/', $name))
+            if (!Storage::disk('s3')->put('project/crm/receipt/client/'. $name, file_get_contents($pdfFile)))
                 throw new Exception('Failed to store signed receipt file');
 
             $data['title'] = 'Receipt No. ' . $receipt->receipt_id . ' has been signed';
@@ -491,7 +482,7 @@ class ReceiptController extends Controller
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
                     ->cc([env('FINANCE_CC_2')])
                     ->subject($data['title'])
-                    ->attach(storage_path('app/public/uploaded_file/receipt/client/' . $name));
+                    ->attach(Storage::url('receipt/client/' . $name));
             });
 
             DB::commit();
@@ -559,15 +550,16 @@ class ReceiptController extends Controller
         # send mail 
         try {
             
-            $storagePath = storage_path('app/public/uploaded_file/receipt/client/' . $attachment->attachment);
-            if (!File::exists($storagePath)) 
+            $path = 'project/crm/receipt/client/';
+            $storagePath = Storage::url($path . $attachment->attachment);
+            if (!Storage::disk('s3')->exists($path . $attachment->attachment)) 
                 return response()->json(['message' => "Receipt doesn't exist. Make sure the receipt has already been signed"], 500);
 
             Mail::send('pages.receipt.client-program.mail.client-view', $data, function ($message) use ($data, $attachment) {
                 $message->to($data['email'], $data['recipient'])
                     ->cc($data['cc'])
                     ->subject($data['title'])
-                    ->attach(storage_path('app/public/uploaded_file/receipt/client/' . $attachment->attachment));
+                    ->attach(Storage::url('receipt/client/' . $attachment->attachment));
             });
             $status_mail = 'sent';
 
@@ -632,7 +624,10 @@ class ReceiptController extends Controller
 
     // ============ Bundling ==============
 
-    public function storeBundle(StoreReceiptRequest $request)
+    public function storeBundle(
+        StoreReceiptRequest $request,
+        ReceiptService $receiptService
+    )
     {
         // return $request->all();
         // exit;
@@ -662,12 +657,16 @@ class ReceiptController extends Controller
         $last_id = Receipt::whereMonth('created_at', isset($request->receipt_date) ? date('m', strtotime($request->receipt_date)) : date('m'))->whereYear('created_at', isset($request->receipt_date) ? date('Y', strtotime($request->receipt_date)) : date('Y'))->max(DB::raw('substr(receipt_id, 1, 4)'));
 
         # Use Trait Create Invoice Id
-        $receiptDetails['receipt_id'] = $this->getLatestReceiptId($last_id, 'BDL', $receiptDetails);
+        $receiptDetails['receipt_id'] = $receiptService->getLatestReceiptId($last_id, 'BDL', $receiptDetails);
 
         $receiptDetails['inv_id'] = $invoice->inv_id;
         $invoice_payment_method = $invoice->inv_paymentmethod;
         if ($invoice_payment_method == "Installment")
             $receiptDetails['invdtl_id'] = $identifier;
+
+        # check if receipt of selected invoice / installment has already been created
+        if ( $this->receiptRepository->getReceiptByInvoiceId($invoice->inv_id, $invoice_payment_method, $identifier) )
+            return Redirect::back()->withError('Receipt has already been created.');
 
         # validation nominal
         # to catch if total invoice not equal to total receipt 

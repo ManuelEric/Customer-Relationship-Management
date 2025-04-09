@@ -54,11 +54,14 @@
                                 <div class="row p-3">
                                     <div class="col-md-12 mb-2">
                                         <label for="">School Name</label>
-                                        <select name="school_name[]" class="select form-select form-select-sm w-100"
+                                        {{-- <select name="school_name[]" class="select form-select form-select-sm w-100"
                                             multiple id="school-name">
                                             @foreach ($advanced_filter['schools'] as $school)
                                                 <option value="{{ $school->sch_name }}">{{ $school->sch_name }}</option>
                                             @endforeach
+                                        </select> --}}
+                                        <select name="school_name[]" id="school-name" class="select w-100 select-school"
+                                            multiple>
                                         </select>
                                     </div>
 
@@ -167,13 +170,14 @@
                                 <i class="bi bi-check"></i>
                             </th>
                             <th class="bg-info text-white">Name</th>
-                            <th class="bg-info text-white">Suggestion</th>
+                            <th>Suggestion</th>
                             <th>Role</th>
                             <th>Mail</th>
                             <th>Phone</th>
                             <th>Student/Parents Name</th>
                             <th>Student/Parents Mail</th>
                             <th>Student/Parents Phone</th>
+                            <th>Interest Program</th>
                             <th>School</th>
                             <th>Grade</th>
                             <th>Graduation Year</th>
@@ -181,7 +185,6 @@
                             <th>Referral Name</th>
                             <th>Country of Study Abroad</th>
                             <th>Joined Event</th>
-                            <th>Interest Program</th>
                             <th>Scholarship Eligible</th>
                             <th>Joined Date</th>
                             <th class="bg-info text-white">Last Update</th>
@@ -233,6 +236,26 @@
     <script>
         var widthView = $(window).width();
         $(document).ready(function() {
+
+            var baseUrl = "{{ url('/') }}/api/v1/get/school/list";
+
+            $(".select-school").select2({
+                placeholder: 'Select Value',
+                // width: '350px',
+                allowClear: true,
+                ajax: {
+                    url: baseUrl,
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            term: params.term || '',
+                            page: params.page || 1
+                        }
+                    },
+                    cache: true
+                }
+            });
 
             // Formatting function for row details - modify as you need
             function format(d, clientSuggest) {
@@ -343,7 +366,7 @@
                     targets: 0
                 }],
                 fixedColumns: {
-                    left: (widthView < 768) ? 3 : 4,
+                    left: (widthView < 768) ? 2 : 3,
                     right: 2
                 },
                 ajax: {
@@ -424,6 +447,11 @@
                         defaultContent: '-'
                     },
                     {
+                        data: 'interest_prog',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
                         data: 'school_name',
                         defaultContent: '-',
                         render: function(data, type, row, meta) {
@@ -488,11 +516,6 @@
                         defaultContent: '-'
                     },
                     {
-                        data: 'interest_prog',
-                        className: 'text-center',
-                        defaultContent: '-'
-                    },
-                    {
                         data: 'scholarship',
                         className: 'text-center',
                         searchable: false,
@@ -507,17 +530,11 @@
                         data: 'created_at',
                         className: 'text-center',
                         defaultContent: '-',
-                        render: function(data, type, row) {
-                            return moment(data).format('DD/MM/YYYY')
-                        }
                     },
                     {
                         data: 'updated_at',
                         className: 'text-center',
                         defaultContent: '-',
-                        render: function(data, type, row) {
-                            return moment(data).format('DD/MM/YYYY')
-                        }
                     },
                     {
                         data: '',

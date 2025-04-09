@@ -9,6 +9,7 @@ use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Services\Log\LogService;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -132,6 +133,9 @@ class ClientController extends Controller
                     'register_by',
                     'referral_code'
                 ]);
+
+                // update also the gradenow //! not used
+                // $student_details['grade_now'] = $student_details['st_grade'];
 
                 if (isset($request->is_funding))
                     $student_details['is_funding'] = $request->is_funding;
@@ -343,7 +347,7 @@ class ClientController extends Controller
             [
                 'success' => true,
                 'data' => $client_suggestion
-            ]
+            ], JsonResponse::HTTP_OK, [], options: JSON_INVALID_UTF8_IGNORE
         );
     }
 }

@@ -9,6 +9,7 @@ use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class EventRepository implements EventRepositoryInterface
 {
@@ -51,9 +52,9 @@ class EventRepository implements EventRepositoryInterface
             # if there is event banner
             # also delete the event banner
             if ($eventBanner !== NULL) {
-                $existingImagePath = storage_path('app/public/uploaded_file/events').'/'.$eventBanner;
-                if (File::exists($existingImagePath))
-                    File::delete($existingImagePath);
+                $existingImagePath = Storage::url('events').'/'.$eventBanner;
+                if (Storage::disk('s3')->exists($existingImagePath))
+                    Storage::disk('s3')->delete($existingImagePath);
             }
 
         return true;

@@ -177,6 +177,13 @@ enum LogModule: string
     case DELETE_CLIENT_PROGRAM = '[DELETE CLIENT PROGRAM]';
 
     /**
+     * Program Phase
+     */
+    case STORE_PROGRAM_PHASE = '[STORE PROGRAM PHASE]';
+    case DELETE_PROGRAM_PHASE = '[DELETE PROGRAM PHASE]';
+    case UPDATE_PROGRAM_PHASE = '[UPDATE PROGRAM PHASE]';
+
+    /**
      * Bundle Program
      */
     case STORE_BUNDLE_PROGRAM = '[STORE BUNDLE PROGRAM]';
@@ -370,6 +377,12 @@ enum LogModule: string
     case DELETE_INVOICE_SCHOOL = '[DELETE INVOICE SCHOOL]';
 
     /**
+     * Receipt 
+     */
+    case STORE_RECEIPT_PROGRAM = '[STORE RECEIPT PROGRAM]';
+    case STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA = '[STORE RECEIPT PROGRAM FROM PAYMENT GA]';
+
+    /**
      * Report
      */
     case REPORT_SALES_TRACKING = '[SALES TRACKING]';
@@ -452,4 +465,15 @@ enum LogModule: string
     case STORE_ALUMNI_ACCEPTANCE = '[STORE ALUMNI ACCEPTANCE]';
     case UPDATE_ALUMNI_ACCEPTANCE = '[UPDATE ALUMNI ACCEPTANCE]';
     case DELETE_ALUMNI_ACCEPTANCE = '[DELETE ALUMNI ACCEPTANCE]';
+
+    /**
+     * Mentee Update
+     */
+    case UPDATE_MENTEE_GDRIVE = '[UPDATE MENTEE GDRIVE]';
+
+    /**
+     * Payment Link
+     */
+    case CREATE_PAYMENT_LINK = '[CREATE PAYMENT LINK]';
+    case CHECK_PAYMENT_STATUS = '[CHECK PAYMENT STATUS]';
 }

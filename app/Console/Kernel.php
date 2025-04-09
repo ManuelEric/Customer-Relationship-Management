@@ -90,6 +90,11 @@ class Kernel extends ConsoleKernel
 
         // Send reminder partnership agreement
         $schedule->command('send:reminder_expiration_agreement')->cron('0 7 * * *');
+
+        /**
+         * cron for check status transaction
+         */
+        $schedule->command('payment:check-status')->withoutOverlapping()->everyMinute();
     }
 
     /**
