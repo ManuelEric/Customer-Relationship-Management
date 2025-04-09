@@ -41,13 +41,23 @@ class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
         return $phase_detail;  
     }
 
+    public function rnIncrementUseProgramPhase(ClientProgram $clientprogram, int $phase_detail_id, int $use)
+    {        
+        DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->increment('use', $use);
+
+        return DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->first();
+    }
+
+    public function rnDecrementUseProgramPhase(ClientProgram $clientprogram, int $phase_detail_id, int $use)
+    {        
+        DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->decrement('use', $use);
+
+        return DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->first();
+    }
+
     public function rnUpdateUseProgramPhase(ClientProgram $clientprogram, int $phase_detail_id, int $use)
     {
-        // $clientprogram->phase_detail()->updateExistingPivot($phase_detail_id, ['use' => $use]);
-        
-        // return $clientprogram->phase_detail()->wherePivot('phase_detail_id', $phase_detail_id)->first();
-        
-        DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->increment('use', $use);
+        DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->update(['use' => $use]);
 
         return DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->first();
     }
@@ -71,5 +81,11 @@ class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
         $created_client_program_detail = ClientProgramDetail::create($program_phase_details);
         
         return $created_client_program_detail;
+    }
+
+    
+    public function rnGetClientProgramDetailsByClientprogId(int $clientprog_id, int $phase_detail_id)
+    {
+        return ClientProgramDetail::where('clientprog_id', $clientprog_id)->where('phase_detail_id', $phase_detail_id)->first();
     }
 }   
