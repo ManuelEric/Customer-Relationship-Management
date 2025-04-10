@@ -46,7 +46,8 @@ class UpdateUseProgramPhaseRequest extends FormRequest
         return [
             'mentee_id' => 'required|exists:tbl_client,id',
             'phase_detail_id' => 'required|exists:phase_details,id',
-            'use' => 'required|numeric|min:1'
+            'type' => 'required|in:increment,update,decrement',
+            'use' => 'required|numeric|min:0'
         ];
     }
 }
