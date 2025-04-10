@@ -28,13 +28,15 @@ class AcceptanceController extends Controller
     {
         $mapped = $student->universityAcceptance->map(function ($item) {
             return [
+                'id' => $item->pivot->id,
                 'univ_id' => $item->univ_id,
                 'univ_name' => $item->univ_name,
                 'univ_application_deadline' => $item->univ_application_deadline,
                 'major_group' => $item->pivot->major_group->mg_name ?? null,
                 'major' => $item->pivot->get_major_name,
                 'category' => $item->pivot->category,
-                'requirement_link' => $item->pivot->requirement_link
+                'requirement_link' => $item->pivot->requirement_link,
+                'status' => $item->pivot->status
             ]; 
         });
         return response()->json($mapped);

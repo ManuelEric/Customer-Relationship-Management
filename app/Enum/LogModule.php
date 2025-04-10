@@ -476,4 +476,9 @@ enum LogModule: string
      */
     case CREATE_PAYMENT_LINK = '[CREATE PAYMENT LINK]';
     case CHECK_PAYMENT_STATUS = '[CHECK PAYMENT STATUS]';
+
+    /**
+     * Mentee Packages Bought
+     */
+    case GET_MENTEE_PACKAGES_BOUGHT = '[GET MENTEE PACKAGES BOUGHT]';
 }
