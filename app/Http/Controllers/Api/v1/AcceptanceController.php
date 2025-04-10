@@ -26,20 +26,23 @@ class AcceptanceController extends Controller
 
     public function fnListOfUniApplication(UserClient $student): JsonResponse
     {
-        $mapped = $student->universityAcceptance->map(function ($item) {
+        $uni_application = $student->universityAcceptance->map(function ($item) {
             return [
                 'id' => $item->pivot->id,
                 'univ_id' => $item->univ_id,
                 'univ_name' => $item->univ_name,
                 'univ_application_deadline' => $item->univ_application_deadline,
+                'major_group_id' => $item->pivot->major_group_id,
                 'major_group' => $item->pivot->major_group->mg_name ?? null,
                 'major' => $item->pivot->get_major_name,
-                'category' => $item->pivot->category,
+                'category' => ucwords($item->pivot->category),
                 'requirement_link' => $item->pivot->requirement_link,
-                'status' => $item->pivot->status
+                'status' => ucwords($item->pivot->status)
             ]; 
         });
-        return response()->json($mapped);
+        $latest_adm_program = $student->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first();
+        $total = $latest_adm_program->total_uni;
+        return response()->json(compact('uni_application', 'total'));
     }
 
     public function fnAddUni(

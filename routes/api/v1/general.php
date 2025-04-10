@@ -186,6 +186,9 @@ Route::middleware(['throttle:120,1'])->group(function () {
         Route::patch('program-phase/{mentee}/phase-detail/{phase_detail}/use', [V1APIProgramPhaseController::class, 'fnUpdateUseProgramPhase']);
 
         # major
-        Route::get('major', [V1APIMajorController::class, 'index']);
+        Route::get('major', [V1APIMajorController::class, 'fnGetMajor']);
+        
+        # major group
+        Route::get('major-group', [V1APIMajorController::class, 'fnGetMajorGroup']);
 
 });

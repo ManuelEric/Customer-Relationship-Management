@@ -15,10 +15,15 @@ class MentorController extends Controller
                 'university' => $item->univ_name,
                 'major' => $item->major_name,
                 'degree' => $item->pivot->degree,
-                'graduated_date' => $item->pivot->graduation_date
+                'graduated_at' => $item->pivot->graduation_date
             ];
         });
 
         return response()->json($mapped_educations);
+    }
+
+    public function fnStoreEducation(Request $request)
+    {
+        
     }
 }
