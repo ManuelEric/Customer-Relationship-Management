@@ -2391,7 +2391,6 @@ class ExtClientController extends Controller
 
             $latest_adm_program = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first();
             $admission_program_name = $latest_adm_program->program->program_name;
-            $total_uni = $latest_adm_program->total_uni;
             $received_packages = count($mapped_packages_bought) > 0 ? $mapped_packages_bought->first() : $mapped_packages_bought;
 
 

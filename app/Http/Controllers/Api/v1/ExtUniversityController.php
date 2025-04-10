@@ -38,7 +38,6 @@ class ExtUniversityController extends Controller
         });
 
         return response()->json([
-            'success' => true,
             'message' => 'There are universities found.',
             'data' => $mappedUniversities
         ]);
