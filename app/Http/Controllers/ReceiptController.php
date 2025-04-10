@@ -629,8 +629,6 @@ class ReceiptController extends Controller
         ReceiptService $receiptService
     )
     {
-        // return $request->all();
-        // exit;
         #initialize
         $identifier = $request->identifier; #invdtl_id
         $paymethod = $request->paymethod;
