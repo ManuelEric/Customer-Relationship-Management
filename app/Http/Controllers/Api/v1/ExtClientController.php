@@ -2232,6 +2232,7 @@ class ExtClientController extends Controller
             'mentee_name' => $details->first_name . ' ' . $details->last_name,
             'mentee_phone' => $details->phone,
             'mentee_email' => $details->mail,
+            'secondary_id' => $details->secondary_id,
             'grade' => $details->grade_now,
             'application_year' => null,
             'address' => [
@@ -2386,7 +2387,7 @@ class ExtClientController extends Controller
                 
             }
 
-            return response()->json(count($mapped_packages_bought) > 0 ? $mapped_packages_bought->first() : $mapped_packages_bought);
+            return response()->json(count($mapped_packages_bought) > 0 ? array_values($mapped_packages_bought->first()->toArray()) : array_values($mapped_packages_bought->toArray()));
         } catch (Exception $err) {
 
             throw new HttpResponseException(
