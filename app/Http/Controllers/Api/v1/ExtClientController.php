@@ -24,6 +24,7 @@ use App\Jobs\Client\ProcessInsertLogClient;
 use App\Models\ClientEvent;
 use App\Models\Event;
 use App\Models\Phase;
+use App\Models\Program;
 use App\Models\School;
 use App\Models\UserClient;
 use App\Repositories\ProgramRepository;
@@ -2239,7 +2240,8 @@ class ExtClientController extends Controller
                 'city' => $details->city,
             ],
             'birthdate' => $details->dob,
-            'parent_name' => $details->parents()->select(['first_name', 'last_name', 'mail', 'phone'])->get()->toArray() 
+            'parent_name' => $details->parents()->select(['first_name', 'last_name', 'mail', 'phone'])->get()->toArray(),
+            'gdrive_link' => $details->mentoring_google_drive_link
         ];
 
         $response_of_student_mentor = array();
@@ -2332,7 +2334,8 @@ class ExtClientController extends Controller
     }
 
     public function fnGetPackagesBoughtByMentee(
-        UserCLient $user_client        
+        UserCLient $user_client,
+        LogService $log_service
         )
     {
         try {
@@ -2356,9 +2359,13 @@ class ExtClientController extends Controller
                 
             }
 
-            return response()->json(count($mapped_packages_bought) > 0 ? $mapped_packages_bought->first() : $mapped_packages_bought);
-        } catch (Exception $err) {
+            $admission_program_name = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first()->program->program_name;
+            $received_packages = count($mapped_packages_bought) > 0 ? $mapped_packages_bought->first() : $mapped_packages_bought;
 
+
+            return response()->json(compact('admission_program_name', 'received_packages'));
+        } catch (Exception $err) {
+            $log_service->createErrorLog(LogModule::GET_MENTEE_PACKAGES_BOUGHT, $err->getMessage(), $err->getLine(), $err->getFile());
             throw new HttpResponseException(
                 response()->json(['errors' => 'Failed to get packages bought'], JsonResponse::HTTP_BAD_REQUEST)
             );

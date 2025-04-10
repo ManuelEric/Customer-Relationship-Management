@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Events\MessageSent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -62,6 +63,11 @@ class Major extends Model
         event(new MessageSent('rt_major', 'channel_datatable'));
 
         return $model;
+    }
+
+    public function scopeActive(Builder $query): void
+    {
+        $query->where('active', 1);
     }
 
 
