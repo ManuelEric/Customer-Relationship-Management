@@ -2299,7 +2299,7 @@ class ExtClientController extends Controller
             return [
                 'clientprog_id' => $item->clientprog_id,
                 'main_program' => $item->program->main_prog->prog_name,
-                'sub_program' => $item->program->sub_prog->sub_prog_name,
+                'sub_program' => $item->program->sub_prog->sub_prog_name ?? null,
                 'program_name' => $item->program->prog_program,
                 'success_date' => $item->success_date,
                 'status' => $this->translate($item->prog_running_status)
