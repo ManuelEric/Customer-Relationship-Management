@@ -27,3 +27,4 @@ composer.lock
 error_log
 .ftpquota
 .htaccess
+.deploy.php
