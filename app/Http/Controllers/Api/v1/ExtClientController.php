@@ -21,6 +21,7 @@ use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Jobs\Client\ProcessInsertLogClient;
+use App\Models\BundlingDetail;
 use App\Models\ClientEvent;
 use App\Models\Event;
 use App\Models\Phase;
@@ -2296,13 +2297,18 @@ class ExtClientController extends Controller
     {
         $program_besides_admissions = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', '!=', 'Admissions Mentoring')->has('invoice.receipt')->get();
         $mapped_program = $program_besides_admissions->map(function ($item) {
+
+            # check if the clientprog was bundle
+            BundlingDetail::selectRaw('group_concat(clientprog_id) as bundle')->where('clientprog_id', $item->clientprog_id)->first();
+
             return [
                 'clientprog_id' => $item->clientprog_id,
                 'main_program' => $item->program->main_prog->prog_name,
                 'sub_program' => $item->program->sub_prog->sub_prog_name ?? null,
                 'program_name' => $item->program->prog_program,
                 'success_date' => $item->success_date,
-                'status' => $this->translate($item->prog_running_status)
+                'status' => $this->translate($item->prog_running_status),
+                'bundle' => $item->clientprog_id
             ];
         }); 
         return response()->json($mapped_program);
