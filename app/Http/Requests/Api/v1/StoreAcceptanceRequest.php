@@ -43,10 +43,10 @@ class StoreAcceptanceRequest extends FormRequest
     {
         $rules = [
             'univ_id' => 'required|exists:tbl_univ,univ_id',
-            'category' => 'required|in:reach,competitive,safety',
+            'category' => 'required',
             'major_group_id' => 'required|exists:major_groups,id',
             'major_name' => 'nullable',
-            'status' => 'required|in:submitted,waitlisted,accepted,denied,deferred,final decision',
+            'status' => 'required',
             'requirement_link' => 'nullable',
          ];
 

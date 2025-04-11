@@ -45,4 +45,10 @@ class ExtEventController extends Controller
             'data' => $mapped_events
         ]);
     }
+
+    public function fnGetUpcomingEvents()
+    {
+        $events = $this->eventRepository->getUpcomingEvents();
+        return response()->json($events);
+    }
 }

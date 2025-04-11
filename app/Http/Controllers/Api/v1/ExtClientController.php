@@ -21,9 +21,11 @@ use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Jobs\Client\ProcessInsertLogClient;
+use App\Models\BundlingDetail;
 use App\Models\ClientEvent;
 use App\Models\Event;
 use App\Models\Phase;
+use App\Models\Program;
 use App\Models\School;
 use App\Models\UserClient;
 use App\Repositories\ProgramRepository;
@@ -836,7 +838,7 @@ class ExtClientController extends Controller
                         $validatedStudent['mail'] = $validated['secondary_mail'] ?? null;
                         $validatedStudent['phone'] = $validated['secondary_phone'] ?? null;
                         $validatedStudent['scholarship'] = 'N';
-                        $validatedStudent['lead_source_id'] = 'LS001'; # Website
+                        // $validatedStudent['lead_source_id'] = 'LS001'; # Website
 
                         $student = $this->storeStudent($validatedStudent);
 
@@ -2239,7 +2241,8 @@ class ExtClientController extends Controller
                 'city' => $details->city,
             ],
             'birthdate' => $details->dob,
-            'parent_name' => $details->parents()->select(['first_name', 'last_name', 'mail', 'phone'])->get()->toArray() 
+            'parent_name' => $details->parents()->select(['first_name', 'last_name', 'mail', 'phone'])->get()->toArray(),
+            'gdrive_link' => $details->mentoring_google_drive_link
         ];
 
         $response_of_student_mentor = array();
@@ -2294,13 +2297,18 @@ class ExtClientController extends Controller
     {
         $program_besides_admissions = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', '!=', 'Admissions Mentoring')->has('invoice.receipt')->get();
         $mapped_program = $program_besides_admissions->map(function ($item) {
+
+            # check if the clientprog was bundle
+            BundlingDetail::selectRaw('group_concat(clientprog_id) as bundle')->where('clientprog_id', $item->clientprog_id)->first();
+
             return [
                 'clientprog_id' => $item->clientprog_id,
                 'main_program' => $item->program->main_prog->prog_name,
-                'sub_program' => $item->program->sub_prog->sub_prog_name,
+                'sub_program' => $item->program->sub_prog->sub_prog_name ?? null,
                 'program_name' => $item->program->prog_program,
                 'success_date' => $item->success_date,
-                'status' => $this->translate($item->prog_running_status)
+                'status' => $this->translate($item->prog_running_status),
+                'bundle' => $item->clientprog_id
             ];
         }); 
         return response()->json($mapped_program);
@@ -2332,33 +2340,69 @@ class ExtClientController extends Controller
     }
 
     public function fnGetPackagesBoughtByMentee(
-        UserCLient $user_client        
+        UserCLient $user_client,
+        LogService $log_service,
+        Request $request 
         )
     {
         try {
             $mapped_packages_bought = [];
+            $type = $request->get('type'); 
             $packages_bought = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->has('phase_detail')->get();
 
             if(count($packages_bought) > 0){
 
-                $mapped_packages_bought = $packages_bought->map(function($item){
+                $mapped_packages_bought = $packages_bought->map(function($item) use($type){
 
-                    $mapped_phase_detail = $item->phase_detail->map(function($item) {
-                        return [
-                            'phase_detail_id' => $item->id,
-                            'phase_detail_name' => $item->phase_detail_name,
-                            'allocate' => $item->pivot->quota,
-                            'use' => $item->pivot->use
-                        ];
-                    });
+                    $clientprog = $item;
+
+                    switch ($type) {
+                        case 'all':
+                            $mapped_phase_detail = $item->phase_detail->map(function($item)use($clientprog) {
+                                return [
+                                    'clientprog_id' => $clientprog->clientprog_id,
+                                    'phase_detail_id' => $item->id,
+                                    'phase_detail_name' => $item->phase_detail_name,
+                                    'allocate' => $item->pivot->quota,
+                                    'use' => $item->pivot->use
+                                ];
+                            });
+                            break;
+
+                        case 'manual':
+                            $mapped_phase_detail = $item->phase_detail->where('type', 'manual')->map(function($item)use($clientprog) {
+                                return [
+                                    'clientprog_id' => $clientprog->clientprog_id,
+                                    'phase_detail_id' => $item->id,
+                                    'phase_detail_name' => $item->phase_detail_name,
+                                    'allocate' => $item->pivot->quota,
+                                    'use' => $item->pivot->use
+                                ];
+                            });
+                            break;
+                        
+                        default:
+                            return response()->json([
+                                'success' => false,
+                                'error' => 'Failed to get packages bought, Undefined type!'
+                            ], JsonResponse::HTTP_BAD_REQUEST);
+                            break;
+                    }
+                   
+
                     return $mapped_phase_detail;
                 });
                 
             }
 
-            return response()->json(count($mapped_packages_bought) > 0 ? $mapped_packages_bought->first() : $mapped_packages_bought);
-        } catch (Exception $err) {
+            $latest_adm_program = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first();
+            $admission_program_name = $latest_adm_program->program->program_name;
+            $received_packages = count($mapped_packages_bought) > 0 ? $mapped_packages_bought->first() : $mapped_packages_bought;
 
+
+            return response()->json(compact('admission_program_name', 'received_packages'));
+        } catch (Exception $err) {
+            $log_service->createErrorLog(LogModule::GET_MENTEE_PACKAGES_BOUGHT, $err->getMessage(), $err->getLine(), $err->getFile());
             throw new HttpResponseException(
                 response()->json(['errors' => 'Failed to get packages bought'], JsonResponse::HTTP_BAD_REQUEST)
             );

@@ -33,9 +33,21 @@ class ProgramPhaseController extends Controller
     public function fnRemoveProgramPhase(StoreProgramPhaseRequest $request, LogService $log_service)
     {
         $program_phase_details = $request->safe()->only(['clientprog_id', 'phase_detail_id', 'phase_lib_id']);
-       
+        
         DB::beginTransaction();
         try {
+            if(!$clientprogram_detail = $this->programPhaseRepository->rnGetClientProgramDetailsByClientprogId($program_phase_details['clientprog_id'], $program_phase_details['phase_detail_id'])){
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Failed Remove Package Bought, Client not registered this package!'
+                ], JsonResponse::HTTP_BAD_REQUEST);
+            }else if($clientprogram_detail->use > 0){
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Failed Remove Package Bought, This package is ongoing!'
+                ], JsonResponse::HTTP_BAD_REQUEST);
+            }
+
             $deleted_program_phase = $this->programPhaseRepository->rnDeleteProgramPhase($program_phase_details);
 
             DB::commit();
@@ -125,21 +137,45 @@ class ProgramPhaseController extends Controller
 
     public function fnUpdateUseProgramPhase(UpdateUseProgramPhaseRequest $request, LogService $log_service)
     {
-        $program_phase_details = $request->safe()->only(['mentee_id', 'phase_detail_id', 'use']);
+        $program_phase_details = $request->safe()->only(['mentee_id', 'phase_detail_id', 'use', 'type']);
 
         # select program admission
         $clientprogram = $this->clientProgramRepository->getClientProgramAdmissionByClientId($program_phase_details['mentee_id']);
         
         if(!$clientprogram){
-            throw new HttpResponseException(
-                response()->json(['errors' => 'Failed Update Use Package Bought, Program Admission Not Found!'], JsonResponse::HTTP_BAD_REQUEST)
-            );
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed Update Use Package Bought, Program Admission Not Found!'
+            ], JsonResponse::HTTP_BAD_REQUEST);
+
+            $log_service->createErrorLog(LogModule::UPDATE_PROGRAM_PHASE, 'program admission not found', '-', '-', $program_phase_details);
         }
             
 
         DB::beginTransaction();
         try {
-            $updated_clientprogram_detail = $this->programPhaseRepository->rnUpdateUseProgramPhase($clientprogram, $program_phase_details['phase_detail_id'], $program_phase_details['use']);
+            switch ($program_phase_details['type']) {
+                case 'increment':
+                    $updated_clientprogram_detail = $this->programPhaseRepository->rnIncrementUseProgramPhase($clientprogram, $program_phase_details['phase_detail_id'], $program_phase_details['use']);
+                    break;
+
+                case 'decrement':
+                    $updated_clientprogram_detail = $this->programPhaseRepository->rnDecrementUseProgramPhase($clientprogram, $program_phase_details['phase_detail_id'], $program_phase_details['use']);
+                    break;
+
+                case 'update':
+                    $updated_clientprogram_detail = $this->programPhaseRepository->rnUpdateUseProgramPhase($clientprogram, $program_phase_details['phase_detail_id'], $program_phase_details['use']);
+                    break;
+                
+                default:
+                    return response()->json([
+                        'success' => false,
+                        'error' => 'Failed Update Use Package Bought'
+                    ], JsonResponse::HTTP_BAD_REQUEST);
+
+                    $log_service->createErrorLog(LogModule::UPDATE_PROGRAM_PHASE, 'undefined type', '-', '-', $program_phase_details);
+                    break;
+            }
 
             DB::commit();
         } catch (Exception $e) {
@@ -147,10 +183,11 @@ class ProgramPhaseController extends Controller
 
             $log_service->createErrorLog(LogModule::UPDATE_PROGRAM_PHASE, $e->getMessage(), $e->getLine(), $e->getFile(), $program_phase_details);
 
-            
-            throw new HttpResponseException(
-                response()->json(['errors' => 'Failed Update Use Package Bought'], JsonResponse::HTTP_BAD_REQUEST)
-            );
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed Update Use Package Bought'
+            ], JsonResponse::HTTP_BAD_REQUEST);
+
         }
 
         return response()->json($updated_clientprogram_detail);

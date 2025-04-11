@@ -27,9 +27,10 @@ use App\Http\Controllers\ReceiptReferralController;
 use App\Http\Controllers\ReceiptSchoolController;
 use App\Http\Controllers\Api\v1\AuthController as V1APIAuthController;
 use App\Http\Controllers\Api\v1\CallbackController as V1APICallbackController;
-use App\Http\Controllers\Api\v1\MentoringLogController as V1APIMentoringLogController;
+use App\Http\Controllers\Api\v1\MentorController as V1APIMentorController;
 use App\Http\Controllers\PaymentGatewayController;
 use App\Http\Controllers\ProgramPhaseController as V1APIProgramPhaseController;
+use App\Http\Controllers\Api\v1\MajorController as V1APIMajorController;
 
 Route::middleware(['throttle:120,1'])->group(function () {
 
@@ -165,6 +166,12 @@ Route::middleware(['throttle:120,1'])->group(function () {
             
             # add/update google drive mentee
             Route::put('update/mentee/{user_client}/gdrive', [ExtClientController::class, 'fnUpdateMenteeGDriveLink']);
+
+            # mentor
+            Route::middleware('auth:api')->group(function() {
+                Route::get('mentor/profile/education', [V1APIMentorController::class, 'fnGetEducation']);
+                Route::post('mentor/profile/education', [V1APIMentorController::class, 'fnStoreEducation']);
+            });
         });
 
         # meta ads
@@ -180,5 +187,14 @@ Route::middleware(['throttle:120,1'])->group(function () {
         # Temporary without middleware until Implemented SSO for all platform
         # Update use for program phase
         Route::patch('program-phase/{mentee}/phase-detail/{phase_detail}/use', [V1APIProgramPhaseController::class, 'fnUpdateUseProgramPhase']);
+
+        # major
+        Route::get('major', [V1APIMajorController::class, 'fnGetMajor']);
+        
+        # major group
+        Route::get('major-group', [V1APIMajorController::class, 'fnGetMajorGroup']);
+
+        # upcoming events
+        Route::get('upcoming/events', [ExtEventController::class, 'fnGetUpcomingEvents']);
 
 });

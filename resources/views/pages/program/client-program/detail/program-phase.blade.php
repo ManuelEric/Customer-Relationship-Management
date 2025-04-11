@@ -25,23 +25,26 @@
                                             @php
                                                 $data_phase_lib[$phase_detail->id] = [];
                                                 $data_quota = 0;
+                                                $data_use = 0;
                                                 $is_check_program_phase = false;
                                                 $clientprog_program_phase = null;
                                                 if($clientprog_program_phase = $phase_detail->client_program->where('clientprog_id', $clientProgram->clientprog_id)->first()){
                                                     $is_check_program_phase = true;
                                                     $data_quota = $clientprog_program_phase->pivot->quota;
+                                                    $data_use = $clientprog_program_phase->pivot->use;
                                                 }
-
+                                                
                                                 foreach ($phase_detail->phase_libraries as $pl) {
                                                     $data_phase_lib[$pl->phase_detail_id] = $pl;
                                                     if($clientprog_program_phase = $pl->client_program->where('clientprog_id', $clientProgram->clientprog_id)->first()){
                                                         $is_check_program_phase = true;
+                                                        $data_use = $clientprog_program_phase->pivot->use;
                                                         $data_quota = $clientprog_program_phase->pivot->quota;
                                                     }
                                                 }
                                             @endphp
                                             <tr align="left">
-                                                <td><input class="form-check-input check-package" type="checkbox" value="" data-phase-detail-id="{{$phase_detail->id}}" data-phase-lib-id="{{$data_phase_lib[$phase_detail->id]->id ?? '-'}}" data-clientprog-id="{{ isset($clientProgram) ? $clientProgram->clientprog_id : '-' }}" id="check-{{$phase_detail->id}}" {{ $is_check_program_phase != null ? 'checked' : '' }}></td>
+                                                <td><input class="form-check-input check-package" type="checkbox" value="" data-phase-detail-id="{{$phase_detail->id}}" data-phase-lib-id="{{$data_phase_lib[$phase_detail->id]->id ?? '-'}}" data-clientprog-id="{{ isset($clientProgram) ? $clientProgram->clientprog_id : '-' }}" id="check-{{$phase_detail->id}}" {{ $is_check_program_phase != null ? 'checked' : '' }} {{ $data_use > 0 ? 'disabled' : '' }}></td>
                                                 <td>{{ $phase_detail->phase_detail_name }}</td>
                                                 <td style="min-width: 70px">
 
