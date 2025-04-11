@@ -124,8 +124,8 @@ class UserClient extends Authenticatable
         // Custom logic before update
         $instance = new self(); // Create a temporary instance
 
-        $attributes['first_name'] = $instance->cleanString($attributes['first_name']);
-        $attributes['last_name'] = $instance->cleanString($attributes['last_name']);
+        $attributes['first_name'] = isset($attributes['first_name']) ? $instance->cleanString($attributes['first_name']) : null;
+        $attributes['last_name'] = isset($attributes['last_name']) ? $instance->cleanString($attributes['last_name']) : null;
 
         $updated = parent::update($attributes);
 
@@ -148,8 +148,8 @@ class UserClient extends Authenticatable
 
         $instance = new self(); // Create a temporary instance
 
-        $attributes['first_name'] = $instance->cleanString($attributes['first_name']);
-        $attributes['last_name'] = $instance->cleanString($attributes['last_name']);
+        $attributes['first_name'] = isset($attributes['first_name']) ? $instance->cleanString($attributes['first_name']) : null;
+        $attributes['last_name'] = isset($attributes['last_name']) ? $instance->cleanString($attributes['last_name']) : null;
 
         $model = static::query()->create($attributes);
 
