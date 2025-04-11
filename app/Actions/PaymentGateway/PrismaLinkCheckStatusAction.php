@@ -133,6 +133,9 @@ class PrismaLinkCheckStatusAction
                     $message = "Check status complete and successfully create receipt";
                 }
                 break;
+
+            default:
+                $message = null;
         }
 
         return [$response, $additional_data, $message];

@@ -168,7 +168,10 @@ Route::middleware(['throttle:120,1'])->group(function () {
             Route::put('update/mentee/{user_client}/gdrive', [ExtClientController::class, 'fnUpdateMenteeGDriveLink']);
 
             # mentor
-            Route::get('mentor/profile/education', [V1APIMentorController::class, 'fnGetEducation'])->middleware('auth:api');
+            Route::middleware('auth:api')->group(function() {
+                Route::get('mentor/profile/education', [V1APIMentorController::class, 'fnGetEducation']);
+                Route::post('mentor/profile/education', [V1APIMentorController::class, 'fnStoreEducation']);
+            });
         });
 
         # meta ads
@@ -190,5 +193,8 @@ Route::middleware(['throttle:120,1'])->group(function () {
         
         # major group
         Route::get('major-group', [V1APIMajorController::class, 'fnGetMajorGroup']);
+
+        # upcoming events
+        Route::get('upcoming/events', [ExtEventController::class, 'fnGetUpcomingEvents']);
 
 });

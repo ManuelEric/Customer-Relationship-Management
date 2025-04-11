@@ -122,4 +122,10 @@ class EventRepository implements EventRepositoryInterface
 
         return $userId;
     }
+
+    public function getUpcomingEvents()
+    {
+        $events = Event::where('event_startdate', 'like', Carbon::now()->addDays(30)->format('Y-m-d') . '%')->get();
+        return $events->makeHidden(['status', 'event_target', 'created_at', 'updated_at', 'category']);
+    }
 }
