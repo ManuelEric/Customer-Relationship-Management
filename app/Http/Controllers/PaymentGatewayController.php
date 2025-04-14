@@ -143,9 +143,17 @@ class PaymentGatewayController extends Controller
 
             # response from prismalink should bring the status payment inside of "response_description"
             # in that case, we need to identify if "response_description" contains "CANCL" or no
-            $pattern = '/CANCL/';
-            $response_description = $response['response_description'];
-            if ( !preg_match($pattern, $response_description) )
+            // $pattern = '/CANCL/';
+            // $pattern_2 = '/REJEC/';
+            // $response_description = $response['response_description'];
+            // if ( !preg_match($pattern, $response_description) OR !preg_match($pattern_2, $response_description) )
+            // {
+            //     $trx_id = $transaction->trx_id;
+            //     $merchant_ref_no = $transaction->merchant_ref_no;
+            // }
+
+            # check if the status inside 
+            if ( !in_array($response['transaction_status'], ['CANCL', 'REJEC']) )
             {
                 $trx_id = $transaction->trx_id;
                 $merchant_ref_no = $transaction->merchant_ref_no;
