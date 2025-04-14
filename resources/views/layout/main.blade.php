@@ -360,7 +360,7 @@
                                         <tr class="text-left">
                                             <td class="text-center" col-span="3">No data yet</td>
                                         </tr>
-                                    @endforeach
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
