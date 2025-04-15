@@ -76,7 +76,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                         return $query->program->program_name;
                     })->
                     addColumn('pic_name', function ($query) {
-                        return isset($query->internalPic) ? $query->internalPic->full_name : null;
+                        return $query->internalPic->full_name ?? null;
                     })->
                     addColumn('conversion_lead', function (ClientProgram $clientProgram) {
 
