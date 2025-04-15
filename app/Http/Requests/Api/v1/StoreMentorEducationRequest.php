@@ -45,7 +45,7 @@ class StoreMentorEducationRequest extends FormRequest
         return [
             'degree' => 'required|in:bachelor,master,phd',
             'univ_id' => 'required_if:other_univ_name,null',
-            'other_univ_name' => 'string|required_if:univ_id,null',
+            'other_univ_name' => 'required_if:univ_id,null',
             'major_id' => 'required_if:other_major_name,null',
             'other_major_name' => 'required_if:major_id,null',
             'graduation_date' => 'nullable',
