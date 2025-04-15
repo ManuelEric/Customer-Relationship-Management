@@ -132,25 +132,24 @@ class PaymentGatewayController extends Controller
         # prevent transaction generated more than once by
         # checking the transaction table using invoice_id, installment_id, and invoice_number
         # if by those data transaction could be found, then use the transaction ID of existing data
-        if ( $transaction = Transaction::where('invoice_id', $invoice_id)->where('installment_id', $invoice_dtl_id)->where('invoice_number', $invoice_number)->first() )
+        if ( $transactions = Transaction::where('invoice_id', $invoice_id)->where('installment_id', $invoice_dtl_id)->where('invoice_number', $invoice_number)->orderBy('created_at', 'asc')->get() )
         {
-            # before submit-trx 
-            # check if the transaction has been cancelled or not
-            [$response, $result, $message] = $prismaLinkCheckStatusAction->execute([
-                'plink_ref_no' => $transaction->plink_ref_no,
-                'merchant_ref_no' => $transaction->merchant_ref_no
-            ]);
-
-            # response from prismalink should bring the status payment inside of "response_description"
-            # in that case, we need to identify if "response_description" contains "CANCL" or no
-            // $pattern = '/CANCL/';
-            // $pattern_2 = '/REJEC/';
-            // $response_description = $response['response_description'];
-            // if ( !preg_match($pattern, $response_description) OR !preg_match($pattern_2, $response_description) )
-            // {
-            //     $trx_id = $transaction->trx_id;
-            //     $merchant_ref_no = $transaction->merchant_ref_no;
-            // }
+            //! this is the idea : since every time we hit their check-status endpoint
+            //! for payment method = "CC", they are going to be rejected
+            # basically the idea was
+            # to fetch entire data transaction based on invoice_id, installment_id, and invoice_number
+            # that makes $response will be overwritten.
+            # in the end, the newest entry on transaction is going to filled in $response
+            # which means, $response is going to have the latest value of the transaction 
+            foreach ( $transactions as $transaction )
+            {
+                # before submit-trx 
+                # check if the transaction has been cancelled or not
+                [$response, $result, $message] = $prismaLinkCheckStatusAction->execute([
+                    'plink_ref_no' => $transaction->plink_ref_no,
+                    'merchant_ref_no' => $transaction->merchant_ref_no
+                ]);
+            }
 
             # check if the status inside 
             if ( !in_array($response['transaction_status'], ['CANCL', 'REJEC']) )
