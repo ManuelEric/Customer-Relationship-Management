@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Enum\LogModule;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\v1\UpdateMenteeGDriveRequest;
+use App\Http\Requests\Api\v1\UpdateMenteeProfileRequest;
 use App\Http\Requests\Client\Registration\Public\PublicRegistrationRequest;
 use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
@@ -2314,28 +2314,40 @@ class ExtClientController extends Controller
         return response()->json($mapped_program);
     }
 
-    public function fnUpdateMenteeGDriveLink(
+    public function fnUpdateMenteeProfile(
         UserClient $user_client, 
-        UpdateMenteeGDriveRequest $request,
+        UpdateMenteeProfileRequest $request,
         LogService $log_service
         )
     {
-        $validated = $request->safe()->only(['gdrive_link']);
         DB::beginTransaction();
         try {
-            $user_client->mentoring_google_drive_link = $validated['gdrive_link'];
-            $user_client->save();
+            $gdrive_link = $request->safe()->only('gdrive_link') ? $request->safe()->only('gdrive_link')['gdrive_link'] : null;
+            if ($gdrive_link)
+            {
+                $user_client->mentoring_google_drive_link = $gdrive_link;
+                $user_client->save();
+            }
+
+            $progress_status = $request->safe()->only('progress') ? $request->safe()->only('progress')['progress'] : null;
+            if ($progress_status)
+            {
+                $user_client->mentoring_progress_status = $progress_status;
+                $user_client->save();
+            }
+
+
             DB::commit();
         } catch (Exception $err) {
             DB::rollBack();
-            $log_service->createErrorLog(LogModule::UPDATE_MENTEE_GDRIVE, $err->getMessage(), $err->getLine(), $err->getFile(), $validated);
+            $log_service->createErrorLog(LogModule::UPDATE_MENTEE_PROFILE, $err->getMessage(), $err->getLine(), $err->getFile(), $request->safe()->only(['gdrive_link', 'progress']));
             throw new HttpResponseException(
-                response()->json(['errors' => 'Failed to update gdrive link'], JsonResponse::HTTP_BAD_REQUEST)
+                response()->json(['errors' => 'Failed to update profile'], JsonResponse::HTTP_BAD_REQUEST)
             );
         }
-        $log_service->createSuccessLog(LogModule::UPDATE_MENTEE_GDRIVE, 'The gdrive link has been updated', $validated);
+        $log_service->createSuccessLog(LogModule::UPDATE_MENTEE_PROFILE, 'The profile has been updated', $request->safe()->only(['gdrive_link', 'progress']));
         return response()->json([
-            'message' => 'Mentee gdrive has been updated'
+            'message' => 'Mentee profile has been updated'
         ]);
     }
 

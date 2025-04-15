@@ -165,7 +165,7 @@ Route::middleware(['throttle:120,1'])->group(function () {
             Route::delete('student/{student}/acceptance/{acceptance}', [V1APIAcceptanceController::class, 'fnDeleteUni']);
             
             # add/update google drive mentee
-            Route::put('update/mentee/{user_client}/gdrive', [ExtClientController::class, 'fnUpdateMenteeGDriveLink']);
+            Route::put('update/mentee/{user_client}', [ExtClientController::class, 'fnUpdateMenteeProfile']);
 
             # mentor
             Route::middleware('auth:api')->group(function() {
