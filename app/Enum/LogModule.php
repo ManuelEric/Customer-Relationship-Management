@@ -469,7 +469,7 @@ enum LogModule: string
     /**
      * Mentee Update
      */
-    case UPDATE_MENTEE_GDRIVE = '[UPDATE MENTEE GDRIVE]';
+    case UPDATE_MENTEE_PROFILE = '[UPDATE MENTEE PROFILE]';
 
     /**
      * Payment Link
