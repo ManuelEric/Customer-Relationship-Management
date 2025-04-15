@@ -486,4 +486,5 @@ enum LogModule: string
      * Mentor Education History
      */
     case ADD_EDUCATION_INFO = '[ADD EDUCATION INFO]';
+    case DELETE_EDUCATION_INFO = '[DELETE EDUCATION INFO]';
 }

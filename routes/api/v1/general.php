@@ -171,6 +171,7 @@ Route::middleware(['throttle:120,1'])->group(function () {
             Route::middleware('auth:api')->group(function() {
                 Route::get('mentor/profile/education', [V1APIMentorController::class, 'fnGetEducation']);
                 Route::post('mentor/profile/education', [V1APIMentorController::class, 'fnStoreEducation']);
+                Route::delete('mentor/profile/education/{user_education_id}', [V1APIMentorController::class, 'fnDeleteEducation']);
             });
         });
 
