@@ -74,8 +74,6 @@ class SalesTrackingController extends Controller
             'success' => $this->clientProgramRepository->getSummaryProgramByStatus('Success', $dateDetails, $additionalFilter)
         ];
 
-        dd($clientProgramDetail);
-
         $initAssessmentProgress = $this->clientProgramRepository->getInitAssessmentProgress($dateDetails, $additionalFilter);
         $leadSource = $this->clientProgramRepository->getLeadSource($dateDetails);
         $conversionLead = $this->clientProgramRepository->getConversionLead($dateDetails);
