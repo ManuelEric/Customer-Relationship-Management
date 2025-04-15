@@ -481,4 +481,9 @@ enum LogModule: string
      * Mentee Packages Bought
      */
     case GET_MENTEE_PACKAGES_BOUGHT = '[GET MENTEE PACKAGES BOUGHT]';
+
+    /**
+     * Mentor Education History
+     */
+    case ADD_EDUCATION_INFO = '[ADD EDUCATION INFO]';
 }

@@ -132,7 +132,8 @@ class PaymentGatewayController extends Controller
         # prevent transaction generated more than once by
         # checking the transaction table using invoice_id, installment_id, and invoice_number
         # if by those data transaction could be found, then use the transaction ID of existing data
-        if ( $transactions = Transaction::where('invoice_id', $invoice_id)->where('installment_id', $invoice_dtl_id)->where('invoice_number', $invoice_number)->orderBy('created_at', 'asc')->get() )
+        $transactions = Transaction::where('invoice_id', $invoice_id)->where('installment_id', $invoice_dtl_id)->where('invoice_number', $invoice_number)->orderBy('created_at', 'asc')->get();
+        if ( $transactions->count() > 0 )
         {
             //! this is the idea : since every time we hit their check-status endpoint
             //! for payment method = "CC", they are going to be rejected
@@ -150,6 +151,7 @@ class PaymentGatewayController extends Controller
                     'merchant_ref_no' => $transaction->merchant_ref_no
                 ]);
             }
+
 
             # check if the status inside 
             if ( !in_array($response['transaction_status'], ['CANCL', 'REJEC']) )
