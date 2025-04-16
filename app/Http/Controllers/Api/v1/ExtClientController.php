@@ -2242,7 +2242,8 @@ class ExtClientController extends Controller
             ],
             'birthdate' => $details->dob,
             'parent_name' => $details->parents()->select(['first_name', 'last_name', 'mail', 'phone'])->get()->toArray(),
-            'gdrive_link' => $details->mentoring_google_drive_link
+            'gdrive_link' => $details->mentoring_google_drive_link,
+            'mentoring_progress' => $details->mentoring_progress_status
         ];
 
         $response_of_student_mentor = array();
