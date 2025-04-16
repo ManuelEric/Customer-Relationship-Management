@@ -175,7 +175,7 @@ class UserClient extends Authenticatable
     protected function mentoringProgressStatus(): Attribute
     {
         return Attribute::make(
-            get: fn (string $value) => ucwords($value),
+            get: fn (mixed $value) => $value ? ucwords($value) : null,
         );
     }
 
