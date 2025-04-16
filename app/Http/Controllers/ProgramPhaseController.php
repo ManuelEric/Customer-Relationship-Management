@@ -142,13 +142,13 @@ class ProgramPhaseController extends Controller
         # select program admission
         $clientprogram = $this->clientProgramRepository->getClientProgramAdmissionByClientId($program_phase_details['mentee_id']);
         
-        if(!$clientprogram){
+        if ( !$clientprogram ) 
+        {
+            $log_service->createErrorLog(LogModule::UPDATE_PROGRAM_PHASE, 'program admission not found', '-', '-', $program_phase_details);
             return response()->json([
                 'success' => false,
                 'error' => 'Failed Update Use Package Bought, Program Admission Not Found!'
             ], JsonResponse::HTTP_BAD_REQUEST);
-
-            $log_service->createErrorLog(LogModule::UPDATE_PROGRAM_PHASE, 'program admission not found', '-', '-', $program_phase_details);
         }
             
 
@@ -168,12 +168,11 @@ class ProgramPhaseController extends Controller
                     break;
                 
                 default:
+                    $log_service->createErrorLog(LogModule::UPDATE_PROGRAM_PHASE, 'undefined type', '-', '-', $program_phase_details);
                     return response()->json([
                         'success' => false,
                         'error' => 'Failed Update Use Package Bought'
                     ], JsonResponse::HTTP_BAD_REQUEST);
-
-                    $log_service->createErrorLog(LogModule::UPDATE_PROGRAM_PHASE, 'undefined type', '-', '-', $program_phase_details);
                     break;
             }
 
