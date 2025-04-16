@@ -67,7 +67,7 @@ Route::middleware(['throttle:120,1'])->group(function () {
     Route::get('get/detail/conversion-lead', [ExtSalesTrackingController::class, 'getConversionLeadDetail']);
 
     # used for form partner (Individual Professional)
-    Route::get('get/user/uuid/{UUID}', [ExtUserController::class, 'cnGetUserByUUID']);
+    Route::get('get/user/uuid/{UUID}', [ExtUserController::class, 'fnGetUserByUUID']);
 
     # used for spreadsheets syncing data
     Route::get('get/{department}/member', [ExtUserController::class, 'getMemberOfDepartments']);

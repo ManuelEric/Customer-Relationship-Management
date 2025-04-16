@@ -16,6 +16,7 @@ class MentorEducationCollectionResource extends ResourceCollection
      */
     public function toArray(Request $request): array
     {
+        $return = [];
         foreach ($this->collection as $single)
         {
             $return[] = [

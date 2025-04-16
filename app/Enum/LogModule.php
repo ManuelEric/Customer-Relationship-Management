@@ -37,6 +37,7 @@ enum LogModule: string
     /**
      * Users
      */
+    case GET_USER = '[GET USER]';
     case STORE_USER = '[STORE USER]';
     case UPDATE_USER = '[UPDATE USER]';
     case DELETE_USER = '[DELETE USER]';

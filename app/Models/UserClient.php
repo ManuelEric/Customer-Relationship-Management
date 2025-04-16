@@ -169,16 +169,6 @@ class UserClient extends Authenticatable
         return $model;
     }
 
-    /**
-     * Get the user's mentoring progress.
-     */
-    protected function mentoringProgressStatus(): Attribute
-    {
-        return Attribute::make(
-            get: fn (mixed $value) => $value ? ucwords($value) : null,
-        );
-    }
-
     # attributes
     protected function fullName(): Attribute
     {
