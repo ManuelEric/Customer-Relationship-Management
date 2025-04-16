@@ -2234,6 +2234,7 @@ class ExtClientController extends Controller
             'mentee_name' => $details->first_name . ' ' . $details->last_name,
             'mentee_phone' => $details->phone,
             'mentee_email' => $details->mail,
+            'secondary_id' => str_pad($details->secondary_id,5,'0',STR_PAD_LEFT),
             'grade' => $details->grade_now,
             'application_year' => null,
             'address' => [
