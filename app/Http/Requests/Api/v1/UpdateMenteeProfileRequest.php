@@ -28,6 +28,13 @@ class UpdateMenteeProfileRequest extends FormRequest
         );
     }
 
+    public function prepareForValidation(): void
+    {
+        $this->merge([
+            'progress' => $this->progress ? strtolower($this->progress) : null,
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *

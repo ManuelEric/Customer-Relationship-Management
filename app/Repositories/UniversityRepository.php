@@ -100,6 +100,11 @@ class UniversityRepository implements UniversityRepositoryInterface
         return UnivCountry::has('universities')->select('id', 'name')->orderBy('name', 'ASC')->get();
     }
 
+    public function getUpcomingApplicationDeadline()
+    {
+        return University::whereBetween('univ_application_deadline', [Carbon::now()->format('Y-m-d') . ' 00:00:00', Carbon::now()->addDays(30)->format('Y-m-d') . ' 23:59:59'])->orderBy('univ_application_deadline', 'asc')->get();
+    }
+
     public function deleteUniversity($universityId)
     {
         return University::destroy($universityId);

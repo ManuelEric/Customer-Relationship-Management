@@ -42,4 +42,19 @@ class ExtUniversityController extends Controller
             'data' => $mappedUniversities
         ]);
     }
+
+    public function fnUpcomingApplicationDeadline(Request $request)
+    {
+        $upcoming = $this->universityRepository->getUpcomingApplicationDeadline();
+        if ($upcoming->count() == 0) {
+            return response()->json([
+                'message' => 'No upcoming application deadline found.'
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'There are upcoming application deadline found.',
+            'data' => $upcoming
+        ]);
+    }
 }

@@ -159,6 +159,7 @@ Route::middleware(['throttle:120,1'])->group(function () {
     
         # mentoring 
         Route::middleware(['resource:mentoring'])->group(function () {
+            Route::get('upcoming/application-deadline', [ExtUniversityController::class, 'fnUpcomingApplicationDeadline']);
             Route::get('student/{student}/acceptance', [V1APIAcceptanceController::class, 'fnListOfUniApplication']);
             Route::post('student/{student}/acceptance', [V1APIAcceptanceController::class, 'fnAddUni']);
             Route::put('student/{student}/acceptance/{acceptance}', [V1APIAcceptanceController::class, 'fnUpdateUni']);
