@@ -58,7 +58,6 @@ class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
     public function rnUpdateUseProgramPhase(ClientProgram $clientprogram, int $phase_detail_id, int $use)
     {
         DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->update(['use' => $use]);
-
         return DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->first();
     }
 

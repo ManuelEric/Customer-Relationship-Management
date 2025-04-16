@@ -572,7 +572,6 @@ class InvoiceProgramController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            // dd($e->getMessage());
             $log_service->createErrorLog(LogModule::UPDATE_INVOICE_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $invoice_details);
 
             return Redirect::to('invoice/client-program/' . $request->clientprog_id . '/edit')->withError('Failed to update invoice program');

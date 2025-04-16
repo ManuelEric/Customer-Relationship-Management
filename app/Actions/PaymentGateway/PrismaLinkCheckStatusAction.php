@@ -46,7 +46,6 @@ class PrismaLinkCheckStatusAction
             'merchant_ref_no' => $request['merchant_ref_no'],
             'merchant_id' => env('MERCHANT_ID')
         ];
-
         Log::debug('Request Check Status', $request_body);
 
         $response = Http::withHeaders([
@@ -133,6 +132,9 @@ class PrismaLinkCheckStatusAction
                     $message = "Check status complete and successfully create receipt";
                 }
                 break;
+
+            default:
+                $message = null;
         }
 
         return [$response, $additional_data, $message];

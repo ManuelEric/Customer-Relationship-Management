@@ -12,11 +12,9 @@ use App\Models\pivot\UserSubject;
 use App\Models\pivot\UserTypeDetail;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
@@ -324,7 +322,7 @@ class User extends Authenticatable
     public function educations()
     {
         return $this->belongsToMany(University::class, 'tbl_user_educations', 'user_id', 'univ_id')
-            ->withPivot('major_id', 'tbl_major.name as major_name', 'degree', 'graduation_date')->withTimestamps()
+            ->withPivot('id', 'major_id', 'tbl_major.name as major_name', 'degree', 'graduation_date')->withTimestamps()
             ->join('tbl_major', 'major_id', '=', 'tbl_major.id');
     }
 

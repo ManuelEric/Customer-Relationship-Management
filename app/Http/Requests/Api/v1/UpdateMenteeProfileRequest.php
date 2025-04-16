@@ -8,9 +8,8 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 
-use function PHPUnit\Framework\returnValue;
 
-class UpdateMenteeGDriveRequest extends FormRequest
+class UpdateMenteeProfileRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -37,7 +36,8 @@ class UpdateMenteeGDriveRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'gdrive_link' => 'required|url'
+            'gdrive_link' => 'nullable|url',
+            'progress' => 'nullable|in:On Track,Slow,Behind,Halt',
          ];
     }
 }

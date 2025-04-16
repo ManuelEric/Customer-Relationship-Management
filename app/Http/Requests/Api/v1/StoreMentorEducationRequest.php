@@ -8,8 +8,16 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 
-class StoreAcceptanceRequest extends FormRequest
+class StoreMentorEducationRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -27,13 +35,6 @@ class StoreAcceptanceRequest extends FormRequest
         );
     }
 
-    public function prepareForValidation()
-    {
-        $this->merge([
-            'acceptance_id' => $this->route('acceptance')
-        ]);
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -41,33 +42,23 @@ class StoreAcceptanceRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rules = [
-            'univ_id' => 'required|exists:tbl_univ,univ_id',
-            'category' => 'required',
-            'major_group_id' => 'required|exists:major_groups,id',
-            'major_name' => 'nullable',
-            'status' => 'required',
-            'requirement_link' => 'nullable',
-         ];
-
-        if ( $this->isMethod('PUT') )
-            $rules['acceptance_id'] = 'required';
-
-        return $rules;
+        return [
+            'degree' => 'required|in:Bachelor,Magister,Doctoral',
+            'univ_id' => 'required_if:other_univ_name,null',
+            'other_univ_name' => 'required_if:univ_id,null',
+            'major_id' => 'required_if:other_major_name,null',
+            'other_major_name' => 'required_if:major_id,null',
+            'graduation_date' => 'nullable',
+        ];
     }
 
-    /**
-     * Summary of attributes
-     * @return array{alumni: string, major: string, major_group: string, status: string, uni_id: string}
-     */
     public function attributes()
     {
         return [
             'univ_id' => 'university',
+            'other_univ_name' => 'university name',
             'major_group_id' => 'major group',
             'major_name' => 'major name',
-            'status' => 'status',
-            'requirement_link' => 'requirement link',
         ];
     }
 }
