@@ -741,9 +741,13 @@ class ClientRepository implements ClientRepositoryInterface
         $mapped_graduated_mentees = $graduated_mentees->map(function ($item) {
 
             $have_university_acceptance = count($item->universityAcceptance) > 0 ? true : false;
-            $university_acceptance = $have_university_acceptance ? $item->universityAcceptance[0] : null;
+
+            # actually, there will be more than 1 university acceptance
+            # but we only need the last one
+            # so we take the last one by using count($item->universityAcceptance)-1
+            $university_acceptance = $have_university_acceptance ? $item->universityAcceptance[count($item->universityAcceptance)-1] : null;
             $university_name = $have_university_acceptance ? $university_acceptance->univ_name : null;
-            $major_group = $have_university_acceptance ? $university_acceptance->pivot->major_group->mg_name : null;
+            $major_group = $have_university_acceptance && $university_acceptance->pivot->major_group_id !== NULL ? $university_acceptance->pivot->major_group->mg_name : null;
             $major = $have_university_acceptance ? $university_acceptance->pivot->get_major_name : null;
             $created_university_acceptance_at = $have_university_acceptance 
                 ? Carbon::parse($university_acceptance->pivot->created_at)->format('Y-m-d H:i:s') 
