@@ -711,7 +711,7 @@ class InvoiceProgramController extends Controller
                 'view' => $view,
                 'invoice_id' => $invoice_id,
                 'client_prog' => $client_prog,
-                'company_detail' => $company_detail, 
+                'company_detail' => $company_detail,
                 'director' => $name,
                 'file_name' => $file_name
             ];

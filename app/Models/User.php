@@ -322,7 +322,7 @@ class User extends Authenticatable
     public function educations()
     {
         return $this->belongsToMany(University::class, 'tbl_user_educations', 'user_id', 'univ_id')
-            ->withPivot('major_id', 'tbl_major.name as major_name', 'degree', 'graduation_date')->withTimestamps()
+            ->withPivot('id', 'major_id', 'tbl_major.name as major_name', 'degree', 'graduation_date')->withTimestamps()
             ->join('tbl_major', 'major_id', '=', 'tbl_major.id');
     }
 

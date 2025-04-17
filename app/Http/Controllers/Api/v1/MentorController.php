@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Actions\Universities\CreateUniversityAction;
 use App\Enum\LogModule;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\v1\StoreMentorEducationRequest;
+use App\Http\Resources\Mentor\MentorEducationCollectionResource;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Models\User;
@@ -29,24 +31,15 @@ class MentorController extends Controller
     public function fnGetEducation(Request $request)
     {
         $educations = $request->user()->educations;
-        $mapped_educations = $educations->map(function($item) {
-            return [
-                'university' => $item->univ_name,
-                'major' => $item->major_name,
-                'degree' => $item->pivot->degree,
-                'graduated_at' => $item->pivot->graduation_date
-            ];
-        });
-
-        return response()->json($mapped_educations);
+        return new MentorEducationCollectionResource($educations);
     }
 
     public function fnStoreEducation(
         StoreMentorEducationRequest $request,
-        LogService $log_service
+        LogService $log_service,
+        CreateUniversityAction $createUniversityAction,
         )
     {
-        //! not finished
         $validated = $request->safe()->only([
             'degree',
             'univ_id',
@@ -58,57 +51,89 @@ class MentorController extends Controller
 
         $education_info_details = [
             'degree' => $validated['degree'],
+            'univ_id' => $validated['univ_id'] ?? null,
+            'major_id' => $validated['major_id'] ?? null,
             'graduation_date' => $validated['graduation_date']
         ];
 
         DB::beginTransaction();
         try {
 
+            $university = $validated['univ_id'] ? $this->universityRepository->getUniversityById($validated['univ_id']) : null;
+            $education_info_details['univ_id'] = $university ? $university->univ_id : null;
             # if other univ name selected
             # we have to store the other univ_name into tbl_univ
-            if ( ($validated['other_univ_name'] !== NULL) && (!$existing_university = $this->universityRepository->getUniversityByName($validated['other_univ_name'])) )
-            {
-                $new_university_details = [
-                    'univ_name' => $validated['other_univ_name'],
-                ];
-                $university = $this->universityRepository->createUniversity($new_university_details);
+            if ($validated['other_univ_name']) {
+                $existing = $this->universityRepository->getUniversityByName($validated['other_univ_name']);
+                $education_info_details['univ_id'] = $existing ? $existing->univ_id : $createUniversityAction->execute(['univ_name' => $validated['other_univ_name']])->univ_id;
             }
 
-
-            # fill univ_id from university / existing university
-            $education_info_details['univ_id'] = $validated['other_univ_name'] !== NULL ? $university->univ_id : $existing_university->univ_id;
-
+            $major = $validated['major_id'] ? $this->majorRepository->getMajorById($validated['major_id']) : null;
+            $education_info_details['major_id'] = $major ? $major->id : null;
             # if other major name selected
             # we have to store the other major_name into tbl_major
-            if ( ($validated['other_major_name'] !== NULL) && (!$existing_major = $this->majorRepository->createMajor($validated['other_major_name'])) )
-            {
-                $new_major_details = [
-                    'major_name' => $validated['other_major_name'],
-                ];
-                $major = $this->majorRepository->createMajor($new_major_details);
+            if ($validated['other_major_name']) {
+                $existing = $this->majorRepository->getMajorByName($validated['other_major_name']);
+                $education_info_details['major_id'] = $existing ? $existing->id : $this->majorRepository->createMajor(['name' => $validated['other_major_name']])->id;
             }
 
-            # fill major_id from major / existing major
-            $education_info_details['major_id'] = $validated['other_major_name'] !== NULL ? $major->id : $existing_major->id;
-
-
+            
             $user = User::find($request->user()->id);
-            $user->educations()->attach($validated);
+            if ( $user->educations()->wherePivot('univ_id', $education_info_details['univ_id'])->wherePivot('major_id', $education_info_details['major_id'])->exists() ) {
+                return response()->json([
+                    'message' => 'Education already exists'
+                ], JsonResponse::HTTP_CONFLICT);
+            }
+
+            $user->educations()->attach($education_info_details['univ_id'], $education_info_details);
             DB::commit();
             $log_service->createSuccessLog(LogModule::ADD_EDUCATION_INFO, 'Add education info', $validated);
             return response()->json([
                 'message' => 'Education info added successfully',
-                'data' => $validated
+                'data' => new MentorEducationCollectionResource($user->educations)
             ], JsonResponse::HTTP_CREATED);
-        } catch (Exception $e) {
+        } catch (Exception $err) {
             DB::rollBack();
-            $log_service->createErrorLog(LogModule::ADD_EDUCATION_INFO, $e->getMessage(), $e->getLine(), $e->getFile(), $validated);
+            $log_service->createErrorLog(LogModule::ADD_EDUCATION_INFO, $err->getMessage(), $err->getLine(), $err->getFile(), $validated);
             throw new HttpResponseException(
                 response()->json([
                     'message' => 'Failed to add education info',
-                    'error' => $e->getMessage()
+                    'error' => $err->getMessage()
                 ], JsonResponse::HTTP_BAD_REQUEST)
             );
+        }
+    }
+
+    public function fnDeleteEducation(
+        $user_education_id,
+        Request $request,
+        LogService $log_service,
+        )
+    {
+        $user = User::find($request->user()->id);
+        $education = $user->educations()->wherePivot('tbl_user_educations.id', $user_education_id)->first();
+        if (!$education) {
+            return response()->json([
+                'message' => 'Education not found'
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        DB::beginTransaction();
+        try {
+            // Detach only the record matching univ_id and major_id
+            DB::table('tbl_user_educations')->where('id', $user_education_id)->delete();
+            DB::commit();
+            $log_service->createSuccessLog(LogModule::DELETE_EDUCATION_INFO, 'Add education info', $education->toArray());
+            return response()->json([
+                'message' => 'Education deleted successfully'
+            ], JsonResponse::HTTP_OK);
+        } catch (Exception $err) {
+            DB::rollBack();
+            $log_service->createErrorLog(LogModule::DELETE_EDUCATION_INFO, $err->getMessage(), $err->getLine(), $err->getFile(), $education->toArray());
+            return response()->json([
+                'message' => 'Failed to delete education',
+                'error' => $err->getMessage()
+            ], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

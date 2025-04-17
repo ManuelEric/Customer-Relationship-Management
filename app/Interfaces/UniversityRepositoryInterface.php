@@ -13,6 +13,7 @@ interface UniversityRepositoryInterface
     public function getUniversityByUnivId($universityId);
     public function getUniversityByName($universityName);
     public function getCountryNameFromUniversity();
+    public function getUpcomingApplicationDeadline();
     public function deleteUniversity($universityId);
     public function createuniversities(array $universityDetails);
     public function createUniversity(array $universityDetails);

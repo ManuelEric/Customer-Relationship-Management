@@ -43,7 +43,7 @@ class StoreMentorEducationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'degree' => 'required|in:bachelor,master,phd',
+            'degree' => 'required|in:Bachelor,Magister,Doctoral',
             'univ_id' => 'required_if:other_univ_name,null',
             'other_univ_name' => 'required_if:univ_id,null',
             'major_id' => 'required_if:other_major_name,null',

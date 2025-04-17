@@ -25,13 +25,14 @@ class ExtUniversityController extends Controller
             ]);
         }
 
+        
+
         # map the data that being shown to the user
         $mappedUniversities = $universities->map(function ($value) {
             return [
                 'univ_id' => $value->univ_id,
                 'univ_name' => $value->univ_name,
-                'univ_country' => $value->univ_country,
-                'univ_country_name' => $value->country->name,
+                'univ_country' => $value->tags->name ?? null,
                 'univ_email' => $value->univ_email,
                 'univ_phone' => $value->univ_phone,
             ];
@@ -40,6 +41,21 @@ class ExtUniversityController extends Controller
         return response()->json([
             'message' => 'There are universities found.',
             'data' => $mappedUniversities
+        ]);
+    }
+
+    public function fnUpcomingApplicationDeadline(Request $request)
+    {
+        $upcoming = $this->universityRepository->getUpcomingApplicationDeadline();
+        if ($upcoming->count() == 0) {
+            return response()->json([
+                'message' => 'No upcoming application deadline found.'
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'There are upcoming application deadline found.',
+            'data' => $upcoming
         ]);
     }
 }

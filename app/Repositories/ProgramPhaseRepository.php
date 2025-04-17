@@ -49,8 +49,13 @@ class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
     }
 
     public function rnDecrementUseProgramPhase(ClientProgram $clientprogram, int $phase_detail_id, int $use)
-    {        
-        DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->decrement('use', $use);
+    {    
+        \Illuminate\Support\Facades\Log::debug('Get use quota', $clientprogram->phase_detail()->wherePivot('phase_detail_id', $phase_detail_id)->first()->toArray());    
+        # prevent to decrement if the value is already at 0
+        if ( $clientprogram->phase_detail()->wherePivot('phase_detail_id', $phase_detail_id)->first()->use > 0 )
+        {
+            DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->decrement('use', $use);
+        }
 
         return DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->first();
     }

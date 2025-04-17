@@ -125,7 +125,7 @@ class EventRepository implements EventRepositoryInterface
 
     public function getUpcomingEvents()
     {
-        $events = Event::where('event_startdate', 'like', Carbon::now()->addDays(30)->format('Y-m-d') . '%')->get();
+        $events = Event::whereBetween('event_startdate', [Carbon::now()->format('Y-m-d') . ' 00:00:00',  Carbon::now()->addDays(30)->format('Y-m-d') . ' 23:59:59'])->get();
         return $events->makeHidden(['status', 'event_target', 'created_at', 'updated_at', 'category']);
     }
 }
