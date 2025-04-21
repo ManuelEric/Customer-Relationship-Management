@@ -139,6 +139,8 @@ class UserClient extends Authenticatable
             Cache::has('birthDay') ? Cache::forget('birthDay') : null;
         }
 
+        ProcessUpdateGradeAndGraduationYearNow::dispatch($model->id)->onQueue('update-grade-and-graduation-year-now');
+
         return $updated;
     }
 
