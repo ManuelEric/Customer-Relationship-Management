@@ -752,6 +752,7 @@ class ClientRepository implements ClientRepositoryInterface
             $created_university_acceptance_at = $have_university_acceptance 
                 ? Carbon::parse($university_acceptance->pivot->created_at)->format('Y-m-d H:i:s') 
                 : null;
+            
 
             return [
                 'id' => $item->id,
@@ -760,6 +761,10 @@ class ClientRepository implements ClientRepositoryInterface
                 'major_group' => $major_group,
                 'major' => $major,
                 'application_year' => $item->application_year,
+                # lanjutin di hari senin
+                # untuk mengambil data client program admission program terakhir 
+                # contoh : $a->clientProgram[0]->clientMentor[0]->pivot->type
+                // 'act_as' => $item->clientProgram()->where()->clientMentor, //! profile building or supervisor
                 'created_at' => $created_university_acceptance_at
             ];
         });

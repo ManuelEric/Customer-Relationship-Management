@@ -500,7 +500,7 @@ class ClientStudentController extends ClientController
         try {
 
             # set referral code null if lead != referral
-            if ($data['student_details']['lead_id'] != 'LS005'){
+            if (!in_array($data['student_details']['lead_id'], ['LS005', 'LS061'])){
                 $data['student_details']['referral_code'] = null;
             }
 
