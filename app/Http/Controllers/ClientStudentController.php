@@ -51,6 +51,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use App\Jobs\Client\ProcessUpdateGradeAndGraduationYearNow;
 
 class ClientStudentController extends ClientController
 {
@@ -544,6 +545,8 @@ class ClientStudentController extends ClientController
             if (!$student = $this->clientRepository->updateClient($student_id, $data['student_details']))
                 throw new Exception('Failed to update student information', 3);
 
+            # Trigger job update grade
+            ProcessUpdateGradeAndGraduationYearNow::dispatch($student->id)->onQueue('update-grade-and-graduation-year-now');
 
             # case 4
             # add relation between parent and student
