@@ -46,9 +46,11 @@ class ExtEventController extends Controller
         ]);
     }
 
-    public function fnGetUpcomingEvents()
+    public function fnGetUpcomingEvents(Request $request)
     {
-        $events = $this->eventRepository->getUpcomingEvents();
+        $terms = $request->get('terms');
+        $search = compact('terms');
+        $events = $this->eventRepository->getUpcomingEvents($search);
         return response()->json($events);
     }
 }
