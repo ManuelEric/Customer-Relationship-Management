@@ -973,7 +973,8 @@
                     
                     axios.delete(link, {
                         headers:{
-                            'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
+                            'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}',
+                            'crm-authorization': '{{env("CRM_AUTHORIZATION_KEY")}}'
                         }
                     })
                     .then(function(response) {
@@ -993,7 +994,8 @@
                     axios.post(link, null,
                         {
                             headers:{
-                                'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
+                                'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}',
+                                'crm-authorization': '{{env("CRM_AUTHORIZATION_KEY")}}'
                             }
                         }
                     )
@@ -1022,7 +1024,8 @@
                     
                 axios.patch(link, {quota: quota}, {
                     headers:{
-                        'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}'
+                        'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}',
+                        'crm-authorization': '{{env("CRM_AUTHORIZATION_KEY")}}'
                     }
                 })
                 .then(function(response) {
