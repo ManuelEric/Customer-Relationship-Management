@@ -104,13 +104,26 @@ class University extends Model
         return $string = trim(preg_replace('/\s\s+/', ' ', $string));
     }
 
+    /**
+     * Scopes
+     */
     public function scopeWithAndWhereHas($query, $relation, $constraint)
     {
         return $query->whereHas($relation, $constraint)
             ->with([$relation => $constraint]);
     }
 
-    # relation
+    public function scopeSearch($query, $search)
+    {
+        $terms = $search['terms'] ?? null;
+        $query->when($terms, function ($query) use ($terms) {
+            $query->where('univ_name', 'like', '%' . $terms . '%');
+        });
+    }
+
+    /**
+     * Relationships
+     */
     public function user()
     {
         return $this->belongsToMany(User::class, 'tbl_user_educations', 'univ_id', 'user_id');

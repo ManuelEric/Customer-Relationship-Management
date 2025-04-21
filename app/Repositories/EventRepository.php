@@ -123,9 +123,9 @@ class EventRepository implements EventRepositoryInterface
         return $userId;
     }
 
-    public function getUpcomingEvents()
+    public function getUpcomingEvents(array $search = [])
     {
-        $events = Event::whereBetween('event_startdate', [Carbon::now()->format('Y-m-d') . ' 00:00:00',  Carbon::now()->addDays(30)->format('Y-m-d') . ' 23:59:59'])->get();
+        $events = Event::search($search)->whereBetween('event_startdate', [Carbon::now()->format('Y-m-d') . ' 00:00:00',  Carbon::now()->addDays(30)->format('Y-m-d') . ' 23:59:59'])->get();
         return $events->makeHidden(['status', 'event_target', 'created_at', 'updated_at', 'category']);
     }
 }

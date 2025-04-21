@@ -78,6 +78,17 @@ class Event extends Model
         return $model;
     }
 
+    /**
+     * Scopes
+     */
+    public function scopeSearch($query, $search)
+    {
+        $terms = $search['terms'] ?? null;
+        $query->when($terms, function ($query) use ($terms) {
+            $query->where('event_title', 'like', '%' . $terms . '%');
+        });
+    }
+
 
     protected function eventTarget(): Attribute
     {

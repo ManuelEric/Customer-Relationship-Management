@@ -14,7 +14,7 @@ interface EventRepositoryInterface
     public function updateEvent($eventId, array $newDetails);
     public function addEventPic($eventId, $employeeId);
     public function updateEventPic($eventId, $employeeId);
-    public function getUpcomingEvents();
+    public function getUpcomingEvents(array $search);
 
     # dashboard
     public function getEventsWithParticipants($cp_filter);

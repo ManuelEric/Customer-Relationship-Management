@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Actions\Universities\CreateUniversityAction;
 use App\Enum\LogModule;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\v1\StoreMentorEducationRequest;
@@ -35,7 +36,8 @@ class MentorController extends Controller
 
     public function fnStoreEducation(
         StoreMentorEducationRequest $request,
-        LogService $log_service
+        LogService $log_service,
+        CreateUniversityAction $createUniversityAction,
         )
     {
         $validated = $request->safe()->only([
@@ -57,17 +59,16 @@ class MentorController extends Controller
         DB::beginTransaction();
         try {
 
-            $university = $this->universityRepository->getUniversityById($validated['univ_id']);
+            $university = $validated['univ_id'] ? $this->universityRepository->getUniversityById($validated['univ_id']) : null;
             $education_info_details['univ_id'] = $university ? $university->univ_id : null;
             # if other univ name selected
             # we have to store the other univ_name into tbl_univ
             if ($validated['other_univ_name']) {
                 $existing = $this->universityRepository->getUniversityByName($validated['other_univ_name']);
-                $education_info_details['univ_id'] = $existing ? $existing->univ_id : $this->universityRepository->createUniversity(['univ_name' => $validated['other_univ_name']])->univ_id;
+                $education_info_details['univ_id'] = $existing ? $existing->univ_id : $createUniversityAction->execute(['univ_name' => $validated['other_univ_name']])->univ_id;
             }
-            
 
-            $major = $this->majorRepository->getMajorById($validated['major_id']);
+            $major = $validated['major_id'] ? $this->majorRepository->getMajorById($validated['major_id']) : null;
             $education_info_details['major_id'] = $major ? $major->id : null;
             # if other major name selected
             # we have to store the other major_name into tbl_major

@@ -188,7 +188,9 @@ Route::middleware(['throttle:120,1'])->group(function () {
 
         # Temporary without middleware until Implemented SSO for all platform
         # Update use for program phase
-        Route::patch('program-phase/{mentee}/phase-detail/{phase_detail}/use', [V1APIProgramPhaseController::class, 'fnUpdateUseProgramPhase']);
+        Route::middleware('crm.key')->group(function () {
+            Route::patch('program-phase/{mentee}/phase-detail/{phase_detail}/use', [V1APIProgramPhaseController::class, 'fnUpdateUseProgramPhase']);
+        });
 
         # major
         Route::get('major', [V1APIMajorController::class, 'fnGetMajor']);
