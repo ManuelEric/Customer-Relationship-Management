@@ -764,6 +764,12 @@ class ClientRepository implements ClientRepositoryInterface
             $latest_admission = $item->clientProgram[0];
             # with orderByPivot, it helps get the latest record 
             $logged_in_mentor_type = $latest_admission->clientMentor()->where('users.id', Auth::guard('api')->user()->id)->orderByPivot('id', 'desc')->get();
+            $mapped_mentor_type = $logged_in_mentor_type->map(function ($item) {
+                return [
+                    'code' => $item->pivot->type,
+                    'alias' => $this->tnDefineMentorType($item->pivot->type)
+                ];
+            });
             
 
             return [
@@ -774,12 +780,9 @@ class ClientRepository implements ClientRepositoryInterface
                 'major' => $major,
                 'application_year' => $item->application_year,
                 'clientprog_id' => $latest_admission->clientprog_id,
-                'act_as' => $logged_in_mentor_type->map(function ($item) {
-                    return [
-                        'code' => $item->pivot->type,
-                        'alias' => $this->tnDefineMentorType($item->pivot->type)
-                    ];
-                }),
+                'act_as' => $mapped_mentor_type,
+                'code_array' => $mapped_mentor_type->pluck('code')->toArray(),
+                'alias_array' => $mapped_mentor_type->plucK('alias')->toArray(),
                 'created_at' => $created_university_acceptance_at
             ];
         });
@@ -808,6 +811,12 @@ class ClientRepository implements ClientRepositoryInterface
             $latest_admission = $item->clientProgram[0];
             # with orderByPivot, it helps get the latest record 
             $logged_in_mentor_type = $latest_admission->clientMentor()->where('users.id', Auth::guard('api')->user()->id)->orderByPivot('id', 'desc')->get();
+            $mapped_mentor_type = $logged_in_mentor_type->map(function ($item) {
+                return [
+                    'code' => $item->pivot->type,
+                    'alias' => $this->tnDefineMentorType($item->pivot->type)
+                ];
+            });
             
 
             return [
@@ -824,13 +833,9 @@ class ClientRepository implements ClientRepositoryInterface
                 'application_year' => $item->application_year,
                 'mentoring_progress_status' => $item->mentoring_progress_status,
                 'clientprog_id' => $latest_admission->clientprog_id,
-                // 'act_as' => $this->tnDefineMentorType($logged_in_mentor_type),
-                'act_as' => $logged_in_mentor_type->map(function ($item) {
-                    return [
-                        'code' => $item->pivot->type,
-                        'alias' => $this->tnDefineMentorType($item->pivot->type)
-                    ];
-                }),
+                'act_as' => $mapped_mentor_type,
+                'code_array' => $mapped_mentor_type->pluck('code')->toArray(),
+                'alias_array' => $mapped_mentor_type->plucK('alias')->toArray(),
             ];
         });
         
