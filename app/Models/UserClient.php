@@ -139,8 +139,6 @@ class UserClient extends Authenticatable
             Cache::has('birthDay') ? Cache::forget('birthDay') : null;
         }
 
-        ProcessUpdateGradeAndGraduationYearNow::dispatch($model->id)->onQueue('update-grade-and-graduation-year-now');
-
         return $updated;
     }
 
@@ -255,7 +253,7 @@ class UserClient extends Authenticatable
     # Scopes
     public function scopeSearch($query, $search)
     {
-        $terms = $search['terms'];
+        $terms = $search['terms'] ?? null;
         $uni = $search['uni'] ?? null;
         $major = $search['major'] ?? null;
 
@@ -397,13 +395,6 @@ class UserClient extends Authenticatable
 
     public function scopeGetMentoredStudents(Builder $query)
     {
-        //! harus diberi kondisi apabila auth mentor yg aktif adalah supervisor / profile building
-        //! 1: Supervising Mentor 
-        //! 2: Profile Building & Exploration Mentor 
-        //! 3: Aplication Strategy Mentor 
-        //! 4: Writing Mentor 
-        //! 5: Tutor
-        //! 6: Subject Specialist
         $query->whereHas('clientProgram.clientMentor', function ($query) {
             $query->where('users.id', auth()->guard('api')->user()->id)->where('tbl_client_mentor.status', 1);
         });

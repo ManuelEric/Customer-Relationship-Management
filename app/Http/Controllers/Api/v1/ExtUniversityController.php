@@ -46,7 +46,9 @@ class ExtUniversityController extends Controller
 
     public function fnUpcomingApplicationDeadline(Request $request)
     {
-        $upcoming = $this->universityRepository->getUpcomingApplicationDeadline();
+        $terms = $request->get('terms');
+        $search = compact('terms');
+        $upcoming = $this->universityRepository->getUpcomingApplicationDeadline($search);
         if ($upcoming->count() == 0) {
             return response()->json([
                 'message' => 'No upcoming application deadline found.'
