@@ -388,7 +388,7 @@ class ClientProgram extends Model
 
     public function clientMentor()
     {
-        return $this->belongsToMany(User::class, 'tbl_client_mentor', 'clientprog_id', 'user_id')->withPivot('type', 'timesheet_link')->withTimestamps();
+        return $this->belongsToMany(User::class, 'tbl_client_mentor', 'clientprog_id', 'user_id')->withPivot('id', 'type', 'timesheet_link')->withTimestamps();
     }
 
     public function mentorIC()

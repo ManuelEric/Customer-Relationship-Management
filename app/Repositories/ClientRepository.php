@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Http\Traits\FindDestinationCountryScore;
 use App\Http\Traits\FindSchoolYearLeftScoreTrait;
+use App\Http\Traits\MentorTypeTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Models\Client;
@@ -23,6 +24,7 @@ use App\Models\pivot\ClientAcceptance as PivotClientAcceptance;
 use App\Models\User;
 use App\Models\ViewRawClient;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class ClientRepository implements ClientRepositoryInterface
@@ -30,6 +32,7 @@ class ClientRepository implements ClientRepositoryInterface
     use FindSchoolYearLeftScoreTrait;
     use FindDestinationCountryScore;
     use StandardizePhoneNumberTrait;
+    use MentorTypeTrait;
     private RoleRepositoryInterface $roleRepository;
     private $potentialClients;
     private $existingMentees;
@@ -727,7 +730,11 @@ class ClientRepository implements ClientRepositoryInterface
                 'universityAcceptance' => function ($query) {
                     $query->where('tbl_client_acceptance.status', 'final decision');
                 },
+                'clientProgram' => function ($query) {
+                    $query->mentoring()->latest();
+                },
             ])->
+            mentoring()->
             isGraduated()->
             getMentoredStudents()->
             search($search)->
@@ -753,6 +760,11 @@ class ClientRepository implements ClientRepositoryInterface
                 ? Carbon::parse($university_acceptance->pivot->created_at)->format('Y-m-d H:i:s') 
                 : null;
             
+            # determine which type of mentor does the user has
+            $latest_admission = $item->clientProgram[0];
+            # with orderByPivot, it helps get the latest record 
+            $logged_in_mentor_type = $latest_admission->clientMentor()->where('users.id', Auth::guard('api')->user()->id)->orderByPivot('id', 'desc')->get();
+            
 
             return [
                 'id' => $item->id,
@@ -761,10 +773,13 @@ class ClientRepository implements ClientRepositoryInterface
                 'major_group' => $major_group,
                 'major' => $major,
                 'application_year' => $item->application_year,
-                # lanjutin di hari senin
-                # untuk mengambil data client program admission program terakhir 
-                # contoh : $a->clientProgram[0]->clientMentor[0]->pivot->type
-                // 'act_as' => $item->clientProgram()->where()->clientMentor, //! profile building or supervisor
+                'clientprog_id' => $latest_admission->clientprog_id,
+                'act_as' => $logged_in_mentor_type->map(function ($item) {
+                    return [
+                        'code' => $item->pivot->type,
+                        'alias' => $this->tnDefineMentorType($item->pivot->type)
+                    ];
+                }),
                 'created_at' => $created_university_acceptance_at
             ];
         });
@@ -778,12 +793,23 @@ class ClientRepository implements ClientRepositoryInterface
             'school' => function ($query) {
                 $query->select('sch_id', 'sch_name', 'sch_city');
             },
+            'clientProgram' => function ($query) {
+                $query->mentoring()->latest();
+            },
         ])->
+        mentoring()->
         isActiveMentee()->
         search($search)->
         getMentoredStudents()->
         get();
         $mapped_active_mentees = $active_mentees->map(function ($item) {
+
+            # determine which type of mentor does the user has
+            $latest_admission = $item->clientProgram[0];
+            # with orderByPivot, it helps get the latest record 
+            $logged_in_mentor_type = $latest_admission->clientMentor()->where('users.id', Auth::guard('api')->user()->id)->orderByPivot('id', 'desc')->get();
+            
+
             return [
                 'id' => $item->id,
                 'full_name' => $item->full_name,
@@ -796,7 +822,15 @@ class ClientRepository implements ClientRepositoryInterface
                 'sch_city' => $item->school->sch_city ?? null,
                 'grade' => $item->grade_now,
                 'application_year' => $item->application_year,
-                'mentoring_progress_status' => $item->mentoring_progress_status
+                'mentoring_progress_status' => $item->mentoring_progress_status,
+                'clientprog_id' => $latest_admission->clientprog_id,
+                // 'act_as' => $this->tnDefineMentorType($logged_in_mentor_type),
+                'act_as' => $logged_in_mentor_type->map(function ($item) {
+                    return [
+                        'code' => $item->pivot->type,
+                        'alias' => $this->tnDefineMentorType($item->pivot->type)
+                    ];
+                }),
             ];
         });
         
