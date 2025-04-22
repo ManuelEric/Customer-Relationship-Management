@@ -87,9 +87,19 @@ class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
         return $created_client_program_detail;
     }
 
+    public function rnStoreBulkProgramPhase(Array $client_program_details)
+    {
+        return ClientProgramDetail::insert($client_program_details);
+    }
+
     
     public function rnGetClientProgramDetailsByClientprogId(int $clientprog_id, int $phase_detail_id)
     {
         return ClientProgramDetail::where('clientprog_id', $clientprog_id)->where('phase_detail_id', $phase_detail_id)->first();
+    }
+
+    public function rnGetPhaseDetails()
+    {
+        return PhaseDetail::orderBy('id', 'asc')->get();
     }
 }   

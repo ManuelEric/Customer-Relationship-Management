@@ -13,6 +13,8 @@ interface ProgramPhaseRepositoryInterface
     public function rnDecrementUseProgramPhase(ClientProgram $clientprogram, int $phase_detail_id, int $use);
     public function rnUpdateUseProgramPhase(ClientProgram $clientprogram, int $phase_detail_id, int $use);
     public function rnStoreProgramPhase(Array $program_phase_details);
+    public function rnStoreBulkProgramPhase(Array $client_program_details);
     public function rnGetClientProgramDetailsByClientprogId(int $clientprog_id, int $phase_detail_id);
+    public function rnGetPhaseDetails();
 
 }
