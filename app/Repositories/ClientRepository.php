@@ -806,7 +806,7 @@ class ClientRepository implements ClientRepositoryInterface
         mentoring()->
         isActiveMentee()->
         search($search)->
-        // getMentoredStudents()->
+        getMentoredStudents()->
         orderBy('first_name', 'asc')->
         orderBy('last_name', 'asc')->
         get();
