@@ -379,6 +379,13 @@ class UserClient extends Authenticatable
         return $query->where('is_verified', 'N')->where('st_statusact', 1)->where('deleted_at', null);
     }
 
+    public function scopeMentoring(Builder $query)
+    {
+        $query->whereHas('clientProgram.program.main_prog', function ($query) {
+            $query->where('prog_name', 'Admissions Mentoring');
+        });
+    }
+
     public function scopeIsGraduated(Builder $query)
     {
         $query->where('grade_now', '>', 12)->whereDoesntHave('clientProgram', function ($query) {

@@ -6,6 +6,7 @@ use App\Actions\PaymentGateway\PrismaLinkCheckStatusAction;
 use App\Enum\LogModule;
 use App\Http\Requests\Payment\GenerateLinkRequest;
 use App\Http\Traits\BankCodeTrait;
+use App\Http\Traits\PaymentGateway\CalculateFeeTrait as CalculatePaymentGatewayFeeTrait;
 use App\Http\Traits\RandomDigitTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\ClientProgramRepositoryInterface;
@@ -30,7 +31,7 @@ use Riskihajar\Terbilang\Facades\Terbilang;
 
 class PaymentGatewayController extends Controller
 {
-    use BankCodeTrait, RandomDigitTrait, StandardizePhoneNumberTrait;
+    use BankCodeTrait, RandomDigitTrait, StandardizePhoneNumberTrait, CalculatePaymentGatewayFeeTrait;
 
     protected $log_service;
     protected ClientProgramRepositoryInterface $clientProgramRepository;
@@ -116,7 +117,7 @@ class PaymentGatewayController extends Controller
             $remarks = $invoice->clientprog->invoice_program_name;
         }
         
-        $va_fee = $payment_method == "VA" ? $this->admin_fee_va : $trx_amount*(2.8/100) + $this->admin_fee_cc;
+        $fees = $this->calculateFee($payment_method, $trx_amount);
         
         $invoice_number = $invoice->inv_id;
         $parent_number = $client->parents->count() > 0 ? $client->parents[0]->secondary_id : $client->secondary_id;
@@ -162,7 +163,7 @@ class PaymentGatewayController extends Controller
 
         }
 
-        $total_transaction_with_fee = $trx_amount + $va_fee;
+        $total_transaction_with_fee = $trx_amount + $fees;
         
         # create request body
         $request_body = [
@@ -203,7 +204,7 @@ class PaymentGatewayController extends Controller
             'external_id' => (string) $trx_id,
             'other_bills' => json_encode([[
                 'title' => 'admin fee',
-                'value' => round($va_fee)
+                'value' => round($fees)
             ]])
         ];
 
@@ -292,11 +293,6 @@ class PaymentGatewayController extends Controller
         ]);
     }
 
-    public function checkStatus(Request $request)
-    {
-        
-    }
-
     public function callback(
         Request $request,
         ReceiptService $receipt_service,
@@ -325,11 +321,11 @@ class PaymentGatewayController extends Controller
             if ( $payment_status == "SETLD" )
             {
                 # store in Log if the client has paid more than it should be
-                if ( $request->transaction_amount != $transaction->trx_amount )
-                    Log::warning("Please double check the transaction no. ". $transaction->trx_id);
+                // if ( $request->transaction_amount != $transaction->trx_amount )
+                //     Log::warning("Please double check the transaction no. ". $transaction->trx_id);
 
-                $invoice_type = $transaction->invoice_id != NULL && $transaction->installment_id ? "Program" : "Installment";
-                $identifier = $transaction->invoice_id != NULL && $transaction->installment_id ? $invoice_model->inv_id : $transaction->installment_id;
+                $invoice_type = $transaction->invoice_id != NULL && $transaction->installment_id == NULL ? "Program" : "Installment";
+                $identifier = $transaction->invoice_id != NULL && $transaction->installment_id == NULL ? $invoice_model->inv_id : $transaction->installment_id;
                 if ( $this->receiptRepository->getReceiptByInvoiceIdentifier($invoice_type, $identifier) )
                 {
                     Log::warning("Transaction no. {$transaction->trx_id} had been triggered but already has receipt" );
