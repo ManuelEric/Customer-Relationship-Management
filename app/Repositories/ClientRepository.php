@@ -804,6 +804,8 @@ class ClientRepository implements ClientRepositoryInterface
         isActiveMentee()->
         search($search)->
         getMentoredStudents()->
+        orderBy('first_name', 'asc')->
+        orderBy('last_name', 'asc')->
         get();
         $mapped_active_mentees = $active_mentees->map(function ($item) {
 
