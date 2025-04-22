@@ -2215,7 +2215,7 @@ class ExtClientController extends Controller
         // $users = \App\Models\User::with(['user_type'])
         $users = \App\Models\User::with(['user_type' => function($query){
             $query->orderBy('tbl_user_type_detail.id', 'desc');
-        }])
+        }, 'position'])
         ->whereHas('roles', function ($query) use ($role, $uuid) {
             $query->where('role_name', $role);
         })->where('id', $uuid)->first();
