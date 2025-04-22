@@ -41,14 +41,14 @@ class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
         return $phase_detail;  
     }
 
-    public function rnIncrementUseProgramPhase(ClientProgram $clientprogram, int $phase_detail_id, int $use)
+    public function rnIncrementUseProgramPhase(ClientProgram $clientprogram, int $phase_detail_id, $use)
     {        
         DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->increment('use', $use);
 
         return DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->first();
     }
 
-    public function rnDecrementUseProgramPhase(ClientProgram $clientprogram, int $phase_detail_id, int $use)
+    public function rnDecrementUseProgramPhase(ClientProgram $clientprogram, int $phase_detail_id, $use)
     {    
         \Illuminate\Support\Facades\Log::debug('Get use quota', $clientprogram->phase_detail()->wherePivot('phase_detail_id', $phase_detail_id)->first()->toArray());    
         # prevent to decrement if the value is already at 0
@@ -60,7 +60,7 @@ class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
         return DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->first();
     }
 
-    public function rnUpdateUseProgramPhase(ClientProgram $clientprogram, int $phase_detail_id, int $use)
+    public function rnUpdateUseProgramPhase(ClientProgram $clientprogram, int $phase_detail_id, $use)
     {
         DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->update(['use' => $use]);
         return DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->first();
@@ -87,9 +87,19 @@ class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
         return $created_client_program_detail;
     }
 
+    public function rnStoreBulkProgramPhase(Array $client_program_details)
+    {
+        return ClientProgramDetail::insert($client_program_details);
+    }
+
     
     public function rnGetClientProgramDetailsByClientprogId(int $clientprog_id, int $phase_detail_id)
     {
         return ClientProgramDetail::where('clientprog_id', $clientprog_id)->where('phase_detail_id', $phase_detail_id)->first();
+    }
+
+    public function rnGetPhaseDetails()
+    {
+        return PhaseDetail::orderBy('id', 'asc')->get();
     }
 }   
