@@ -743,7 +743,10 @@ class ClientRepository implements ClientRepositoryInterface
                 'first_name',
                 'last_name',
                 'application_year',
-            ])->get();
+            ])->
+            orderBy('first_name', 'asc')->
+            orderBy('last_name', 'asc')->
+            get();
             
         $mapped_graduated_mentees = $graduated_mentees->map(function ($item) {
 
@@ -804,6 +807,8 @@ class ClientRepository implements ClientRepositoryInterface
         isActiveMentee()->
         search($search)->
         getMentoredStudents()->
+        orderBy('first_name', 'asc')->
+        orderBy('last_name', 'asc')->
         get();
         $mapped_active_mentees = $active_mentees->map(function ($item) {
 
