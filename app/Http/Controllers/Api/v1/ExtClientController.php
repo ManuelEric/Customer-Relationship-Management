@@ -2308,7 +2308,7 @@ class ExtClientController extends Controller
                 'main_program' => $item->program->main_prog->prog_name,
                 'sub_program' => $item->program->sub_prog->sub_prog_name ?? null,
                 'program_name' => $item->program->prog_program,
-                'display_program_name' => $item->program->program_name,
+                'display_program_name' => $item->program->program_name ?? null,
                 'success_date' => $item->success_date,
                 'status' => $this->translate($item->prog_running_status),
                 'bundle' => $item->clientprog_id
