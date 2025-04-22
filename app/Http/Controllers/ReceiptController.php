@@ -13,6 +13,7 @@ use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Jobs\Receipt\ProcessUploadReceiptJob;
 use App\Models\Receipt;
+use App\Models\Transaction;
 use App\Services\Log\LogService;
 use App\Services\Receipt\ReceiptService;
 use Exception;
@@ -74,10 +75,13 @@ class ReceiptController extends Controller
                     ]
             );
         }else{
+            $invoice_id = $receipt->inv_id;
+            $trx = Transaction::where('inv_id', $invoice_id)->first();
             return view('pages.receipt.client-program.form')->with(
                 [
                     'client_prog' => $receipt->invoiceProgram->clientProg,
-                    'receipt' => $receipt
+                    'receipt' => $receipt,
+                    'trx' => $trx
                 ]
             );
         }

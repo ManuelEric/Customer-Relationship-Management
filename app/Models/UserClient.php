@@ -397,7 +397,11 @@ class UserClient extends Authenticatable
 
     public function scopeIsActiveMentee(Builder $query)
     {
-        $query->whereRelation('clientProgram.program.main_prog', 'prog_name', 'Admissions Mentoring')->whereRelation('clientProgram', 'status', 1)->whereRelation('clientProgram', 'prog_running_status', '!=', 2);
+        $query->
+            whereRelation('clientProgram.program.main_prog', 'prog_name', 'Admissions Mentoring')->
+            whereRelation('clientProgram', 'status', 1)->
+            whereDoesntHaveRelation('clientProgram', 'status', 2);
+            // whereRelation('clientProgram', 'prog_running_status', '!=', 2)
     }
 
     public function scopeGetMentoredStudents(Builder $query)
