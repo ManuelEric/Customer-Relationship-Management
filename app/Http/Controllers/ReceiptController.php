@@ -76,7 +76,7 @@ class ReceiptController extends Controller
             );
         }else{
             $invoice_id = $receipt->inv_id;
-            $trx = Transaction::where('inv_id', $invoice_id)->first();
+            $trx = Transaction::where('invoice_id', $invoice_id)->first();
             return view('pages.receipt.client-program.form')->with(
                 [
                     'client_prog' => $receipt->invoiceProgram->clientProg,
