@@ -6,6 +6,7 @@ use App\Actions\PaymentGateway\PrismaLinkCheckStatusAction;
 use App\Enum\LogModule;
 use App\Http\Requests\Payment\GenerateLinkRequest;
 use App\Http\Traits\BankCodeTrait;
+use App\Http\Traits\PaymentGateway\CalculateFeeTrait as CalculatePaymentGatewayFeeTrait;
 use App\Http\Traits\RandomDigitTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\ClientProgramRepositoryInterface;
@@ -30,7 +31,7 @@ use Riskihajar\Terbilang\Facades\Terbilang;
 
 class PaymentGatewayController extends Controller
 {
-    use BankCodeTrait, RandomDigitTrait, StandardizePhoneNumberTrait;
+    use BankCodeTrait, RandomDigitTrait, StandardizePhoneNumberTrait, CalculatePaymentGatewayFeeTrait;
 
     protected $log_service;
     protected ClientProgramRepositoryInterface $clientProgramRepository;
@@ -116,7 +117,7 @@ class PaymentGatewayController extends Controller
             $remarks = $invoice->clientprog->invoice_program_name;
         }
         
-        $va_fee = $payment_method == "VA" ? $this->admin_fee_va : $trx_amount*(2.8/100) + $this->admin_fee_cc;
+        $fees = $this->calculateFee($payment_method, $trx_amount);
         
         $invoice_number = $invoice->inv_id;
         $parent_number = $client->parents->count() > 0 ? $client->parents[0]->secondary_id : $client->secondary_id;
@@ -162,7 +163,7 @@ class PaymentGatewayController extends Controller
 
         }
 
-        $total_transaction_with_fee = $trx_amount + $va_fee;
+        $total_transaction_with_fee = $trx_amount + $fees;
         
         # create request body
         $request_body = [
@@ -203,7 +204,7 @@ class PaymentGatewayController extends Controller
             'external_id' => (string) $trx_id,
             'other_bills' => json_encode([[
                 'title' => 'admin fee',
-                'value' => round($va_fee)
+                'value' => round($fees)
             ]])
         ];
 
@@ -290,11 +291,6 @@ class PaymentGatewayController extends Controller
             'response_description' => 'SUCCESS',
             'payment_link' => env('PAYMENT_WEB_URI').$response['payment_page_url']
         ]);
-    }
-
-    public function checkStatus(Request $request)
-    {
-        
     }
 
     public function callback(
