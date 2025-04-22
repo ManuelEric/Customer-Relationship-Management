@@ -321,11 +321,11 @@ class PaymentGatewayController extends Controller
             if ( $payment_status == "SETLD" )
             {
                 # store in Log if the client has paid more than it should be
-                if ( $request->transaction_amount != $transaction->trx_amount )
-                    Log::warning("Please double check the transaction no. ". $transaction->trx_id);
+                // if ( $request->transaction_amount != $transaction->trx_amount )
+                //     Log::warning("Please double check the transaction no. ". $transaction->trx_id);
 
-                $invoice_type = $transaction->invoice_id != NULL && $transaction->installment_id ? "Program" : "Installment";
-                $identifier = $transaction->invoice_id != NULL && $transaction->installment_id ? $invoice_model->inv_id : $transaction->installment_id;
+                $invoice_type = $transaction->invoice_id != NULL && $transaction->installment_id == NULL ? "Program" : "Installment";
+                $identifier = $transaction->invoice_id != NULL && $transaction->installment_id == NULL ? $invoice_model->inv_id : $transaction->installment_id;
                 if ( $this->receiptRepository->getReceiptByInvoiceIdentifier($invoice_type, $identifier) )
                 {
                     Log::warning("Transaction no. {$transaction->trx_id} had been triggered but already has receipt" );
