@@ -272,6 +272,8 @@ class UserClient extends Authenticatable
                         $query->where('tbl_client_acceptance.major_name', 'like', '%' . $major . '%');
                     })->orWhereHas('majorAcceptance', function ($query) use ($major) {
                         $query->where('name', 'like', '%' . $major . '%');
+                    })->orWhereHas('majorGroupAcceptance', function ($query) use ($major) {
+                        $query->where('mg_name', 'like', '%'. $major .'%');
                     });
                 });
             });
@@ -639,6 +641,11 @@ class UserClient extends Authenticatable
     public function majorAcceptance()
     {
         return $this->belongsToMany(Major::class, 'tbl_client_acceptance', 'client_id', 'major_id');
+    }
+
+    public function majorGroupAcceptance()
+    {
+        return $this->belongsToMany(MajorGroup::class, 'tbl_client_acceptance', 'client_id', 'major_group_id')->withTimestamps();
     }
 
     public function universityAcceptance()
