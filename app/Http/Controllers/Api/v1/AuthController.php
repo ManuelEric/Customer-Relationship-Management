@@ -8,6 +8,9 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Laravel\Passport\RefreshTokenRepository;
+use Laravel\Passport\TokenRepository;
 
 class AuthController extends Controller
 {
@@ -50,5 +53,20 @@ class AuthController extends Controller
             'token' => $generatedToken,
             'data' => $user
         ]);
+    }
+
+    public function logout(Request $request)
+    {
+        $tokenRepository = app(TokenRepository::class);
+        $refreshTokenRepository = app(RefreshTokenRepository::class);
+
+        $tokenId = $request->user()->token()->id;
+        Log::debug('Token ID ' . $tokenId);
+
+        // Revoke an access token...
+        $tokenRepository->revokeAccessToken($tokenId);
+        
+        // Revoke all of the token's refresh tokens...
+        $refreshTokenRepository->revokeRefreshTokensByAccessTokenId($tokenId);
     }
 }
