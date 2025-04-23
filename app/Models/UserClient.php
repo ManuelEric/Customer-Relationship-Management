@@ -267,13 +267,16 @@ class UserClient extends Authenticatable
             });
         })->when($major, function ($query) use ($major) {
             $query->where(function ($query) use ($major) {
-                $query->whereRelation('universityAcceptance', 'tbl_client_acceptance.status', 'final decision')->where(function ($query) use ($major) {
-                    $query->whereHas('universityAcceptance', function ($query) use ($major) {
-                        $query->where('tbl_client_acceptance.major_name', 'like', '%' . $major . '%');
-                    })->orWhereHas('majorAcceptance', function ($query) use ($major) {
-                        $query->where('name', 'like', '%' . $major . '%');
-                    })->orWhereHas('majorGroupAcceptance', function ($query) use ($major) {
-                        $query->where('mg_name', 'like', '%'. $major .'%');
+                $query->where(function ($query) use ($major) {
+                    $query->
+                    whereHas('universityAcceptance', function ($query) use ($major) {
+                        $query->where('tbl_client_acceptance.major_name', 'like', '%' . $major . '%')->where('status', 'final decision');
+                    })->
+                    orWhereHas('majorAcceptance', function ($query) use ($major) {
+                        $query->where('name', 'like', '%' . $major . '%')->where('status', 'final decision');
+                    })->
+                    orWhereHas('majorGroupAcceptance', function ($query) use ($major) {
+                        $query->where('mg_name', 'like', '%'. $major .'%')->where('status', 'final decision');
                     });
                 });
             });
