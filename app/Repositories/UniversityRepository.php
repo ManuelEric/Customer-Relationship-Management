@@ -27,9 +27,9 @@ class UniversityRepository implements UniversityRepositoryInterface
             ->make(true);
     }
 
-    public function getAllUniversities()
+    public function getAllUniversities(array $search = [])
     {
-        return University::whereNotNull('univ_name')->orderBy('univ_name', 'asc')->get();
+        return University::search($search)->whereNotNull('univ_name')->orderBy('univ_name', 'asc')->get();
     }
 
     public function getUniversityByMonthly($monthYear, $type)
