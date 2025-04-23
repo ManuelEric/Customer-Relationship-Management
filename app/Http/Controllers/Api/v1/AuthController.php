@@ -60,8 +60,9 @@ class AuthController extends Controller
         $tokenRepository = app(TokenRepository::class);
         $refreshTokenRepository = app(RefreshTokenRepository::class);
 
-        $tokenId = $request->user()->token()->id;
-        Log::debug('Token ID ' . $tokenId);
+        // $tokenId = $request->user()->token()->id;
+        $tokenId = auth()->guard('api')->user()->token()->id;
+        Log::debug('Token ID has request to be revoked' . $tokenId);
 
         // Revoke an access token...
         $tokenRepository->revokeAccessToken($tokenId);
