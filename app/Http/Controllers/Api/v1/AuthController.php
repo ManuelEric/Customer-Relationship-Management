@@ -57,18 +57,21 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $tokenRepository = app(TokenRepository::class);
-        $refreshTokenRepository = app(RefreshTokenRepository::class);
+        // $tokenRepository = app(TokenRepository::class);
+        // $refreshTokenRepository = app(RefreshTokenRepository::class);
 
-        $tokenId = $request->user()->token()->id;
-        // $tokenId = auth()->guard('api')->user()->token()->id;
-        Log::debug('Token ID has request to be revoked' . $tokenId);
+        // $tokenId = $request->user()->token()->id;
+        // // $tokenId = auth()->guard('api')->user()->token()->id;
+        // Log::debug('Token ID has request to be revoked' . $tokenId);
 
-        // Revoke an access token...
-        $tokenRepository->revokeAccessToken($tokenId);
+        // // Revoke an access token...
+        // $tokenRepository->revokeAccessToken($tokenId);
         
-        // Revoke all of the token's refresh tokens...
-        $refreshTokenRepository->revokeRefreshTokensByAccessTokenId($tokenId);
+        // // Revoke all of the token's refresh tokens...
+        // $refreshTokenRepository->revokeRefreshTokensByAccessTokenId($tokenId);
+
+        $user = Auth::user()->token();
+        $user->revoke();
 
         return response()->json([
             'message' => 'Logout success'
