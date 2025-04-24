@@ -69,5 +69,7 @@ class AuthController extends Controller
         
         // Revoke all of the token's refresh tokens...
         $refreshTokenRepository->revokeRefreshTokensByAccessTokenId($tokenId);
+
+        return true;
     }
 }
