@@ -70,6 +70,8 @@ class AuthController extends Controller
         // Revoke all of the token's refresh tokens...
         $refreshTokenRepository->revokeRefreshTokensByAccessTokenId($tokenId);
 
-        return true;
+        return response()->json([
+            'message' => 'Logout success'
+        ], JsonResponse::HTTP_OK);
     }
 }
