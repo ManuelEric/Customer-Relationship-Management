@@ -199,7 +199,8 @@ class PaymentGatewayController extends Controller
             'invoice_number' => $invoice_number,
             'integration_type' => '01',
             'payment_method' => $payment_method,
-            'bank_id' => $bank_id,
+            'bank_id' => null,
+            // 'bank_id' => $bank_id, //! this variables comment temporarily because the problem on the prismalink side
             // 'validity' => Carbon::now()->addMinutes(10)->format('Y-m-d H:i:s.v O'),
             'external_id' => (string) $trx_id,
             'other_bills' => json_encode([[
