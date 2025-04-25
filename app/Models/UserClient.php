@@ -262,9 +262,9 @@ class UserClient extends Authenticatable
             /* but they want to search by grade and school name also */
             /* so we will add more where to cover that problem */
             $query->
-                whereRaw('CONCAT(first_name, " ", last_name) like "%' . $terms . '%"')->
-                whereRaw('grade_now', '%' . $terms . '%')->
-                whereHas('school', function ($query) use ($terms) {
+                whereRaw('CONCAT(first_name, " ", last_name) like ?', ['%' . $terms . '%'])->
+                orWhereRaw('grade_now like ?', ['%' . $terms . '%'])->
+                orWhereHas('school', function ($query) use ($terms) {
                     $query->where('sch_name', 'like', '%' . $terms . '%');
                 });
         })->when($uni, function ($query) use ($uni) {
