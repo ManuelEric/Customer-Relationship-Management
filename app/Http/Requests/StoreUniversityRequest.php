@@ -39,7 +39,9 @@ class StoreUniversityRequest extends FormRequest
             'univ_country' => 'required|exists:tbl_country,id',
             'univ_address' => 'nullable',
             // 'tag' => 'required|exists:tbl_curriculum,id',
-            'univ_application_deadline' => 'nullable'
+            'early_action' => 'nullable',
+            'early_decision' => 'nullable',
+            'regular_deadline' => 'nullable',
         ];
     }
 }
