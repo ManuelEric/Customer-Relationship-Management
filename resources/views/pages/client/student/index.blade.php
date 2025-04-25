@@ -743,7 +743,7 @@
                         className: 'text-center',
                         defaultContent: '-',
                         render: function(data, type, row, meta) {
-                            if (row.lead_source == "Referral") {
+                            if (row.lead_source == "Referral" || row.lead_source == "Existing Client Referral") {
                                 return data;
                             } else {
                                 return '-';
