@@ -99,7 +99,7 @@ class Kernel extends ConsoleKernel
         /**
          * Purge revoked and expired tokens and auth codes
          */
-        $schedule->command('passport:purge')->withoutOverlapping()->everyHour();
+        $schedule->command('passport:purge')->withoutOverlapping()->hourly();
     }
 
     /**
