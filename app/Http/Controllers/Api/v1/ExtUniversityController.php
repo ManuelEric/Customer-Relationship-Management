@@ -17,7 +17,9 @@ class ExtUniversityController extends Controller
 
     public function getUniversities(Request $request)
     {
-        $universities = $this->universityRepository->getAllUniversities();
+        $terms = $request->get('terms');
+        $search = compact('terms');
+        $universities = $this->universityRepository->getAllUniversities($search);
         if (!$universities) {
             return response()->json([
                 'success' => true,

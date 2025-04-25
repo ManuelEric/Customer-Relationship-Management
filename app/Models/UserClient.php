@@ -258,7 +258,15 @@ class UserClient extends Authenticatable
         $major = $search['major'] ?? null;
 
         return $query->when($terms, function ($query) use ($terms) {
-            $query->whereRaw('CONCAT(first_name, " ", last_name) like "%' . $terms . '%"');
+            /* previously, terms variable used in order to find name in active mentee mentoring app */
+            /* but they want to search by grade and school name also */
+            /* so we will add more where to cover that problem */
+            $query->
+                whereRaw('CONCAT(first_name, " ", last_name) like ?', ['%' . $terms . '%'])->
+                orWhereRaw('grade_now like ?', ['%' . $terms . '%'])->
+                orWhereHas('school', function ($query) use ($terms) {
+                    $query->where('sch_name', 'like', '%' . $terms . '%');
+                });
         })->when($uni, function ($query) use ($uni) {
             $query->where(function ($query) use ($uni) {
                 $query->whereRelation('universityAcceptance', 'tbl_client_acceptance.status', 'final decision')->whereHas('universityAcceptance', function ($query) use ($uni) {
@@ -267,11 +275,16 @@ class UserClient extends Authenticatable
             });
         })->when($major, function ($query) use ($major) {
             $query->where(function ($query) use ($major) {
-                $query->whereRelation('universityAcceptance', 'tbl_client_acceptance.status', 'final decision')->where(function ($query) use ($major) {
-                    $query->whereHas('universityAcceptance', function ($query) use ($major) {
-                        $query->where('tbl_client_acceptance.major_name', 'like', '%' . $major . '%');
-                    })->orWhereHas('majorAcceptance', function ($query) use ($major) {
-                        $query->where('name', 'like', '%' . $major . '%');
+                $query->where(function ($query) use ($major) {
+                    $query->
+                    whereHas('universityAcceptance', function ($query) use ($major) {
+                        $query->where('tbl_client_acceptance.major_name', 'like', '%' . $major . '%')->where('status', 'final decision');
+                    })->
+                    orWhereHas('majorAcceptance', function ($query) use ($major) {
+                        $query->where('name', 'like', '%' . $major . '%')->where('status', 'final decision');
+                    })->
+                    orWhereHas('majorGroupAcceptance', function ($query) use ($major) {
+                        $query->where('mg_name', 'like', '%'. $major .'%')->where('status', 'final decision');
                     });
                 });
             });
@@ -639,6 +652,11 @@ class UserClient extends Authenticatable
     public function majorAcceptance()
     {
         return $this->belongsToMany(Major::class, 'tbl_client_acceptance', 'client_id', 'major_id');
+    }
+
+    public function majorGroupAcceptance()
+    {
+        return $this->belongsToMany(MajorGroup::class, 'tbl_client_acceptance', 'client_id', 'major_group_id')->withTimestamps();
     }
 
     public function universityAcceptance()

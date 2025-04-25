@@ -16,7 +16,6 @@ use App\Http\Controllers\Api\v1\ExtPartnerController;
 use App\Http\Controllers\Api\v1\ExtUniversityController;
 use App\Http\Controllers\Api\v1\ExtClientController;
 use App\Http\Controllers\Api\v1\SchoolController as APISchoolController;
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CurrencyRateController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\GoogleSheetController;
@@ -153,6 +152,9 @@ Route::middleware(['throttle:120,1'])->group(function () {
     
             # main_program_name could be : academic, admissions
             Route::get('program/{main_program_name}/list', [ExtClientProgramController::class, 'getSuccessPrograms']);
+            Route::get('program/{main_program_name}/identifier/{clientprogram_id}', [ExtClientProgramController::class, 'fnGetSuccessProgramsByIdentifier']);
+
+
             Route::get('program/list/free-trial', [ExtClientProgramController::class, 'fnGetFreeTrialPrograms']);
             Route::get('client/information/{uuid}', [ExtClientController::class, 'getClientInformation']);
         });
@@ -173,7 +175,11 @@ Route::middleware(['throttle:120,1'])->group(function () {
                 Route::get('mentor/profile/education', [V1APIMentorController::class, 'fnGetEducation']);
                 Route::post('mentor/profile/education', [V1APIMentorController::class, 'fnStoreEducation']);
                 Route::delete('mentor/profile/education/{user_education_id}', [V1APIMentorController::class, 'fnDeleteEducation']);
+                
+                # logout
+                Route::post('oauth/token/destroy', [V1APIAuthController::class, 'logout'])->name('logout');
             });
+
         });
 
         # meta ads

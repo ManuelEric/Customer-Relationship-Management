@@ -44,6 +44,7 @@ class AddedPackageBoughtForAdmissionMentee extends Command
     {
         $packages = $this->programPhaseRepository->rnGetPhaseDetails();
 
+        /* get active mentees should be temporarily update by removing the getMentoredStudents to select all active mentees in database */
         $active_mentees = $this->clientRepository->rnGetActiveMentees([]);
         DB::beginTransaction();
         foreach ( $active_mentees as $mentee )

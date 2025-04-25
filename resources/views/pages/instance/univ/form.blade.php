@@ -142,7 +142,7 @@
                                         {{ empty($university) || isset($edit) ? '' : 'disabled' }}>
                                 </div>
                             </div>
-                            <div class="col-md-7">
+                            <div class="col-md-12">
                                 <div class="mb-2">
                                     <label for="">
                                         Country <i class="text-danger font-weight-bold">*</i>
@@ -164,12 +164,34 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-5">
+                            <div class="col-md-4">
                                 <div class="mb-2">
-                                    <label for="">Application Deadline <i class="text-danger font-weight-bold">*</i></label>
-                                    <input type="date" name="univ_application_deadline" class="form-control form-control-sm rounded"
+                                    <label for="">Early Action <i class="text-danger font-weight-bold">*</i></label>
+                                    <input type="date" name="early_action" class="form-control form-control-sm rounded"
                                         {{ empty($university) || isset($edit) ? '' : 'disabled' }} 
-                                        value="{{ isset($university) ? date('Y-m-d', strtotime($university->univ_application_deadline)) : old('univ_application_deadline') }}" />
+                                        value="{{ isset($university) ? date('Y-m-d', strtotime($university->early_action)) : old('early_action') }}" />
+                                    @error('tag')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-2">
+                                    <label for="">Early Decision <i class="text-danger font-weight-bold">*</i></label>
+                                    <input type="date" name="early_decision" class="form-control form-control-sm rounded"
+                                        {{ empty($university) || isset($edit) ? '' : 'disabled' }} 
+                                        value="{{ isset($university) ? date('Y-m-d', strtotime($university->early_decision)) : old('early_decision') }}" />
+                                    @error('tag')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-2">
+                                    <label for="">Regular Deadline <i class="text-danger font-weight-bold">*</i></label>
+                                    <input type="date" name="regular_deadline" class="form-control form-control-sm rounded"
+                                        {{ empty($university) || isset($edit) ? '' : 'disabled' }} 
+                                        value="{{ isset($university) ? date('Y-m-d', strtotime($university->regular_deadline)) : old('regular_deadline') }}" />
                                     @error('tag')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror

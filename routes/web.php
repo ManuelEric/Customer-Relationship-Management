@@ -11,6 +11,7 @@ use App\Jobs\JobCoba;
 use App\Models\UserClient;
 use App\Models\ClientProgram;
 use App\Models\ClientEvent;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 

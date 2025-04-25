@@ -27,9 +27,9 @@ class UniversityRepository implements UniversityRepositoryInterface
             ->make(true);
     }
 
-    public function getAllUniversities()
+    public function getAllUniversities(array $search = [])
     {
-        return University::whereNotNull('univ_name')->orderBy('univ_name', 'asc')->get();
+        return University::search($search)->whereNotNull('univ_name')->orderBy('univ_name', 'asc')->get();
     }
 
     public function getUniversityByMonthly($monthYear, $type)
@@ -102,7 +102,11 @@ class UniversityRepository implements UniversityRepositoryInterface
 
     public function getUpcomingApplicationDeadline(array $search = [])
     {
-        return University::search($search)->whereBetween('univ_application_deadline', [Carbon::now()->format('Y-m-d') . ' 00:00:00', Carbon::now()->addDays(30)->format('Y-m-d') . ' 23:59:59'])->orderBy('univ_application_deadline', 'asc')->get();
+        return University::search($search)->
+            whereBetween('early_action', [Carbon::now()->format('Y-m-d') . ' 00:00:00', Carbon::now()->addDays(30)->format('Y-m-d') . ' 23:59:59'])->
+            orWhereBetween('early_decision', [Carbon::now()->format('Y-m-d') . ' 00:00:00', Carbon::now()->addDays(30)->format('Y-m-d') . ' 23:59:59'])->
+            orWhereBetween('regular_deadline', [Carbon::now()->format('Y-m-d') . ' 00:00:00', Carbon::now()->addDays(30)->format('Y-m-d') . ' 23:59:59'])->
+            orderBy('univ_application_deadline', 'asc')->get();
     }
 
     public function deleteUniversity($universityId)

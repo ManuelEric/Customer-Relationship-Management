@@ -5,7 +5,7 @@ namespace App\Interfaces;
 interface UniversityRepositoryInterface
 {
     public function getAllUniversitiesDataTables();
-    public function getAllUniversities();
+    public function getAllUniversities(array $search = []);
     public function getUniversityByMonthly($monthYear, $type);
     public function getAllUniversitiesByCountries(array $countries);
     public function getAllUniversitiesByTag(array $tags);
