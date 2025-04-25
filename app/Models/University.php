@@ -31,7 +31,9 @@ class University extends Model
         'univ_country',
         'univ_email',
         'univ_phone',
-        'univ_application_deadline'
+        'early_action',
+        'early_decision',
+        'regular_deadline',
     ];
 
     # Modify methods Model
