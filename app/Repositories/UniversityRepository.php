@@ -105,8 +105,8 @@ class UniversityRepository implements UniversityRepositoryInterface
         return University::search($search)->
             whereBetween('early_action', [Carbon::now()->format('Y-m-d') . ' 00:00:00', Carbon::now()->addDays(30)->format('Y-m-d') . ' 23:59:59'])->
             orWhereBetween('early_decision', [Carbon::now()->format('Y-m-d') . ' 00:00:00', Carbon::now()->addDays(30)->format('Y-m-d') . ' 23:59:59'])->
-            orWhereBetween('regular_deadline', [Carbon::now()->format('Y-m-d') . ' 00:00:00', Carbon::now()->addDays(30)->format('Y-m-d') . ' 23:59:59'])->
-            orderBy('univ_application_deadline', 'asc')->get();
+            orWhereBetween('regular_deadline', [Carbon::now()->format('Y-m-d') . ' 00:00:00', Carbon::now()->addDays(30)->format('Y-m-d') . ' 23:59:59']);
+            // orderBy('early', 'asc')->get();
     }
 
     public function deleteUniversity($universityId)
