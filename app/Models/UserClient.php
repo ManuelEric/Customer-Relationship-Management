@@ -258,7 +258,15 @@ class UserClient extends Authenticatable
         $major = $search['major'] ?? null;
 
         return $query->when($terms, function ($query) use ($terms) {
-            $query->whereRaw('CONCAT(first_name, " ", last_name) like "%' . $terms . '%"');
+            /* previously, terms variable used in order to find name in active mentee mentoring app */
+            /* but they want to search by grade and school name also */
+            /* so we will add more where to cover that problem */
+            $query->
+                whereRaw('CONCAT(first_name, " ", last_name) like "%' . $terms . '%"')->
+                whereRaw('grade_now', '%' . $terms . '%')->
+                whereHas('school', function ($query) use ($terms) {
+                    $query->where('sch_name', 'like', '%' . $terms . '%');
+                });
         })->when($uni, function ($query) use ($uni) {
             $query->where(function ($query) use ($uni) {
                 $query->whereRelation('universityAcceptance', 'tbl_client_acceptance.status', 'final decision')->whereHas('universityAcceptance', function ($query) use ($uni) {
