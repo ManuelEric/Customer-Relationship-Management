@@ -31,7 +31,7 @@ class CheckStatus extends Command
         PrismaLinkCheckStatusAction $check_status
     )
     {
-        $transactions = Transaction::whereNot('payment_status', 'SETLD')->get();
+        $transactions = Transaction::whereNotIn('payment_status', ['SETLD', 'CANCL', 'REJEC'])->get();
         foreach ($transactions as $trx)
         {
             $request = [
