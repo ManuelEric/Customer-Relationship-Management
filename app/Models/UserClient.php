@@ -7,6 +7,7 @@ use App\Http\Traits\CleanStringTrait;
 use App\Jobs\Client\ProcessUpdateGradeAndGraduationYearNow;
 use App\Models\pivot\ClientAcceptance;
 use App\Models\pivot\ClientLeadTracking;
+use App\Models\Mentoring\MentoringLog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -533,6 +534,11 @@ class UserClient extends Authenticatable
 
 
     # relation
+    public function mentoringLogs()
+    {
+        return $this->hasMany(mentoringLog::class, 'student_id', 'id');
+    }
+
     public function additionalInfo()
     {
         return $this->hasMany(UserClientAdditionalInfo::class, 'client_id', 'id');
