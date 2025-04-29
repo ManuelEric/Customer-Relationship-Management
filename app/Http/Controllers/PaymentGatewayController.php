@@ -321,7 +321,10 @@ class PaymentGatewayController extends Controller
             {
                 $log_service->createErrorLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, "Payment status is {$payment_status}" , $request->getLine(), $request->getFile(), $request->all());
                 return response()->json([
-                    'message' => 'There\'s an issue with the payment'
+                    'message' => 'Payment received',
+                    'data' => [
+                        'payment_status' => $payment_status
+                    ]
                 ]);
             }
 
