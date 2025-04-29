@@ -317,50 +317,62 @@ class PaymentGatewayController extends Controller
             $client_prog_model = $transaction->invoice_id === null ? $invoice_model->invoiceProgram->clientprog : $invoice_model->clientprog;
             $client_prog = $this->clientProgramRepository->getClientProgramById($client_prog_model->clientprog_id);
 
-            # if payment is SETLD 
-            # it has to trigger to generate receipt as well
-            if ( $payment_status == "SETLD" )
+            if ( !$payment_status != "SETLD" )
             {
-                # store in Log if the client has paid more than it should be
-                // if ( $request->transaction_amount != $transaction->trx_amount )
-                //     Log::warning("Please double check the transaction no. ". $transaction->trx_id);
-
-                $invoice_type = $transaction->invoice_id != NULL && $transaction->installment_id == NULL ? "Program" : "Installment";
-                $identifier = $transaction->invoice_id != NULL && $transaction->installment_id == NULL ? $invoice_model->inv_id : $transaction->installment_id;
-                if ( $this->receiptRepository->getReceiptByInvoiceIdentifier($invoice_type, $identifier) )
-                {
-                    Log::warning("Transaction no. {$transaction->trx_id} had been triggered but already has receipt" );
-                    return response()->json([
-                        'message' => 'Payment received'
-                    ]);
-                }
-
-                $transaction_amount = $request->transaction_amount;
-                if ( $transaction->payment_method == "VA" )
-                    $transaction_amount -= $this->admin_fee_va;
-                else
-                    $transaction_amount -= $transaction->trx_amount*(2.8/100) + $this->admin_fee_cc;
-
-                $is_child_program_bundle = $client_prog->bundlingDetail()->count();
-                $receipt_details = [
-                    'receipt_id' => $receipt_service->generateReceiptId(['receipt_date' => $request->payment_date], $client_prog, $is_child_program_bundle),
-                    'inv_id' => $invoice_model->inv_id,
-                    'invdtl_id' => $transaction->installment_id,
-                    'rec_currency' => 'IDR', # by default it would be IDR
-                    'receipt_amount' => null,
-                    'receipt_amount_idr' => $transaction_amount,
-                    'receipt_date' => $request->payment_date,
-                    'receipt_words' => null,
-                    'receipt_words_idr' => ucfirst(str_replace(',' ,'', Terbilang::make($transaction_amount))) . ' Rupiah',
-                    'receipt_method' => $request->payment_method,
-                    'receipt_cheque' => null,
-                    'receipt_cat' => 'student', # by default it would be student
-                    'created_at' => $request->payment_date,
-                ];
-
-                $receipt_created = $this->receiptRepository->createReceipt($receipt_details);
+                $log_service->createErrorLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, "Payment status is {$payment_status}" , $request->getLine(), $request->getFile(), $request->all());
+                return response()->json([
+                    'message' => 'Payment received',
+                    'data' => [
+                        'payment_status' => $payment_status
+                    ]
+                ]);
             }
+
+            # store in Log if the client has paid more than it should be
+            // if ( $request->transaction_amount != $transaction->trx_amount )
+            //     Log::warning("Please double check the transaction no. ". $transaction->trx_id);
+
+            $invoice_type = $transaction->invoice_id != NULL && $transaction->installment_id == NULL ? "Program" : "Installment";
+            $identifier = $transaction->invoice_id != NULL && $transaction->installment_id == NULL ? $invoice_model->inv_id : $transaction->installment_id;
+            if ( $this->receiptRepository->getReceiptByInvoiceIdentifier($invoice_type, $identifier) )
+            {
+                Log::warning("Transaction no. {$transaction->trx_id} had been triggered but already has receipt" );
+                return response()->json([
+                    'message' => 'Payment received'
+                ]);
+            }
+
+            $transaction_amount = $request->transaction_amount;
+            if ( $transaction->payment_method == "VA" )
+                $transaction_amount -= $this->admin_fee_va;
+            else
+                $transaction_amount -= $transaction->trx_amount*(2.8/100) + $this->admin_fee_cc;
+
+            $is_child_program_bundle = $client_prog->bundlingDetail()->count();
+            $receipt_details = [
+                'receipt_id' => $receipt_service->generateReceiptId(['receipt_date' => $request->payment_date], $client_prog, $is_child_program_bundle),
+                'inv_id' => $invoice_model->inv_id,
+                'invdtl_id' => $transaction->installment_id,
+                'rec_currency' => 'IDR', # by default it would be IDR
+                'receipt_amount' => null,
+                'receipt_amount_idr' => $transaction_amount,
+                'receipt_date' => $request->payment_date,
+                'receipt_words' => null,
+                'receipt_words_idr' => ucfirst(str_replace(',' ,'', Terbilang::make($transaction_amount))) . ' Rupiah',
+                'receipt_method' => $request->payment_method,
+                'receipt_cheque' => null,
+                'receipt_cat' => 'student', # by default it would be student
+                'created_at' => $request->payment_date,
+            ];
+
+            $receipt_created = $this->receiptRepository->createReceipt($receipt_details);
+            
             DB::commit();
+
+            $this->log_service->createSuccessLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, 'Receipt created successfully', $receipt_created->toArray());
+            return response()->json([
+                'message' => 'Payment received'
+            ]);
         } catch (Exception $err) {
             DB::rollBack();
             $log_service->createErrorLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, $err->getMessage(), $err->getLine(), $err->getFile(), $request->all());
@@ -368,10 +380,5 @@ class PaymentGatewayController extends Controller
                 'message' => 'There\'s a  problem when receiving payment'
             ]);
         }
-
-        $this->log_service->createSuccessLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, 'Receipt created successfully', $receipt_created->toArray());
-        return response()->json([
-            'message' => 'Payment received'
-        ]);
     }
 }

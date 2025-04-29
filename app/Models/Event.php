@@ -85,7 +85,8 @@ class Event extends Model
     {
         $terms = $search['terms'] ?? null;
         $query->when($terms, function ($query) use ($terms) {
-            $query->where('event_title', 'like', '%' . $terms . '%');
+            $query->where('event_title', 'like', '%' . $terms . '%')
+                    ->orWhere('event_description', 'like', '%' . $terms . '%');
         });
     }
 
