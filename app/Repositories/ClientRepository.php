@@ -841,6 +841,7 @@ class ClientRepository implements ClientRepositoryInterface
                 'act_as' => $mapped_mentor_type,
                 'code_array' => $mapped_mentor_type->pluck('code')->toArray(),
                 'alias_array' => $mapped_mentor_type->plucK('alias')->toArray(),
+                'latest_update' => count($item->mentoringLogs) > 0 ? $item->mentoringLogs()->latest()->first()->updated_at : null,
             ];
         });
         
