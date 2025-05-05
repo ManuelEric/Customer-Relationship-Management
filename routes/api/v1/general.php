@@ -177,7 +177,7 @@ Route::middleware(['throttle:120,1'])->group(function () {
                 Route::delete('mentor/profile/education/{user_education_id}', [V1APIMentorController::class, 'fnDeleteEducation']);
                 
                 # logout
-                Route::post('oauth/token/destroy', [V1APIAuthController::class, 'logout'])->name('logout');
+                Route::post('oauth/token/destroy', [V1APIAuthController::class, 'logout']);
             });
 
         });
