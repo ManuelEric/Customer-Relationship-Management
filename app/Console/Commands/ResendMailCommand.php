@@ -203,7 +203,7 @@ class ResendMailCommand extends Command
                         break;
 
                     case 'email-confirmation-event':
-                        ProcessEmailConfirmation::dispatch($clientEvent)->onQueue('email-confirmation-event');
+                        ProcessEmailConfirmation::dispatch($clientEvent, $this->clientEventLogMailRepository)->onQueue('email-confirmation-event');
                         break;
                 }
                     
