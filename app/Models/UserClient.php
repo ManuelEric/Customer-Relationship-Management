@@ -7,6 +7,8 @@ use App\Http\Traits\CleanStringTrait;
 use App\Jobs\Client\ProcessUpdateGradeAndGraduationYearNow;
 use App\Models\pivot\ClientAcceptance;
 use App\Models\pivot\ClientLeadTracking;
+use App\Models\Mentoring\MentoringLog;
+use App\Observers\UserClientObserver;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,7 +22,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
+#[ObservedBy([UserClientObserver::class])]
 class UserClient extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes, CleanStringTrait;
@@ -533,6 +537,11 @@ class UserClient extends Authenticatable
 
 
     # relation
+    public function mentoringLogs()
+    {
+        return $this->hasMany(mentoringLog::class, 'student_id', 'id');
+    }
+
     public function additionalInfo()
     {
         return $this->hasMany(UserClientAdditionalInfo::class, 'client_id', 'id');
