@@ -273,7 +273,7 @@ class UserClient extends Authenticatable
                 });
         })->when($uni, function ($query) use ($uni) {
             $query->where(function ($query) use ($uni) {
-                $query->whereRelation('universityAcceptance', 'tbl_client_acceptance.status', 'final decision')->whereHas('universityAcceptance', function ($query) use ($uni) {
+                $query->whereHas('decidedUniversityAcceptance', function ($query) use ($uni) {
                     $query->where('univ_name', 'like', '%' . $uni . '%');
                 });
             });
@@ -671,6 +671,11 @@ class UserClient extends Authenticatable
     public function universityAcceptance()
     {
         return $this->belongsToMany(University::class, 'tbl_client_acceptance', 'client_id', 'univ_id')->using(ClientAcceptance::class)->withPivot('id', 'major_group_id', 'major_name', 'status', 'major_id', 'category', 'requirement_link')->withTimestamps();
+    }
+
+    public function decidedUniversityAcceptance()
+    {
+        return $this->belongsToMany(University::class, 'tbl_client_acceptance', 'client_id', 'univ_id')->using(ClientAcceptance::class)->withPivot('id', 'major_group_id', 'major_name', 'status', 'major_id', 'category', 'requirement_link')->wherePivot('status', 'Final Decision')->withTimestamps();
     }
 
     public function picClient()

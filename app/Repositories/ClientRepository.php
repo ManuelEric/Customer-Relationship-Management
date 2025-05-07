@@ -728,7 +728,9 @@ class ClientRepository implements ClientRepositoryInterface
     {
         $graduated_mentees = UserClient::with([
                 'universityAcceptance' => function ($query) {
-                    $query->where('tbl_client_acceptance.status', 'final decision');
+                    // it is commented because if not
+                    // university name and major cannot be seen
+                    // $query->where('tbl_client_acceptance.status', 'final decision');
                 },
                 'clientProgram' => function ($query) {
                     $query->mentoring()->latest();
@@ -854,7 +856,10 @@ class ClientRepository implements ClientRepositoryInterface
             CASE
                 WHEN grade_now BETWEEN 7 AND 12 THEN grade_now
                 ELSE grade_now
-            END DESC"
+            END DESC,
+            first_name ASC,
+            last_name ASC
+            "
         )->
         get();
         $mapped_active_mentees = $active_mentees->map(function ($item) {

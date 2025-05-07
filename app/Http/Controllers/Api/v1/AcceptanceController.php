@@ -6,6 +6,7 @@ use App\Enum\LogModule;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\v1\StoreAcceptanceRequest as V1APIStoreAcceptanceRequest;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Models\ClientAcceptance as ModelsClientAcceptance;
 use App\Models\pivot\ClientAcceptance;
 use App\Models\UserClient;
 use App\Services\Log\LogService;
@@ -26,20 +27,26 @@ class AcceptanceController extends Controller
 
     public function fnListOfUniApplication(UserClient $student): JsonResponse
     {
-        $uni_application = $student->universityAcceptance->map(function ($item) {
+        $universityAcceptance = ClientAcceptance::where('client_id', $student->id)->orderByRaw(
+            "CASE
+                WHEN status = 'Final Decision' THEN 1
+                ELSE 2
+            END ASC"
+        )->get();
+        $uni_application = $universityAcceptance->map(function ($item) {
             return [
-                'id' => $item->pivot->id,
+                'id' => $item->id,
                 'univ_id' => $item->univ_id,
-                'univ_name' => $item->univ_name,
-                'early_action' => $item->early_action,
-                'early_decision' => $item->early_decision,
+                'univ_name' => $item->university->univ_name,
+                'early_action' => $item->university->early_action,
+                'early_decision' => $item->university->early_decision,
                 'regular_deadline' => $item->regular_deadline,
-                'major_group_id' => $item->pivot->major_group_id,
-                'major_group' => $item->pivot->major_group->mg_name ?? null,
-                'major' => $item->pivot->get_major_name,
-                'category' => ucwords($item->pivot->category),
-                'requirement_link' => $item->pivot->requirement_link,
-                'status' => ucwords($item->pivot->status)
+                'major_group_id' => $item->major_group_id,
+                'major_group' => $item->major_group->mg_name ?? null,
+                'major' => $item->get_major_name,
+                'category' => ucwords($item->category),
+                'requirement_link' => $item->requirement_link,
+                'status' => ucwords($item->status)
             ]; 
         });
         $latest_adm_program = $student->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first();

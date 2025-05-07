@@ -9,6 +9,7 @@ use App\Models\Phase;
 use App\Models\PhaseDetail;
 use App\Models\PhaseLibrary;
 use App\Models\pivot\ClientProgramDetail;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
@@ -43,7 +44,7 @@ class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
 
     public function rnIncrementUseProgramPhase(ClientProgram $clientprogram, int $phase_detail_id, $use)
     {        
-        DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->increment('use', $use);
+        DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->increment('use', $use, ['updated_at' => Carbon::now()]);
 
         return DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->first();
     }
@@ -54,7 +55,7 @@ class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
         # prevent to decrement if the value is already at 0
         if ( $clientprogram->phase_detail()->wherePivot('phase_detail_id', $phase_detail_id)->first()->pivot->use > 0 )
         {
-            DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->decrement('use', $use);
+            DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->decrement('use', $use, ['updated_at' => Carbon::now()]);
         }
 
         return DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->first();
@@ -62,7 +63,7 @@ class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
 
     public function rnUpdateUseProgramPhase(ClientProgram $clientprogram, int $phase_detail_id, $use)
     {
-        DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->update(['use' => $use]);
+        DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->update(['use' => $use, 'updated_at' => Carbon::now()]);
         return DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->first();
     }
 
