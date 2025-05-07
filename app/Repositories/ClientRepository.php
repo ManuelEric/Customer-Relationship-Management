@@ -728,7 +728,9 @@ class ClientRepository implements ClientRepositoryInterface
     {
         $graduated_mentees = UserClient::with([
                 'universityAcceptance' => function ($query) {
-                    $query->where('tbl_client_acceptance.status', 'final decision');
+                    // it is commented because if not
+                    // university name and major cannot be seen
+                    // $query->where('tbl_client_acceptance.status', 'final decision');
                 },
                 'clientProgram' => function ($query) {
                     $query->mentoring()->latest();
@@ -807,8 +809,58 @@ class ClientRepository implements ClientRepositoryInterface
         isActiveMentee()->
         search($search)->
         getMentoredStudents()->
-        orderBy('first_name', 'asc')->
-        orderBy('last_name', 'asc')->
+        // when(isset($search['sorting_array']['sort_by']) && isset($search['sorting_array']['sort_order']), function ($query) use ($search) {
+        //     $query->
+        //         when( preg_match("/grade/i", $search['sorting_array']['sort_by']), function ($query) use ($search) {
+        //             $query->
+        //             orderByRaw(
+        //                 "CASE
+        //                     WHEN grade_now BETWEEN 7 and 12 THEN 1 -- Prioritize 7-12
+        //                     ELSE 2 -- Then show > 12
+        //                 END ASC,
+        //                 CASE
+        //                     WHEN grade_now BETWEEN 7 AND 12 THEN grade_now
+        //                     ELSE grade_now
+        //                 END DESC"
+        //             );
+        //         });
+        //         // when( preg_match("/progress status/i", $search['sorting_array']['sort_by']), function ($query) use ($search) {
+        //         //     $query->orderByRaw(
+        //         //         "CASE
+        //         //             WHEN mentoring_progress_status IN ('On Track', 'Slow', 'Behind') THEN mentoring_progress_status
+        //         //             ELSE 'HALT'
+        //         //         END {$search['sorting_array']['sort_order']}"
+        //         //     );
+        //         // });
+        //     // orderBy($search['sorting_array']['sort_by'], $search['sorting_array']['sort_order']);
+        // }, function ($query) {
+        //     $query->
+        //         orderBy('first_name', 'asc')->
+        //         orderBy('last_name', 'asc');
+        // })->
+        orderByRaw(
+            "
+            CASE
+                WHEN grade_now BETWEEN 7 AND 12 AND mentoring_progress_status = 'On Track' THEN 1
+                WHEN grade_now BETWEEN 7 AND 12 AND mentoring_progress_status = 'Slow' THEN 2
+                WHEN grade_now BETWEEN 7 AND 12 AND mentoring_progress_status = 'Behind' THEN 3
+                WHEN grade_now BETWEEN 7 AND 12 AND mentoring_progress_status IS NULL THEN 4
+                WHEN grade_now BETWEEN 7 AND 12 AND mentoring_progress_status = 'Halt' THEN 5
+                WHEN grade_now > 12 AND mentoring_progress_status = 'On Track' THEN 6
+                WHEN grade_now > 12 AND mentoring_progress_status = 'Slow' THEN 7
+                WHEN grade_now > 12 AND mentoring_progress_status = 'Behind' THEN 8
+                WHEN grade_now > 12 AND mentoring_progress_status IS NULL THEN 9
+                WHEN grade_now > 12 AND mentoring_progress_status = 'Halt' THEN 10
+                ELSE 11
+            END ASC,
+            CASE
+                WHEN grade_now BETWEEN 7 AND 12 THEN grade_now
+                ELSE grade_now
+            END DESC,
+            first_name ASC,
+            last_name ASC
+            "
+        )->
         get();
         $mapped_active_mentees = $active_mentees->map(function ($item) {
 

@@ -4,6 +4,7 @@ namespace App\Models\pivot;
 
 use App\Models\Major;
 use App\Models\MajorGroup;
+use App\Models\University;
 use App\Models\UserClient;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,6 +31,11 @@ class ClientAcceptance extends Pivot
     public function client()
     {
         return $this->belongsTo(UserClient::class, 'client_id', 'id');
+    }
+
+    public function university()
+    {
+        return $this->belongsTo(University::class, 'univ_id', 'univ_id');
     }
 
     public function major()
