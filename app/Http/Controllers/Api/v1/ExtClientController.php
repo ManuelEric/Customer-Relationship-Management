@@ -2246,7 +2246,6 @@ class ExtClientController extends Controller
             'gdrive_link' => $details->mentoring_google_drive_link,
             'mentoring_progress' => $details->mentoring_progress_status,
             'school_name' => $details->school->sch_name,
-            'birthday' => $details->dob,
         ];
 
         $response_of_student_mentor = array();
