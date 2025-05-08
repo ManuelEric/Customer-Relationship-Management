@@ -2236,7 +2236,7 @@ class ExtClientController extends Controller
             'mentee_email' => $details->mail,
             'secondary_id' => str_pad($details->secondary_id,5,'0',STR_PAD_LEFT),
             'grade' => $details->grade_now,
-            'application_year' => null,
+            'application_year' => $details->application_year,
             'address' => [
                 'detail' => $details->address,
                 'city' => $details->city,
@@ -2246,6 +2246,7 @@ class ExtClientController extends Controller
             'gdrive_link' => $details->mentoring_google_drive_link,
             'mentoring_progress' => $details->mentoring_progress_status,
             'school_name' => $details->school->sch_name,
+            'birthday' => $details->dob,
         ];
 
         $response_of_student_mentor = array();
