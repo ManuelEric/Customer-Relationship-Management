@@ -26,6 +26,9 @@ class ClientAcceptance extends Pivot
         'status',
         'is_picked',
         'requirement_link',
+        'early_action',
+        'early_decision',
+        'regular_deadline',
     ];
 
     public function client()
