@@ -2236,7 +2236,8 @@ class ExtClientController extends Controller
             'mentee_email' => $details->mail,
             'secondary_id' => str_pad($details->secondary_id,5,'0',STR_PAD_LEFT),
             'grade' => $details->grade_now,
-            'application_year' => $details->application_year,
+            'application_year' => Carbon::parse($details->application_year)->format('Y'),
+            'joining_year' => Carbon::parse($details->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first()->success_date)->format('Y'),
             'address' => [
                 'detail' => $details->address,
                 'city' => $details->city,
