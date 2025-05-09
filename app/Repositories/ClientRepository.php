@@ -894,6 +894,8 @@ class ClientRepository implements ClientRepositoryInterface
                 'code_array' => $mapped_mentor_type->pluck('code')->toArray(),
                 'alias_array' => $mapped_mentor_type->plucK('alias')->toArray(),
                 'latest_update' => count($item->mentoringLogs) > 0 ? $item->mentoringLogs()->latest()->first()->updated_at : null,
+                'joining_year' => Carbon::parse($item->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first()->success_date)->format('Y'),
+        
             ];
         });
         
@@ -1703,6 +1705,19 @@ class ClientRepository implements ClientRepositoryInterface
         })->whereHas('roles', function ($query) {
             $query->where('role_name', 'Student');
         })->whereNotIn('client.id', $client)->orderBy('created_at', 'desc')->get();
+    }
+
+    public function getMenteesBirthdaybyToday()
+    {
+        return UserClient::with([
+                'clientProgram.clientMentor' => function ($query) {
+                    $query->select('users.id', 'first_name', 'last_name', 'email');
+                }, 
+                'handledBy' => function ($query) {
+                    $query->select('users.id', 'first_name', 'last_name', 'email');
+                }
+            ])->
+            where('dob', Carbon::now()->subDay()->format('Y-m-d'))->select('id', 'first_name', 'last_name')->get();
     }
 
     public function getMenteesBirthdayMonthly($month)

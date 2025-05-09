@@ -8,6 +8,7 @@ use App\Http\Requests\Api\v1\StoreAcceptanceRequest as V1APIStoreAcceptanceReque
 use App\Interfaces\ClientRepositoryInterface;
 use App\Models\ClientAcceptance as ModelsClientAcceptance;
 use App\Models\pivot\ClientAcceptance;
+use App\Models\University;
 use App\Models\UserClient;
 use App\Services\Log\LogService;
 use Exception;
@@ -38,8 +39,8 @@ class AcceptanceController extends Controller
                 'id' => $item->id,
                 'univ_id' => $item->univ_id,
                 'univ_name' => $item->university->univ_name,
-                'early_action' => $item->university->early_action,
-                'early_decision' => $item->university->early_decision,
+                'early_action' => $item->early_action,
+                'early_decision' => $item->early_decision,
                 'regular_deadline' => $item->regular_deadline,
                 'major_group_id' => $item->major_group_id,
                 'major_group' => $item->major_group->mg_name ?? null,
@@ -70,12 +71,18 @@ class AcceptanceController extends Controller
 
         DB::beginTransaction();
         try {
+            // fetch early_action, early_decision, regular_deadline
+            $master_univ = University::find($validated['univ_id']);
+
             $student->universityAcceptance()->attach($validated['univ_id'], [
                 'category' => $validated['category'],
                 'major_group_id' => $validated['major_group_id'],
                 'major_name' => $validated['major_name'],
                 'status' => $validated['status'],
-                'requirement_link' => $validated['requirement_link'], 
+                'requirement_link' => $validated['requirement_link'],
+                'early_action' => $master_univ->early_action,
+                'early_decision' => $master_univ->early_decision,
+                'regular_deadline' => $master_univ->regular_deadline
             ]);
             DB::commit();
         } catch (Exception $err) {
