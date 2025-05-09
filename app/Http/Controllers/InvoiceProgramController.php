@@ -770,7 +770,7 @@ class InvoiceProgramController extends Controller
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),
-            env('FINANCE_CC_2'),
+            env('FINANCE_CC_2', ''),
             $pic_mail
         ];
         $data['param'] = [
@@ -829,7 +829,7 @@ class InvoiceProgramController extends Controller
             # send mail when document has been signed
             Mail::send('pages.invoice.client-program.mail.signed', $data, function ($message) use ($data, $file_name) {
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
-                    ->cc([env('FINANCE_CC_2')])
+                    ->cc([env('FINANCE_CC_2', '')])
                     ->subject($data['title'])
                     ->attach(Storage::url('invoice/client/' . $file_name));
             });
@@ -949,7 +949,7 @@ class InvoiceProgramController extends Controller
         try {
             Mail::send($mail_resources, $params, function ($message) use ($params, $subject) {
                 $message->to($params['parent_mail'], $params['parent_fullname'])
-                    ->cc([env('FINANCE_CC'), env('FINANCE_CC_2')])
+                    ->cc([env('FINANCE_CC'), env('FINANCE_CC_2', '')])
                     ->subject($subject);
             });
         } catch (Exception $e) {
