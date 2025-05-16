@@ -134,7 +134,11 @@ class PaymentGatewayController extends Controller
         # prevent transaction generated more than once by
         # checking the transaction table using invoice_id, installment_id, and invoice_number
         # if by those data transaction could be found, then use the transaction ID of existing data
-        $transactions = Transaction::where('invoice_id', $invoice_id)->where('installment_id', $invoice_dtl_id)->where('invoice_number', $invoice_number)->orderBy('created_at', 'asc')->get();
+        $transactions = Transaction::where('invoice_id', $invoice_id)->
+                    where('installment_id', $invoice_dtl_id)->
+                    where('invoice_number', $invoice_number)->
+                    orderBy('created_at', 'asc')->
+                    get();
         if ( $transactions->count() > 0 )
         {
             //! this is the idea : since every time we hit their check-status endpoint
@@ -318,15 +322,16 @@ class PaymentGatewayController extends Controller
             $client_prog_model = $transaction->invoice_id === null ? $invoice_model->invoiceProgram->clientprog : $invoice_model->clientprog;
             $client_prog = $this->clientProgramRepository->getClientProgramById($client_prog_model->clientprog_id);
 
-            if ( !$payment_status != "SETLD" )
+            if ( $payment_status != "SETLD" )
             {
-                $log_service->createErrorLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, "Payment status is {$payment_status}" , $request->getLine(), $request->getFile(), $request->all());
-                return response()->json([
-                    'message' => 'Payment received',
-                    'data' => [
-                        'payment_status' => $payment_status
-                    ]
-                ]);
+                throw new Exception("Payment status is {$payment_status}");
+                // $log_service->createErrorLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, "Payment status is {$payment_status}" , $request->getLine(), $request->getFile(), $request->all());
+                // return response()->json([
+                //     'message' => 'Payment received',
+                //     'data' => [
+                //         'payment_status' => $payment_status
+                //     ]
+                // ]);
             }
 
             # store in Log if the client has paid more than it should be
