@@ -147,8 +147,8 @@ Route::get('paymentpage/web/payment-page/render-page', function (Request $reques
         'keyId' => $request->query('keyId'),
         'pkg' => $request->query('pkg'),
     );
-    $redirect = env('PAYMENT_WEB_URI') . '?' . http_build_query($query);
-    Redirect::to($redirect);
+    $redirect = env('PAYMENT_WEB_URI') . 'paymentpage/web/payment-page/render-page?' . http_build_query($query);
+    return Redirect::to($redirect);
 })->name('payment-web.render-page');
 
 # PAYMENT GATEWAY END -------------------------------
