@@ -254,6 +254,7 @@ class InvoiceProgramController extends Controller
             # Use Trait Create Invoice Id
             $inv_id = $this->getInvoiceId($last_id, $client_prog->prog_id, $invoice_details['invoice_date']);
 
+            # if is_bundle == yes
             if($request->is_bundle > 0){
                 
                 $bundling_details = $this->clientProgramRepository->getBundleProgramDetailByBundlingId($client_prog->bundlingDetail->bundling_id);
