@@ -137,6 +137,7 @@ class PaymentGatewayController extends Controller
         $transactions = Transaction::where('invoice_id', $invoice_id)->
                     where('installment_id', $invoice_dtl_id)->
                     where('invoice_number', $invoice_number)->
+                    whereNot('trx_id', $trx_id)->
                     orderBy('created_at', 'asc')->
                     get();
         if ( $transactions->count() > 0 )
