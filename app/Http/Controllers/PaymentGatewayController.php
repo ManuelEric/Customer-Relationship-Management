@@ -8,6 +8,7 @@ use App\Http\Requests\Payment\GenerateLinkRequest;
 use App\Http\Traits\BankCodeTrait;
 use App\Http\Traits\PaymentGateway\CalculateFeeTrait as CalculatePaymentGatewayFeeTrait;
 use App\Http\Traits\RandomDigitTrait;
+use App\Http\Traits\RupiahFormatterTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
@@ -31,7 +32,7 @@ use Riskihajar\Terbilang\Facades\Terbilang;
 
 class PaymentGatewayController extends Controller
 {
-    use BankCodeTrait, RandomDigitTrait, StandardizePhoneNumberTrait, CalculatePaymentGatewayFeeTrait;
+    use BankCodeTrait, RandomDigitTrait, StandardizePhoneNumberTrait, CalculatePaymentGatewayFeeTrait, RupiahFormatterTrait;
 
     protected $log_service;
     protected ClientProgramRepositoryInterface $clientProgramRepository;
@@ -205,7 +206,7 @@ class PaymentGatewayController extends Controller
             'external_id' => (string) $trx_id,
             'other_bills' => json_encode([[
                 'title' => 'admin fee',
-                'value' => round($fees)
+                'value' => $this->formatRupiah(round($fees))
             ]])
         ];
 
