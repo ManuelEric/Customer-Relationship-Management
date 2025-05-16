@@ -77,6 +77,13 @@ class PrismaLinkCheckStatusAction
                 $message = "Check status complete";
                 break;
 
+            case "REJEC":
+                # update the transaction status
+                $transaction = Transaction::where('plink_ref_no', $request_body['plink_ref_no'])->first();
+                $transaction->payment_status = $response['transaction_status'];
+                $transaction->save();
+                break;
+
             case "SETLD":
                 # update the transaction status
                 $transaction = Transaction::where('plink_ref_no', $request_body['plink_ref_no'])->first();
