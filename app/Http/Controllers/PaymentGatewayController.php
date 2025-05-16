@@ -295,20 +295,15 @@ class PaymentGatewayController extends Controller
 
         $this->log_service->createSuccessLog(LogModule::CREATE_PAYMENT_LINK, 'Payment link created successfully', $trx->toArray());
 
+        $payment_page_url = $response['payment_page_url'];
+        $request = Request::create($payment_page_url);
+        $query_params_from_request = $request->query();
+        $route = route('payment-web.render-page', $query_params_from_request);
         
         return response()->json([
             'response_description' => 'SUCCESS',
             // 'payment_link' => env('APP_URL').$response['payment_page_url']
-            'payment_link' => function () use ($response) {
-
-                $payment_page_url = $response['payment_page_url'];
-                $request = Request::create($payment_page_url);
-
-                $query_params_from_request = $request->query();
-
-                $route = route('payment-web.render-page', $query_params_from_request);
-                return $route;
-            }
+            'payment_link' => $route
         ]);
     }
 
