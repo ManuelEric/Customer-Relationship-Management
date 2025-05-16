@@ -97,7 +97,7 @@ class Kernel extends ConsoleKernel
         /**
          * cron for check status transaction
          */
-        $schedule->command('payment:check-status')->withoutOverlapping()->everyMinute();
+        // $schedule->command('payment:check-status')->withoutOverlapping()->everyMinute();
 
         /**
          * Purge revoked and expired tokens and auth codes
