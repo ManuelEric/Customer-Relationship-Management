@@ -11,7 +11,9 @@ use App\Jobs\JobCoba;
 use App\Models\UserClient;
 use App\Models\ClientProgram;
 use App\Models\ClientEvent;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 
 
@@ -136,3 +138,17 @@ Route::resource('user/volunteer', VolunteerController::class);
 Route::resource('profile', ProfileController::class);
 
 # PROFILE END -----------------------------------------
+
+# PAYMENT GATEWAY START -----------------------------
+
+Route::get('paymentpage/web/payment-page/render-page', function (Request $request) {
+    $query = array(
+        'pgid' => $request->query('pgid'),
+        'keyId' => $request->query('keyId'),
+        'pkg' => $request->query('pkg'),
+    );
+    $redirect = env('PAYMENT_WEB_URI') . '?' . http_build_query($query);
+    Redirect::to($redirect);
+})->name('payment-web.render-page');
+
+# PAYMENT GATEWAY END -------------------------------
