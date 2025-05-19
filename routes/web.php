@@ -148,6 +148,11 @@ Route::get('paymentpage/web/payment-page/render-page', function (Request $reques
         'pkg' => $request->query('pkg'),
     );
     $redirect = env('PAYMENT_WEB_URI') . '/paymentpage/web/payment-page/render-page?' . http_build_query($query);
+    // return view('pages.payment-page.render-page', [
+    //     'redirectUrl' => $redirect,
+    // ]);
+
+    sleep(10);
     return Redirect::to($redirect);
 })->name('payment-web.render-page');
 
