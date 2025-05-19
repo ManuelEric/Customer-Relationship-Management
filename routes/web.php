@@ -152,7 +152,6 @@ Route::get('paymentpage/web/payment-page/render-page', function (Request $reques
     //     'redirectUrl' => $redirect,
     // ]);
 
-    sleep(10);
     return Redirect::to($redirect);
 })->name('payment-web.render-page');
 
