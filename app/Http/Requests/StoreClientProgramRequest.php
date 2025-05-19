@@ -418,8 +418,8 @@ class StoreClientProgramRequest extends FormRequest
                     }
 
                     if (UserClient::whereHas('clientMentor', function($query) use ($value) {
-                        $query->where('users.id', $value);
-                    })->where('id', $studentId)->count() > 0) {
+                            $query->where('user_id', $value);
+                        })->where('tbl_client.id', $studentId)->count() > 0) {
                         $fail('The choosen backup mentor has already exist');
                     }
                 },
@@ -435,7 +435,7 @@ class StoreClientProgramRequest extends FormRequest
                         $fail('The submitted mentor was invalid mentor');
                     }
                     if (UserClient::whereHas('clientMentor', function($query) use ($value) {
-                        $query->where('users.id', $value);
+                        $query->where('user_id', $value);
                     })->where('id', $studentId)->count() > 0) {
                         $fail('The choosen backup mentor has already exist');
                     }
@@ -451,7 +451,7 @@ class StoreClientProgramRequest extends FormRequest
                     }
 
                     if (UserClient::whereHas('clientMentor', function($query) use ($value) {
-                        $query->where('users.id', $value);
+                        $query->where('user_id', $value);
                     })->where('id', $studentId)->count() > 0) {
                         $fail('The choosen backup mentor has already exist');
                     }
@@ -469,7 +469,7 @@ class StoreClientProgramRequest extends FormRequest
                     }
 
                     if (UserClient::whereHas('clientMentor', function($query) use ($value) {
-                        $query->where('users.id', $value);
+                        $query->where('user_id', $value);
                     })->where('id', $studentId)->count() > 0) {
                         $fail('The choosen backup mentor has already exist');
                     }
@@ -695,7 +695,7 @@ class StoreClientProgramRequest extends FormRequest
                     }
 
                     if (UserClient::whereHas('clientMentor', function($query) use ($value) {
-                        $query->where('users.id', $value);
+                        $query->where('user_id', $value);
                     })->where('id', $studentId)->count() > 0) {
                         $fail('The choosen tutor has already exist');
                     }
