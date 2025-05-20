@@ -49,8 +49,13 @@ class PaymentGatewayController extends Controller
         $this->log_service = $log_service;
         $this->clientProgramRepository = $clientProgramRepository;
         $this->receiptRepository = $receiptRepository;
-        $this->admin_fee_va = 4000;
-        $this->admin_fee_cc = 2500; // not include 2.8%
+
+        /* From website Prismalink */
+        // $this->admin_fee_va = 4000;
+        // $this->admin_fee_cc = 2500; // not include 2.8%
+
+        /* PKS w/ Prismalink */
+        $this->admin_fee_cc = 1500; // not include 2.5%
     }
 
     public function redirectPayment(Request $request)
@@ -76,7 +81,7 @@ class PaymentGatewayController extends Controller
         $validated = $request->safe()->only(['payment_method', 'bank', 'installment', 'id']);
         $payment_method = $validated['payment_method'];
         $bank_name = $validated['bank'] ?? null;
-        $bank_id = $bank_name ? $this->getCodeBank($bank_name) : null;
+        [$bank_id, $bank_va_fee] = $bank_name ? $this->getCodeBank($bank_name) : null;
         $installment = $validated['installment'];
         $identifier = $validated['id'];
         $trx_currency = 'IDR';
@@ -118,7 +123,7 @@ class PaymentGatewayController extends Controller
             $remarks = $invoice->clientprog->invoice_program_name;
         }
         
-        $fees = $this->calculateFee($payment_method, $trx_amount);
+        $fees = $this->calculateFee($payment_method, $bank_va_fee, $trx_amount);
         
         $invoice_number = $invoice->inv_id;
         $parent_number = $client->parents->count() > 0 ? $client->parents[0]->secondary_id : $client->secondary_id;
@@ -169,7 +174,7 @@ class PaymentGatewayController extends Controller
 
         }
 
-        $total_transaction_with_fee = $trx_amount + $fees;
+        $total_transaction_with_fee = round($trx_amount + $fees);
         
         # create request body
         $request_body = [
@@ -210,7 +215,7 @@ class PaymentGatewayController extends Controller
             // 'validity' => Carbon::now()->addMinutes(10)->format('Y-m-d H:i:s.v O'),
             'external_id' => (string) $trx_id,
             'other_bills' => json_encode([[
-                'title' => 'admin fee',
+                'title' => 'Admin fee',
                 'value' => $this->formatRupiah(round($fees))
             ]])
         ];
