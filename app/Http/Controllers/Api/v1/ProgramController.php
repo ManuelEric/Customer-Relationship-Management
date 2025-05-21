@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\v1;
 use App\Http\Controllers\Controller;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Models\MainProg;
+use App\Models\Program;
 use App\Models\SubProg;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -49,7 +50,11 @@ class ProgramController extends Controller
         try {
 
             // only show program active
-            return response()->json($main_prog->program()->where('sub_prog_id', $sub_prog->id)->where('active', 1)->get()->makeHidden(['created_at', 'updated_at']));
+            $result = $main_prog->program()->when($sub_prog->id, function ($query) use ($sub_prog) {
+                $query->where('sub_prog_id', $sub_prog->id);
+            })->where('active', 1)->get()->makeHidden(['created_at', 'updated_at']);
+
+            return response()->json($result);
         } catch (Exception $err) {
             return response()->json([
                 'message' => $err->getMessage()

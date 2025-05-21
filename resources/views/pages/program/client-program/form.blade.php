@@ -904,13 +904,15 @@
 
  
         function changeProgramStatus() {
+
+            // prevent to trigger this function if options within select program name are null
             if ($("#program_name > option").length <= 1)
                 return
 
             var program = $("#program_name option:selected")
 
             let programName = program.text()
-            let prog_mentor = program.data('pmentor');
+            let prog_mentor = program.data('pmentor')
             let programMainProg = program.data('mprog')
             let programSubProg = program.data('sprog')
             let programStatus = $('#program_status').val()
@@ -931,6 +933,8 @@
                         {
                             // open form detail of tutoring program
                             $("#pending_tutoring").removeClass('d-none')
+
+                            resetDetailTutoring(programMainProg, 0)
                         }
                     break;
 
@@ -953,7 +957,8 @@
                             }
                             else
                             {
-                                // default open form for test preparation
+                                // default open form for test preparation exclude SAT/ACT, subject tutoring, competition, and skillset tutoring
+                                resetDetailTutoring(programMainProg, 1) 
                                 $("#success_tutoring").removeClass('d-none')
                             }
                         }
@@ -1010,6 +1015,39 @@
 
         }
 
+        function resetDetailTutoring(programMainProg, programStatus)
+        {
+            var stringField = programStatus == 0 ? 'pending' : 'success'
+            if (programMainProg == "Test Preparation")
+            {
+                $(`.${stringField}-tutoring-test-preparation-field`).removeClass('d-none')
+                $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
+            }
+            else if (programMainProg == "Subject Tutoring")
+            {
+                $(`.${stringField}-tutoring-test-preparation-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-subject-tutoring-field`).removeClass('d-none')
+                $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
+            }
+            else if (programMainProg == "Competition")
+            {
+                $(`.${stringField}-tutoring-test-preparation-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-competition-field`).removeClass('d-none')
+                $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
+            }
+            else if (programMainProg == "Skillset Tutoring")
+            {
+                $(`.${stringField}-tutoring-test-preparation-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-skillset-tutoring-field`).removeClass('d-none')
+            }
+        }
+
         function getSubProgram(main_prog_id) {
             showLoading()
             $("#program_status").val(0).change() // trigger to change status into pending when changing main program
@@ -1022,6 +1060,15 @@
             })
             .then(function (response) {
                 let obj = response.data;
+
+                // if main program doesn't have sub program
+                if (obj.length == 0)
+                {
+                    $("#sub_program").addClass('d-none')
+                    getProgramName(main_prog_id, '')
+                    return
+                }
+            
                 let html = '<option data-placeholder="true"></option>';
                 $.each(obj, function (i, item) {
                     html += '<option value="' + item.id + '">' + item.sub_prog_name + '</option>';

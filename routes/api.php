@@ -104,7 +104,7 @@ Route::get('get/program/main/{mainProgId}', [APIProgramController::class, 'getPr
 Route::get('get/sub-program/main/{main_prog}', [APIProgramController::class, 'getSubProgramNameByMainProgramId']);
 
 # Get Program Name based on Main and Sub Program Id
-Route::get('get/program/main/{main_prog}/sub/{sub_prog}', [APIProgramController::class, 'getProgramNameByMainAndSubProgramId']);
+Route::get('get/program/main/{main_prog}/sub/{sub_prog?}', [APIProgramController::class, 'getProgramNameByMainAndSubProgramId']);
 
 Route::group(['middleware' => 'crm.key'], function () {
     Route::post('assessment/update', [ExtClientController::class, 'updateTookIA']);
