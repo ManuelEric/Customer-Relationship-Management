@@ -32,6 +32,7 @@ use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\Client\ProcessInsertLogClient;
 use App\Models\Bundling;
 use App\Models\BundlingDetail;
+use App\Models\MainProg;
 use App\Models\Program;
 use App\Models\School;
 use App\Models\UserClient;
@@ -223,6 +224,9 @@ class ClientProgramController extends Controller
 
         $reasons = $this->reasonRepository->getReasonByType('Program');
 
+        /* add on for program flexibility */
+        $main_programs = MainProg::orderBy('prog_name', 'asc')->get();
+
         return view('pages.program.client-program.form')->with(
             [
                 'p' => $p,
@@ -239,6 +243,9 @@ class ClientProgramController extends Controller
                 'tutors' => $tutors,
                 'mentors' => $mentors,
                 'reasons' => $reasons,
+
+                /* add on */
+                'main_programs' => $main_programs,
             ]
         );
     }

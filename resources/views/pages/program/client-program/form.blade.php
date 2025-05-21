@@ -87,14 +87,48 @@
                         <div class="row mb-2">
                             <div class="col-md-3">
                                 <label for="">
-                                    Program Name <sup class="text-danger">*</sup>
+                                    Program <sup class="text-danger">*</sup>
+                                </label>
+                            </div>
+                            <div class="col-md-9">
+                                <select name="main_prog" id="main_program" class="select w-100" {{ $disabled }}
+                                    onchange="getSubProgram($(this).val())">
+                                    <option data-placeholder="true"></option>
+                                    @foreach ($main_programs as $main_program)
+                                        <option value="{{ $main_program->id }}">{{ $main_program->prog_name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('main_prog')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-3">
+                                <label for="">
+                                    Sub Program <sup class="text-danger">*</sup>
+                                </label>
+                            </div>
+                            <div class="col-md-9">
+                                <select name="sub_program" id="sub_program" class="select w-100" disabled onchange="getProgramName($('#main_program').val(),$(this).val())">
+                                    <option data-placeholder="true"></option>
+                                </select>
+                                @error('sub_program')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-3">
+                                <label for="">
+                                    Program Name
                                 </label>
                             </div>
                             <div class="col-md-9">
                                 <select name="prog_id" id="program_name" class="select w-100"
-                                    onchange="changeProgramStatus()" {{ $disabled }}>
+                                    onchange="changeProgramStatus()" disabled>
                                     <option data-placeholder="true"></option>
-                                    @foreach ($programs as $program)
+                                    {{-- @foreach ($programs as $program)
                                         <option data-pmentor="{{ $program->prog_mentor }}"
                                             data-mprog="{{ $program->main_prog->prog_name }}"
                                             data-sprog="{{ isset($program->sub_prog->sub_prog_name) ? $program->sub_prog->sub_prog_name : null }}"
@@ -104,7 +138,7 @@
                                                 {{ 'selected' }} @endif>
                                             {{ isset($program->sub_prog->sub_prog_name) ? $program->sub_prog->sub_prog_name . ' - ' : '' }}
                                             {{ $program->prog_program }}</option>
-                                    @endforeach
+                                    @endforeach --}}
                                 </select>
                                 @error('prog_id')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -383,7 +417,7 @@
                                         @enderror
                                     </div>
 
-                                    <div class="col-md-12 mt-2 program-detail" id="refund_notes">
+                                    <div class="col-md-12 mt-2 program-detail d-none" id="refund_notes">
                                         <label for="">Refund Notes</label>
                                         <textarea name="refund_notes" id="">{{ isset($clientProgram->refund_notes) ? $clientProgram->refund_notes : old('refund_notes') }}</textarea>
                                     </div>
@@ -870,8 +904,11 @@
 
  
         function changeProgramStatus() {
+            if ($("#program_name > option").length <= 1)
+                return
 
             var program = $("#program_name option:selected")
+
             let programName = program.text()
             let prog_mentor = program.data('pmentor');
             let programMainProg = program.data('mprog')
@@ -880,79 +917,174 @@
             $('.program-detail').addClass('d-none')
             $('.mentor-tutor').addClass('d-none')
 
-            if (programName) {
-                if (programStatus == 0) { // pending
-                    if (programMainProg.includes('Admission') || programSubProg.includes('Admission')) { // mentoring
+            // if (programName) {
+                switch (parseInt(programStatus)) 
+                {
+                    // program status = pending
+                    case 0:
+                        if (programMainProg.includes('Admissions Mentoring'))
+                        {
+                            // open form detail of admissions mentoring
+                            $("#pending_mentoring").removeClass('d-none')
+                        }
+                        else if (programMainProg.includes('Test Preparation') || programMainProg.includes('Subject Tutoring') || programMainProg.includes('Competition') || programMainProg.includes('Skillset Tutoring')) 
+                        {
+                            // open form detail of tutoring program
+                            $("#pending_tutoring").removeClass('d-none')
+                        }
+                    break;
 
-                        $('#pending_mentoring').removeClass('d-none')
+                    // program status = success
+                    case 1:
+                        $("#success_date").removeClass('d-none')
+                        $("#running_status").removeClass('d-none')
 
-                    } else if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring') || programSubProg.includes('Competition')) {
-
-                        $('#pending_tutoring').removeClass('d-none')
-
-                    }
-                } else if (programStatus == 1) { // success
-                    $('#success_date').removeClass('d-none')
-                    $('#running_status').removeClass('d-none')
-
-                    // Detail Program Check 
-                    if (programMainProg.includes('Admission') || programSubProg.includes('Admission')) { // mentoring
-                        $('#success_mentoring').removeClass('d-none')
-                    } else if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring') || programSubProg.includes('Competition')) {
-                        $('#success_tutoring').removeClass('d-none')
-                    } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg
-                        .includes(
-                            'SAT') || programSubProg.includes('SAT')) {
-
-                        $('#success_sat_act').removeClass('d-none')
-                    }
-
-                    // Mentor & Tutor Needs Check 
-                    switch (prog_mentor) {
-                        case "Mentor":
-                            $("#available-mentor").removeClass("d-none")
-                            $("#available-tutor").addClass("d-none")
-
-                            break;
-
-                        case "Tutor":
-                            $("#available-mentor").addClass("d-none")
-                            $("#available-tutor").removeClass("d-none")
-                            if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring') || programSubProg.includes('Competition')) {
-                                $('#tutoring').removeClass('d-none')
-                                $('#sat-act').addClass('d-none')
-                            } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg
-                                .includes('SAT') || programSubProg.includes('SAT')) {
-                                $('#tutoring').addClass('d-none')
-                                $('#sat-act').removeClass('d-none')
-                            } else if (programStatus == 4) { // hold
-                                $('#reason').removeClass('d-none')
-
+                        if (programMainProg.includes('Admissions Mentoring'))
+                        {
+                            // open form detail of admissions mentoring
+                            $("#success_mentoring").removeClass('d-none')
+                        }
+                        else if (programMainProg.includes('Test Preparation') || programMainProg.includes('Subject Tutoring') || programMainProg.includes('Competition') || programMainProg.includes('Skillset Tutoring'))
+                        {
+                            if (programSubProg.includes('SAT'))
+                            {
+                                // open form detail of SAT
+                                $('#success_sat_act').removeClass('d-none')
                             }
-                            break;
-                    }
+                            else
+                            {
+                                // default open form for test preparation
+                                $("#success_tutoring").removeClass('d-none')
+                            }
+                        }
 
-                } else if (programStatus == 2) { // failed
-                    $('#failed_date').removeClass('d-none')
-                    $('#reason').removeClass('d-none')
-                    $('#reason_notes').removeClass('d-none')
-                } else if (programStatus == 3) { // refund
-                    $('#refund_date').removeClass('d-none')
-                    $('#refund_notes').removeClass('d-none')
-                    $('#reason').removeClass('d-none')
-                    $('#reason_notes').removeClass('d-none')
+                        // Mentor & Tutor Needs Check 
+                        switch (prog_mentor) {
+                            case "Mentor":
+                                $("#available-mentor").removeClass("d-none")
+                                $("#available-tutor").addClass("d-none")
+
+                                break;
+
+                            case "Tutor":
+                                $("#available-mentor").addClass("d-none")
+                                $("#available-tutor").removeClass("d-none")
+                                if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring') || programSubProg.includes('Competition')) {
+                                    $('#tutoring').removeClass('d-none')
+                                    $('#sat-act').addClass('d-none')
+                                } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg
+                                    .includes('SAT') || programSubProg.includes('SAT')) {
+                                    $('#tutoring').addClass('d-none')
+                                    $('#sat-act').removeClass('d-none')
+                                } else if (programStatus == 4) { // hold
+                                    $('#reason').removeClass('d-none')
+
+                                }
+                                break;
+                        }
+                    break;
+
+                    // program status = failed
+                    case 2:
+                        $('#failed_date').removeClass('d-none')
+                        $('#reason').removeClass('d-none')
+                        $('#reason_notes').removeClass('d-none')
+                    break;
+
+                    // program status = refund
+                    case 3:
+                        $('#refund_date').removeClass('d-none')
+                        $('#refund_notes').removeClass('d-none')
+                        $('#reason').removeClass('d-none')
+                        $('#reason_notes').removeClass('d-none')
+                    break;
                 }
-            } else {
-                notification('warning', 'Please, select program name first!')
-                $('#program_status').select2('destroy');
-                $('#program_status').val(null);
-                $('#program_status').select2({
-                    placeholder: "Select value",
-                    allowClear: true
-                });
-                $('#program_name').select2('open');
-            }
 
+            // } else {
+            //     notification('warning', 'Please, select program name first!')
+            //     $('#program_status').select2('destroy').val(null).select2({
+            //         placeholder: "Select value",
+            //         allowClear: true
+            //     }).select2('open');
+            // }
+
+        }
+
+        function getSubProgram(main_prog_id) {
+            showLoading()
+            $("#program_status").val(0).change() // trigger to change status into pending when changing main program
+            var link = '{{ url('api/get/sub-program/main') }}/' + main_prog_id
+
+            axios.get(link, {
+                headers: {
+                    'crm-authorization': '{{env("CRM_AUTHORIZATION_KEY")}}'
+                }
+            })
+            .then(function (response) {
+                let obj = response.data;
+                let html = '<option data-placeholder="true"></option>';
+                $.each(obj, function (i, item) {
+                    html += '<option value="' + item.id + '">' + item.sub_prog_name + '</option>';
+                });
+                $('#sub_program').html(html).select2({
+                    placeholder: 'Select value',
+                    allowClear: true
+                }).attr('disabled', false);
+                swal.close()
+
+                // count the html of program name
+                if ( $("#program_name > option").length > 1 ) {
+
+                    $("#program_name").html("").select2({
+                        placeholder: 'Select value',
+                        allowClear: true
+                    }).attr('disabled', true);
+                    $("#program_name").val(null).trigger('change')
+
+                }
+            })
+            .catch(function (error) {
+                swal.close()
+                notification('error', error.message)
+            })
+        }
+
+        function getProgramName(main_prog_id, sub_prog_id) {
+            showLoading()
+            var link = '{{ url('api/get/program/') }}/main/' + main_prog_id + '/sub/' + sub_prog_id
+
+            axios.get(link, {
+                headers: {
+                    'crm-authorization': '{{env("CRM_AUTHORIZATION_KEY")}}'
+                }
+            })
+            .then(function (response) {
+                let obj = response.data;
+                let html = '<option data-placeholder="true"></option>';
+                $.each(obj, function (i, item) {
+                    var prog_mentor = item.prog_mentor
+                    var main_prog_name = item.main_prog.prog_name
+                    var sub_prog_name = item.sub_prog?.sub_prog_name
+                    var prog_id = item.prog_id
+                    var prog_program = item.prog_program
+
+                    html += '<option data-pmentor="'+ prog_mentor + '"' +
+                            ' data-mprog="' + main_prog_name + '"' +
+                            ' data-sprog="' + sub_prog_name + '"' +
+                            ' value="' + prog_id + '">' + prog_program + '</option>';
+                });
+                
+                $('#program_name').html(html).select2({
+                    placeholder: 'Select value',
+                    allowClear: true
+                }).attr('disabled', false);
+                swal.close()
+                
+            })
+            .catch(function (error) {
+                swal.close()
+                notification('error', error.message)
+            })
         }
 
     </script>
