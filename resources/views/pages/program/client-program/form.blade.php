@@ -1064,7 +1064,10 @@
                 // if main program doesn't have sub program
                 if (obj.length == 0)
                 {
-                    $("#sub_program").addClass('d-none')
+                    $("#sub_program").html("").select2({
+                        placeholder: 'Select value',
+                        allowClear: true
+                    }).attr('disabled', true);
                     getProgramName(main_prog_id, '')
                     return
                 }
@@ -1073,6 +1076,7 @@
                 $.each(obj, function (i, item) {
                     html += '<option value="' + item.id + '">' + item.sub_prog_name + '</option>';
                 });
+
                 $('#sub_program').html(html).select2({
                     placeholder: 'Select value',
                     allowClear: true
