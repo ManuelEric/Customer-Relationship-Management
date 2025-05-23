@@ -7,6 +7,7 @@ use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Models\ClientProgram;
 use App\Models\Lead;
+use App\Models\MainProg;
 use App\Models\Program;
 use App\Models\User;
 use App\Models\UserClient;
@@ -29,20 +30,17 @@ class StoreClientProgramRequest extends FormRequest
         return true;
     }
 
-    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, ClientProgramRepositoryInterface $clientProgramRepository)
+    public function messages()
     {
-        $this->admission_prog_id = Program::whereHas('main_prog', function($query) {
-                                        $query->where('prog_name', 'Admissions Mentoring');
-                                    })->orWhereHas('sub_prog', function ($query) {
-                                        $query->where('sub_prog_name', 'Admissions Mentoring');
-                                    })->pluck('prog_id')->toArray();
+        return [
+            'prog_id.required' => 'The program name field is required',
+            'lead_id.required' => 'The lead name field is required',
+            'empl_id.required' => 'The PIC name field is required',
+        ];
+    }
 
-        $this->tutoring_prog_id = Program::whereHas('main_prog', function($query) {
-                                        $query->where('prog_name', 'Academic & Test Preparation');
-                                    })->orWhereHas('sub_prog', function ($query) {
-                                        $query->where('sub_prog_name', 'like', '%Tutoring%')->orWhere('sub_prog_name', 'like', '%Competition%');;
-                                    })->pluck('prog_id')->toArray();
-                                    
+    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, ClientProgramRepositoryInterface $clientProgramRepository)
+    {                                    
         $this->clientRepository = $clientRepository;
         $this->programRepository = $programRepository;
         $this->clientProgramRepository = $clientProgramRepository;
@@ -55,20 +53,23 @@ class StoreClientProgramRequest extends FormRequest
      */
     public function rules()
     {
+        /* collection of admission mentoring program */
+        $admission_prog_id = Program::admissionProgList()->pluck('prog_id')->toArray();
 
-        $admission_prog_id = Program::whereHas('main_prog', function($query) {
-                                $query->where('prog_name', 'Admissions Mentoring');
-                            })->orWhereHas('sub_prog', function ($query) {
-                                $query->where('sub_prog_name', 'Admissions Mentoring');
-                            })->pluck('prog_id')->toArray();
+        /* collection of tutoring program */
+        $tutoring_prog_id = Program::tutoringProgList()->pluck('prog_id')->toArray();
 
-        $tutoring_prog_id = Program::whereHas('sub_prog', function ($query) {
-                                $query->where('sub_prog_name', 'like', '%Tutoring%')->orWhere('sub_prog_name', 'like', '%Competition%');;
-                            })->pluck('prog_id')->toArray();
+        /* collection of subject tutoring */
+        $subject_tutoring_prog_id = Program::subjectTutoringProgList()->pluck('prog_id')->toArray();
 
-        $satact_prog_id = Program::whereHas('sub_prog', function ($query) {
-                                $query->where('sub_prog_name', 'like', '%SAT%')->orWhere('sub_prog_name', 'like', '%ACT%');
-                            })->pluck('prog_id')->toArray();
+        /* collection of competition */
+        $competition_prog_id = Program::competitionProgList()->pluck('prog_id')->toArray();
+
+        /* collection of skillset tutoring */
+        $skillset_tutoring_prog_id = Program::skillsetTutoringProgList()->pluck('prog_id')->toArray();
+
+        /* collection of SAT ACT program */
+        $satact_prog_id = Program::sATACTProgList()->pluck('prog_id')->toArray();
 
         $studentId = $this->route('student');
         $student = $this->clientRepository->getClientById($studentId);
@@ -110,7 +111,7 @@ class StoreClientProgramRequest extends FormRequest
 
                 if (in_array($this->input('prog_id'), $admission_prog_id))
                     $rules = $this->store_admission_pending($isMentee);
-                elseif (in_array($this->input('prog_id'), $tutoring_prog_id))
+                elseif (in_array($this->input('prog_id'), $tutoring_prog_id) || in_array($this->input('prog_id'), $subject_tutoring_prog_id) || in_array($this->input('prog_id'), $competition_prog_id) || in_array($this->input('prog_id'), $subject_tutoring_prog_id) || in_array($this->input('prog_id'), $satact_prog_id) )
                     $rules = $this->store_tutoring_pending($isMentee);
                 else {
                     $rules = [
@@ -138,7 +139,7 @@ class StoreClientProgramRequest extends FormRequest
                                     $fail('The submitted pic was invalid employee');
                                 }
                             },
-                        ]
+                        ],
                     ];
                 }
 
@@ -170,7 +171,7 @@ class StoreClientProgramRequest extends FormRequest
                         }
                     ];
 
-                } elseif (in_array($this->input('prog_id'), $tutoring_prog_id)){
+                } elseif (in_array($this->input('prog_id'), $tutoring_prog_id) || in_array($this->input('prog_id'), $subject_tutoring_prog_id) || in_array($this->input('prog_id'), $competition_prog_id) || in_array($this->input('prog_id'), $skillset_tutoring_prog_id)){
                     $rules = $this->store_tutoring_success($isMentee);
                 }elseif (in_array($this->input('prog_id'), $satact_prog_id)){
                     $rules = $this->store_satact_success($isMentee, $studentId);
@@ -549,7 +550,22 @@ class StoreClientProgramRequest extends FormRequest
                         $fail('The submitted pic was invalid employee');
                     }
                 },
-            ]
+            ],
+            'package' => [
+                function ($attribute, $value, $fail) {
+                    // required only for tutoring program
+                    if ( Program::where('main_prog_id', $this->input('main_prog'))->first()->prog_mentor == 'Tutor' && $value == null ) {
+                        $fail('The package field is required');
+                    }
+                }
+            ],
+            'curriculum' => [
+                function ($attribute, $value, $fail) {
+                    if ( MainProg::where('id', $this->input('main_prog'))->first()->prog_name == 'Subject Tutoring' && $value == null) {
+                        $fail('The curriculum field is required');
+                    }
+                }
+            ],
         ];
     }
 
@@ -613,6 +629,21 @@ class StoreClientProgramRequest extends FormRequest
                 },
             ],
             'prog_running_status' => 'required',
+            'package' => [
+                function ($attribute, $value, $fail) {
+                    // required only for tutoring program
+                    if ( Program::where('main_prog_id', $this->input('main_prog'))->first()->prog_mentor == 'Tutor' && $value == null ) {
+                        $fail('The package field is required');
+                    }
+                }
+            ],
+            'curriculum' => [
+                function ($attribute, $value, $fail) {
+                    if ( MainProg::where('id', $this->input('main_prog'))->first()->prog_name == 'Subject Tutoring' && $value == null) {
+                        $fail('The curriculum field is required');
+                    }
+                }
+            ],
         ];
 
         // if ($invoice_exist) {
@@ -704,6 +735,14 @@ class StoreClientProgramRequest extends FormRequest
             'timesheet_1' => 'required_if:tutor_1,!=,null',
             'timesheet_2' => 'required_if:tutor_2,!=,null',
             'prog_running_status' => 'required',
+            'package' => [
+                function ($attribute, $value, $fail) {
+                    // required only for tutoring program
+                    if ( Program::where('main_prog_id', $this->input('main_prog'))->first()->prog_mentor == 'Tutor' && $value == null ) {
+                        $fail('The package field is required');
+                    }
+                }
+            ],
         ];
     }
 }

@@ -95,7 +95,10 @@
                                     onchange="getSubProgram($(this).val())">
                                     <option data-placeholder="true"></option>
                                     @foreach ($main_programs as $main_program)
-                                        <option value="{{ $main_program->id }}">{{ $main_program->prog_name }}</option>
+                                        <option value="{{ $main_program->id }}"
+                                            @selected(!empty(old('main_prog')) && old('main_prog') == $main_program->id)
+                                            {{-- @selected(isset($clientProgram) && $clientProgram->program->main_prog_id == $main_program->id) --}}
+                                            >{{ $main_program->prog_name }}</option>
                                     @endforeach
                                 </select>
                                 @error('main_prog')
@@ -121,7 +124,7 @@
                         <div class="row mb-2">
                             <div class="col-md-3">
                                 <label for="">
-                                    Program Name
+                                    Program Name <sup class="text-danger">*</sup>
                                 </label>
                             </div>
                             <div class="col-md-9">
@@ -169,10 +172,9 @@
                                                 {{-- <option value="program">ALL-in Event</option>
                                                 <option value="edufair">Edufair External</option> --}}
                                                 <option data-lead="KOL" value="kol"
-                                                    @if (old('lead_id') && old('lead_id') == 'kol') {{ 'selected' }}
-                                                    @elseif (isset($clientProgram->lead_id) && $clientProgram->lead->main_lead == 'KOL')
-                                                        {{ 'selected' }} @endif>
-                                                    KOL</option>
+                                                    @selected(old('lead_id') && old('lead_id') == 'kol')
+                                                    @selected(isset($clientProgram->lead_id) && $clientProgram->lead_id == 'kol')
+                                                    >KOL</option>
                                             @endif
                                         </select>
                                         @error('lead_id')
@@ -839,7 +841,7 @@
             var lead = $(this).select2().find(":selected").data('lead')
             let programName = program.text()
 
-            if (programName) {
+            // if (programName) {
                 if (lead.includes('EduALL Event')) {
 
                     $("#event").removeClass('d-none')
@@ -890,16 +892,16 @@
                     $("#referral").addClass("d-none")
 
                 }
-            } else {
-                notification('warning', 'Please, select program name first!')
-                $('#main_lead').select2('destroy');
-                $('#main_lead').val(null);
-                $('#main_lead').select2({
-                    placeholder: "Select value",
-                    allowClear: true
-                });
-                $('#program_name').select2('open');
-            }
+            // } else {
+            //     notification('warning', 'Please, select program name first!')
+            //     $('#main_lead').select2('destroy');
+            //     $('#main_lead').val(null);
+            //     $('#main_lead').select2({
+            //         placeholder: "Select value",
+            //         allowClear: true
+            //     });
+            //     $('#program_name').select2('open');
+            // }
         })
 
  
@@ -918,8 +920,10 @@
             let programStatus = $('#program_status').val()
             $('.program-detail').addClass('d-none')
             $('.mentor-tutor').addClass('d-none')
+            console.log(programMainProg)
 
             // if (programName) {
+            try {
                 switch (parseInt(programStatus)) 
                 {
                     // program status = pending
@@ -1005,6 +1009,10 @@
                     break;
                 }
 
+            } catch (error) {
+                notification('error', error.message)
+                console.error("Error: ", error.name, '-', error.message, '-', error.lineNumber)
+            }
             // } else {
             //     notification('warning', 'Please, select program name first!')
             //     $('#program_status').select2('destroy').val(null).select2({
@@ -1050,6 +1058,10 @@
 
         function getSubProgram(main_prog_id) {
             showLoading()
+            $("#program_name").html('<option data-placeholder="true"></option>').select2({
+                placeholder: 'Select value',
+                allowClear: true
+            }).attr('disabled', true);
             $("#program_status").val(0).change() // trigger to change status into pending when changing main program
             var link = '{{ url('api/get/sub-program/main') }}/' + main_prog_id
 
@@ -1064,7 +1076,7 @@
                 // if main program doesn't have sub program
                 if (obj.length == 0)
                 {
-                    $("#sub_program").html("").select2({
+                    $("#sub_program").html('<option data-placeholder="true"></option>').select2({
                         placeholder: 'Select value',
                         allowClear: true
                     }).attr('disabled', true);
@@ -1086,13 +1098,18 @@
                 // count the html of program name
                 if ( $("#program_name > option").length > 1 ) {
 
-                    $("#program_name").html("").select2({
+                    $("#program_name").html('<option data-placeholder="true"></option>').select2({
                         placeholder: 'Select value',
                         allowClear: true
                     }).attr('disabled', true);
                     $("#program_name").val(null).trigger('change')
 
                 }
+
+                // trigger to change() sub program
+                @if (old('sub_program') !== null)
+                    $("#sub_program").select2().val("{{ old('sub_program') }}").trigger('change');
+                @endif
             })
             .catch(function (error) {
                 swal.close()
@@ -1130,6 +1147,16 @@
                     allowClear: true
                 }).attr('disabled', false);
                 swal.close()
+
+                // trigger to change() sub program
+                @if (old('prog_id') !== null)
+                    var current_selected_main_program = $("#main_program").val()
+                    var old_selected_main_program = "{{ old('main_prog') }}"
+                    if (current_selected_main_program == old_selected_main_program)
+                        $("#program_name").select2().val("{{ old('prog_id') }}").trigger('change');
+                @elseif (isset($clientProgram))
+                    $("#program_name").select2().val("{{ $clientProgram->prog_id }}").trigger('change');
+                @endif
                 
             })
             .catch(function (error) {
@@ -1317,17 +1344,24 @@
             @enderror
 
             const documentReady = () => {
+                @if (old('main_prog') !== null)
+                    $("#main_program").select2().val("{{ old('main_prog') }}").trigger('change');
+                @elseif (isset($clientProgram))
+                    $("#main_program").select2().val("{{ $clientProgram->program->main_prog_id }}").trigger('change');
+                @endif
 
                 @if (isset($p) && $p !== null)
                     $("#program_name").select2().val("{{ $p }}").trigger('change');
-                @elseif (isset($clientProgram))
+                @elseif (isset($clientProgram->prog_id))
                     $("#program_name").select2().val("{{ $clientProgram->prog_id }}").trigger('change');
+                @elseif (old('prog_id') !== null)
+                    $("#program_name").select2().val("{{ old('prog_id') }}").trigger('change');
                 @endif
 
                 @if (old('lead_id') !== null)
                     $("#main_lead").select2().val("{{ old('lead_id') }}").trigger('change');
-                @elseif (isset($clientProgram->lead_id))
-                    @if ($clientProgram->lead->main_lead == 'KOL')
+                @elseif (isset($clientProgram))
+                    @if ($clientProgram->lead?->main_lead == 'KOL')
                         $("#main_lead").select2().val("kol").trigger('change');
                     @else
                         $("#main_lead").select2().val("{{ $clientProgram->lead_id }}").trigger('change');

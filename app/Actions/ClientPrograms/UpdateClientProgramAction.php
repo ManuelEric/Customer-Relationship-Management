@@ -8,6 +8,7 @@ use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\Client\ProcessInsertLogClient;
+use App\Models\Program;
 use App\Services\Program\ClientProgramService;
 
 class UpdateClientProgramAction
@@ -16,6 +17,8 @@ class UpdateClientProgramAction
     private ClientProgramService $clientProgramService;
     private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
     private ClientRepositoryInterface $clientRepository;
+    private $admission_prog_list;
+
 
     public function __construct(ClientProgramRepositoryInterface $clientProgramRepository, ClientProgramService $clientProgramService, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ClientRepositoryInterface $clientRepository)
     {
@@ -23,16 +26,14 @@ class UpdateClientProgramAction
         $this->clientProgramService = $clientProgramService;
         $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
         $this->clientRepository = $clientRepository;
+        $this->admission_prog_list = Program::admissionProgList()->pluck('prog_id')->toArray();
     }
 
     public function execute(
         StoreClientProgramRequest $request,
         $clientprogram_id,
         array $client_program_details,
-        $student,
-        $admission_prog_list,
-        $tutoring_prog_list,
-        $satact_prog_list
+        $student
     ) {
 
         $status = $request->status;
@@ -42,10 +43,11 @@ class UpdateClientProgramAction
 
         $client_program_details = $this->clientProgramService->snSetAttributeLead($client_program_details);
 
-        $additional_attributes = $this->clientProgramService->snSetAdditionalAttributes($request, ['admission' => $admission_prog_list, 'tutoring' => $tutoring_prog_list, 'satact' => $satact_prog_list], $student, $client_program_details, true);
+        $additional_attributes = $this->clientProgramService->snSetAdditionalAttributes($request, $student, $client_program_details, true);
         $client_program_details = $additional_attributes['client_program_details'];
         $file_path = $additional_attributes['file_path'];
 
+        dd($client_program_details);
         $updated_client_program = $this->clientProgramRepository->updateClientProgram($clientprogram_id, ['client_id' => $student->id] + $client_program_details);
         $updated_client_program_id = $updated_client_program->clientprog_id;
         
@@ -57,7 +59,7 @@ class UpdateClientProgramAction
         # update the path into clientprogram table
         $this->clientProgramRepository->updateFewField($updated_client_program_id, ['agreement' => $file_path]);
         
-        $this->clientProgramService->snAddOrRemoveRoleMentee($prog_id, $student->id, $admission_prog_list, $status, true);
+        $this->clientProgramService->snAddOrRemoveRoleMentee($prog_id, $student->id, $this->admission_prog_list, $status, true);
 
         $leads_tracking = $this->clientLeadTrackingRepository->getCurrentClientLead($student->id);
 

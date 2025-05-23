@@ -1,4 +1,4 @@
-<select name="tutor_curriculum" class="select w-100 tutor-curriculum">
+<select name="curriculum" class="select w-100 tutor-curriculum">
     <option data-placeholder="true"></option>
     @if ( $programType == "subject-tutoring" )
         <option value="IBDP">IBDP</option>
