@@ -104,15 +104,15 @@ return new class extends Migration
             sp.sub_prog_name as sub_prog_name,
             pr.active,
             pr.created_at,
-            (CASE WHEN pr.sub_prog_id > 0 THEN
-                (CASE WHEN mp.prog_name = sp.sub_prog_name THEN
-                    CONCAT(mp.prog_name, ' : ', pr.prog_program)
-                ELSE 
-                    CONCAT(mp.prog_name, ' / ', sp.sub_prog_name, ' : ', pr.prog_program) 
-                END)
-            ELSE
-                CONCAT(mp.prog_name, ' : ', pr.prog_program)
-            END) as program_name
+            --(CASE WHEN pr.sub_prog_id > 0 THEN
+            --    (CASE WHEN mp.prog_name = sp.sub_prog_name THEN
+            --        CONCAT(mp.prog_name, ' : ', pr.prog_program)
+            --    ELSE 
+            --        CONCAT(mp.prog_name, ' / ', sp.sub_prog_name, ' : ', pr.prog_program) 
+            --    END)
+            --ELSE
+            --    CONCAT(mp.prog_name, ' : ', pr.prog_program)
+            --END) as program_name
 
         FROM tbl_prog pr
         LEFT JOIN tbl_main_prog mp 

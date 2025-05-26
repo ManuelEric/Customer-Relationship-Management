@@ -32,6 +32,7 @@ use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\Client\ProcessInsertLogClient;
 use App\Models\Bundling;
 use App\Models\BundlingDetail;
+use App\Models\MainProg;
 use App\Models\Program;
 use App\Models\School;
 use App\Models\UserClient;
@@ -76,6 +77,9 @@ class ClientProgramController extends Controller
     private ProgramPhaseRepositoryInterface $programPhaseRepository;
     private $admission_prog_list;
     private $tutoring_prog_list;
+    private $subject_tutoring_list;
+    private $competition_list;
+    private $skillset_tutoring;
     private $satact_prog_list;
 
     use CreateCustomPrimaryKeyTrait;
@@ -100,10 +104,22 @@ class ClientProgramController extends Controller
         $this->programService = $programService;
         $this->programPhaseRepository = $programPhaseRepository;
 
+        /* list of admissions program */
         $this->admission_prog_list = Program::admissionProgList()->pluck('prog_id')->toArray();
 
+        /* list of test preparation program */
         $this->tutoring_prog_list = Program::tutoringProgList()->pluck('prog_id')->toArray();
 
+        /* list of subject tutoring program */
+        $this->subject_tutoring_list = Program::subjectTutoringProgList()->pluck('prog_id')->toArray();
+
+        /* list of competition program */
+        $this->competition_list = Program::competitionProgList()->pluck('prog_id')->toArray();
+
+        /* list of skillset tutoring program */
+        $this->skillset_tutoring = Program::skillsetTutoringProgList()->pluck('prog_id')->toArray();
+
+        /* list of sat / act program */
         $this->satact_prog_list = Program::SATACTProgList()->pluck('prog_id')->toArray();
     }
 
@@ -178,6 +194,9 @@ class ClientProgramController extends Controller
         $mentors = $this->userRepository->rnGetAllUsersByRole('Mentor');
 
         $reasons = $this->reasonRepository->getReasonByType('Program');
+        
+        /* add on for program flexibility */
+        $main_programs = MainProg::orderBy('prog_name', 'asc')->get();
 
         return view('pages.program.client-program.form')->with(
             [
@@ -193,7 +212,10 @@ class ClientProgramController extends Controller
                 'tutors' => $tutors,
                 'mentors' => $mentors,
                 'reasons' => $reasons,
-                'programPhases' => $program_phases ?? null
+                'programPhases' => $program_phases ?? null,
+                
+                /* add on */
+                'main_programs' => $main_programs,
             ]
         );
     }
@@ -223,6 +245,9 @@ class ClientProgramController extends Controller
 
         $reasons = $this->reasonRepository->getReasonByType('Program');
 
+        /* add on for program flexibility */
+        $main_programs = MainProg::orderBy('prog_name', 'asc')->get();
+
         return view('pages.program.client-program.form')->with(
             [
                 'p' => $p,
@@ -239,6 +264,9 @@ class ClientProgramController extends Controller
                 'tutors' => $tutors,
                 'mentors' => $mentors,
                 'reasons' => $reasons,
+
+                /* add on */
+                'main_programs' => $main_programs,
             ]
         );
     }
@@ -273,7 +301,7 @@ class ClientProgramController extends Controller
         DB::beginTransaction();
         try {
 
-            $client_program = $createClientProgramAction->execute($request, $client_program_details, $student, $this->admission_prog_list, $this->tutoring_prog_list, $this->satact_prog_list);
+            $client_program = $createClientProgramAction->execute($request, $client_program_details, $student);
             
             $file_path = $client_program['file_path'];
             $new_client_program = $client_program['new_client_program'];
@@ -334,6 +362,9 @@ class ClientProgramController extends Controller
 
         $reasons = $this->reasonRepository->getReasonByType('Program');
         // $reasons = $this->reasonRepository->getAllReasons();
+        
+        /* add on for program flexibility */
+        $main_programs = MainProg::orderBy('prog_name', 'asc')->get();
       
         return view('pages.program.client-program.form')->with(
             [
@@ -350,7 +381,10 @@ class ClientProgramController extends Controller
                 'internalPIC' => $internal_pic,
                 'tutors' => $tutors,
                 'mentors' => $mentors,
-                'reasons' => $reasons
+                'reasons' => $reasons,
+
+                /* add on */
+                'main_programs' => $main_programs,
             ]
         );
     }
@@ -378,8 +412,7 @@ class ClientProgramController extends Controller
 
         DB::beginTransaction();
         try {
-
-            $updated_client_program = $updateClientProgramAction->execute($request, $client_program_id, $client_program_details, $student, $this->admission_prog_list, $this->tutoring_prog_list, $this->satact_prog_list);
+            $updated_client_program = $updateClientProgramAction->execute($request, $client_program_id, $client_program_details, $student);
 
             DB::commit();
         } catch (Exception $e) {

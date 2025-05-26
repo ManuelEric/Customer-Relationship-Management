@@ -11,6 +11,35 @@
             </div>
             <div class="card-body">
                 <div class="row mb-2">
+
+                    <!-- Detail for Test Preparation -->
+                    <div class="col-md-12 mb-2 success-tutoring-test-preparation-field d-none">
+                        <small>Package <sup class="text-danger">*</sup></small>
+                        <x-forms.program.detail.package program-type="test-preparation" text-index="1" :$disabled :$clientProgram />
+                    </div>
+
+                    <!-- Detail for Subject Tutoring -->
+                    <div class="col-md-12 mb-2 success-tutoring-subject-tutoring-field d-none">
+                        <small>Package <sup class="text-danger">*</sup></small>
+                        <x-forms.program.detail.package program-type="subject-tutoring" text-index="1" :$disabled :$clientProgram />
+                    </div>
+                    <div class="col-md-12 mb-2 success-tutoring-subject-tutoring-field curriculum-box d-none">
+                        <small>Curriculum <sup class="text-danger">*</sup></small>
+                        <x-forms.program.detail.curriculum program-type="subject-tutoring" text-index="1" :$disabled :$clientProgram />
+                    </div>
+
+                    <!-- Detail for Competition -->
+                    <div class="col-md-12 mb-2 success-tutoring-competition-field d-none">
+                        <small>Package <sup class="text-danger">*</sup></small>
+                        <x-forms.program.detail.package program-type="competition" text-index="1" :$disabled :$clientProgram />
+                    </div>
+
+                    <!-- Detail for Skillset Tutoring -->
+                    <div class="col-md-12 mb-2 success-tutoring-skillset-tutoring-field d-none">
+                        <small>Package <sup class="text-danger">*</sup></small>
+                        <x-forms.program.detail.package program-type="skillset-tutoring" text-index="1" :$disabled :$clientProgram />
+                    </div>
+
                     <div class="col-md-12 mb-2">
                         <small>Trial Date</small>
                         <input type="date" name="trial_date" {{ $disabled }} value="{{ isset($clientProgram->trial_date) ? $clientProgram->trial_date : old('trial_date') }}"
