@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Models\UserClient;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class StoreClientProgramRequest extends FormRequest
 {
@@ -39,7 +40,11 @@ class StoreClientProgramRequest extends FormRequest
         ];
     }
 
-    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, ClientProgramRepositoryInterface $clientProgramRepository)
+    public function __construct(
+        ClientRepositoryInterface $clientRepository, 
+        ProgramRepositoryInterface $programRepository, 
+        ClientProgramRepositoryInterface $clientProgramRepository,
+        )
     {                                    
         $this->clientRepository = $clientRepository;
         $this->programRepository = $programRepository;
@@ -512,6 +517,8 @@ class StoreClientProgramRequest extends FormRequest
 
     public function store_tutoring_pending($isMentee)
     {
+        $main_prog_name = MainProg::find($this->input('main_prog'))->prog_name;
+        $main_prog = Str::of($main_prog_name)->replace(' ', '-')->lower();
         return [
             'prog_id' => [
                 'required',
@@ -551,7 +558,7 @@ class StoreClientProgramRequest extends FormRequest
                     }
                 },
             ],
-            'package' => [
+            'package.'.$main_prog.'.*' => [
                 function ($attribute, $value, $fail) {
                     // required only for tutoring program
                     if ( Program::where('main_prog_id', $this->input('main_prog'))->first()->prog_mentor == 'Tutor' && $value == null ) {
@@ -559,7 +566,7 @@ class StoreClientProgramRequest extends FormRequest
                     }
                 }
             ],
-            'curriculum' => [
+            'curriculum.*' => [
                 function ($attribute, $value, $fail) {
                     if ( MainProg::where('id', $this->input('main_prog'))->first()->prog_name == 'Subject Tutoring' && $value == null) {
                         $fail('The curriculum field is required');
@@ -571,6 +578,8 @@ class StoreClientProgramRequest extends FormRequest
 
     public function store_tutoring_success($isMentee)
     {
+        $main_prog_name = MainProg::find($this->input('main_prog'))->prog_name;
+        $main_prog = Str::of($main_prog_name)->replace(' ', '-')->lower();
         $invoice_exist = $this->input('invoice_exist');
         $extended_rules = [];
         $rules = [
@@ -629,7 +638,7 @@ class StoreClientProgramRequest extends FormRequest
                 },
             ],
             'prog_running_status' => 'required',
-            'package' => [
+            'package.'.$main_prog.'.*' => [
                 function ($attribute, $value, $fail) {
                     // required only for tutoring program
                     if ( Program::where('main_prog_id', $this->input('main_prog'))->first()->prog_mentor == 'Tutor' && $value == null ) {
@@ -637,7 +646,7 @@ class StoreClientProgramRequest extends FormRequest
                     }
                 }
             ],
-            'curriculum' => [
+            'curriculum.*' => [
                 function ($attribute, $value, $fail) {
                     if ( MainProg::where('id', $this->input('main_prog'))->first()->prog_name == 'Subject Tutoring' && $value == null) {
                         $fail('The curriculum field is required');
@@ -660,6 +669,8 @@ class StoreClientProgramRequest extends FormRequest
 
     public function store_satact_success($isMentee, $studentId)
     {
+        $main_prog_name = MainProg::find($this->input('main_prog'))->prog_name;
+        $main_prog = Str::of($main_prog_name)->replace(' ', '-')->lower();
         return [
             'prog_id' => [
                 'required', 
@@ -735,7 +746,7 @@ class StoreClientProgramRequest extends FormRequest
             'timesheet_1' => 'required_if:tutor_1,!=,null',
             'timesheet_2' => 'required_if:tutor_2,!=,null',
             'prog_running_status' => 'required',
-            'package' => [
+            'package.'.$main_prog.'.*' => [
                 function ($attribute, $value, $fail) {
                     // required only for tutoring program
                     if ( Program::where('main_prog_id', $this->input('main_prog'))->first()->prog_mentor == 'Tutor' && $value == null ) {

@@ -15,29 +15,29 @@
                     <!-- Detail for Test Preparation -->
                     <div class="col-md-12 mb-2 pending-tutoring-test-preparation-field d-none">
                         <small>Package <sup class="text-danger">*</sup></small>
-                        <x-forms.program.detail.package program-type="test-preparation" />
+                        <x-forms.program.detail.package program-type="test-preparation" text-index="0" :$disabled :$clientProgram />
                     </div>
 
                     <!-- Detail for Subject Tutoring -->
                     <div class="col-md-12 mb-2 pending-tutoring-subject-tutoring-field d-none">
                         <small>Package <sup class="text-danger">*</sup></small>
-                        <x-forms.program.detail.package program-type="subject-tutoring" />
+                        <x-forms.program.detail.package program-type="subject-tutoring" text-index="0" :$disabled :$clientProgram />
                     </div>
                     <div class="col-md-12 mb-2 pending-tutoring-subject-tutoring-field curriculum-box d-none">
                         <small>Curriculum <sup class="text-danger">*</sup></small>
-                        <x-forms.program.detail.curriculum program-type="subject-tutoring" />
+                        <x-forms.program.detail.curriculum program-type="subject-tutoring" text-index="0" :$disabled :$clientProgram />
                     </div>
 
                     <!-- Detail for Competition -->
                     <div class="col-md-12 mb-2 pending-tutoring-competition-field d-none">
                         <small>Package <sup class="text-danger">*</sup></small>
-                        <x-forms.program.detail.package program-type="competition" />
+                        <x-forms.program.detail.package program-type="competition" text-index="0" :$disabled :$clientProgram />
                     </div>
 
                     <!-- Detail for Skillset Tutoring -->
                     <div class="col-md-12 mb-2 pending-tutoring-skillset-tutoring-field d-none">
                         <small>Package <sup class="text-danger">*</sup></small>
-                        <x-forms.program.detail.package program-type="skillset-tutoring" />
+                        <x-forms.program.detail.package program-type="skillset-tutoring" text-index="0" :$disabled :$clientProgram />
                     </div>
 
                     <div class="col-md-12 mb-2">

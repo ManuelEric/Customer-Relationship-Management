@@ -47,7 +47,6 @@ class UpdateClientProgramAction
         $client_program_details = $additional_attributes['client_program_details'];
         $file_path = $additional_attributes['file_path'];
 
-        dd($client_program_details);
         $updated_client_program = $this->clientProgramRepository->updateClientProgram($clientprogram_id, ['client_id' => $student->id] + $client_program_details);
         $updated_client_program_id = $updated_client_program->clientprog_id;
         

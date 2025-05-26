@@ -13,6 +13,8 @@ class CurriculumSelect extends Component
      */
     public function __construct(
         public string $programType,
+        public ?string $disabled = null,
+        public ?object $clientProgram = null,
     )
     {
         //

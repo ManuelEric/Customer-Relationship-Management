@@ -5,6 +5,7 @@ namespace App\Services\Program;
 use App\Interfaces\ClientProgramLogMailRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Models\MainProg;
 use App\Models\Program;
 use Carbon\Carbon;
 use Exception;
@@ -152,6 +153,8 @@ class ClientProgramService
     public function snSetAdditionalAttributes($request, $student, $clientProgramDetails, $is_update_method = false)
     {
         $file_path = null;
+        $main_prog_name = MainProg::find($request->main_prog)->prog_name;
+        $formatted_main_prog = \Illuminate\Support\Str::of($main_prog_name)->replace(' ', '-')->lower();
 
         switch ($request->status) {
 
@@ -168,12 +171,12 @@ class ClientProgramService
                 } elseif (in_array($request->prog_id, $this->tutoring_prog_list) || in_array($request->prog_id, $this->competition_list)) {
 
                     # add additional values
-                    $clientProgramDetails['package'] = $request->package;
+                    $clientProgramDetails['package'] = $request->package["{$formatted_main_prog}"][0];
                     $clientProgramDetails['trial_date'] = $request->pend_trial_date;
                 } elseif (in_array($request->prog_id, $this->subject_tutoring_list)) {
                     # add additional values
-                    $clientProgramDetails['package'] = $request->package;
-                    $clientProgramDetails['curriculum'] = $request->curriculum;
+                    $clientProgramDetails['package'] = $request->package["{$formatted_main_prog}"][0];
+                    $clientProgramDetails['curriculum'] = $request->curriculum[0];
                     $clientProgramDetails['trial_date'] = $request->pend_trial_date;
                 }
 
@@ -244,7 +247,7 @@ class ClientProgramService
                     $clientProgramDetails['timesheet_link'] = $request->timesheet_link;
                     // $clientProgramDetails['tutor_id'] = $request->tutor_id;
                     $clientProgramDetails['prog_running_status'] = (int) $request->prog_running_status;
-                    $clientProgramDetails['package'] = $request->package;
+                    $clientProgramDetails['package'] = $request->package["{$formatted_main_prog}"][1];
                 } elseif (in_array($request->prog_id, $this->subject_tutoring_list) || in_array($request->prog_id, $this->competition_list)) {
 
                     # add additional values
@@ -256,8 +259,8 @@ class ClientProgramService
                     $clientProgramDetails['timesheet_link'] = $request->timesheet_link;
                     // $clientProgramDetails['tutor_id'] = $request->tutor_id;
                     $clientProgramDetails['prog_running_status'] = (int) $request->prog_running_status;
-                    $clientProgramDetails['package'] = $request->package;
-                    $clientProgramDetails['curriculum'] = $request->curriculum;
+                    $clientProgramDetails['package'] = $request->package["{$formatted_main_prog}"][1];
+                    $clientProgramDetails['curriculum'] = $request->curriculum[1];
                 } elseif (in_array($request->prog_id, $this->satact_prog_list)) {
                     
                     # add additional values
@@ -270,7 +273,7 @@ class ClientProgramService
                     // $clientProgramDetails['tutor_1'] = $request->tutor_1;
                     // $clientProgramDetails['tutor_2'] = $request->tutor_2;
                     $clientProgramDetails['prog_running_status'] = (int) $request->prog_running_status;
-                    $clientProgramDetails['package'] = $request->package;
+                    $clientProgramDetails['package'] = $request->package["{$formatted_main_prog}"][1];
                 }
 
                 if (in_array($request->prog_id, $this->admission_prog_list)) {

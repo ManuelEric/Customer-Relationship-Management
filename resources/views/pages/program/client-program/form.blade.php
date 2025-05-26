@@ -128,8 +128,8 @@
                                 </label>
                             </div>
                             <div class="col-md-9">
-                                <select name="prog_id" id="program_name" class="select w-100"
-                                    onchange="changeProgramStatus()" disabled>
+                                <select name="prog_id" id="program_name" class="select w-100" {{ $disabled }}
+                                    onchange="changeProgramStatus()">
                                     <option data-placeholder="true"></option>
                                     {{-- @foreach ($programs as $program)
                                         <option data-pmentor="{{ $program->prog_mentor }}"
@@ -1062,7 +1062,11 @@
                 placeholder: 'Select value',
                 allowClear: true
             }).attr('disabled', true);
-            $("#program_status").val(0).change() // trigger to change status into pending when changing main program
+            @if (isset($clientProgram))
+                $("#program_status").val({{ $clientProgram->status }}).change() // trigger to change status into pending when changing main program
+            @else
+                $("#program_status").val(0).change() // trigger to change status into pending when changing main program
+            @endif
             var link = '{{ url('api/get/sub-program/main') }}/' + main_prog_id
 
             axios.get(link, {
@@ -1103,7 +1107,6 @@
                         allowClear: true
                     }).attr('disabled', true);
                     $("#program_name").val(null).trigger('change')
-
                 }
 
                 // trigger to change() sub program
@@ -1142,10 +1145,19 @@
                             ' value="' + prog_id + '">' + prog_program + '</option>';
                 });
                 
-                $('#program_name').html(html).select2({
-                    placeholder: 'Select value',
-                    allowClear: true
-                }).attr('disabled', false);
+                @if (!isset($edit))
+
+                    $('#program_name').html(html).select2({
+                        placeholder: 'Select value',
+                        allowClear: true
+                    }).attr('disabled', true);
+                @else
+
+                    $('#program_name').html(html).select2({
+                        placeholder: 'Select value',
+                        allowClear: true
+                    }).attr('disabled', false);
+                @endif
                 swal.close()
 
                 // trigger to change() sub program

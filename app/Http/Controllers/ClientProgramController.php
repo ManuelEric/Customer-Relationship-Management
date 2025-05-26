@@ -389,9 +389,8 @@ class ClientProgramController extends Controller
         );
     }
 
-    public function update(Request $request, UpdateClientProgramAction $updateClientProgramAction, LogService $log_service)
+    public function update(StoreClientProgramRequest $request, UpdateClientProgramAction $updateClientProgramAction, LogService $log_service)
     {
-        dd($request->all());
         $client_program_id = $request->route('program');
         $student_id = $request->route('student');
         $student = $this->clientRepository->getClientById($student_id);

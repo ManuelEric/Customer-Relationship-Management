@@ -1,11 +1,17 @@
-<select name="curriculum" class="select w-100 tutor-curriculum">
+@php
+    $curriculumList = ['IBDP', 'IB MYP', 'Cambridge ALevel', 'Cambridge IGCSE', 'Advanced Placement', 'National'];
+@endphp
+<select name="curriculum[]" class="select w-100 tutor-curriculum" @if(isset($disabled)) {{ $disabled }} @endif>
     <option data-placeholder="true"></option>
     @if ( $programType == "subject-tutoring" )
-        <option value="IBDP">IBDP</option>
-        <option value="IB_MYP">IB MYP</option>
-        <option value="Cambridge_ALevel">Cambridge A-Level</option>
-        <option value="Cambridge_IGCSE">Cambridge IGCSE</option>
-        <option value="Advanced_Placement">Advanced Placement</option>
-        <option value="National">National</option>
+        @foreach ($curriculumList as $key => $curriculum)
+            <option value="{{ $curriculum }}" 
+                @selected(isset($clientProgram) && $clientProgram->curriculum == $curriculum)
+                @selected(old('curriculum.0') == $curriculum)    
+            >{{ $curriculum }}</option>
+        @endforeach
     @endif
 </select>
+@error('curriculum.0')
+    <small class="text-danger fw-light">{{ $message }}</small>
+@enderror
