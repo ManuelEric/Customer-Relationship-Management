@@ -437,7 +437,7 @@
                             @include('pages.program.client-program.form-detail.pending-tutoring')
                         </div>
                         <div class="program-detail d-none" id="success_tutoring">
-                            {{-- @include('pages.program.client-program.form-detail.success-tutoring') --}}
+                            @include('pages.program.client-program.form-detail.success-tutoring')
                         </div>
                         <div class="program-detail d-none" id="success_sat_act">
                             @include('pages.program.client-program.form-detail.success-sat-act')

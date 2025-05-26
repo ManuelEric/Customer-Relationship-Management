@@ -236,7 +236,7 @@ class ClientProgramService
 
                     }
 
-                } elseif (in_array($request->prog_id, $this->tutoring_prog_list)) {
+                } elseif (in_array($request->prog_id, $this->tutoring_prog_list) || in_array($request->prog_id, $this->skillset_tutoring)) {
 
                     # add additional values
                     $clientProgramDetails['success_date'] = $request->success_date;
@@ -284,7 +284,7 @@ class ClientProgramService
                     $clientProgramDetails['aplication_strategy_mentor'] = isset($request->aplication_strategy_mentor) ? $request->aplication_strategy_mentor : NULL;
                     $clientProgramDetails['writing_mentor'] = isset($request->writing_mentor) ? $request->writing_mentor : NULL;
                     $clientProgramDetails['mentor_ic'] = $request->mentor_ic;
-                } elseif (in_array($request->prog_id, $this->tutoring_prog_list) || in_array($request->prog_id, $this->competition_list) || in_array($request->prog_id, $this->subject_tutoring_list)) {
+                } elseif (in_array($request->prog_id, $this->tutoring_prog_list) || in_array($request->prog_id, $this->competition_list) || in_array($request->prog_id, $this->subject_tutoring_list) || in_array($request->prog_id, $this->skillset_tutoring)) {
 
                     $clientProgramDetails['tutor_id'] = $request->tutor_id;
 

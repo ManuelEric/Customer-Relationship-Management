@@ -558,7 +558,7 @@ class StoreClientProgramRequest extends FormRequest
                     }
                 },
             ],
-            'package.'.$main_prog.'.*' => [
+            'package.'.$main_prog.'.0' => [
                 function ($attribute, $value, $fail) {
                     // required only for tutoring program
                     if ( Program::where('main_prog_id', $this->input('main_prog'))->first()->prog_mentor == 'Tutor' && $value == null ) {
@@ -566,7 +566,7 @@ class StoreClientProgramRequest extends FormRequest
                     }
                 }
             ],
-            'curriculum.*' => [
+            'curriculum.0' => [
                 function ($attribute, $value, $fail) {
                     if ( MainProg::where('id', $this->input('main_prog'))->first()->prog_name == 'Subject Tutoring' && $value == null) {
                         $fail('The curriculum field is required');
@@ -638,7 +638,7 @@ class StoreClientProgramRequest extends FormRequest
                 },
             ],
             'prog_running_status' => 'required',
-            'package.'.$main_prog.'.*' => [
+            'package.'.$main_prog.'.1' => [
                 function ($attribute, $value, $fail) {
                     // required only for tutoring program
                     if ( Program::where('main_prog_id', $this->input('main_prog'))->first()->prog_mentor == 'Tutor' && $value == null ) {
@@ -646,7 +646,7 @@ class StoreClientProgramRequest extends FormRequest
                     }
                 }
             ],
-            'curriculum.*' => [
+            'curriculum.1' => [
                 function ($attribute, $value, $fail) {
                     if ( MainProg::where('id', $this->input('main_prog'))->first()->prog_name == 'Subject Tutoring' && $value == null) {
                         $fail('The curriculum field is required');
