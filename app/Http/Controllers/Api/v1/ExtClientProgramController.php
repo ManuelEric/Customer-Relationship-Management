@@ -56,6 +56,8 @@ class ExtClientProgramController extends Controller
             $invoice_id = $data->invoice->inv_id;
             $program_name = $data->program->program_name;
             $require = $data->program->main_prog->id == 4 ? "Tutor" : "Mentor";
+            $package = $data->package;
+            $curriculum = $data->curriculum;
             $client_id = $data->client->id;
             $client_fname = $data->client->first_name;
             $client_lname = $data->client->last_name;
@@ -68,6 +70,8 @@ class ExtClientProgramController extends Controller
                 'invoice_id' => $invoice_id,
                 'program_name' => $program_name,
                 'require' => $require,
+                'package' => $package,
+                'curriculum' => $curriculum,
                 'client' => [
                     'uuid' => $client_id,
                     'first_name' => $client_fname,
