@@ -29,9 +29,10 @@ class Handler
     {
         $form_name = $form_details['name'];
         $prefix = $this->getPrefix($form_name);
-        if ( $prefix == 'NA' # prefix that supposed to be not inserted to CRM
+        if (
+            $prefix == 'NA' # prefix that supposed to be not inserted to CRM
             || strlen($prefix) > 3 # if getPrefix() doesn't return prefix, then return false. let's say meta leads form named "automated chat 24/03/2025", instead of getting the prefix code, we got the whole words so in order to stop this kind of form name. then we're using strlen()
-            ) 
+        )
             return;
 
         $identifier = $this->getIdentifier($form_name);
@@ -57,7 +58,7 @@ class Handler
             'child_graduation_year' => $collections->whereIn('name', $possibilities_of_child_graduation_year)->first()['values'][0],
             'child_school' => $collections->whereIn('name', $possibilities_of_child_school)->first()['values'][0],
         ];
-        
+
         DB::beginTransaction();
         try {
 
@@ -65,29 +66,26 @@ class Handler
              * check if the parent is exists
              */
             $parent = $this->checkExistingClientImport($incoming_data['parent_phone'], $incoming_data['parent_email']);
-            if (! $parent['isExist'])
-            {
+            if (! $parent['isExist']) {
                 /**
                  * preparing the data for raw data 
                  */
                 $parentName = $this->explodeName($incoming_data['parent_name']);
-        
+
                 $parentDetails = [
                     'first_name' => $parentName['firstname'],
                     'last_name' => isset($parentName['lastname']) ? $parentName['lastname'] : null,
                     'mail' => $incoming_data['parent_email'],
                     'phone' => $this->tnSetPhoneNumber($incoming_data['parent_phone']),
                     'lead_id' => 'LS045', # facebook ads
+                    'utm_content' => $identifier['utm_content'],
                 ];
-    
+
                 $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['parent'])->first();
-    
+
                 $parent = UserClient::create($parentDetails);
                 $parent->roles()->attach($roleId);
-                
-            }
-            else 
-            {
+            } else {
                 $parent = UserClient::withTrashed()->where('id', $parent['id'])->first();
             }
 
@@ -97,20 +95,16 @@ class Handler
              * but we need to check if the field `child` has been filled beforehand
              */
             $selected_child = $st_grade = null;
-            if ( isset($incoming_data['child_name']) && isset($incoming_data['child_graduation_year']) && isset($incoming_data['child_school']) )
-            {
+            if (isset($incoming_data['child_name']) && isset($incoming_data['child_graduation_year']) && isset($incoming_data['child_school'])) {
                 $child = $this->checkExistClientRelation('parent', $parent, $incoming_data['child_name']);
-                if ( $child['isExist'] && $child['client'] != null )
-                {
+                if ($child['isExist'] && $child['client'] != null) {
                     $selected_child = $child['client'];
-                }
-                elseif (! $child['isExist'] )
-                {
+                } elseif (! $child['isExist']) {
                     $childName = $this->explodeName($incoming_data['child_name']);
-                    if (! $childSchool = School::where('sch_name', $incoming_data['child_school'])->first() )
+                    if (! $childSchool = School::where('sch_name', $incoming_data['child_school'])->first())
                         $childSchool = $this->createSchoolIfNotExists($incoming_data['child_school']);
 
-                    if ( isset($incoming_data['child_graduation_year']) )
+                    if (isset($incoming_data['child_graduation_year']))
                         $st_grade = $this->getGradeByGraduationYear($incoming_data['child_graduation_year']);
 
                     $childDetails = [
@@ -120,6 +114,7 @@ class Handler
                         'graduation_year' => $incoming_data['child_graduation_year'],
                         'st_grade' => $st_grade,
                         'lead_id' => 'LS045',
+                        'utm_content' => $identifier['utm_content'],
                     ];
 
                     $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['student'])->first();
@@ -133,17 +128,15 @@ class Handler
             /**
              * insert interested program or client event
              */
-            switch ($prefix) 
-            {
+            switch ($prefix) {
                 case "PR":
-                    if ( $selected_child )
-                    {
+                    if ($selected_child) {
                         $interest_program_details[] = [
-                            'prog_id' => $identifier,
+                            'prog_id' => $identifier['program_id'],
                             'created_at' => Carbon::now(),
                             'updated_at' => Carbon::now(),
                         ];
-                        
+
                         $selected_child->interestPrograms()->syncWithoutDetaching($interest_program_details);
                     }
                     break;
@@ -153,7 +146,7 @@ class Handler
                         'ticket_id' => NULL,
                         'client_id' => $parent->id,
                         'child_id' => $selected_child ? $selected_child->id : NULL,
-                        'event_id' => $identifier,
+                        'event_id' => $identifier['program_id'],
                         'lead_id' => 'LS045', # facebook ads
                         'registration_type' => 'PR',
                         'number_of_attend' => 1
@@ -168,13 +161,13 @@ class Handler
              * insert into client log
              * only if they're submitted child's information
              */
-            if ( $selected_child )
-            {
+            if ($selected_child) {
                 $log_client_details[] = [
                     'client_id' => $selected_child->id,
                     'first_name' => $selected_child->first_name,
                     'last_name' => $selected_child->last_name,
                     'lead_source' => 'LS045', # facebook ads
+                    'utm_content' => $identifier['utm_content'],
                     'inputted_from' => 'facebook-api',
                     'clientprog_id' => null
                 ];
@@ -188,8 +181,5 @@ class Handler
             FailedMetaLead::create($incoming_data);
             throw new Exception($e->getMessage());
         }
-
-        
-
     }
 }

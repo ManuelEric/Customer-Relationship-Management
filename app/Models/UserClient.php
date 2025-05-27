@@ -82,6 +82,7 @@ class UserClient extends Authenticatable
         'register_by',
         'referral_code',
         'category',
+        'utm_content',
         'took_ia',
         'took_ia_date',
         'blacklist',
