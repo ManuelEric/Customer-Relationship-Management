@@ -21,6 +21,7 @@ class ClientLog extends Model
         'last_name',
         'category',
         'lead_source',
+        'utm_content',
         'inputted_from',
         'unique_key',
         'clientprog_id'

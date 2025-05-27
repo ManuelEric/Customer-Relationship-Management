@@ -31,7 +31,8 @@ class PublicRegistrationRequest extends FormRequest
     {
         $this->merge([
             'scholarship' => 'N',
-            'lead_source_id' => $this->input('lead_id')
+            'lead_source_id' => $this->input('lead_id'),
+            'utm_content' => $this->input('utm_content') ?? null,
         ]);
     }
 
@@ -72,6 +73,7 @@ class PublicRegistrationRequest extends FormRequest
             'destination_country.*' => 'nullable|exists:tbl_country,id',
             'interest_prog' => 'nullable|exists:tbl_prog,prog_id',
             'lead_source_id' => 'required|exists:tbl_lead,lead_id',
+            'utm_content' => 'nullable',
             'scholarship' => 'nullable' # possibly N or Y
         ];
     }

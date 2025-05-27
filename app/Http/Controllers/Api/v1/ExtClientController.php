@@ -170,7 +170,8 @@ class ExtClientController extends Controller
 
     public function getClientById(string $id)
     {
-        echo 'a';exit;
+        echo 'a';
+        exit;
         $client = $this->clientRepository->getClientById($id);
 
         return response()->json(
@@ -751,7 +752,7 @@ class ExtClientController extends Controller
         # if the event is online then 
         # system will not send the email
 
-        
+
         // if ($validated['event_type'] == 'offline') {
 
         //     try {
@@ -810,7 +811,8 @@ class ExtClientController extends Controller
             'secondary_mail',
             'secondary_phone',
             'lead_source_id',
-            'scholarship'
+            'scholarship',
+            'utm_content'
         ]);
 
 
@@ -820,7 +822,7 @@ class ExtClientController extends Controller
         DB::beginTransaction();
         try {
 
-
+            Log::debug($validated);
             # separate the incoming request data
             switch ($validated['role']) {
                 case 'student':
@@ -838,6 +840,7 @@ class ExtClientController extends Controller
                         $validatedStudent['mail'] = $validated['secondary_mail'] ?? null;
                         $validatedStudent['phone'] = $validated['secondary_phone'] ?? null;
                         $validatedStudent['scholarship'] = 'N';
+                        $validatedStudent['utm_content'] = $validated['utm_content'] ?? null;
                         // $validatedStudent['lead_source_id'] = 'LS001'; # Website
 
                         $student = $this->storeStudent($validatedStudent);
@@ -932,9 +935,10 @@ class ExtClientController extends Controller
             'inteset_prog' => $client->interestPrograms,
             'school_id' => $client->sch_id,
             'school_name' => isset($client->school) ? $client->school->sch_name : null,
-            'graduation_year' => $client->graduation_year
+            'graduation_year' => $client->graduation_year,
+            'utm_content' => $client->utm_content,
         ];
-        
+
         /**
          * note:
          * address that being attached in mail::send could be null
@@ -951,37 +955,34 @@ class ExtClientController extends Controller
 
             // if ( !isset($validated['mail']) && $validated['mail'] == null )
             //     throw new Exception("Insufficient email address of {$client->full_name}");
-            
 
-            switch ($validated['role'])
-            {
+
+            switch ($validated['role']) {
                 case "student":
                     $subject = 'Your registration is confirmed';
                     $template = 'mail-template.registration.public.thanks-email-student';
                     # the system will email 
                     # if they inputted the email address
-                    if ( $validated['mail'] )
-                    {
+                    if ($validated['mail']) {
                         $recipient['name'] = $client->full_name;
                         $recipient['email'] = $validated['mail'];
                         $this->sendEmailPublicRegistration($template, $passedData, $subject, $recipient);
                     }
                     break;
-    
+
                 case "parent":
                     $passedData['client']['child_name'] = $validated['secondary_name'];
                     $subject = 'Your registration is confirmed';
                     $template = 'mail-template.registration.public.thanks-email-parent';
                     # the system will email 
                     # if they inputted the email address
-                    if ( $validated['mail'] )
-                    {
+                    if ($validated['mail']) {
                         $recipient['name'] = $client->full_name;
                         $recipient['email'] = $validated['mail'];
                         $this->sendEmailPublicRegistration($template, $passedData, $subject, $recipient);
                     }
                     break;
-    
+
                 case "teacher/counsellor":
                     $passedData['client']['school'] = $validated['school_id'] == 'new' ? $validated['other_school'] : School::find($validated['school_id'])->sch_name;
                     $passedData['client']['phone'] = $validated['phone'];
@@ -992,14 +993,13 @@ class ExtClientController extends Controller
                     $recipient['email'] = 'theresya.afila@edu-all.com';
                     $this->sendEmailPublicRegistration($template, $passedData, $subject, $recipient);
                     break;
-            }                
+            }
             $sent_mail = 1;
-            
         } catch (Exception $e) {
 
             $sent_mail = 0;
             Log::error('Failed send email to public registration | error : ' . $e->getMessage() . ' on file ' . $e->getFile() . ' | Line ' . $e->getLine());
-            throw new Exception($e->getMessage(). ' on line ' . $e->getLine() . ' on file ' . $e->getFile());
+            throw new Exception($e->getMessage() . ' on line ' . $e->getLine() . ' on file ' . $e->getFile());
         }
 
 
@@ -1138,6 +1138,7 @@ class ExtClientController extends Controller
 
     private function storeStudent($incomingRequest)
     {
+
         # check if the client exists in crm database
         $existingClient = $this->checkExistingClient($this->tnSetPhoneNumber($incomingRequest['phone']), $incomingRequest['mail']);
 
@@ -1159,29 +1160,31 @@ class ExtClientController extends Controller
             'lead_id' => $incomingRequest['lead_source_id'],
             'eduf_id' => isset($incomingRequest['eduf_id']) ? $incomingRequest['eduf_id'] : null,
             'scholarship' => $incomingRequest['scholarship'],
-            'sch_id' => $schoolId
+            'sch_id' => $schoolId,
+            'utm_content' => $incomingRequest['utm_content'],
         ];
 
         $data_client_for_log_client[0] = [
             'first_name' => $newClientDetails['first_name'],
             'last_name' => $newClientDetails['last_name'],
             'lead_source' => $incomingRequest['lead_source_id'],
-            'inputted_from' => 'form-embed'
+            'utm_content' => $incomingRequest['utm_content'],
+            'inputted_from' => 'form-embed',
         ];
 
         # if the client is exists
-        if ($existingClient['isExist']){
+        if ($existingClient['isExist']) {
             $client = $this->clientRepository->getClientById($existingClient['id']);
-            
+
             $data_client_for_log_client[0]['client_id'] = $client->id;
             # trigger insert log client
             ProcessInsertLogClient::dispatch($data_client_for_log_client)->onQueue('insert-log-client');
-            
+
             return $client;
         }
 
         $client = $this->clientRepository->createClient('Student', $newClientDetails);
-        
+
         # trigger to verify student / children
         // ProcessVerifyClient::dispatch([$clientId])->onQueue('verifying_client');
 
@@ -1951,16 +1954,14 @@ class ExtClientController extends Controller
     {
         $incomingEmail = $request->get('email');
 
-        $query = \App\Models\User::query()->
-            with([
+        $query = \App\Models\User::query()->with([
                 'educations' => function ($query) {
                     $query->select('tbl_univ.univ_name', 'tbl_user_educations.created_at')->first();
                 },
                 'position' => function ($query) {
                     $query->select('id', 'position_name');
                 }
-            ])->
-            withAndWhereHas('roles', function ($query) {
+            ])->withAndWhereHas('roles', function ($query) {
                 $query->whereIn('role_name', ['Mentor', 'External Mentor', 'Tutor', 'Editor'])->select('role_name');
             })->where('email', $incomingEmail);
 
@@ -2006,7 +2007,7 @@ class ExtClientController extends Controller
 
         $user = \App\Models\User::with('roles')->where('email', $incomingEmail)->first();
 
-        if ( !$user ) {
+        if (!$user) {
             throw new HttpResponseException(
                 response()->json([
                     'errors' => 'The user is not registered.'
@@ -2015,7 +2016,7 @@ class ExtClientController extends Controller
         }
 
         // check if user is active
-        if ( $user->active == 0 ) {
+        if ($user->active == 0) {
 
             throw new HttpResponseException(
                 response()->json([
@@ -2023,9 +2024,9 @@ class ExtClientController extends Controller
                 ], JsonResponse::HTTP_BAD_REQUEST)
             );
         }
-        
+
         // check if the credential is correct
-        if ( !Hash::check($incomingPassword, $user->password)) {
+        if (!Hash::check($incomingPassword, $user->password)) {
 
             throw new HttpResponseException(
                 response()->json([
@@ -2045,27 +2046,24 @@ class ExtClientController extends Controller
         $role = $request->get('role');
 
         $user = \App\Models\User::query()->select('id', 'first_name', 'last_name', 'email', 'phone', 'npwp')->with([
-                'roles',
-            ])->whereHas('roles', function ($query) use ($role) {
-                $query->when($role, function ($sub) use ($role) {
-                    $sub->where('role_name', $role);
-                }, function ($sub) use ($role) {
-                    $sub->whereIn('role_name', ['Mentor', 'External Mentor', 'Tutor']);
-                });
-            })->when($keyword, function ($query) use ($keyword) {
-                $query->where(function ($sub) use ($keyword) {
-                        $sub->
-                        whereRaw('CONCAT(first_name, " ", COALESCE(last_name)) like ?', ['%' . $keyword . '%'])->
-                        orWhereRaw('email like ?', ['%' . $keyword . '%'])->
-                        orWhereRaw('phone like ?', ['%' . $keyword . '%']);
-                    });
-            })->whereNotNull('email')->isActive()->get();
+            'roles',
+        ])->whereHas('roles', function ($query) use ($role) {
+            $query->when($role, function ($sub) use ($role) {
+                $sub->where('role_name', $role);
+            }, function ($sub) use ($role) {
+                $sub->whereIn('role_name', ['Mentor', 'External Mentor', 'Tutor']);
+            });
+        })->when($keyword, function ($query) use ($keyword) {
+            $query->where(function ($sub) use ($keyword) {
+                $sub->whereRaw('CONCAT(first_name, " ", COALESCE(last_name)) like ?', ['%' . $keyword . '%'])->orWhereRaw('email like ?', ['%' . $keyword . '%'])->orWhereRaw('phone like ?', ['%' . $keyword . '%']);
+            });
+        })->whereNotNull('email')->isActive()->get();
 
         $mappedUser = $user->map(function ($data) {
 
             $userRole = $data->roles;
             $acceptedRole = [];
-            
+
             # remove duplication using array as comparison
             $storedRole = [];
 
@@ -2074,9 +2072,9 @@ class ExtClientController extends Controller
                 if (!in_array($role_name, ['Mentor', 'External Mentor', 'Tutor']))
                     continue;
 
-                if ( array_search($role_name, $storedRole) )
+                if (array_search($role_name, $storedRole))
                     continue;
-                
+
                 $acceptedRole[] = [
                     'role' => $role_name,
                 ];
@@ -2091,7 +2089,7 @@ class ExtClientController extends Controller
                 'last_name' => $data['last_name'],
                 'email' => $data['email'],
                 'phone' => $data['phone'],
-                'has_npwp' => $data['npwp'] ? true : false, 
+                'has_npwp' => $data['npwp'] ? true : false,
                 'roles' => $acceptedRole
             ];
         });
@@ -2157,7 +2155,7 @@ class ExtClientController extends Controller
 
         # threw error if validation fails
         if ($validator->fails()) {
-	    Log::warning('Failed update took ia, error validation: ' . json_encode($validator->errors()));
+            Log::warning('Failed update took ia, error validation: ' . json_encode($validator->errors()));
             return response()->json([
                 'success' => false,
                 'error' => $validator->errors()
@@ -2191,13 +2189,12 @@ class ExtClientController extends Controller
     public function showMentorTutor($uuid)
     {
         $user = \App\Models\User::where('id', $uuid)->select('password')->first();
-        if ( !$user )
-        {
+        if (!$user) {
             return response()->json([
                 'success' => false,
                 'error' => 'Cannot find the user.'
             ]);
-        } 
+        }
         return response()->json($user);
     }
 
@@ -2213,12 +2210,12 @@ class ExtClientController extends Controller
     {
         # Added 'with (user_type)' for editing platform -> get contract date editor
         // $users = \App\Models\User::with(['user_type'])
-        $users = \App\Models\User::with(['user_type' => function($query){
+        $users = \App\Models\User::with(['user_type' => function ($query) {
             $query->orderBy('tbl_user_type_detail.id', 'desc');
         }, 'position'])
-        ->whereHas('roles', function ($query) use ($role, $uuid) {
-            $query->where('role_name', $role);
-        })->where('id', $uuid)->first();
+            ->whereHas('roles', function ($query) use ($role, $uuid) {
+                $query->where('role_name', $role);
+            })->where('id', $uuid)->first();
         return response()->json($users);
     }
 
@@ -2234,7 +2231,7 @@ class ExtClientController extends Controller
             'mentee_name' => $details->first_name . ' ' . $details->last_name,
             'mentee_phone' => $details->phone,
             'mentee_email' => $details->mail,
-            'secondary_id' => str_pad($details->secondary_id,5,'0',STR_PAD_LEFT),
+            'secondary_id' => str_pad($details->secondary_id, 5, '0', STR_PAD_LEFT),
             'grade' => $details->grade_now,
             'application_year' => Carbon::parse($details->application_year)->format('Y'),
             'joining_year' => Carbon::parse($details->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first()->success_date)->format('Y'),
@@ -2319,28 +2316,25 @@ class ExtClientController extends Controller
                 'status' => $this->translate($item->prog_running_status),
                 'bundle' => $item->clientprog_id
             ];
-        }); 
+        });
         return response()->json($mapped_program);
     }
 
     public function fnUpdateMenteeProfile(
-        UserClient $user_client, 
+        UserClient $user_client,
         UpdateMenteeProfileRequest $request,
         LogService $log_service
-        )
-    {
+    ) {
         DB::beginTransaction();
         try {
             $gdrive_link = $request->safe()->only('gdrive_link') ? $request->safe()->only('gdrive_link')['gdrive_link'] : null;
-            if ($gdrive_link)
-            {
+            if ($gdrive_link) {
                 $user_client->mentoring_google_drive_link = $gdrive_link;
                 $user_client->save();
             }
 
             $progress_status = $request->safe()->only('progress') ? $request->safe()->only('progress')['progress'] : null;
-            if ($progress_status)
-            {
+            if ($progress_status) {
                 $user_client->mentoring_progress_status = $progress_status;
                 $user_client->save();
             }
@@ -2363,23 +2357,22 @@ class ExtClientController extends Controller
     public function fnGetPackagesBoughtByMentee(
         UserCLient $user_client,
         LogService $log_service,
-        Request $request 
-        )
-    {
+        Request $request
+    ) {
         try {
             $mapped_packages_bought = [];
-            $type = $request->get('type'); 
+            $type = $request->get('type');
             $packages_bought = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->has('phase_detail')->get();
 
-            if(count($packages_bought) > 0){
+            if (count($packages_bought) > 0) {
 
-                $mapped_packages_bought = $packages_bought->map(function($item) use($type){
+                $mapped_packages_bought = $packages_bought->map(function ($item) use ($type) {
 
                     $clientprog = $item;
 
                     switch ($type) {
                         case 'all':
-                            $mapped_phase_detail = $item->phase_detail->map(function($item)use($clientprog) {
+                            $mapped_phase_detail = $item->phase_detail->map(function ($item) use ($clientprog) {
                                 return [
                                     'clientprog_id' => $clientprog->clientprog_id,
                                     'phase_detail_id' => $item->id,
@@ -2391,7 +2384,7 @@ class ExtClientController extends Controller
                             break;
 
                         case 'manual':
-                            $mapped_phase_detail = $item->phase_detail->where('type', 'manual')->map(function($item)use($clientprog) {
+                            $mapped_phase_detail = $item->phase_detail->where('type', 'manual')->map(function ($item) use ($clientprog) {
                                 return [
                                     'clientprog_id' => $clientprog->clientprog_id,
                                     'phase_detail_id' => $item->id,
@@ -2401,7 +2394,7 @@ class ExtClientController extends Controller
                                 ];
                             });
                             break;
-                        
+
                         default:
                             return response()->json([
                                 'success' => false,
@@ -2409,11 +2402,10 @@ class ExtClientController extends Controller
                             ], JsonResponse::HTTP_BAD_REQUEST);
                             break;
                     }
-                   
+
 
                     return $mapped_phase_detail;
                 });
-                
             }
 
             $latest_adm_program = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first();
