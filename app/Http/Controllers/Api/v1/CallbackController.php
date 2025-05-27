@@ -30,7 +30,7 @@ class CallbackController extends Controller
     public function verify(Request $request)
     {
         // Replace with your own verify token
-        $verify_token = 'EDUALL04';
+        $verify_token = 'EDUALL04102016';
 
         // Retrieve the parameters sent by Facebook
         $mode = $request->query('hub_mode');
