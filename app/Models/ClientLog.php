@@ -15,6 +15,7 @@ class ClientLog extends Model
 
     protected $table = 'tbl_client_log';
 
+    // CLIENT LOG MODEL 
     protected $fillable = [
         'client_id',
         'first_name',

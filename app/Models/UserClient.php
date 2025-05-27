@@ -40,6 +40,7 @@ class UserClient extends Authenticatable
      *
      * @var array
      */
+    // CLIENT MODEL 
     protected $fillable = [
         'id',
         'secondary_id',

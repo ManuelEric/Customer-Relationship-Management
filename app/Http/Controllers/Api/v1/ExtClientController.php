@@ -797,6 +797,8 @@ class ExtClientController extends Controller
 
     public function storePublicRegistration(PublicRegistrationRequest $request)
     {
+
+        // ADD UTM CONTENT
         $validated = $request->safe()->only([
             'role',
             'fullname',
