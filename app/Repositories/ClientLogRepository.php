@@ -64,7 +64,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function queryFilteredOfflineLeads(Carbon $start_date, Carbon $end_date)
     {
-        return ClientLog::onlineOrganicFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
+        return ClientLog::offlineFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
     }
 
     public function queryFilteredReferralSales(Carbon $start_date, Carbon $end_date)

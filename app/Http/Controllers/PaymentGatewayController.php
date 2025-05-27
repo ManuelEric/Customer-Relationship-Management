@@ -8,6 +8,7 @@ use App\Http\Requests\Payment\GenerateLinkRequest;
 use App\Http\Traits\BankCodeTrait;
 use App\Http\Traits\PaymentGateway\CalculateFeeTrait as CalculatePaymentGatewayFeeTrait;
 use App\Http\Traits\RandomDigitTrait;
+use App\Http\Traits\RupiahFormatterTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
@@ -31,7 +32,7 @@ use Riskihajar\Terbilang\Facades\Terbilang;
 
 class PaymentGatewayController extends Controller
 {
-    use BankCodeTrait, RandomDigitTrait, StandardizePhoneNumberTrait, CalculatePaymentGatewayFeeTrait;
+    use BankCodeTrait, RandomDigitTrait, StandardizePhoneNumberTrait, CalculatePaymentGatewayFeeTrait, RupiahFormatterTrait;
 
     protected $log_service;
     protected ClientProgramRepositoryInterface $clientProgramRepository;
@@ -48,8 +49,13 @@ class PaymentGatewayController extends Controller
         $this->log_service = $log_service;
         $this->clientProgramRepository = $clientProgramRepository;
         $this->receiptRepository = $receiptRepository;
-        $this->admin_fee_va = 4000;
-        $this->admin_fee_cc = 2500; // not include 2.8%
+
+        /* From website Prismalink */
+        // $this->admin_fee_va = 4000;
+        // $this->admin_fee_cc = 2500; // not include 2.8%
+
+        /* PKS w/ Prismalink */
+        $this->admin_fee_cc = 1500; // not include 2.5%
     }
 
     public function redirectPayment(Request $request)
@@ -75,7 +81,7 @@ class PaymentGatewayController extends Controller
         $validated = $request->safe()->only(['payment_method', 'bank', 'installment', 'id']);
         $payment_method = $validated['payment_method'];
         $bank_name = $validated['bank'] ?? null;
-        $bank_id = $bank_name ? $this->getCodeBank($bank_name) : null;
+        [$bank_id, $bank_va_fee] = $bank_name ? $this->getCodeBank($bank_name) : null;
         $installment = $validated['installment'];
         $identifier = $validated['id'];
         $trx_currency = 'IDR';
@@ -117,7 +123,7 @@ class PaymentGatewayController extends Controller
             $remarks = $invoice->clientprog->invoice_program_name;
         }
         
-        $fees = $this->calculateFee($payment_method, $trx_amount);
+        $fees = $this->calculateFee($payment_method, $bank_va_fee, $trx_amount);
         
         $invoice_number = $invoice->inv_id;
         $parent_number = $client->parents->count() > 0 ? $client->parents[0]->secondary_id : $client->secondary_id;
@@ -133,7 +139,12 @@ class PaymentGatewayController extends Controller
         # prevent transaction generated more than once by
         # checking the transaction table using invoice_id, installment_id, and invoice_number
         # if by those data transaction could be found, then use the transaction ID of existing data
-        $transactions = Transaction::where('invoice_id', $invoice_id)->where('installment_id', $invoice_dtl_id)->where('invoice_number', $invoice_number)->orderBy('created_at', 'asc')->get();
+        $transactions = Transaction::where('invoice_id', $invoice_id)->
+                    where('installment_id', $invoice_dtl_id)->
+                    where('invoice_number', $invoice_number)->
+                    whereNot('trx_id', $trx_id)->
+                    orderBy('created_at', 'asc')->
+                    get();
         if ( $transactions->count() > 0 )
         {
             //! this is the idea : since every time we hit their check-status endpoint
@@ -163,7 +174,7 @@ class PaymentGatewayController extends Controller
 
         }
 
-        $total_transaction_with_fee = $trx_amount + $fees;
+        $total_transaction_with_fee = round($trx_amount + $fees);
         
         # create request body
         $request_body = [
@@ -204,8 +215,8 @@ class PaymentGatewayController extends Controller
             // 'validity' => Carbon::now()->addMinutes(10)->format('Y-m-d H:i:s.v O'),
             'external_id' => (string) $trx_id,
             'other_bills' => json_encode([[
-                'title' => 'admin fee',
-                'value' => round($fees)
+                'title' => 'Admin fee',
+                'value' => $this->formatRupiah(round($fees))
             ]])
         ];
 
@@ -288,9 +299,16 @@ class PaymentGatewayController extends Controller
         }
 
         $this->log_service->createSuccessLog(LogModule::CREATE_PAYMENT_LINK, 'Payment link created successfully', $trx->toArray());
+
+        $payment_page_url = $response['payment_page_url'];
+        $request = Request::create($payment_page_url);
+        $query_params_from_request = $request->query();
+        $route = route('payment-web.render-page', $query_params_from_request);
+        
         return response()->json([
             'response_description' => 'SUCCESS',
-            'payment_link' => env('PAYMENT_WEB_URI').$response['payment_page_url']
+            // 'payment_link' => env('APP_URL').$response['payment_page_url']
+            'payment_link' => $route
         ]);
     }
 
@@ -317,15 +335,16 @@ class PaymentGatewayController extends Controller
             $client_prog_model = $transaction->invoice_id === null ? $invoice_model->invoiceProgram->clientprog : $invoice_model->clientprog;
             $client_prog = $this->clientProgramRepository->getClientProgramById($client_prog_model->clientprog_id);
 
-            if ( !$payment_status != "SETLD" )
+            if ( $payment_status != "SETLD" )
             {
-                $log_service->createErrorLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, "Payment status is {$payment_status}" , $request->getLine(), $request->getFile(), $request->all());
-                return response()->json([
-                    'message' => 'Payment received',
-                    'data' => [
-                        'payment_status' => $payment_status
-                    ]
-                ]);
+                throw new Exception("Payment status is {$payment_status}");
+                // $log_service->createErrorLog(LogModule::STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA, "Payment status is {$payment_status}" , $request->getLine(), $request->getFile(), $request->all());
+                // return response()->json([
+                //     'message' => 'Payment received',
+                //     'data' => [
+                //         'payment_status' => $payment_status
+                //     ]
+                // ]);
             }
 
             # store in Log if the client has paid more than it should be

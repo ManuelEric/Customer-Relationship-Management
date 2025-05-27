@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
 
 class Program extends Model
 {
@@ -159,6 +160,11 @@ class Program extends Model
         return $this->hasMany(SeasonalProgram::class, 'prog_id', 'prog_id');
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where('active', 1);
+    }
+
     public function scopeAdmissionProgList($query)
     {
         return $query->whereHas('main_prog', function ($query) {
@@ -172,12 +178,27 @@ class Program extends Model
     {
         return $query->whereHas('sub_prog', function ($query) {
             $query->where('sub_prog_name', 'like', '%Tutoring%')->orWhere('sub_prog_name', 'like', '%Competition%');
-        });
+        })->orWhereRelation('main_prog', 'prog_name', 'Test Preparation');
+    }
+
+    public function scopeSubjectTutoringProgList($query)
+    {
+        return $query->whereRelation('main_prog', 'prog_name', 'Subject Tutoring');
+    }
+
+    public function scopeCompetitionProgList($query)
+    {
+        return $query->whereRelation('main_prog', 'prog_name', 'Competition');
+    }
+
+    public function scopeSkillsetTutoringProgList($query)
+    {
+        return $query->whereRelation('main_prog', 'prog_name', 'Skillset Tutoring');
     }
 
     public function scopeSATACTProgList($query)
     {
-        return $query->whereHas('sub_prog', function ($query) {
+        return $query->where('prog_program', 'like', '%SAT%')->whereHas('sub_prog', function ($query) {
             $query->where('sub_prog_name', 'like', '%SAT%')->orWhere('sub_prog_name', 'like', '%ACT%');
         });
     }

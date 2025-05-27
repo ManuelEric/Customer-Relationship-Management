@@ -7,6 +7,7 @@ use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\Client\ProcessInsertLogClient;
+use App\Models\Program;
 use App\Services\Program\ClientProgramService;
 
 class CreateClientProgramAction
@@ -14,32 +15,30 @@ class CreateClientProgramAction
     private ClientProgramRepositoryInterface $clientProgramRepository;
     private ClientProgramService $clientProgramService;
     private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
+    private $admission_prog_list;
 
     public function __construct(ClientProgramRepositoryInterface $clientProgramRepository, ClientProgramService $clientProgramService, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository)
     {
         $this->clientProgramRepository = $clientProgramRepository;
         $this->clientProgramService = $clientProgramService;
         $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
+        $this->admission_prog_list = Program::admissionProgList()->pluck('prog_id')->toArray();
     }
 
     public function execute(
         StoreClientProgramRequest $request,
         array $client_program_details,
-        $student,
-        $admission_prog_list,
-        $tutoring_prog_list,
-        $satact_prog_list
+        $student
     ) {
         $file_path = null;
 
-        # p means program from interested program
+        # p stands for program and its used to get program name from embed form and its gonna be stored as interested_program
         $query = $request->queryP !== NULL ? "?p=" . $request->queryP : null;
 
         $prog_id = $request->prog_id;
 
         $client_program_details = $this->clientProgramService->snSetAttributeLead($client_program_details);
-
-        $additional_attributes = $this->clientProgramService->snSetAdditionalAttributes($request, ['admission' => $admission_prog_list, 'tutoring' => $tutoring_prog_list, 'satact' => $satact_prog_list], $student, $client_program_details);
+        $additional_attributes = $this->clientProgramService->snSetAdditionalAttributes($request, $student, $client_program_details);
         $client_program_details = $additional_attributes['client_program_details'];
         $file_path = $additional_attributes['file_path'];
 
@@ -49,7 +48,7 @@ class CreateClientProgramAction
         # add or remove role mentee
         # add role mentee when program is mentoring and status success then add role mentee
         # remove role mentee Only for method update
-        $this->clientProgramService->snAddOrRemoveRoleMentee($prog_id, $student->id, $admission_prog_list, $client_program_details['status']);
+        $this->clientProgramService->snAddOrRemoveRoleMentee($prog_id, $student->id, $this->admission_prog_list, $client_program_details['status']);
 
         $leads_tracking = $this->clientLeadTrackingRepository->getCurrentClientLead($student->id);
 

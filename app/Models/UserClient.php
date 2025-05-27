@@ -8,6 +8,7 @@ use App\Jobs\Client\ProcessUpdateGradeAndGraduationYearNow;
 use App\Models\pivot\ClientAcceptance;
 use App\Models\pivot\ClientLeadTracking;
 use App\Models\Mentoring\MentoringLog;
+use App\Models\pivot\ClientMentor;
 use App\Observers\UserClientObserver;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -651,7 +652,15 @@ class UserClient extends Authenticatable
 
     public function clientMentor()
     {
-        return $this->hasManyThrough(User::class, ClientProgram::class, 'client_id', 'users.id', 'id', 'clientprog_id');
+        return $this->hasManyThrough(
+            ClientMentor::class, 
+            ClientProgram::class,
+            'client_id',
+            'clientprog_id',
+            'id',
+            'clientprog_id'
+        );
+        // return $this->hasManyThrough(User::class, ClientProgram::class, 'client_id', 'users.id', 'id', 'clientprog_id');
     }
 
     public function leadStatus()

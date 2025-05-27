@@ -58,10 +58,11 @@ class Kernel extends ConsoleKernel
 
         /**
          * 
-         * 
+         * General Mailing
          */
         $schedule->command('mailing:resend_unsend_mail')->withoutOverlapping()->everyMinute();
         $schedule->command('automate:resend_thanks_mail_program')->withoutOverlapping()->everyMinute()->onOneServer();
+        $schedule->command('send:reminder-birthday')->withoutOverlapping()->daily();
         // $schedule->command('automate:send_mail_reminder_attend')->cron('0 17 10 11 *');
         // $schedule->command('automate:send_mail_reminder_attend')->cron('0 9 11 11 *');
         
@@ -88,13 +89,15 @@ class Kernel extends ConsoleKernel
          */
         $schedule->command('update:grade_and_graduation_year')->cron('0 0 1 7 *');
 
-        // Send reminder partnership agreement
+        /**
+         * Send reminder partnership agreement
+         */
         $schedule->command('send:reminder_expiration_agreement')->cron('0 7 * * *');
 
         /**
          * cron for check status transaction
          */
-        $schedule->command('payment:check-status')->withoutOverlapping()->everyMinute();
+        // $schedule->command('payment:check-status')->withoutOverlapping()->everyMinute();
 
         /**
          * Purge revoked and expired tokens and auth codes

@@ -71,7 +71,7 @@
                 <td valign="top" style="padding-bottom:10px;">
                     <div style="min-height:80px;">
                         <p>
-                            <strong> {{ $bundle->details[0]->client_program->program->program_name }} </strong>
+                            <strong> {{ $bundle->details[0]->client_program->invoice_program_name }} </strong>
                         </p>
                         <p>
                             Bundle package with:
