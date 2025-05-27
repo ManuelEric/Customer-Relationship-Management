@@ -26,6 +26,9 @@
         <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('sales','outstanding-payment')">
             <div class="nav-link text-nowrap sales outstanding-payment">Outstanding Payment</div>
         </li>
+        <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('sales','domicile')">
+            <div class="nav-link text-nowrap sales domicile">Domicile</div>
+        </li>
     </ul>
     @if (Session::get('user_role') != "Employee")
         <select name="" id="cp_employee" class="select w-25">
@@ -55,4 +58,7 @@
 </section>
 <section id="outstanding-payment" class="dashboard-sales d-none">
     @include('pages.dashboard.sales.detail.outstanding-payment')
+</section>
+<section id="domicile" class="dashboard-sales d-none">
+    @include('pages.dashboard.sales.detail.domicile')
 </section>

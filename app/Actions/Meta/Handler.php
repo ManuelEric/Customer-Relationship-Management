@@ -29,7 +29,9 @@ class Handler
     {
         $form_name = $form_details['name'];
         $prefix = $this->getPrefix($form_name);
-        if ( $prefix == 'NA') # prefix that supposed to be not inserted to CRM
+        if ( $prefix == 'NA' # prefix that supposed to be not inserted to CRM
+            || strlen($prefix) > 3 # if getPrefix() doesn't return prefix, then return false. let's say meta leads form named "automated chat 24/03/2025", instead of getting the prefix code, we got the whole words so in order to stop this kind of form name. then we're using strlen()
+            ) 
             return;
 
         $identifier = $this->getIdentifier($form_name);

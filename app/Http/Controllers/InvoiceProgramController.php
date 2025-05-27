@@ -254,6 +254,7 @@ class InvoiceProgramController extends Controller
             # Use Trait Create Invoice Id
             $inv_id = $this->getInvoiceId($last_id, $client_prog->prog_id, $invoice_details['invoice_date']);
 
+            # if is_bundle == yes
             if($request->is_bundle > 0){
                 
                 $bundling_details = $this->clientProgramRepository->getBundleProgramDetailByBundlingId($client_prog->bundlingDetail->bundling_id);
@@ -572,7 +573,6 @@ class InvoiceProgramController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            // dd($e->getMessage());
             $log_service->createErrorLog(LogModule::UPDATE_INVOICE_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile(), $invoice_details);
 
             return Redirect::to('invoice/client-program/' . $request->clientprog_id . '/edit')->withError('Failed to update invoice program');
@@ -712,7 +712,7 @@ class InvoiceProgramController extends Controller
                 'view' => $view,
                 'invoice_id' => $invoice_id,
                 'client_prog' => $client_prog,
-                'company_detail' => $company_detail, 
+                'company_detail' => $company_detail,
                 'director' => $name,
                 'file_name' => $file_name
             ];
@@ -771,7 +771,7 @@ class InvoiceProgramController extends Controller
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),
-            env('FINANCE_CC_2'),
+            env('FINANCE_CC_2', ''),
             $pic_mail
         ];
         $data['param'] = [
@@ -830,7 +830,7 @@ class InvoiceProgramController extends Controller
             # send mail when document has been signed
             Mail::send('pages.invoice.client-program.mail.signed', $data, function ($message) use ($data, $file_name) {
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
-                    ->cc([env('FINANCE_CC_2')])
+                    ->cc([env('FINANCE_CC_2', '')])
                     ->subject($data['title'])
                     ->attach(Storage::url('invoice/client/' . $file_name));
             });
@@ -950,7 +950,7 @@ class InvoiceProgramController extends Controller
         try {
             Mail::send($mail_resources, $params, function ($message) use ($params, $subject) {
                 $message->to($params['parent_mail'], $params['parent_fullname'])
-                    ->cc([env('FINANCE_CC'), env('FINANCE_CC_2')])
+                    ->cc([env('FINANCE_CC'), env('FINANCE_CC_2', '')])
                     ->subject($subject);
             });
         } catch (Exception $e) {

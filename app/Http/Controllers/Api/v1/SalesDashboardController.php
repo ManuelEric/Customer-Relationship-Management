@@ -1111,6 +1111,12 @@ class SalesDashboardController extends Controller
             'uuid', # user uuid
         ]);
 
+        $quuid = null;
+        if(isset($queries['uuid']))
+        {
+            $quuid = $queries['uuid'];
+        }
+
         $cp_filter = [
             'query_use_month' => $queries['query_month'],
             'qprogs' => $queries['prog'] ?? null,
@@ -1118,7 +1124,7 @@ class SalesDashboardController extends Controller
             'qparam_year2' => $queries['second_year'],
             'queryParams_monthyear1' => $queries['first_monthyear'],
             'queryParams_monthyear2' => $queries['second_monthyear'],
-            'quuid' => $queries['uuid'] == 'all' ? null : $queries['uuid'],
+            'quuid' => $quuid,
         ];
 
         try {
@@ -1242,6 +1248,19 @@ class SalesDashboardController extends Controller
             ] 
         ]);
 
+    }
+
+    public function fnDomicileTracker(Request $request)
+    {
+        $date_range = $request->date_range ?? null;
+        $uuid = $request->uuid ?? null;
+        
+        $domicile_tracker = $this->clientProgramRepository->rnDomicileTracker($date_range, $uuid);
+
+        return response()->json([
+            'success' => true,
+            'data' => $domicile_tracker
+        ]);
     }
 
 }

@@ -101,21 +101,16 @@ Route::get('user/sales-team/', [UserController::class, 'getSalesTeam']); # basic
 Route::get('get/program/main/{mainProgId}', [APIProgramController::class, 'getProgramNameByMainProgramId']);
 
 
-
-
 Route::group(['middleware' => 'crm.key'], function () {
     Route::post('assessment/update', [ExtClientController::class, 'updateTookIA']);
-});
-
-
-# Program Phase
-//Route::group(['middleware' => 'auth:api'], function () {
+    
+    # Program Phase
     Route::delete('program-phase/{clientprog}/phase-detail/{phase_detail}/phase-lib/{phase_lib?}', [APIProgramPhaseController::class, 'fnRemoveProgramPhase']);
     Route::post('program-phase/{clientprog}/phase-detail/{phase_detail}/phase-lib/{phase_lib?}', [APIProgramPhaseController::class, 'fnStoreProgramPhase']);
     
     # Update quota for program phase
     Route::patch('program-phase/{clientprog}/phase-detail/{phase_detail}/phase-lib/{phase_lib?}/quota', [APIProgramPhaseController::class, 'fnUpdateQuotaProgramPhase']);
+});
 
 
-//});
 

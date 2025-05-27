@@ -162,5 +162,4 @@ class SchoolRawController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Delete raw school success']);
     }
-
 }

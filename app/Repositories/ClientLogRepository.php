@@ -64,7 +64,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function queryFilteredOfflineLeads(Carbon $start_date, Carbon $end_date)
     {
-        return ClientLog::onlineOrganicFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
+        return ClientLog::offlineFilteredLeads()->whereBetween('created_at', [$start_date, $end_date]);
     }
 
     public function queryFilteredReferralSales(Carbon $start_date, Carbon $end_date)
@@ -407,8 +407,9 @@ class ClientLogRepository implements ClientLogRepositoryInterface
      */
     public function mentoringOnlinePaidAssessmentForm(Carbon $start_date, Carbon $end_date): Array
     {
-        $potentials = $this->mentoringOnlinePaidPotentialLeads($start_date, $end_date)[1];
-        $query = ClientLog::mentoring()->onlinePaid()->tookAssessment($start_date, $end_date)->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+        // $potentials = $this->mentoringOnlinePaidPotentialLeads($start_date, $end_date)[1];
+        // $query = ClientLog::mentoring()->onlinePaid()->tookAssessment($start_date, $end_date)->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+        $query = ClientLog::onlinePaid()->tookAssessment($start_date, $end_date)->groupBy('clientprog_id');
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -417,8 +418,9 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function mentoringOnlineOrganicAssessmentForm(Carbon $start_date, Carbon $end_date): Array
     {
-        $potentials = $this->mentoringOnlineOrganicPotentialLeads($start_date, $end_date)[1];
-        $query = ClientLog::mentoring()->onlineOrganic()->tookAssessment($start_date, $end_date)->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+        // $potentials = $this->mentoringOnlineOrganicPotentialLeads($start_date, $end_date)[1];
+        // $query = ClientLog::mentoring()->onlineOrganic()->tookAssessment($start_date, $end_date)->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+        $query = ClientLog::onlineOrganic()->tookAssessment($start_date, $end_date)->groupBy('clientprog_id');
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -427,8 +429,9 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function mentoringOfflineAssessmentForm(Carbon $start_date, Carbon $end_date): Array
     {
-        $potentials = $this->mentoringOfflinePotentialLeads($start_date, $end_date)[1];
-        $query = ClientLog::mentoring()->offline()->tookAssessment($start_date, $end_date)->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+        // $potentials = $this->mentoringOfflinePotentialLeads($start_date, $end_date)[1];
+        // $query = ClientLog::offline()->tookAssessment($start_date, $end_date)->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+        $query = ClientLog::tookAssessment($start_date, $end_date)->groupBy('clientprog_id');
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -437,8 +440,9 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function mentoringReferralAssessmentForm(Carbon $start_date, Carbon $end_date): Array
     {
-        $potentials = $this->mentoringReferralPotentialLeads($start_date, $end_date)[1];
-        $query = ClientLog::mentoring()->referral()->tookAssessment($start_date, $end_date)->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+        // $potentials = $this->mentoringReferralPotentialLeads($start_date, $end_date)[1];
+        // $query = ClientLog::mentoring()->referral()->tookAssessment($start_date, $end_date)->whereIn('client_id', $potentials)->groupBy('clientprog_id');
+        $query = ClientLog::referral()->tookAssessment($start_date, $end_date)->groupBy('clientprog_id');
         return [
             $query->get()->count(),
             $query->pluck('client_id')->toArray()
@@ -1249,7 +1253,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
                 break;
         }
         
-        $mapped = $clients->map(function ($item){
+        $mapped = $clients->map(function ($item) use($start_date, $end_date){
             return [
                 'id' => $item->id,
                 'client_id' => $item->client_id,
@@ -1259,6 +1263,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
                 'grade_now' => $item->master_client->grade_now != null ? ($item->master_client->grade_now > 12 ? 'Not High School' : $item->master_client->grade_now) : null,
                 'school_name' => $item->master_client->school->sch_name ?? null,
                 'lead_source' => $item->client_program ? $item->client_program->conversion_lead ?? null : $item->master_client->lead_source ?? null,
+                'interest_program' => count($item->master_client->interestPrograms) > 0 ? $item->master_client->interestPrograms->where('pivot.updated_at', '>=', $start_date . ' 00:00:00')->where('pivot.updated_at', '<=', $end_date . ' 23:59:59')->last()->program_name ?? null : null,
                 'program_name' => $item->client_program ? $item->client_program->program->program_name ?? null : '-',
                 'lead_from_division' => $item->lead_source_log->note ?? null,
                 'is_deleted' => $item->deleted_at,

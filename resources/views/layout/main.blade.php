@@ -349,14 +349,18 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($birthDay as $mentee)
+                                    @forelse ($birthDay as $mentee)
                                         <tr class="text-left">
                                             <td class="text-center">{{ $loop->iteration }}</td>
                                             <td>{{ $mentee->full_name }}</td>
                                             <td>{{ date('D, d M Y', strtotime($mentee->dob)) }}</td>
                                             <td>{{ strip_tags($mentee->address) }}</td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr class="text-left">
+                                            <td class="text-center" col-span="3">No data yet</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>

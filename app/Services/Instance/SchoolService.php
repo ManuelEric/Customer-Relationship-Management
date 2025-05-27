@@ -2,6 +2,7 @@
 
 namespace App\Services\Instance;
 
+use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\ReasonRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
@@ -12,12 +13,14 @@ class SchoolService
     protected ProgramRepositoryInterface $programRepository;
     protected ReasonRepositoryInterface $reasonRepository;
     protected SchoolRepositoryInterface $schoolRepository;
+    protected ClientRepositoryInterface $clientRepository;
 
-    public function __construct(ProgramRepositoryInterface $programRepository, ReasonRepositoryInterface $reasonRepository, SchoolRepositoryInterface $schoolRepository) 
+    public function __construct(ProgramRepositoryInterface $programRepository, ReasonRepositoryInterface $reasonRepository, SchoolRepositoryInterface $schoolRepository, ClientRepositoryInterface $clientRepository) 
     {
         $this->programRepository = $programRepository;
         $this->reasonRepository = $reasonRepository;
         $this->schoolRepository = $schoolRepository;
+        $this->clientRepository = $clientRepository;
     }
 
     public function snSetAttributeSchoolDetail(Array $validated, $is_update = false)
@@ -86,5 +89,21 @@ class SchoolService
             return $grouped;
          
         }
+    }
+
+    public function snDomicileTracker()
+    {
+        $mentees = $this->clientRepository->getExistingMenteesAPI();
+        
+        $mapped = $mentees->map(function ($mentee){
+            return Collect([
+                'client_id' => $mentee->id,
+                'domicile' => isset($mentee->school) ? $mentee->school->sch_city : null
+            ]);
+        });
+
+        $count_by_domicile = $mapped->countBy('domicile');
+        
+        return $count_by_domicile;
     }
 }

@@ -276,7 +276,7 @@ class InvoiceB2BBaseController extends Controller
             # send mail when document has been signed
             Mail::send('pages.invoice.'.$this->module['segment'].'.mail.signed', $data, function ($message) use ($data, $invoice_attachment) {
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
-                    ->cc([env('FINANCE_CC_2')])
+                    ->cc([env('FINANCE_CC_2', '')])
                     ->subject($data['title'])
                     ->attach(Storage::url('invoice/'. $this->module['name'] . '/'. $invoice_attachment->attachment));
             });
@@ -362,7 +362,7 @@ class InvoiceB2BBaseController extends Controller
         $data['email'] = $invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['email']}; # email to pic of the partner program
         // $data['email'] = env('PARTNERSHIP_MAIL_1');
         $data['recipient'] = $invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['name']}; # name of the pic of the partner program
-        $data['cc'] = [env('CEO_CC'), env('FINANCE_CC'), env('FINANCE_CC_2'), env('PARTNERSHIP_MAIL_1')];
+        $data['cc'] = [env('CEO_CC'), env('FINANCE_CC'), env('FINANCE_CC_2', ''), env('PARTNERSHIP_MAIL_1')];
         $data['title'] = "Invoice of program " . $program_name;
         $data['param'] = [
             'invb2b_num' => $inv_num,

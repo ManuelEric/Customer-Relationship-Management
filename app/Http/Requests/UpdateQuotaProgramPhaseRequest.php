@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Api\v1;
+namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -8,10 +8,17 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 
-use function PHPUnit\Framework\returnValue;
-
-class UpdateMenteeGDriveRequest extends FormRequest
+class UpdateQuotaProgramPhaseRequest extends FormRequest
 {
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'clientprog_id' => $this->route('clientprog'),
+            'phase_detail_id' => $this->route('phase_detail'),
+            'phase_lib_id' => $this->route('phase_lib') == 'null' ? null : $this->route('phase_lib'),
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -37,7 +44,10 @@ class UpdateMenteeGDriveRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'gdrive_link' => 'required|url'
-         ];
+            'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id',
+            'phase_detail_id' => 'required|exists:phase_details,id',
+            'phase_lib_id' => 'nullable|exists:phase_libraries,id',
+            'quota' => 'required|numeric|min:1'
+        ];
     }
 }

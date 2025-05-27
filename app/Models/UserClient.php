@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use App\Events\MessageSent;
+use App\Http\Traits\CleanStringTrait;
 use App\Jobs\Client\ProcessUpdateGradeAndGraduationYearNow;
 use App\Models\pivot\ClientAcceptance;
 use App\Models\pivot\ClientLeadTracking;
+use App\Models\Mentoring\MentoringLog;
+use App\Models\pivot\ClientMentor;
+use App\Observers\UserClientObserver;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,10 +23,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
+#[ObservedBy([UserClientObserver::class])]
 class UserClient extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, CleanStringTrait;
 
     protected $table = 'tbl_client';
     public $incrementing = false;
@@ -97,7 +103,7 @@ class UserClient extends Authenticatable
         parent::boot();
 
         static::creating(function ($model) {
-            $model->id = (string) Str::uuid();  
+            $model->id = (string) Str::uuid();
         });
     }
 
@@ -110,7 +116,7 @@ class UserClient extends Authenticatable
 
         // Custom logic after deleting the model
         // Send to pusher
-        event(New MessageSent('rt_client', 'channel_datatable'));
+        event(new MessageSent('rt_client', 'channel_datatable'));
 
         // Delete cache birthDay
         Cache::has('birthDay') ? Cache::forget('birthDay') : null;
@@ -121,16 +127,19 @@ class UserClient extends Authenticatable
     public function update(array $attributes = [], array $options = [])
     {
         // Custom logic before update
+        $instance = new self(); // Create a temporary instance
+
+        isset($attributes['first_name']) ? $attributes['first_name'] = $instance->cleanString($attributes['first_name']) : null;
+        isset($attributes['last_name']) ? $attributes['last_name'] = $instance->cleanString($attributes['last_name']) : null;
 
         $updated = parent::update($attributes);
 
-        if(isset($attributes['is_many_request']) && $attributes['is_many_request'])
-        {
+        if (isset($attributes['is_many_request']) && $attributes['is_many_request']) {
             unset($attributes['is_many_request']);
-        }else{
+        } else {
             // Send to pusher
             // Custom logic after creating the model
-            event(New MessageSent('rt_client', 'channel_datatable'));
+            event(new MessageSent('rt_client', 'channel_datatable'));
             // Delete cache birthDay
             Cache::has('birthDay') ? Cache::forget('birthDay') : null;
         }
@@ -142,15 +151,19 @@ class UserClient extends Authenticatable
     {
         // Custom logic before creating the model
 
+        $instance = new self(); // Create a temporary instance
+
+        isset($attributes['first_name']) ? $attributes['first_name'] = $instance->cleanString($attributes['first_name']) : null;
+        isset($attributes['last_name']) ? $attributes['last_name'] = $instance->cleanString($attributes['last_name']) : null;
+
         $model = static::query()->create($attributes);
 
-        if(isset($attributes['is_many_request']) && $attributes['is_many_request'])
-        {
+        if (isset($attributes['is_many_request']) && $attributes['is_many_request']) {
             unset($attributes['is_many_request']);
-        }else{
+        } else {
             // Send to pusher
             // Custom logic after creating the model
-            event(New MessageSent('rt_client', 'channel_datatable'));
+            event(new MessageSent('rt_client', 'channel_datatable'));
 
             // Delete cache birthDay
             Cache::has('birthDay') ? Cache::forget('birthDay') : null;
@@ -245,40 +258,42 @@ class UserClient extends Authenticatable
     # Scopes
     public function scopeSearch($query, $search)
     {
-        $terms = $search['terms'];
-        $uni = $search['uni'];
-        $major = $search['major'];
+        $terms = $search['terms'] ?? null;
+        $uni = $search['uni'] ?? null;
+        $major = $search['major'] ?? null;
 
-        return $query->
-            when($terms, function ($query) use ($terms) {
-                $query->whereRaw('CONCAT(first_name, " ", last_name) like "%'.$terms.'%"');
-            })->
-            when($uni, function ($query) use ($uni) {
-                $query->
-                where(function ($query) use ($uni) {
-                    $query->
-                        whereRelation('universityAcceptance', 'tbl_client_acceptance.status', 'final decision')->
-                        whereHas('universityAcceptance', function ($query) use ($uni) {
-                            $query->where('univ_name', 'like', '%'.$uni.'%');
-                        });
+        return $query->when($terms, function ($query) use ($terms) {
+            /* previously, terms variable used in order to find name in active mentee mentoring app */
+            /* but they want to search by grade and school name also */
+            /* so we will add more where to cover that problem */
+            $query->
+                whereRaw('CONCAT(first_name, " ", last_name) like ?', ['%' . $terms . '%'])->
+                orWhereRaw('grade_now like ?', ['%' . $terms . '%'])->
+                orWhereHas('school', function ($query) use ($terms) {
+                    $query->where('sch_name', 'like', '%' . $terms . '%');
                 });
-            })->
-            when($major, function ($query) use ($major) {
-                $query->
-                where(function ($query) use ($major) {
-                    $query->
-                        whereRelation('universityAcceptance', 'tbl_client_acceptance.status', 'final decision')->
-                        where(function ($query) use ($major) {
-                            $query->
-                            whereHas('universityAcceptance', function ($query) use ($major) {
-                                $query->where('tbl_client_acceptance.major_name', 'like', '%'.$major.'%');
-                            })->
-                            orWhereHas('majorAcceptance', function ($query) use ($major) {
-                                $query->where('name', 'like', '%'.$major.'%');
-                            });
-                        });
+        })->when($uni, function ($query) use ($uni) {
+            $query->where(function ($query) use ($uni) {
+                $query->whereHas('decidedUniversityAcceptance', function ($query) use ($uni) {
+                    $query->where('univ_name', 'like', '%' . $uni . '%');
                 });
             });
+        })->when($major, function ($query) use ($major) {
+            $query->where(function ($query) use ($major) {
+                $query->where(function ($query) use ($major) {
+                    $query->
+                    whereHas('universityAcceptance', function ($query) use ($major) {
+                        $query->where('tbl_client_acceptance.major_name', 'like', '%' . $major . '%')->where('status', 'final decision');
+                    })->
+                    orWhereHas('majorAcceptance', function ($query) use ($major) {
+                        $query->where('name', 'like', '%' . $major . '%')->where('status', 'final decision');
+                    })->
+                    orWhereHas('majorGroupAcceptance', function ($query) use ($major) {
+                        $query->where('mg_name', 'like', '%'. $major .'%')->where('status', 'final decision');
+                    });
+                });
+            });
+        });
     }
 
     public function scopeIsNotBlacklist($query)
@@ -382,21 +397,31 @@ class UserClient extends Authenticatable
         return $query->where('is_verified', 'N')->where('st_statusact', 1)->where('deleted_at', null);
     }
 
+    public function scopeMentoring(Builder $query)
+    {
+        $query->whereHas('clientProgram.program.main_prog', function ($query) {
+            $query->where('prog_name', 'Admissions Mentoring');
+        });
+    }
+
     public function scopeIsGraduated(Builder $query)
     {
-        $query->
-        where('grade_now', '>', 12)->
-        whereDoesntHave('clientProgram', function ($query) {
+        $query->where('grade_now', '>', 12)->whereDoesntHave('clientProgram', function ($query) {
             $query->whereIn('status', [0, 2, 3, 5]);
-        })->
-        whereHas('clientProgram', function ($query) {
+        })->whereHas('clientProgram', function ($query) {
             $query->whereIn('status', [1, 4]);
         });
     }
 
     public function scopeIsActiveMentee(Builder $query)
     {
-        $query->whereRelation('clientProgram.program.main_prog', 'prog_name', 'Admissions Mentoring')->whereRelation('clientProgram', 'status', 1)->whereRelation('clientProgram', 'prog_running_status', '!=', 2);
+        $query->
+            whereRelation('clientProgram.program.main_prog', 'prog_name', 'Admissions Mentoring')->
+            whereRelation('clientProgram', 'status', 1)->
+            whereDoesntHave('clientProgram', function ($query) {
+                $query->where('status', 2);
+            });
+            // whereRelation('clientProgram', 'prog_running_status', '!=', 2)
     }
 
     public function scopeGetMentoredStudents(Builder $query)
@@ -411,15 +436,15 @@ class UserClient extends Authenticatable
     public function getLeadSource($parameter)
     {
         switch ($parameter) {
-            case "All-In Event":
+            case "EduALL Event":
                 if ($this->event != NULL)
-                    return "ALL-In Event - " . $this->event->event_title;
+                    return "EduALL Event - " . $this->event->event_title;
                 else
-                    return "ALL-In Event";
+                    return "EduALL Event";
                 break;
 
             case "External Edufair":
-                if($this->eduf_id == NULL){
+                if ($this->eduf_id == NULL) {
                     return $this->lead->main_lead;
                 }
 
@@ -441,41 +466,41 @@ class UserClient extends Authenticatable
     {
         $listInterestCountries = [];
 
-        if(count($this->destinationCountries) > 0){
+        if (count($this->destinationCountries) > 0) {
             foreach ($this->destinationCountries as $destinationCountry) {
-                if($destinationCountry->name == 'Other' && isset($destinationCountry->tagCountry)){
+                if ($destinationCountry->name == 'Other' && isset($destinationCountry->tagCountry)) {
                     $listInterestCountries[] = $destinationCountry->tagCountry->name;
-                }else{
+                } else {
                     $listInterestCountries[] = $destinationCountry->name;
                 }
             }
         }
 
-        return implode(", ",$listInterestCountries);
+        return implode(", ", $listInterestCountries);
     }
     public function getListJoinedEvent()
     {
         $listJoinedEvents = [];
 
-        if(count($this->clientEvent) > 0){
+        if (count($this->clientEvent) > 0) {
             foreach ($this->clientEvent as $clientEvent) {
                 $listJoinedEvents[] = $clientEvent->event->event_title;
             }
         }
 
-        return implode(", ",$listJoinedEvents);
+        return implode(", ", $listJoinedEvents);
     }
     public function getListInterestProgs()
     {
         $listInterestProgs = [];
 
-        if(count($this->interestPrograms) > 0){
+        if (count($this->interestPrograms) > 0) {
             foreach ($this->interestPrograms as $interestProgram) {
                 $listInterestProgs[] = $interestProgram->program_name;
             }
         }
 
-        return implode(", ",array_unique($listInterestProgs));
+        return implode(", ", array_unique($listInterestProgs));
     }
     public function getListPics()
     {
@@ -483,7 +508,7 @@ class UserClient extends Authenticatable
         $listPics[0] = null;
         $listPics[1] = null;
 
-        if(count($this->picClient) > 0){
+        if (count($this->picClient) > 0) {
             $listPics[0] = $this->picClient->where('status', 1)->first()->user_id ?? null;
             $listPics[1] = $this->picClient->where('status', 1)->first()->user->full_name ?? null;
         }
@@ -513,6 +538,11 @@ class UserClient extends Authenticatable
 
 
     # relation
+    public function mentoringLogs()
+    {
+        return $this->hasMany(mentoringLog::class, 'student_id', 'id');
+    }
+
     public function additionalInfo()
     {
         return $this->hasMany(UserClientAdditionalInfo::class, 'client_id', 'id');
@@ -592,11 +622,9 @@ class UserClient extends Authenticatable
         return $this->hasOne(ClientProgram::class, 'client_id', 'id')->ofMany([
             'clientprog_id' => 'max',
         ], function ($query) {
-            $query->
-            whereHas('program.main_prog', function ($sub) {
+            $query->whereHas('program.main_prog', function ($sub) {
                 $sub->where('prog_name', 'Admissions Mentoring');
-            })->
-            whereIn('status', [1, 4]); # success
+            })->whereIn('status', [1, 4]); # success
         });
     }
 
@@ -605,11 +633,9 @@ class UserClient extends Authenticatable
         return $this->hasOne(ClientProgram::class, 'client_id', 'id')->ofMany([
             'clientprog_id' => 'max',
         ], function ($query) {
-            $query->
-            whereHas('program.main_prog', function ($sub) {
+            $query->whereHas('program.main_prog', function ($sub) {
                 $sub->whereNot('prog_name', 'Admissions Mentoring');
-            })->
-            whereIn('status', [1, 4]); # success
+            })->whereIn('status', [1, 4]); # success
         });
     }
 
@@ -625,7 +651,15 @@ class UserClient extends Authenticatable
 
     public function clientMentor()
     {
-        return $this->hasManyThrough(User::class, ClientProgram::class, 'client_id', 'users.id', 'id', 'clientprog_id');
+        return $this->hasManyThrough(
+            ClientMentor::class, 
+            ClientProgram::class,
+            'client_id',
+            'clientprog_id',
+            'id',
+            'clientprog_id'
+        );
+        // return $this->hasManyThrough(User::class, ClientProgram::class, 'client_id', 'users.id', 'id', 'clientprog_id');
     }
 
     public function leadStatus()
@@ -638,9 +672,19 @@ class UserClient extends Authenticatable
         return $this->belongsToMany(Major::class, 'tbl_client_acceptance', 'client_id', 'major_id');
     }
 
+    public function majorGroupAcceptance()
+    {
+        return $this->belongsToMany(MajorGroup::class, 'tbl_client_acceptance', 'client_id', 'major_group_id')->withTimestamps();
+    }
+
     public function universityAcceptance()
     {
         return $this->belongsToMany(University::class, 'tbl_client_acceptance', 'client_id', 'univ_id')->using(ClientAcceptance::class)->withPivot('id', 'major_group_id', 'major_name', 'status', 'major_id', 'category', 'requirement_link')->withTimestamps();
+    }
+
+    public function decidedUniversityAcceptance()
+    {
+        return $this->belongsToMany(University::class, 'tbl_client_acceptance', 'client_id', 'univ_id')->using(ClientAcceptance::class)->withPivot('id', 'major_group_id', 'major_name', 'status', 'major_id', 'category', 'requirement_link')->wherePivot('status', 'Final Decision')->withTimestamps();
     }
 
     public function picClient()
@@ -652,7 +696,7 @@ class UserClient extends Authenticatable
     {
         return $this->belongsTo(ViewClientRefCode::class, 'id', 'id');
     }
-  
+
     # PIC from sales team
     public function handledBy()
     {

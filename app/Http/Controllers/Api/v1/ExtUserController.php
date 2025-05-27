@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Enum\LogModule;
 use App\Http\Controllers\Controller;
 use App\Interfaces\SubjectRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Services\Log\LogService;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -133,7 +136,10 @@ class ExtUserController extends Controller
         );
     }
 
-    public function cnGetUserByUUID(Request $request)
+    public function fnGetUserByUUID(
+        Request $request,
+        LogService $log_service,
+        )
     {
         $user_uuid = $request->route('UUID');
 
@@ -146,25 +152,18 @@ class ExtUserController extends Controller
                     'message' => 'User not found.'
                 ], 503);
             }
-        } catch (Exception $e) {
-            Log::error('Failed get user' . $e->getMessage());
 
-            $response = [
+            return response()->json([
+                'success' => true,
+                'message' => 'User found.',
+                'data' => $user
+            ], JsonResponse::HTTP_OK);
+        } catch (Exception $err) {
+            $log_service->createErrorLog(LogModule::GET_USER, $err->getMessage(), $err->getLine(), $err->getFile());
+            return response()->json([
                 'success' => false,
-                'message' => 'Failed get user! '. $e->getMessage(), 
-            ];
-            $http_code = 500;
+                'message' => 'Failed get user '. $err->getMessage(), 
+            ], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        $response = [
-            'success' => true,
-            'message' => 'There are user found.',
-            'data' => $user
-        ];
-        $http_code = 200;
-
-        return response()->json(
-            $response, $http_code
-        );
     }
 }

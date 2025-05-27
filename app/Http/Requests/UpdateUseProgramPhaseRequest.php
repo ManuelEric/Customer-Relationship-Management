@@ -8,14 +8,15 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 
-class UpdateProgramPhaseRequest extends FormRequest
+class UpdateUseProgramPhaseRequest extends FormRequest
 {
     public function prepareForValidation()
     {
         $this->merge([
-            'clientprog_id' => $this->route('clientprog'),
+            'mentee_id' => $this->route('mentee'),
             'phase_detail_id' => $this->route('phase_detail'),
             'phase_lib_id' => $this->route('phase_lib') == 'null' ? null : $this->route('phase_lib'),
+            'use' => (double)$this->use
         ]);
     }
 
@@ -44,10 +45,10 @@ class UpdateProgramPhaseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id',
+            'mentee_id' => 'required|exists:tbl_client,id',
             'phase_detail_id' => 'required|exists:phase_details,id',
-            'phase_lib_id' => 'nullable|exists:phase_libraries,id',
-            'quota' => 'required|numeric|min:1'
+            'type' => 'required|in:increment,update,decrement',
+            'use' => 'required|min:0'
         ];
     }
 }

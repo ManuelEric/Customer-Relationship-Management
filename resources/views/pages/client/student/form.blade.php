@@ -6,6 +6,7 @@
     <li class="breadcrumb-item active" aria-current="page">Form Student</li>
 @endsection
 @section('content')
+
     <div class="card rounded">
         <div class="card-header">
             <h5 class="my-1 p-0">
@@ -594,7 +595,7 @@
 
         $("#leadSource").on('change', function() {
             var lead = $(this).select2().find(":selected").data('lead')
-            if (lead.includes('All-In Event')) {
+            if (lead.includes('EduALL Event')) {
 
                 $(".program").removeClass("d-none")
                 $(".edufair").addClass("d-none")

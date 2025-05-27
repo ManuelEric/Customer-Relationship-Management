@@ -22,6 +22,9 @@ interface ClientProgramRepositoryInterface
     public function endedClientPrograms(array $clientprog_ids, array $newDetails);
     public function deleteClientProgram($clientProgramId);
     public function checkProgramIsAdmission($clientprog_id);
+    public function rnDomicileTracker($date_range, $uuid);
+    public function getClientProgramAdmissionByClientId($clientId);
+
 
     # bundling
     public function getBundleProgramByUUID($uuid);

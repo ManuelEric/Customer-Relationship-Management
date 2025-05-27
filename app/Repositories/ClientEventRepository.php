@@ -140,7 +140,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     DB::raw('(SELECT CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) 
                         FROM tbl_pic_client pic
                         LEFT JOIN users u on u.id = pic.user_id
-                        WHERE pic.client_id = child.id AND pic.status = 1 LIMIT 1) as pic_name'),
+                        WHERE pic.client_id = (CASE WHEN tbl_roles.role_name = "Parent" THEN child.id WHEN tbl_roles.role_name != "Parent" THEN tbl_client.id END) AND pic.status = 1 LIMIT 1) as pic_name'),
                     DB::raw('CONCAT (cref.first_name, " ", COALESCE(cref.last_name, "")) AS referral_name'),
                 )->
                 when(!empty($filter['audience']), function ($searchQuery) use ($filter) {
@@ -300,7 +300,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 $sql = '(SELECT CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) 
                         FROM tbl_pic_client pic
                         LEFT JOIN users u on u.id = pic.user_id
-                        WHERE pic.client_id = rc.id AND pic.status = 1 LIMIT 1) as pic_name like ?';
+                        WHERE pic.client_id = (CASE WHEN tbl_roles.role_name = "Parent" THEN child.id WHEN tbl_roles.role_name != "Parent" THEN tbl_client.id END) AND pic.status = 1 LIMIT 1) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             })->
             filterColumn('referral_name', function ($query, $keyword) {

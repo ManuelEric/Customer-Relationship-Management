@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Http\Traits\FindDestinationCountryScore;
 use App\Http\Traits\FindSchoolYearLeftScoreTrait;
+use App\Http\Traits\MentorTypeTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Models\Client;
@@ -23,6 +24,7 @@ use App\Models\pivot\ClientAcceptance as PivotClientAcceptance;
 use App\Models\User;
 use App\Models\ViewRawClient;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class ClientRepository implements ClientRepositoryInterface
@@ -30,6 +32,7 @@ class ClientRepository implements ClientRepositoryInterface
     use FindSchoolYearLeftScoreTrait;
     use FindDestinationCountryScore;
     use StandardizePhoneNumberTrait;
+    use MentorTypeTrait;
     private RoleRepositoryInterface $roleRepository;
     private $potentialClients;
     private $existingMentees;
@@ -725,29 +728,54 @@ class ClientRepository implements ClientRepositoryInterface
     {
         $graduated_mentees = UserClient::with([
                 'universityAcceptance' => function ($query) {
-                    $query->where('tbl_client_acceptance.status', 'final decision');
+                    // it is commented because if not
+                    // university name and major cannot be seen
+                    // $query->where('tbl_client_acceptance.status', 'final decision');
+                },
+                'clientProgram' => function ($query) {
+                    $query->mentoring()->latest();
                 },
             ])->
+            mentoring()->
             isGraduated()->
-            // getMentoredStudents()->
+            getMentoredStudents()->
             search($search)->
             select([
                 'id',
                 'first_name',
                 'last_name',
                 'application_year',
-            ])->get();
+            ])->
+            orderBy('first_name', 'asc')->
+            orderBy('last_name', 'asc')->
+            get();
             
         $mapped_graduated_mentees = $graduated_mentees->map(function ($item) {
 
             $have_university_acceptance = count($item->universityAcceptance) > 0 ? true : false;
-            $university_acceptance = $have_university_acceptance ? $item->universityAcceptance[0] : null;
+
+            # actually, there will be more than 1 university acceptance
+            # but we only need the last one
+            # so we take the last one by using count($item->universityAcceptance)-1
+            $university_acceptance = $have_university_acceptance ? $item->universityAcceptance[count($item->universityAcceptance)-1] : null;
             $university_name = $have_university_acceptance ? $university_acceptance->univ_name : null;
-            $major_group = $have_university_acceptance ? $university_acceptance->pivot->major_group->mg_name : null;
+            $major_group = $have_university_acceptance && $university_acceptance->pivot->major_group_id !== NULL ? $university_acceptance->pivot->major_group->mg_name : null;
             $major = $have_university_acceptance ? $university_acceptance->pivot->get_major_name : null;
             $created_university_acceptance_at = $have_university_acceptance 
                 ? Carbon::parse($university_acceptance->pivot->created_at)->format('Y-m-d H:i:s') 
                 : null;
+            
+            # determine which type of mentor does the user has
+            $latest_admission = $item->clientProgram[0];
+            # with orderByPivot, it helps get the latest record 
+            $logged_in_mentor_type = $latest_admission->clientMentor()->where('users.id', Auth::guard('api')->user()->id)->orderByPivot('id', 'desc')->get();
+            $mapped_mentor_type = $logged_in_mentor_type->map(function ($item) {
+                return [
+                    'code' => $item->pivot->type,
+                    'alias' => $this->tnDefineMentorType($item->pivot->type)
+                ];
+            });
+            
 
             return [
                 'id' => $item->id,
@@ -756,6 +784,10 @@ class ClientRepository implements ClientRepositoryInterface
                 'major_group' => $major_group,
                 'major' => $major,
                 'application_year' => $item->application_year,
+                'clientprog_id' => $latest_admission->clientprog_id,
+                'act_as' => $mapped_mentor_type,
+                'code_array' => $mapped_mentor_type->pluck('code')->toArray(),
+                'alias_array' => $mapped_mentor_type->plucK('alias')->toArray(),
                 'created_at' => $created_university_acceptance_at
             ];
         });
@@ -769,12 +801,81 @@ class ClientRepository implements ClientRepositoryInterface
             'school' => function ($query) {
                 $query->select('sch_id', 'sch_name', 'sch_city');
             },
+            'clientProgram' => function ($query) {
+                $query->mentoring()->latest();
+            },
         ])->
+        mentoring()->
         isActiveMentee()->
         search($search)->
         getMentoredStudents()->
+        // when(isset($search['sorting_array']['sort_by']) && isset($search['sorting_array']['sort_order']), function ($query) use ($search) {
+        //     $query->
+        //         when( preg_match("/grade/i", $search['sorting_array']['sort_by']), function ($query) use ($search) {
+        //             $query->
+        //             orderByRaw(
+        //                 "CASE
+        //                     WHEN grade_now BETWEEN 7 and 12 THEN 1 -- Prioritize 7-12
+        //                     ELSE 2 -- Then show > 12
+        //                 END ASC,
+        //                 CASE
+        //                     WHEN grade_now BETWEEN 7 AND 12 THEN grade_now
+        //                     ELSE grade_now
+        //                 END DESC"
+        //             );
+        //         });
+        //         // when( preg_match("/progress status/i", $search['sorting_array']['sort_by']), function ($query) use ($search) {
+        //         //     $query->orderByRaw(
+        //         //         "CASE
+        //         //             WHEN mentoring_progress_status IN ('On Track', 'Slow', 'Behind') THEN mentoring_progress_status
+        //         //             ELSE 'HALT'
+        //         //         END {$search['sorting_array']['sort_order']}"
+        //         //     );
+        //         // });
+        //     // orderBy($search['sorting_array']['sort_by'], $search['sorting_array']['sort_order']);
+        // }, function ($query) {
+        //     $query->
+        //         orderBy('first_name', 'asc')->
+        //         orderBy('last_name', 'asc');
+        // })->
+        orderByRaw(
+            "
+            CASE
+                WHEN grade_now BETWEEN 7 AND 12 AND mentoring_progress_status = 'On Track' THEN 1
+                WHEN grade_now BETWEEN 7 AND 12 AND mentoring_progress_status = 'Slow' THEN 2
+                WHEN grade_now BETWEEN 7 AND 12 AND mentoring_progress_status = 'Behind' THEN 3
+                WHEN grade_now BETWEEN 7 AND 12 AND mentoring_progress_status IS NULL THEN 4
+                WHEN grade_now BETWEEN 7 AND 12 AND mentoring_progress_status = 'Halt' THEN 5
+                WHEN grade_now > 12 AND mentoring_progress_status = 'On Track' THEN 6
+                WHEN grade_now > 12 AND mentoring_progress_status = 'Slow' THEN 7
+                WHEN grade_now > 12 AND mentoring_progress_status = 'Behind' THEN 8
+                WHEN grade_now > 12 AND mentoring_progress_status IS NULL THEN 9
+                WHEN grade_now > 12 AND mentoring_progress_status = 'Halt' THEN 10
+                ELSE 11
+            END ASC,
+            CASE
+                WHEN grade_now BETWEEN 7 AND 12 THEN grade_now
+                ELSE grade_now
+            END DESC,
+            first_name ASC,
+            last_name ASC
+            "
+        )->
         get();
         $mapped_active_mentees = $active_mentees->map(function ($item) {
+
+            # determine which type of mentor does the user has
+            $latest_admission = $item->clientProgram[0];
+            # with orderByPivot, it helps get the latest record 
+            $logged_in_mentor_type = $latest_admission->clientMentor()->where('users.id', Auth::guard('api')->user()->id)->orderByPivot('id', 'desc')->get();
+            $mapped_mentor_type = $logged_in_mentor_type->map(function ($item) {
+                return [
+                    'code' => $item->pivot->type,
+                    'alias' => $this->tnDefineMentorType($item->pivot->type)
+                ];
+            });
+            
+
             return [
                 'id' => $item->id,
                 'full_name' => $item->full_name,
@@ -787,7 +888,14 @@ class ClientRepository implements ClientRepositoryInterface
                 'sch_city' => $item->school->sch_city ?? null,
                 'grade' => $item->grade_now,
                 'application_year' => $item->application_year,
-                'mentoring_progress_status' => $item->mentoring_progress_status
+                'mentoring_progress_status' => $item->mentoring_progress_status,
+                'clientprog_id' => $latest_admission->clientprog_id,
+                'act_as' => $mapped_mentor_type,
+                'code_array' => $mapped_mentor_type->pluck('code')->toArray(),
+                'alias_array' => $mapped_mentor_type->plucK('alias')->toArray(),
+                'latest_update' => count($item->mentoringLogs) > 0 ? $item->mentoringLogs()->latest()->first()->updated_at : null,
+                'joining_year' => Carbon::parse($item->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first()->success_date)->format('Y'),
+        
             ];
         });
         
@@ -1597,6 +1705,19 @@ class ClientRepository implements ClientRepositoryInterface
         })->whereHas('roles', function ($query) {
             $query->where('role_name', 'Student');
         })->whereNotIn('client.id', $client)->orderBy('created_at', 'desc')->get();
+    }
+
+    public function getMenteesBirthdaybyToday()
+    {
+        return UserClient::with([
+                'clientProgram.clientMentor' => function ($query) {
+                    $query->select('users.id', 'first_name', 'last_name', 'email');
+                }, 
+                'handledBy' => function ($query) {
+                    $query->select('users.id', 'first_name', 'last_name', 'email');
+                }
+            ])->
+            where('dob', Carbon::now()->subDay()->format('Y-m-d'))->select('id', 'first_name', 'last_name')->get();
     }
 
     public function getMenteesBirthdayMonthly($month)
@@ -2548,7 +2669,7 @@ class ClientRepository implements ClientRepositoryInterface
         }
 
         $active = $categories->where('id', $client->id)->where('category', 'active')->count();
-        $alumni = $categories->where('id', $client->id)->where('category', 'alumni')->count();
+        $alumni = $categories->where('id', operator: $client->id)->where('category', 'alumni')->count();
         $potential = $categories->where('id', $client->id)->where('category', 'potential')->count();
 
         if ($active > 0) {

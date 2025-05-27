@@ -559,8 +559,8 @@
                     <form action="{{ route('receipt.client-program.store') }}" method="POST" id="receipt">
                         @csrf
                         <input type="hidden" name="clientprog_id" value="{{ $clientProg->clientprog_id }}">
-                        <input type="hidden" name="identifier" id="identifier">
-                        <input type="hidden" name="paymethod" id="paymethod">
+                        <input type="hidden" name="identifier" id="identifier" value="">
+                        <input type="hidden" name="paymethod" id="paymethod" value="">
                         <input type="hidden" name="is_child_program_bundle" value="{{ $clientProg->bundlingDetail()->count() }}">
                         <input type="hidden" name="rec_currency"
                             value="{{ isset($invoice->currency) ? $invoice->currency : null }}">
@@ -1357,7 +1357,7 @@
                 })
                 .catch(function (error) {
                     Swal.close()
-                    notification('error', error)
+                    notification('error', error?.response?.data?.error)
                 })
             })
         });

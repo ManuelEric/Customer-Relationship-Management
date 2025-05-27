@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Enum\LogModule;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\v1\UpdateMenteeGDriveRequest;
+use App\Http\Requests\Api\v1\UpdateMenteeProfileRequest;
 use App\Http\Requests\Client\Registration\Public\PublicRegistrationRequest;
 use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
@@ -21,9 +21,11 @@ use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Jobs\Client\ProcessInsertLogClient;
+use App\Models\BundlingDetail;
 use App\Models\ClientEvent;
 use App\Models\Event;
 use App\Models\Phase;
+use App\Models\Program;
 use App\Models\School;
 use App\Models\UserClient;
 use App\Repositories\ProgramRepository;
@@ -836,7 +838,7 @@ class ExtClientController extends Controller
                         $validatedStudent['mail'] = $validated['secondary_mail'] ?? null;
                         $validatedStudent['phone'] = $validated['secondary_phone'] ?? null;
                         $validatedStudent['scholarship'] = 'N';
-                        $validatedStudent['lead_source_id'] = 'LS001'; # Website
+                        // $validatedStudent['lead_source_id'] = 'LS001'; # Website
 
                         $student = $this->storeStudent($validatedStudent);
 
@@ -2209,7 +2211,12 @@ class ExtClientController extends Controller
 
     public function fnGetUserByRoleAndUUID(string $role, string $uuid)
     {
-        $users = \App\Models\User::whereHas('roles', function ($query) use ($role, $uuid) {
+        # Added 'with (user_type)' for editing platform -> get contract date editor
+        // $users = \App\Models\User::with(['user_type'])
+        $users = \App\Models\User::with(['user_type' => function($query){
+            $query->orderBy('tbl_user_type_detail.id', 'desc');
+        }, 'position'])
+        ->whereHas('roles', function ($query) use ($role, $uuid) {
             $query->where('role_name', $role);
         })->where('id', $uuid)->first();
         return response()->json($users);
@@ -2227,14 +2234,19 @@ class ExtClientController extends Controller
             'mentee_name' => $details->first_name . ' ' . $details->last_name,
             'mentee_phone' => $details->phone,
             'mentee_email' => $details->mail,
+            'secondary_id' => str_pad($details->secondary_id,5,'0',STR_PAD_LEFT),
             'grade' => $details->grade_now,
-            'application_year' => null,
+            'application_year' => Carbon::parse($details->application_year)->format('Y'),
+            'joining_year' => Carbon::parse($details->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first()->success_date)->format('Y'),
             'address' => [
                 'detail' => $details->address,
                 'city' => $details->city,
             ],
             'birthdate' => $details->dob,
-            'parent_name' => $details->parents()->select(['first_name', 'last_name', 'mail', 'phone'])->get()->toArray() 
+            'parent_name' => $details->parents()->select(['first_name', 'last_name', 'mail', 'phone'])->get()->toArray(),
+            'gdrive_link' => $details->mentoring_google_drive_link,
+            'mentoring_progress' => $details->mentoring_progress_status,
+            'school_name' => $details->school->sch_name,
         ];
 
         $response_of_student_mentor = array();
@@ -2266,7 +2278,11 @@ class ExtClientController extends Controller
     public function fnGetActiveMentee(Request $request)
     {
         $terms = $request->get('terms');
-        $search = compact('terms');
+        $sorting_array = [
+            'sort_by' => $request->get('sort_by'),
+            'sort_order' => $request->get('sort_order')
+        ];
+        $search = compact('terms', 'sorting_array');
         $active_mentees = $this->clientRepository->rnGetActiveMentees($search);
         return response()->json($active_mentees);
     }
@@ -2289,69 +2305,125 @@ class ExtClientController extends Controller
     {
         $program_besides_admissions = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', '!=', 'Admissions Mentoring')->has('invoice.receipt')->get();
         $mapped_program = $program_besides_admissions->map(function ($item) {
+
+            # check if the clientprog was bundle
+            BundlingDetail::selectRaw('group_concat(clientprog_id) as bundle')->where('clientprog_id', $item->clientprog_id)->first();
+
             return [
                 'clientprog_id' => $item->clientprog_id,
                 'main_program' => $item->program->main_prog->prog_name,
-                'sub_program' => $item->program->sub_prog->sub_prog_name,
+                'sub_program' => $item->program->sub_prog->sub_prog_name ?? null,
                 'program_name' => $item->program->prog_program,
+                'display_program_name' => $item->program->program_name ?? null,
                 'success_date' => $item->success_date,
-                'status' => $this->translate($item->prog_running_status)
+                'status' => $this->translate($item->prog_running_status),
+                'bundle' => $item->clientprog_id
             ];
         }); 
         return response()->json($mapped_program);
     }
 
-    public function fnUpdateMenteeGDriveLink(
+    public function fnUpdateMenteeProfile(
         UserClient $user_client, 
-        UpdateMenteeGDriveRequest $request,
+        UpdateMenteeProfileRequest $request,
         LogService $log_service
         )
     {
-        $validated = $request->safe()->only(['gdrive_link']);
         DB::beginTransaction();
         try {
-            $user_client->mentoring_google_drive_link = $validated['gdrive_link'];
-            $user_client->save();
+            $gdrive_link = $request->safe()->only('gdrive_link') ? $request->safe()->only('gdrive_link')['gdrive_link'] : null;
+            if ($gdrive_link)
+            {
+                $user_client->mentoring_google_drive_link = $gdrive_link;
+                $user_client->save();
+            }
+
+            $progress_status = $request->safe()->only('progress') ? $request->safe()->only('progress')['progress'] : null;
+            if ($progress_status)
+            {
+                $user_client->mentoring_progress_status = $progress_status;
+                $user_client->save();
+            }
+
+
             DB::commit();
         } catch (Exception $err) {
             DB::rollBack();
-            $log_service->createErrorLog(LogModule::UPDATE_MENTEE_GDRIVE, $err->getMessage(), $err->getLine(), $err->getFile(), $validated);
+            $log_service->createErrorLog(LogModule::UPDATE_MENTEE_PROFILE, $err->getMessage(), $err->getLine(), $err->getFile(), $request->safe()->only(['gdrive_link', 'progress']));
             throw new HttpResponseException(
-                response()->json(['errors' => 'Failed to update gdrive link'], JsonResponse::HTTP_BAD_REQUEST)
+                response()->json(['errors' => 'Failed to update profile'], JsonResponse::HTTP_BAD_REQUEST)
             );
         }
-        $log_service->createSuccessLog(LogModule::UPDATE_MENTEE_GDRIVE, 'The gdrive link has been updated', $validated);
+        $log_service->createSuccessLog(LogModule::UPDATE_MENTEE_PROFILE, 'The profile has been updated', $request->safe()->only(['gdrive_link', 'progress']));
         return response()->json([
-            'message' => 'Mentee gdrive has been updated'
+            'message' => 'Mentee profile has been updated'
         ]);
     }
 
     public function fnGetPackagesBoughtByMentee(
-        UserCLient $user_client        
+        UserCLient $user_client,
+        LogService $log_service,
+        Request $request 
         )
     {
         try {
             $mapped_packages_bought = [];
+            $type = $request->get('type'); 
             $packages_bought = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->has('phase_detail')->get();
 
             if(count($packages_bought) > 0){
 
-                $mapped_packages_bought = $packages_bought->map(function($item){
+                $mapped_packages_bought = $packages_bought->map(function($item) use($type){
 
-                    $mapped_phase_detail = $item->phase_detail->map(function($item) {
-                        return [
-                            'phase_detail_name' => $item->phase_detail_name,
-                            'allocate' => $item->pivot->quota
-                        ];
-                    });
+                    $clientprog = $item;
+
+                    switch ($type) {
+                        case 'all':
+                            $mapped_phase_detail = $item->phase_detail->map(function($item)use($clientprog) {
+                                return [
+                                    'clientprog_id' => $clientprog->clientprog_id,
+                                    'phase_detail_id' => $item->id,
+                                    'phase_detail_name' => $item->phase_detail_name,
+                                    'allocate' => $item->pivot->quota,
+                                    'use' => $item->pivot->use
+                                ];
+                            });
+                            break;
+
+                        case 'manual':
+                            $mapped_phase_detail = $item->phase_detail->where('type', 'manual')->map(function($item)use($clientprog) {
+                                return [
+                                    'clientprog_id' => $clientprog->clientprog_id,
+                                    'phase_detail_id' => $item->id,
+                                    'phase_detail_name' => $item->phase_detail_name,
+                                    'allocate' => $item->pivot->quota,
+                                    'use' => $item->pivot->use
+                                ];
+                            });
+                            break;
+                        
+                        default:
+                            return response()->json([
+                                'success' => false,
+                                'error' => 'Failed to get packages bought, Undefined type!'
+                            ], JsonResponse::HTTP_BAD_REQUEST);
+                            break;
+                    }
+                   
+
                     return $mapped_phase_detail;
                 });
                 
             }
 
-            return response()->json($mapped_packages_bought);
-        } catch (Exception $err) {
+            $latest_adm_program = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first();
+            $admission_program_name = $latest_adm_program->program->program_name;
+            $received_packages = count($mapped_packages_bought) > 0 ? array_values($mapped_packages_bought->first()->toArray()) : $mapped_packages_bought;
 
+
+            return response()->json(compact('admission_program_name', 'received_packages'));
+        } catch (Exception $err) {
+            $log_service->createErrorLog(LogModule::GET_MENTEE_PACKAGES_BOUGHT, $err->getMessage(), $err->getLine(), $err->getFile());
             throw new HttpResponseException(
                 response()->json(['errors' => 'Failed to get packages bought'], JsonResponse::HTTP_BAD_REQUEST)
             );

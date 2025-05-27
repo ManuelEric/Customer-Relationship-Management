@@ -13,6 +13,7 @@ use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Jobs\Receipt\ProcessUploadReceiptJob;
 use App\Models\Receipt;
+use App\Models\Transaction;
 use App\Services\Log\LogService;
 use App\Services\Receipt\ReceiptService;
 use Exception;
@@ -74,10 +75,13 @@ class ReceiptController extends Controller
                     ]
             );
         }else{
+            $invoice_id = $receipt->inv_id;
+            $trx = Transaction::where('invoice_id', $invoice_id)->first();
             return view('pages.receipt.client-program.form')->with(
                 [
                     'client_prog' => $receipt->invoiceProgram->clientProg,
-                    'receipt' => $receipt
+                    'receipt' => $receipt,
+                    'trx' => $trx
                 ]
             );
         }
@@ -90,11 +94,13 @@ class ReceiptController extends Controller
         LogService $log_service,
         )
     {
-        #initialize
-        $identifier = $request->identifier; #invdtl_id
-        $paymethod = $request->paymethod;
+        #initialize variables for payment gateway
+        $identifier = $request->identifier; // could be primary id of invoice or invoice detail
+        $paymethod = $request->paymethod; // could be full payment or installment
+        $clientprog_id = $request->clientprog_id;
+        $is_child_program_bundle = $request->is_child_program_bundle;
 
-        $receiptDetails = $request->only([
+        $receiptDetails = $request->safe()->only([
             'rec_currency',
             'receipt_amount',
             'receipt_amount_idr',
@@ -107,17 +113,16 @@ class ReceiptController extends Controller
             'created_at',
         ]);
 
-        $client_prog = $this->clientProgramRepository->getClientProgramById($request->clientprog_id);
+        $client_prog = $this->clientProgramRepository->getClientProgramById($clientprog_id);
         
         # validation child receipt bundle
         # master receipt bundle must be created first 
         # master receipt also meaning as invoice bundle
-        if ( $request->is_child_program_bundle > 0 && !isset($client_prog->bundlingDetail->bundling->invoice_b2c->receipt) )
-            return Redirect::to('invoice/client-program/' . $request->clientprog_id)->withError('Create master receipt bundle first!');
+        if ( $is_child_program_bundle > 0 && !isset($client_prog->bundlingDetail->bundling->invoice_b2c->receipt) )
+            return Redirect::to('invoice/client-program/' . $clientprog_id)->withError('Create master receipt bundle first!');
         
 
-        $invoice = $client_prog->invoice()->first();
-        $is_child_program_bundle = $request->is_child_program_bundle; # sum of program bundled (ex: admission & academic tutor)
+        $invoice = $client_prog->invoice()->first();# sum of program bundled (ex: admission & academic tutor)
 
         # generate receipt ID
         $receipt_id = $receipt_service->generateReceiptId($receiptDetails, $client_prog, $is_child_program_bundle);
@@ -129,6 +134,12 @@ class ReceiptController extends Controller
         $invoice_payment_method = $invoice->inv_paymentmethod;
         if ($invoice_payment_method == "Installment")
             $receiptDetails['invdtl_id'] = $identifier;
+
+        
+        # check if receipt of selected invoice / installment has already been created
+        if ( $this->receiptRepository->getReceiptByInvoiceId($invoice->inv_id, $invoice_payment_method, $identifier) )
+            return Redirect::back()->withError('Receipt has already been created.');
+
 
         # here is some price validation
         # to catch if total invoice is not equal to total receipt
@@ -473,7 +484,7 @@ class ReceiptController extends Controller
             # send mail when document has been signed
             Mail::send('pages.receipt.client-program.mail.signed', $data, function ($message) use ($data, $name) {
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
-                    ->cc([env('FINANCE_CC_2')])
+                    ->cc([env('FINANCE_CC_2', '')])
                     ->subject($data['title'])
                     ->attach(Storage::url('receipt/client/' . $name));
             });
@@ -534,7 +545,7 @@ class ReceiptController extends Controller
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),
-            env('FINANCE_CC_2'),
+            env('FINANCE_CC_2', ''),
             $pic_mail
         ];
         
@@ -617,10 +628,11 @@ class ReceiptController extends Controller
 
     // ============ Bundling ==============
 
-    public function storeBundle(StoreReceiptRequest $request)
+    public function storeBundle(
+        StoreReceiptRequest $request,
+        ReceiptService $receiptService
+    )
     {
-        // return $request->all();
-        // exit;
         #initialize
         $identifier = $request->identifier; #invdtl_id
         $paymethod = $request->paymethod;
@@ -647,12 +659,16 @@ class ReceiptController extends Controller
         $last_id = Receipt::whereMonth('created_at', isset($request->receipt_date) ? date('m', strtotime($request->receipt_date)) : date('m'))->whereYear('created_at', isset($request->receipt_date) ? date('Y', strtotime($request->receipt_date)) : date('Y'))->max(DB::raw('substr(receipt_id, 1, 4)'));
 
         # Use Trait Create Invoice Id
-        $receiptDetails['receipt_id'] = $this->getLatestReceiptId($last_id, 'BDL', $receiptDetails);
+        $receiptDetails['receipt_id'] = $receiptService->getLatestReceiptId($last_id, 'BDL', $receiptDetails);
 
         $receiptDetails['inv_id'] = $invoice->inv_id;
         $invoice_payment_method = $invoice->inv_paymentmethod;
         if ($invoice_payment_method == "Installment")
             $receiptDetails['invdtl_id'] = $identifier;
+
+        # check if receipt of selected invoice / installment has already been created
+        if ( $this->receiptRepository->getReceiptByInvoiceId($invoice->inv_id, $invoice_payment_method, $identifier) )
+            return Redirect::back()->withError('Receipt has already been created.');
 
         # validation nominal
         # to catch if total invoice not equal to total receipt 

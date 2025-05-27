@@ -488,7 +488,11 @@
                         @endif
                         <tr>
                             <td>Payment Method :</td>
-                            <td>{{ $receipt->receipt_method }}</td>
+                            <td>{{ $receipt->receipt_method }}
+                                @if (isset($trx) && $trx->bank_id !== NULL)
+                                    - {{ $trx->bank_name }}
+                                @endif
+                            </td>
                         </tr>
                         <tr>
                             <td>Amount :</td>

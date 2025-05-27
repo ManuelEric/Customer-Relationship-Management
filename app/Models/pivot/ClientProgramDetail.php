@@ -22,6 +22,7 @@ class ClientProgramDetail extends Pivot
         'phase_lib_id',
         'slot',
         'quota',
+        'use',
         'grade', 
         'nation',
     ];

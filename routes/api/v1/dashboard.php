@@ -44,6 +44,7 @@ Route::middleware(['throttle:120,1'])->group(function () {
     Route::get('program-comparison', [V1SalesDashboardController::class, 'fnCompareProgram']);
     // Route::get('export/client', [V1SalesDashboardController::class, 'fnExportClient']); //! not used
     Route::get('outstanding-payment', [DashboardController::class, 'fnAjaxDataTablesOutstandingPayment']);
+    Route::get('domicile', [V1SalesDashboardController::class, 'fnDomicileTracker']);
 
 
     /**
