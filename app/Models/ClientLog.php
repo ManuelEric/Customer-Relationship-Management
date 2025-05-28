@@ -22,7 +22,6 @@ class ClientLog extends Model
         'category',
         'utm_content',
         'lead_source',
-        'utm_content',
         'inputted_from',
         'unique_key',
         'clientprog_id'
