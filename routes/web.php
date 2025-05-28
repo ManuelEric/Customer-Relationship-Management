@@ -13,6 +13,7 @@ use App\Models\ClientProgram;
 use App\Models\ClientEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 
@@ -39,14 +40,14 @@ Route::middleware('guest')->group(function () {
             $client_progs = ClientProgram::where('prog_id', 'EVENTAWM')->where('status', 1)->get();
             $a = [];
             foreach ($client_progs as $client_prog) {
-                if(!ClientEvent::where('client_id', $client_prog->client_id)->where('event_id', 'EVT-0049')->first()){
+                if (!ClientEvent::where('client_id', $client_prog->client_id)->where('event_id', 'EVT-0049')->first()) {
                     $a['client_id'] = $client_prog->client_id;
                     $a['event_id'] = 'EVT-0049';
                     $a['lead_id'] = 'LS061';
                     $a['registration_type'] = 'PR';
                     $a['number_of_attend'] = '1';
                     $a['joined_date'] = '2025-03-12';
-    
+
                     $b = ClientEvent::create($a);
                     Log::debug($b->toArray);
                 }
@@ -55,17 +56,27 @@ Route::middleware('guest')->group(function () {
             Log::error('Error create client event wishful', $err->getMessage());
         }
     });
-    
+
     Route::get('404', function () {
         return view('auth.404');
     })->name('auth.404');
-    
+
     Route::get('login', function () {
         return view('auth.login');
     })->name('login');
 
     Route::post('auth/login', [AuthController::class, 'login'])->name('login.action');
     Route::get('login/expired', [AuthController::class, 'logoutFromExpirationTime'])->name('logout.expiration');
+
+    // Testing Email 
+    Route::get('/test-email', function () {
+        Mail::raw('Test for mailing system.', function ($message) {
+            $message->to('hafidz.fanany@edu-all.com','manuel.eric@edu-all.com')
+                ->subject('Email Test');
+        });
+
+        return 'Email test telah dikirim.';
+    });
 });
 
 
