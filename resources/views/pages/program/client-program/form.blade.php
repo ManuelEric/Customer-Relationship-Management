@@ -84,6 +84,7 @@
                             @method('PUT')
                         @endif
                         <input type="hidden" name="queryP" value="{{ isset($_GET['p']) ? $_GET['p'] : null }}">
+                        {{ $clientProgram->prog_id . ' ' . $clientProgram->program->prog_program }}
                         <div class="row mb-2">
                             <div class="col-md-3">
                                 <label for="">
@@ -549,17 +550,14 @@
                                 <div class="col-md-9">
                                     <div class="row">
                                         <div class="col-md-6">
+                                            {{ $clientProgram->clientMentor()->where('type', 6)->first() }}
                                             <select name="subject_specialist_mentor" id="" class="select w-100"
                                                 {{ $disabled }}>
                                                 <option data-placeholder="true"></option>
                                                 @foreach ($mentors as $mentor)
                                                     <option value="{{ $mentor->id }}"
-                                                        @if (old('subject_specialist_mentor') == $mentor->id) {{ 'selected' }}
-                                                        @elseif (isset($clientProgram->clientMentor) &&
-                                                                $clientProgram->clientMentor()->where('type', 6)->count() > 0)
-                                                            @if ($clientProgram->clientMentor()->where('type', 6)->first()->id == $mentor->id)
-                                                                {{ 'selected' }} @endif
-                                                        @endif
+                                                        @selected(old('subject_specialist_mentor') == $mentor->id)
+                                                        @selected(isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->where('type', 6)->first()->id == $mentor->id)
                                                         >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
                                                 @endforeach
                                             </select>
@@ -1112,6 +1110,11 @@
                 // trigger to change() sub program
                 @if (old('sub_program') !== null)
                     $("#sub_program").select2().val("{{ old('sub_program') }}").trigger('change');
+                @elseif ( isset($clientProgram))
+                    $("#sub_program").select2().val("{{ $clientProgram->program->sub_prog_id }}").trigger('change');
+                    @if (!isset($edit))
+                        $("#sub_program").attr('disabled', true)
+                    @endif
                 @endif
             })
             .catch(function (error) {

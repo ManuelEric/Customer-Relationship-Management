@@ -144,7 +144,7 @@ Route::middleware(['throttle:120,1'])->group(function () {
         });
     
         # timesheet
-        Route::middleware(  ['resource:timesheet'])->group(function () {
+        // Route::middleware(  ['resource:timesheet'])->group(function () {
             Route::post('user/update', [ExtClientController::class, 'updateUser']);
     
             Route::get('user/mentor-tutors', [ExtClientController::class, 'getMentorTutors']);
@@ -157,7 +157,7 @@ Route::middleware(['throttle:120,1'])->group(function () {
 
             Route::get('program/list/free-trial', [ExtClientProgramController::class, 'fnGetFreeTrialPrograms']);
             Route::get('client/information/{uuid}', [ExtClientController::class, 'getClientInformation']);
-        });
+        // });
     
         # mentoring 
         Route::middleware(['resource:mentoring'])->group(function () {
@@ -206,5 +206,4 @@ Route::middleware(['throttle:120,1'])->group(function () {
 
         # upcoming events
         Route::get('upcoming/events', [ExtEventController::class, 'fnGetUpcomingEvents']);
-
 });

@@ -123,7 +123,8 @@ return new class extends Migration
 
         DB::statement('
         CREATE OR REPLACE VIEW clientprogram AS
-        SELECT cp.*,
+        SELECT 
+            cp.*,
             (SELECT pic.user_id 
                         FROM tbl_pic_client pic
                     LEFT JOIN users u on u.id = pic.user_id
