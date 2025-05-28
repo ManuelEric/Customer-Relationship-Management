@@ -23,7 +23,7 @@ class ChangeUserStatusRequest extends FormRequest
     {
         return [
             'new_status' => 'required|in:activate,deactivate',
-            'deactivated_at' => 'required',
+            'deactivated_at' => 'required_unless:new_status,activate',
             'new_pic' => 'nullable',
             'department' => 'nullable'
         ];

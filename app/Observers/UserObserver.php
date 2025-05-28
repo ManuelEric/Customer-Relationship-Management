@@ -19,7 +19,7 @@ class UserObserver
      */
     public function updated(User $user): void
     {
-        // if certain user active was changed to 0 then put status in client mentor also 0
+        // if certain user's active status was changed to 0 then put status in client mentor also 0
         if ( $user->wasChanged('active') && $user->active == 0 )
         {
             foreach ($user->mentorClient as $mentoring)
