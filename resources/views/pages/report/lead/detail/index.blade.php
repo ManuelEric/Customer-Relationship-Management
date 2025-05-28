@@ -60,6 +60,7 @@
                 <th>Grade Now</th>
                 <th>School Name</th>
                 <th>Lead Source</th>
+                <th>UTM Content</th>
                 <th>Interest Program</th>
                 <th>Program Name</th>
                 </tr>
@@ -74,6 +75,7 @@
                         <td>{{ $lead_tracker['grade_now'] }}</td>
                         <td>{{ $lead_tracker['school_name'] }}</td>
                         <td>{{ $lead_tracker['lead_source'] }}</td>
+                        <td>{{ $lead_tracker['utm_content'] }}</td>
                         <td>{{ $lead_tracker['interest_program'] }}</td>
                         <td>{{ $lead_tracker['program_name'] }}</td>
                     </tr>
