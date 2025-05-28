@@ -598,7 +598,17 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
     public function getClientProgramById($clientProgramId)
     {
-        return ClientProgram::whereClientProgramId($clientProgramId);
+        return ClientProgram::with([
+            'program',
+            'program.main_prog',
+            'program.sub_prog',
+            'clientMentor',
+            'lead',
+            'invoice',
+            'invoice.receipt',
+            'invoice.invoiceDetail',
+            'invoice.invoiceDetail.receipt',
+        ])->where('clientprog_id', $clientProgramId)->first();
     }
 
     public function getClientProgramByClientId($clientId)

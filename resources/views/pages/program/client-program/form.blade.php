@@ -495,12 +495,8 @@
                                                 <option data-placeholder="true"></option>
                                                 @foreach ($mentors as $mentor)
                                                     <option value="{{ $mentor->id }}"
-                                                        @if (old('supervising_mentor') == $mentor->id) {{ 'selected' }}
-                                                        @elseif (isset($clientProgram->clientMentor) &&
-                                                                $clientProgram->clientMentor()->where('type', 1)->count() > 0)
-                                                            @if ($clientProgram->clientMentor()->where('type', 1)->first()->id == $mentor->id)
-                                                                {{ 'selected' }} @endif
-                                                        @endif
+                                                        @selected(old('supervising_mentor') == $mentor->id)
+                                                        @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 1)->latest()->first())->id == $mentor->id)
                                                         >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
                                                 @endforeach
                                             </select>
@@ -525,12 +521,8 @@
                                                 <option data-placeholder="true"></option>
                                                 @foreach ($mentors as $mentor)
                                                     <option value="{{ $mentor->id }}"
-                                                        @if (old('profile_building_mentor') == $mentor->id) {{ 'selected' }}
-                                                        @elseif (isset($clientProgram->clientMentor) &&
-                                                                $clientProgram->clientMentor()->where('type', 2)->count() > 0)
-                                                            @if ($clientProgram->clientMentor()->where('type', 2)->first()->id == $mentor->id)
-                                                                {{ 'selected' }} @endif
-                                                        @endif
+                                                        @selected(old('profile_building_mentor') == $mentor->id)
+                                                        @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 2)->latest()->first())->id == $mentor->id)
                                                         >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
                                                 @endforeach
                                             </select>
@@ -550,14 +542,13 @@
                                 <div class="col-md-9">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            {{ $clientProgram->clientMentor()->where('type', 6)->first() }}
                                             <select name="subject_specialist_mentor" id="" class="select w-100"
                                                 {{ $disabled }}>
                                                 <option data-placeholder="true"></option>
                                                 @foreach ($mentors as $mentor)
                                                     <option value="{{ $mentor->id }}"
                                                         @selected(old('subject_specialist_mentor') == $mentor->id)
-                                                        @selected(isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->where('type', 6)->first()->id == $mentor->id)
+                                                        @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 6)->latest()->first())->id == $mentor->id)
                                                         >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
                                                 @endforeach
                                             </select>
@@ -582,12 +573,8 @@
                                                 <option data-placeholder="true"></option>
                                                 @foreach ($mentors as $mentor)
                                                     <option value="{{ $mentor->id }}"
-                                                        @if (old('aplication_strategy_mentor') == $mentor->id) {{ 'selected' }}
-                                                        @elseif (isset($clientProgram->clientMentor) &&
-                                                                $clientProgram->clientMentor()->where('type', 3)->count() > 0)
-                                                            @if ($clientProgram->clientMentor()->where('type', 3)->first()->id == $mentor->id)
-                                                                {{ 'selected' }} @endif
-                                                        @endif
+                                                        @selected(old('subject_specialist_mentor') == $mentor->id)
+                                                        @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 3)->latest()->first())->id == $mentor->id)
                                                         >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
                                                 @endforeach
                                             </select>
@@ -612,12 +599,8 @@
                                                 <option data-placeholder="true"></option>
                                                 @foreach ($mentors as $mentor)
                                                     <option value="{{ $mentor->id }}"
-                                                        @if (old('writing_mentor') == $mentor->id) {{ 'selected' }}
-                                                        @elseif (isset($clientProgram->clientMentor) &&
-                                                                $clientProgram->clientMentor()->where('type', 4)->count() > 0)
-                                                            @if ($clientProgram->clientMentor()->where('type', 4)->first()->id == $mentor->id)
-                                                                {{ 'selected' }} @endif
-                                                        @endif
+                                                        @selected(old('subject_specialist_mentor') == $mentor->id)
+                                                        @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 4)->latest()->first())->id == $mentor->id)
                                                         >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
                                                 @endforeach
                                             </select>
@@ -691,10 +674,8 @@
                                                             }
                                                         @endphp
                                                         <option value="{{ $tutor->id }}"
-                                                            @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->where('type', 5)->count() > 0) @if ($clientProgram->clientMentor()->where('type', 5)->orderBy('tbl_client_mentor.id', 'asc')->first()->id == $tutor->id)
-                                                                    {{ 'selected' }} @endif
-                                                        @elseif (old('tutor_1') == $tutor->id) {{ 'selected' }}
-                                                            @endif
+                                                            @selected(old('tutor_1') == $tutor->id)
+                                                            @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->first())->id == $tutor->id)
                                                             >{{ $tutor->first_name .' ' .$tutor->last_name .(count($subjects) > 0 ? ' - ' .json_encode($subjects) : '') }}
                                                         </option>
                                                     @endforeach
@@ -736,10 +717,8 @@
                                                             }
                                                         @endphp
                                                         <option value="{{ $tutor->id }}"
-                                                            @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->where('type', 5)->count() > 1) @if ($clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'desc')->first()->id == $tutor->id)
-                                                                    {{ 'selected' }} @endif
-                                                        @elseif (old('tutor_2') == $tutor->id) {{ 'selected' }}
-                                                            @endif
+                                                            @selected(old('tutor_2') == $tutor->id)
+                                                            @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->latest()->first())->id == $tutor->id)
                                                             >{{ $tutor->first_name .' ' .$tutor->last_name . (count($subjects) > 0 ? ' - ' .json_encode($subjects) : '') }}
                                                         </option>
                                                     @endforeach
@@ -777,11 +756,10 @@
                                             <option data-placeholder="true"></option>
                                             @foreach ($internalPIC as $pic)
                                                 <option value="{{ $pic->id }}"
-                                                    @if (old('empl_id') == $pic->id) {{ 'selected' }}
-                                                    @elseif (isset($clientProgram->empl_id) && $clientProgram->empl_id == $pic->id)
-                                                        {{ 'selected' }} 
-                                                    @elseif (Session::get('user_role') == 'Employee' && !isset($clientProgram) && Auth::user()->id == $pic->id)
-                                                        {{ 'selected' }} @endif>
+                                                    @selected(old('empl_id') == $pic->id)
+                                                    @selected(isset($clientProgram->empl_id) && $clientProgram->empl_id == $pic->id)
+                                                    @selected(Session::get('user_role') == 'Employee' && !isset($clientProgram) && Auth::user()->id == $pic->id)
+                                                    >
                                                     {{ $pic->first_name . ' ' . $pic->last_name }}</option>
                                             @endforeach
                                         </select>
