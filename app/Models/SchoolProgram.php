@@ -68,6 +68,11 @@ class SchoolProgram extends Model
         });
     }
 
+    public function scopeProgramIsGroupOf(Builder $query, string $group_of): void
+    {
+        $query->whereRelation('program.main_prog', 'prog_name', $group_of);
+    }
+
     public function scopeActive(Builder $query): void
     {
         $query->where('status', 1);

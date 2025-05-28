@@ -15,7 +15,7 @@ class ExtClientProgramController extends Controller
     {
         $mentor_uuid = $request->get('k');
         $requested_main_program_name = $request->route('main_program_name');
-        [$main_program, $sub_program] = $this->tnGetMainProgramName($requested_main_program_name);
+        [$group_of, $sub_program] = $this->tnGetMainProgramName($requested_main_program_name);
         
         $b2cPrograms = \App\Models\ClientProgram::
         with([
@@ -31,31 +31,33 @@ class ExtClientProgramController extends Controller
                 $query->select('clientprog_id', 'inv_id');
             },
             'program' => function ($query) {
-                $query->select('prog_id', 'main_prog_id', 'prog_program');
+                $query->select('prog_id', 'main_prog_id', 'prog_program', 'prog_mentor');
             }
         ])->
-        whereHas('program', function ($query) use ($main_program, $sub_program) {
-            $query->whereHas('main_prog', function ($query) use ($main_program) {
-                $query->where('prog_name', $main_program);
-            })->whereHas('sub_prog', function ($query) use ($sub_program) {
-                $query->when($sub_program != 'all', function ($query) use ($sub_program) {
-                    $query->whereIn('sub_prog_name', $sub_program);
-                });
-            });
-        })->
+        whereRelation('program.main_prog', 'group_of', $group_of)->
+        // whereHas('program', function ($query) use ($main_program, $sub_program) {
+        //     $query->whereHas('main_prog', function ($query) use ($main_program) {
+        //         $query->where('prog_name', $main_program);
+        //     })->whereHas('sub_prog', function ($query) use ($sub_program) {
+        //         $query->when($sub_program != 'all', function ($query) use ($sub_program) {
+        //             $query->whereIn('sub_prog_name', $sub_program);
+        //         });
+        //     });
+        // })->
         when($mentor_uuid, function ($query) use ($mentor_uuid) {
             $query->whereHas('clientMentor', function ($query) use ($mentor_uuid) {
                 $query->where('users.id', $mentor_uuid);
             });
         })->
-        successAndPaid()->select('clientprog_id', 'prog_id', 'client_id')->get();
+        successAndPaid()->select('clientprog_id', 'prog_id', 'client_id', 'package', 'curriculum')->get();
 
         $mappedB2CPrograms = $b2cPrograms->map(function ($data) {
 
             $clientprog_id = $data->clientprog_id;
             $invoice_id = $data->invoice->inv_id;
             $program_name = $data->program->program_name;
-            $require = $data->program->main_prog->id == 4 ? "Tutor" : "Mentor";
+            // $require = $data->program->main_prog->id == 4 ? "Tutor" : "Mentor";
+            $require = $data->program->prog_mentor;
             $package = $data->package;
             $curriculum = $data->curriculum;
             $client_id = $data->client->id;
@@ -84,7 +86,11 @@ class ExtClientProgramController extends Controller
 
         # take academic & test preparation b2b success program
         # if main program is 'Academic & Test Preparation'
-        if ( $main_program == 'Academic & Test Preparation' )
+        // if ( $main_program == 'Academic & Test Preparation' )
+
+        # take tutoring b2b success program
+        # get the program by group of column value
+        if ( $group_of == 'Tutoring' )
         {
 
             $b2bPrograms = \App\Models\SchoolProgram::
@@ -98,7 +104,12 @@ class ExtClientProgramController extends Controller
                 'program' => function ($query) {
                     $query->select('prog_id', 'main_prog_id', 'prog_program');
                 }
-            ])->success()->programIs('Academic & Test Preparation')->select('tbl_sch_prog.id', 'prog_id', 'sch_id')->get();
+            ])->
+            success()->
+            // programIs('Academic & Test Preparation')->
+            programIsGroupOf('Tutoring')->
+            select('tbl_sch_prog.id', 'prog_id', 'sch_id')->
+            get();
     
             $mappedB2BPrograms = $b2bPrograms->map(function ($data) {
     
