@@ -139,7 +139,7 @@
                                         <input type="hidden" value="1" name="count_agreement_detail[]">
                                         <div class="row">
                                             <div class="input-grade col-md-6 mb-2 d-none">
-                                                <label for="">Grade <sup class="text-danger">*</sup></label>
+                                                <label for="">Grade</label>
                                                 <select name="grade[]" class="grade-select w-50">
                                                     <option data-placeholder="true"></option>
                                                     <option value="9-10">9-10</option>
