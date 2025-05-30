@@ -251,7 +251,7 @@ class DashboardService
             # sales target tab
             'sales_target' => $sales_target ?? [],
             'sales_actual' => $sales_actual ?? [],
-            'sales_detail' => $sales_detail ?? [],
+            'sales_detail' => $sales_detail ?? [null],
 
             # program comparison
             'all_programs' => $all_programs ?? [],

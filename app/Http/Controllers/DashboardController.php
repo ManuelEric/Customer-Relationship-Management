@@ -163,15 +163,14 @@ class DashboardController extends Controller
                 /**
                  * finance data dashboard
                  */
-                $finance = $dashboardService->snFinanceDashboard($tab);
-                // if (!Cache::has('finance-data-dashboard')) {
-                //     $finance = $dashboardService->snFinanceDashboard($tab);
-                //     // $finance = (new FinanceDashboardController($this))->get($request);
-                //     Cache::remember('finance-data-dashboard', $time_stored_in_second, function () use ($finance) {
-                //         return $finance;
-                //     });
-                // }
-                // $finance = Cache::get('finance-data-dashboard');
+                if (!Cache::has('finance-data-dashboard')) {
+                    $finance = $dashboardService->snFinanceDashboard($tab);
+                    // $finance = (new FinanceDashboardController($this))->get($request);
+                    Cache::remember('finance-data-dashboard', $time_stored_in_second, function () use ($finance) {
+                        return $finance;
+                    });
+                }
+                $finance = Cache::get('finance-data-dashboard');
                 break;
         }
 
