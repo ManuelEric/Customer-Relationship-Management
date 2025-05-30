@@ -84,7 +84,6 @@
                             @method('PUT')
                         @endif
                         <input type="hidden" name="queryP" value="{{ isset($_GET['p']) ? $_GET['p'] : null }}">
-                        {{ $clientProgram->prog_id . ' ' . $clientProgram->program->prog_program }}
                         <div class="row mb-2">
                             <div class="col-md-3">
                                 <label for="">
