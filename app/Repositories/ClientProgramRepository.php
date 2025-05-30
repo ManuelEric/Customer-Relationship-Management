@@ -172,7 +172,8 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 })
                 ->select([
                     "tbl_client_prog.*",
-                    "p.program_name",
+                    // "p.program_name",
+                    DB::raw("(SELECT StringProgramName(tbl_client_prog.clientprog_id)) as program_named"),
                     "tbl_client_prog.first_discuss_date",
                     DB::raw("CONCAT(u.first_name, ' ', COALESCE(u.last_name, '')) AS pic_name"),
                     DB::raw("(CASE WHEN tbl_client_prog.status = 0 THEN 'Pending'
@@ -184,7 +185,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
         return Datatables::eloquent($model)->
             addColumn('program_name', function (ClientProgram $clientProgram) {
-                return $clientProgram->program->program_name;
+                return $clientProgram->invoice_program_name;
             })->
             filterColumn('program_name', function ($query, $keyword) {
                 $sql = "p.program_name like ?";
@@ -597,7 +598,17 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
     public function getClientProgramById($clientProgramId)
     {
-        return ClientProgram::whereClientProgramId($clientProgramId);
+        return ClientProgram::with([
+            'program',
+            'program.main_prog',
+            'program.sub_prog',
+            'clientMentor',
+            'lead',
+            'invoice',
+            'invoice.receipt',
+            'invoice.invoiceDetail',
+            'invoice.invoiceDetail.receipt',
+        ])->where('clientprog_id', $clientProgramId)->first();
     }
 
     public function getClientProgramByClientId($clientId)

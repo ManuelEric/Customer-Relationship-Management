@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\pivot\ClientProgramDetail;
+use Illuminate\Support\Facades\DB;
 
 class ClientProgram extends Model
 {
@@ -63,6 +64,8 @@ class ClientProgram extends Model
         'prog_start_date',
         'prog_end_date',
         'empl_id',
+        'package',
+        'curriculum',
         'hold_date',
         'success_date',
         'failed_date',
@@ -166,6 +169,7 @@ class ClientProgram extends Model
         }
     }
 
+
     protected function referralName(): Attribute
     {
         return Attribute::make(
@@ -231,17 +235,10 @@ class ClientProgram extends Model
         );
     }
 
-    protected function programName(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => $value,
-        );
-    }
-
     protected function invoiceProgramName(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->program->main_prog->prog_name . ': ' . $this->program->prog_program,
+            get: fn ($value) => DB::select('SELECT StringProgramName(?) AS program_name', [$this->clientprog_id])[0]->program_name
         );
     }
 
@@ -388,7 +385,7 @@ class ClientProgram extends Model
 
     public function clientMentor()
     {
-        return $this->belongsToMany(User::class, 'tbl_client_mentor', 'clientprog_id', 'user_id')->withPivot('id', 'type', 'timesheet_link')->withTimestamps();
+        return $this->belongsToMany(User::class, 'tbl_client_mentor', 'clientprog_id', 'user_id')->withPivot('id', 'type', 'timesheet_link', 'status')->withTimestamps();
     }
 
     public function mentorIC()

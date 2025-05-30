@@ -104,15 +104,15 @@ return new class extends Migration
             sp.sub_prog_name as sub_prog_name,
             pr.active,
             pr.created_at,
-            (CASE WHEN pr.sub_prog_id > 0 THEN
-                (CASE WHEN mp.prog_name = sp.sub_prog_name THEN
-                    CONCAT(mp.prog_name, ' : ', pr.prog_program)
-                ELSE 
-                    CONCAT(mp.prog_name, ' / ', sp.sub_prog_name, ' : ', pr.prog_program) 
-                END)
-            ELSE
-                CONCAT(mp.prog_name, ' : ', pr.prog_program)
-            END) as program_name
+            --(CASE WHEN pr.sub_prog_id > 0 THEN
+            --    (CASE WHEN mp.prog_name = sp.sub_prog_name THEN
+            --        CONCAT(mp.prog_name, ' : ', pr.prog_program)
+            --    ELSE 
+            --        CONCAT(mp.prog_name, ' / ', sp.sub_prog_name, ' : ', pr.prog_program) 
+            --    END)
+            --ELSE
+            --    CONCAT(mp.prog_name, ' : ', pr.prog_program)
+            --END) as program_name
 
         FROM tbl_prog pr
         LEFT JOIN tbl_main_prog mp 
@@ -123,7 +123,8 @@ return new class extends Migration
 
         DB::statement('
         CREATE OR REPLACE VIEW clientprogram AS
-        SELECT cp.*,
+        SELECT 
+            cp.*,
             (SELECT pic.user_id 
                         FROM tbl_pic_client pic
                     LEFT JOIN users u on u.id = pic.user_id
@@ -680,9 +681,7 @@ return new class extends Migration
                     LEFT JOIN tbl_prog sqp ON sqp.prog_id = sqip.prog_id
                     LEFT JOIN tbl_main_prog sqmp ON sqmp.id = sqp.main_prog_id
                     WHERE sqip.client_id = c.id GROUP BY sqip.client_id) as interest_prog,
-            (SELECT GROUP_CONCAT(
-                        ct.name
-                    ) FROM tbl_client_abrcountry sqac
+            (SELECT GROUP_CONCAT(ct.name) FROM tbl_client_abrcountry sqac
                     JOIN tbl_country ct ON ct.id = sqac.country_id
                     WHERE sqac.client_id = c.id GROUP BY sqac.client_id) as abr_country,
             (SELECT GROUP_CONCAT(sqm.name) FROM tbl_dreams_major sqdm

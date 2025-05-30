@@ -1,5 +1,4 @@
 <div class="me-2">
-    <!-- We must ship. - Taylor Otwell -->
     <div class="dropdown">
         <button class="btn btn-outline-warning py-1 dropdown-toggle btn-sm"
         @if ($installment === true) 

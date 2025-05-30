@@ -84,6 +84,44 @@
                             @method('PUT')
                         @endif
                         <input type="hidden" name="queryP" value="{{ isset($_GET['p']) ? $_GET['p'] : null }}">
+                        {{ $clientProgram->prog_id . ' ' . $clientProgram->program->prog_program }}
+                        <div class="row mb-2">
+                            <div class="col-md-3">
+                                <label for="">
+                                    Program <sup class="text-danger">*</sup>
+                                </label>
+                            </div>
+                            <div class="col-md-9">
+                                <select name="main_prog" id="main_program" class="select w-100" {{ $disabled }}
+                                    onchange="getSubProgram($(this).val())">
+                                    <option data-placeholder="true"></option>
+                                    @foreach ($main_programs as $main_program)
+                                        <option value="{{ $main_program->id }}"
+                                            @selected(!empty(old('main_prog')) && old('main_prog') == $main_program->id)
+                                            {{-- @selected(isset($clientProgram) && $clientProgram->program->main_prog_id == $main_program->id) --}}
+                                            >{{ $main_program->prog_name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('main_prog')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-3">
+                                <label for="">
+                                    Sub Program <sup class="text-danger">*</sup>
+                                </label>
+                            </div>
+                            <div class="col-md-9">
+                                <select name="sub_program" id="sub_program" class="select w-100" disabled onchange="getProgramName($('#main_program').val(),$(this).val())">
+                                    <option data-placeholder="true"></option>
+                                </select>
+                                @error('sub_program')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+                        </div>
                         <div class="row mb-2">
                             <div class="col-md-3">
                                 <label for="">
@@ -91,10 +129,10 @@
                                 </label>
                             </div>
                             <div class="col-md-9">
-                                <select name="prog_id" id="program_name" class="select w-100"
-                                    onchange="changeProgramStatus()" {{ $disabled }}>
+                                <select name="prog_id" id="program_name" class="select w-100" {{ $disabled }}
+                                    onchange="changeProgramStatus()">
                                     <option data-placeholder="true"></option>
-                                    @foreach ($programs as $program)
+                                    {{-- @foreach ($programs as $program)
                                         <option data-pmentor="{{ $program->prog_mentor }}"
                                             data-mprog="{{ $program->main_prog->prog_name }}"
                                             data-sprog="{{ isset($program->sub_prog->sub_prog_name) ? $program->sub_prog->sub_prog_name : null }}"
@@ -104,7 +142,7 @@
                                                 {{ 'selected' }} @endif>
                                             {{ isset($program->sub_prog->sub_prog_name) ? $program->sub_prog->sub_prog_name . ' - ' : '' }}
                                             {{ $program->prog_program }}</option>
-                                    @endforeach
+                                    @endforeach --}}
                                 </select>
                                 @error('prog_id')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -135,10 +173,9 @@
                                                 {{-- <option value="program">ALL-in Event</option>
                                                 <option value="edufair">Edufair External</option> --}}
                                                 <option data-lead="KOL" value="kol"
-                                                    @if (old('lead_id') && old('lead_id') == 'kol') {{ 'selected' }}
-                                                    @elseif (isset($clientProgram->lead_id) && $clientProgram->lead->main_lead == 'KOL')
-                                                        {{ 'selected' }} @endif>
-                                                    KOL</option>
+                                                    @selected(old('lead_id') && old('lead_id') == 'kol')
+                                                    @selected(isset($clientProgram->lead_id) && $clientProgram->lead_id == 'kol')
+                                                    >KOL</option>
                                             @endif
                                         </select>
                                         @error('lead_id')
@@ -383,7 +420,7 @@
                                         @enderror
                                     </div>
 
-                                    <div class="col-md-12 mt-2 program-detail" id="refund_notes">
+                                    <div class="col-md-12 mt-2 program-detail d-none" id="refund_notes">
                                         <label for="">Refund Notes</label>
                                         <textarea name="refund_notes" id="">{{ isset($clientProgram->refund_notes) ? $clientProgram->refund_notes : old('refund_notes') }}</textarea>
                                     </div>
@@ -458,12 +495,8 @@
                                                 <option data-placeholder="true"></option>
                                                 @foreach ($mentors as $mentor)
                                                     <option value="{{ $mentor->id }}"
-                                                        @if (old('supervising_mentor') == $mentor->id) {{ 'selected' }}
-                                                        @elseif (isset($clientProgram->clientMentor) &&
-                                                                $clientProgram->clientMentor()->where('type', 1)->count() > 0)
-                                                            @if ($clientProgram->clientMentor()->where('type', 1)->first()->id == $mentor->id)
-                                                                {{ 'selected' }} @endif
-                                                        @endif
+                                                        @selected(old('supervising_mentor') == $mentor->id)
+                                                        @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 1)->latest()->first())->id == $mentor->id)
                                                         >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
                                                 @endforeach
                                             </select>
@@ -488,12 +521,8 @@
                                                 <option data-placeholder="true"></option>
                                                 @foreach ($mentors as $mentor)
                                                     <option value="{{ $mentor->id }}"
-                                                        @if (old('profile_building_mentor') == $mentor->id) {{ 'selected' }}
-                                                        @elseif (isset($clientProgram->clientMentor) &&
-                                                                $clientProgram->clientMentor()->where('type', 2)->count() > 0)
-                                                            @if ($clientProgram->clientMentor()->where('type', 2)->first()->id == $mentor->id)
-                                                                {{ 'selected' }} @endif
-                                                        @endif
+                                                        @selected(old('profile_building_mentor') == $mentor->id)
+                                                        @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 2)->latest()->first())->id == $mentor->id)
                                                         >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
                                                 @endforeach
                                             </select>
@@ -518,12 +547,8 @@
                                                 <option data-placeholder="true"></option>
                                                 @foreach ($mentors as $mentor)
                                                     <option value="{{ $mentor->id }}"
-                                                        @if (old('subject_specialist_mentor') == $mentor->id) {{ 'selected' }}
-                                                        @elseif (isset($clientProgram->clientMentor) &&
-                                                                $clientProgram->clientMentor()->where('type', 6)->count() > 0)
-                                                            @if ($clientProgram->clientMentor()->where('type', 6)->first()->id == $mentor->id)
-                                                                {{ 'selected' }} @endif
-                                                        @endif
+                                                        @selected(old('subject_specialist_mentor') == $mentor->id)
+                                                        @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 6)->latest()->first())->id == $mentor->id)
                                                         >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
                                                 @endforeach
                                             </select>
@@ -548,12 +573,8 @@
                                                 <option data-placeholder="true"></option>
                                                 @foreach ($mentors as $mentor)
                                                     <option value="{{ $mentor->id }}"
-                                                        @if (old('aplication_strategy_mentor') == $mentor->id) {{ 'selected' }}
-                                                        @elseif (isset($clientProgram->clientMentor) &&
-                                                                $clientProgram->clientMentor()->where('type', 3)->count() > 0)
-                                                            @if ($clientProgram->clientMentor()->where('type', 3)->first()->id == $mentor->id)
-                                                                {{ 'selected' }} @endif
-                                                        @endif
+                                                        @selected(old('subject_specialist_mentor') == $mentor->id)
+                                                        @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 3)->latest()->first())->id == $mentor->id)
                                                         >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
                                                 @endforeach
                                             </select>
@@ -578,12 +599,8 @@
                                                 <option data-placeholder="true"></option>
                                                 @foreach ($mentors as $mentor)
                                                     <option value="{{ $mentor->id }}"
-                                                        @if (old('writing_mentor') == $mentor->id) {{ 'selected' }}
-                                                        @elseif (isset($clientProgram->clientMentor) &&
-                                                                $clientProgram->clientMentor()->where('type', 4)->count() > 0)
-                                                            @if ($clientProgram->clientMentor()->where('type', 4)->first()->id == $mentor->id)
-                                                                {{ 'selected' }} @endif
-                                                        @endif
+                                                        @selected(old('subject_specialist_mentor') == $mentor->id)
+                                                        @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 4)->latest()->first())->id == $mentor->id)
                                                         >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
                                                 @endforeach
                                             </select>
@@ -657,10 +674,8 @@
                                                             }
                                                         @endphp
                                                         <option value="{{ $tutor->id }}"
-                                                            @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->where('type', 5)->count() > 0) @if ($clientProgram->clientMentor()->where('type', 5)->orderBy('tbl_client_mentor.id', 'asc')->first()->id == $tutor->id)
-                                                                    {{ 'selected' }} @endif
-                                                        @elseif (old('tutor_1') == $tutor->id) {{ 'selected' }}
-                                                            @endif
+                                                            @selected(old('tutor_1') == $tutor->id)
+                                                            @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->first())->id == $tutor->id)
                                                             >{{ $tutor->first_name .' ' .$tutor->last_name .(count($subjects) > 0 ? ' - ' .json_encode($subjects) : '') }}
                                                         </option>
                                                     @endforeach
@@ -702,10 +717,8 @@
                                                             }
                                                         @endphp
                                                         <option value="{{ $tutor->id }}"
-                                                            @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->where('type', 5)->count() > 1) @if ($clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'desc')->first()->id == $tutor->id)
-                                                                    {{ 'selected' }} @endif
-                                                        @elseif (old('tutor_2') == $tutor->id) {{ 'selected' }}
-                                                            @endif
+                                                            @selected(old('tutor_2') == $tutor->id)
+                                                            @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->latest()->first())->id == $tutor->id)
                                                             >{{ $tutor->first_name .' ' .$tutor->last_name . (count($subjects) > 0 ? ' - ' .json_encode($subjects) : '') }}
                                                         </option>
                                                     @endforeach
@@ -743,11 +756,10 @@
                                             <option data-placeholder="true"></option>
                                             @foreach ($internalPIC as $pic)
                                                 <option value="{{ $pic->id }}"
-                                                    @if (old('empl_id') == $pic->id) {{ 'selected' }}
-                                                    @elseif (isset($clientProgram->empl_id) && $clientProgram->empl_id == $pic->id)
-                                                        {{ 'selected' }} 
-                                                    @elseif (Session::get('user_role') == 'Employee' && !isset($clientProgram) && Auth::user()->id == $pic->id)
-                                                        {{ 'selected' }} @endif>
+                                                    @selected(old('empl_id') == $pic->id)
+                                                    @selected(isset($clientProgram->empl_id) && $clientProgram->empl_id == $pic->id)
+                                                    @selected(Session::get('user_role') == 'Employee' && !isset($clientProgram) && Auth::user()->id == $pic->id)
+                                                    >
                                                     {{ $pic->first_name . ' ' . $pic->last_name }}</option>
                                             @endforeach
                                         </select>
@@ -805,7 +817,7 @@
             var lead = $(this).select2().find(":selected").data('lead')
             let programName = program.text()
 
-            if (programName) {
+            // if (programName) {
                 if (lead.includes('EduALL Event')) {
 
                     $("#event").removeClass('d-none')
@@ -856,103 +868,294 @@
                     $("#referral").addClass("d-none")
 
                 }
-            } else {
-                notification('warning', 'Please, select program name first!')
-                $('#main_lead').select2('destroy');
-                $('#main_lead').val(null);
-                $('#main_lead').select2({
-                    placeholder: "Select value",
-                    allowClear: true
-                });
-                $('#program_name').select2('open');
-            }
+            // } else {
+            //     notification('warning', 'Please, select program name first!')
+            //     $('#main_lead').select2('destroy');
+            //     $('#main_lead').val(null);
+            //     $('#main_lead').select2({
+            //         placeholder: "Select value",
+            //         allowClear: true
+            //     });
+            //     $('#program_name').select2('open');
+            // }
         })
 
  
         function changeProgramStatus() {
 
+            // prevent to trigger this function if options within select program name are null
+            if ($("#program_name > option").length <= 1)
+                return
+
             var program = $("#program_name option:selected")
+
             let programName = program.text()
-            let prog_mentor = program.data('pmentor');
+            let prog_mentor = program.data('pmentor')
             let programMainProg = program.data('mprog')
             let programSubProg = program.data('sprog')
             let programStatus = $('#program_status').val()
             $('.program-detail').addClass('d-none')
             $('.mentor-tutor').addClass('d-none')
+            console.log(programMainProg)
 
-            if (programName) {
-                if (programStatus == 0) { // pending
-                    if (programMainProg.includes('Admission') || programSubProg.includes('Admission')) { // mentoring
+            // if (programName) {
+            try {
+                switch (parseInt(programStatus)) 
+                {
+                    // program status = pending
+                    case 0:
+                        if (programMainProg.includes('Admissions Mentoring'))
+                        {
+                            // open form detail of admissions mentoring
+                            $("#pending_mentoring").removeClass('d-none')
+                        }
+                        else if (programMainProg.includes('Test Preparation') || programMainProg.includes('Subject Tutoring') || programMainProg.includes('Competition') || programMainProg.includes('Skillset Tutoring')) 
+                        {
+                            // open form detail of tutoring program
+                            $("#pending_tutoring").removeClass('d-none')
 
-                        $('#pending_mentoring').removeClass('d-none')
+                            resetDetailTutoring(programMainProg, 0)
+                        }
+                    break;
 
-                    } else if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring') || programSubProg.includes('Competition')) {
+                    // program status = success
+                    case 1:
+                        $("#success_date").removeClass('d-none')
+                        $("#running_status").removeClass('d-none')
 
-                        $('#pending_tutoring').removeClass('d-none')
-
-                    }
-                } else if (programStatus == 1) { // success
-                    $('#success_date').removeClass('d-none')
-                    $('#running_status').removeClass('d-none')
-
-                    // Detail Program Check 
-                    if (programMainProg.includes('Admission') || programSubProg.includes('Admission')) { // mentoring
-                        $('#success_mentoring').removeClass('d-none')
-                    } else if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring') || programSubProg.includes('Competition')) {
-                        $('#success_tutoring').removeClass('d-none')
-                    } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg
-                        .includes(
-                            'SAT') || programSubProg.includes('SAT')) {
-
-                        $('#success_sat_act').removeClass('d-none')
-                    }
-
-                    // Mentor & Tutor Needs Check 
-                    switch (prog_mentor) {
-                        case "Mentor":
-                            $("#available-mentor").removeClass("d-none")
-                            $("#available-tutor").addClass("d-none")
-
-                            break;
-
-                        case "Tutor":
-                            $("#available-mentor").addClass("d-none")
-                            $("#available-tutor").removeClass("d-none")
-                            if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring') || programSubProg.includes('Competition')) {
-                                $('#tutoring').removeClass('d-none')
-                                $('#sat-act').addClass('d-none')
-                            } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg
-                                .includes('SAT') || programSubProg.includes('SAT')) {
-                                $('#tutoring').addClass('d-none')
-                                $('#sat-act').removeClass('d-none')
-                            } else if (programStatus == 4) { // hold
-                                $('#reason').removeClass('d-none')
-
+                        if (programMainProg.includes('Admissions Mentoring'))
+                        {
+                            // open form detail of admissions mentoring
+                            $("#success_mentoring").removeClass('d-none')
+                        }
+                        else if (programMainProg.includes('Test Preparation') || programMainProg.includes('Subject Tutoring') || programMainProg.includes('Competition') || programMainProg.includes('Skillset Tutoring'))
+                        {
+                            if (programSubProg.includes('SAT'))
+                            {
+                                // open form detail of SAT
+                                $('#success_sat_act').removeClass('d-none')
                             }
-                            break;
-                    }
+                            else
+                            {
+                                // default open form for test preparation exclude SAT/ACT, subject tutoring, competition, and skillset tutoring
+                                resetDetailTutoring(programMainProg, 1) 
+                                $("#success_tutoring").removeClass('d-none')
+                            }
+                        }
 
-                } else if (programStatus == 2) { // failed
-                    $('#failed_date').removeClass('d-none')
-                    $('#reason').removeClass('d-none')
-                    $('#reason_notes').removeClass('d-none')
-                } else if (programStatus == 3) { // refund
-                    $('#refund_date').removeClass('d-none')
-                    $('#refund_notes').removeClass('d-none')
-                    $('#reason').removeClass('d-none')
-                    $('#reason_notes').removeClass('d-none')
+                        // Mentor & Tutor Needs Check 
+                        switch (prog_mentor) {
+                            case "Mentor":
+                                $("#available-mentor").removeClass("d-none")
+                                $("#available-tutor").addClass("d-none")
+
+                                break;
+
+                            case "Tutor":
+                                $("#available-mentor").addClass("d-none")
+                                $("#available-tutor").removeClass("d-none")
+                                if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring') || programSubProg.includes('Competition')) {
+                                    $('#tutoring').removeClass('d-none')
+                                    $('#sat-act').addClass('d-none')
+                                } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg
+                                    .includes('SAT') || programSubProg.includes('SAT')) {
+                                    $('#tutoring').addClass('d-none')
+                                    $('#sat-act').removeClass('d-none')
+                                } else if (programStatus == 4) { // hold
+                                    $('#reason').removeClass('d-none')
+
+                                }
+                                break;
+                        }
+                    break;
+
+                    // program status = failed
+                    case 2:
+                        $('#failed_date').removeClass('d-none')
+                        $('#reason').removeClass('d-none')
+                        $('#reason_notes').removeClass('d-none')
+                    break;
+
+                    // program status = refund
+                    case 3:
+                        $('#refund_date').removeClass('d-none')
+                        $('#refund_notes').removeClass('d-none')
+                        $('#reason').removeClass('d-none')
+                        $('#reason_notes').removeClass('d-none')
+                    break;
                 }
-            } else {
-                notification('warning', 'Please, select program name first!')
-                $('#program_status').select2('destroy');
-                $('#program_status').val(null);
-                $('#program_status').select2({
-                    placeholder: "Select value",
-                    allowClear: true
-                });
-                $('#program_name').select2('open');
-            }
 
+            } catch (error) {
+                notification('error', error.message)
+                console.error("Error: ", error.name, '-', error.message, '-', error.lineNumber)
+            }
+            // } else {
+            //     notification('warning', 'Please, select program name first!')
+            //     $('#program_status').select2('destroy').val(null).select2({
+            //         placeholder: "Select value",
+            //         allowClear: true
+            //     }).select2('open');
+            // }
+
+        }
+
+        function resetDetailTutoring(programMainProg, programStatus)
+        {
+            var stringField = programStatus == 0 ? 'pending' : 'success'
+            if (programMainProg == "Test Preparation")
+            {
+                $(`.${stringField}-tutoring-test-preparation-field`).removeClass('d-none')
+                $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
+            }
+            else if (programMainProg == "Subject Tutoring")
+            {
+                $(`.${stringField}-tutoring-test-preparation-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-subject-tutoring-field`).removeClass('d-none')
+                $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
+            }
+            else if (programMainProg == "Competition")
+            {
+                $(`.${stringField}-tutoring-test-preparation-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-competition-field`).removeClass('d-none')
+                $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
+            }
+            else if (programMainProg == "Skillset Tutoring")
+            {
+                $(`.${stringField}-tutoring-test-preparation-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-skillset-tutoring-field`).removeClass('d-none')
+            }
+        }
+
+        function getSubProgram(main_prog_id) {
+            showLoading()
+            $("#program_name").html('<option data-placeholder="true"></option>').select2({
+                placeholder: 'Select value',
+                allowClear: true
+            }).attr('disabled', true);
+            @if (isset($clientProgram))
+                $("#program_status").val({{ $clientProgram->status }}).change() // trigger to change status into pending when changing main program
+            @else
+                $("#program_status").val(0).change() // trigger to change status into pending when changing main program
+            @endif
+            var link = '{{ url('api/get/sub-program/main') }}/' + main_prog_id
+
+            axios.get(link, {
+                headers: {
+                    'crm-authorization': '{{env("CRM_AUTHORIZATION_KEY")}}'
+                }
+            })
+            .then(function (response) {
+                let obj = response.data;
+
+                // if main program doesn't have sub program
+                if (obj.length == 0)
+                {
+                    $("#sub_program").html('<option data-placeholder="true"></option>').select2({
+                        placeholder: 'Select value',
+                        allowClear: true
+                    }).attr('disabled', true);
+                    getProgramName(main_prog_id, '')
+                    return
+                }
+            
+                let html = '<option data-placeholder="true"></option>';
+                $.each(obj, function (i, item) {
+                    html += '<option value="' + item.id + '">' + item.sub_prog_name + '</option>';
+                });
+
+                $('#sub_program').html(html).select2({
+                    placeholder: 'Select value',
+                    allowClear: true
+                }).attr('disabled', false);
+                swal.close()
+
+                // count the html of program name
+                if ( $("#program_name > option").length > 1 ) {
+
+                    $("#program_name").html('<option data-placeholder="true"></option>').select2({
+                        placeholder: 'Select value',
+                        allowClear: true
+                    }).attr('disabled', true);
+                    $("#program_name").val(null).trigger('change')
+                }
+
+                // trigger to change() sub program
+                @if (old('sub_program') !== null)
+                    $("#sub_program").select2().val("{{ old('sub_program') }}").trigger('change');
+                @elseif ( isset($clientProgram))
+                    $("#sub_program").select2().val("{{ $clientProgram->program->sub_prog_id }}").trigger('change');
+                    @if (!isset($edit))
+                        $("#sub_program").attr('disabled', true)
+                    @endif
+                @endif
+            })
+            .catch(function (error) {
+                swal.close()
+                notification('error', error.message)
+            })
+        }
+
+        function getProgramName(main_prog_id, sub_prog_id) {
+            showLoading()
+            var link = '{{ url('api/get/program/') }}/main/' + main_prog_id + '/sub/' + sub_prog_id
+
+            axios.get(link, {
+                headers: {
+                    'crm-authorization': '{{env("CRM_AUTHORIZATION_KEY")}}'
+                }
+            })
+            .then(function (response) {
+                let obj = response.data;
+                let html = '<option data-placeholder="true"></option>';
+                $.each(obj, function (i, item) {
+                    var prog_mentor = item.prog_mentor
+                    var main_prog_name = item.main_prog.prog_name
+                    var sub_prog_name = item.sub_prog?.sub_prog_name
+                    var prog_id = item.prog_id
+                    var prog_program = item.prog_program
+
+                    html += '<option data-pmentor="'+ prog_mentor + '"' +
+                            ' data-mprog="' + main_prog_name + '"' +
+                            ' data-sprog="' + sub_prog_name + '"' +
+                            ' value="' + prog_id + '">' + prog_program + '</option>';
+                });
+                
+                @if (!isset($edit))
+
+                    $('#program_name').html(html).select2({
+                        placeholder: 'Select value',
+                        allowClear: true
+                    }).attr('disabled', true);
+                @else
+
+                    $('#program_name').html(html).select2({
+                        placeholder: 'Select value',
+                        allowClear: true
+                    }).attr('disabled', false);
+                @endif
+                swal.close()
+
+                // trigger to change() sub program
+                @if (old('prog_id') !== null)
+                    var current_selected_main_program = $("#main_program").val()
+                    var old_selected_main_program = "{{ old('main_prog') }}"
+                    if (current_selected_main_program == old_selected_main_program)
+                        $("#program_name").select2().val("{{ old('prog_id') }}").trigger('change');
+                @elseif (isset($clientProgram))
+                    $("#program_name").select2().val("{{ $clientProgram->prog_id }}").trigger('change');
+                @endif
+                
+            })
+            .catch(function (error) {
+                swal.close()
+                notification('error', error.message)
+            })
         }
 
     </script>
@@ -1134,17 +1337,24 @@
             @enderror
 
             const documentReady = () => {
+                @if (old('main_prog') !== null)
+                    $("#main_program").select2().val("{{ old('main_prog') }}").trigger('change');
+                @elseif (isset($clientProgram))
+                    $("#main_program").select2().val("{{ $clientProgram->program->main_prog_id }}").trigger('change');
+                @endif
 
                 @if (isset($p) && $p !== null)
                     $("#program_name").select2().val("{{ $p }}").trigger('change');
-                @elseif (isset($clientProgram))
+                @elseif (isset($clientProgram->prog_id))
                     $("#program_name").select2().val("{{ $clientProgram->prog_id }}").trigger('change');
+                @elseif (old('prog_id') !== null)
+                    $("#program_name").select2().val("{{ old('prog_id') }}").trigger('change');
                 @endif
 
                 @if (old('lead_id') !== null)
                     $("#main_lead").select2().val("{{ old('lead_id') }}").trigger('change');
-                @elseif (isset($clientProgram->lead_id))
-                    @if ($clientProgram->lead->main_lead == 'KOL')
+                @elseif (isset($clientProgram))
+                    @if ($clientProgram->lead?->main_lead == 'KOL')
                         $("#main_lead").select2().val("kol").trigger('change');
                     @else
                         $("#main_lead").select2().val("{{ $clientProgram->lead_id }}").trigger('change');
