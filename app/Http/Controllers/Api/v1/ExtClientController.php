@@ -170,8 +170,6 @@ class ExtClientController extends Controller
 
     public function getClientById(string $id)
     {
-        echo 'a';
-        exit;
         $client = $this->clientRepository->getClientById($id);
 
         return response()->json(
