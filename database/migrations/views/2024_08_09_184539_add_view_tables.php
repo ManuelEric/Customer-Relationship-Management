@@ -681,9 +681,7 @@ return new class extends Migration
                     LEFT JOIN tbl_prog sqp ON sqp.prog_id = sqip.prog_id
                     LEFT JOIN tbl_main_prog sqmp ON sqmp.id = sqp.main_prog_id
                     WHERE sqip.client_id = c.id GROUP BY sqip.client_id) as interest_prog,
-            (SELECT GROUP_CONCAT(
-                        ct.name
-                    ) FROM tbl_client_abrcountry sqac
+            (SELECT GROUP_CONCAT(ct.name) FROM tbl_client_abrcountry sqac
                     JOIN tbl_country ct ON ct.id = sqac.country_id
                     WHERE sqac.client_id = c.id GROUP BY sqac.client_id) as abr_country,
             (SELECT GROUP_CONCAT(sqm.name) FROM tbl_dreams_major sqdm
