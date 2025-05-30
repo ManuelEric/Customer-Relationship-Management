@@ -71,18 +71,18 @@ class AuthController extends Controller
         switch ($scopes) {
             case in_array('super-admin', $scopes):
             case in_array('sales-admin', $scopes):
-                return redirect()->intended('/dashboard/sales');
+                return redirect()->intended('/dashboard/sales/client-program');
                 break;
 
             case in_array('employee', $scopes):
                 if($user->department()->where('dept_name', 'Client Management')->exists()){
-                    return redirect()->intended('/dashboard/sales');
+                    return redirect()->intended('/dashboard/sales/client-program');
                 }else if($user->department()->where('dept_name', 'Business Development')->exists()){
-                    return redirect()->intended('/dashboard/partnership');
+                    return redirect()->intended('/dashboard/partnership/agenda');
                 }else if($user->department()->where('dept_name', 'Digital')->exists()){
                     return redirect()->intended('/dashboard/digital');
                 }else if($user->department()->where('dept_name', 'Finance & Operation')->exists()){
-                    return redirect()->intended('/dashboard/finance');
+                    return redirect()->intended('/dashboard/finance/outstanding-payment');
                 }
                 break;            
         }

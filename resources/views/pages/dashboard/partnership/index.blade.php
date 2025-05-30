@@ -23,17 +23,27 @@
         </li>
     </ul>
 </div>
-
+@php
+    $tab = Request::route('tab') ?: 'client-program';
+@endphp
 <section id="agenda" class="dashboard-partnership">
-    @include('pages.dashboard.partnership.detail.agenda')
+    @if ($tab == 'agenda')
+        @include('pages.dashboard.partnership.detail.agenda')
+    @endif
 </section>
 
 <section id="partner-program" class="dashboard-partnership d-none">
-    @include('pages.dashboard.partnership.detail.partner-program')
+    @if ($tab == 'partner-program')
+        @include('pages.dashboard.partnership.detail.partner-program')
+    @endif
 </section>
 
 <section id="program-comparison" class="dashboard-partnership d-none">
-    @include('pages.dashboard.partnership.detail.program-comparison')
+    @if ($tab == 'program-comparison')
+        @include('pages.dashboard.partnership.detail.program-comparison')
+    @endif
 </section>
 
-@includeWhen(!$isSuperAdmin, 'pages.dashboard.sales.detail.client-event')
+@if ($tab == 'client-event')
+    @includeWhen(!$isSuperAdmin, 'pages.dashboard.sales.detail.client-event')
+@endif

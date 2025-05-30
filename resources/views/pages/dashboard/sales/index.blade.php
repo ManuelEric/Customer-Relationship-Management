@@ -23,14 +23,14 @@
         <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('sales','client-event')">
             <div class="nav-link text-nowrap sales client-event">Client Event</div>
         </li>
-        <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('sales','outstanding-payment')">
+        <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('sales','outstanding-payment', false)">
             <div class="nav-link text-nowrap sales outstanding-payment">Outstanding Payment</div>
         </li>
-        <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('sales','domicile')">
+        <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('sales','domicile', false)">
             <div class="nav-link text-nowrap sales domicile">Domicile</div>
         </li>
     </ul>
-    @if (Session::get('user_role') != "Employee")
+    @if (Session::get('user_role') != 'Employee')
         <select name="" id="cp_employee" class="select w-25">
             <option value="all">All</option>
             @foreach ($employees as $employee)
@@ -43,18 +43,28 @@
         </select>
     @endif
 </div>
-
+@php
+    $tab = Request::route('tab') ?: 'client-program';
+@endphp
 <section id="client-program" class="dashboard-sales">
-    @include('pages.dashboard.sales.detail.client-program')
+    @if ($tab == 'client-program')
+        @include('pages.dashboard.sales.detail.client-program')
+    @endif
 </section>
 <section id="sales-target" class="dashboard-sales d-none">
-    @include('pages.dashboard.sales.detail.sales-target')
+    @if ($tab == 'sales-target')
+        @include('pages.dashboard.sales.detail.sales-target')
+    @endif
 </section>
 <section id="program-comparison" class="dashboard-sales d-none">
-    @include('pages.dashboard.sales.detail.program-comparison')
+    @if ($tab == 'program-comparison')
+        @include('pages.dashboard.sales.detail.program-comparison')
+    @endif
 </section>
 <section id="client-event" class="dashboard-sales d-none">
-    @include('pages.dashboard.sales.detail.client-event')
+    @if ($tab == 'client-event')
+        @include('pages.dashboard.sales.detail.client-event')
+    @endif
 </section>
 <section id="outstanding-payment" class="dashboard-sales d-none">
     @include('pages.dashboard.sales.detail.outstanding-payment')
