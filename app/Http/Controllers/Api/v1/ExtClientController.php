@@ -170,8 +170,6 @@ class ExtClientController extends Controller
 
     public function getClientById(string $id)
     {
-        echo 'a';
-        exit;
         $client = $this->clientRepository->getClientById($id);
 
         return response()->json(
@@ -550,6 +548,7 @@ class ExtClientController extends Controller
             # number of attend
             'attend_party' => 'nullable',
             'event_type' => 'nullable|in:offline',
+            'utm_content' => 'nullable',
             # registration_type
             'status' => 'required|in:OTS,PR',
             # referral code
@@ -582,6 +581,7 @@ class ExtClientController extends Controller
             'attend_party',
             'event_type',
             'status',
+            'utm_content',
             'referral',
             'have_child'
         ]);
@@ -617,7 +617,8 @@ class ExtClientController extends Controller
             'number_of_attend' => $validated['attend_party'] ?? 1,
             'registration_type' => strtoupper($validated['status']) ?? "PR",
             'referral_code' => $validated['referral'] ?? null,
-            'notes' => $validated['client_type'] ?? null
+            'notes' => $validated['client_type'] ?? null,
+            'utm_content' => $validated['utm_content'] ?? null,
         ]);
 
 

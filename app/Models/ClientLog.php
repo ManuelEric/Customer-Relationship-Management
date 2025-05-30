@@ -20,6 +20,7 @@ class ClientLog extends Model
         'first_name',
         'last_name',
         'category',
+        'utm_content',
         'lead_source',
         'utm_content',
         'inputted_from',
