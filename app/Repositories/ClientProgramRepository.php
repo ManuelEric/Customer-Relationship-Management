@@ -321,64 +321,63 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         }
 
         //! note that this data will display without the client that has been deleted 
-        $model = ClientProgram::from('tbl_client_prog as cp')->has('cleanClient')->
-                    leftJoin('client as c', 'c.id', '=', 'cp.client_id')->
+        $model = ClientProgram::has('cleanClient')->
+                    leftJoin('client as c', 'c.id', '=', 'tbl_client_prog.client_id')->
                     leftJoin('tbl_sch as sch', 'sch.sch_id', '=', 'c.sch_id')->
                     leftJoin('tbl_lead as cl', 'cl.lead_id', '=', 'c.lead_id')->
                     leftJoin('tbl_eduf_lead as cedl', 'cedl.id', '=', 'c.eduf_id')->
                     leftJoin('tbl_events as cec', 'cec.event_id', '=', 'c.event_id')->
-                    leftJoin('program as p', 'p.prog_id', '=', 'cp.prog_id')->
+                    leftJoin('program as p', 'p.prog_id', '=', 'tbl_client_prog.prog_id')->
                     leftJoin('tbl_client_relation as cr', 'cr.child_id', '=', 'c.id')->
                     leftJoin('tbl_client as parent', 'parent.id', '=', 'cr.parent_id')->
-                    leftJoin('tbl_lead as cpl', 'cpl.lead_id', '=', 'cp.lead_id')->
-                    leftJoin('tbl_eduf_lead as edl', 'edl.id', '=', 'cp.eduf_lead_id')->
-                    leftJoin('tbl_client_event as ce', 'ce.clientevent_id', '=', 'cp.clientevent_id')->
+                    leftJoin('tbl_lead as cpl', 'cpl.lead_id', '=', 'tbl_client_prog.lead_id')->
+                    leftJoin('tbl_eduf_lead as edl', 'edl.id', '=', 'tbl_client_prog.eduf_lead_id')->
+                    leftJoin('tbl_client_event as ce', 'ce.clientevent_id', '=', 'tbl_client_prog.clientevent_id')->
                     leftJoin('tbl_events as e', 'e.event_id', '=', 'ce.event_id')->
-                    leftJoin('tbl_corp as corp', 'corp.corp_id', '=', 'cp.partner_id')->
-                    leftJoin('tbl_reason as r', 'r.reason_id', '=', 'cp.reason_id')->
-                    leftJoin('users as u', 'u.id', '=', 'cp.empl_id')->
+                    leftJoin('tbl_corp as corp', 'corp.corp_id', '=', 'tbl_client_prog.partner_id')->
+                    leftJoin('tbl_reason as r', 'r.reason_id', '=', 'tbl_client_prog.reason_id')->
+                    leftJoin('users as u', 'u.id', '=', 'tbl_client_prog.empl_id')->
                     leftJoin('eduf_lead as vedl', 'vedl.id', '=', 'edl.id')->
-                    leftJoin('tbl_client as cref', 'cref.secondary_id', '=', 'cp.referral_code')->
+                    leftJoin('tbl_client as cref', 'cref.secondary_id', '=', 'tbl_client_prog.referral_code')->
                     select([
                         'c.id as client_id', 
+                        'tbl_client_prog.clientprog_id', 
+                        'tbl_client_prog.prog_id',
+                        'tbl_client_prog.referral_code',
+                        'p.main_prog_id',
+                        'p.main_prog_name',
                         DB::raw("CONCAT(c.first_name, ' ', COALESCE(c.last_name, '')) AS fullname"),
                         'c.mail AS student_mail',
                         'c.phone AS student_phone',
-                        'c.grade_now AS grade_now',
-                        'c.register_by AS register_by',
-                        'c.lead_source',
-                        'cp.clientprog_id', 
-                        'cp.prog_id',
-                        'cp.referral_code',
-                        'p.main_prog_id',
-                        'p.main_prog_name',
-                        
                         'sch.sch_name AS school_name',
+                        'c.grade_now AS grade_now',
                         'p.program_name AS program_names',
+                        'c.register_by AS register_by',
                         DB::raw("CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, '')) AS parent_fullname"),
                         'parent.phone as parent_phone',
                         'parent.mail as parent_mail',
                         DB::raw("(SELECT GROUP_CONCAT(CONCAT(squ.first_name, ' ', squ.last_name)) FROM tbl_client_mentor sqcm
                                 LEFT JOIN users squ ON squ.id = sqcm.user_id
-                                WHERE sqcm.clientprog_id = cp.clientprog_id GROUP BY sqcm.clientprog_id) as mentor_tutor_name"),
-                        'cp.prog_end_date',
+                                WHERE sqcm.clientprog_id = tbl_client_prog.clientprog_id GROUP BY sqcm.clientprog_id) as mentor_tutor_name"),
+                        'tbl_client_prog.prog_end_date',
+                        'c.lead_source',
                         DB::raw('(CASE 
                                     WHEN cpl.main_lead = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead)
-                                    WHEN cpl.main_lead = "External Edufair" THEN (CASE WHEN cp.eduf_lead_id is not null THEN vedl.organizer_name ELSE "External Edufair" END) 
+                                    WHEN cpl.main_lead = "External Edufair" THEN (CASE WHEN tbl_client_prog.eduf_lead_id is not null THEN vedl.organizer_name ELSE "External Edufair" END) 
                                     WHEN cpl.main_lead = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title)
                                     WHEN cpl.main_lead = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name)
                                     ELSE cpl.main_lead
                                 END) AS conversion_lead_view'),
-                        'cp.status',
-                        'cp.prog_running_status',
+                        'tbl_client_prog.status',
+                        'tbl_client_prog.prog_running_status',
                         'r.reason_name as reason',
                         DB::raw('CONCAT (u.first_name, " ", COALESCE(u.last_name, "")) AS pic_name'),
-                        'cp.initconsult_date',
-                        'cp.assessmentsent_date',
-                        'cp.first_discuss_date',
-                        'cp.failed_date',
-                        'cp.success_date',
-                        'cp.created_at',
+                        'tbl_client_prog.initconsult_date',
+                        'tbl_client_prog.assessmentsent_date',
+                        'tbl_client_prog.first_discuss_date',
+                        'tbl_client_prog.failed_date',
+                        'tbl_client_prog.success_date',
+                        'tbl_client_prog.created_at',
                         DB::raw('CONCAT (cref.first_name, " ", COALESCE(cref.last_name, "")) AS referral_name')
                     ]);
                     
