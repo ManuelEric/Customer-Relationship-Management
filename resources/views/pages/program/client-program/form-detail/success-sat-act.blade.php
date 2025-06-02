@@ -1,3 +1,6 @@
+@php
+    $clientProgram = isset($clientProgram) ? $clientProgram : null;
+@endphp
 <div class="row mb-3">
     <div class="col-md-3">
         <label for="">
