@@ -341,18 +341,19 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     leftJoin('tbl_client as cref', 'cref.secondary_id', '=', 'tbl_client_prog.referral_code')->
                     select([
                         'c.id as client_id', 
+                        DB::raw("CONCAT(c.first_name, ' ', COALESCE(c.last_name, '')) AS fullname"),
+                        'c.mail AS student_mail',
+                        'c.phone AS student_phone',
+                        'c.grade_now AS grade_now',
+                        'c.register_by AS register_by',
+                        'c.lead_source',
                         'tbl_client_prog.clientprog_id', 
                         'tbl_client_prog.prog_id',
                         'tbl_client_prog.referral_code',
                         'p.main_prog_id',
                         'p.main_prog_name',
-                        DB::raw("CONCAT(c.first_name, ' ', COALESCE(c.last_name, '')) AS fullname"),
-                        'c.mail AS student_mail',
-                        'c.phone AS student_phone',
                         'sch.sch_name AS school_name',
-                        'c.grade_now AS grade_now',
                         'p.program_name AS program_names',
-                        'c.register_by AS register_by',
                         DB::raw("CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, '')) AS parent_fullname"),
                         'parent.phone as parent_phone',
                         'parent.mail as parent_mail',
@@ -360,7 +361,6 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                                 LEFT JOIN users squ ON squ.id = sqcm.user_id
                                 WHERE sqcm.clientprog_id = tbl_client_prog.clientprog_id GROUP BY sqcm.clientprog_id) as mentor_tutor_name"),
                         'tbl_client_prog.prog_end_date',
-                        'c.lead_source',
                         DB::raw('(CASE 
                                     WHEN cpl.main_lead = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead)
                                     WHEN cpl.main_lead = "External Edufair" THEN (CASE WHEN tbl_client_prog.eduf_lead_id is not null THEN vedl.organizer_name ELSE "External Edufair" END) 
