@@ -122,13 +122,6 @@ class DashboardController extends Controller
                  * sales data dashboard
                  */
                 $sales = $dashboardService->snSalesDashboard($filter, $tab);
-                // if (!Cache::has('sales-data-dashboard')) {
-                //     // $sales = (new SalesDashboardController($this))->get($request);
-                //     Cache::remember('sales-data-dashboard', $time_stored_in_second, function () use ($sales) {
-                //         return $sales;
-                //     });
-                // }
-                // $sales = Cache::get('sales-data-dashboard');
                 break;
 
             case 'partnership':
@@ -136,13 +129,6 @@ class DashboardController extends Controller
                  * partnership data dashboard
                  */
                 $partnership = $dashboardService->snPartnershipDashboard($tab);
-                // if (!Cache::has('partnership-data-dashboard')) {
-                //     // $partnership = (new PartnerDashboardController($this))->get($request);
-                //     Cache::remember('partnership-data-dashboard', $time_stored_in_second, function () use ($partnership) {
-                //         return $partnership;
-                //     });
-                // }
-                // $partnership = Cache::get('partnership-data-dashboard');
                 break;
 
             case 'digital':
@@ -150,13 +136,6 @@ class DashboardController extends Controller
                  * digital data dashboard
                  */
                 $digital = $dashboardService->snDigitalDashboard();
-                // if (!Cache::has('digital-data-dashboard')) {
-                //     // $digital = (new DigitalDashboardController($this))->get($request);
-                //     Cache::remember('digital-data-dashboard', $time_stored_in_second, function () use ($digital) {
-                //         return $digital;
-                //     });
-                // }
-                // $digital = Cache::get('digital-data-dashboard');
                 break;
 
             case 'finance':
@@ -164,13 +143,6 @@ class DashboardController extends Controller
                  * finance data dashboard
                  */
                 $finance = $dashboardService->snFinanceDashboard($tab);
-                // if (!Cache::has('finance-data-dashboard')) {
-                //     // $finance = (new FinanceDashboardController($this))->get($request);
-                //     Cache::remember('finance-data-dashboard', $time_stored_in_second, function () use ($finance) {
-                //         return $finance;
-                //     });
-                // }
-                // $finance = Cache::get('finance-data-dashboard');
                 break;
         }
 

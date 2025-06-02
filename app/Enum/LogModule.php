@@ -5,6 +5,13 @@ namespace App\Enum;
 enum LogModule: string
 {   
     /**
+     * Login
+     */
+    case USER_LOGIN = '[USER LOGIN]';
+    case USER_LOGOUT = '[USER LOGOUT]';
+
+
+    /**
      * Dashboard
      */
     case SALES_DASHBOARD_GET_CLIENT_STATUS = '[SALES DASHBOARD GET CLIENT STATUS]';
