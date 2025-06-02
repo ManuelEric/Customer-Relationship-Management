@@ -645,11 +645,6 @@ class UserClient extends Authenticatable
         return $this->hasMany(ClientEvent::class, 'client_id', 'id');
     }
 
-    public function viewClientProgram()
-    {
-        return $this->hasMany(ViewClientProgram::class, 'client_id', 'id');
-    }
-
     public function clientMentor()
     {
         return $this->hasManyThrough(
