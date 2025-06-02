@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\ClientEvents\UpdateClientEventAction;
-use App\Actions\ClientPrograms\CreateBundleProgramAction;
 use App\Actions\ClientPrograms\CreateClientProgramAction;
 use App\Actions\ClientPrograms\DeleteClientProgramAction;
 use App\Actions\ClientPrograms\UpdateClientProgramAction;
 use App\Enum\LogModule;
 use App\Http\Requests\StoreClientProgramRequest;
-use App\Http\Requests\StoreFormProgramEmbedRequest;
 use App\Http\Traits\CheckExistingClient;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
@@ -28,27 +25,15 @@ use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\ClientProgramLogMailRepositoryInterface;
 use App\Interfaces\ProgramPhaseRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
-use App\Jobs\Client\ProcessDefineCategory;
-use App\Jobs\Client\ProcessInsertLogClient;
-use App\Models\Bundling;
-use App\Models\BundlingDetail;
 use App\Models\MainProg;
 use App\Models\Program;
-use App\Models\School;
-use App\Models\UserClient;
-use App\Models\ViewClientProgram;
 use App\Services\Log\LogService;
 use App\Services\Master\ProgramService;
 use App\Services\Program\ClientProgramService;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -129,7 +114,7 @@ class ClientProgramController extends Controller
         $data_filter = $this->clientProgramService->snSetFilterDataIndex($request);
 
         if ($request->ajax()) {
-            return $this->clientProgramRepository->getAllClientProgramDataTables($data_filter);
+            return $this->clientProgramRepository->clientProgramDataTables($data_filter);
         }
 
         # advanced filter data

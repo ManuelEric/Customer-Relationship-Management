@@ -5,10 +5,8 @@ namespace App\Repositories;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Models\Bundling;
 use App\Models\ClientProgram;
-use App\Models\InvoiceAttachment;
 use App\Models\InvoiceProgram;
 use App\Models\v1\Invoice as CRMInvoice;
-use App\Models\ViewClientProgram;
 use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -449,14 +447,21 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 
         $queryInv->whereNull('bundling_id');
 
-        if (isset($start_date) && isset($end_date)) {
+        if ($start_date !== null && $end_date !== null) 
+        {
             $queryInv->whereDate('tbl_inv.created_at', '>=', $start_date)
                 ->whereDate('tbl_inv.created_at', '<=', $end_date);
-        } else if (isset($start_date) && !isset($end_date)) {
+        } 
+        else if ($start_date !== null && $end_date === null) 
+        {
             $queryInv->whereDate('tbl_inv.created_at', '>=', $start_date);
-        } else if (!isset($start_date) && isset($end_date)) {
+        } 
+        else if ($start_date === null && $end_date !== null) 
+        {
             $queryInv->whereDate('tbl_inv.created_at', '<=', $end_date);
-        } else {
+        } 
+        else 
+        {
             $queryInv->whereBetween('tbl_inv.created_at', [$firstDay, $lastDay]);
         }
 

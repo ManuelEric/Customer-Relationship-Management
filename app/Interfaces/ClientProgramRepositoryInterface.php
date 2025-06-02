@@ -5,10 +5,9 @@ namespace App\Interfaces;
 interface ClientProgramRepositoryInterface
 {
     public function getAllClientProgramDataTables_DetailUser($searchQuery);
-    public function getAllClientProgramDataTables($searchQuery, $asDatatables = true);
+    public function clientProgramDataTables($searchQuery, $asDatatables = true);
     public function getAllProgramOnClientProgram();
     public function getAllMainProgramOnClientProgram();
-    public function getAllConversionLeadOnClientProgram();
     public function getAllMentorTutorOnClientProgram();
     public function getAllPICOnClientProgram();
     public function getClientProgramById($clientProgramId);
