@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\LogModule;
+use App\Http\Requests\LoginRequest;
 use App\Http\Traits\LoggingTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Interfaces\MenuRepositoryInterface;
 use App\Interfaces\UserTypeRepositoryInterface;
 use App\Services\Authorization\AuthorizationService;
+use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -26,16 +29,12 @@ class AuthController extends Controller
     }
 
     public function login(
-        Request $request,
+        LoginRequest $request,
         AuthorizationService $authorizationService,
+        LogService $log_service,
         )
     {
-        $credentials = $request->validate([
-            'email' => 'required|exists:users,email',
-            'password' => 'required',
-        ]);
-
-        $credentials = $request->only(['email', 'password']);
+        $credentials = $request->safe()->only(['email', 'password']);
 
         # check credentials
         if (!Auth::attempt($credentials, true)) 
@@ -44,7 +43,7 @@ class AuthController extends Controller
         
         try {
 
-            $user = Auth::user();
+            $user = Auth::user()->load(['roles', 'department']);
             $userId = $user->id;
             $authorizationService->checkPermissionFromUserType($userId);
             $scopes = $authorizationService->checkUserRole($user);
@@ -54,45 +53,49 @@ class AuthController extends Controller
             $request->session()->put('access_token', $generatedToken);
             $request->session()->put('scope', $scopes);
 
-            $clientIP = $request->ip();
-            Log::alert($clientIP);
+            // $clientIP = $request->ip();
+            // Log::alert($clientIP);
 
         } catch (Exception $e) {
-
-            Log::debug('Error:'. $e->getMessage());
-            return back()->withError($e->getMessage());
+            
+            $log_service->createErrorLog(LogModule::USER_LOGIN, $e->getMessage(), $e->getLine(), $e->getFile());
+            return back()->withError("An issue occurs when attempting to log in. {$e->getMessage()}");
 
         }
 
         # login Success
         # create log success
-        $this->logSuccess('auth', null, 'Login', $request->email);
+        $log_service->createSuccessLog(LogModule::USER_LOGIN, "{$user->fullname} has logged in.");
 
         switch ($scopes) {
             case in_array('super-admin', $scopes):
             case in_array('sales-admin', $scopes):
-                return redirect()->intended('/dashboard/sales');
+                return redirect()->intended('/dashboard/sales/client-program');
                 break;
 
             case in_array('employee', $scopes):
                 if($user->department()->where('dept_name', 'Client Management')->exists()){
-                    return redirect()->intended('/dashboard/sales');
+                    return redirect()->intended('/dashboard/sales/client-program');
                 }else if($user->department()->where('dept_name', 'Business Development')->exists()){
-                    return redirect()->intended('/dashboard/partnership');
+                    return redirect()->intended('/dashboard/partnership/agenda');
                 }else if($user->department()->where('dept_name', 'Digital')->exists()){
                     return redirect()->intended('/dashboard/digital');
                 }else if($user->department()->where('dept_name', 'Finance & Operation')->exists()){
-                    return redirect()->intended('/dashboard/finance');
+                    return redirect()->intended('/dashboard/finance/outstanding-payment');
                 }
                 break;            
         }
     }
 
-    public function logout(Request $request)
+    public function logout(
+        Request $request,
+        LogService $log_service,
+        )
     {
+        $user = Auth::user();
         # logout Success
         # create log success
-        $this->logSuccess('auth', null, 'Logout', Auth::user()->email);
+        $log_service->createSuccessLog(LogModule::USER_LOGOUT, "{$user->full_name} has logged out.");
 
         Auth::logout();
         Cache::flush();

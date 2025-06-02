@@ -717,7 +717,7 @@
                                                         @endphp
                                                         <option value="{{ $tutor->id }}"
                                                             @selected(old('tutor_2') == $tutor->id)
-                                                            @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->latest()->first())->id == $tutor->id)
+                                                            @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->latest()->first())->id == $tutor->id && $clientProgram->clientMentor()->count() > 1)
                                                             >{{ $tutor->first_name .' ' .$tutor->last_name . (count($subjects) > 0 ? ' - ' .json_encode($subjects) : '') }}
                                                         </option>
                                                     @endforeach

@@ -173,7 +173,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 ->select([
                     "tbl_client_prog.*",
                     // "p.program_name",
-                    DB::raw("(SELECT StringProgramName(tbl_client_prog.clientprog_id)) as program_named"),
+                    DB::raw("(SELECT StringProgramName(tbl_client_prog.clientprog_id)) as program_name"),
                     "tbl_client_prog.first_discuss_date",
                     DB::raw("CONCAT(u.first_name, ' ', COALESCE(u.last_name, '')) AS pic_name"),
                     DB::raw("(CASE WHEN tbl_client_prog.status = 0 THEN 'Pending'
@@ -1035,6 +1035,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     'user_id' => $tutors['tutor_1'],
                     'type' => 5,
                     'timesheet_link' => $tutors['timesheet_1'],
+                    'status' => $status,
                 ];
             }
                
@@ -1047,11 +1048,15 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     'user_id' => $tutors['tutor_2'],
                     'type' => 5,
                     'timesheet_link' => $tutors['timesheet_2'],
+                    'status' => $status,
                 ];
             }
              
             if(count($tutorInfo) > 0)
-                $clientProgram->clientMentor()->sync($tutorInfo, ['status' => $status]);
+            {
+                $clientProgram->clientMentor()->sync($tutorInfo);
+            }
+                // $clientProgram->clientMentor()->sync($tutorInfo, ['status' => $status]);
         }
 
         # when mentor_ic is filled which is not null

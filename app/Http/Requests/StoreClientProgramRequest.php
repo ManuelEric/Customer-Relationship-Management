@@ -744,7 +744,7 @@ class StoreClientProgramRequest extends FormRequest
                 },
             ],
             'timesheet_1' => 'required_if:tutor_1,!=,null',
-            'timesheet_2' => 'required_if:tutor_2,!=,null',
+            'timesheet_2' => 'required_unless:tutor_2,null',
             'prog_running_status' => 'required',
             'package.'.$main_prog.'.*' => [
                 function ($attribute, $value, $fail) {

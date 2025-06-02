@@ -84,7 +84,7 @@ Route::middleware('guest')->group(function () {
 Route::group(['middleware' => ['auth', 'auth.department']], function () {
     Route::get('auth/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::get('dashboard/{division}', [DashboardController::class, 'index'])->name('index');
+    Route::get('dashboard/{division}/{tab?}', [DashboardController::class, 'index'])->name('index');
 
     Route::get('import', function () {
         return view('pages.import.index');
