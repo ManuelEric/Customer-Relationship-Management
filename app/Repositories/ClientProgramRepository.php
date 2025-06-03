@@ -340,9 +340,6 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     leftJoin('eduf_lead as vedl', 'vedl.id', '=', 'edl.id')->
                     leftJoin('tbl_client as cref', 'cref.secondary_id', '=', 'tbl_client_prog.referral_code')->
                     select([
-                        'tbl_client_prog.clientprog_id', 
-                        'tbl_client_prog.prog_id',
-                        'tbl_client_prog.referral_code',
                         'c.id as client_id', 
                         DB::raw("CONCAT(c.first_name, ' ', COALESCE(c.last_name, '')) AS fullname"),
                         'c.mail AS student_mail',
@@ -355,6 +352,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         'tbl_client_prog.referral_code',
                         'p.main_prog_id',
                         'p.main_prog_name',
+                        'sch.sch_name AS school_name',
                         'p.program_name AS program_names',
                         DB::raw("CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, '')) AS parent_fullname"),
                         'parent.phone as parent_phone',
