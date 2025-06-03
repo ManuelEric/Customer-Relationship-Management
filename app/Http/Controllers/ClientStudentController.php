@@ -180,7 +180,7 @@ class ClientStudentController extends ClientController
 
         if (!Cache::has('advanced_filter')) {
             $entries = app('App\Services\ClientStudentService')->advancedFilterClient();
-            Cache::put('advanced_filter', $entries, 3600);
+            Cache::put('advanced_filter', $entries, 18000);
         }
 
         $entries = Cache::get('advanced_filter');
