@@ -8,26 +8,16 @@ use App\Models\Bundling;
 use App\Models\BundlingDetail;
 use App\Models\ClientProgram;
 use App\Models\InvoiceProgram;
-use App\Models\Lead;
-use App\Models\Phase;
-use App\Models\PhaseDetail;
-use App\Models\PhaseLibrary;
 use App\Models\pivot\ClientMentor;
-use App\Models\pivot\ClientProgramDetail;
 use App\Models\Reason;
-use App\Models\Receipt;
-use App\Models\School;
 use App\Models\User;
 use App\Models\UserClient;
 use App\Models\v1\ClientProgram as CRMClientProgram;
-use App\Models\ViewClientProgram;
-use App\Models\ViewClientRefCode;
 use App\Models\ViewProgram;
 use DataTables;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 
@@ -173,7 +163,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 ->select([
                     "tbl_client_prog.*",
                     // "p.program_name",
-                    DB::raw("(SELECT StringProgramName(tbl_client_prog.clientprog_id)) as program_named"),
+                    DB::raw("(SELECT StringProgramName(tbl_client_prog.clientprog_id)) as program_name"),
                     "tbl_client_prog.first_discuss_date",
                     DB::raw("CONCAT(u.first_name, ' ', COALESCE(u.last_name, '')) AS pic_name"),
                     DB::raw("(CASE WHEN tbl_client_prog.status = 0 THEN 'Pending'
@@ -297,7 +287,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     
     }
     
-    public function getAllClientProgramDataTables($searchQuery = NULL, $asDatatables = true)
+    public function clientProgramDataTables($searchQuery = NULL, $asDatatables = true)
     {
         # default 
         $fieldKey = ["success_date", "failed_date", "refund_date", "created_at"];
@@ -332,7 +322,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
         //! note that this data will display without the client that has been deleted 
         $model = ClientProgram::has('cleanClient')->
-                    leftJoin('client as c', 'c.id', '=', 'tbl_client_prog.client_id')->
+                    leftJoin('tbl_client as c', 'c.id', '=', 'tbl_client_prog.client_id')->
                     leftJoin('tbl_sch as sch', 'sch.sch_id', '=', 'c.sch_id')->
                     leftJoin('tbl_lead as cl', 'cl.lead_id', '=', 'c.lead_id')->
                     leftJoin('tbl_eduf_lead as cedl', 'cedl.id', '=', 'c.eduf_id')->
@@ -351,18 +341,19 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     leftJoin('tbl_client as cref', 'cref.secondary_id', '=', 'tbl_client_prog.referral_code')->
                     select([
                         'c.id as client_id', 
+                        DB::raw("CONCAT(c.first_name, ' ', COALESCE(c.last_name, '')) AS fullname"),
+                        'c.mail AS student_mail',
+                        'c.phone AS student_phone',
+                        'c.grade_now AS grade_now',
+                        'c.register_by AS register_by',
+                        'cl.main_lead as lead_source',
                         'tbl_client_prog.clientprog_id', 
                         'tbl_client_prog.prog_id',
                         'tbl_client_prog.referral_code',
                         'p.main_prog_id',
                         'p.main_prog_name',
-                        DB::raw("CONCAT(c.first_name, ' ', COALESCE(c.last_name, '')) AS fullname"),
-                        'c.mail AS student_mail',
-                        'c.phone AS student_phone',
                         'sch.sch_name AS school_name',
-                        'c.grade_now AS grade_now',
                         'p.program_name AS program_names',
-                        'c.register_by AS register_by',
                         DB::raw("CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, '')) AS parent_fullname"),
                         'parent.phone as parent_phone',
                         'parent.mail as parent_mail',
@@ -370,7 +361,6 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                                 LEFT JOIN users squ ON squ.id = sqcm.user_id
                                 WHERE sqcm.clientprog_id = tbl_client_prog.clientprog_id GROUP BY sqcm.clientprog_id) as mentor_tutor_name"),
                         'tbl_client_prog.prog_end_date',
-                        'c.lead_source',
                         DB::raw('(CASE 
                                     WHEN cpl.main_lead = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead)
                                     WHEN cpl.main_lead = "External Edufair" THEN (CASE WHEN tbl_client_prog.eduf_lead_id is not null THEN vedl.organizer_name ELSE "External Edufair" END) 
@@ -399,7 +389,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                             $subQuery2->where('user_id', auth()->user()->id);
                         });
                     })->
-                    when($searchQuery['clientId'], function ($query) use ($searchQuery) {
+                    when(isset($searchQuery['clientId']), function ($query) use ($searchQuery) {
                         $query->where('client_id', $searchQuery['clientId']);
                     })
                     # search by main program 
@@ -571,11 +561,6 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         return ViewProgram::distinct('main_prog_name')->select('main_prog_name', 'main_prog_id')->get();
     }
 
-    public function getAllConversionLeadOnClientProgram()
-    {
-        return ViewClientProgram::distinct('conversion_lead')->select('conversion_lead', 'lead_id')->get();
-    }
-
     public function getAllMentorTutorOnClientProgram()
     {
         return ClientMentor::leftJoin('users', 'users.id', '=', 'tbl_client_mentor.user_id')->distinct('user_id')
@@ -598,7 +583,17 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
     public function getClientProgramById($clientProgramId)
     {
-        return ClientProgram::whereClientProgramId($clientProgramId);
+        return ClientProgram::with([
+            'program',
+            'program.main_prog',
+            'program.sub_prog',
+            'clientMentor',
+            'lead',
+            'invoice',
+            'invoice.receipt',
+            'invoice.invoiceDetail',
+            'invoice.invoiceDetail.receipt',
+        ])->where('clientprog_id', $clientProgramId)->first();
     }
 
     public function getClientProgramByClientId($clientId)
@@ -1025,6 +1020,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     'user_id' => $tutors['tutor_1'],
                     'type' => 5,
                     'timesheet_link' => $tutors['timesheet_1'],
+                    'status' => $status,
                 ];
             }
                
@@ -1037,11 +1033,15 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     'user_id' => $tutors['tutor_2'],
                     'type' => 5,
                     'timesheet_link' => $tutors['timesheet_2'],
+                    'status' => $status,
                 ];
             }
              
             if(count($tutorInfo) > 0)
-                $clientProgram->clientMentor()->sync($tutorInfo, ['status' => $status]);
+            {
+                $clientProgram->clientMentor()->sync($tutorInfo);
+            }
+                // $clientProgram->clientMentor()->sync($tutorInfo, ['status' => $status]);
         }
 
         # when mentor_ic is filled which is not null

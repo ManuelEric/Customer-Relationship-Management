@@ -823,7 +823,7 @@ class GoogleSheetController extends Controller
                     $data = $this->clientRepository->getInactiveStudent(true ,null, []);
                     break;
                 case 'client-program':
-                    $data = $this->clientProgramRepository->getAllClientProgramDataTables([] , false);
+                    $data = $this->clientProgramRepository->clientProgramDataTables([] , false);
                     break;
                 
                 default:
@@ -855,7 +855,7 @@ class GoogleSheetController extends Controller
             Log::error('Failed to export data: ' . $e->getMessage() . '| on line: ' . $e->getLine());
             return response()->json([
                 'success' => false,
-                'error' => 'Something went wrong. Please try again'
+                'error' => "Something went wrong: {$e->getMessage()} in {$e->getFile()} on line {$e->getLine()}"
             ], 500);
         }
 

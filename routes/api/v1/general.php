@@ -206,5 +206,4 @@ Route::middleware(['throttle:120,1'])->group(function () {
 
         # upcoming events
         Route::get('upcoming/events', [ExtEventController::class, 'fnGetUpcomingEvents']);
-
 });

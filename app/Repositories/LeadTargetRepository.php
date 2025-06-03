@@ -3,17 +3,12 @@
 namespace App\Repositories;
 
 use App\Interfaces\LeadTargetRepositoryInterface;
-use App\Models\Client;
 use App\Models\ClientLog;
 use App\Models\ClientProgram;
-use App\Models\Invb2b;
 use App\Models\InvoiceProgram;
 use App\Models\LeadTargetTracking;
-use App\Models\Receipt;
 use App\Models\UserClient;
-use App\Models\ViewClientProgram;
 use App\Models\ViewTargetSignal;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 
 class LeadTargetRepository implements LeadTargetRepositoryInterface
@@ -511,21 +506,4 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         
         return $query->get();
     }
-
-//     public function getLeadSourceDigital($monthYear)
-//     {
-//         $clients = $this->getAchievedLeadDigitalByMonth($monthYear);
-//         return Client::whereIn('id', $clients->pluck('id'))->get();
-//     }
-
-//     public function getConversionLeadDigital($monthYear)
-//     {
-//         $month = date('m', strtotime($monthYear));
-//         $year = date('Y', strtotime($monthYear));
-
-//         $clients = $this->getAchievedInitConsultDigitalByMonth($monthYear);
-//         return ViewClientProgram::whereIn('client_id', $clients->pluck('id'))->whereMonth('assessmentsent_date', $month)->whereYear('assessmentsent_date', $year)->get();
-// ;
-
-//     }
 }

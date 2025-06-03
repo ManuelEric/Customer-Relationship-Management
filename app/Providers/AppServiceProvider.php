@@ -51,7 +51,7 @@ class AppServiceProvider extends ServiceProvider
                 currentPage: $page,
                 options: $options
             );
-    
+
             return $paginator->withPath(Request::url());
         });
 
@@ -60,7 +60,7 @@ class AppServiceProvider extends ServiceProvider
 
         /* queue logger */
         Queue::after(function (JobProcessed $event) {
-            Log::debug('Queue : '.json_encode($event).' has ran');
+            Log::debug('Queue : ' . json_encode($event) . ' has ran');
         });
 
 
@@ -71,15 +71,15 @@ class AppServiceProvider extends ServiceProvider
             $collection = new Collection();
 
             # check if the user has authenticated 
-            if (isset($user) && (($user->department()->wherePivot('status', 1)->count() > 0 || $user->roles()->where('role_name', 'Super Admin')->count() > 0)) ) {
-                if(!Cache::has('menu')){ 
+            if (isset($user) && (($user->department()->wherePivot('status', 1)->count() > 0 || $user->roles()->where('role_name', 'Super Admin')->count() > 0))) {
+                if (!Cache::has('menu')) {
                     foreach ($user->department()->wherePivot('status', 1)->get() as $menus) {
                         foreach ($menus->access_menus as $menu) {
-    
+
                             // $keyMenu = $collection->where('submenu_name', $menu->submenu_name)->keys()->first();
                             // Delete submenu by key
                             // $collection->forget($keyMenu);
-                            
+
                             $collection->push([
                                 'order_no' => $menu->mainmenu->order_no,
                                 'order_no_submenu' => $menu->order_no,
@@ -94,16 +94,16 @@ class AppServiceProvider extends ServiceProvider
                             ]);
                         }
                     }
-    
+
                     if ($user->access_menus->count() > 0) {
-    
+
                         foreach ($user->access_menus as $menu) {
                             // Get key same submenu name 
-                            
+
                             // $keyMenu = $collection->where('submenu_name', $menu->submenu_name)->keys()->first();
                             // Delete submenu by key
                             // $collection->forget($keyMenu);
-        
+
                             $collection->push([
                                 'order_no' => $menu->mainmenu->order_no,
                                 'order_no_submenu' => $menu->order_no,
@@ -118,12 +118,12 @@ class AppServiceProvider extends ServiceProvider
                             ]);
                         }
                     }
-    
-                    $cacheMenu = Cache::pull('menu', $this->checkRoles($user, $collection));
+
+                    $cacheMenu = Cache::put('menu', $this->checkRoles($user, $collection));
                     $cacheRoleScopeData = $cacheMenu;
-                }else{
-                    $cacheRoleScopeData = Cache::get('menu');
                 }
+
+                $cacheRoleScopeData = Cache::get('menu');
 
                 # invoice & receipt PIC
                 $invRecPics = [
@@ -139,19 +139,19 @@ class AppServiceProvider extends ServiceProvider
 
                 $countAlarm = !Cache::has('countAlarm') ? Cache::put('countAlarm', app('alarm-repository-services')->countAlarm()) : null;
                 $notification = !Cache::has('notification') ? Cache::put('notification', app('alarm-repository-services')->notification()) : null;
-                $followUp = !Cache::has('followUp') ? Cache::put('followUp', app('follow-up')->getAllFollowupWithin(7)) : null ;
-                $birthDay = !Cache::has('birthDay') ? Cache::put('birthDay', app('birthday')->getMenteesBirthdayMonthly(date('Y-m'))) : null ;
+                $followUp = !Cache::has('followUp') ? Cache::put('followUp', app('follow-up')->getAllFollowupWithin(7)) : null;
+                $birthDay = !Cache::has('birthDay') ? Cache::put('birthDay', app('birthday')->getMenteesBirthdayMonthly(date('Y-m'))) : null;
 
                 $view->with(
                     $cacheRoleScopeData +
-                    [
-                        'countAlarm' => $countAlarm ?? Cache::get('countAlarm'),
-                        'notification' => $notification ?? Cache::get('notification'),
-                        'followUp' => $followUp ?? Cache::get('followUp'),
-                        'birthDay' => $birthDay ?? Cache::get('birthDay'),
-                        'invRecPics' => $invRecPics,
-                        'registrationUrl' => env('REGISTRATION_URL')
-                    ]
+                        [
+                            'countAlarm' => $countAlarm ?? Cache::get('countAlarm'),
+                            'notification' => $notification ?? Cache::get('notification'),
+                            'followUp' => $followUp ?? Cache::get('followUp'),
+                            'birthDay' => $birthDay ?? Cache::get('birthDay'),
+                            'invRecPics' => $invRecPics,
+                            'registrationUrl' => env('REGISTRATION_URL')
+                        ]
                 );
             }
         });
@@ -159,7 +159,7 @@ class AppServiceProvider extends ServiceProvider
 
 
 
-    
+
     private function checkRoles($user, $collection)
     {
 
@@ -171,7 +171,7 @@ class AppServiceProvider extends ServiceProvider
             $collection = app('menu-repository-services')->getMenu();
             $isSuperAdmin = true;
         }
-        
+
 
         # get department ID
         # its used to insert department_id when creating lead source
@@ -213,7 +213,6 @@ class AppServiceProvider extends ServiceProvider
 
             $response["{$entries[$index]['alias']}"] = $entries[$index]['status'];
             $index++;
-
         }
 
         return $response;
@@ -248,18 +247,16 @@ class AppServiceProvider extends ServiceProvider
         ];
 
         $index = 0;
-        while ($index < count($entries)) 
-        {
+        while ($index < count($entries)) {
 
             # if user logged in user is from the department
             if ($user->department()->where('dept_name', $entries[$index]['department'])->wherePivot('status', 1)->count() > 0) {
-                
+
                 $entries[$index]['status'] = true;
 
-                if ($user->roles()->where('role_name', 'Admin')->count() > 0){
+                if ($user->roles()->where('role_name', 'Admin')->count() > 0) {
                     $entries[$index]['alias'] = 'isSalesAdmin';
                 }
-
             }
             $index++;
         }

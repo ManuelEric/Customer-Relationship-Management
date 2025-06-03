@@ -18,6 +18,7 @@ class MainProg extends Model
      */
     protected $fillable = [
         'prog_name',
+        'group_of',
         'prog_status',
     ];
 

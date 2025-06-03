@@ -1,3 +1,6 @@
+@php
+    $clientProgram = isset($clientProgram) ? $clientProgram : null;
+@endphp
 <div class="row mb-3">
     <div class="col-md-3">
         <label for="">
@@ -11,6 +14,12 @@
             </div>
             <div class="card-body">
                 <div class="row">
+                    <!-- Detail for Test Preparation -->
+                    <div class="col-md-12 mb-2 pending-tutoring-test-preparation-field d-none">
+                        <small>Package <sup class="text-danger">*</sup></small>
+                        <x-forms.program.detail.package program-type="test-preparation" text-index="0" :disabled=$disabled :client-program=$clientProgram />
+                    </div>
+                    
                     <div class="col-md-12 mb-2">
                         <small>Test Date <sup class="text-danger">*</sup></small>
                         <input type="date" name="test_date" {{ $disabled }} value="{{ isset($clientProgram->test_date) ? $clientProgram->test_date : old('test_date') }}"

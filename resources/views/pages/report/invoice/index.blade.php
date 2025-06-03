@@ -347,15 +347,26 @@
 
         function ExportToExcel() {
 
-            var sheetName = ['Invoices', 'Receipts'];
+            var sheetName = []
+            var tableName = []
 
-            var tableName = ['tbl_inv', 'tbl_receipt'];
+            if ( $("#tbl_inv").find('tr').length > 3 && sheetName.indexOf('Invoices') == -1  && tableName.indexOf('tbl_inv') == -1)
+            {
+                sheetName.push('Invoices')
+                tableName.push('tbl_inv')
+            }
+
+            if ( $("#tbl_receipt").find('tr').length > 3 && sheetName.indexOf('Receipts') == -1 && tableName.indexOf('tbl_receipt') == -1 )
+            {
+                sheetName.push('Receipts')
+                tableName.push('tbl_receipt')
+            }
 
             var ws = new Array();
 
             var workbook = XLSX.utils.book_new();
 
-            tableName.forEach(function (d, i) {
+            tableName.forEach(function (d, i) {                
                 ws[i] = XLSX.utils.table_to_sheet(document.getElementById(tableName[i]));
                 XLSX.utils.book_append_sheet(workbook, ws[i], sheetName[i]);
             })

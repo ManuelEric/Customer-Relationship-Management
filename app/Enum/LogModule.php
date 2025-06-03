@@ -5,6 +5,13 @@ namespace App\Enum;
 enum LogModule: string
 {   
     /**
+     * Login
+     */
+    case USER_LOGIN = '[USER LOGIN]';
+    case USER_LOGOUT = '[USER LOGOUT]';
+
+
+    /**
      * Dashboard
      */
     case SALES_DASHBOARD_GET_CLIENT_STATUS = '[SALES DASHBOARD GET CLIENT STATUS]';
@@ -382,6 +389,8 @@ enum LogModule: string
      */
     case STORE_RECEIPT_PROGRAM = '[STORE RECEIPT PROGRAM]';
     case STORE_RECEIPT_PROGRAM_FROM_PAYMENT_GA = '[STORE RECEIPT PROGRAM FROM PAYMENT GA]';
+    case SEND_RECEIPT_TO_CLIENT = '[EMAIL RECEIPT TO CLIENT]';
+    case UPDATE_SEND_STATUS = '[UPDATE SEND RECEIPT TO CLIENT STATUS]';
 
     /**
      * Report

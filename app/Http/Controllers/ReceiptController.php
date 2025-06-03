@@ -12,6 +12,7 @@ use App\Interfaces\ReceiptAttachmentRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Jobs\Receipt\ProcessUploadReceiptJob;
+use App\Mail\Receipt\SendToClient as ReceiptMail;
 use App\Models\Receipt;
 use App\Models\Transaction;
 use App\Services\Log\LogService;
@@ -504,7 +505,10 @@ class ReceiptController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Receipt signed successfully']);
     }
 
-    public function sendToClient(Request $request)
+    public function sendToClient(
+        Request $request,
+        LogService $log_service,
+        )
     {
         $receipt_id = $request->route('receipt');
         $type_recipient = $request->route('type_recipient');
@@ -532,7 +536,7 @@ class ReceiptController extends Controller
                 }
                 break;
 
-            case 'Client':
+            case 'Client': // student
                 if($isBundle){
                     $data['email'] = $receipt->invoiceProgram->bundling->first_detail->client_program->client->mail;
                     $data['recipient'] = $receipt->invoiceProgram->bundling->first_detail->client_program->client->full_name;
@@ -545,7 +549,6 @@ class ReceiptController extends Controller
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),
-            env('FINANCE_CC_2', ''),
             $pic_mail
         ];
         
@@ -555,27 +558,21 @@ class ReceiptController extends Controller
         try {
             
             $path = 'project/crm/receipt/client/';
-            $storagePath = Storage::url($path . $attachment->attachment);
             if (!Storage::disk('s3')->exists($path . $attachment->attachment)) 
                 return response()->json(['message' => "Receipt doesn't exist. Make sure the receipt has already been signed"], 500);
 
-            Mail::send('pages.receipt.client-program.mail.client-view', $data, function ($message) use ($data, $attachment) {
-                $message->to($data['email'], $data['recipient'])
-                    ->cc($data['cc'])
-                    ->subject($data['title'])
-                    ->attach(Storage::url('receipt/client/' . $attachment->attachment));
-            });
+            Mail::to($data['email'], $data['recipient'])
+                ->cc($data['cc'])
+                ->send(new ReceiptMail($data, $path . $attachment->attachment, $attachment->attachment));
             $status_mail = 'sent';
 
         } catch (Exception $e) {
 
             $status_mail = 'not sent';
-            Log::info('Failed to send receipt to client : ' . $e->getMessage().' | Line : '.$e->getLine());
+            $log_service->createErrorLog(LogModule::SEND_RECEIPT_TO_CLIENT, $e->getMessage(), $e->getLine(), $e->getFile(), [$e->getTraceAsString()]);
+            return response()->json(['message' => $e->getMessage()], 500);
 
         }
-
-        if ($status_mail == 'not sent')
-            return response()->json(['message' => 'Failed to send receipt to client.'], 500);
 
         DB::beginTransaction();
         try {
@@ -589,15 +586,14 @@ class ReceiptController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::info('Failed to update send status receipt : ' . $e->getMessage().' | Line : '.$e->getLine());
+            $log_service->createErrorLog(LogModule::UPDATE_SEND_STATUS, $e->getMessage(), $e->getLine(), $e->getFile());
             return response()->json(['message' => 'Failed to send receipt to client.'], 500);
 
         }
 
         # Send To Client success
         # create log success
-        $this->logSuccess('send-to-client', null, 'Receipt Client Program', Auth::user()->first_name . ' '. Auth::user()->last_name, ['receipt_id' => $receipt_id, 'recipient' => $type_recipient]);
-
+        $log_service->createSuccessLog(LogModule::SEND_RECEIPT_TO_CLIENT, 'Successfully sent receipt to client', ['receipt_id' => $receipt_id, 'recipient' => $type_recipient]);
         return response()->json(['message' => 'Successfully sent receipt to client.']);
     }
 

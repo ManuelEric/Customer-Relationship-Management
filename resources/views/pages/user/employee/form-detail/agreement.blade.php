@@ -20,7 +20,7 @@
                     <div class="fw-bold">{{ $user_subject_by_subject_id->first()->first()->subject->name }}</div>
                     @foreach ($user_subject_by_subject_id as $user_subject_by_year)
                         <hr>
-                        @foreach ($user->user_subjects()->where('subject_id', $user_subject_by_year->first()->subject_id)->where('year', $user_subject_by_year->first()->year)->get() as $user_subject)
+                        @foreach ($user->user_subjects()->where('subject_id', $user_subject_by_year->last()->subject_id)->where('year', $user_subject_by_year->last()->year)->get() as $user_subject)
                                 <b>{{ $user_subject->year }} {{ $user_subject->grade != null ? '| ' . $user_subject->grade : '' }}</b>  
                                 @if($user_subject->agreement != null && $loop->index == 0)
                                     <div class="d-grid gap-2 d-md-flex mx-auto">
@@ -139,7 +139,7 @@
                                         <input type="hidden" value="1" name="count_agreement_detail[]">
                                         <div class="row">
                                             <div class="input-grade col-md-6 mb-2 d-none">
-                                                <label for="">Grade <sup class="text-danger">*</sup></label>
+                                                <label for="">Grade</label>
                                                 <select name="grade[]" class="grade-select w-50">
                                                     <option data-placeholder="true"></option>
                                                     <option value="9-10">9-10</option>
@@ -278,7 +278,7 @@
                         '<input type="hidden" value="1" name="count_agreement_detail[]">' +
                         '<div class="row">' +
                             '<div class="input-grade col-md-6 mb-2 '+(selected_role != 'Tutor' ? 'd-none' : '')+'">' +
-                            '<label for="">Grade <sup class="text-danger">*</sup></label>' +
+                            '<label for="">Grade' +
                             '<select name="grade[]" class="grade-select w-100">' +
                                 '<option data-placeholder="true"></option>' +
                                 '<option value="9-10">9-10</option>' +
