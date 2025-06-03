@@ -140,7 +140,7 @@
         dashboardTab('{{ Request::route('division') }}', '{{ Request::route('tab') }}', false)
     </script>
     <script type="text/javascript">
-        $("#cp_employee").on('change', function() {
+        $("#cp_employee").on('change', async function() {
             showLoading()
 
             var month = $(".qdate").val()
@@ -148,8 +148,10 @@
             var year = $("#qclient-event-year").val()
             var daterange = $('#daterange').val();
 
-            reloadChart(month, uuid, year, daterange)
-
+            await reloadChart(month, uuid, year, daterange, '{{ Request::route('tab') }}')
+            setTimeout(() => {
+                swal.close()
+            }, 1000);
         })
 
         $('.select-pc').select2({
@@ -157,15 +159,17 @@
             allowClear: true
         });
 
-        $(".qdate").on('change', function() {
+        $(".qdate").on('change', async function() {
             showLoading()
             var month = $(this).val()
             $(".qdate").val(month)
             var uuid = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val()
             var year = $("#qclient-event-year").val()
 
-            reloadChart(month, uuid, year)
-
+            await reloadChart(month, uuid, year, null, '{{ Request::route('tab') }}')
+            setTimeout(() => {
+                swal.close()
+            }, 1000);
         })
 
         $("#use-filter-by-month").on('change', function() {
@@ -180,22 +184,31 @@
             }
         })
 
-        function reloadChart(month, uuid, year, daterange) {
+        function reloadChart(month, uuid, year, daterange, tab = 'client-program') {
+            switch (tab) {
+                case 'client-program':
+                    get_client_program_status(month, uuid)
+                    get_successful_program(month, uuid)
+                    get_admission_program(month, uuid)
+                    get_initial_consultation(month, uuid)
+                    get_academic_prep(month, uuid)
+                    get_career_exploration(month, uuid)
+                    get_conversion_leads(month, uuid)
+                    get_admission_mentoring_lead(month, uuid)
+                    get_academic_prep_lead(month, uuid)
+                    get_career_exp_lead(month, uuid)
 
-            get_client_program_status(month, uuid)
-            get_successful_program(month, uuid)
-            get_admission_program(month, uuid)
-            get_initial_consultation(month, uuid)
-            get_academic_prep(month, uuid)
-            get_career_exploration(month, uuid)
-            get_conversion_leads(month, uuid)
-            get_admission_mentoring_lead(month, uuid)
-            get_academic_prep_lead(month, uuid)
-            get_career_exp_lead(month, uuid)
-            get_all_program(month, uuid)
-            get_program_comparison()
-            get_domicile(uuid, daterange)
-
+                    break;
+                case 'sales-target':
+                    get_all_program(month, uuid)
+                    break;
+                case 'program-comparison':
+                    get_program_comparison()
+                    break;
+                case 'domicile':
+                    get_domicile(uuid, daterange)
+                    break;
+            }
             // get_client_event(year, uuid)
         }
     </script>
