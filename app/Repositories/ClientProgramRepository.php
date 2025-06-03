@@ -322,7 +322,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
         //! note that this data will display without the client that has been deleted 
         $model = ClientProgram::has('cleanClient')->
-                    leftJoin('client as c', 'c.id', '=', 'tbl_client_prog.client_id')->
+                    leftJoin('tbl_client as c', 'c.id', '=', 'tbl_client_prog.client_id')->
                     leftJoin('tbl_sch as sch', 'sch.sch_id', '=', 'c.sch_id')->
                     leftJoin('tbl_lead as cl', 'cl.lead_id', '=', 'c.lead_id')->
                     leftJoin('tbl_eduf_lead as cedl', 'cedl.id', '=', 'c.eduf_id')->
@@ -349,8 +349,10 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         'c.phone AS student_phone',
                         'c.grade_now AS grade_now',
                         'c.register_by AS register_by',
-                        'c.lead_source',
-                        'sch.sch_name AS school_name',
+                        'cl.main_lead as lead_source',
+                        'tbl_client_prog.clientprog_id', 
+                        'tbl_client_prog.prog_id',
+                        'tbl_client_prog.referral_code',
                         'p.main_prog_id',
                         'p.main_prog_name',
                         'p.program_name AS program_names',
