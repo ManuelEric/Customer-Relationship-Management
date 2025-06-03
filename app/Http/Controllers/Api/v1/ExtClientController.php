@@ -2285,6 +2285,14 @@ class ExtClientController extends Controller
         return response()->json($active_mentees);
     }
 
+    public function fnGetActiveMenteeGlobal(Request $request)
+    {
+        $terms = $request->get('terms');
+        $search = compact('terms');
+        $active_mentees = $this->clientRepository->rnGetActiveMenteesGlobal($search);
+        return response()->json($active_mentees);
+    }
+
     public function fnGetMentorsByMentee(UserClient $user_client): JsonResponse
     {
         $latest_admission_program = $user_client->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first();

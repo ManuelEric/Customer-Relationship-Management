@@ -33,7 +33,6 @@ class UpdateUserAction
         # 2. update the user education
         $this->userRepository->rnUpdateUserEducation($the_user, $new_user_education_details);
 
-
         # 3. update the user role
         $this->userRepository->rnUpdateUserRole($the_user, $new_user_role_details);
 
