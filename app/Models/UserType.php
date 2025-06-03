@@ -22,6 +22,14 @@ class UserType extends Model
         'status',
     ];
 
+    /**
+     * The scopes.
+     */
+    public function scopeActive($query)
+    {
+        $query->where('status', 1);
+    }
+
     public function user()
     {
         return $this->belongsToMany(User::class, 'tbl_user_type_detail', 'user_type_id', 'user_id')->using(UserTypeDetail::class);

@@ -60,6 +60,8 @@ interface ClientRepositoryInterface
 
     public function rnGetGraduatedMentees(mixed $search); //* the difference between getAlumniMentees is that the graduated mentees only receive students
     public function rnGetActiveMentees(mixed $search);
+
+    public function rnGetActiveMenteesGlobal(array $search);
     /* ~ END */
 
     /* trash */

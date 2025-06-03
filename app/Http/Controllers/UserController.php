@@ -238,7 +238,7 @@ class UserController extends Controller
         return Redirect::to('user/' . $request->route('user_role') . '/' . $request->route('user') . '/edit')->withSuccess(ucfirst($request->route('user_role')) . ' has been updated');
     }
 
-    public function edit(Request $request): View
+    public function edit(Request $request)
     {
         $userId = $request->route('user');
         $user = $this->userRepository->rnGetUserById($userId);
