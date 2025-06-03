@@ -43,7 +43,7 @@ class StoreUserRequest extends FormRequest
             'emergency_contact_phone' => $this->emergency_contact_phone != null ? $this->tnSetPhoneNumber($this->emergency_contact_phone) : null,
             'emergency_contact_relation_name' => $this->emergency_contact_relation_name,
             'position_id' => $this->position,
-            'password' => Hash::make('12345678'),
+            'password' => null,
         ]);
     }
 
