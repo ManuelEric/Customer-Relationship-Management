@@ -771,7 +771,6 @@ class InvoiceProgramController extends Controller
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),
-            env('FINANCE_CC_2', ''),
             $pic_mail
         ];
         $data['param'] = [
