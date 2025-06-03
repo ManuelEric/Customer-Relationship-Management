@@ -536,7 +536,7 @@ class ReceiptController extends Controller
                 }
                 break;
 
-            case 'Client':
+            case 'Client': // student
                 if($isBundle){
                     $data['email'] = $receipt->invoiceProgram->bundling->first_detail->client_program->client->mail;
                     $data['recipient'] = $receipt->invoiceProgram->bundling->first_detail->client_program->client->full_name;
@@ -549,7 +549,6 @@ class ReceiptController extends Controller
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),
-            // env('FINANCE_CC_2', ''),
             $pic_mail
         ];
         
@@ -559,7 +558,6 @@ class ReceiptController extends Controller
         try {
             
             $path = 'project/crm/receipt/client/';
-            // $storagePath = Storage::url($path . $attachment->attachment);
             if (!Storage::disk('s3')->exists($path . $attachment->attachment)) 
                 return response()->json(['message' => "Receipt doesn't exist. Make sure the receipt has already been signed"], 500);
 
