@@ -11,7 +11,7 @@ class UserTypeRepository implements UserTypeRepositoryInterface
 
     public function getAllUserType()
     {
-        return UserType::all();
+        return UserType::get();
     }
 
     public function getActiveUserTypeByUserId($userId)

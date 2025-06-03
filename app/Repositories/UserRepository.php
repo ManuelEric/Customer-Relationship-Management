@@ -107,7 +107,7 @@ class UserRepository implements UserRepositoryInterface
     
     public function rnGetUserById($userId)
     {
-        return User::with('roles')->findOrFail($userId);
+        return User::with('roles', 'user_type')->findOrFail($userId);
     }
 
     public function rnCreateUser(array $userDetails)
@@ -312,26 +312,18 @@ class UserRepository implements UserRepositoryInterface
         # get existing user role
         $existing_roles = $user->roles()->pluck('tbl_roles.id')->toArray();
 
-        if ( count($new_roles) == $user->roles()->whereIn('tbl_roles.id', $new_roles)->count() )
-            return;
 
-
-        # get the different new one
-        $new_roles = array_values(array_diff($new_roles, $existing_roles));
-        if ( count($new_roles) > 0 )
+        if ( $diff_roles = array_diff($existing_roles, $new_roles) )
         {
-            # attach the new roles
-            $user->roles()->attach($new_roles);
+            $user->roles()->detach($diff_roles);
         }
 
-
-        if ( count($existing_roles) > 0 )
+        if ( $diff_roles = array_diff($new_roles, $existing_roles) )
         {
-            # get the roles that need to be removed
-            $removed_role = array_values(array_diff($existing_roles, $new_roles));
-            # detach the unused roles
-            $user->roles()->detach($removed_role);
+            $user->roles()->attach($diff_roles);
         }
+
+        return true;
     }
 
     public function rnCreateUserType(User $user, array $user_type_details)

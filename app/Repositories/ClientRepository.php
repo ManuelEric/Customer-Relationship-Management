@@ -809,35 +809,6 @@ class ClientRepository implements ClientRepositoryInterface
         isActiveMentee()->
         search($search)->
         getMentoredStudents()->
-        // when(isset($search['sorting_array']['sort_by']) && isset($search['sorting_array']['sort_order']), function ($query) use ($search) {
-        //     $query->
-        //         when( preg_match("/grade/i", $search['sorting_array']['sort_by']), function ($query) use ($search) {
-        //             $query->
-        //             orderByRaw(
-        //                 "CASE
-        //                     WHEN grade_now BETWEEN 7 and 12 THEN 1 -- Prioritize 7-12
-        //                     ELSE 2 -- Then show > 12
-        //                 END ASC,
-        //                 CASE
-        //                     WHEN grade_now BETWEEN 7 AND 12 THEN grade_now
-        //                     ELSE grade_now
-        //                 END DESC"
-        //             );
-        //         });
-        //         // when( preg_match("/progress status/i", $search['sorting_array']['sort_by']), function ($query) use ($search) {
-        //         //     $query->orderByRaw(
-        //         //         "CASE
-        //         //             WHEN mentoring_progress_status IN ('On Track', 'Slow', 'Behind') THEN mentoring_progress_status
-        //         //             ELSE 'HALT'
-        //         //         END {$search['sorting_array']['sort_order']}"
-        //         //     );
-        //         // });
-        //     // orderBy($search['sorting_array']['sort_by'], $search['sorting_array']['sort_order']);
-        // }, function ($query) {
-        //     $query->
-        //         orderBy('first_name', 'asc')->
-        //         orderBy('last_name', 'asc');
-        // })->
         orderByRaw(
             "
             CASE
@@ -896,6 +867,66 @@ class ClientRepository implements ClientRepositoryInterface
                 'latest_update' => count($item->mentoringLogs) > 0 ? $item->mentoringLogs()->latest()->first()->updated_at : null,
                 'joining_year' => Carbon::parse($item->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first()->success_date)->format('Y'),
         
+            ];
+        });
+        
+        return $mapped_active_mentees;
+    }
+
+    public function rnGetActiveMenteesGlobal(array $search)
+    {
+        $active_mentees = UserClient::with([
+            'school' => function ($query) {
+                $query->select('sch_id', 'sch_name', 'sch_city');
+            },
+            'clientProgram' => function ($query) {
+                $query->mentoring()->latest();
+            },
+        ])->
+        mentoring()->
+        isActiveMentee()->
+        search($search)->
+        orderByRaw(
+            "
+            CASE
+                WHEN grade_now BETWEEN 7 AND 12 AND mentoring_progress_status = 'On Track' THEN 1
+                WHEN grade_now BETWEEN 7 AND 12 AND mentoring_progress_status = 'Slow' THEN 2
+                WHEN grade_now BETWEEN 7 AND 12 AND mentoring_progress_status = 'Behind' THEN 3
+                WHEN grade_now BETWEEN 7 AND 12 AND mentoring_progress_status IS NULL THEN 4
+                WHEN grade_now BETWEEN 7 AND 12 AND mentoring_progress_status = 'Halt' THEN 5
+                WHEN grade_now > 12 AND mentoring_progress_status = 'On Track' THEN 6
+                WHEN grade_now > 12 AND mentoring_progress_status = 'Slow' THEN 7
+                WHEN grade_now > 12 AND mentoring_progress_status = 'Behind' THEN 8
+                WHEN grade_now > 12 AND mentoring_progress_status IS NULL THEN 9
+                WHEN grade_now > 12 AND mentoring_progress_status = 'Halt' THEN 10
+                ELSE 11
+            END ASC,
+            CASE
+                WHEN grade_now BETWEEN 7 AND 12 THEN grade_now
+                ELSE grade_now
+            END DESC,
+            first_name ASC,
+            last_name ASC
+            "
+        )->
+        get();
+        $mapped_active_mentees = $active_mentees->map(function ($item) {
+
+            # determine which type of mentor does the user has
+            $latest_admission = $item->clientProgram[0];           
+
+            return [
+                'id' => $item->id,
+                'full_name' => $item->full_name,
+                'sch_name' => $item->school->sch_name ?? null,
+                'grade' => $item->grade_now,
+                'clientprog_id' => $latest_admission->clientprog_id,
+                'program_name' => $latest_admission->invoice_program_name,
+                'free_trial' => preg_match("/free trial/i", $latest_admission->package),
+                'require' => $latest_admission->program->prog_mentor,
+                'package' => $latest_admission->package,
+                'curriculum' => $latest_admission->curriculum,
+                'invoice_id' => $latest_admission->invoice->inv_id,
             ];
         });
         
