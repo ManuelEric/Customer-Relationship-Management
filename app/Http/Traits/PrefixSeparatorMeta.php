@@ -30,7 +30,7 @@ trait PrefixSeparatorMeta
         # so we need to check if count of explode is higher than 2, otherwise get the first index which should be AAUP
 
 
-        // Form Meta: PR-ASIABUNDLE_MAY25.8J_Asia Success Package
+        // Form Meta SAMPLE: PR-ASIABUNDLE_MAY25.8J_Asia Success Package
         $data = [
             'program_id' => $explode[0], // output: ASIABUNDLE
             'utm_content' => strpos($explode[1], '.') ? $explode[1] : null // output: MAY25.8J

@@ -54,26 +54,26 @@
                 <div>
                     <a class="navbar-brand brand-logo" href="
                         @if ($isSuperAdmin || $isSalesAdmin || $isSales)
-                            {{ url('dashboard/sales') }}">
+                            {{ url('dashboard/sales/client-program') }}">
                         @elseif ($isPartnership)
-                            {{ url('dashboard/partnership') }}">
+                            {{ url('dashboard/partnership/agenda') }}">
                         @elseif ($isDigital)
                             {{ url('dashboard/digital') }}">
                         @elseif ($isFinance)
-                            {{ url('dashboard/finance') }}">
+                            {{ url('dashboard/finance/outstanding-payment') }}">
                         @endif
                     
                         <img loading="lazy"  src="{{ asset('img/logo.webp') }}" alt="logo" class="h-auto" />
                     </a>
                     <a class="navbar-brand brand-logo-mini" href="
                         @if ($isSuperAdmin || $isSalesAdmin || $isSales)
-                            {{ url('dashboard/sales') }}">
+                            {{ url('dashboard/sales/client-program') }}">
                         @elseif ($isPartnership)
-                            {{ url('dashboard/partnership') }}">
+                            {{ url('dashboard/partnership/agenda') }}">
                         @elseif ($isDigital)
                             {{ url('dashboard/digital') }}">
                         @elseif ($isFinance)
-                            {{ url('dashboard/finance') }}">
+                            {{ url('dashboard/finance/outstanding-payment') }}">
                         @endif
                     
                         <img loading="lazy"  src="{{ asset('library/dashboard/images/logo-mini.svg') }}" alt="logo" />
@@ -309,8 +309,7 @@
 
                 <footer class="footer">
                     <div class="d-sm-flex justify-content-center justify-content-sm-between">
-                        <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">ALL-in
-                            Eduspace</span>
+                        <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">EduALL</span>
                         <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Copyright © 2023. All
                             rights
                             reserved.</span>
