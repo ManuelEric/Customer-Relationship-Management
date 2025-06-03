@@ -29,6 +29,7 @@ class PublicRegistrationRequest extends FormRequest
 
     public function prepareForValidation()
     {
+        // CHECK NULLABLE 
         $this->merge([
             'scholarship' => 'N',
             'lead_source_id' => $this->input('lead_id'),

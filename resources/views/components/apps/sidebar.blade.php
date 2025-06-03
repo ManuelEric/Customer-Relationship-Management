@@ -6,13 +6,13 @@
                 'bg-secondary text-white' => Request::is('dashboard/*'),
             ]) href="
                     @if ($isSuperAdmin || $isSalesAdmin || $isSales)
-                        {{ url('dashboard/sales') }}">
+                        {{ url('dashboard/sales/client-program') }}">
                     @elseif ($isPartnership)
-                        {{ url('dashboard/partnership') }}">
+                        {{ url('dashboard/partnership/agenda') }}">
                     @elseif ($isDigital)
                         {{ url('dashboard/digital') }}">
                     @elseif ($isFinance)
-                        {{ url('dashboard/finance') }}">
+                        {{ url('dashboard/finance/outstanding-payment') }}">
                     @endif
 
                 <i class="bi bi-speedometer2 mx-2"></i>
