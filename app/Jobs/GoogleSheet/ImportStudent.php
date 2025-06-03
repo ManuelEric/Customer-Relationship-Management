@@ -96,6 +96,7 @@ class ImportStudent implements ShouldQueue
                     'state' => isset($val['State']) ? $val['State'] : null,
                     'city' => isset($val['City']) ? $val['City'] : null,
                     'address' => isset($val['Address']) ? $val['Address'] : null,
+                    'utm_content' => isset($val['UTM Content']) ? $val['UTM Content'] : null,
                     'sch_id' => isset($school) ? $school : $newSchool->sch_id,
                     'st_grade' => isset($val['Grade']) ? $val['Grade'] : null,
                     'lead_id' => $val['Lead'] == 'KOL' ? $val['kol'] : $val['Lead'],
@@ -201,6 +202,7 @@ class ImportStudent implements ShouldQueue
                 'first_name' => $first_name,
                 'last_name' => $last_name,
                 'lead_source' => $val['Lead'],
+                'utm_content' => isset($val['UTM Content']) ? $val['UTM Content'] : null,
                 'inputted_from' => 'import-student',
                 'clientprog_id' => null
             ];
@@ -220,7 +222,7 @@ class ImportStudent implements ShouldQueue
         ProcessInsertLogClient::dispatch($clients_data_for_log_client, true)->onQueue('insert-log-client');
 
 
-        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet(env('APP_ENV') == 'local' ? 'test student' : 'Students')->range('Z'. $this->studentData->first()['No'] + 1)->update($imported_date);
+        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet(env('APP_ENV') == 'local' ? 'test student' : 'Students')->range('AA'. $this->studentData->first()['No'] + 1)->update($imported_date);
         $dataJobBatches = JobBatches::find($this->batch()->id);
         
         $logDetailsCollection = Collect($logDetails);
