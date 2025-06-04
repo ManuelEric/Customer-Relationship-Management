@@ -557,7 +557,6 @@ class InvoiceProgramBundleController extends Controller
             # send mail when document has been signed
             Mail::send('pages.invoice.client-program.mail.signed', $data, function ($message) use ($data, $file_name) {
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
-                    ->cc([env('FINANCE_CC_2', '')])
                     ->subject($data['title'])
                     ->attach(Storage::url('invoice/client/' . $file_name));
             });
@@ -624,7 +623,6 @@ class InvoiceProgramBundleController extends Controller
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),
-            env('FINANCE_CC_2', ''),
             $pic_mail
         ];
         $data['param'] = [

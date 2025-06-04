@@ -139,14 +139,18 @@ class ImportParent implements ShouldQueue
 
             if (isset($val['Interested Program'])) {
                 # The parent section was commented out because the queue could not be executed.
+                /* saving interest program for parent */
                 // $this->syncInterestProgram($val['Interested Program'], $parent, $joinedDate);
+                /* saving interest program for children */
                 $children != null ?  $this->syncInterestProgram($val['Interested Program'], $children, $joinedDate) : null;
             }
 
             // Sync country of study abroad
             if (isset($val['Destination Country'])) {
                 # The parent section was commented out because the queue could not be executed.
+                /* saving destination country for parent */
                 // $this->syncDestinationCountry($val['Destination Country'], $parent);
+                /* saving destination country for children */
                 $children != null ?  $this->syncDestinationCountry($val['Destination Country'], $children) : null;
             }
 
@@ -182,7 +186,8 @@ class ImportParent implements ShouldQueue
         # trigger to insert log children
         count($childrenIds) > 0 ? ProcessInsertLogClient::dispatch($clients_data_for_log_client, true)->onQueue('insert-log-client') : null;
 
-        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet(env('APP_ENV') == 'local' ? 'test parent' : 'Parents')->range('W' . $this->parentData->first()['No'] + 1)->update($imported_date);
+        /* To update column `imported_date` on column `V` */
+        Sheets::spreadsheet(env('GOOGLE_SHEET_KEY_IMPORT'))->sheet(env('APP_ENV') == 'local' ? 'test parent' : 'Parents')->range('W'. $this->parentData->first()['No'] + 1)->update($imported_date);
         $dataJobBatches = JobBatches::find($this->batch()->id);
 
         $logDetailsCollection = Collect($logDetails);
