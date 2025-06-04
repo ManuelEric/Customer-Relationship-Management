@@ -339,7 +339,7 @@ class ExtClientProgramController extends Controller
             $query->where('prog_name', 'Admissions Mentoring');
         })->
         successAndPaid()->
-        select('clientprog_id', 'prog_id', 'client_id')->get();
+        select('clientprog_id', 'prog_id', 'client_id', 'status', 'prog_running_status')->get();
 
         $mappedB2CPrograms = $b2cPrograms->map(function ($data) {
 

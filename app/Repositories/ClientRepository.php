@@ -926,7 +926,7 @@ class ClientRepository implements ClientRepositoryInterface
                 'require' => $latest_admission->program->prog_mentor,
                 'package' => $latest_admission->package,
                 'curriculum' => $latest_admission->curriculum,
-                'invoice_id' => $latest_admission->invoice->inv_id,
+                'invoice_id' => $latest_admission->invoice->inv_id ?? null,
             ];
         });
         
