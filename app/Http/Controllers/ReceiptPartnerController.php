@@ -467,7 +467,6 @@ class ReceiptPartnerController extends Controller
             # send mail when document has been signed
             Mail::send('pages.receipt.corporate-program.mail.signed', $data, function ($message) use ($data, $receiptAttachment) {
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
-                    ->cc([env('FINANCE_CC_2', '')])
                     ->subject($data['title'])
                     ->attach(Storage::url('receipt/partner_prog/'.$receiptAttachment->attachment));
             });
@@ -506,7 +505,6 @@ class ReceiptPartnerController extends Controller
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),
-            env('FINANCE_CC_2', ''),
             env('PARTNERSHIP_MAIL_1')
         ];
         $data['recipient'] = $receipt->invoiceB2b->partner_prog->user->email;

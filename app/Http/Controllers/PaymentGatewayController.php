@@ -145,6 +145,7 @@ class PaymentGatewayController extends Controller
                     whereNot('trx_id', $trx_id)->
                     orderBy('created_at', 'asc')->
                     get();
+
         if ( $transactions->count() > 0 )
         {
             //! this is the idea : since every time we hit their check-status endpoint
@@ -165,7 +166,7 @@ class PaymentGatewayController extends Controller
             }
 
 
-            # check if the status inside 
+            # check if the status inside was cancel or reject
             if ( !in_array($response['transaction_status'], ['CANCL', 'REJEC']) )
             {
                 $trx_id = $transaction->trx_id;
@@ -211,7 +212,7 @@ class PaymentGatewayController extends Controller
             'integration_type' => '01',
             'payment_method' => $payment_method,
             // 'bank_id' => null,
-            'bank_id' => $bank_id, //! this variables comment temporarily because the problem on the prismalink side
+            'bank_id' => $bank_id,
             // 'validity' => Carbon::now()->addMinutes(10)->format('Y-m-d H:i:s.v O'),
             'external_id' => (string) $trx_id,
             'other_bills' => json_encode([[

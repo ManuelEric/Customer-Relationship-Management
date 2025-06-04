@@ -104,7 +104,6 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
 
                 $financeEmail = [
                     env('FINANCE_CC'),
-                    env('FINANCE_CC_2', '')
                 ];
 
                 array_push($cc, ...$financeEmail);
@@ -151,7 +150,6 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
 
                     Mail::send($mail_resources, $params, function ($message) {
                         $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
-                            ->cc([env('FINANCE_CC_2', '')])
                             ->subject('There are some partner that can\'t be reminded');
                     });
 
