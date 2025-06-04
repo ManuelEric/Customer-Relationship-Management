@@ -164,7 +164,6 @@ class SendReminderInvoiceProgramToClientCommand extends Command
 
                     Mail::send($mail_resources, $params, function ($message) {
                         $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
-                            ->cc([env('FINANCE_CC_2', '')])
                             ->subject('There are Some Client that can\'t be reminded');
                     });
 
