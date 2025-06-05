@@ -86,7 +86,7 @@
                 </div>
                 <div class="card-body overflow-auto" style="max-height: 500px">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover nowrap align-middle w-100" id="tbl_inv">
+                        <table class="table table-bordered table-hover nowrap align-middle w-100" id="tbl_inv" data-invoice="{{ count($invoices) > 0 ? 1 : 0 }}">
                             <thead>
                                 <tr>
                                     <th>#</th>
@@ -187,7 +187,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="9" class="text-center">Not invoice yet</td>
+                                        <td colspan="9" class="text-center" data-invoice="0">No invoice yet</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -207,7 +207,7 @@
                 </div>
                 <div class="card-body overflow-auto" style="max-height: 500px">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover nowrap align-middle w-100" id="tbl_receipt">
+                        <table class="table table-bordered table-hover nowrap align-middle w-100" id="tbl_receipt" data-receipt="{{ count($receipts) > 0 ? 1 : 0 }}">
                             <thead>
                                 <tr>
                                     <th>#</th>
@@ -314,7 +314,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="9" class="text-center">Not receipt yet</td>
+                                        <td colspan="9" class="text-center" data-receipt="0">No receipt yet</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -350,13 +350,13 @@
             var sheetName = []
             var tableName = []
 
-            if ( $("#tbl_inv").find('tr').length > 3 && sheetName.indexOf('Invoices') == -1  && tableName.indexOf('tbl_inv') == -1)
+            if ( $("#tbl_inv").data('invoice') == 1 && sheetName.indexOf('Invoices') == -1  && tableName.indexOf('tbl_inv') == -1)
             {
                 sheetName.push('Invoices')
                 tableName.push('tbl_inv')
             }
 
-            if ( $("#tbl_receipt").find('tr').length > 3 && sheetName.indexOf('Receipts') == -1 && tableName.indexOf('tbl_receipt') == -1 )
+            if ( $("#tbl_receipt").data('receipt') == 1 && sheetName.indexOf('Receipts') == -1 && tableName.indexOf('tbl_receipt') == -1 )
             {
                 sheetName.push('Receipts')
                 tableName.push('tbl_receipt')

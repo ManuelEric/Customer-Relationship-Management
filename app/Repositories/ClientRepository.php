@@ -804,6 +804,10 @@ class ClientRepository implements ClientRepositoryInterface
             'clientProgram' => function ($query) {
                 $query->mentoring()->latest();
             },
+            'clientMentor' => function ($query) {
+                $query->select('id');
+            },
+            'mentoringLogs'
         ])->
         mentoring()->
         isActiveMentee()->
@@ -832,6 +836,20 @@ class ClientRepository implements ClientRepositoryInterface
             last_name ASC
             "
         )->
+        select([
+            'id',
+            'first_name',
+            'last_name',
+            'mail',
+            'phone',
+            'dob',
+            'city',
+            'address',
+            'sch_id',
+            'grade_now',
+            'application_year',
+            'mentoring_progress_status',
+        ])->
         get();
         $mapped_active_mentees = $active_mentees->map(function ($item) {
 
@@ -866,7 +884,6 @@ class ClientRepository implements ClientRepositoryInterface
                 'alias_array' => $mapped_mentor_type->plucK('alias')->toArray(),
                 'latest_update' => count($item->mentoringLogs) > 0 ? $item->mentoringLogs()->latest()->first()->updated_at : null,
                 'joining_year' => Carbon::parse($item->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first()->success_date)->format('Y'),
-        
             ];
         });
         
@@ -882,6 +899,7 @@ class ClientRepository implements ClientRepositoryInterface
             'clientProgram' => function ($query) {
                 $query->mentoring()->latest();
             },
+            'clientMentor'
         ])->
         mentoring()->
         isActiveMentee()->
@@ -909,11 +927,27 @@ class ClientRepository implements ClientRepositoryInterface
             last_name ASC
             "
         )->
+        select([
+            'id',
+            'first_name',
+            'last_name',
+            'mail',
+            'phone',
+            'dob',
+            'city',
+            'address',
+            'sch_id',
+            'grade_now',
+            'application_year',
+            'mentoring_progress_status',
+        ])->
         get();
         $mapped_active_mentees = $active_mentees->map(function ($item) {
 
             # determine which type of mentor does the user has
-            $latest_admission = $item->clientProgram[0];           
+            $latest_admission = $item->clientProgram[0]; 
+            # with orderByPivot, it helps get the latest record 
+            $select_profile_building_mentor = $latest_admission->clientMentor()->wherePivot('type', 2)->orderByPivot('id', 'desc')->first()?->full_name ?? null;    
 
             return [
                 'id' => $item->id,
@@ -929,6 +963,7 @@ class ClientRepository implements ClientRepositoryInterface
                 'package' => $latest_admission->package,
                 'curriculum' => $latest_admission->curriculum,
                 'invoice_id' => $latest_admission->invoice->inv_id ?? null,
+                'profile_building_mentor' => $select_profile_building_mentor
             ];
         });
         
