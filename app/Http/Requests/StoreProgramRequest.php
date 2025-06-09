@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreProgramRequest extends FormRequest
 {
@@ -23,10 +24,28 @@ class StoreProgramRequest extends FormRequest
      */
     public function rules()
     {
-        $prog_id = $this->input('prog_id');
+        return $this->isMethod('POST') ? $this->store() : $this->update();
+    }
 
+    public function store()
+    {
         return [
-            'prog_id' => 'required|unique:tbl_prog,prog_id,' . $prog_id . ',prog_id',
+            'prog_id' => ['required', Rule::unique('tbl_prog', 'prog_id')],
+            'prog_type' => 'required|in:B2B,B2C,B2B/B2C',
+            'prog_main' => 'required|exists:tbl_main_prog,id',
+            'prog_sub' => 'nullable|exists:tbl_sub_prog,id',
+            'prog_name' => 'required',
+            'prog_mentor' => 'required|in:Mentor,Tutor,No',
+            'prog_payment' => 'required|in:idr,usd,session',
+            'prog_scope' => 'required|in:mentee,public,school,partner',
+            'active' => 'required|in:1,0',
+        ];
+    }
+
+    public function update()
+    {
+        return [
+            'prog_id' => ['required', Rule::unique('tbl_prog', 'prog_id')->ignore($this->input('prog_id'), 'prog_id')],
             'prog_type' => 'required|in:B2B,B2C,B2B/B2C',
             'prog_main' => 'required|exists:tbl_main_prog,id',
             'prog_sub' => 'nullable|exists:tbl_sub_prog,id',
