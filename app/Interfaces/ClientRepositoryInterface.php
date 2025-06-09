@@ -62,6 +62,7 @@ interface ClientRepositoryInterface
     public function rnGetActiveMentees(mixed $search);
 
     public function rnGetActiveMenteesGlobal(array $search);
+    public function rnGetGraduatedMenteesGlobal(mixed $search);
     /* ~ END */
 
     /* trash */
