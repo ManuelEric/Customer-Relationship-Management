@@ -205,7 +205,6 @@ class ReceiptController extends Controller
 
     public function export(Request $request) # print / download function
     {
-        
         $receiptId = $request->route('receipt');
         $receipt = $this->receiptRepository->getReceiptById($receiptId);      
         
@@ -230,7 +229,6 @@ class ReceiptController extends Controller
                 $view = 'pages.receipt.client-program.export.receipt-bundle-pdf-foreign';
             }
         }
-
             
         # store to receipt attachment
         DB::beginTransaction();
