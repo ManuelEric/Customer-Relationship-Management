@@ -55,8 +55,11 @@ Route::middleware(['throttle:120,1'])->group(function () {
         Route::get('get/active/mentees', [ExtClientController::class, 'fnGetActiveMentee']);
     });
 
-    # active mentees
+    # active mentees global
     Route::get('get/active/mentees/global', [ExtClientController::class, 'fnGetActiveMenteeGlobal']);
+
+    # graduated mentees global
+    Route::get('get/graduated/mentees/global', [ExtClientController::class, 'fnGetGraduatedMenteeGlobal']);
     
 
     # payment gateway
