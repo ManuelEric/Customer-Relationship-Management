@@ -1103,7 +1103,7 @@
             showLoading()
             var link = '{{ url('api/get/program/') }}/main/' + main_prog_id + '/sub/'
             if ( sub_prog_id )
-                var link += sub_prog_id
+                link = link + sub_prog_id
             
 
             axios.get(link, {

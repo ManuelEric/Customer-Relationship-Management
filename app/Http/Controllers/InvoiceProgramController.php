@@ -21,6 +21,7 @@ use App\Models\InvoiceProgram;
 use App\Services\Log\LogService;
 use DateTime;
 use Exception;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
@@ -629,7 +630,14 @@ class InvoiceProgramController extends Controller
         $clientprog_id = $request->route('client_program');
         $client_prog = $this->clientProgramRepository->getClientProgramById($clientprog_id);
 
-        $invoice = $client_prog->invoice;
+        if (! $invoice = $client_prog?->invoice ?? null)
+        {
+            throw new HttpResponseException(
+                response()->json([
+                    'error' => 'Invalid invoice.'
+                ], JsonResponse::HTTP_NOT_FOUND)
+            );
+        }
         /* START ~ */
         $currency = $request->route('currency'); # this variable not used from client program detail page
         $currency = $invoice->currency; # use this instead
