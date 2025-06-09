@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
@@ -30,6 +30,16 @@ class InvoiceAttachment extends Model
         'send_to_client',
         'attachment',
     ];
+
+    public function scopeSelectAttachment(Builder $query, $invoice_type, $identifier, $currency)
+    {
+        $query->
+            when($invoice_type == "B2B", function ($query) use ($identifier, $currency) { // for invoice type: B2B
+                $query->where('invb2b_id', $identifier)->where('currency', $currency);
+            }, function ($query) use ($identifier, $currency) { // for invoice type: Program as default
+                $query->where('inv_id', $identifier)->where('currency', $currency);
+            });
+    }
 
     public function invoiceProgram()
     {

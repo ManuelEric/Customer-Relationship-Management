@@ -895,7 +895,6 @@
             let programStatus = $('#program_status').val()
             $('.program-detail').addClass('d-none')
             $('.mentor-tutor').addClass('d-none')
-            console.log(programMainProg)
 
             // if (programName) {
             try {
@@ -1102,7 +1101,10 @@
 
         function getProgramName(main_prog_id, sub_prog_id) {
             showLoading()
-            var link = '{{ url('api/get/program/') }}/main/' + main_prog_id + '/sub/' + sub_prog_id
+            var link = '{{ url('api/get/program/') }}/main/' + main_prog_id + '/sub/'
+            if ( sub_prog_id )
+                var link += sub_prog_id
+            
 
             axios.get(link, {
                 headers: {

@@ -16,13 +16,23 @@ class InvoiceAttachmentRepository implements InvoiceAttachmentRepositoryInterfac
         return InvoiceAttachment::find($invAttachment_id);
     }
 
-    public function getInvoiceAttachmentByInvoiceCurrency($invoiceType, $identifier, $currency)
+    public function getInvoiceAttachmentByInvoiceCurrency($invoice_type, $identifier, $currency)
     {
-        return InvoiceAttachment::when($invoiceType == "Program", function ($query) use ($identifier, $currency) {
-            $query->where('inv_id', $identifier)->where('currency', $currency);
-        })->when($invoiceType == "B2B", function ($query) use ($identifier, $currency) {
-            $query->where('invb2b_id', $identifier)->where('currency', $currency);
-        })->first();
+        $available_currency = ['idr', 'usd'];
+        $existed_currency = [];
+        foreach ($available_currency as $index => $value)
+        {
+            if ( InvoiceAttachment::selectAttachment($invoice_type, $identifier, $value)->exists() )
+                $existed_currency[$index] = $value;
+        }
+
+        // there's a condition where currency that controller carried was different with the data inside inv_attachment table
+        // in order to make this features keep working
+        // we allow system to check which currency that exists
+        if ( !in_array($currency, $existed_currency) )
+            $currency = $existed_currency;
+
+        return InvoiceAttachment::selectAttachment($invoice_type, $identifier, $currency)->first();
     }
 
     public function getInvoiceAttachmentByInvoiceIdentifier($invoiceType, $identifier)

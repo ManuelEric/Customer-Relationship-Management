@@ -632,20 +632,26 @@ class InvoiceProgramController extends Controller
         $invoice = $client_prog->invoice;
         /* START ~ */
         $currency = $request->route('currency'); # this variable not used from client program detail page
-        # use variable below instead
-        $currency = $invoice->currency;
+        $currency = $invoice->currency; # use this instead
 
         if ($currency != 'idr')
             $currency = 'other';
         /* ~ END */
 
         $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $invoice->inv_id, $currency);
+        
+        if ( Storage::disk('s3')->exists('project/crm/invoice/client/'.$attachment->attachment) )
+        {
+            // Generate a temporary URL valid for 5 minutes
+            $url = Storage::disk('s3')->temporaryUrl('project/crm/invoice/client/'.$attachment->attachment, now()->addMinutes(60));
+        }
 
         return view('pages.invoice.view-pdf')->with(
             [
                 'invoice' => $invoice,
                 // 'attachment' => $attachment->attachment
-                'attachment' => $attachment
+                'attachment' => $attachment,
+                'attachment_from_s3' => $url
             ]
         );
     }
