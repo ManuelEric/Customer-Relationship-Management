@@ -8,6 +8,8 @@ use App\Http\Requests\Api\v1\UpdateMenteeProfileRequest;
 use App\Http\Requests\Client\Registration\Public\PublicRegistrationRequest;
 use App\Http\Resources\Mentee\ActiveMenteeCollectionResource;
 use App\Http\Resources\Mentee\ActiveMenteeGlobalCollectionResource;
+use App\Http\Resources\Mentee\GraduatedMenteeCollectionResource;
+use App\Http\Resources\Mentee\GraduatedMenteeGlobalCollectionResource;
 use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\ClientMentorTrait;
@@ -2273,8 +2275,8 @@ class ExtClientController extends Controller
         $uni = $request->get('uni');
         $major = $request->get('major');
         $search = compact('terms', 'uni', 'major');
-        $graduated_mentees = $this->clientRepository->rnGetGraduatedMentees($search);
-        return response()->json($graduated_mentees);
+        $graduated_mentees = $this->clientRepository->rnGetGraduatedMentees($search, $request->get('paginate'));
+        return response()->json(new GraduatedMenteeCollectionResource($graduated_mentees, $request->get('paginate')));
     }
 
     public function fnGetActiveMentee(Request $request)
@@ -2304,8 +2306,9 @@ class ExtClientController extends Controller
         $uni = $request->get('uni');
         $major = $request->get('major');
         $search = compact('terms', 'uni', 'major');
-        $graduated_mentees = $this->clientRepository->rnGetGraduatedMentees($search);
-        return response()->json($graduated_mentees);
+
+        $graduated_mentees = $this->clientRepository->rnGetGraduatedMenteesGlobal($search, $request->get('paginate'));
+        return response()->json(new GraduatedMenteeCollectionResource($graduated_mentees, $request->get('paginate')));
     }
 
     public function fnGetMentorsByMentee(UserClient $user_client): JsonResponse

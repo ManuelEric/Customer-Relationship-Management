@@ -9,7 +9,7 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
-class ActiveMenteeCollectionResource extends ResourceCollection
+class GraduatedMenteeGlobalCollectionResource extends ResourceCollection
 {
     use MentorTypeTrait;
 
@@ -28,36 +28,43 @@ class ActiveMenteeCollectionResource extends ResourceCollection
     {
         foreach ($this->collection as $single)
         {
+            $have_university_acceptance = count($single->universityAcceptance) > 0 ? true : false;
+
+            # actually, there will be more than 1 university acceptance
+            # but we only need the last one
+            # so we take the last one by using count($single->universityAcceptance)-1
+            $university_acceptance = $have_university_acceptance ? $single->universityAcceptance[count($single->universityAcceptance)-1] : null;
+            $university_name = $have_university_acceptance ? $university_acceptance->univ_name : null;
+            $major_group = $have_university_acceptance && $university_acceptance->pivot->major_group_id !== NULL ? $university_acceptance->pivot->major_group->mg_name : null;
+            $major = $have_university_acceptance ? $university_acceptance->pivot->get_major_name : null;
+            $created_university_acceptance_at = $have_university_acceptance 
+                ? Carbon::parse($university_acceptance->pivot->created_at)->format('Y-m-d H:i:s') 
+                : null;
+            
             # determine which type of mentor does the user has
             $latest_admission = $single->clientProgram[0];
             # with orderByPivot, it helps get the latest record 
             $logged_in_mentor_type = $latest_admission->clientMentor()->where('users.id', Auth::guard('api')->user()->id)->orderByPivot('id', 'desc')->get();
-            $mapped_mentor_type = $logged_in_mentor_type->map(function ($item) {
+            $mapped_mentor_type = $logged_in_mentor_type->map(function ($single) {
                 return [
-                    'code' => $item->pivot->type,
-                    'alias' => $this->tnDefineMentorType($item->pivot->type)
+                    'code' => $single->pivot->type,
+                    'alias' => $this->tnDefineMentorType($single->pivot->type)
                 ];
             });
+            
 
             $collections[] = [
                 'id' => $single->id,
                 'full_name' => $single->full_name,
-                'mail' => $single->mail,
-                'phone' => $single->phone,
-                'dob' => $single->dob,
-                'city' => $single->city,
-                'address' => $single->address,
-                'sch_name' => $single->school->sch_name ?? null,
-                'sch_city' => $single->school->sch_city ?? null,
-                'grade' => $single->grade_now,
+                'university_name' => $university_name,
+                'major_group' => $major_group,
+                'major' => $major,
                 'application_year' => $single->application_year,
-                'mentoring_progress_status' => $single->mentoring_progress_status,
                 'clientprog_id' => $latest_admission->clientprog_id,
                 'act_as' => $mapped_mentor_type,
                 'code_array' => $mapped_mentor_type->pluck('code')->toArray(),
                 'alias_array' => $mapped_mentor_type->plucK('alias')->toArray(),
-                'latest_update' => count($single->mentoringLogs) > 0 ? $single->mentoringLogs()->latest()->first()->updated_at : null,
-                'joining_year' => Carbon::parse($single->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first()->success_date)->format('Y'),
+                'created_at' => $created_university_acceptance_at
             ];
         }
 

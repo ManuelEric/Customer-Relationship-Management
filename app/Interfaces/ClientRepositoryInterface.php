@@ -58,11 +58,11 @@ interface ClientRepositoryInterface
     public function updateClientWithTrashed($clientId, array $newDetails);
     public function getNewAllRawClientDataTables($roleName, $asDatatables = false, $advanced_filter = []);
 
-    public function rnGetGraduatedMentees(mixed $search); //* the difference between getAlumniMentees is that the graduated mentees only receive students
+    public function rnGetGraduatedMentees(mixed $search, ?string $paginate = null); //* the difference between getAlumniMentees is that the graduated mentees only receive students
     public function rnGetActiveMentees(mixed $search, ?string $paginate = null);
 
     public function rnGetActiveMenteesGlobal(array $search, ?string $paginate = null);
-    public function rnGetGraduatedMenteesGlobal(mixed $search);
+    public function rnGetGraduatedMenteesGlobal(mixed $search, ?string $paginate = null);
     /* ~ END */
 
     /* trash */

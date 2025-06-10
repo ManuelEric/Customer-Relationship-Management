@@ -723,7 +723,7 @@ class ClientRepository implements ClientRepositoryInterface
             : $query;
     }
 
-    public function rnGetGraduatedMentees(mixed $search)
+    public function rnGetGraduatedMentees(mixed $search, ?string $paginate = null)
     {
         $graduated_mentees = UserClient::with([
                 'universityAcceptance' => function ($query) {
@@ -748,50 +748,11 @@ class ClientRepository implements ClientRepositoryInterface
             orderBy('first_name', 'asc')->
             orderBy('last_name', 'asc')->
             get();
-            
-        $mapped_graduated_mentees = $graduated_mentees->map(function ($item) {
-
-            $have_university_acceptance = count($item->universityAcceptance) > 0 ? true : false;
-
-            # actually, there will be more than 1 university acceptance
-            # but we only need the last one
-            # so we take the last one by using count($item->universityAcceptance)-1
-            $university_acceptance = $have_university_acceptance ? $item->universityAcceptance[count($item->universityAcceptance)-1] : null;
-            $university_name = $have_university_acceptance ? $university_acceptance->univ_name : null;
-            $major_group = $have_university_acceptance && $university_acceptance->pivot->major_group_id !== NULL ? $university_acceptance->pivot->major_group->mg_name : null;
-            $major = $have_university_acceptance ? $university_acceptance->pivot->get_major_name : null;
-            $created_university_acceptance_at = $have_university_acceptance 
-                ? Carbon::parse($university_acceptance->pivot->created_at)->format('Y-m-d H:i:s') 
-                : null;
-            
-            # determine which type of mentor does the user has
-            $latest_admission = $item->clientProgram[0];
-            # with orderByPivot, it helps get the latest record 
-            $logged_in_mentor_type = $latest_admission->clientMentor()->where('users.id', Auth::guard('api')->user()->id)->orderByPivot('id', 'desc')->get();
-            $mapped_mentor_type = $logged_in_mentor_type->map(function ($item) {
-                return [
-                    'code' => $item->pivot->type,
-                    'alias' => $this->tnDefineMentorType($item->pivot->type)
-                ];
-            });
-            
-
-            return [
-                'id' => $item->id,
-                'full_name' => $item->full_name,
-                'university_name' => $university_name,
-                'major_group' => $major_group,
-                'major' => $major,
-                'application_year' => $item->application_year,
-                'clientprog_id' => $latest_admission->clientprog_id,
-                'act_as' => $mapped_mentor_type,
-                'code_array' => $mapped_mentor_type->pluck('code')->toArray(),
-                'alias_array' => $mapped_mentor_type->plucK('alias')->toArray(),
-                'created_at' => $created_university_acceptance_at
-            ];
-        });
         
-        return $mapped_graduated_mentees;
+        if ( $paginate !== null )
+            $graduated_mentees = $graduated_mentees->paginate(10);
+        
+        return $graduated_mentees;
     }
 
     public function rnGetActiveMentees(mixed $search, ?string $paginate = null)
@@ -921,7 +882,7 @@ class ClientRepository implements ClientRepositoryInterface
         return $active_mentees;
     }
 
-    public function rnGetGraduatedMenteesGlobal(mixed $search)
+    public function rnGetGraduatedMenteesGlobal(mixed $search, ?string $paginate = null)
     {
         $graduated_mentees = UserClient::with([
                 'universityAcceptance' => function ($query) {
@@ -946,49 +907,10 @@ class ClientRepository implements ClientRepositoryInterface
             orderBy('last_name', 'asc')->
             get();
             
-        $mapped_graduated_mentees = $graduated_mentees->map(function ($item) {
-
-            $have_university_acceptance = count($item->universityAcceptance) > 0 ? true : false;
-
-            # actually, there will be more than 1 university acceptance
-            # but we only need the last one
-            # so we take the last one by using count($item->universityAcceptance)-1
-            $university_acceptance = $have_university_acceptance ? $item->universityAcceptance[count($item->universityAcceptance)-1] : null;
-            $university_name = $have_university_acceptance ? $university_acceptance->univ_name : null;
-            $major_group = $have_university_acceptance && $university_acceptance->pivot->major_group_id !== NULL ? $university_acceptance->pivot->major_group->mg_name : null;
-            $major = $have_university_acceptance ? $university_acceptance->pivot->get_major_name : null;
-            $created_university_acceptance_at = $have_university_acceptance 
-                ? Carbon::parse($university_acceptance->pivot->created_at)->format('Y-m-d H:i:s') 
-                : null;
-            
-            # determine which type of mentor does the user has
-            $latest_admission = $item->clientProgram[0];
-            # with orderByPivot, it helps get the latest record 
-            $logged_in_mentor_type = $latest_admission->clientMentor()->where('users.id', Auth::guard('api')->user()->id)->orderByPivot('id', 'desc')->get();
-            $mapped_mentor_type = $logged_in_mentor_type->map(function ($item) {
-                return [
-                    'code' => $item->pivot->type,
-                    'alias' => $this->tnDefineMentorType($item->pivot->type)
-                ];
-            });
-            
-
-            return [
-                'id' => $item->id,
-                'full_name' => $item->full_name,
-                'university_name' => $university_name,
-                'major_group' => $major_group,
-                'major' => $major,
-                'application_year' => $item->application_year,
-                'clientprog_id' => $latest_admission->clientprog_id,
-                'act_as' => $mapped_mentor_type,
-                'code_array' => $mapped_mentor_type->pluck('code')->toArray(),
-                'alias_array' => $mapped_mentor_type->plucK('alias')->toArray(),
-                'created_at' => $created_university_acceptance_at
-            ];
-        });
+        if ( $paginate !== null )
+                $graduated_mentees = $graduated_mentees->paginate(10);
         
-        return $mapped_graduated_mentees->paginate(10);
+        return $graduated_mentees;
     }
 
     public function getAlumniMenteesSiblings()

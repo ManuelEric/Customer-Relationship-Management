@@ -65,7 +65,7 @@ class ActiveMenteeGlobalCollectionResource extends ResourceCollection
                 'total' => $this->total(),
             ];
         } else {
-            return [$collections];
+            return $collections;
         }
 
     }
