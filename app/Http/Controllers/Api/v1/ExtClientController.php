@@ -6,6 +6,8 @@ use App\Enum\LogModule;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\v1\UpdateMenteeProfileRequest;
 use App\Http\Requests\Client\Registration\Public\PublicRegistrationRequest;
+use App\Http\Resources\Mentee\ActiveMenteeCollectionResource;
+use App\Http\Resources\Mentee\ActiveMenteeGlobalCollectionResource;
 use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\ClientMentorTrait;
@@ -2283,16 +2285,17 @@ class ExtClientController extends Controller
             'sort_order' => $request->get('sort_order')
         ];
         $search = compact('terms', 'sorting_array');
-        $active_mentees = $this->clientRepository->rnGetActiveMentees($search);
-        return response()->json($active_mentees);
+        
+        $active_mentees = $this->clientRepository->rnGetActiveMentees($search, $request->get('paginate'));
+        return response()->json(new ActiveMenteeCollectionResource($active_mentees, $request->get('paginate')));
     }
 
     public function fnGetActiveMenteeGlobal(Request $request)
     {
         $terms = $request->get('terms');
         $search = compact('terms');
-        $active_mentees = $this->clientRepository->rnGetActiveMenteesGlobal($search);
-        return response()->json($active_mentees);
+        $active_mentees = $this->clientRepository->rnGetActiveMenteesGlobal($search, $request->get('paginate'));
+        return response()->json(new ActiveMenteeGlobalCollectionResource($active_mentees, $request->get('paginate')));
     }
 
     public function fnGetGraduatedMenteeGlobal(Request $request)

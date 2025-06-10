@@ -2,9 +2,9 @@
 
 namespace App\Repositories;
 
+use App\Http\Resources\Mentee\ActiveMenteeCollectionResource;
 use App\Http\Traits\FindDestinationCountryScore;
 use App\Http\Traits\FindSchoolYearLeftScoreTrait;
-use App\Http\Traits\MentorTypeTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Models\Client;
@@ -32,7 +32,6 @@ class ClientRepository implements ClientRepositoryInterface
     use FindSchoolYearLeftScoreTrait;
     use FindDestinationCountryScore;
     use StandardizePhoneNumberTrait;
-    use MentorTypeTrait;
     private RoleRepositoryInterface $roleRepository;
     private $potentialClients;
     private $existingMentees;
@@ -795,7 +794,7 @@ class ClientRepository implements ClientRepositoryInterface
         return $mapped_graduated_mentees;
     }
 
-    public function rnGetActiveMentees(mixed $search)
+    public function rnGetActiveMentees(mixed $search, ?string $paginate = null)
     {
         $active_mentees = UserClient::with([
             'school' => function ($query) {
@@ -849,57 +848,30 @@ class ClientRepository implements ClientRepositoryInterface
             'grade_now',
             'application_year',
             'mentoring_progress_status',
-        ])->
-        get();
-        $mapped_active_mentees = $active_mentees->map(function ($item) {
+        ])->get();
 
-            # determine which type of mentor does the user has
-            $latest_admission = $item->clientProgram[0];
-            # with orderByPivot, it helps get the latest record 
-            $logged_in_mentor_type = $latest_admission->clientMentor()->where('users.id', Auth::guard('api')->user()->id)->orderByPivot('id', 'desc')->get();
-            $mapped_mentor_type = $logged_in_mentor_type->map(function ($item) {
-                return [
-                    'code' => $item->pivot->type,
-                    'alias' => $this->tnDefineMentorType($item->pivot->type)
-                ];
-            });
-            
+        if ($paginate !== null)
+            $active_mentees = $active_mentees->paginate(10);
 
-            return [
-                'id' => $item->id,
-                'full_name' => $item->full_name,
-                'mail' => $item->mail,
-                'phone' => $item->phone,
-                'dob' => $item->dob,
-                'city' => $item->city,
-                'address' => $item->address,
-                'sch_name' => $item->school->sch_name ?? null,
-                'sch_city' => $item->school->sch_city ?? null,
-                'grade' => $item->grade_now,
-                'application_year' => $item->application_year,
-                'mentoring_progress_status' => $item->mentoring_progress_status,
-                'clientprog_id' => $latest_admission->clientprog_id,
-                'act_as' => $mapped_mentor_type,
-                'code_array' => $mapped_mentor_type->pluck('code')->toArray(),
-                'alias_array' => $mapped_mentor_type->plucK('alias')->toArray(),
-                'latest_update' => count($item->mentoringLogs) > 0 ? $item->mentoringLogs()->latest()->first()->updated_at : null,
-                'joining_year' => Carbon::parse($item->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first()->success_date)->format('Y'),
-            ];
-        });
-        
-        return $mapped_active_mentees;
+        return $active_mentees;
     }
 
-    public function rnGetActiveMenteesGlobal(array $search)
+    public function rnGetActiveMenteesGlobal(array $search, ?string $paginate = null)
     {
         $active_mentees = UserClient::with([
             'school' => function ($query) {
                 $query->select('sch_id', 'sch_name', 'sch_city');
             },
             'clientProgram' => function ($query) {
-                $query->mentoring()->latest();
+                $query->mentoring()->latest()->select('clientprog_id', 'prog_id', 'client_id', 'package', 'curriculum');
             },
-            'clientMentor'
+            'clientProgram.program',
+            'clientProgram.invoice' => function ($query) {
+                $query->select('clientprog_id', 'inv_id');
+            },
+            'clientMentor' => function ($query) {
+                $query->where('tbl_client_mentor.type', 2)->where('tbl_client_mentor.status', 1);
+            }
         ])->
         mentoring()->
         isActiveMentee()->
@@ -942,32 +914,11 @@ class ClientRepository implements ClientRepositoryInterface
             'mentoring_progress_status',
         ])->
         get();
-        $mapped_active_mentees = $active_mentees->map(function ($item) {
 
-            # determine which type of mentor does the user has
-            $latest_admission = $item->clientProgram[0]; 
-            # with orderByPivot, it helps get the latest record 
-            $select_profile_building_mentor = $latest_admission->clientMentor()->wherePivot('type', 2)->orderByPivot('id', 'desc')->first()?->full_name ?? null;    
+        if ($paginate !== null)
+            $active_mentees = $active_mentees->paginate(10);
 
-            return [
-                'id' => $item->id,
-                'first_name' => $item->first_name,
-                'last_name' => $item->last_name,
-                'full_name' => $item->full_name,
-                'sch_name' => $item->school->sch_name ?? null,
-                'grade' => $item->grade_now,
-                'clientprog_id' => $latest_admission->clientprog_id,
-                'program_name' => $latest_admission->invoice_program_name,
-                'free_trial' => preg_match("/free trial/i", $latest_admission->package),
-                'require' => $latest_admission->program->prog_mentor,
-                'package' => $latest_admission->package,
-                'curriculum' => $latest_admission->curriculum,
-                'invoice_id' => $latest_admission->invoice->inv_id ?? null,
-                'profile_building_mentor' => $select_profile_building_mentor
-            ];
-        });
-        
-        return $mapped_active_mentees->paginate(10);
+        return $active_mentees;
     }
 
     public function rnGetGraduatedMenteesGlobal(mixed $search)
