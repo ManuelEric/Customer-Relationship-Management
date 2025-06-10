@@ -159,6 +159,36 @@ class ExtClientController extends Controller
         );
     }
 
+    public function fnGetMentorsCapacity()
+    {
+        # get the active mentors
+        $existing_mentors = $this->clientRepository->getExistingMentorsAPI();
+        if ($existing_mentors->count() == 0) {
+            return response()->json([
+                'success' => true,
+                'message' => 'No mentor found.'
+            ]);
+        }
+
+        $mapped_existing_mentors = $existing_mentors->map(function ($value) {
+            $load = $value->mentorClient()->wherePivot('tbl_client_mentor.type', 2)->wherePivot('tbl_client_mentor.status', 1)->successAndPaid()->get();
+            
+            $mentee_enrollment = UserClient::whereIn('id', $load->pluck('client_id')->toArray())->whereNotNull('application_year')->where('application_year', Carbon::now()->addYear(1)->format('Y'))->count();
+
+            return [
+                'first_name' => $value->first_name,
+                'last_name' => $value->last_name,
+                'email' => $value->email,
+                'capacity' => $value->roles->first()->pivot->capacity,
+                // 'test' => $load->pluck('client_id')->toArray(),
+                'load' => count($load),
+                'mentee_enrollment' => $mentee_enrollment
+            ];
+        });
+
+        return $mapped_existing_mentors->paginate(10);
+    }
+
     public function getAlumnis()
     {
         $existingAlumnis = $this->clientRepository->getExistingAlumnisAPI();
