@@ -28,6 +28,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -243,13 +244,27 @@ class UserController extends Controller
         $userId = $request->route('user');
         $user = $this->userRepository->rnGetUserById($userId);
 
-        $universities = $this->universityRepository->getAllUniversities();
-        $univ_countries = $this->universityRepository->getCountryNameFromUniversity();
-        $majors = $this->majorRepository->getAllMajors();
-        $departments = $this->departmentRepository->getAllDepartment();
-        $positions = $this->positionRepository->getAllPositions();
-        $user_types = $this->userTypeRepository->getAllUserType();
-        $salesTeams = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $universities = Cache::remember('universities', 5 * 60, function () {
+            return $this->universityRepository->getAllUniversities();
+        });
+        $univ_countries = Cache::remember('univ_countries', 5 * 60, function () {
+            return $this->universityRepository->getCountryNameFromUniversity();
+        });
+        $majors = Cache::remember('majors', 5 * 60, function () {
+            return $this->majorRepository->getAllMajors();
+        });
+        $departments = Cache::remember('departments', 5 * 60, function () {
+            return $this->departmentRepository->getAllDepartment();
+        });
+        $positions = Cache::remember('positions', 5 * 60, function () {
+            return $this->positionRepository->getAllPositions();
+        });
+        $user_types = Cache::remember('user_types', 5 * 60, function () {
+            return $this->userTypeRepository->getAllUserType();
+        });
+        $salesTeams = Cache::remember('sales_teams', 5 * 60, function () {
+            return $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        });
         $subjects = $this->subjectRepository->getAllSubjects();
         $is_tutor = $user->roles()->where('role_name', 'Tutor')->first() != null ? true : false;
         $is_external_mentor = $user->roles()->where('role_name', 'External Mentor')->first() != null ? true : false;

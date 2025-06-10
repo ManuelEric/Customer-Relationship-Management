@@ -38,11 +38,11 @@
  {{-- var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/invoice/'.$invoiceAttachment->attachment) }}", { --}}
  <script src="https://fastly.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        @if (isset($attachment) && $attachment->inv_id != NULL && $attachment_from_s3 == NULL)
+        @if (isset($attachment) && $attachment->inv_id != NULL && !isset($attachment_from_s3))
             var file = "{{ Storage::url('project/crm/invoice/client/'.$attachment->attachment) }}"
         @elseif (isset($invoiceAttachment))
             var file = "{{ Storage::url($invoiceAttachment->attachment) }}"
-        @elseif ($attachment_from_s3)
+        @elseif (isset($attachment_from_s3) && $attachment_from_s3 != null)
             var file = "{{ $attachment_from_s3 }}"
         @endif
 
