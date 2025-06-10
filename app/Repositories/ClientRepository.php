@@ -967,7 +967,7 @@ class ClientRepository implements ClientRepositoryInterface
             ];
         });
         
-        return $mapped_active_mentees;
+        return $mapped_active_mentees->paginate(10);
     }
 
     public function rnGetGraduatedMenteesGlobal(mixed $search)
@@ -1037,7 +1037,7 @@ class ClientRepository implements ClientRepositoryInterface
             ];
         });
         
-        return $mapped_graduated_mentees;
+        return $mapped_graduated_mentees->paginate(10);
     }
 
     public function getAlumniMenteesSiblings()
