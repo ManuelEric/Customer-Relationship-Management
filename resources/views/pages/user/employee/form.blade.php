@@ -16,6 +16,10 @@
         $departmentThisUser = $departments->where('id', $departmentId)->first();
 @endphp
 
+@if($errors->any())
+    {{ implode('', $errors->all('<div>:message</div>')) }}
+@endif
+
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('user/employee') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Employee
@@ -47,7 +51,10 @@
                                 <i class="bi bi-x"></i>
                                 Deactivate</button>
 
-                            <button id="set-password" class="btn btn-sm btn-warning" style="font-size:12px;">
+                            <button id="set-password" @class([
+                                'btn btn-sm btn-warning',
+                                'd-none' => $user->active == 0
+                            ]) style="font-size:12px;">
                                 <i class="bi bi-key"></i> 
                                 Set Password
                             </button>
@@ -75,6 +82,9 @@
                                         @if ($type->pivot->end_date != NULL)
                                         -
                                         {{ date('d M Y', strtotime($type->pivot->end_date)) }}
+                                        @elseif ($type->pivot->status == 0)
+                                        - 
+                                        {{ date('d M Y', strtotime($type->pivot->updated_at)) }}
                                         @else
                                             - until now
                                         @endif

@@ -60,13 +60,11 @@ class SendReminderExpirationAgreementCommand extends Command
                 # CC Mail (HR + Operation)
                 $cc_mail = [
                     env('HR_MAIL'),
-                    env('HR_MAIL_2'),
-                    env('OPERATION_MAIL_2'),
-                    env('OPERATION_MAIL_3'),
+                    env('HR_CC')
                 ];
                 
-                # Sharon
-                $recipient = env('OPERATION_MAIL_1');
+                # Tere
+                $recipient = env('PARTNERSHIP_MAIL');
 
                 $tutor = $editor = $collaborator = false;
 
@@ -111,8 +109,8 @@ class SendReminderExpirationAgreementCommand extends Command
                     # Thalia
                     $recipient = env('EDITOR_MAIL');
                 }else if($collaborator){
-                    # Tere and Feri
-                    $recipient = [env('PARTNERSHIP_MAIL_1'), env('PARTNERSHIP_MAIL_2')];
+                    # Tere
+                    $recipient = env('PARTNERSHIP_MAIL');
                 }
 
                 $this->partnerService->snSendMailExpirationAgreement($partner_agreement_expired_soon, $recipient, $cc_mail);
