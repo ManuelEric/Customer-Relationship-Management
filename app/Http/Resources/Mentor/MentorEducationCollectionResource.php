@@ -4,7 +4,6 @@ namespace App\Http\Resources\Mentor;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class MentorEducationCollectionResource extends ResourceCollection
@@ -34,7 +33,7 @@ class MentorEducationCollectionResource extends ResourceCollection
     /**
      * Customize the outgoing response for the resource.
      */
-    public function withResponse(HttpRequest $request, JsonResponse $response): void
+    public function withResponse(Request $request, JsonResponse $response): void
     {
         $response->header('Accept', 'application/json');
     }

@@ -59,9 +59,9 @@ interface ClientRepositoryInterface
     public function getNewAllRawClientDataTables($roleName, $asDatatables = false, $advanced_filter = []);
 
     public function rnGetGraduatedMentees(mixed $search); //* the difference between getAlumniMentees is that the graduated mentees only receive students
-    public function rnGetActiveMentees(mixed $search);
+    public function rnGetActiveMentees(mixed $search, ?string $paginate = null);
 
-    public function rnGetActiveMenteesGlobal(array $search);
+    public function rnGetActiveMenteesGlobal(array $search, ?string $paginate = null);
     public function rnGetGraduatedMenteesGlobal(mixed $search);
     /* ~ END */
 
