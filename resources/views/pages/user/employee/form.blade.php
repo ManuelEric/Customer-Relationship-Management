@@ -16,9 +16,6 @@
         $departmentThisUser = $departments->where('id', $departmentId)->first();
 @endphp
 
-@if($errors->any())
-    {{ implode('', $errors->all('<div>:message</div>')) }}
-@endif
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('user/employee') }}" class="text-decoration-none text-muted">
