@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\User;
+use Illuminate\Support\Carbon;
 
 class UserObserver
 {
@@ -19,10 +20,12 @@ class UserObserver
      */
     public function updated(User $user): void
     {
-        // if certain user's active status was changed to 0 then put status in client mentor also 0
+        // if certain user's active status was changed to 0 
+        // then put status in client mentor also 0
+        // and deactivate user type  
         if ( $user->wasChanged('active') && $user->active == 0 )
         {
-            foreach ($user->mentorClient as $mentoring)
+            foreach ($user->mentorClient as $mentoring) // client mentor
             {
                 $mentoring->pivot->status = 0;
                 $mentoring->pivot->save();

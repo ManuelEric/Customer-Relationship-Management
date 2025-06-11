@@ -206,8 +206,8 @@ class ClientProgram extends Model
     public function scopeSuccessAndPaid(Builder $query): void
     {
         $query->
-            where('status', 1)->
-            whereNot('prog_running_status', 2)->
+            where('tbl_client_prog.status', 1)->
+            whereNot('tbl_client_prog.prog_running_status', 2)->
             where(function ($query) {
                 $query->
                     where('prog_end_date', '>=', Carbon::now())->
