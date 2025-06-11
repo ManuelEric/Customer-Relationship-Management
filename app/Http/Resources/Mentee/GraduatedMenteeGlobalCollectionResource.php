@@ -44,13 +44,12 @@ class GraduatedMenteeGlobalCollectionResource extends ResourceCollection
             # determine which type of mentor does the user has
             $latest_admission = $single->clientProgram[0];
             # with orderByPivot, it helps get the latest record 
-            $logged_in_mentor_type = $latest_admission->clientMentor()->where('users.id', Auth::guard('api')->user()->id)->orderByPivot('id', 'desc')->get();
-            $mapped_mentor_type = $logged_in_mentor_type->map(function ($single) {
-                return [
-                    'code' => $single->pivot->type,
-                    'alias' => $this->tnDefineMentorType($single->pivot->type)
-                ];
-            });
+            $select_profile_building_mentor = $latest_admission->clientMentor()->first()?->full_name ?? null;
+            // $logged_in_mentor_type = $latest_admission->clientMentor()->where('users.id', Auth::guard('api')->user()->id)->orderByPivot('id', 'desc')->get();
+            $mapped_mentor_type = collect([
+                'code' => 1,
+                'alias' => $this->tnDefineMentorType(1)
+            ]);
             
 
             $collections[] = [
@@ -62,8 +61,9 @@ class GraduatedMenteeGlobalCollectionResource extends ResourceCollection
                 'application_year' => $single->application_year,
                 'clientprog_id' => $latest_admission->clientprog_id,
                 'act_as' => $mapped_mentor_type,
-                'code_array' => $mapped_mentor_type->pluck('code')->toArray(),
-                'alias_array' => $mapped_mentor_type->plucK('alias')->toArray(),
+                'code_array' => [1],
+                'alias_array' => [$this->tnDefineMentorType(1)],
+                'profile_building_mentor' => $select_profile_building_mentor,
                 'created_at' => $created_university_acceptance_at
             ];
         }
