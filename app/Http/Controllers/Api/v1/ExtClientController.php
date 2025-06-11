@@ -2342,7 +2342,7 @@ class ExtClientController extends Controller
         $search = compact('terms', 'uni', 'major');
 
         $graduated_mentees = $this->clientRepository->rnGetGraduatedMenteesGlobal($search, $request->get('paginate'));
-        return response()->json(new GraduatedMenteeCollectionResource($graduated_mentees, $request->get('paginate')));
+        return response()->json(new GraduatedMenteeGlobalCollectionResource($graduated_mentees, $request->get('paginate')));
     }
 
     public function fnGetMentorsByMentee(UserClient $user_client): JsonResponse
