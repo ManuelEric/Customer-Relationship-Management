@@ -306,6 +306,8 @@
                             $("#deactivate-user").addClass('d-none')
                             break;
                     }
+                    Swal.showLoading()
+                    location.reload()
 
                 }, (error) => {
                     console.log(error)
