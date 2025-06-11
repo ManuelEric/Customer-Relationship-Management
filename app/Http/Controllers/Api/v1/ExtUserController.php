@@ -6,10 +6,12 @@ use App\Enum\LogModule;
 use App\Http\Controllers\Controller;
 use App\Interfaces\SubjectRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Models\User;
 use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ExtUserController extends Controller
@@ -165,5 +167,29 @@ class ExtUserController extends Controller
                 'message' => 'Failed get user '. $err->getMessage(), 
             ], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public function fnUpdateMentorCapacity(
+        Request $request, 
+        User $mentor,
+        LogService $log_service
+        )
+    {
+        $new_capacity = $request->capacity;
+        
+        DB::beginTransaction();
+        try {
+            $mentor_role = $mentor->roles()->where('role_name', 'Mentor')->first();
+            $mentor_role->pivot->capacity = $new_capacity;
+            $mentor_role->pivot->save();
+            DB::commit();
+        } catch (Exception $err) {
+            DB::rollBack();
+            $log_service->createErrorLog(LogModule::CHANGE_USER_CAPACITY, $err->getMessage(), $err->getLine(), $err->getFile(), $mentor->toArray());
+            return response()->json(['message' => 'Failed to update mentor\'s capacity of ' . $new_capacity], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $log_service->createSuccessLog(LogModule::CHANGE_USER_CAPACITY, 'The mentor\'s capacity has been updated', $mentor->toArray());
+        return response()->json(['message' => 'The mentor\'s capacity has been updated.'], JsonResponse::HTTP_OK);
     }
 }

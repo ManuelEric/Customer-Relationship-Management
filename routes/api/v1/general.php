@@ -190,6 +190,9 @@ Route::middleware(['throttle:120,1'])->group(function () {
                 # logout
                 Route::post('oauth/token/destroy', [V1APIAuthController::class, 'logout']);
             });
+
+            # user information
+            Route::patch('mentor/{mentor}/update/capacity', [ExtUserController::class, 'fnUpdateMentorCapacity']);
         });
 
         # meta ads
