@@ -6,6 +6,10 @@ use App\Enum\LogModule;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\v1\UpdateMenteeProfileRequest;
 use App\Http\Requests\Client\Registration\Public\PublicRegistrationRequest;
+use App\Http\Resources\Mentee\ActiveMenteeCollectionResource;
+use App\Http\Resources\Mentee\ActiveMenteeGlobalCollectionResource;
+use App\Http\Resources\Mentee\GraduatedMenteeCollectionResource;
+use App\Http\Resources\Mentee\GraduatedMenteeGlobalCollectionResource;
 use App\Http\Traits\CalculateGradeTrait;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\ClientMentorTrait;
@@ -153,6 +157,40 @@ class ExtClientController extends Controller
                 'data' => $mappedExistingMentors
             ]
         );
+    }
+
+    public function fnGetMentorsCapacity(Request $request)
+    {
+        $terms = $request->get('terms');
+        $search = compact('terms');
+
+        # get the active mentors
+        $existing_mentors = $this->clientRepository->getExistingMentorsAPI($search);
+        if ($existing_mentors->count() == 0) {
+            return response()->json([
+                'success' => true,
+                'message' => 'No mentor found.'
+            ]);
+        }
+
+        $mapped_existing_mentors = $existing_mentors->map(function ($value) {
+            $load = $value->mentorClient()->wherePivot('tbl_client_mentor.type', 2)->wherePivot('tbl_client_mentor.status', 1)->successAndPaid()->get();
+            
+            $mentee_enrollment = UserClient::whereIn('id', $load->pluck('client_id')->toArray())->whereNotNull('application_year')->where('application_year', Carbon::now()->addYear(1)->format('Y'))->count();
+
+            return [
+                'uuid' => $value->id,
+                'first_name' => $value->first_name,
+                'last_name' => $value->last_name,
+                'email' => $value->email,
+                'capacity' => $value->roles->first()->pivot->capacity,
+                // 'test' => $load->pluck('client_id')->toArray(),
+                'load' => count($load),
+                'mentee_enrollment' => $mentee_enrollment
+            ];
+        });
+
+        return $mapped_existing_mentors->paginate(10);
     }
 
     public function getAlumnis()
@@ -2271,8 +2309,8 @@ class ExtClientController extends Controller
         $uni = $request->get('uni');
         $major = $request->get('major');
         $search = compact('terms', 'uni', 'major');
-        $graduated_mentees = $this->clientRepository->rnGetGraduatedMentees($search);
-        return response()->json($graduated_mentees);
+        $graduated_mentees = $this->clientRepository->rnGetGraduatedMentees($search, $request->get('paginate'));
+        return response()->json(new GraduatedMenteeCollectionResource($graduated_mentees, $request->get('paginate')));
     }
 
     public function fnGetActiveMentee(Request $request)
@@ -2283,16 +2321,17 @@ class ExtClientController extends Controller
             'sort_order' => $request->get('sort_order')
         ];
         $search = compact('terms', 'sorting_array');
-        $active_mentees = $this->clientRepository->rnGetActiveMentees($search);
-        return response()->json($active_mentees);
+        
+        $active_mentees = $this->clientRepository->rnGetActiveMentees($search, $request->get('paginate'));
+        return response()->json(new ActiveMenteeCollectionResource($active_mentees, $request->get('paginate')));
     }
 
     public function fnGetActiveMenteeGlobal(Request $request)
     {
         $terms = $request->get('terms');
         $search = compact('terms');
-        $active_mentees = $this->clientRepository->rnGetActiveMenteesGlobal($search);
-        return response()->json($active_mentees);
+        $active_mentees = $this->clientRepository->rnGetActiveMenteesGlobal($search, $request->get('paginate'));
+        return response()->json(new ActiveMenteeGlobalCollectionResource($active_mentees, $request->get('paginate')));
     }
 
     public function fnGetGraduatedMenteeGlobal(Request $request)
@@ -2301,8 +2340,9 @@ class ExtClientController extends Controller
         $uni = $request->get('uni');
         $major = $request->get('major');
         $search = compact('terms', 'uni', 'major');
-        $graduated_mentees = $this->clientRepository->rnGetGraduatedMentees($search);
-        return response()->json($graduated_mentees);
+
+        $graduated_mentees = $this->clientRepository->rnGetGraduatedMenteesGlobal($search, $request->get('paginate'));
+        return response()->json(new GraduatedMenteeCollectionResource($graduated_mentees, $request->get('paginate')));
     }
 
     public function fnGetMentorsByMentee(UserClient $user_client): JsonResponse

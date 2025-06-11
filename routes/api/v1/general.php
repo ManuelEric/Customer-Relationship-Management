@@ -66,7 +66,12 @@ Route::middleware(['throttle:120,1'])->group(function () {
     Route::get('payment/check-status', [PaymentGatewayController::class, 'checkStatus']);
 
 
+    # get all mentors
     Route::get('get/mentors', [ExtClientController::class, 'getMentors']);
+
+    # get all mentors with detail of capacity mentee
+    Route::get('get/mentors/capacity', [ExtclientController::class, 'fnGetMentorsCapacity']);
+
     Route::get('get/alumnis', [ExtClientController::class, 'getAlumnis']);
     Route::get('get/detail/lead-source', [ExtSalesTrackingController::class, 'getLeadSourceDetail']);
     Route::get('get/detail/conversion-lead', [ExtSalesTrackingController::class, 'getConversionLeadDetail']);
@@ -186,6 +191,8 @@ Route::middleware(['throttle:120,1'])->group(function () {
                 Route::post('oauth/token/destroy', [V1APIAuthController::class, 'logout']);
             });
 
+            # user information
+            Route::patch('mentor/{mentor}/update/capacity', [ExtUserController::class, 'fnUpdateMentorCapacity']);
         });
 
         # meta ads
