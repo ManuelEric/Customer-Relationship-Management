@@ -2,7 +2,6 @@
 
 namespace App\Repositories;
 
-use App\Http\Resources\Mentee\ActiveMenteeCollectionResource;
 use App\Http\Traits\FindDestinationCountryScore;
 use App\Http\Traits\FindSchoolYearLeftScoreTrait;
 use App\Interfaces\ClientRepositoryInterface;
@@ -24,7 +23,6 @@ use App\Models\pivot\ClientAcceptance as PivotClientAcceptance;
 use App\Models\User;
 use App\Models\ViewRawClient;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class ClientRepository implements ClientRepositoryInterface
