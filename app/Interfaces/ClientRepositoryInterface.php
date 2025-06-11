@@ -73,7 +73,7 @@ interface ClientRepositoryInterface
 
     /* API External use */
     public function getExistingMenteesAPI();
-    public function getExistingMentorsAPI();
+    public function getExistingMentorsAPI(array $search = []);
     public function getExistingAlumnisAPI();
     public function getParentMenteesAPI();
 
