@@ -30,4 +30,6 @@ interface UserRepositoryInterface
     public function rnFindExpiringContracts(ContractUserType $type);
     public function rnDeleteUserAgreement($user_subject_id);
     public function rnDeleteUserAgreementBySubjectIdAndYear($subject_id, $year);
+
+    public function rnGetExistingMentorsAPI(array $search = []);
 }

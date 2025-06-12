@@ -14,6 +14,7 @@ class ClientProgramLogMailRepository implements ClientProgramLogMailRepositoryIn
     {
         # find client program log mail that has sent_status = 0
         return ClientProgramLogMail::
+            with(['clientProgram', 'clientProgram.program'])->
             whereHas('clientProgram.program', function($query) {
                 $query->where('active', 1);
             })->

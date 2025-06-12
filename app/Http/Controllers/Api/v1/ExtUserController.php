@@ -7,10 +7,12 @@ use App\Http\Controllers\Controller;
 use App\Interfaces\SubjectRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Models\User;
+use App\Models\UserClient;
 use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -167,6 +169,95 @@ class ExtUserController extends Controller
                 'message' => 'Failed get user '. $err->getMessage(), 
             ], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public function fnGetMentors()
+    {
+        # get the active mentors
+        $existingMentors = $this->userRepository->rnGetExistingMentorsAPI();
+        if ($existingMentors->count() == 0) {
+            return response()->json([
+                'success' => true,
+                'message' => 'No mentor found.'
+            ]);
+        }
+
+        # map the data that being shown to the user
+        $mappedExistingMentors = $existingMentors->map(function ($value) {
+            $trimmedFullname = trim($value->full_name);
+
+            return [
+                /* essay editing purposes */
+                'first_name' => $value->first_name,
+                'last_name' => $value->last_name,
+                'phone' => $value->phone,
+                'email' => $value->email,
+                'address' => $value->address,
+                'roles' => $value->roles,
+                'educations' => $value->educations,
+                /* end */
+
+                'fullname' => $trimmedFullname,
+                'id' => $value->id,
+                'extended_id' => $value->extended_id,
+                'formatted' => $trimmedFullname . ' | ' . $value->id,
+            ];
+        });
+
+        return response()->json(
+            [
+                'success' => true,
+                'message' => 'Mentors data found.',
+                'data' => $mappedExistingMentors
+            ]
+        );
+    }
+
+    public function fnGetMentorsCapacity(Request $request)
+    {
+        $terms = $request->get('terms');
+        $search = compact('terms');
+
+        # get the active mentors
+        $existing_mentors = $this->userRepository->rnGetExistingMentorsAPI($search);
+        if ($existing_mentors->count() == 0) {
+            return response()->json([
+                'success' => true,
+                'message' => 'No mentor found.'
+            ]);
+        }
+
+        $mapped_existing_mentors = $existing_mentors->map(function ($value) {
+            $load = $value->mentorClient()->wherePivot('tbl_client_mentor.type', 2)->wherePivot('tbl_client_mentor.status', 1)->successAndPaid()->get();
+            
+            $mentee_enrollment = UserClient::with([
+                    'universityAcceptance' => function ($query) {
+                        $query->select('tbl_univ.univ_id', 'tbl_univ.univ_name');
+                    },
+                ])->whereIn('id', $load->pluck('client_id')->toArray())->whereNotNull('application_year')->where('application_year', Carbon::now()->addYear(1)->format('Y'))->get();
+            $mapped_mentee_enrollment = $mentee_enrollment->map(function ($value) {
+                return [
+                    'id' => $value->id,
+                    'first_name' => $value->first_name,
+                    'last_name' => $value->last_name,
+                    'acceptance' => $value->universityAcceptance
+                ];
+            });
+
+            return [
+                'uuid' => $value->id,
+                'first_name' => $value->first_name,
+                'last_name' => $value->last_name,
+                'email' => $value->email,
+                'capacity' => $value->roles->first()->pivot->capacity,
+                'load' => count($load),
+                'mentee_enrollment' => $mentee_enrollment->count(),
+                'detail_mentee_enrollment' => $mapped_mentee_enrollment,
+                'active_accordion' => false, # helper front-end 
+            ];
+        });
+
+        return $mapped_existing_mentors->paginate(10);
     }
 
     public function fnUpdateMentorCapacity(
