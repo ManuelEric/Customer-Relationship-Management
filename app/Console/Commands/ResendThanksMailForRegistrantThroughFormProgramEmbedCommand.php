@@ -40,24 +40,24 @@ class ResendThanksMailForRegistrantThroughFormProgramEmbedCommand extends Comman
     # Resend mail if success update sent_status from tbl_client_prog_log_mail to 1 ELSE update sent_status from tbl_client_prog_log_mail to 0
     public function handle()
     {
-        Log::info('Cron for resend thanks mail form program works fine');
         
         $logs = $this->clientProgramLogMailRepository->getClientProgramLogMail();
         $progress_bar = $this->output->createProgressBar($logs->count());
         $progress_bar->start();
-
+        
         foreach ($logs as $log) {
-
+            
             $client_program = $log->clientProgram;
             $student = $client_program->client;
             $parent = $student->parents[0]; # get the first parent if there are more than one parent attached
-
+            
             $this->clientProgramService->snSendMailThanks($client_program, $parent->id, $student->id, true);
-
+            
             $progress_bar->advance();
         }
-            
+        
         $progress_bar->finish();
+        Log::info("Cron for resend thanks mail form program works fine. ({$logs->count()}) client program has been processed.");
 
         return Command::SUCCESS;
     }
