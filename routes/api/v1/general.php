@@ -67,10 +67,10 @@ Route::middleware(['throttle:120,1'])->group(function () {
 
 
     # get all mentors
-    Route::get('get/mentors', [ExtClientController::class, 'getMentors']);
+    Route::get('get/mentors', [ExtUserController::class, 'fnGetMentors']);
 
     # get all mentors with detail of capacity mentee
-    Route::get('get/mentors/capacity', [ExtclientController::class, 'fnGetMentorsCapacity']);
+    Route::get('get/mentors/capacity', [ExtUserController::class, 'fnGetMentorsCapacity']);
 
     Route::get('get/alumnis', [ExtClientController::class, 'getAlumnis']);
     Route::get('get/detail/lead-source', [ExtSalesTrackingController::class, 'getLeadSourceDetail']);

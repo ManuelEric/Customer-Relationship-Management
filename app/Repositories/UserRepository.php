@@ -454,4 +454,16 @@ class UserRepository implements UserRepositoryInterface
         return $user_subject;
     }
     //! new methods end
+
+    public function rnGetExistingMentorsAPI(array $search = [])
+    {
+        return User::with('educations')->withAndWhereHas('roles', function ($subQuery) {
+            $subQuery->where('role_name', 'Mentor');
+        })->
+        whereNotNull('email')->
+        where('active', 1)->
+        when(isset($search['terms']), function ($query) use ($search) {
+            $query->whereRaw('CONCAT(first_name, " ", COALESCE(last_name, "")) like ?', ["%{$search['terms']}%"]);
+        })->get();
+    }
 }
