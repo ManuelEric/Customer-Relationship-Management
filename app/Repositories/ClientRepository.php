@@ -1179,18 +1179,6 @@ class ClientRepository implements ClientRepositoryInterface
         })->get();
     }
 
-    public function getExistingMentorsAPI(array $search = [])
-    {
-        return User::with('educations')->withAndWhereHas('roles', function ($subQuery) {
-            $subQuery->where('role_name', 'Mentor');
-        })->
-        whereNotNull('email')->
-        where('active', 1)->
-        when(isset($search['terms']), function ($query) use ($search) {
-            $query->whereRaw('CONCAT(first_name, " ", COALESCE(last_name, "")) like ?', ["%{$search['terms']}%"]);
-        })->get();
-    }
-
     public function getExistingAlumnisAPI()
     {
         $alumni_mentees = $this->getAlumniMentees();
