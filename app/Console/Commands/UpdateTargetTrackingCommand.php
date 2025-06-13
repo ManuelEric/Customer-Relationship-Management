@@ -40,12 +40,10 @@ class UpdateTargetTrackingCommand extends Command
      */
     public function handle()
     {
+        $now = $this->argument('date');
 
-        Log::info('Cron update tracking works fine.');
+        $timer_start = Carbon::now();
 
-        $date = $this->argument('date');
-
-        $now = $date;
         $division = ['Sales', 'Referral', 'Digital'];
         $progressBar = $this->output->createProgressBar(count($division));
         $progressBar->start();
@@ -56,39 +54,41 @@ class UpdateTargetTrackingCommand extends Command
             # all of the update target tracking should be running after command "insert:target_tracking_monthly"
             
             $achievedRevenue = $this->leadTargetRepository->getAchievedRevenue($now);
-            for ($i = 0; $i < count($division); $i++) {
+            
+            foreach ($division as $key => $division_name) {
     
                 # checking active target from target tracking
                 # won't continue the process before the active target is inserted
-                if ($activeTarget = $this->leadTargetRepository->findThisMonthTargetByDivision($now, $division[$i])) {
+                if (! $activeTarget = $this->leadTargetRepository->findThisMonthTargetByDivision($now, $division_name)) 
+                    continue;
     
-                    $achievedLeadMethodName = 'getAchievedLead'.$division[$i].'ByMonth';
-                    $achievedHotLeadMethodName = 'getAchievedHotLead'.$division[$i].'ByMonth';
-                    $achievedInitConsultMethodName = 'getAchievedInitConsult'.$division[$i].'ByMonth';
-                    $achievedContributionMethodName = 'getAchievedContribution'.$division[$i].'ByMonth';
-    
-                    $achievedLead = $this->leadTargetRepository->{$achievedLeadMethodName}($now)->count();
-                    $achievedHotLead = $this->leadTargetRepository->{$achievedHotLeadMethodName}($now)->count();
-                    $achievedInitConsult = $this->leadTargetRepository->{$achievedInitConsultMethodName}($now)->count();
-                    $achievedContribution = $this->leadTargetRepository->{$achievedContributionMethodName}($now)->count();
-    
-                    $contribution_target = $activeTarget->contribution_target;
-                    
-                    # if the contribution target has achieved then put status into 1 which is complete
-                    $status = $contribution_target <= $achievedContribution ? 1 : 0;
-    
-                    $details = [
-                        'achieved_lead' => $achievedLead,
-                        'achieved_hotleads' => $achievedHotLead,
-                        'achieved_initconsult' => $achievedInitConsult,
-                        'contribution_achieved' => $achievedContribution,
-                        'revenue_achieved' => $achievedRevenue,
-                        'status' => $status,
-                        'updated_at' => Carbon::now(),
-                    ];
-                    
-                    $this->leadTargetRepository->updateActualLead($details, $now, $division[$i]);
-                }
+                $achievedLeadMethodName = 'getAchievedLead'.$division_name.'ByMonth';
+                $achievedHotLeadMethodName = 'getAchievedHotLead'.$division_name.'ByMonth';
+                $achievedInitConsultMethodName = 'getAchievedInitConsult'.$division_name.'ByMonth';
+                $achievedContributionMethodName = 'getAchievedContribution'.$division_name.'ByMonth';
+
+                $achievedLead = $this->leadTargetRepository->{$achievedLeadMethodName}($now)->count();
+                $achievedHotLead = $this->leadTargetRepository->{$achievedHotLeadMethodName}($now)->count();
+                $achievedInitConsult = $this->leadTargetRepository->{$achievedInitConsultMethodName}($now)->count();
+                $achievedContribution = $this->leadTargetRepository->{$achievedContributionMethodName}($now)->count();
+
+                $contribution_target = $activeTarget->contribution_target;
+                
+                # if the contribution target has achieved then put status into 1 which is complete
+                $status = $contribution_target <= $achievedContribution ? 1 : 0;
+
+                $details = [
+                    'achieved_lead' => $achievedLead,
+                    'achieved_hotleads' => $achievedHotLead,
+                    'achieved_initconsult' => $achievedInitConsult,
+                    'contribution_achieved' => $achievedContribution,
+                    'revenue_achieved' => $achievedRevenue,
+                    'status' => $status,
+                    'updated_at' => Carbon::now(),
+                ];
+                
+                $this->leadTargetRepository->updateActualLead($details, $now, $division_name);
+                
     
                 $progressBar->advance();
             }
@@ -102,6 +102,11 @@ class UpdateTargetTrackingCommand extends Command
             Log::info('Cron update target tracking not working normal. Error : '. $e->getMessage() .' | Line '. $e->getCode());
 
         }
+
+        $timer_end = Carbon::now();
+        $progress_time = $timer_start->diffInSeconds($timer_end);
+        
+        Log::info("[CRON - UPDATE TARGET TRACKING] has been run. It tooks {$progress_time} seconds");
 
         return Command::SUCCESS;
     }
