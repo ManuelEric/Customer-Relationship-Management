@@ -12,7 +12,7 @@
 </style>
 @endsection
 @section('content')
-    <p style="margin:0;">Dear {{ $finance_name }},</p>
+    <p style="margin:0;">Dear Team,</p>
     <p>
         Here are the following client information has not been completed:
     </p>

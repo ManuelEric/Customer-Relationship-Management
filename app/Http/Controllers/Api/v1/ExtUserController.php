@@ -234,13 +234,12 @@ class ExtUserController extends Controller
                     'universityAcceptance' => function ($query) {
                         $query->select('tbl_univ.univ_id', 'tbl_univ.univ_name');
                     },
-                ])->whereIn('id', $load->pluck('client_id')->toArray())->whereNotNull('application_year')->where('application_year', Carbon::now()->addYear(1)->format('Y'))->get();
+                ])->whereIn('id', $load->pluck('client_id')->toArray())->whereNotNull('application_year')->where('application_year', Carbon::now()->format('Y'))->get();
             $mapped_mentee_enrollment = $mentee_enrollment->map(function ($value) {
                 return [
                     'id' => $value->id,
                     'first_name' => $value->first_name,
                     'last_name' => $value->last_name,
-                    'acceptance' => $value->universityAcceptance
                 ];
             });
 
@@ -253,7 +252,6 @@ class ExtUserController extends Controller
                 'load' => count($load),
                 'mentee_enrollment' => $mentee_enrollment->count(),
                 'detail_mentee_enrollment' => $mapped_mentee_enrollment,
-                'active_accordion' => false, # helper front-end 
             ];
         });
 

@@ -3,10 +3,12 @@
 namespace App\Providers;
 
 use App\Listeners\AddCustomHeader;
+use App\Listeners\ReminderInvoiceToClientListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Mail\Events\MessageSending;
+use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
@@ -23,6 +25,9 @@ class EventServiceProvider extends ServiceProvider
         MessageSending::class => [
             AddCustomHeader::class,  
         ],
+        MessageSent::class => [
+            ReminderInvoiceToClientListener::class
+        ]
     ];
 
     /**
