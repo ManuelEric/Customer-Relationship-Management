@@ -399,7 +399,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 // DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now()) as date_difference')
             )
             ->where('tbl_partner_prog.status', 1)
-            // ->where('tbl_invb2b.reminded', '=', 0)
+            ->where('tbl_invb2b.reminded', '=', 0)
             ->whereDoesntHave('receipt')
             ->where(DB::raw('
                     (CASE

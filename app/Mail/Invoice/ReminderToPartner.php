@@ -2,7 +2,6 @@
 
 namespace App\Mail\Invoice;
 
-use App\Http\Traits\CurrencyTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -14,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 
 class ReminderToPartner extends Mailable
 {
-    use Queueable, SerializesModels, CurrencyTrait;
+    use Queueable, SerializesModels;
 
     public $content;
 

@@ -100,6 +100,7 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
                 try {
     
                     Mail::to($partner_pic_mail, $partner_pic_name)->cc($cc)->queue(new InvoiceReminderToPartner([
+                        'invoiceb2b_id' => $invoiceB2bId,
                         'partner_pic' => $partner_pic_name,
                         'partner_mail' => $partner_pic_mail,
                         'program_name' => $data->program_name,
@@ -109,7 +110,7 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
                         'total_payment_idr' => $this->formatCurrency('idr', $data->invb2b_totpriceidr, $data->invb2b_totprice ?? 0),
                         'pic_email' => $data->pic_mail,
                         'currency' => $data->currency,
-                        'invoiceb2b' => $data
+                        'invoiceb2b' => $data,
                     ]));
     
                 } catch (Exception $e) {
