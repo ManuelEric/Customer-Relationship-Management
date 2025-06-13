@@ -27,6 +27,10 @@ class ReminderInvoiceToClientListener
      */
     public function handle(MessageSent $event): void
     {
+        /* when the title was not setup by the mail provider */
+        if ( !array_key_exists('__laravel_mailable', $event->data))
+            return;
+
         switch ($event->data['__laravel_mailable'])
         {
             case "App\\Mail\\Invoice\\ReminderToClient":
