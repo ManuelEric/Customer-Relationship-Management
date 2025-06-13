@@ -240,7 +240,6 @@ class ExtUserController extends Controller
                     'id' => $value->id,
                     'first_name' => $value->first_name,
                     'last_name' => $value->last_name,
-                    'acceptance' => $value->universityAcceptance
                 ];
             });
 
@@ -253,7 +252,6 @@ class ExtUserController extends Controller
                 'load' => count($load),
                 'mentee_enrollment' => $mentee_enrollment->count(),
                 'detail_mentee_enrollment' => $mapped_mentee_enrollment,
-                'active_accordion' => false, # helper front-end 
             ];
         });
 
