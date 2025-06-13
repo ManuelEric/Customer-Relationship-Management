@@ -131,6 +131,8 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
     
                 $progressBar->advance();
             }
+
+
     
     
             // will send email also to finance team
@@ -139,7 +141,13 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
     
                 try {
     
-                    Mail::to(env('FINANCE_CC'), env('FINANCE_NAME'))->queue(new ReportToFinanceTeam($partner_have_no_pic, 'partner'));
+                    Mail::to(env('FINANCE_CC'), env('FINANCE_NAME'))->cc(env('PARTNERSHIP_MAIL'))->queue(new ReportToFinanceTeam([
+                        'view' => 'pages.invoice.corporate-program.mail.reminder-finance',
+                        'with' => [
+                            'finance_name' => env('FINANCE_NAME'),
+                            'partner_have_no_pic' => $partner_have_no_pic,
+                        ]
+                    ]));
     
                     # create mail log
                     $this->generalMailLogRepository->createLog([
@@ -151,6 +159,7 @@ class SendReminderInvoiceProgramToPartnerCommand extends Command
                             'partner_have_no_pic' => $partner_have_no_pic,
                         ])
                     ]);
+                    $this->info('report sent to finance & partnership team');
     
                 } catch (Exception $e) {
                     Log::error('Failed to send info to finance team cause by : ' . $e->getMessage() . ' | Line ' . $e->getLine());
