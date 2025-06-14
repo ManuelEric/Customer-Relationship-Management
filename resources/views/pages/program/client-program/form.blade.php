@@ -702,7 +702,7 @@
                                 <div class="row mb-3">
                                     <div class="col-md-3">
                                         <label for="">
-                                            Tutor 2<sup class="text-danger">*</sup>
+                                            Tutor 2
                                         </label>
                                     </div>
                                     <div class="col-md">
