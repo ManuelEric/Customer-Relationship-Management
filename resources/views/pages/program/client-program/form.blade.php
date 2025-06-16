@@ -945,6 +945,9 @@
                             }
                         }
 
+                        alert(prog_mentor)
+                        console.log(programMainProg)
+                        console.log(programSubProg)
                         // Mentor & Tutor Needs Check 
                         switch (prog_mentor) {
                             case "Mentor":
@@ -956,11 +959,23 @@
                             case "Tutor":
                                 $("#available-mentor").addClass("d-none")
                                 $("#available-tutor").removeClass("d-none")
-                                if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring') || programSubProg.includes('Competition')) {
+                                if (programMainProg.includes('Test Preparation'))
+                                {
+                                    if (programSubProg.includes('SAT'))
+                                    {
+                                        $('#tutoring').addClass('d-none')
+                                        $('#sat-act').removeClass('d-none')
+                                    }
+                                    else
+                                    {
+                                        $('#tutoring').removeClass('d-none')
+                                        $('#sat-act').addClass('d-none')
+                                    }
+                                }
+                                else if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring') || programSubProg.includes('Competition')) {
                                     $('#tutoring').removeClass('d-none')
                                     $('#sat-act').addClass('d-none')
-                                } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg
-                                    .includes('SAT') || programSubProg.includes('SAT')) {
+                                } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg.includes('SAT') || programSubProg.includes('SAT')) {
                                     $('#tutoring').addClass('d-none')
                                     $('#sat-act').removeClass('d-none')
                                 } else if (programStatus == 4) { // hold
