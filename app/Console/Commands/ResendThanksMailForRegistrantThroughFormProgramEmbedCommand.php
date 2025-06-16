@@ -42,10 +42,10 @@ class ResendThanksMailForRegistrantThroughFormProgramEmbedCommand extends Comman
     {
         
         $logs = $this->clientProgramLogMailRepository->getClientProgramLogMail();
-        if ( $logs->count() == 0 )
+        if ( count($logs) == 0 )
             return Command::SUCCESS;
 
-        $progress_bar = $this->output->createProgressBar($logs->count());
+        $progress_bar = $this->output->createProgressBar(count($logs));
         $progress_bar->start();
         
         foreach ($logs as $log) {
