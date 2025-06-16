@@ -945,9 +945,6 @@
                             }
                         }
 
-                        alert(prog_mentor)
-                        console.log(programMainProg)
-                        console.log(programSubProg)
                         // Mentor & Tutor Needs Check 
                         switch (prog_mentor) {
                             case "Mentor":
