@@ -42,6 +42,9 @@ class ResendThanksMailForRegistrantThroughFormProgramEmbedCommand extends Comman
     {
         
         $logs = $this->clientProgramLogMailRepository->getClientProgramLogMail();
+        if ( $logs->count() == 0 )
+            return Command::SUCCESS;
+
         $progress_bar = $this->output->createProgressBar($logs->count());
         $progress_bar->start();
         
@@ -57,8 +60,8 @@ class ResendThanksMailForRegistrantThroughFormProgramEmbedCommand extends Comman
         }
         
         $progress_bar->finish();
-        Log::info("Cron for resend thanks mail form program works fine. ({$logs->count()}) client program has been processed.");
-
+        Log::info("[CRON - RESEND THANK MAIL FORM PROGRAM EMBED] works fine. ({$logs->count()}) client program has been processed.");
+        
         return Command::SUCCESS;
     }
 }

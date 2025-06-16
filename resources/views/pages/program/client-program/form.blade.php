@@ -11,6 +11,10 @@
         $disabled = !isset($edit) ? 'disabled' : null;
         // $open_information_for_tutor = isset($clientProgram->invoice) && $clientProgram->program->main_prog->prog_name == "Academic & Test Preparation" && $clientProgram->session_tutor === NULL ? true : false;
     @endphp
+
+    @if($errors->any())
+    {{ implode('', $errors->all('<div>:message</div>')) }}
+@endif
     {{--     
     @if ($open_information_for_tutor)
     <div class="alert alert-danger">
@@ -698,7 +702,7 @@
                                 <div class="row mb-3">
                                     <div class="col-md-3">
                                         <label for="">
-                                            Tutor 2<sup class="text-danger">*</sup>
+                                            Tutor 2
                                         </label>
                                     </div>
                                     <div class="col-md">

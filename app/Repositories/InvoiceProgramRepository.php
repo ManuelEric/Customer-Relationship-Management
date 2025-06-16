@@ -281,7 +281,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 
     public function getAllDueDateInvoiceProgram(int $days)
     {
-        return ClientProgram::
+        return ClientProgram::with(['internalPic', 'program'])->
             leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')->
             leftJoin('tbl_inv_attachment', 'tbl_inv.inv_id', '=', 'tbl_inv_attachment.inv_id')->
             leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')->
