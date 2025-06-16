@@ -940,7 +940,7 @@
                             else
                             {
                                 // default open form for test preparation exclude SAT/ACT, subject tutoring, competition, and skillset tutoring
-                                resetDetailTutoring(programMainProg, 1) 
+                                resetDetailTutoring(programMainProg, 1, programSubProg) 
                                 $("#success_tutoring").removeClass('d-none')
                             }
                         }
@@ -1001,15 +1001,27 @@
 
         }
 
-        function resetDetailTutoring(programMainProg, programStatus)
+        function resetDetailTutoring(programMainProg, programStatus, programSubProg = '')
         {
             var stringField = programStatus == 0 ? 'pending' : 'success'
             if (programMainProg == "Test Preparation")
             {
-                $(`.${stringField}-tutoring-test-preparation-field`).removeClass('d-none')
-                $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
-                $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
-                $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
+                if (programSubProg.includes("SAT"))
+                {
+                    $(`.${stringField}-tutoring-test-preparation-field`).addClass('d-none')
+                    $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
+                    $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
+                    $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
+                    $(`.${stringField}-tutoring-sat-act-field`).removeClass('d-none')
+                }
+                else
+                {
+                    $(`.${stringField}-tutoring-test-preparation-field`).removeClass('d-none')
+                    $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
+                    $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
+                    $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
+                    $(`.${stringField}-tutoring-sat-act-field`).addClass('d-none')
+                }
             }
             else if (programMainProg == "Subject Tutoring")
             {
@@ -1017,6 +1029,7 @@
                 $(`.${stringField}-tutoring-subject-tutoring-field`).removeClass('d-none')
                 $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
                 $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-sat-act-field`).addClass('d-none')
             }
             else if (programMainProg == "Competition")
             {
@@ -1024,6 +1037,7 @@
                 $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
                 $(`.${stringField}-tutoring-competition-field`).removeClass('d-none')
                 $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-sat-act-field`).addClass('d-none')
             }
             else if (programMainProg == "Skillset Tutoring")
             {
@@ -1031,7 +1045,9 @@
                 $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
                 $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
                 $(`.${stringField}-tutoring-skillset-tutoring-field`).removeClass('d-none')
+                $(`.${stringField}-tutoring-sat-act-field`).addClass('d-none')
             }
+
         }
 
         function getSubProgram(main_prog_id) {
