@@ -15,9 +15,9 @@
             <div class="card-body">
                 <div class="row">
                     <!-- Detail for Test Preparation -->
-                    <div class="col-md-12 mb-2 success-tutoring-success-sat-act-field">
+                    <div class="col-md-12 mb-2 success-tutoring-sat-act-field d-none">
                         <small>Package <sup class="text-danger">*</sup></small>
-                        <x-forms.program.detail.package program-type="test-preparation" text-index="1" :disabled=$disabled :client-program=$clientProgram />
+                        <x-forms.program.detail.package program-type="test-preparation-sat" text-index="1" :disabled=$disabled :client-program=$clientProgram />
                     </div>
                     
                     <div class="col-md-12 mb-2">

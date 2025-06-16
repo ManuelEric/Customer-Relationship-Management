@@ -23,9 +23,7 @@ class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
 
     public function getProgramPhase()
     {
-        $phases = Phase::with(['phase_detail.client_program', 'phase_detail.phase_libraries.client_program'])
-                        ->get();
-        
+        $phases = Phase::with(['phase_detail.client_program', 'phase_detail.phase_libraries.client_program'])->get();
         return $phases;
     }
 

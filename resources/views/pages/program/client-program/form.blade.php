@@ -940,11 +940,14 @@
                             else
                             {
                                 // default open form for test preparation exclude SAT/ACT, subject tutoring, competition, and skillset tutoring
-                                resetDetailTutoring(programMainProg, 1) 
+                                resetDetailTutoring(programMainProg, 1, programSubProg) 
                                 $("#success_tutoring").removeClass('d-none')
                             }
                         }
 
+                        alert(prog_mentor)
+                        console.log(programMainProg)
+                        console.log(programSubProg)
                         // Mentor & Tutor Needs Check 
                         switch (prog_mentor) {
                             case "Mentor":
@@ -956,11 +959,23 @@
                             case "Tutor":
                                 $("#available-mentor").addClass("d-none")
                                 $("#available-tutor").removeClass("d-none")
-                                if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring') || programSubProg.includes('Competition')) {
+                                if (programMainProg.includes('Test Preparation'))
+                                {
+                                    if (programSubProg.includes('SAT'))
+                                    {
+                                        $('#tutoring').addClass('d-none')
+                                        $('#sat-act').removeClass('d-none')
+                                    }
+                                    else
+                                    {
+                                        $('#tutoring').removeClass('d-none')
+                                        $('#sat-act').addClass('d-none')
+                                    }
+                                }
+                                else if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring') || programSubProg.includes('Competition')) {
                                     $('#tutoring').removeClass('d-none')
                                     $('#sat-act').addClass('d-none')
-                                } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg
-                                    .includes('SAT') || programSubProg.includes('SAT')) {
+                                } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg.includes('SAT') || programSubProg.includes('SAT')) {
                                     $('#tutoring').addClass('d-none')
                                     $('#sat-act').removeClass('d-none')
                                 } else if (programStatus == 4) { // hold
@@ -1001,15 +1016,27 @@
 
         }
 
-        function resetDetailTutoring(programMainProg, programStatus)
+        function resetDetailTutoring(programMainProg, programStatus, programSubProg = '')
         {
             var stringField = programStatus == 0 ? 'pending' : 'success'
             if (programMainProg == "Test Preparation")
             {
-                $(`.${stringField}-tutoring-test-preparation-field`).removeClass('d-none')
-                $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
-                $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
-                $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
+                if (programSubProg.includes("SAT"))
+                {
+                    $(`.${stringField}-tutoring-test-preparation-field`).addClass('d-none')
+                    $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
+                    $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
+                    $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
+                    $(`.${stringField}-tutoring-sat-act-field`).removeClass('d-none')
+                }
+                else
+                {
+                    $(`.${stringField}-tutoring-test-preparation-field`).removeClass('d-none')
+                    $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
+                    $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
+                    $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
+                    $(`.${stringField}-tutoring-sat-act-field`).addClass('d-none')
+                }
             }
             else if (programMainProg == "Subject Tutoring")
             {
@@ -1017,6 +1044,7 @@
                 $(`.${stringField}-tutoring-subject-tutoring-field`).removeClass('d-none')
                 $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
                 $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-sat-act-field`).addClass('d-none')
             }
             else if (programMainProg == "Competition")
             {
@@ -1024,6 +1052,7 @@
                 $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
                 $(`.${stringField}-tutoring-competition-field`).removeClass('d-none')
                 $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
+                $(`.${stringField}-tutoring-sat-act-field`).addClass('d-none')
             }
             else if (programMainProg == "Skillset Tutoring")
             {
@@ -1031,7 +1060,9 @@
                 $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
                 $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
                 $(`.${stringField}-tutoring-skillset-tutoring-field`).removeClass('d-none')
+                $(`.${stringField}-tutoring-sat-act-field`).addClass('d-none')
             }
+
         }
 
         function getSubProgram(main_prog_id) {
@@ -1170,6 +1201,7 @@
 
             // Check Program bought
             $('.check-package').on('click', function(){
+                showLoading()
                 var clientprog_id = $(this).data('clientprog-id');
                 var phase_lib_id = $(this).data('phase-lib-id') == '-' ? 'null' : $(this).data('phase-lib-id');
                 var phase_detail_id = $(this).data('phase-detail-id');
@@ -1190,9 +1222,11 @@
                         let obj = response.data;
                         $('#quota-' + phase_detail_id).prop("disabled", true);
                         $('#quota-' + phase_detail_id).val(0);
+                        Swal.close()
                         notification('success', "Successfully remove item program bought");
                     })
                     .catch(function(error) {
+                        Swal.close()
                         notification('error', error)
                     })
                 }else{
@@ -1212,10 +1246,11 @@
                         let obj = response.data;
                         
                         $('#quota-' + phase_detail_id).prop("disabled", false);
-
+                        Swal.close()
                         notification('success', "Successfully add item program bought");
                     })
                     .catch(function(error) {
+                        Swal.close()
                         notification('error', error)
                     })
                 }
@@ -1223,6 +1258,7 @@
 
             // Counting program bought
             $('.quota-program-bought').on('change', function(){
+                showLoading()
                 var clientprog_id = $(this).data('clientprog-id');
                 var phase_lib_id = $(this).data('phase-lib-id') == '-' ? 'null' : $(this).data('phase-lib-id');
                 var phase_detail_id = $(this).data('phase-detail-id');
@@ -1239,9 +1275,11 @@
                 .then(function(response) {
 
                     let obj = response.data;
+                    Swal.close()
                     notification('success', "Successfully update quota program bought");
                 })
                 .catch(function(error) {
+                    Swal.close()
                     notification('error', error)
                 })
             });
