@@ -1170,6 +1170,7 @@
 
             // Check Program bought
             $('.check-package').on('click', function(){
+                showLoading()
                 var clientprog_id = $(this).data('clientprog-id');
                 var phase_lib_id = $(this).data('phase-lib-id') == '-' ? 'null' : $(this).data('phase-lib-id');
                 var phase_detail_id = $(this).data('phase-detail-id');
@@ -1190,9 +1191,11 @@
                         let obj = response.data;
                         $('#quota-' + phase_detail_id).prop("disabled", true);
                         $('#quota-' + phase_detail_id).val(0);
+                        Swal.close()
                         notification('success', "Successfully remove item program bought");
                     })
                     .catch(function(error) {
+                        Swal.close()
                         notification('error', error)
                     })
                 }else{
@@ -1212,10 +1215,11 @@
                         let obj = response.data;
                         
                         $('#quota-' + phase_detail_id).prop("disabled", false);
-
+                        Swal.close()
                         notification('success', "Successfully add item program bought");
                     })
                     .catch(function(error) {
+                        Swal.close()
                         notification('error', error)
                     })
                 }
@@ -1223,6 +1227,7 @@
 
             // Counting program bought
             $('.quota-program-bought').on('change', function(){
+                showLoading()
                 var clientprog_id = $(this).data('clientprog-id');
                 var phase_lib_id = $(this).data('phase-lib-id') == '-' ? 'null' : $(this).data('phase-lib-id');
                 var phase_detail_id = $(this).data('phase-detail-id');
@@ -1239,9 +1244,11 @@
                 .then(function(response) {
 
                     let obj = response.data;
+                    Swal.close()
                     notification('success', "Successfully update quota program bought");
                 })
                 .catch(function(error) {
+                    Swal.close()
                     notification('error', error)
                 })
             });

@@ -32,6 +32,7 @@ use App\Services\Master\ProgramService;
 use App\Services\Program\ClientProgramService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -151,7 +152,7 @@ class ClientProgramController extends Controller
             $student_id = $request->route('student');
         elseif ($request->route('client') !== null)
             $student_id = $request->route('client');
-        // $studentId = isset($request->route('student')) ? $request->route('student') : isset($request->route('client')) ? $request->route('client') : null;
+        
         $client_program_id = $request->route('program');
 
         $student = $this->clientRepository->getClientById($student_id);
@@ -165,23 +166,45 @@ class ClientProgramController extends Controller
 
 
         # programs
-        $programs = $this->programService->snGetProgramsB2c();
+        $programs = Cache::remember('client_program:programs', 60 * 15, function () {
+            return $this->programService->snGetProgramsB2c();
+        });
 
         # main leads
-        $leads = $this->leadRepository->getAllMainLead();
-        $client_events = $this->clientEventRepository->getAllClientEventByClientId($student_id);
-        $external_edufair = $this->edufLeadRepository->getAllEdufairLead();
-        $kols = $this->leadRepository->getAllKOLlead();
-        $partners = $this->corporateRepository->getAllCorporate();
-        $internal_pic = $this->userRepository->rnGetAllUsersByRole('Employee');
+        $leads = Cache::remember('client_program:main_leads', 60 * 15, function () {
+            return $this->leadRepository->getAllMainLead();
+        });
+        $client_events = Cache::remember('client_program:client_events:'.$student_id, 60 * 15, function () use ($student_id) {
+            return $this->clientEventRepository->getAllClientEventByClientId($student_id);
+        });
+        $external_edufair = Cache::remember('client_program:external_edufair', 60 * 15, function () {
+            return $this->edufLeadRepository->getAllEdufairLead();
+        });
+        $kols = Cache::remember('client_program:kols', 60 * 15, function () {
+            return $this->leadRepository->getAllKOLlead();
+        });
+        $partners = Cache::remember('client_program:partners', 60 * 15, function () {
+            return $this->corporateRepository->getAllCorporate();
+        });
+        $internal_pic = Cache::remember('client_program:internal_pic', 60 * 15, function () {
+            return $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        });
 
-        $tutors = $this->userRepository->rnGetAllUsersByRole('Tutor');
-        $mentors = $this->userRepository->rnGetAllUsersByRole('Mentor');
+        $tutors = Cache::remember('client_program:tutors', 60 * 15, function () {
+            return $this->userRepository->rnGetAllUsersByRole('Tutor');
+        });
+        $mentors = Cache::remember('client_program:mentors', 60 * 15, function () {
+            return $this->userRepository->rnGetAllUsersByRole('Mentor');
+        });
 
-        $reasons = $this->reasonRepository->getReasonByType('Program');
+        $reasons = Cache::remember('client_program:reasons', 60 * 15, function () {
+            return $this->reasonRepository->getReasonByType('Program');
+        });
         
         /* add on for program flexibility */
-        $main_programs = MainProg::orderBy('prog_name', 'asc')->get();
+        $main_programs = Cache::remember('client_program:main_program', 60 * 15, function () {
+            return MainProg::orderBy('prog_name', 'asc')->get();
+        });
 
         return view('pages.program.client-program.form')->with(
             [
@@ -212,33 +235,57 @@ class ClientProgramController extends Controller
 
         $student_id = $request->route('student');
         $student = $this->clientRepository->getClientById($student_id);
-        $view_student = $this->clientRepository->getViewClientById($student_id);
+        // $view_student = $this->clientRepository->getViewClientById($student_id);
 
         # programs
-        $programs = $this->programService->snGetProgramsB2c();
+        $programs = Cache::remember('client_program:programs', 60 * 15, function () {
+            return $this->programService->snGetProgramsB2c();
+        });
 
         # main leads
-        $leads = $this->leadRepository->getAllMainLead();
-        $client_events = $this->clientEventRepository->getAllClientEventByClientId($student_id);
-        $external_edufair = $this->edufLeadRepository->getAllEdufairLead();
-        $kols = $this->leadRepository->getAllKOLlead();
-        $partners = $this->corporateRepository->getAllCorporate();
-        $internal_pic = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $leads = Cache::remember('client_program:main_leads', 60 * 15, function () {
+            return $this->leadRepository->getAllMainLead();
+        });
+        $client_events = Cache::remember('client_program:client_events:'.$student_id, 60 * 15, function () use ($student_id) {
+            return $this->clientEventRepository->getAllClientEventByClientId($student_id);
+        });
 
-        $tutors = $this->userRepository->rnGetAllUsersByRole('Tutor');
-        $mentors = $this->userRepository->rnGetAllUsersByRole('Mentor');
+        $external_edufair = Cache::remember('client_program:external_edufair', 60 * 15, function () {
+            return $this->edufLeadRepository->getAllEdufairLead();
+        });
 
-        $reasons = $this->reasonRepository->getReasonByType('Program');
+        $kols = Cache::remember('client_program:kols', 60 * 15, function () {
+            return $this->leadRepository->getAllKOLlead();
+        });
+        $partners = Cache::remember('client_program:partners', 60 * 15, function () {
+            return $this->corporateRepository->getAllCorporate();
+        });
+        $internal_pic = Cache::remember('client_program:internal_pic', 60 * 15, function () {
+            return $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        });
+
+        $tutors = Cache::remember('client_program:tutors', 60 * 15, function () {
+            return $this->userRepository->rnGetAllUsersByRole('Tutor');
+        });
+        $mentors = Cache::remember('client_program:mentors', 60 * 15, function () {
+            return $this->userRepository->rnGetAllUsersByRole('Mentor');
+        });
+
+        $reasons = Cache::remember('client_program:reasons', 60 * 15, function () {
+            return $this->reasonRepository->getReasonByType('Program');
+        });
 
         /* add on for program flexibility */
-        $main_programs = MainProg::orderBy('prog_name', 'asc')->get();
+        $main_programs = Cache::remember('client_program:main_program', 60 * 15, function () {
+            return MainProg::orderBy('prog_name', 'asc')->get();
+        });
 
         return view('pages.program.client-program.form')->with(
             [
                 'p' => $p,
                 'edit' => true,
                 'student' => $student,
-                'viewStudent' => $view_student,
+                // 'viewStudent' => $view_student,
                 'programs' => $programs,
                 'leads' => $leads,
                 'clientEvents' => $client_events,
@@ -332,24 +379,47 @@ class ClientProgramController extends Controller
         $client_program = $this->clientProgramRepository->getClientProgramById($client_program_id);
 
         # programs
-        $programs = $this->programService->snGetProgramsB2c();
+        $programs = Cache::remember('client_program:programs', 60 * 15, function () {
+            return $this->programService->snGetProgramsB2c();
+        });
 
         # main leads
-        $leads = $this->leadRepository->getAllMainLead();
-        $client_events = $this->clientEventRepository->getAllClientEventByClientId($student_id);
-        $external_edufair = $this->edufLeadRepository->getAllEdufairLead();
-        $kols = $this->leadRepository->getAllKOLlead();
-        $partners = $this->corporateRepository->getAllCorporate();
-        $internal_pic = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $leads = Cache::remember('client_program:main_leads', 60 * 15, function () {
+            return $this->leadRepository->getAllMainLead();
+        });
+        $client_events = Cache::remember('client_program:client_events:'.$student_id, 60 * 15, function () use ($student_id) {
+            return $this->clientEventRepository->getAllClientEventByClientId($student_id);
+        });
 
-        $tutors = $this->userRepository->rnGetAllUsersByRole('Tutor');
-        $mentors = $this->userRepository->rnGetAllUsersByRole('Mentor');
+        $external_edufair = Cache::remember('client_program:external_edufair', 60 * 15, function () {
+            return $this->edufLeadRepository->getAllEdufairLead();
+        });
 
-        $reasons = $this->reasonRepository->getReasonByType('Program');
-        // $reasons = $this->reasonRepository->getAllReasons();
-        
+        $kols = Cache::remember('client_program:kols', 60 * 15, function () {
+            return $this->leadRepository->getAllKOLlead();
+        });
+        $partners = Cache::remember('client_program:partners', 60 * 15, function () {
+            return $this->corporateRepository->getAllCorporate();
+        });
+        $internal_pic = Cache::remember('client_program:internal_pic', 60 * 15, function () {
+            return $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        });
+
+        $tutors = Cache::remember('client_program:tutors', 60 * 15, function () {
+            return $this->userRepository->rnGetAllUsersByRole('Tutor');
+        });
+        $mentors = Cache::remember('client_program:mentors', 60 * 15, function () {
+            return $this->userRepository->rnGetAllUsersByRole('Mentor');
+        });
+
+        $reasons = Cache::remember('client_program:reasons', 60 * 15, function () {
+            return $this->reasonRepository->getReasonByType('Program');
+        });
+
         /* add on for program flexibility */
-        $main_programs = MainProg::orderBy('prog_name', 'asc')->get();
+        $main_programs = Cache::remember('client_program:main_program', 60 * 15, function () {
+            return MainProg::orderBy('prog_name', 'asc')->get();
+        });
       
         return view('pages.program.client-program.form')->with(
             [

@@ -736,11 +736,11 @@ class StoreClientProgramRequest extends FormRequest
                         $fail('The submitted tutor was invalid tutor');
                     }
 
-                    if (UserClient::whereHas('clientMentor', function($query) use ($value) {
-                        $query->where('user_id', $value);
-                    })->where('id', $studentId)->count() > 0) {
-                        $fail('The choosen tutor has already exist');
-                    }
+                    // if (UserClient::whereHas('clientMentor', function($query) use ($value) {
+                    //     $query->where('user_id', $value);
+                    // })->where('id', $studentId)->count() > 0) {
+                    //     $fail('The choosen tutor has already exist');
+                    // }
                 },
             ],
             'timesheet_1' => 'required_if:tutor_1,!=,null',
