@@ -2263,7 +2263,8 @@ class ExtClientController extends Controller
          */
         $terms = $request->get('terms');
         $search = compact('terms');
-        if ( !$active_mentees = $this->clientRepository->rnGetActiveMenteesGlobal($search, $request->get('paginate')) )
+        $active_mentees = $this->clientRepository->rnGetActiveMenteesGlobal($search, $request->get('paginate'));
+        if ( ($request->get('paginate') != null && count($active_mentees->items()) == 0) || ($request->get('paginate') == null && count($active_mentees) == 0) )
         {
             return response()->json([
                 'message' => 'No active mentees found',
@@ -2284,14 +2285,14 @@ class ExtClientController extends Controller
         $major = $request->get('major');
         $search = compact('terms', 'uni', 'major');
 
-        if ( !$graduated_mentees = $this->clientRepository->rnGetGraduatedMenteesGlobal($search, $request->get('paginate')) )
+        $graduated_mentees = $this->clientRepository->rnGetGraduatedMenteesGlobal($search, $request->get('paginate'));
+        if ( ($request->get('paginate') != null && count($graduated_mentees->items()) == 0) || ($request->get('paginate') == null && count($graduated_mentees) == 0) )
         {
             return response()->json([
                 'message' => 'No graduated mentees found',
                 'data' => []
             ]);
         }
-
 
         if ( $request->get('export') !== null )
             return Excel::download(new GraduatedMenteeGlobalExport($graduated_mentees), "graduated_mentees_". Carbon::now()->format('Ymdhis').".xlsx");
