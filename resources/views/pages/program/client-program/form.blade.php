@@ -934,6 +934,7 @@
                         {
                             if (programSubProg.includes('SAT'))
                             {
+                                resetDetailTutoring(programMainProg, 1, programSubProg)
                                 // open form detail of SAT
                                 $('#success_sat_act').removeClass('d-none')
                             }
