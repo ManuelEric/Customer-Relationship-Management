@@ -55,6 +55,7 @@ class ActiveMenteeGlobalExport implements FromCollection, WithHeadings, WithStyl
     */
     public function collection()
     {
+        $collections = [];
         foreach ($this->active_mentees as $index => $single)
         {
             // # determine which type of mentor does the user has
