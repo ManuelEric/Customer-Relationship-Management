@@ -6,8 +6,10 @@ use App\Models\UserClient;
 use Illuminate\Support\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class ActiveMenteeGlobalExport implements FromCollection, WithHeadings
+class ActiveMenteeGlobalExport implements FromCollection, WithHeadings, WithStyles
 {
     protected $active_mentees;
 
@@ -32,6 +34,19 @@ class ActiveMenteeGlobalExport implements FromCollection, WithHeadings
             'Curriculum',
             'Profile Building Mentor',
             'Registered At'
+        ];
+    }
+
+    public function styles(Worksheet $sheet)
+    {
+        return [
+            // Make first row (headings) bold
+            1 => [
+                'font' => ['bold' => true],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ],
         ];
     }
 
