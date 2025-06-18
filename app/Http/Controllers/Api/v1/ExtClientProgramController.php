@@ -161,6 +161,7 @@ class ExtClientProgramController extends Controller
         $mentor_uuid = $request->get('k');
         $requested_main_program_name = $request->route('main_program_name');
         $requested_clientprogram_id = $request->route('clientprogram_id');
+        // dd($this->tnGetMainProgramName($requested_main_program_name));
         [$main_program, $sub_program] = $this->tnGetMainProgramName($requested_main_program_name);
         
         $b2cPrograms = \App\Models\ClientProgram::
@@ -182,7 +183,7 @@ class ExtClientProgramController extends Controller
         ])->
         whereHas('program', function ($query) use ($main_program, $sub_program) {
             $query->whereHas('main_prog', function ($query) use ($main_program) {
-                $query->where('prog_name', $main_program);
+                $query->where('group_of', $main_program);
             })->whereHas('sub_prog', function ($query) use ($sub_program) {
                 $query->when($sub_program != 'all', function ($query) use ($sub_program) {
                     $query->whereIn('sub_prog_name', $sub_program);
@@ -195,7 +196,7 @@ class ExtClientProgramController extends Controller
             });
         })->
         where('clientprog_id', $requested_clientprogram_id)->
-        select('clientprog_id', 'prog_id', 'client_id')->get();
+        select('clientprog_id', 'prog_id', 'client_id', 'package', 'curriculum')->get();
 
         $mappedB2CPrograms = $b2cPrograms->map(function ($data) {
 
@@ -221,7 +222,9 @@ class ExtClientProgramController extends Controller
                     'last_name' => $client_lname,
                     'school_name' => $school_name,
                     'grade' => $client_grade,
-                ]
+                ],
+                'package' => $data->package,
+                'curriculum' => $data->curriculum,
             ];
         });
 
