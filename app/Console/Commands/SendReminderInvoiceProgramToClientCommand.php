@@ -81,6 +81,8 @@ class SendReminderInvoiceProgramToClientCommand extends Command
 
             foreach ($invoice_master as $data) {
     
+                // meaning that the document has already verified by manager and mark as `signed`
+                // email will exclude those documents has not been signed 
                 if ( $data->sign_status != 'signed')
                 {
                     $this->newLine();

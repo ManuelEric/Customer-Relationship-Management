@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Enum\LogModule;
+use App\Exports\ActiveMenteeGlobalExport;
+use App\Exports\GraduatedMenteeGlobalExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\v1\UpdateMenteeProfileRequest;
 use App\Http\Requests\Client\Registration\Public\PublicRegistrationRequest;
@@ -47,6 +49,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ExtClientController extends Controller
 {
@@ -2252,9 +2255,26 @@ class ExtClientController extends Controller
 
     public function fnGetActiveMenteeGlobal(Request $request)
     {
+        /** 
+         * there are multiple query parameters that can be used to search for active mentees globally
+         * - terms: string to search for mentees
+         * - paginate: boolean to determine if the results should be paginated
+         * - export: boolean to determine if the results should be JSON or xlsx
+         */
         $terms = $request->get('terms');
         $search = compact('terms');
         $active_mentees = $this->clientRepository->rnGetActiveMenteesGlobal($search, $request->get('paginate'));
+        if ( ($request->get('paginate') != null && count($active_mentees->items()) == 0) || ($request->get('paginate') == null && count($active_mentees) == 0) )
+        {
+            return response()->json([
+                'message' => 'No active mentees found',
+                'data' => []
+            ]);
+        }
+
+        if ( $request->get('export') !== null )
+            return Excel::download(new ActiveMenteeGlobalExport($active_mentees), "active_mentees_". Carbon::now()->format('Ymdhis').".xlsx");
+        
         return response()->json(new ActiveMenteeGlobalCollectionResource($active_mentees, $request->get('paginate')));
     }
 
@@ -2266,6 +2286,17 @@ class ExtClientController extends Controller
         $search = compact('terms', 'uni', 'major');
 
         $graduated_mentees = $this->clientRepository->rnGetGraduatedMenteesGlobal($search, $request->get('paginate'));
+        if ( ($request->get('paginate') != null && count($graduated_mentees->items()) == 0) || ($request->get('paginate') == null && count($graduated_mentees) == 0) )
+        {
+            return response()->json([
+                'message' => 'No graduated mentees found',
+                'data' => []
+            ]);
+        }
+
+        if ( $request->get('export') !== null )
+            return Excel::download(new GraduatedMenteeGlobalExport($graduated_mentees), "graduated_mentees_". Carbon::now()->format('Ymdhis').".xlsx");
+
         return response()->json(new GraduatedMenteeGlobalCollectionResource($graduated_mentees, $request->get('paginate')));
     }
 
