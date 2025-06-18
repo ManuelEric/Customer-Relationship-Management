@@ -43,10 +43,18 @@ class ReminderInvoiceToClientListener
                 if ( preg_match('/installment/i', $invoice_payment_method) ) // if payment method is contains "installment"
                 {
                     InvDetail::where('inv_id', $invoice_id)->where('invdtl_installment', $invoice_payment_method)->update(['reminded' => 1]);
+                    Log::debug('[MESSAGE SENT]', [
+                        'invoice_id' => $invoice_id,
+                        'invoice_payment_method' => $invoice_payment_method
+                    ]);
                 }
                 else // if payment method is full payment
                 {
                     InvoiceProgram::where('inv_id', $invoice_id)->update(['reminded' => 1]);
+                    Log::debug('[MESSAGE SENT]', [
+                        'invoice_id' => $invoice_id,
+                        'invoice_payment_method' => $invoice_payment_method
+                    ]);
                 }
                 break;
 
