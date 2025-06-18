@@ -31,7 +31,7 @@
                 <div class="row mb-2 mentor-ic">
                     <div class="col-md-12 mb-2">
                         <small>Mentor IC</small>
-                        <select name="pend_mentor_ic" id="" class="select w-100" {{ $disabled }}>
+                        <select name="pend_mentor_ic" id="" class="form-select form-select-sm w-100" {{ $disabled }}>
                             <option data-placeholder="true"></option>
                             @foreach ($mentors as $mentor)
                                 <option value="{{ $mentor->id }}"

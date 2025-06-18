@@ -180,7 +180,7 @@ class ClientStudentController extends ClientController
 
         if (!Cache::has('advanced_filter')) {
             $entries = app('App\Services\ClientStudentService')->advancedFilterClient();
-            Cache::put('advanced_filter', $entries, 3600);
+            Cache::put('advanced_filter', $entries, 172800);  // 48 Jam 
         }
 
         $entries = Cache::get('advanced_filter');
@@ -223,7 +223,12 @@ class ClientStudentController extends ClientController
             return $this->clientRepository->getDataTables($model, true);
         }
 
-        $entries = app('App\Services\ClientStudentService')->advancedFilterClient();
+        if (!Cache::has('advanced_filter')) {
+            $entries = app('App\Services\ClientStudentService')->advancedFilterClient();
+            Cache::put('advanced_filter', $entries, 172800); // 48 Jam 
+        }
+
+        $entries = Cache::get('advanced_filter');
 
         return view('pages.client.student.raw.index')->with($entries);
     }

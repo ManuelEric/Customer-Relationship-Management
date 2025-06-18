@@ -5,6 +5,7 @@
     <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Client Program</a></li>
     <li class="breadcrumb-item active" aria-current="page">Form Client Program</li>
 @endsection
+
 @section('content')
 
     @php
@@ -12,22 +13,18 @@
         // $open_information_for_tutor = isset($clientProgram->invoice) && $clientProgram->program->main_prog->prog_name == "Academic & Test Preparation" && $clientProgram->session_tutor === NULL ? true : false;
     @endphp
 
-    @if($errors->any())
-    {{ implode('', $errors->all('<div>:message</div>')) }}
-@endif
-    {{--     
-    @if ($open_information_for_tutor)
-    <div class="alert alert-danger">
-        The specific field that needs your attention is "Session Detail". Currently, it appears to be blank, and we kindly request you to provide the necessary information.
-    </div>
-    @endif --}}
+    @if ($errors->any())
+        {{ implode('', $errors->all('<div>:message</div>')) }}
+    @endif
 
-    <div class="row">
+    <div class="row" id="app">
         <div class="col-md-4">
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
-                    <h4><a class="text-decoration-none" target="_blank" href="{{ route('student.show', ['student' => $student->id]) }}">{{ $student->full_name }}</a></h4>
+                    <h4><a class="text-decoration-none" target="_blank"
+                            href="{{ route('student.show', ['student' => $student->id]) }}">{{ $student->full_name }}</a>
+                    </h4>
                     @if (!request()->is('program/client/create*'))
                         <div class="mt-3 d-flex justify-content-center">
                             @if (!isset($clientProgram->invoice->refund))
@@ -57,7 +54,9 @@
             @include('pages.program.client-program.detail.client')
 
             {{-- Check program is admission & status success --}}
-            @if(isset($clientProgram->program->main_prog_id) && $clientProgram->program->main_prog_id == 1 && $clientProgram->status == 1)
+            @if (isset($clientProgram->program->main_prog_id) &&
+                    $clientProgram->program->main_prog_id == 1 &&
+                    $clientProgram->status == 1)
                 @include('pages.program.client-program.detail.program-phase')
             @endif
 
@@ -95,14 +94,13 @@
                                 </label>
                             </div>
                             <div class="col-md-9">
-                                <select name="main_prog" id="main_program" class="select w-100" {{ $disabled }}
-                                    onchange="getSubProgram($(this).val())">
-                                    <option data-placeholder="true"></option>
+                                <select name="main_prog" v-model="main_prog" id="main_program"
+                                    class="w-100 form-select form-select-sm" {{ $disabled }} @change="getSubProgram">
+                                    <option value="" selected disabled>Select main program</option>
                                     @foreach ($main_programs as $main_program)
-                                        <option value="{{ $main_program->id }}"
-                                            @selected(!empty(old('main_prog')) && old('main_prog') == $main_program->id)
-                                            {{-- @selected(isset($clientProgram) && $clientProgram->program->main_prog_id == $main_program->id) --}}
-                                            >{{ $main_program->prog_name }}</option>
+                                        <option value="{{ $main_program->id }}" @selected(!empty(old('main_prog')) && old('main_prog') == $main_program->id)>
+                                            {{ $main_program->prog_name }}
+                                        </option>
                                     @endforeach
                                 </select>
                                 @error('main_prog')
@@ -110,48 +108,47 @@
                                 @enderror
                             </div>
                         </div>
-                        <div class="row mb-2">
+                        <div class="row mb-2" v-if="subPrograms.length > 0">
                             <div class="col-md-3">
                                 <label for="">
                                     Sub Program <sup class="text-danger">*</sup>
                                 </label>
                             </div>
                             <div class="col-md-9">
-                                <select name="sub_program" id="sub_program" class="select w-100" disabled onchange="getProgramName($('#main_program').val(),$(this).val())">
-                                    <option data-placeholder="true"></option>
+                                <select name="sub_program" v-model="sub_program" class="form-select form-select-sm w-100"
+                                    :disabled="'{{ $disabled == 'disabled' ? false : true }}' && subPrograms.length <= 0"
+                                    @change="getProgramName">
+                                    <option value="" selected disabled>Select sub program</option>
+                                    <option :value="item.id" v-for="item in subPrograms" :key="item">
+                                        @{{ item.sub_prog_name }}
+                                    </option>
                                 </select>
                                 @error('sub_program')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
                         </div>
-                        <div class="row mb-2">
+                        <div class="row mb-2" v-if="programNames.length > 0">
                             <div class="col-md-3">
                                 <label for="">
                                     Program Name <sup class="text-danger">*</sup>
                                 </label>
                             </div>
                             <div class="col-md-9">
-                                <select name="prog_id" id="program_name" class="select w-100" {{ $disabled }}
-                                    onchange="changeProgramStatus()">
-                                    <option data-placeholder="true"></option>
-                                    {{-- @foreach ($programs as $program)
-                                        <option data-pmentor="{{ $program->prog_mentor }}"
-                                            data-mprog="{{ $program->main_prog->prog_name }}"
-                                            data-sprog="{{ isset($program->sub_prog->sub_prog_name) ? $program->sub_prog->sub_prog_name : null }}"
-                                            value="{{ $program->prog_id }}"
-                                            @if (!empty(old('prog_id')) && old('prog_id') == $program->prog_id) {{ 'selected' }}
-                                            @elseif (isset($clientProgram) && $clientProgram->prog_id == $program->prog_id)
-                                                {{ 'selected' }} @endif>
-                                            {{ isset($program->sub_prog->sub_prog_name) ? $program->sub_prog->sub_prog_name . ' - ' : '' }}
-                                            {{ $program->prog_program }}</option>
-                                    @endforeach --}}
+                                <select name="prog_id" v-model="prog_id" id="program_name"
+                                    class="form-select form-select-sm w-100"
+                                    :disabled="'{{ $disabled == 'disabled' ? false : true }}' && programNames.length <= 0">
+                                    <option value="" selected disabled>Select program name</option>
+                                    <option :value="item.prog_id" v-for="item in programNames" :key="item">
+                                        @{{ item.prog_program }}
+                                    </option>
                                 </select>
                                 @error('prog_id')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
                         </div>
+
                         <div class="row mb-2">
                             <div class="col-md-3">
                                 <label for="">
@@ -162,8 +159,9 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <small>Main Lead <sup class="text-danger">*</sup></small>
-                                        <select name="lead_id" id="main_lead" class="select w-100" {{ $disabled }}>
-                                            <option data-placeholder="true"></option>
+                                        <select name="lead_id" v-model="lead_id" id="main_lead"
+                                            class="form-select form-select-sm w-100" {{ $disabled }}>
+                                            <option value="" selected disabled>Select conversion lead</option>
                                             @if (isset($leads) && count($leads) > 0)
                                                 @foreach ($leads as $lead)
                                                     <option data-lead="{{ $lead->main_lead }}"
@@ -173,22 +171,18 @@
                                                                 {{ 'selected' }} @endif>
                                                         {{ $lead->main_lead }}</option>
                                                 @endforeach
-                                                {{-- <option value="program">ALL-in Event</option>
-                                                <option value="edufair">Edufair External</option> --}}
-                                                <option data-lead="KOL" value="kol"
-                                                    @selected(old('lead_id') && old('lead_id') == 'kol')
-                                                    @selected(isset($clientProgram->lead_id) && $clientProgram->lead_id == 'kol')
-                                                    >KOL</option>
+                                                <option data-lead="KOL" value="kol" @selected(old('lead_id') && old('lead_id') == 'kol')
+                                                    @selected(isset($clientProgram->lead_id) && $clientProgram->lead_id == 'kol')>KOL</option>
                                             @endif
                                         </select>
                                         @error('lead_id')
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
-                                    <div class="col-md-6 d-none" id="event">
-                                        <small>Sub Lead <sup class="text-danger">*</sup></small>
-                                        <select name="clientevent_id" id="event_id" class="select w-100"
-                                            {{ $disabled }}>
+                                    <div class="col-md-6" id="event" v-if="lead_id=='LS003'">
+                                        <small>Event Name <sup class="text-danger">*</sup></small>
+                                        <select name="clientevent_id" id="event_id"
+                                            class="form-select form-select-sm w-100" {{ $disabled }}>
                                             <option data-placeholder="true"></option>
                                             @foreach ($clientEvents as $clientEvent)
                                                 <option value="{{ $clientEvent->clientevent_id }}"
@@ -202,15 +196,15 @@
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
-                                    <div class="col-md-6 d-none" id="edufair">
-                                        <small>Sub Lead <sup class="text-danger">*</sup></small>
-                                        <select name="eduf_lead_id" id="eduf_id" class="select w-100"
-                                            {{ $disabled }}>
+                                    <div class="col-md-6" id="edufair" v-if="lead_id=='LS017'">
+                                        <small>Edufair Name <sup class="text-danger">*</sup></small>
+                                        <select name="eduf_lead_id" id="eduf_id"
+                                            class="form-select form-select-sm w-100" {{ $disabled }}>
                                             <option data-placeholder="true"></option>
                                             @forelse ($external_edufair as $edufair)
                                                 <option value="{{ $edufair->id }}"
                                                     @if (old('eduf_id') == $edufair->id) {{ 'selected' }}
-                                                    @elseif (isset($clientProgram) && ($clientProgram->eduf_lead_id == $edufair->id))
+                                                    @elseif (isset($clientProgram) && $clientProgram->eduf_lead_id == $edufair->id)
                                                         {{ 'selected' }} @endif>
                                                     @if ($edufair->title != null)
                                                         {{ $edufair->title }}
@@ -226,10 +220,10 @@
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
-                                    <div class="col-md-6 d-none" id="kol">
-                                        <small>Sub Lead <sup class="text-danger">*</sup></small>
-                                        <select name="kol_lead_id" id="kol_lead_id" class="select w-100"
-                                            {{ $disabled }}>
+                                    <div class="col-md-6" id="kol" v-if="lead_id=='LS048' || lead_id=='kol'">
+                                        <small>KOL Name <sup class="text-danger">*</sup></small>
+                                        <select name="kol_lead_id" id="kol_lead_id"
+                                            class="form-select form-select-sm w-100" {{ $disabled }}>
                                             <option data-placeholder="true"></option>
                                             @forelse ($kols as $kol)
                                                 <option value="{{ $kol->lead_id }}"
@@ -245,9 +239,10 @@
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
-                                    <div class="col-md-6 d-none" id="partner">
-                                        <small>Sub Lead <sup class="text-danger">*</sup></small>
-                                        <select name="partner_id" id="partner_id" class="select w-100" {{ $disabled }}>
+                                    <div class="col-md-6" id="partner" v-if="lead_id=='LS010'">
+                                        <small>Partner Name <sup class="text-danger">*</sup></small>
+                                        <select name="partner_id" id="partner_id"
+                                            class="form-select form-select-sm w-100" {{ $disabled }}>
                                             <option data-placeholder="true"></option>
                                             @forelse ($partners as $partner)
                                                 <option value="{{ $partner->corp_id }}"
@@ -263,13 +258,15 @@
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
-                                    <div class="col-md-6 d-none" id="referral">
-                                        <small>Sub Lead <sup class="text-danger">*</sup></small>
-                                        <input type="hidden" name="old_refname" id="old_refname" value="{{ isset($clientProgram->referral_code) ? $clientProgram->referral_name : null }}">
-                                        <select name="referral_code" id="referral_code" class="select w-100 select-referral"
-                                            {{ $disabled }}>
-                                            @if(isset($clientProgram->referral_code))
-                                                <option value="{{ $clientProgram->referral_code }}" selected="selected">{{ $clientProgram->referral_name }}</option>
+                                    <div class="col-md-6" id="referral" v-if="lead_id=='LS005'">
+                                        <small>Referral Name <sup class="text-danger">*</sup></small>
+                                        <input type="hidden" name="old_refname" id="old_refname"
+                                            value="{{ isset($clientProgram->referral_code) ? $clientProgram->referral_name : null }}">
+                                        <select name="referral_code" id="referral_code"
+                                            class="form-select form-select-sm w-100 select-referral" {{ $disabled }}>
+                                            @if (isset($clientProgram->referral_code))
+                                                <option value="{{ $clientProgram->referral_code }}" selected="selected">
+                                                    {{ $clientProgram->referral_name }}</option>
                                             @endif
                                             {{-- <option data-placeholder="true"></option> --}}
 
@@ -281,6 +278,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <label for="">
@@ -308,12 +306,13 @@
                                 </label>
                             </div>
                             <div class="col-md-9">
-                                <textarea name="meeting_notes" {{ $disabled }} id="" class="w-100">{{ isset($clientProgram->meeting_notes) ? $clientProgram->meeting_notes : old('meeting_notes') }}</textarea>
+                                <textarea name="meeting_notes" {{ $disabled }} id="meeting_notes" class="w-100" id="meeting_notes">{{ isset($clientProgram->meeting_notes) ? $clientProgram->meeting_notes : old('meeting_notes') }}</textarea>
                                 @error('meeting_notes')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
                         </div>
+
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <label for="">
@@ -324,8 +323,8 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <small>Status <sup class="text-danger">*</sup></small>
-                                        <select name="status" id="program_status" class="select w-100"
-                                            onchange="changeProgramStatus()" {{ $disabled }}>
+                                        <select name="status" v-model="status" id="program_status"
+                                            class="form-select form-select-sm w-100" {{ $disabled }}>
                                             {{-- <option data-placeholder="true" {{ old('status') ?? 'selected' }}></option> --}}
                                             <option value="0">Pending
                                             </option>
@@ -345,7 +344,7 @@
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
-                                    <div class="col-md-6 program-detail d-none" id="success_date">
+                                    <div class="col-md-6 program-detail" id="success_date" v-if="status==1">
                                         <small>Success Date <sup class="text-danger">*</sup></small>
                                         <input type="date" name="success_date" id="" {{ $disabled }}
                                             class="form-control form-control-sm rounded"
@@ -354,7 +353,7 @@
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
-                                    <div class="col-md-6 program-detail d-none" id="failed_date">
+                                    <div class="col-md-6 program-detail" id="failed_date" v-if="status==2">
                                         <small>Failed Date <sup class="text-danger">*</sup></small>
                                         <input type="date" name="failed_date" id="" {{ $disabled }}
                                             class="form-control form-control-sm rounded"
@@ -363,7 +362,7 @@
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
-                                    <div class="col-md-6 program-detail d-none" id="refund_date">
+                                    <div class="col-md-6 program-detail" id="refund_date" v-if="status==3">
                                         <small>Refund Date <sup class="text-danger">*</sup></small>
                                         <input type="date" name="refund_date" id="" {{ $disabled }}
                                             class="form-control form-control-sm rounded"
@@ -374,12 +373,12 @@
                                     </div>
 
 
-                                    <div class="col-md-6 mt-2 program-detail d-none" id="reason">
+                                    <div class="col-md-6 mt-2 program-detail" id="reason" v-if="status==2">
                                         <small>Reason <sup class="text-danger">*</sup></small>
-                                        <div class="classReason">
-                                            <select name="reason_id" class="select w-100" {{ $disabled }}
-                                                style="display: none !important; width:100% !important" id="selectReason"
-                                                onchange="otherOption($(this).val())">
+                                        <div class="classReason" v-if="reason_id != 'other'">
+                                            <select name="reason_id" v-model="reason_id"
+                                                class="form-select form-select-sm w-100" {{ $disabled }}
+                                                id="selectReason">
                                                 <option data-placeholder="true"></option>
                                                 @foreach ($reasons as $reason)
                                                     <option value="{{ $reason->reason_id }}"
@@ -398,10 +397,11 @@
                                             @enderror
                                         </div>
 
-                                        <div class="d-flex align-items-center d-none" id="inputReason">
+                                        <div class="d-flex align-items-center" id="inputReason"
+                                            v-if="reason_id=='other'">
                                             <input type="text" name="other_reason" {{ $disabled }}
                                                 class="form-control form-control-sm rounded">
-                                            <div class="float-end cursor-pointer" onclick="resetOption()">
+                                            <div class="float-end cursor-pointer" @click="reason_id=null">
                                                 <b>
                                                     <i class="bi bi-x text-danger"></i>
                                                 </b>
@@ -413,7 +413,8 @@
                                         {{-- <input type="text" name="" class="form-control form-control-sm"> --}}
 
                                     </div>
-                                    <div class="col-md-6 mt-2 program-detail d-none" id="reason_notes">
+                                    <div class="col-md-6 mt-2 program-detail" id="reason_notes"
+                                        v-if="reason_id == 'other'">
                                         <small>Reason Notes </small>
                                         <input type="text" name="reason_notes" id="" {{ $disabled }}
                                             class="form-control form-control-sm rounded"
@@ -422,33 +423,34 @@
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
-
-                                    <div class="col-md-12 mt-2 program-detail d-none" id="refund_notes">
+                                    <div class="col-md-12 mt-2 program-detail d-none" id="refund_notes"
+                                        v-if="status == 3">
                                         <label for="">Refund Notes</label>
-                                        <textarea name="refund_notes" id="">{{ isset($clientProgram->refund_notes) ? $clientProgram->refund_notes : old('refund_notes') }}</textarea>
+                                        <textarea name="refund_notes" id="refund_notes">{{ isset($clientProgram->refund_notes) ? $clientProgram->refund_notes : old('refund_notes') }}</textarea>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        {{-- Program Detail  --}}
-                        <div class="program-detail d-none" id="pending_mentoring">
-                            @include('pages.program.client-program.form-detail.pending-mentoring')
+
+                        {{-- PROGRAM DETAIL  --}}
+
+                        {{-- MENTORING DETAIL  --}}
+                        <div class="program-detail" v-if="main_prog==1 && (status==0 || status==1)">
+                            @include('pages.program.client-program.form-detail.mentoring')
                         </div>
-                        <div class="program-detail d-none" id="success_mentoring">
-                            @include('pages.program.client-program.form-detail.success-mentoring')
+                        {{-- TUTORING DETAIL  --}}
+                        <div class="program-detail" id="pending_tutoring"
+                            v-if="(main_prog==4 || main_prog==7 || main_prog==8 || main_prog==9) && (status==0 || status==1) && prog_id!='SATPREP'">
+                            @include('pages.program.client-program.form-detail.tutoring')
                         </div>
-                        <div class="program-detail d-none" id="pending_tutoring">
-                            @include('pages.program.client-program.form-detail.pending-tutoring')
-                        </div>
-                        <div class="program-detail d-none" id="success_tutoring">
-                            @include('pages.program.client-program.form-detail.success-tutoring')
-                        </div>
-                        <div class="program-detail d-none" id="success_sat_act">
-                            @include('pages.program.client-program.form-detail.success-sat-act')
+                        {{-- SAT DETAIL  --}}
+                        <div class="program-detail" id="success_sat_act" v-if="main_prog==4 && prog_id=='SATPREP'">
+                            @include('pages.program.client-program.form-detail.sat-act')
                         </div>
 
+                        {{-- END PROGRAM DETAIL  --}}
 
-                        <div class="row mb-3 program-detail d-none" id="running_status">
+                        <div class="row mb-3 program-detail" id="running_status" v-if="status==1">
                             <div class="col-md-3">
                                 <label for="">
                                     Running Status <sup class="text-danger">*</sup>
@@ -483,267 +485,10 @@
                                 </div>
                             </div>
                         </div>
-                        <section id="available-mentor" class="d-none mentor-tutor">
-                            <div class="row mb-3">
-                                <div class="col-md-3">
-                                    <label for="">
-                                        Supervising Mentor <sup class="text-danger">*</sup>
-                                    </label>
-                                </div>
-                                <div class="col-md-9">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <select name="supervising_mentor" id="" class="select w-100"
-                                                {{ $disabled }}>
-                                                <option data-placeholder="true"></option>
-                                                @foreach ($mentors as $mentor)
-                                                    <option value="{{ $mentor->id }}"
-                                                        @selected(old('supervising_mentor') == $mentor->id)
-                                                        @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 1)->latest()->first())->id == $mentor->id)
-                                                        >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
-                                                @endforeach
-                                            </select>
-                                            @error('supervising_mentor')
-                                                <small class="text-danger fw-light">{{ $message }}</small>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-md-3">
-                                    <label for="">
-                                        Profile Building Mentor <sup class="text-danger">*</sup>
-                                    </label>
-                                </div>
-                                <div class="col-md-9">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <select name="profile_building_mentor" id="" class="select w-100"
-                                                {{ $disabled }}>
-                                                <option data-placeholder="true"></option>
-                                                @foreach ($mentors as $mentor)
-                                                    <option value="{{ $mentor->id }}"
-                                                        @selected(old('profile_building_mentor') == $mentor->id)
-                                                        @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 2)->latest()->first())->id == $mentor->id)
-                                                        >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
-                                                @endforeach
-                                            </select>
-                                            @error('profile_building_mentor')
-                                                <small class="text-danger fw-light">{{ $message }}</small>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-md-3">
-                                    <label for="">
-                                        Subject Specialist Mentor
-                                    </label>
-                                </div>
-                                <div class="col-md-9">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <select name="subject_specialist_mentor" id="" class="select w-100"
-                                                {{ $disabled }}>
-                                                <option data-placeholder="true"></option>
-                                                @foreach ($mentors as $mentor)
-                                                    <option value="{{ $mentor->id }}"
-                                                        @selected(old('subject_specialist_mentor') == $mentor->id)
-                                                        @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 6)->latest()->first())->id == $mentor->id)
-                                                        >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
-                                                @endforeach
-                                            </select>
-                                            @error('subject_specialist_mentor')
-                                                <small class="text-danger fw-light">{{ $message }}</small>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-md-3">
-                                    <label for="">
-                                        Aplication Strategy Mentor
-                                    </label>
-                                </div>
-                                <div class="col-md-9">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <select name="aplication_strategy_mentor" id="" class="select w-100"
-                                                {{ $disabled }}>
-                                                <option data-placeholder="true"></option>
-                                                @foreach ($mentors as $mentor)
-                                                    <option value="{{ $mentor->id }}"
-                                                        @selected(old('subject_specialist_mentor') == $mentor->id)
-                                                        @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 3)->latest()->first())->id == $mentor->id)
-                                                        >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
-                                                @endforeach
-                                            </select>
-                                            @error('aplication_strategy_mentor')
-                                                <small class="text-danger fw-light">{{ $message }}</small>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-md-3">
-                                    <label for="">
-                                        Writing Mentor
-                                    </label>
-                                </div>
-                                <div class="col-md-9">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <select name="writing_mentor" id="" class="select w-100"
-                                                {{ $disabled }}>
-                                                <option data-placeholder="true"></option>
-                                                @foreach ($mentors as $mentor)
-                                                    <option value="{{ $mentor->id }}"
-                                                        @selected(old('subject_specialist_mentor') == $mentor->id)
-                                                        @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 4)->latest()->first())->id == $mentor->id)
-                                                        >{{ $mentor->first_name . ' ' . $mentor->last_name }}</option>
-                                                @endforeach
-                                            </select>
-                                            @error('writing_mentor')
-                                                <small class="text-danger fw-light">{{ $message }}</small>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-                        <section id="available-tutor" class="d-none mentor-tutor">
-                            <div id="tutoring" class="d-none">
-                                <div class="row mb-3">
-                                    <div class="col-md-3">
-                                        <label for="">
-                                            Tutor <sup class="text-danger">*</sup>
-                                        </label>
-                                    </div>
-                                    <div class="col-md">
-                                        <div class="row">
-                                            <div class="col-md-8">
-                                                <select name="tutor_id" id="" class="select w-100"
-                                                    {{ $disabled }}>
-                                                    <option data-placeholder="true"></option>
-                                                    @foreach ($tutors as $tutor)
-                                                        @php
-                                                            $subjects = [];
-                                                            if($tutor->user_subjects()->count() > 0){
-                                                                foreach ($tutor->user_subjects as $user_subject) {
-                                                                    $subjects[] = $user_subject->subject->name;
-                                                                }
-                                                            }
-                                                        @endphp
-                                                        <option value="{{ $tutor->id }}"
-                                                            @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->count() > 0) @if ($clientProgram->clientMentor()->first()->id == $tutor->id)
-                                                                    {{ 'selected' }} @endif
-                                                            @endif
-                                                            @selected(old('tutor_id') == $tutor->id)
-                                                            >{{ $tutor->first_name .' ' .$tutor->last_name .(count($subjects) > 0 ? ' - ' .json_encode($subjects) : '') }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                @error('tutor_id')
-                                                    <small class="text-danger fw-light">{{ $message }}</small>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="sat-act" class="d-none">
-                                <div class="row mb-3">
-                                    <div class="col-md-3">
-                                        <label for="">
-                                            Tutor 1<sup class="text-danger">*</sup>
-                                        </label>
-                                    </div>
-                                    <div class="col-md">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <select name="tutor_1" class="select w-100" {{ $disabled }}>
-                                                    <option data-placeholder="true"></option>
-                                                    @foreach ($tutors as $tutor)
-                                                        @php
-                                                            $subjects = [];
-                                                            if($tutor->user_subjects()->count() > 0){
-                                                                foreach ($tutor->user_subjects as $user_subject) {
-                                                                    $subjects[] = $user_subject->subject->name;
-                                                                }
-                                                            }
-                                                        @endphp
-                                                        <option value="{{ $tutor->id }}"
-                                                            @selected(old('tutor_1') == $tutor->id)
-                                                            @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->first())->id == $tutor->id)
-                                                            >{{ $tutor->first_name .' ' .$tutor->last_name .(count($subjects) > 0 ? ' - ' .json_encode($subjects) : '') }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                @error('tutor_1')
-                                                    <small class="text-danger fw-light">{{ $message }}</small>
-                                                @enderror
-                                            </div>
-                                            <div class="col-md-6">
-                                                <input type="text" name="timesheet_1" id=""
-                                                    {{ $disabled }} class="form-control form-control-sm rounded"
-                                                    placeholder="Timesheet 1"
-                                                    value="{{ isset($clientProgram->clientMentor[0]->pivot->timesheet_link) ? $clientProgram->clientMentor[0]->pivot->timesheet_link : old('timesheet_1') }}">
-                                                @error('timesheet_1')
-                                                    <small class="text-danger fw-light">{{ $message }}</small>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-3">
-                                        <label for="">
-                                            Tutor 2
-                                        </label>
-                                    </div>
-                                    <div class="col-md">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <select name="tutor_2" class="select w-100" {{ $disabled }}>
-                                                    <option data-placeholder="true"></option>
-                                                    @foreach ($tutors as $tutor)
-                                                        @php
-                                                            $subjects = [];
-                                                            if($tutor->user_subjects()->count() > 0){
-                                                                foreach ($tutor->user_subjects as $user_subject) {
-                                                                    $subjects[] = $user_subject->subject->name;
-                                                                }
-                                                            }
-                                                        @endphp
-                                                        <option value="{{ $tutor->id }}"
-                                                            @selected(old('tutor_2') == $tutor->id)
-                                                            @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->latest()->first())->id == $tutor->id && $clientProgram->clientMentor()->count() > 1)
-                                                            >{{ $tutor->first_name .' ' .$tutor->last_name . (count($subjects) > 0 ? ' - ' .json_encode($subjects) : '') }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                @error('tutor_2')
-                                                    <small class="text-danger fw-light">{{ $message }}</small>
-                                                @enderror
-                                            </div>
-                                            <div class="col-md-6">
-                                                <input type="text" name="timesheet_2" id=""
-                                                    {{ $disabled }} class="form-control form-control-sm rounded"
-                                                    placeholder="Timesheet 2"
-                                                    value="{{ isset($clientProgram->clientMentor[1]->pivot->timesheet_link) ? $clientProgram->clientMentor[1]->pivot->timesheet_link : old('timesheet_2') }}">
-                                                @error('timesheet_2')
-                                                    <small class="text-danger fw-light">{{ $message }}</small>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
+
+                        {{-- MENTOR && TUTOR  --}}
+                        @include('pages.program.client-program.form-detail.mentor-tutor')
+
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <label for="">
@@ -758,11 +503,8 @@
                                             {{ $disabled ?? (!$disabled && Session::get('user_role') == 'Employee' ? 'disabled' : '') }}>
                                             <option data-placeholder="true"></option>
                                             @foreach ($internalPIC as $pic)
-                                                <option value="{{ $pic->id }}"
-                                                    @selected(old('empl_id') == $pic->id)
-                                                    @selected(isset($clientProgram->empl_id) && $clientProgram->empl_id == $pic->id)
-                                                    @selected(Session::get('user_role') == 'Employee' && !isset($clientProgram) && Auth::user()->id == $pic->id)
-                                                    >
+                                                <option value="{{ $pic->id }}" @selected(old('empl_id') == $pic->id)
+                                                    @selected(isset($clientProgram->empl_id) && $clientProgram->empl_id == $pic->id) @selected(Session::get('user_role') == 'Employee' && !isset($clientProgram) && Auth::user()->id == $pic->id)>
                                                     {{ $pic->first_name . ' ' . $pic->last_name }}</option>
                                             @endforeach
                                         </select>
@@ -788,647 +530,184 @@
                     </form>
                 </div>
             </div>
-
-            @include('pages.program.client-program.detail.payment')
         </div>
     </div>
 
-@endsection
-@push('scripts')
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script>
-        function otherOption(value) {
-            if (value == 'other') {
-                $('.classReason').addClass('d-none')
-                $('#inputReason').removeClass('d-none')
-                $('#inputReason input').focus()
-            } else {
-                $('#inputReason').addClass('d-none')
-                $('.classReason').removeClass('d-none')
-            }
-        }
+        const {
+            createApp,
+            ref,
+            onMounted,
+            onUpdated
+        } = Vue
 
-        function resetOption() {
-            $('.classReason').removeClass('d-none')
-            $('#selectReason').val(null).trigger('change')
-            $('#inputReason').addClass('d-none')
-            $('#inputReason input').val(null)
-        }
+        createApp({
+            setup() {
+                // Variable 
+                const main_prog = ref('{{ $clientProgram->program->main_prog_id ?? old('main_prog') }}')
+                const sub_program = ref('{{ $clientProgram->program->sub_prog_id ?? old('sub_program') }}')
+                const prog_id = ref('{{ $clientProgram->prog_id ?? old('prog_id') }}')
+                const lead_id = ref('{{ $clientProgram->lead_id ?? old('lead_id') }}')
+                const status = ref('{{ $clientProgram->status ?? (old('status') ?? 0) }}')
+                const reason_id = ref('{{ $clientProgram->reason_id ?? old('reason_id') }}')
 
-        $("#main_lead").on('change', function() {
+                const subPrograms = ref([])
+                const programNames = ref([])
+                // End Variable 
 
-            var program = $("#program_name option:selected")
-            var lead = $(this).select2().find(":selected").data('lead')
-            let programName = program.text()
+                // Function 
+                const getSubProgram = async (isTrigger = true) => {
+                    Swal.fire({
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        width: '100px',
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
 
-            // if (programName) {
-                if (lead.includes('EduALL Event')) {
+                    // Reset value exclude edit client program
+                    if (isTrigger) {
+                        sub_program.value = null;
+                        prog_id.value = null;
+                        subPrograms.value = [];
+                        programNames.value = [];
+                    }
 
-                    $("#event").removeClass('d-none')
-                    $("#edufair").addClass("d-none")
-                    $("#kol").addClass("d-none")
-                    $("#partner").addClass("d-none")
-                    $("#referral").addClass("d-none")
+                    const link = '{{ url('api/get/sub-program/main') }}/' + main_prog.value;
 
-                } else if (lead.includes('External Edufair')) {
+                    try {
+                        const response = await axios.get(link, {
+                            headers: {
+                                'crm-authorization': '{{ env('CRM_AUTHORIZATION_KEY') }}'
+                            }
+                        });
 
-                    $("#event").addClass("d-none")
-                    $("#edufair").removeClass("d-none")
-                    $("#kol").addClass("d-none")
-                    $("#partner").addClass("d-none")
-                    $("#referral").addClass("d-none")
+                        subPrograms.value = response.data;
 
-                } else if (lead.includes('KOL')) {
-
-                    $("#event").addClass("d-none")
-                    $("#edufair").addClass("d-none")
-                    $("#kol").removeClass("d-none")
-                    $("#partner").addClass("d-none")
-                    $("#referral").addClass("d-none")
-
-                } else if (lead.includes('EduALL Partners')) {
-
-                    $("#event").addClass("d-none")
-                    $("#edufair").addClass("d-none")
-                    $("#kol").addClass("d-none")
-                    $("#partner").removeClass("d-none")
-                    $("#referral").addClass("d-none")
-
-                } else if (lead.includes('Referral')) {
-
-                    $("#event").addClass("d-none")
-                    $("#edufair").addClass("d-none")
-                    $("#kol").addClass("d-none")
-                    $("#partner").addClass("d-none")
-                    $("#referral").removeClass("d-none")
-
-
-                } else {
-
-                    $("#event").addClass("d-none")
-                    $("#edufair").addClass("d-none")
-                    $("#kol").addClass("d-none")
-                    $("#partner").addClass("d-none")
-                    $("#referral").addClass("d-none")
-
+                        if (subPrograms.value.length === 0) {
+                            getProgramName();
+                        }
+                    } catch (error) {
+                        console.error(error);
+                    } finally {
+                        Swal.close();
+                    }
                 }
-            // } else {
-            //     notification('warning', 'Please, select program name first!')
-            //     $('#main_lead').select2('destroy');
-            //     $('#main_lead').val(null);
-            //     $('#main_lead').select2({
-            //         placeholder: "Select value",
-            //         allowClear: true
-            //     });
-            //     $('#program_name').select2('open');
-            // }
-        })
 
- 
-        function changeProgramStatus() {
-
-            // prevent to trigger this function if options within select program name are null
-            if ($("#program_name > option").length <= 1)
-                return
-
-            var program = $("#program_name option:selected")
-
-            let programName = program.text()
-            let prog_mentor = program.data('pmentor')
-            let programMainProg = program.data('mprog')
-            let programSubProg = program.data('sprog')
-            let programStatus = $('#program_status').val()
-            $('.program-detail').addClass('d-none')
-            $('.mentor-tutor').addClass('d-none')
-
-            // if (programName) {
-            try {
-                switch (parseInt(programStatus)) 
-                {
-                    // program status = pending
-                    case 0:
-                        if (programMainProg.includes('Admissions Mentoring'))
-                        {
-                            // open form detail of admissions mentoring
-                            $("#pending_mentoring").removeClass('d-none')
+                const getProgramName = async () => {
+                    Swal.fire({
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        width: '100px',
+                        didOpen: () => {
+                            Swal.showLoading();
                         }
-                        else if (programMainProg.includes('Test Preparation') || programMainProg.includes('Subject Tutoring') || programMainProg.includes('Competition') || programMainProg.includes('Skillset Tutoring')) 
-                        {
-                            // open form detail of tutoring program
-                            $("#pending_tutoring").removeClass('d-none')
+                    });
 
-                            resetDetailTutoring(programMainProg, 0)
-                        }
-                    break;
+                    // Variable Link
+                    let link = '{{ url('api/get/program/') }}/main/' + main_prog.value + '/sub/';
+                    if (sub_program.value) {
+                        link += sub_program.value;
+                    }
 
-                    // program status = success
-                    case 1:
-                        $("#success_date").removeClass('d-none')
-                        $("#running_status").removeClass('d-none')
-
-                        if (programMainProg.includes('Admissions Mentoring'))
-                        {
-                            // open form detail of admissions mentoring
-                            $("#success_mentoring").removeClass('d-none')
-                        }
-                        else if (programMainProg.includes('Test Preparation') || programMainProg.includes('Subject Tutoring') || programMainProg.includes('Competition') || programMainProg.includes('Skillset Tutoring'))
-                        {
-                            if (programSubProg.includes('SAT'))
-                            {
-                                resetDetailTutoring(programMainProg, 1, programSubProg)
-                                // open form detail of SAT
-                                $('#success_sat_act').removeClass('d-none')
+                    try {
+                        const response = await axios.get(link, {
+                            headers: {
+                                'crm-authorization': '{{ env('CRM_AUTHORIZATION_KEY') }}'
                             }
-                            else
-                            {
-                                // default open form for test preparation exclude SAT/ACT, subject tutoring, competition, and skillset tutoring
-                                resetDetailTutoring(programMainProg, 1, programSubProg) 
-                                $("#success_tutoring").removeClass('d-none')
-                            }
+                        });
+
+                        programNames.value = response.data;
+                    } catch (error) {
+                        console.error(error);
+                    } finally {
+                        Swal.close();
+                    }
+                }
+
+                const renderCKEditor = () => {
+                    var myEditor;
+
+                    document.querySelectorAll('textarea:not(#review):not(#swal2-textarea)').forEach(function(
+                        element) {
+                        // Cek apakah sudah diinisialisasi
+                        if (element.getAttribute('data-ckeditor-initialized') === 'true') {
+                            return; // Skip jika sudah diinisialisasi
                         }
 
-                        // Mentor & Tutor Needs Check 
-                        switch (prog_mentor) {
-                            case "Mentor":
-                                $("#available-mentor").removeClass("d-none")
-                                $("#available-tutor").addClass("d-none")
-
-                                break;
-
-                            case "Tutor":
-                                $("#available-mentor").addClass("d-none")
-                                $("#available-tutor").removeClass("d-none")
-                                if (programMainProg.includes('Test Preparation'))
-                                {
-                                    if (programSubProg.includes('SAT'))
-                                    {
-                                        $('#tutoring').addClass('d-none')
-                                        $('#sat-act').removeClass('d-none')
-                                    }
-                                    else
-                                    {
-                                        $('#tutoring').removeClass('d-none')
-                                        $('#sat-act').addClass('d-none')
-                                    }
+                        ClassicEditor
+                            .create(element, {
+                                toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList',
+                                    'numberedList', 'blockQuote'
+                                ],
+                                heading: {
+                                    options: [{
+                                            model: 'paragraph',
+                                            title: 'Paragraph',
+                                            class: 'ck-heading_paragraph'
+                                        },
+                                        {
+                                            model: 'heading1',
+                                            view: 'h1',
+                                            title: 'Heading 1',
+                                            class: 'ck-heading_heading1'
+                                        },
+                                        {
+                                            model: 'heading2',
+                                            view: 'h2',
+                                            title: 'Heading 2',
+                                            class: 'ck-heading_heading2'
+                                        }
+                                    ]
                                 }
-                                else if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring') || programSubProg.includes('Competition')) {
-                                    $('#tutoring').removeClass('d-none')
-                                    $('#sat-act').addClass('d-none')
-                                } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg.includes('SAT') || programSubProg.includes('SAT')) {
-                                    $('#tutoring').addClass('d-none')
-                                    $('#sat-act').removeClass('d-none')
-                                } else if (programStatus == 4) { // hold
-                                    $('#reason').removeClass('d-none')
+                            })
+                            .then(editor => {
+                                console.log('Editor was initialized', editor);
+                                myEditor = editor;
 
-                                }
-                                break;
-                        }
-                    break;
-
-                    // program status = failed
-                    case 2:
-                        $('#failed_date').removeClass('d-none')
-                        $('#reason').removeClass('d-none')
-                        $('#reason_notes').removeClass('d-none')
-                    break;
-
-                    // program status = refund
-                    case 3:
-                        $('#refund_date').removeClass('d-none')
-                        $('#refund_notes').removeClass('d-none')
-                        $('#reason').removeClass('d-none')
-                        $('#reason_notes').removeClass('d-none')
-                    break;
+                                // Tandai bahwa editor telah diinisialisasi
+                                element.setAttribute('data-ckeditor-initialized', 'true');
+                            })
+                            .catch(error => {
+                                console.error(error);
+                            });
+                    });
                 }
 
-            } catch (error) {
-                notification('error', error.message)
-                console.error("Error: ", error.name, '-', error.message, '-', error.lineNumber)
-            }
-            // } else {
-            //     notification('warning', 'Please, select program name first!')
-            //     $('#program_status').select2('destroy').val(null).select2({
-            //         placeholder: "Select value",
-            //         allowClear: true
-            //     }).select2('open');
-            // }
+                // End function 
 
-        }
-
-        function resetDetailTutoring(programMainProg, programStatus, programSubProg = '')
-        {
-            var stringField = programStatus == 0 ? 'pending' : 'success'
-            if (programMainProg == "Test Preparation")
-            {
-                if (programSubProg.includes("SAT"))
-                {
-                    $(`.${stringField}-tutoring-test-preparation-field`).addClass('d-none')
-                    $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
-                    $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
-                    $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
-                    $(`.${stringField}-tutoring-sat-act-field`).removeClass('d-none')
-                }
-                else
-                {
-                    $(`.${stringField}-tutoring-test-preparation-field`).removeClass('d-none')
-                    $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
-                    $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
-                    $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
-                    $(`.${stringField}-tutoring-sat-act-field`).addClass('d-none')
-                }
-            }
-            else if (programMainProg == "Subject Tutoring")
-            {
-                $(`.${stringField}-tutoring-test-preparation-field`).addClass('d-none')
-                $(`.${stringField}-tutoring-subject-tutoring-field`).removeClass('d-none')
-                $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
-                $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
-                $(`.${stringField}-tutoring-sat-act-field`).addClass('d-none')
-            }
-            else if (programMainProg == "Competition")
-            {
-                $(`.${stringField}-tutoring-test-preparation-field`).addClass('d-none')
-                $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
-                $(`.${stringField}-tutoring-competition-field`).removeClass('d-none')
-                $(`.${stringField}-tutoring-skillset-tutoring-field`).addClass('d-none')
-                $(`.${stringField}-tutoring-sat-act-field`).addClass('d-none')
-            }
-            else if (programMainProg == "Skillset Tutoring")
-            {
-                $(`.${stringField}-tutoring-test-preparation-field`).addClass('d-none')
-                $(`.${stringField}-tutoring-subject-tutoring-field`).addClass('d-none')
-                $(`.${stringField}-tutoring-competition-field`).addClass('d-none')
-                $(`.${stringField}-tutoring-skillset-tutoring-field`).removeClass('d-none')
-                $(`.${stringField}-tutoring-sat-act-field`).addClass('d-none')
-            }
-
-        }
-
-        function getSubProgram(main_prog_id) {
-            showLoading()
-            $("#program_name").html('<option data-placeholder="true"></option>').select2({
-                placeholder: 'Select value',
-                allowClear: true
-            }).attr('disabled', true);
-            @if (isset($clientProgram))
-                $("#program_status").val({{ $clientProgram->status }}).change() // trigger to change status into pending when changing main program
-            @else
-                $("#program_status").val(0).change() // trigger to change status into pending when changing main program
-            @endif
-            var link = '{{ url('api/get/sub-program/main') }}/' + main_prog_id
-
-            axios.get(link, {
-                headers: {
-                    'crm-authorization': '{{env("CRM_AUTHORIZATION_KEY")}}'
-                }
-            })
-            .then(function (response) {
-                let obj = response.data;
-
-                // if main program doesn't have sub program
-                if (obj.length == 0)
-                {
-                    $("#sub_program").html('<option data-placeholder="true"></option>').select2({
-                        placeholder: 'Select value',
+                onUpdated(() => {
+                    $('.select').select2({
+                        placeholder: "Select value",
                         allowClear: true
-                    }).attr('disabled', true);
-                    getProgramName(main_prog_id, '')
-                    return
-                }
-            
-                let html = '<option data-placeholder="true"></option>';
-                $.each(obj, function (i, item) {
-                    html += '<option value="' + item.id + '">' + item.sub_prog_name + '</option>';
-                });
+                    });
 
-                $('#sub_program').html(html).select2({
-                    placeholder: 'Select value',
-                    allowClear: true
-                }).attr('disabled', false);
-                swal.close()
+                    renderCKEditor()
+                })
 
-                // count the html of program name
-                if ( $("#program_name > option").length > 1 ) {
-
-                    $("#program_name").html('<option data-placeholder="true"></option>').select2({
-                        placeholder: 'Select value',
-                        allowClear: true
-                    }).attr('disabled', true);
-                    $("#program_name").val(null).trigger('change')
-                }
-
-                // trigger to change() sub program
-                @if (old('sub_program') !== null)
-                    $("#sub_program").select2().val("{{ old('sub_program') }}").trigger('change');
-                @elseif ( isset($clientProgram))
-                    $("#sub_program").select2().val("{{ $clientProgram->program->sub_prog_id }}").trigger('change');
-                    @if (!isset($edit))
-                        $("#sub_program").attr('disabled', true)
-                    @endif
-                @endif
-            })
-            .catch(function (error) {
-                swal.close()
-                notification('error', error.message)
-            })
-        }
-
-        function getProgramName(main_prog_id, sub_prog_id) {
-            showLoading()
-            var link = '{{ url('api/get/program/') }}/main/' + main_prog_id + '/sub/'
-            if ( sub_prog_id )
-                link = link + sub_prog_id
-            
-
-            axios.get(link, {
-                headers: {
-                    'crm-authorization': '{{env("CRM_AUTHORIZATION_KEY")}}'
-                }
-            })
-            .then(function (response) {
-                let obj = response.data;
-                let html = '<option data-placeholder="true"></option>';
-                $.each(obj, function (i, item) {
-                    var prog_mentor = item.prog_mentor
-                    var main_prog_name = item.main_prog.prog_name
-                    var sub_prog_name = item.sub_prog?.sub_prog_name
-                    var prog_id = item.prog_id
-                    var prog_program = item.prog_program
-
-                    html += '<option data-pmentor="'+ prog_mentor + '"' +
-                            ' data-mprog="' + main_prog_name + '"' +
-                            ' data-sprog="' + sub_prog_name + '"' +
-                            ' value="' + prog_id + '">' + prog_program + '</option>';
-                });
-                
-                @if (!isset($edit))
-
-                    $('#program_name').html(html).select2({
-                        placeholder: 'Select value',
-                        allowClear: true
-                    }).attr('disabled', true);
-                @else
-
-                    $('#program_name').html(html).select2({
-                        placeholder: 'Select value',
-                        allowClear: true
-                    }).attr('disabled', false);
-                @endif
-                swal.close()
-
-                // trigger to change() sub program
-                @if (old('prog_id') !== null)
-                    var current_selected_main_program = $("#main_program").val()
-                    var old_selected_main_program = "{{ old('main_prog') }}"
-                    if (current_selected_main_program == old_selected_main_program)
-                        $("#program_name").select2().val("{{ old('prog_id') }}").trigger('change');
-                @elseif (isset($clientProgram))
-                    $("#program_name").select2().val("{{ $clientProgram->prog_id }}").trigger('change');
-                @endif
-                
-            })
-            .catch(function (error) {
-                swal.close()
-                notification('error', error.message)
-            })
-        }
-
-    </script>
-    <script>
-        $(document).ready(function() {
-
-
-            // Check Program bought
-            $('.check-package').on('click', function(){
-                showLoading()
-                var clientprog_id = $(this).data('clientprog-id');
-                var phase_lib_id = $(this).data('phase-lib-id') == '-' ? 'null' : $(this).data('phase-lib-id');
-                var phase_detail_id = $(this).data('phase-detail-id');
-                var link = null;
-
-                if(!$('#check-'+ phase_detail_id).is(":checked")){
-                    $('#qty-' + phase_detail_id).addClass('uncheck')
-                    link = '{{ url('api/program-phase') }}/' + clientprog_id + '/phase-detail/' + phase_detail_id + '/phase-lib/' + phase_lib_id
-                    
-                    axios.delete(link, {
-                        headers:{
-                            'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}',
-                            'crm-authorization': '{{env("CRM_AUTHORIZATION_KEY")}}'
-                        }
-                    })
-                    .then(function(response) {
-
-                        let obj = response.data;
-                        $('#quota-' + phase_detail_id).prop("disabled", true);
-                        $('#quota-' + phase_detail_id).val(0);
-                        Swal.close()
-                        notification('success', "Successfully remove item program bought");
-                    })
-                    .catch(function(error) {
-                        Swal.close()
-                        notification('error', error)
-                    })
-                }else{
-                    $('#qty-' + phase_detail_id).removeClass('uncheck')
-                    link = '{{ url('api/program-phase/') }}/' + clientprog_id + '/phase-detail/' + phase_detail_id + '/phase-lib/' + phase_lib_id
-                    
-                    axios.post(link, null,
-                        {
-                            headers:{
-                                'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}',
-                                'crm-authorization': '{{env("CRM_AUTHORIZATION_KEY")}}'
-                            }
-                        }
-                    )
-                    .then(function(response) {
-
-                        let obj = response.data;
-                        
-                        $('#quota-' + phase_detail_id).prop("disabled", false);
-                        Swal.close()
-                        notification('success', "Successfully add item program bought");
-                    })
-                    .catch(function(error) {
-                        Swal.close()
-                        notification('error', error)
-                    })
-                }
-            });
-
-            // Counting program bought
-            $('.quota-program-bought').on('change', function(){
-                showLoading()
-                var clientprog_id = $(this).data('clientprog-id');
-                var phase_lib_id = $(this).data('phase-lib-id') == '-' ? 'null' : $(this).data('phase-lib-id');
-                var phase_detail_id = $(this).data('phase-detail-id');
-                var quota = this.value;
-
-                link = '{{ url('api/program-phase') }}/' + clientprog_id + '/phase-detail/' + phase_detail_id + '/phase-lib/' + phase_lib_id + '/quota'
-                    
-                axios.patch(link, {quota: quota}, {
-                    headers:{
-                        'Authorization': 'Bearer ' + '{{ Session::get("access_token") }}',
-                        'crm-authorization': '{{env("CRM_AUTHORIZATION_KEY")}}'
+                onMounted(async () => {
+                    if (main_prog.value) {
+                        await getSubProgram(false)
+                        await getProgramName()
                     }
                 })
-                .then(function(response) {
 
-                    let obj = response.data;
-                    Swal.close()
-                    notification('success', "Successfully update quota program bought");
-                })
-                .catch(function(error) {
-                    Swal.close()
-                    notification('error', error)
-                })
-            });
-   		
-            var baseUrl = "{{ url('/') }}/api/v1/get/referral/list";
-
-            $(".select-referral").select2({
-                placeholder: 'Referral Name...',
-                // width: '350px',
-                allowClear: true,
-                ajax: {
-                    url: baseUrl,
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return {
-                            term: params.term || '',
-                            page: params.page || 1
-                        }
-                    },
-                    cache: true
+                return {
+                    main_prog,
+                    sub_program,
+                    prog_id,
+                    lead_id,
+                    status,
+                    reason_id,
+                    subPrograms,
+                    programNames,
+                    getSubProgram,
+                    getProgramName
                 }
-            });
-            
-            @if (old('referral_code') !== NULL)
-                // Set the value, creating a new option if necessary
-                if ($('#referral_code').find("option[value= {{ old('referral_code') }} ]").length) {
-                    $('#referral_code').val('{{ old("referral_code") }}').trigger('change');
-                } else { 
-                    // Create a DOM Option and pre-select by default
-                var newOption = new Option('{{ old("old_refname") }}', '{{ old("referral_code") }}', true, true);
-                    // Append it to the select
-                    $('#referral_code').append(newOption).trigger('change');
-                } 
-            @endif
-
-            $('#referral_code').on('change', function(){
-                $('#old_refname').val($("option:selected", this).text())
-            })
-
-            $("input[name=session]").on('change', function() {
-                var start_date = $("input[name=prog_start_date]").val();
-                var end_date = $("input[name=prog_end_date]").val();
-
-                var start_date_local = start_date + "T00:00";
-                var end_date_local = end_date + "T23:59";
-
-                if (start_date == '' || end_date == '') {
-                    notification('error',
-                        'Please fill the start date and end date before fill the schedule session.');
-                    $(this).val(null);
-                    return;
-                }
-
-                var val = $(this).val();
-
-                if (val < 1) {
-                    $(this).val(1)
-                    val = 1;
-                }
-
-                var i = 1;
-                var html = '';
-
-                while (i <= val) {
-
-                    html += '<div class="row mb-3 schedule-' + i + '">' +
-                        '<div class="col-md-3">' +
-                        '<label>Session ' + i + '.<sup class="text-danger">*</sup></label>' +
-                        '</div>' +
-                        '<div class="col-md-5">' +
-                        '<small>Schedule</small>' +
-                        '<input type="datetime-local" required class="form-control form-control-sm rounded" min="' +
-                        start_date_local + '" max="' + end_date_local + '" name="sessionDetail[]">' +
-                        '</div>' +
-                        '<div class="col-md-4">' +
-                        '<small>Zoom link</small>' +
-                        '<input type="url" required class="form-control form-control-sm rounded" name="sessionLinkMeet[]">' +
-                        '</div>' +
-                        '</div>';
-
-                    i++;
-                }
-
-                $("#section-session").html(html);
-            })
-
-            @if (isset($clientProgram) && $clientProgram->status !== false)
-                $("#program_status").val("{{ $clientProgram->status }}").trigger('change');
-            @endif
-
-            @if (old('status'))
-                $("#program_status").val("{{ old('status') }}").trigger('change');
-            @endif
-
-            @error('followup_date')
-                $("#plan").modal('show')
-            @enderror
-
-            const documentReady = () => {
-                @if (old('main_prog') !== null)
-                    $("#main_program").select2().val("{{ old('main_prog') }}").trigger('change');
-                @elseif (isset($clientProgram))
-                    $("#main_program").select2().val("{{ $clientProgram->program->main_prog_id }}").trigger('change');
-                @endif
-
-                @if (isset($p) && $p !== null)
-                    $("#program_name").select2().val("{{ $p }}").trigger('change');
-                @elseif (isset($clientProgram->prog_id))
-                    $("#program_name").select2().val("{{ $clientProgram->prog_id }}").trigger('change');
-                @elseif (old('prog_id') !== null)
-                    $("#program_name").select2().val("{{ old('prog_id') }}").trigger('change');
-                @endif
-
-                @if (old('lead_id') !== null)
-                    $("#main_lead").select2().val("{{ old('lead_id') }}").trigger('change');
-                @elseif (isset($clientProgram))
-                    @if ($clientProgram->lead?->main_lead == 'KOL')
-                        $("#main_lead").select2().val("kol").trigger('change');
-                    @else
-                        $("#main_lead").select2().val("{{ $clientProgram->lead_id }}").trigger('change');
-                    @endif
-                @endif
-
-                @if (old('event_id') !== null)
-                    $("#event_id").select2().val("{{ old('event_id') }}").trigger('change');
-                @endif
-
-                @if (old('kol_lead_id') !== null)
-                    $("#kol_lead_id").select2().val("{{ old('kol_lead_id') }}").trigger('change');
-                @endif
-
-                @if (old('eduf_id') !== null)
-                    $("#eduf_id").select2().val("{{ old('eduf_id') }}").trigger('change');
-                @endif
-
-                @if (old('partner_id') !== null)
-                    $("#partner_id").select2().val("{{ old('partner_id') }}").trigger('change');
-                @endif
-
-                @if (old('referral_code') !== null)
-                    $("#referral_code").select2().val("{{ old('referral_code') }}").trigger('change');
-                @endif
-
-                @if (old('status') !== null)
-                    $("#program_status").select2().val("{{ (int) old('status') }}").trigger('change');
-                @endif
-
             }
-
-            documentReady();
-        })
+        }).mount('#app')
     </script>
-@endpush
+@endsection
