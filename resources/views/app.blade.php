@@ -54,7 +54,7 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"></script> --}}
     {{-- <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script> --}}
     {{-- <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script> --}}
-    
+
     <script src="{{ asset('js/jquery/jquery.js') }}"></script>
     <script src="{{ asset('js/sweetalert2/sweetalert2.js') }}"></script>
     <script src="{{ asset('js/bootstrap/bootstrap.bundle.min.js') }}"></script>
@@ -76,8 +76,8 @@
     <script src="{{ asset('js/pusher.min.js') }}"></script>
     {{-- <script src="{{ asset('js/ckeditor.js') }}"></script> --}}
     <script src="https://cdn.ckeditor.com/ckeditor5/12.3.1/classic/ckeditor.js"></script>
-    
- 
+
+
     <script src="{{ asset('js/generate-number.js') }}"></script>
     <script src="{{ asset('js/currency.js') }}"></script>
 
@@ -104,7 +104,7 @@
     <script>
         var myEditor;
 
-        document.querySelectorAll('textarea:not(#review)').forEach(function(element) {
+        document.querySelectorAll('textarea:not(#review):not(#swal2-textarea)').forEach(function(element) {
             ClassicEditor
                 .create(element, {
                     toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList',
@@ -134,6 +134,8 @@
                 .then(editor => {
                     console.log('Editor was initialized', editor);
                     myEditor = editor;
+
+                    element.setAttribute('data-ckeditor-initialized', 'true');
                 })
                 .catch(error => {
                     console.error(error);
@@ -154,7 +156,6 @@
     <script src="{{ asset('js/general-use-script.js') }}"></script>
 
     <script>
-
         function initializeDataTable(selector, options, tableName) {
             var table = $(selector).DataTable({
                 ...options,
@@ -174,7 +175,7 @@
             // listen channel datatable for datatable
             var channel_datatable = Echo.channel('channel_datatable');
             channel_datatable.listen(".my-event", function(data) {
-                if(data.message == tableName){
+                if (data.message == tableName) {
                     table.ajax.reload(null, false)
                 }
             })
@@ -224,7 +225,7 @@
                     window.location.href = "{{ route('logout.expiration') }}";
                     return;
                 }
-            
+
                 notification('error', 'Oops, Something went wrong when trying to get the data')
             };
         })
@@ -329,7 +330,7 @@
             $('.leads' + id).val(old_status);
             $('#updateLeadStatus').modal('hide');
         }
-        
+
         function singlequote(text) {
             return `'${text}'`;
         }
@@ -386,7 +387,7 @@
     </script>
 
     {{-- TinyMCE  --}}
-    
+
     <script>
         //     tinymce.init({
         //         strict_loading_mode : true,

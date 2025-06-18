@@ -4,46 +4,40 @@
     $competitionList = ['Group'];
     $skillsetTutoringList = ['Private', 'Deposit Trial'];
 @endphp
-<select name="package[{{ $programType }}][{{ $textIndex }}]" class="select w-100 tutor-package" @if(isset($disabled)) {{ $disabled }} @endif>
-    <option data-placeholder="true"></option>
+<select name="package" class="form-select form-select-sm w-100 tutor-package"
+    @if (isset($disabled)) {{ $disabled }} @endif>
+    <option value="" selected disabled>Select package name</option>
     @switch($programType)
-        @case("test-preparation")
-            @foreach($testPreparationList as $key => $package)
-                <option value="{{ $package }}" 
-                    @selected(isset($clientProgram) && $clientProgram->package == $package)
-                    @selected(old('package') == $package)    
-                >{{ $package }}</option>
+        @case('test-preparation')
+            @foreach ($testPreparationList as $key => $package)
+                <option value="{{ $package }}" @selected(isset($clientProgram) && $clientProgram->package == $package) @selected(old('package') == $package)>{{ $package }}
+                </option>
             @endforeach
         @break
 
-        @case("subject-tutoring")
-            @foreach($subjectTutoringList as $key => $package)
-                <option value="{{ $package }}" 
-                    @selected(isset($clientProgram) && $clientProgram->package == $package)
-                    @selected(old('package') == $package)    
-                >{{ $package }}</option>
+        @case('subject-tutoring')
+            @foreach ($subjectTutoringList as $key => $package)
+                <option value="{{ $package }}" @selected(isset($clientProgram) && $clientProgram->package == $package) @selected(old('package') == $package)>{{ $package }}
+                </option>
             @endforeach
         @break
 
-        @case("competition")
-            @foreach($competitionList as $key => $package)
-                <option value="{{ $package }}" 
-                    @selected(isset($clientProgram) && $clientProgram->package == $package)
-                    @selected(old('package') == $package)    
-                >{{ $package }}</option>
+        @case('competition')
+            @foreach ($competitionList as $key => $package)
+                <option value="{{ $package }}" @selected(isset($clientProgram) && $clientProgram->package == $package) @selected(old('package') == $package)>{{ $package }}
+                </option>
             @endforeach
         @break
 
-        @case("skillset-tutoring")
+        @case('skillset-tutoring')
             @foreach ($skillsetTutoringList as $key => $package)
-                <option value="{{ $package }}" 
-                    @selected(isset($clientProgram) && $clientProgram->package == $package)
-                    @selected(old('package') == $package)    
-                >{{ $package }}</option>
+                <option value="{{ $package }}" @selected(isset($clientProgram) && $clientProgram->package == $package) @selected(old('package') == $package)>
+                    {{ $package }}</option>
             @endforeach
         @break
+
     @endswitch
 </select>
-@error('package.'.$programType.'.'.$textIndex)
+@error('package')
     <small class="text-danger fw-light">{{ $message }}</small>
 @enderror

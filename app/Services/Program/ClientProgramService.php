@@ -171,12 +171,12 @@ class ClientProgramService
                 } elseif (in_array($request->prog_id, $this->tutoring_prog_list) || in_array($request->prog_id, $this->competition_list)) {
 
                     # add additional values
-                    $clientProgramDetails['package'] = $request->package["{$formatted_main_prog}"][0];
+                    $clientProgramDetails['package'] = $request->package;
                     $clientProgramDetails['trial_date'] = $request->pend_trial_date;
                 } elseif (in_array($request->prog_id, $this->subject_tutoring_list)) {
                     # add additional values
-                    $clientProgramDetails['package'] = $request->package["{$formatted_main_prog}"][0];
-                    $clientProgramDetails['curriculum'] = $request->curriculum[0];
+                    $clientProgramDetails['package'] = $request->package;
+                    $clientProgramDetails['curriculum'] = $request->curriculum;
                     $clientProgramDetails['trial_date'] = $request->pend_trial_date;
                 }
 
@@ -247,7 +247,7 @@ class ClientProgramService
                     $clientProgramDetails['timesheet_link'] = $request->timesheet_link;
                     // $clientProgramDetails['tutor_id'] = $request->tutor_id;
                     $clientProgramDetails['prog_running_status'] = (int) $request->prog_running_status;
-                    $clientProgramDetails['package'] = $request->package["{$formatted_main_prog}"][1];
+                    $clientProgramDetails['package'] = $request->package;
                 } elseif (in_array($request->prog_id, $this->subject_tutoring_list) || in_array($request->prog_id, $this->competition_list)) {
 
                     # add additional values
@@ -259,8 +259,8 @@ class ClientProgramService
                     $clientProgramDetails['timesheet_link'] = $request->timesheet_link;
                     // $clientProgramDetails['tutor_id'] = $request->tutor_id;
                     $clientProgramDetails['prog_running_status'] = (int) $request->prog_running_status;
-                    $clientProgramDetails['package'] = $request->package["{$formatted_main_prog}"][1];
-                    $clientProgramDetails['curriculum'] = $request->curriculum[1];
+                    $clientProgramDetails['package'] = $request->package;
+                    $clientProgramDetails['curriculum'] = $request->curriculum;
                 } elseif (in_array($request->prog_id, $this->satact_prog_list)) {
                     
                     # add additional values
@@ -273,7 +273,7 @@ class ClientProgramService
                     // $clientProgramDetails['tutor_1'] = $request->tutor_1;
                     // $clientProgramDetails['tutor_2'] = $request->tutor_2;
                     $clientProgramDetails['prog_running_status'] = (int) $request->prog_running_status;
-                    $clientProgramDetails['package'] = $request->package["{$formatted_main_prog}"][1];
+                    $clientProgramDetails['package'] = $request->package;
                 }
 
                 if (in_array($request->prog_id, $this->admission_prog_list)) {
