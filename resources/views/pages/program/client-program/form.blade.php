@@ -2,9 +2,10 @@
 
 @section('title', 'Client Program ')
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Client Program</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Form Client Program</li>
+    <li class="breadcrumb-item"><a href="{{ route('student.show', ['student' => $student->id]) }}">Student's Profile</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Client Program Submission</li>
 @endsection
+@section('content')
 
 @section('content')
 
@@ -171,8 +172,6 @@
                                                                 {{ 'selected' }} @endif>
                                                         {{ $lead->main_lead }}</option>
                                                 @endforeach
-                                                <option data-lead="KOL" value="kol" @selected(old('lead_id') && old('lead_id') == 'kol')
-                                                    @selected(isset($clientProgram->lead_id) && $clientProgram->lead_id == 'kol')>KOL</option>
                                             @endif
                                         </select>
                                         @error('lead_id')
@@ -223,7 +222,7 @@
                                     <div class="col-md-6" id="kol" v-if="lead_id=='LS048' || lead_id=='kol'">
                                         <small>KOL Name <sup class="text-danger">*</sup></small>
                                         <select name="kol_lead_id" id="kol_lead_id"
-                                            class="form-select form-select-sm w-100" {{ $disabled }}>
+                                            class="select w-100" {{ $disabled }}>
                                             <option data-placeholder="true"></option>
                                             @forelse ($kols as $kol)
                                                 <option value="{{ $kol->lead_id }}"
@@ -242,7 +241,7 @@
                                     <div class="col-md-6" id="partner" v-if="lead_id=='LS010'">
                                         <small>Partner Name <sup class="text-danger">*</sup></small>
                                         <select name="partner_id" id="partner_id"
-                                            class="form-select form-select-sm w-100" {{ $disabled }}>
+                                            class="select w-100" {{ $disabled }}>
                                             <option data-placeholder="true"></option>
                                             @forelse ($partners as $partner)
                                                 <option value="{{ $partner->corp_id }}"

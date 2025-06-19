@@ -52,6 +52,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use App\Jobs\Client\ProcessUpdateGradeAndGraduationYearNow;
+use App\Models\UserClient;
 
 class ClientStudentController extends ClientController
 {
@@ -105,16 +106,14 @@ class ClientStudentController extends ClientController
     }
 
     # ajax start
-    public function getClientProgramByStudentId(Request $request)
+    public function getClientProgramByStudentId(UserClient $client)
     {
-        $student_id = $request->route('client');
-        return $this->clientProgramRepository->getAllClientProgramDataTables_DetailUser(['clientId' => $student_id]);
+        return $this->clientProgramRepository->getAllClientProgramDataTables_DetailUser(['clientId' => $client->id]);
     }
 
-    public function getClientEventByStudentId(Request $request)
+    public function getClientEventByStudentId(UserClient $client)
     {
-        $student_id = $request->route('client');
-        return $this->clientEventRepository->getAllClientEventByClientIdDataTables($student_id);
+        return $this->clientEventRepository->getAllClientEventByClientIdDataTables($client->id);
     }
     # ajax end
 
@@ -233,33 +232,22 @@ class ClientStudentController extends ClientController
         return view('pages.client.student.raw.index')->with($entries);
     }
 
-    public function show(Request $request)
+    public function show(UserClient $student)
     {
-        $student_id = $request->route('student');
-        $student = $this->clientRepository->getClientById($student_id);
-
-        # validate
-        # if user forced to access student that isn't his/her 
-        if (!$this->clientRepository->findHandledClient($student_id))
-            abort(403);
-
         $initial_programs = $this->initialProgramRepository->getAllInitProg();
         // $history_leads = $this->clientLeadTrackingRepository->getHistoryClientLead($student_id);
-        $view_student = $this->clientRepository->getViewClientById($student_id);
+        $view_student = $this->clientRepository->getViewClientById($student->id);
 
         $programs = $this->programService->snGetProgramsB2c();
 
         $sales_teams = $this->userRepository->rnGetAllUsersByDepartmentAndRole('Employee', 'Client Management');
 
         $initial_programs = $this->initialProgramRepository->getAllInitProg();
-        $history_leads = $this->clientLeadTrackingRepository->getHistoryClientLead($student_id);
+        $history_leads = $this->clientLeadTrackingRepository->getHistoryClientLead($student->id);
 
         $parents = $this->clientRepository->getAllClientByRole('Parent');
 
-        $pic_active = null;
-        if (count($student->picClient) > 0) {
-            $pic_active = $student->picClient->where('status', 1)->first();
-        }
+        $pic_active = $student?->picClient ? $student->picClient->where('status', 1)->first() : null;
 
         if (!$student)
             abort(500);

@@ -150,7 +150,7 @@ class ClientProgramService
         return $clientProgramDetails;
     }
 
-    public function snSetAdditionalAttributes($request, $student, $clientProgramDetails, $is_update_method = false)
+    public function snSetAdditionalAttributes($request, $student, $clientProgramDetails, ?bool $is_update_method = false)
     {
         $file_path = null;
         $main_prog_name = MainProg::find($request->main_prog)->prog_name;
@@ -158,61 +158,76 @@ class ClientProgramService
 
         switch ($request->status) {
 
-            # when program status is pending
-            case 0:
+            case 0: // program status is pending
 
-                # and the submitted prog_id is admission mentoring
-                if (in_array($request->prog_id, $this->admission_prog_list)) {
+                if (in_array($request->prog_id, $this->admission_prog_list)) { // set additional attributes for admission mentoring program
 
-                    # add additional values
-                    $clientProgramDetails['initconsult_date'] = $request->pend_initconsult_date;
-                    $clientProgramDetails['assessmentsent_date'] = $request->pend_assessmentsent_date;
-                    $clientProgramDetails['mentor_ic'] = $request->pend_mentor_ic;
-                } elseif (in_array($request->prog_id, $this->tutoring_prog_list) || in_array($request->prog_id, $this->competition_list)) {
+                    $clientProgramDetails += [
+                        'initconsult_date'    => $request->initconsult_date,
+                        'assessmentsent_date' => $request->assessmentsent_date,
+                        'mentor_ic'           => $request->mentor_ic,
+                    ];
+                } elseif (in_array($request->prog_id, $this->tutoring_prog_list) || in_array($request->prog_id, $this->competition_list) || in_array($request->prog_id, $this->skillset_tutoring)) { // set additional attributes for tutoring and competition program
 
-                    # add additional values
-                    $clientProgramDetails['package'] = $request->package;
-                    $clientProgramDetails['trial_date'] = $request->pend_trial_date;
+                    $clientProgramDetails += [
+                        'package' => $request->package,
+                        'trial_date' => $request->trial_date,
+                    ];
                 } elseif (in_array($request->prog_id, $this->subject_tutoring_list)) {
-                    # add additional values
-                    $clientProgramDetails['package'] = $request->package;
-                    $clientProgramDetails['curriculum'] = $request->curriculum;
-                    $clientProgramDetails['trial_date'] = $request->pend_trial_date;
+                    
+                    $clientProgramDetails += [
+                        'package' => $request->package,
+                        'curriculum' => $request->curriculum,
+                        'trial_date' => $request->trial_date,
+                    ];
+                } elseif (in_array($request->prog_id, $this->satact_prog_list)) {
+
+                    $clientProgramDetails += [
+                        'package' => $request->package,
+                        'test_date' => $request->test_date,
+                    ];
                 }
 
                 break;
 
-                # when program status is active
-            case 1:
-                # declare default variable
-                $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
-                $clientProgramDetails['success_date'] = $request->success_date;
+            case 1: // program status is active
+
+                $clientProgramDetails += [
+                    'prog_running_status' => $request->prog_running_status,
+                    'success_date' => $request->success_date,
+                ];
 
                 # and submitted prog_id is admission mentoring
+                # below are the details of the program
                 if (in_array($request->prog_id, $this->admission_prog_list)) {
 
-                    # add additional values
-                    $clientProgramDetails['success_date'] = $request->success_date;
-                    $clientProgramDetails['initconsult_date'] = $request->initconsult_date;
-                    $clientProgramDetails['assessmentsent_date'] = $request->assessmentsent_date;
-                    $clientProgramDetails['prog_end_date'] = $request->mentoring_prog_end_date;
-                    $clientProgramDetails['total_uni'] = $request->total_uni;
-                    $clientProgramDetails['total_foreign_currency'] = $request->total_foreign_currency;
-                    $clientProgramDetails['foreign_currency'] = $request->foreign_currency;
-                    $clientProgramDetails['foreign_currency_exchange'] = $request->foreign_currency_exchange;
-                    $clientProgramDetails['total_idr'] = $request->total_idr;
-                    $clientProgramDetails['installment_notes'] = $request->installment_notes;
-                    $clientProgramDetails['prog_running_status'] = (int) $request->prog_running_status;
+                    $clientProgramDetails += [
+                        'success_date' => $request->success_date,
+                        'initconsult_date' => $request->initconsult_date,
+                        'assessmentsent_date' => $request->assessmentsent_date,
+                        'prog_end_date' => $request->mentoring_prog_end_date,
+                        'total_uni' => $request->total_uni,
+                        'total_foreign_currency' => $request->total_foreign_currency,
+                        'foreign_currency' => $request->foreign_currency,
+                        'foreign_currency_exchange' => $request->foreign_currency_exchange,
+                        'total_idr' => $request->total_idr,
+                        'installment_notes' => $request->installment_notes,
+                        'prog_running_status' => (int) $request->prog_running_status,
+                    ];
 
-                    # for method update
-                    if ($is_update_method)
-                        $clientProgramDetails['supervising_mentor'] = $request->supervising_mentor;
-                        $clientProgramDetails['profile_building_mentor'] = isset($request->profile_building_mentor) ? $request->profile_building_mentor : NULL;
-                        $clientProgramDetails['subject_specialist_mentor'] = isset($request->subject_specialist_mentor) ? $request->subject_specialist_mentor : NULL;
-                        $clientProgramDetails['aplication_strategy_mentor'] = isset($request->aplication_strategy_mentor) ? $request->aplication_strategy_mentor : NULL;
-                        $clientProgramDetails['writing_mentor'] = isset($request->writing_mentor) ? $request->writing_mentor : NULL;                    
+                    // exclusively if $is_update_method is true then update all the mentors
+                    if ( $is_update_method )
+                    {
+                        $clientProgramDetails += [
+                            'supervising_mentor' => $request->supervising_mentor,
+                            'profile_building_mentor' => isset($request->profile_building_mentor) ? $request->profile_building_mentor : NULL,
+                            'subject_specialist_mentor' => isset($request->subject_specialist_mentor) ? $request->subject_specialist_mentor : NULL,
+                            'aplication_strategy_mentor' => isset($request->aplication_strategy_mentor) ? $request->aplication_strategy_mentor : NULL,
+                            'writing_mentor' => isset($request->writing_mentor) ? $request->writing_mentor : NULL
+                        ];                   
+                    }
                     
-                    # declare the variables for agreement
+                    // declare the variables for agreement
                     if ($request->hasFile('agreement')) {
 
                         # setting up the agreement request file
@@ -236,7 +251,7 @@ class ClientProgramService
 
                     }
 
-                } elseif (in_array($request->prog_id, $this->tutoring_prog_list) || in_array($request->prog_id, $this->skillset_tutoring)) {
+                } elseif (in_array($request->prog_id, $this->tutoring_prog_list) || in_array($request->prog_id, $this->skillset_tutoring) || in_array($request->prog_id, $this->competition_list)) {
 
                     # add additional values
                     $clientProgramDetails['success_date'] = $request->success_date;
@@ -248,7 +263,7 @@ class ClientProgramService
                     // $clientProgramDetails['tutor_id'] = $request->tutor_id;
                     $clientProgramDetails['prog_running_status'] = (int) $request->prog_running_status;
                     $clientProgramDetails['package'] = $request->package;
-                } elseif (in_array($request->prog_id, $this->subject_tutoring_list) || in_array($request->prog_id, $this->competition_list)) {
+                } elseif (in_array($request->prog_id, $this->subject_tutoring_list)) {
 
                     # add additional values
                     $clientProgramDetails['success_date'] = $request->success_date;
@@ -276,6 +291,7 @@ class ClientProgramService
                     $clientProgramDetails['package'] = $request->package;
                 }
 
+                # declare variables to store mentor or tutor details
                 if (in_array($request->prog_id, $this->admission_prog_list)) {
 
                     $clientProgramDetails['supervising_mentor'] = $request->supervising_mentor;

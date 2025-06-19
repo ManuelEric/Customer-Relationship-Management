@@ -88,7 +88,8 @@
                                     {{ empty($clientEvent) || isset($edit) ? '' : 'disabled' }}>
                                     <option data-placeholder="true"></option>
                                     @foreach ($clients as $client)
-                                        <option value="{{ $client->id }}" @selected((isset($clientEvent) && $clientEvent->client_id == $client->id) || old('client_id') == $client->id)>
+                                        <option value="{{ $client->id }}" 
+                                            @selected((isset($clientEvent) && $clientEvent->client_id == $client->id) || old('client_id') == $client->id || $student_id == $client->id)>
                                             {{ $client->full_name }}</option>
                                     @endforeach
                                 </select>
