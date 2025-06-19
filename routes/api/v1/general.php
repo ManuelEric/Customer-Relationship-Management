@@ -57,7 +57,7 @@ Route::middleware(['throttle:120,1'])->group(function () {
     
     # promote student to mentee / known as convert active mentee to graduated mentee
     // Route::patch('promote/student/{client_program}', [ExtClientProgramController::class, 'fnPromoteToGraduatedMentee']);
-    Route::patch('promote/multiple/student', [ExtClientProgramController::class, 'fnPromoteMultipleToGraduatedMentee']);
+    Route::patch('promote/multiple/students', [ExtClientProgramController::class, 'fnPromoteMultipleToGraduatedMentee']);
 
     # active mentees global
     Route::get('get/active/mentees/global', [ExtClientController::class, 'fnGetActiveMenteeGlobal']);
