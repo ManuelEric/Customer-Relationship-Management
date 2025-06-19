@@ -257,12 +257,13 @@
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
-                                    <div class="col-md-6" id="referral" v-if="lead_id=='LS005'">
+                                    <div class="col-md-6" id="referral"
+                                        v-if="['LS005', 'LS060', 'LS061', 'LS058'].includes(lead_id)">
                                         <small>Referral Name <sup class="text-danger">*</sup></small>
                                         <input type="hidden" name="old_refname" id="old_refname"
                                             value="{{ isset($clientProgram->referral_code) ? $clientProgram->referral_name : null }}">
-                                        <select name="referral_code" id="referral_code"
-                                            class="select w-100 select-referral" {{ $disabled }} @change="checkReferral()">
+                                        <select name="referral_code" id="referral_code" class="w-100 select-referral"
+                                            {{ $disabled }}>
                                             @if (isset($clientProgram->referral_code))
                                                 <option value="{{ $clientProgram->referral_code }}" selected="selected">
                                                     {{ $clientProgram->referral_name }}</option>
@@ -557,7 +558,7 @@
                 // End Variable 
 
                 // Function 
-                const getSubProgram = async (isTrigger = true) => {
+                const showLoading = () => {
                     Swal.fire({
                         allowOutsideClick: false,
                         showConfirmButton: false,
@@ -566,6 +567,28 @@
                             Swal.showLoading();
                         }
                     });
+                }
+
+                const notification = (status, message) => {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'bottom-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        }
+                    })
+                    Toast.fire({
+                        icon: status,
+                        title: message
+                    })
+                }
+
+                const getSubProgram = async (isTrigger = true) => {
+                    showLoading()
 
                     // Reset value exclude edit client program
                     if (isTrigger) {
@@ -597,14 +620,7 @@
                 }
 
                 const getProgramName = async () => {
-                    Swal.fire({
-                        allowOutsideClick: false,
-                        showConfirmButton: false,
-                        width: '100px',
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
+                    showLoading()
 
                     // Variable Link
                     let link = '{{ url('api/get/program/') }}/main/' + main_prog.value + '/sub/';
@@ -676,32 +692,116 @@
                     });
                 }
 
-                /* on development ... */
-                const checkReferral = () => {
-                    $('#old_refname').val($("option:selected", this).text())
-                    getReferral()
+                const checkPackage = async (phase_detail, phase_lib, clientprog) => {
+                    showLoading()
+
+                    const is_checked = $('#check-' + phase_detail).is(":checked")
+                    const quota = $('#quota-' + phase_detail)
+                    const url = '{{ url('api/program-phase') }}/' + clientprog + '/phase-detail/' +
+                        phase_detail + '/phase-lib/' + phase_lib
+
+                    try {
+                        if (is_checked) {
+                            const response = await axios.post(url, null, {
+                                headers: {
+                                    'Authorization': 'Bearer ' +
+                                        '{{ Session::get('access_token') }}',
+                                    'crm-authorization': '{{ env('CRM_AUTHORIZATION_KEY') }}'
+                                }
+                            })
+
+                            quota.prop("disabled", false);
+                            notification('success', "Successfully add item program bought");
+                        } else {
+                            const response = await axios.delete(url, {
+                                headers: {
+                                    'Authorization': 'Bearer ' +
+                                        '{{ Session::get('access_token') }}',
+                                    'crm-authorization': '{{ env('CRM_AUTHORIZATION_KEY') }}'
+                                }
+                            })
+
+                            quota.prop("disabled", true);
+                            quota.val(0)
+
+                            notification('success', "Successfully remove item program bought");
+                        }
+                    } catch (error) {
+                        console.log(error);
+                        notification('error', error)
+                    }
                 }
 
-                const getReferral = () => {
-                    var baseUrl = "{{ url('/') }}/api/v1/get/referral/list";
-                    $(".select-referral").select2({
-                        placeholder: 'Referral Name...',
-                        allowClear: true,
-                        ajax: {
-                            url: baseUrl,
-                            dataType: 'json',
-                            delay: 250,
-                            data: function(params) {
-                                return {
-                                    term: params.term || '',
-                                    page: params.page || 1
-                                }
-                            },
-                            cache: true
-                        }
-                    });
+                const updateQuota = async (phase_detail, phase_lib, clientprog) => {
+                    showLoading()
+
+                    const quota = $('#quota-' + phase_detail).val()
+                    const url = '{{ url('api/program-phase') }}/' + clientprog + '/phase-detail/' +
+                        phase_detail + '/phase-lib/' + phase_lib + '/quota'
+
+                    try {
+                        const response = await axios.patch(url, {
+                            quota: quota
+                        }, {
+                            headers: {
+                                'Authorization': 'Bearer ' +
+                                    '{{ Session::get('access_token') }}',
+                                'crm-authorization': '{{ env('CRM_AUTHORIZATION_KEY') }}'
+                            }
+                        })
+                        notification('success', "Successfully update item program bought");
+
+                    } catch (error) {
+                        console.log(error);
+                        notification('error', error)
+                    }
                 }
-                /* on development ... */
+
+
+                const checkReferral = () => {
+                    // Trigger by main lead 
+                    if (['LS005', 'LS060', 'LS061', 'LS058'].includes(lead_id.value)) {
+                        var baseUrl = "{{ url('/') }}/api/v1/get/referral/list";
+
+                        $(".select-referral").select2({
+                            placeholder: 'Referral Name...',
+                            // width: '350px',
+                            allowClear: true,
+                            ajax: {
+                                url: baseUrl,
+                                dataType: 'json',
+                                delay: 250,
+                                data: function(params) {
+                                    return {
+                                        term: params.term || '',
+                                        page: params.page || 1
+                                    }
+                                },
+                                cache: true
+                            }
+                        });
+                    }
+
+                    // Check is old_refname exist 
+                    const old_refname = '{{ old('referral_code') }}'
+                    if (old_refname != '') {
+                        // Set the value, creating a new option if necessary
+                        if ($('#referral_code').find("option[value= {{ old('referral_code') }} ]").length) {
+                            $('#referral_code').val('{{ old('referral_code') }}').trigger('change');
+                        } else {
+                            // Create a DOM Option and pre-select by default
+                            var newOption = new Option('{{ old('old_refname') }}',
+                                '{{ old('referral_code') }}', true, true);
+                            // Append it to the select
+                            $('#referral_code').append(newOption).trigger('change');
+                        }
+                    }
+
+                    // Trigger by referral code 
+                    $('#referral_code').on('change', function() {
+                        $('#old_refname').val($("option:selected", this).text())
+                    })
+                }
 
                 // End function 
 
@@ -712,6 +812,7 @@
                     });
 
                     renderCKEditor()
+                    checkReferral()
                 })
 
                 onMounted(async () => {
@@ -732,7 +833,8 @@
                     programNames,
                     getSubProgram,
                     getProgramName,
-                    checkReferral
+                    checkPackage,
+                    updateQuota,
                 }
             }
         }).mount('#app')
