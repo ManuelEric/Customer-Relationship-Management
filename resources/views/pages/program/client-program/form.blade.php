@@ -2,9 +2,10 @@
 
 @section('title', 'Client Program ')
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Client Program</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Form Client Program</li>
+    <li class="breadcrumb-item"><a href="{{ route('student.show', ['student' => $student->id]) }}">Student's Profile</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Client Program Submission</li>
 @endsection
+@section('content')
 
 @section('content')
 
@@ -171,8 +172,6 @@
                                                                 {{ 'selected' }} @endif>
                                                         {{ $lead->main_lead }}</option>
                                                 @endforeach
-                                                <option data-lead="KOL" value="kol" @selected(old('lead_id') && old('lead_id') == 'kol')
-                                                    @selected(isset($clientProgram->lead_id) && $clientProgram->lead_id == 'kol')>KOL</option>
                                             @endif
                                         </select>
                                         @error('lead_id')
@@ -223,7 +222,7 @@
                                     <div class="col-md-6" id="kol" v-if="lead_id=='LS048' || lead_id=='kol'">
                                         <small>KOL Name <sup class="text-danger">*</sup></small>
                                         <select name="kol_lead_id" id="kol_lead_id"
-                                            class="form-select form-select-sm w-100" {{ $disabled }}>
+                                            class="select w-100" {{ $disabled }}>
                                             <option data-placeholder="true"></option>
                                             @forelse ($kols as $kol)
                                                 <option value="{{ $kol->lead_id }}"
@@ -242,7 +241,7 @@
                                     <div class="col-md-6" id="partner" v-if="lead_id=='LS010'">
                                         <small>Partner Name <sup class="text-danger">*</sup></small>
                                         <select name="partner_id" id="partner_id"
-                                            class="form-select form-select-sm w-100" {{ $disabled }}>
+                                            class="select w-100" {{ $disabled }}>
                                             <option data-placeholder="true"></option>
                                             @forelse ($partners as $partner)
                                                 <option value="{{ $partner->corp_id }}"
@@ -263,7 +262,7 @@
                                         <input type="hidden" name="old_refname" id="old_refname"
                                             value="{{ isset($clientProgram->referral_code) ? $clientProgram->referral_name : null }}">
                                         <select name="referral_code" id="referral_code"
-                                            class="form-select form-select-sm w-100 select-referral" {{ $disabled }}>
+                                            class="select w-100 select-referral" {{ $disabled }} @change="checkReferral()">
                                             @if (isset($clientProgram->referral_code))
                                                 <option value="{{ $clientProgram->referral_code }}" selected="selected">
                                                     {{ $clientProgram->referral_name }}</option>
@@ -677,6 +676,33 @@
                     });
                 }
 
+                /* on development ... */
+                const checkReferral = () => {
+                    $('#old_refname').val($("option:selected", this).text())
+                    getReferral()
+                }
+
+                const getReferral = () => {
+                    var baseUrl = "{{ url('/') }}/api/v1/get/referral/list";
+                    $(".select-referral").select2({
+                        placeholder: 'Referral Name...',
+                        allowClear: true,
+                        ajax: {
+                            url: baseUrl,
+                            dataType: 'json',
+                            delay: 250,
+                            data: function(params) {
+                                return {
+                                    term: params.term || '',
+                                    page: params.page || 1
+                                }
+                            },
+                            cache: true
+                        }
+                    });
+                }
+                /* on development ... */
+
                 // End function 
 
                 onUpdated(() => {
@@ -705,7 +731,8 @@
                     subPrograms,
                     programNames,
                     getSubProgram,
-                    getProgramName
+                    getProgramName,
+                    checkReferral
                 }
             }
         }).mount('#app')

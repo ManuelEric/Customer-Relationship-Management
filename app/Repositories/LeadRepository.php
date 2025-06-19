@@ -22,7 +22,7 @@ class LeadRepository implements LeadRepositoryInterface
 
     public function getAllLead()
     {
-        return Lead::orderBy('main_lead', 'asc')->orderBy('sub_lead', 'asc')->get();
+        return Lead::whereNot('lead_id', 'LS048')->orderBy('main_lead', 'asc')->orderBy('sub_lead', 'asc')->get();
     }
 
     public function getAllMainLead()

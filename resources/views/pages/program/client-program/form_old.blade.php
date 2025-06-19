@@ -1300,6 +1300,7 @@
                     cache: true
                 }
             });
+
             
             @if (old('referral_code') !== NULL)
                 // Set the value, creating a new option if necessary

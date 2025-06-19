@@ -84,40 +84,21 @@ class StoreClientProgramRequest extends FormRequest
         $hasInvoice = isset($clientProg->invoice) ? $clientProg->invoice()->count() : 0;
         $hasReceipt = isset($clientProg->invoice->receipt) ? $clientProg->invoice->receipt()->count() : 0;
 
-        if ($this->input('status') === null) {
-
-            return [
-                'prog_id' => 'required|exists:tbl_prog,prog_id',
-                'lead_id' => 'required',
-                // 'referral_code' => 'required_if:lead_id,LS005',
-                'referral_code' => 'nullable',
-                'first_discuss_date' => 'required|date',
-                'meeting_notes' => 'nullable',
-                'status' => 'required|in:0,1,2,3',
-                'empl_id' => [
-                    'required', 'required',
-                    function ($attribute, $value, $fail) {
-                        if (!User::with('roles')->whereHas('roles', function ($q) {
-                            $q->where('role_name', 'Employee');
-                        })->find($value)) {
-                            $fail('The submitted pic was invalid employee');
-                        }
-                    },
-                ]
-            ];
-
-        }
-
         # when program name is admission mentoring and status is pending
         switch ($this->input('status')) {
             
             # pending
             case 0:
 
-                if (in_array($this->input('prog_id'), $admission_prog_id))
+                if (in_array($this->input('prog_id'), $admission_prog_id)) {
                     $rules = $this->store_admission_pending($isMentee);
-                elseif (in_array($this->input('prog_id'), $tutoring_prog_id) || in_array($this->input('prog_id'), $subject_tutoring_prog_id) || in_array($this->input('prog_id'), $competition_prog_id) || in_array($this->input('prog_id'), $subject_tutoring_prog_id) || in_array($this->input('prog_id'), $satact_prog_id) )
+                }
+                elseif (in_array($this->input('prog_id'), haystack: $tutoring_prog_id) || in_array($this->input('prog_id'), $subject_tutoring_prog_id) || in_array($this->input('prog_id'), $competition_prog_id) || in_array($this->input('prog_id'), $subject_tutoring_prog_id) ) {
                     $rules = $this->store_tutoring_pending($isMentee);
+                }
+                elseif (in_array($this->input('prog_id'), $satact_prog_id)) {
+                    $rules = $this->store_satact_pending($isMentee);
+                }
                 else {
                     $rules = [
                         'prog_id' => [
@@ -665,6 +646,60 @@ class StoreClientProgramRequest extends FormRequest
 
         $rules = array_merge($rules, $extended_rules);
         return $rules;
+    }
+
+    public function store_satact_pending($isMentee)
+    {
+        $main_prog_name = MainProg::find($this->input('main_prog'))->prog_name;
+        $main_prog = Str::of($main_prog_name)->replace(' ', '-')->lower();
+        return [
+            'prog_id' => [
+                'required',
+                'exists:tbl_prog,prog_id',
+                function ($attribute, $value, $fail) use ($isMentee) {
+                    $program = $this->programRepository->getProgramById($value);
+                    if ($program->prog_scope == "mentee" && $isMentee == 0)
+                        $fail("This program is for mentee only");
+                }
+            ],
+            'lead_id' => 'required',
+            // 'referral_code' => 'required_if:lead_id,LS005',
+            'referral_code' => 'nullable',
+            'clientevent_id' => 'required_if:lead_id,LS003',
+            'eduf_lead_id' => 'required_if:lead_id,LS018',
+            'kol_lead_id' => [
+                function ($attribute, $value, $fail) {
+                    if ($this->input('lead_id') == 'kol' && empty($value))
+                        $fail('The KOL name field is required');
+
+                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) 
+                        $fail('The KOL name is invalid');
+                }
+            ],
+            'partner_id' => 'required_if:lead_id,LS010',
+            'first_discuss_date' => 'required|date',
+            'meeting_notes' => 'nullable',
+            'status' => 'required|in:0,1,2,3',
+            'empl_id' => [
+                'required', 'required',
+                function ($attribute, $value, $fail) {
+                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                        $q->where('role_name', 'Employee');
+                    })->find($value)) {
+                        $fail('The submitted pic was invalid employee');
+                    }
+                },
+            ],
+            'package' => [
+                function ($attribute, $value, $fail) {
+                    // required only for tutoring program
+                    if ( Program::where('main_prog_id', $this->input('main_prog'))->first()->prog_mentor == 'Tutor' && $value == null ) {
+                        $fail('The package field is required');
+                    }
+                }
+            ],
+            'test_date' => 'required|date'
+        ];
     }
 
     public function store_satact_success($isMentee, $studentId)

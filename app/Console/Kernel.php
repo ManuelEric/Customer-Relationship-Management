@@ -18,10 +18,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('send:reminder_invoiceprogram')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
-        $schedule->command('send:reminder_invoiceschool_program')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
-        $schedule->command('send:reminder_invoicepartner_program')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
-        $schedule->command('send:reminder_invoicereferral_program')->withoutOverlapping()->everyFiveMinutes()->onOneServer();
+        $schedule->command('send:reminder_invoiceprogram')->withoutOverlapping()->daily()->onOneServer();
+        $schedule->command('send:reminder_invoiceschool_program')->withoutOverlapping()->daily()->onOneServer();
+        $schedule->command('send:reminder_invoicepartner_program')->withoutOverlapping()->daily()->onOneServer();
+        $schedule->command('send:reminder_invoicereferral_program')->withoutOverlapping()->daily()->onOneServer();
 
         $schedule->command('send:reminder_followup_client')->withoutOverlapping()->everyFiveMinutes()->onOneServer(); # daily needed!
         

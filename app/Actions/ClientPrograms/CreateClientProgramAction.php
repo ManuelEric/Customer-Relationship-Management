@@ -39,6 +39,7 @@ class CreateClientProgramAction
 
         $client_program_details = $this->clientProgramService->snSetAttributeLead($client_program_details);
         $additional_attributes = $this->clientProgramService->snSetAdditionalAttributes($request, $student, $client_program_details);
+        dd($additional_attributes);
         $client_program_details = $additional_attributes['client_program_details'];
         $file_path = $additional_attributes['file_path'];
 
