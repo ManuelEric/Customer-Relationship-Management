@@ -502,7 +502,7 @@ class ExtClientProgramController extends Controller
 
     public function fnPromoteMultipleToGraduatedMentee(Request $request, LogService $log_service)
     {
-        $client_programs = $request->get('client_programs', default: []);
+        $client_programs = $request->get('client_programs', []);
         if (empty($client_programs)) {
             return response()->json([
                 'message' => 'No client programs provided.'
