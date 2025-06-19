@@ -3,6 +3,10 @@
         <div class="">
             <h5 class="m-0 py-2">Events</h5>
         </div>
+        <div class="">
+            <a href="{{ route('program.event.create', ['student' => $student->id]) }}" target="_blank"
+                class="btn btn-sm btn-primary">Add Event</a>
+        </div>
     </div>
     <div class="card-body">
         <table class="table table-bordered table-hover nowrap align-middle w-100" id="eventTable">

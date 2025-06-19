@@ -161,7 +161,7 @@ class ClientEventController extends Controller
         );
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $curriculums = $this->curriculumRepository->getAllCurriculums();
         $clients = $this->clientRepository->getAllClients();
@@ -182,6 +182,7 @@ class ClientEventController extends Controller
                 'leads' => $leads,
                 'schools' => $schools,
                 'partners' => $partners,
+                'student_id' => $request->get('student')
             ]
         );
     }
