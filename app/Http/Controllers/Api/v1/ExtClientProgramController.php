@@ -498,7 +498,67 @@ class ExtClientProgramController extends Controller
             'message' => 'Client program has been updated',
             'data' => $client_program
         ]);
+    }
 
+    public function fnPromoteMultipleToGraduatedMentee(Request $request, LogService $log_service)
+    {
+        $client_programs = $request->get('client_programs', default: []);
+        if (empty($client_programs)) {
+            return response()->json([
+                'message' => 'No client programs provided.'
+            ], 400);
+        }
 
+        DB::beginTransaction();
+        try {
+            foreach ($client_programs as $client_program_id) {
+                $client_program = ClientProgram::findOrFail($client_program_id);
+                if ($client_program->prog_running_status == 2) {
+                    continue; // Skip if already graduated
+                }
+                $client_program->update(['prog_running_status' => 2]);
+
+                $leads_tracking = $this->clientLeadTrackingRepository->getCurrentClientLead($client_program->client->id);
+    
+                # update status client lead tracking
+                if($leads_tracking->count() > 0){
+                    foreach($leads_tracking as $lead_tracking){
+                        $this->clientLeadTrackingRepository->updateClientLeadTrackingById($lead_tracking->id, ['status' => 0]);
+                    }
+                }
+
+            }
+            DB::commit();
+
+            $client_data_for_log_client[] = [
+                'client_id' => $client_program->client->id,
+                'first_name' => $client_program->client->first_name,
+                'last_name' => $client_program->client->last_name,
+                'inputted_from' => 'update-client-program',
+                'clientprog_id' => $client_program->clientprog_id,
+                'status_program' => 1,
+                'old_status_program' => 0,
+                'running_status_program' => 2,
+                'old_running_status_program' => 1
+            ];
+    
+            # trigger to insert log client
+            ProcessInsertLogClient::dispatch($client_data_for_log_client)->onQueue('insert-log-client')->afterCommit();
+
+            // Log success
+            $log_service->createSuccessLog(LogModule::MULTIPLE_UPDATE_CLIENT_PROGRAM, 'Multiple client programs have been updated');
+            return response()->json([
+                'message' => 'Client programs have been updated successfully.'
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            $log_service->createErrorLog(LogModule::MULTIPLE_UPDATE_CLIENT_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile());
+            throw new HttpResponseException(
+                response()->json([
+                    'message' => 'Failed to update client programs.',
+                    'error' => $e->getMessage()
+                ])
+            );
+        }
     }
 }
