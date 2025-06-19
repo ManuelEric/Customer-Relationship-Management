@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Enum\LogModule;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Jobs\Client\ProcessInsertLogClient;
+use App\Services\ClientStudentService;
 use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
@@ -20,7 +22,10 @@ class RecycleClientController extends Controller
         $this->clientRepository = $clientRepository;
     }
     
-    public function index(Request $request)
+    public function index(
+        Request $request,
+        ClientStudentService $clientStudentService
+        )
     {
         $target = $request->route('target');
         $entries = [];
@@ -60,7 +65,9 @@ class RecycleClientController extends Controller
                 }
 
                 $view = 'pages.recycle.client.student';
-                $entries = app('App\Services\ClientStudentService')->advancedFilterClient();
+                $entries = Cache::remember('global:advanced_filter', 60 * 15, function () use ($clientStudentService) {
+                    return $clientStudentService->advancedFilterClient();
+                });
                 break;
 
 
@@ -81,7 +88,7 @@ class RecycleClientController extends Controller
         }
 
         if ($request->ajax()) 
-            return $this->clientRepository->getDataTables($model);
+            return $this->clientRepository->getDataTables($model, true);
 
         return view($view)->with($entries);
     }

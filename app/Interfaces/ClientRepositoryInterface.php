@@ -66,7 +66,7 @@ interface ClientRepositoryInterface
     /* ~ END */
 
     /* trash */
-    public function getDeletedStudents($asDatatables);
+    public function getDeletedStudents($asDatatables, array $advanced_filter = []);
     public function getDeletedParents($asDatatables);
     public function getDeletedTeachers($asDatatables);
     /* ~ END */

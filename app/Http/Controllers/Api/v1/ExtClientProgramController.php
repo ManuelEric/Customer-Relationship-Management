@@ -2,14 +2,32 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Enum\LogModule;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\MainProgramTrait;
+use App\Interfaces\ClientLeadTrackingRepositoryInterface;
+use App\Jobs\Client\ProcessInsertLogClient;
+use App\Models\ClientProgram;
+use App\Models\Program;
+use App\Services\Log\LogService;
+use App\Services\Program\ClientProgramService;
+use Exception;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ExtClientProgramController extends Controller
 {
     use MainProgramTrait;
+
+    protected $clientLeadTrackingRepository;
+
+    public function __construct(
+        ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository
+    ) {
+        $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
+    }
     
     public function getSuccessPrograms(Request $request, $authorization = null): JsonResponse
     {
@@ -410,5 +428,74 @@ class ExtClientProgramController extends Controller
         }
 
         return $type_desc;
+    }
+
+    public function fnPromoteToGraduatedMentee(
+        ClientProgram $client_program,
+        LogService $log_service,
+        )
+    {
+        if ($client_program->prog_running_status == 2)
+        {
+            return response()->json([
+                'message' => 'Client was already graduated.',
+            ]);
+        }
+
+        DB::beginTransaction();
+        try {
+
+            # since we want to promote the client into mentee
+            # which mean, his/her client program should be updated into `done` or prog_running_status (2)
+            $client_program->update([
+                'prog_running_status' => 2
+            ]);
+    
+            $leads_tracking = $this->clientLeadTrackingRepository->getCurrentClientLead($client_program->client->id);
+    
+            # update status client lead tracking
+            if($leads_tracking->count() > 0){
+                foreach($leads_tracking as $lead_tracking){
+                    $this->clientLeadTrackingRepository->updateClientLeadTrackingById($lead_tracking->id, ['status' => 0]);
+                }
+            }
+            DB::commit();
+    
+            $client_data_for_log_client[] = [
+                'client_id' => $client_program->client->id,
+                'first_name' => $client_program->client->first_name,
+                'last_name' => $client_program->client->last_name,
+                'inputted_from' => 'update-client-program',
+                'clientprog_id' => $client_program->clientprog_id,
+                'status_program' => 1,
+                'old_status_program' => 0,
+                'running_status_program' => 2,
+                'old_running_status_program' => 1
+            ];
+    
+            # trigger to insert log client
+            ProcessInsertLogClient::dispatch($client_data_for_log_client)->onQueue('insert-log-client')->afterCommit();
+
+        } catch (Exception $e) {
+            
+            DB::rollBack();
+            $log_service->createErrorLog(LogModule::UPDATE_CLIENT_PROGRAM, $e->getMessage(), $e->getLine(), $e->getFile());
+            throw new HttpResponseException(
+                response()->json([
+                    'message' => 'Failed to change mentee status.',
+                    'error' => $e->getMessage()
+                ])
+            );
+        }
+        
+        # Update success
+        # create log success
+        $log_service->createSuccessLog(LogModule::UPDATE_CLIENT_PROGRAM, 'Client program has been updated');
+        return response()->json([
+            'message' => 'Client program has been updated',
+            'data' => $client_program
+        ]);
+
+
     }
 }
