@@ -13,9 +13,9 @@ trait MainProgramTrait
         switch ($requested_program)
         {
             case "academic":
-                $main_program = 'Academic & Test Preparation';
-                $group_of = null; 
-                $sub_program = ['Academic Tutoring', 'Subject Tutoring', 'ACT Prep', 'SAT Prep', 'SAT Last Minute', 'SAT Last Minute Subject', 'SAT Subject'];
+                $main_program = 'Test Preparation';
+                $group_of = 'Tutoring'; 
+                $sub_program = 'all';
                 break;
 
             case "admissions":

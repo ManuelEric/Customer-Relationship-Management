@@ -7,6 +7,7 @@
 <select name="package[{{ $programType }}][{{ $textIndex }}]" class="select w-100 tutor-package" @if(isset($disabled)) {{ $disabled }} @endif>
     <option data-placeholder="true"></option>
     @switch($programType)
+	@case("test-preparation-sat")
         @case("test-preparation")
             @foreach($testPreparationList as $key => $package)
                 <option value="{{ $package }}" 
