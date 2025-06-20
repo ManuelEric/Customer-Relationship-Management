@@ -27,6 +27,7 @@ class ReminderInvoiceToClientListener
      */
     public function handle(MessageSent $event): void
     {
+	Log::debug('Listen to', $event->data);
         /* when the title was not setup by the mail provider */
         if ( !array_key_exists('__laravel_mailable', $event->data))
             return;

@@ -114,7 +114,13 @@ class ProgramPhaseController extends Controller
 
         DB::beginTransaction();
         try {
-            $updated_clientprogram_detail = $this->programPhaseRepository->rnUpdateQuotaProgramPhase($program_phase_details['clientprog_id'], $program_phase_details['phase_detail_id'], $program_phase_details['phase_lib_id'], $program_phase_details['quota']);
+	/* temporary */
+	DB::table('client_program_details')->where('clientprog_id', $program_phase_details['clientprog_id'])
+		->where('phase_detail_id', $program_phase_details['phase_detail_id'])
+		->update(['quota' => $program_phase_details['quota'], 'updated_at' => \Illuminate\Support\Carbon::now()]);
+	$updated_clientprogram_detail = DB::table('client_program_details')->where('clientprog_id', $program_phase_details['clientprog_id'])
+		->where('phase_detail_id', $program_phase_details['phase_detail_id'])->first();
+            //$updated_clientprogram_detail = $this->programPhaseRepository->rnUpdateQuotaProgramPhase($program_phase_details['clientprog_id'], $program_phase_details['phase_detail_id'], $program_phase_details['phase_lib_id'], $program_phase_details['quota']);
 
             DB::commit();
         } catch (Exception $e) {

@@ -125,6 +125,23 @@ class SendReminderInvoiceProgramToClientCommand extends Command
                         'pic_email' => $data->internalPic->email,
                         'currency' => $data->currency,
                     ]));
+
+		switch ($payment_method) {
+                        case "Full Payment":
+                            # update reminded count to 1
+                            $updated_invoice = $this->invoiceProgramRepository->getInvoiceByClientProgId($clientprog_id);
+                            $updated_invoice->reminded = 1;
+                            $updated_invoice->save();
+                            break;
+
+                        case "Installment":
+                            # update reminded count to 1
+                            $updated_invoice_installment = $this->invoiceDetailRepository->getInvoiceDetailById($identifier);
+                            $updated_invoice_installment->reminded = 1;
+                            $updated_invoice_installment->save();
+                            break;
+                    }
+
                 } catch (Exception $e) {
     
                     $this->log_service->createErrorLog(LogModule::REMINDER_INVOICE_PROGRAM_TO_CLIENT, $e->getMessage(), $e->getLine(), $e->getFile(), []);
