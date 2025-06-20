@@ -408,11 +408,22 @@ class UserClient extends Authenticatable
 
     public function scopeIsGraduated(Builder $query)
     {
-        $query->where('grade_now', '>', 12)->whereDoesntHave('clientProgram', function ($query) {
-            $query->whereIn('status', [0, 2, 3, 5])->where('prog_running_status', '!=', 2);
-        })->whereHas('clientProgram', function ($query) {
-            $query->whereIn('status', [1, 4])->where('prog_running_status', 2);
-        });
+        $query->
+            where(function ($query) {
+                $query->where('grade_now', '>', 12)->whereDoesntHave('clientProgram', function ($query) {
+                    $query->whereIn('status', [0, 2, 3, 5]);
+                })->whereHas('clientProgram', function ($query) {
+                    $query->whereIn('status', [1, 4])->where('prog_running_status', 2);
+                });
+            })->
+            orWhere(function ($query) {
+                $query->whereHas('clientProgram', function ($query) {
+                    $query->where('prog_running_status', 2);
+                })->whereDoesntHave('clientProgram', function ($query) {
+                    $query->where('prog_running_status', '!=', 2);
+                });
+            });
+            
     }
 
     public function scopeIsActiveMentee(Builder $query)
