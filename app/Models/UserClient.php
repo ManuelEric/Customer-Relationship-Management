@@ -409,9 +409,9 @@ class UserClient extends Authenticatable
     public function scopeIsGraduated(Builder $query)
     {
         $query->where('grade_now', '>', 12)->whereDoesntHave('clientProgram', function ($query) {
-            $query->whereIn('status', [0, 2, 3, 5]);
+            $query->whereIn('status', [0, 2, 3, 5])->where('prog_running_status', '!=', 2);
         })->whereHas('clientProgram', function ($query) {
-            $query->whereIn('status', [1, 4]);
+            $query->whereIn('status', [1, 4])->where('prog_running_status', 2);
         });
     }
 
