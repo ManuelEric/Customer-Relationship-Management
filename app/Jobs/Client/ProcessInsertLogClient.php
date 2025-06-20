@@ -222,6 +222,14 @@ class ProcessInsertLogClient implements ShouldQueue
                                 
                                 $client_data['category'] = $is_admission ? 'mentee' : 'non-mentee';
                                 $clientRepository->createClientLog($client_data);
+
+                                // if running status program changed from 1 to 2
+                                // then student's category will be defined as alumni-mentee which will be processed using `defineCategoryClient`
+                                if ( $client_data['old_running_status_program'] == 1 && $client_data['running_status_program'] == 2 ) {
+                                    $client_data['category'] = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
+                                    $clientRepository->createClientLog($client_data);
+                                }
+                                
                                 break;
                                 
                             case 2: # failed
@@ -263,11 +271,18 @@ class ProcessInsertLogClient implements ShouldQueue
                             # no action
                             break;
 
-                        switch ($client_data['status_program']) {
+                        switch ($client_data['status_program']) { 
                             case 1: # success
                                 unset($client_data['old_status_program']);
                                 unset($client_data['status_program']);
                                 $client_data['category'] = $is_admission ? 'mentee' : 'non-mentee';
+
+                                // if running status program changed from 1 to 2
+                                // then student's category will be defined as alumni-mentee which will be processed using `defineCategoryClient`
+                                if ( $client_data['old_running_status_program'] == 1 && $client_data['running_status_program'] == 2 ) {
+                                    $client_data['category'] = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
+                                }
+
                                 $clientRepository->createClientLog($client_data);
                                 break;
                                 
