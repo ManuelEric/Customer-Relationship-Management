@@ -6,6 +6,7 @@ use App\Interfaces\FollowupRepositoryInterface;
 use App\Services\User\UserService;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -41,7 +42,7 @@ class SendReminderFollowupClientCommand extends Command
     # Send mail reminder followup to pic
     public function handle()
     {
-        Log::info('Cron reminder followup client working properly');
+        $timer_start = Carbon::now();
         
         $requested_date = date('Y-m-d');
         $list_followup_schedule = $this->followupRepository->getAllFollowupClientScheduleByDate($requested_date);
@@ -59,6 +60,9 @@ class SendReminderFollowupClientCommand extends Command
 
         $progress_bar->finish();
 
+        $timer_end = Carbon::now();
+        $timer_duration = $timer_end->diffInSeconds($timer_start);
+        Log::info("[REMINDER FOLLOW-UP CLIENT] has been run. It tooks {$timer_duration} seconds");
 
         return Command::SUCCESS;
     }

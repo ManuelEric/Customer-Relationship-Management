@@ -27,7 +27,7 @@ class ReminderInvoiceToClientListener
      */
     public function handle(MessageSent $event): void
     {
-	Log::debug('Listen to', $event->data);
+	    Log::debug("[MESSAGE SENT] There is an email sent from CRM", $event->data);
         /* when the title was not setup by the mail provider */
         if ( !array_key_exists('__laravel_mailable', $event->data))
             return;
@@ -44,7 +44,7 @@ class ReminderInvoiceToClientListener
                 if ( preg_match('/installment/i', $invoice_payment_method) ) // if payment method is contains "installment"
                 {
                     InvDetail::where('inv_id', $invoice_id)->where('invdtl_installment', $invoice_payment_method)->update(['reminded' => 1]);
-                    Log::debug('[MESSAGE SENT]', [
+                    Log::debug('[MESSAGE SENT] Email of Installment Invoice Reminder to Client has been sent', [
                         'invoice_id' => $invoice_id,
                         'invoice_payment_method' => $invoice_payment_method
                     ]);
@@ -52,7 +52,7 @@ class ReminderInvoiceToClientListener
                 else // if payment method is full payment
                 {
                     InvoiceProgram::where('inv_id', $invoice_id)->update(['reminded' => 1]);
-                    Log::debug('[MESSAGE SENT]', [
+                    Log::debug('[MESSAGE SENT] Email of Invoice Reminder to Client has been sent', [
                         'invoice_id' => $invoice_id,
                         'invoice_payment_method' => $invoice_payment_method
                     ]);
@@ -64,6 +64,9 @@ class ReminderInvoiceToClientListener
                 # system will update column `reminded` on tbl_invb2b and turn it into 1
                 $invoiceb2b_id = $event->data['content']['invoiceb2b_id'];
                 Invb2b::where('invb2b_id', $invoiceb2b_id)->update(['reminded' => 1]);
+                Log::debug('[MESSAGE SENT] Email of Invoice Reminder to Partner has been sent', [
+                    'invoiceb2b_id' => $invoiceb2b_id
+                ]);
                 break;
         }
     }

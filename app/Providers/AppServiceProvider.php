@@ -58,12 +58,6 @@ class AppServiceProvider extends ServiceProvider
         Paginator::defaultView('vendor.pagination.bootstrap-5');
 
 
-        /* queue logger */
-        Queue::after(function (JobProcessed $event) {
-            Log::debug('Queue : ' . json_encode($event) . ' has ran');
-        });
-
-
         /* menu manager */
         view()->composer('*', function ($view) {
 

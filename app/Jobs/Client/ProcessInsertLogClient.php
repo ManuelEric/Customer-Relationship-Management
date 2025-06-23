@@ -5,16 +5,14 @@ namespace App\Jobs\Client;
 use App\Interfaces\ClientLogRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
-use App\Models\ClientLog;
+use App\Models\UserClient;
 use App\Repositories\ClientProgramRepository;
 use Exception;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -128,7 +126,11 @@ class ProcessInsertLogClient implements ShouldQueue
         
                         # update category from tbl_client to new-lead
                         $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $client_data['category'], 'is_verified' => 'N']);
-                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
+                        Log::notice("[QUEUE PROCESS INSERT LOG CLIENT - MANUAL] Successfully update a client", [
+                            'client_id' => $updated_client->id,
+                            'client_name' => $updated_client->full_name,
+                            'category' => $client_data['category']
+                        ]);
                         break;
                     
                     case 'import-parent':
@@ -143,7 +145,11 @@ class ProcessInsertLogClient implements ShouldQueue
                         
                         # update category from tbl_client to new-lead
                         $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $client_data['category'], 'is_verified' => 'N', 'deleted_at' => null, 'is_many_request' => $this->is_many_request]);
-                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
+                        Log::notice("[QUEUE PROCESS INSERT LOG CLIENT - IMPORT / FORM EMBED / API] Successfully update a client", [
+                            'client_id' => $updated_client->id,
+                            'client_name' => $updated_client->full_name,
+                            'category' => $client_data['category']
+                        ]);
                         break;
 
                     case 'restore':
@@ -161,6 +167,12 @@ class ProcessInsertLogClient implements ShouldQueue
 
                         # update status all client program to failed 
                         $this->fnSetAllClientProgramToFailed($clientProgramRepository, $get_client);
+
+                        Log::notice("[QUEUE PROCESS INSERT LOG CLIENT - RESTORE] Successfully update a client", [
+                            'client_id' => $client_data['client_id'],
+                            'client_name' => UserClient::withTrashed()->where('id', $client_data['client_id'])->first()->full_name,
+                            'category' => $client_data['category']
+                        ]);
                         break;
                     
                     case 'verified':                        
@@ -198,7 +210,11 @@ class ProcessInsertLogClient implements ShouldQueue
                       
                         # update category from tbl_client
                         $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
-                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
+                        Log::notice("[QUEUE PROCESS INSERT LOG CLIENT - VERIFIED] Successfully update a client", [
+                            'client_id' => $updated_client->id,
+                            'client_name' => $updated_client->full_name,
+                            'category' => $define_category_from_all_program
+                        ]);
                         break;
 
                     # create or client program
@@ -258,7 +274,11 @@ class ProcessInsertLogClient implements ShouldQueue
                         $define_category_from_all_program = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
                         # update category from tbl_client
                         $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
-                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
+                        Log::notice("[QUEUE PROCESS INSERT LOG CLIENT - CREATE CLIENT PROGRAM] Successfully update a client", [
+                            'client_id' => $updated_client->id,
+                            'client_name' => $updated_client->full_name,
+                            'category' => $define_category_from_all_program
+                        ]);
                         break;
 
                     case 'update-client-program':
@@ -312,10 +332,13 @@ class ProcessInsertLogClient implements ShouldQueue
                         }
 
                         $define_category_from_all_program = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
-                        Log::debug('category from defineCategoryClient : ' . $define_category_from_all_program);
                         # update category from tbl_client
                         $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
-                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
+                        Log::notice("[QUEUE PROCESS INSERT LOG CLIENT - UPDATE CLIENT PROGRAM] Successfully update a client", [
+                            'client_id' => $updated_client->id,
+                            'client_name' => $updated_client->full_name,
+                            'category' => $define_category_from_all_program
+                        ]);
                         break;
                         
                     case 'delete-client-program':
@@ -324,7 +347,11 @@ class ProcessInsertLogClient implements ShouldQueue
                         $define_category_from_all_program = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
                         # update category from tbl_client
                         $updated_client = $clientRepository->updateClient($client_data['client_id'], ['category' => $define_category_from_all_program, 'is_verified' => 'Y', 'is_many_request' => $this->is_many_request]);
-                        Log::notice('Successfully update client  : (' . json_encode($updated_client) . ')');
+                        Log::notice("[QUEUE PROCESS INSERT LOG CLIENT - DELETE CLIENT PROGRAM] Successfully update a client", [
+                            'client_id' => $updated_client->id,
+                            'client_name' => $updated_client->full_name,
+                            'category' => $define_category_from_all_program
+                        ]);
                         break;
 
                     case 'trash':
@@ -343,7 +370,12 @@ class ProcessInsertLogClient implements ShouldQueue
                         $get_client = $clientRepository->getClientById($client_data['client_id']);
                             
                         # update status all client program to failed 
-                        $this->fnSetAllClientProgramToFailed($clientProgramRepository, $get_client);                            
+                        $this->fnSetAllClientProgramToFailed($clientProgramRepository, $get_client); 
+                        
+                        Log::notice("[QUEUE PROCESS INSERT LOG CLIENT - TRASH] Successfully update a client", [
+                            'client_id' => $updated_client->id,
+                            'client_name' => $updated_client->full_name
+                        ]);
                         break;
 
                 }
@@ -367,7 +399,7 @@ class ProcessInsertLogClient implements ShouldQueue
         # Get client program where status = 0 (pending)
         $clientprog_ids = $get_client_programs->where('status', 0)->pluck('clientprog_id')->toArray();
 
-        # Update stutus client program to failed
+        # Update status client program to failed
         $clientProgramRepository->updateClientPrograms($clientprog_ids, ['status' => 2]);
     }
 
