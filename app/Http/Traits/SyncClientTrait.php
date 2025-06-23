@@ -262,7 +262,7 @@ trait SyncClientTrait
         
     }
 
-    private function createSchoolIfNotExists($sch_name, $is_many_request = false)
+    private function createSchoolIfNotExists($sch_name, ?bool $is_many_request = false)
     {
         $last_id = School::withTrashed()->max('sch_id');
         $school_id_without_label = $this->remove_primarykey_label($last_id, 4);

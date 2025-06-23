@@ -203,7 +203,8 @@ class ExtClientProgramController extends Controller
             $clientprog_id = $data->clientprog_id;
             $invoice_id = $data->invoice?->inv_id ?? null;
             $program_name = $data->program->program_name;
-            $require = $data->program->main_prog->id == 4 ? "Tutor" : "Mentor";
+            // $require = $data->program->main_prog->id == 4 ? "Tutor" : "Mentor";
+            $require = $data->program->prog_mentor;
             $client_id = $data->client->id;
             $client_fname = $data->client->first_name;
             $client_lname = $data->client->last_name;
@@ -294,7 +295,7 @@ class ExtClientProgramController extends Controller
         ])->
         whereHas('program', function ($query) {
             $query->whereHas('main_prog', function ($query) {
-                $query->where('prog_name', 'Academic & Test Preparation');
+                $query->where('prog_name', 'Test Preparation');
             })->whereHas('sub_prog', function ($query) {
                 $query->whereIn('sub_prog_name', ['Academic Tutoring', 'Subject Tutoring']);
             });

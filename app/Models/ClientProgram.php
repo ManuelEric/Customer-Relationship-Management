@@ -200,7 +200,7 @@ class ClientProgram extends Model
 
     public function scopeGetFreeTrial(Builder $query): void
     {
-        $query->whereNotNull('trial_date');
+        $query->whereNotNull('trial_date')->orWhere('package', 'Free Trial');
     }
 
     public function scopeSuccessAndPaid(Builder $query): void

@@ -515,6 +515,7 @@ class GoogleSheetController extends Controller
 
     public function createClient($row, $type, $role, $majorDetails, $destinationCountryDetails, $school, $mainClient=null)
     {
+        // initialization default of clientId and checkExistClientRelation
         $clientId = '';
         $checkExistClientRelation = [
             'isExist' => false,
@@ -578,7 +579,6 @@ class GoogleSheetController extends Controller
         
                     if (!$newClient = UserClient::create($dataClient)) {
                         throw new Exception('Failed to store new client');
-                        Log::error('Failed to store new client');
                     } else {
                         $clientId = $newClient->id;
                         $thisNewClient = UserClient::withTrashed()->where('id', $newClient->id)->first();
@@ -620,7 +620,6 @@ class GoogleSheetController extends Controller
 
                     if (!$newClient = UserClient::create($dataClient)) {
                         throw new Exception('Failed to store new client');
-                        Log::error('Failed to store new client');
                     } else {
                         $clientId = $newClient->id;
                         $thisNewClient = UserClient::withTrashed()->where('id', $newClient->id)->first();
@@ -654,7 +653,6 @@ class GoogleSheetController extends Controller
         
                     if (!$newClient = UserClient::create($dataClient)) {
                         throw new Exception('Failed to store new client');
-                        Log::error('Failed to store new client');
                     } else {
                         $clientId = $newClient->id;
                         $thisNewClient = UserClient::withTrashed()->where('id', $newClient->id)->first();

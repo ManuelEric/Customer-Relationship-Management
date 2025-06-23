@@ -155,7 +155,7 @@ class SchoolRepository implements SchoolRepositoryInterface
         if ($school = $this->getSchoolByName($schoolDetails['sch_name']))
             return $school;
 
-        $last_id = School::max('sch_id');
+        $last_id = School::withTrashed()->max('sch_id');
         $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
         $school_id_with_label = 'SCH-' . $this->add_digit((int)$school_id_without_label + 1, 4);
 
