@@ -530,6 +530,9 @@
                     </form>
                 </div>
             </div>
+            
+            @include('pages.program.client-program.detail.payment')
+
         </div>
     </div>
 
