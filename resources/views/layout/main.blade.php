@@ -125,7 +125,7 @@
                                     class="position-absolute ms-1 top-1 start-100 translate-middle badge rounded-pill bg-danger"
                                     style="font-size: 11px">
                                     <small>
-                                        {{ $birthDay->count() }}
+                                        {{ count($birthDay) }}
                                     </small>
                                 </span>
                             @endif
