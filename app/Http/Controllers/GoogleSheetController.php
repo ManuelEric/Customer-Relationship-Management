@@ -526,6 +526,7 @@ class GoogleSheetController extends Controller
             case 'main':
                 $phone = $this->tnSetPhoneNumber($row['Phone Number']);
                 $existClient = $this->checkExistingClientImport($phone, $row['Email']);
+                
                 $email = $row['Email'];
                 $fullname = $row['Name'];
                 break;
@@ -555,7 +556,6 @@ class GoogleSheetController extends Controller
         switch ($role) {
             case 'Student':
                 if (!$existClient['isExist'] && !$checkExistClientRelation['isExist']) {
-                    
                     $st_grade = null;
         
                     if ($row['Class Of'] != null || $row['Class Of'] != '') {
@@ -579,14 +579,14 @@ class GoogleSheetController extends Controller
         
                     if (!$newClient = UserClient::create($dataClient)) {
                         throw new Exception('Failed to store new client');
-                    } else {
-                        $clientId = $newClient->id;
-                        $thisNewClient = UserClient::withTrashed()->where('id', $newClient->id)->first();
-        
-                        $thisNewClient->roles()->attach($roleId);
-                        isset($majorDetails) ? $this->syncInterestMajor($row['Itended Major'], $thisNewClient) : '';
-                        isset($destinationCountryDetails) ? $this->syncDestinationCountry($row['Destination Country'], $thisNewClient) : null;
-                    }
+                    } 
+
+                    $clientId = $newClient->id;
+                    $thisNewClient = UserClient::withTrashed()->where('id', $newClient->id)->first();
+    
+                    $thisNewClient->roles()->attach($roleId);
+                    isset($majorDetails) ? $this->syncInterestMajor($row['Itended Major'], $thisNewClient) : '';
+                    isset($destinationCountryDetails) ? $this->syncDestinationCountry($row['Destination Country'], $thisNewClient) : null;
 
                 } else if ($checkExistClientRelation['isExist'] && $checkExistClientRelation['client'] != null){
                     $existClientStudent = $checkExistClientRelation['client'];

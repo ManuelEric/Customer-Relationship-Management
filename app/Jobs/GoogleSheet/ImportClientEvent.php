@@ -113,14 +113,12 @@ class ImportClientEvent implements ShouldQueue
 
             // 3. Create a main client using GoogleSheetController::createClient
             $created_main_client_id = app(GoogleSheetController::class)->createClient($val, 'main', $val['Audience'], $val['Itended Major'], $val['Destination Country'], $school);
-            Log::debug('Main Client: ' . $created_main_client_id);
 
             // 4. Retrieve main_client data using created_main_client_id
             $main_client = UserClient::withTrashed()->where('id', $created_main_client_id)->first();
 
             // 5. Create a secondary client if the audience is Student or Parent and the `child or parent name` column is filled
             $created_sub_client_id = ($val['Audience'] == 'Student' || $val['Audience'] == 'Parent') && isset($val['Child or Parent Name']) ? app(GoogleSheetController::class)->createClient($val, 'sub', $roleSub, $val['Itended Major'], $val['Destination Country'], $school, $main_client) : null;
-            Log::debug('Sub Client: ' . $created_sub_client_id);
 
             // 6. Retrieve sub_client data using created_sub_client_id
             $sub_client = UserClient::withTrashed()->where('id', $created_sub_client_id)->first();
