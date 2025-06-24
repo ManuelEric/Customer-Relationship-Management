@@ -362,7 +362,7 @@ class GoogleSheetController extends Controller
                         '*.Registration Type' => ['nullable', 'in:PR,OTS'],
                         // '*.Existing_new_leads' => ['required', 'in:Existing,New'],
                         // '*.mentee_non_mentee' => ['required', 'in:Mentee,Non-mentee'],
-                        '*.School' => ['required'],
+                        '*.School' => ['required_if:Audience,Student'],
                         '*.Class Of' => ['nullable', 'integer'],
                         '*.Lead' => ['required'],
                         // '*.Event' => ['required_if:lead,LS003', 'nullable', 'exists:tbl_events,event_id'],
@@ -376,6 +376,8 @@ class GoogleSheetController extends Controller
                         '*.Reason Join' => ['nullable'],
                         '*.Expectation Join' => ['nullable'],
                         '*.Status' => ['required', 'in:Join,Attend'],
+                        '*.PIC' => ['nullable'],
+                        '*.Grade' => ['required_if:Audience,Student']
                     ];
     
     

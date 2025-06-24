@@ -2483,7 +2483,7 @@ class ClientRepository implements ClientRepositoryInterface
                 ],
                 'education' => [
                     'school' => isset($child->school) ? $child->school->sch_name : null,
-                    'grade' => $child->gradeNow,
+                    'grade' => $child->grade_now,
                 ],
                 'country' => $child->destinationCountries->pluck('name')->toArray()
             ],

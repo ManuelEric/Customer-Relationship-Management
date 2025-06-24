@@ -156,11 +156,11 @@ Route::middleware(['throttle:120,1'])->group(function () {
         Route::middleware(['resource:timesheet,editing'])->group(function () {
             Route::get('auth/email/check', [ExtClientController::class, 'checkUserEmail']);
             Route::post('auth/token', [ExtClientController::class, 'validateCredentials']);
+            Route::post('user/update', [ExtClientController::class, 'updateUser']);
         });
     
         # timesheet
         Route::middleware(  ['resource:timesheet'])->group(function () {
-            Route::post('user/update', [ExtClientController::class, 'updateUser']);
     
             Route::get('user/mentor-tutors', [ExtClientController::class, 'getMentorTutors']);
             Route::get('user/mentor-tutors/{uuid}', [ExtClientController::class, 'showMentorTutor']);

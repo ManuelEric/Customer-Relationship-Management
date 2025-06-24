@@ -38,10 +38,10 @@ class UserRepository implements UserRepositoryInterface
     public function rnGetAllUsersByRoleDataTables($role)
     {
         return DataTables::eloquent(
-            User::leftJoin('tbl_position', 'tbl_position.id', '=', 'users.position_id')->
-            whereHas('roles', function ($query) use ($role) {
-                $query->where('role_name', 'like', '%'.$role.'%');
-            })
+                User::leftJoin('tbl_position', 'tbl_position.id', '=', 'users.position_id')->
+                whereHas('roles', function ($query) use ($role) {
+                    $query->where('role_name', 'like', '%'.$role.'%');
+                })
                 ->select([
                     'users.id as id',
                     'first_name',
@@ -67,7 +67,7 @@ class UserRepository implements UserRepositoryInterface
                     'active',
 
                 ])
-        )
+            )
             ->filterColumn('full_name', function ($query, $keyword) {
                 $sql = 'CONCAT(first_name, " ", COALESCE(last_name, "")) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);

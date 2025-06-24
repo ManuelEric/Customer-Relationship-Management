@@ -77,6 +77,35 @@ class UserController extends Controller
     public function index(Request $request): mixed
     {
         $role = str_replace('-', ' ', $request->route('user_role'));
+        return \App\Models\User::leftJoin('tbl_position', 'tbl_position.id', '=', 'users.position_id')->
+                whereHas('roles', function ($query) use ($role) {
+                    $query->where('role_name', 'like', '%'.$role.'%');
+                })
+                ->select([
+                    'users.id as id',
+                    'first_name',
+                    'last_name',
+                    DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as full_name'),
+                    'email',
+                    'phone',
+                    'tbl_position.position_name',
+                    DB::raw('(SELECT GROUP_CONCAT(tbl_univ.univ_name SEPARATOR ", ") FROM tbl_user_educations
+                        JOIN tbl_univ on tbl_univ.univ_id = tbl_user_educations.univ_id
+                        WHERE users.id = tbl_user_educations.user_id
+                        GROUP BY tbl_user_educations.user_id ORDER BY tbl_user_educations.degree ASC) as graduation_from'),
+                    DB::raw('(SELECT GROUP_CONCAT(tbl_major.name SEPARATOR ", ") FROM tbl_user_educations
+                        JOIN tbl_major ON tbl_major.id = tbl_user_educations.major_id
+                        WHERE users.id = tbl_user_educations.user_id
+                        GROUP BY tbl_user_educations.user_id ORDER BY tbl_user_educations.degree ASC) as major_group'),
+                    'datebirth',
+                    'nik',
+                    'npwp',
+                    'account_no as bankacc',
+                    'emergency_contact_phone as emergency_contact',
+                    'address',
+                    'active',
+                ])->pluck('id')->toArray();
+        $role = str_replace('-', ' ', $request->route('user_role'));
         if ($request->ajax())
             return $this->userRepository->rnGetAllUsersByRoleDataTables($role);
 
