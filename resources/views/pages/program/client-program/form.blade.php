@@ -732,6 +732,8 @@
                     } catch (error) {
                         console.log(error);
                         notification('error', error)
+                    } finally {
+                        Swal.close();
                     }
                 }
 
@@ -757,6 +759,8 @@
                     } catch (error) {
                         console.log(error);
                         notification('error', error)
+                    } finally {
+                        Swal.close();
                     }
                 }
 
