@@ -968,8 +968,21 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $clientProgram->clientMentor()->updateExistingPivot($additionalDetails['writing_mentor'], ['type' => 4, 'status' => $status]); # Writing mentor
             }
 
-            if(count($mentorInfo) > 0){
-                $clientProgram->clientMentor()->sync($mentorInfo, ['status' => $status]);
+            // if array of mentor info is higher than 0, meaning that user has submitted mentors
+            if(count($mentorInfo) > 0) {
+
+                // deactive mentor who are not selected to be supervisor / profile building / etc.
+                $clientProgram->clientMentor()->whereNotIn('user_id', collect($mentorInfo)->pluck('user_id')->toArray())->update(['status' => 0]);
+                
+                // store mentor who are selected to be supervisor / profile building / etc.
+                foreach ($mentorInfo as $mentor_detail) {
+                    
+                    if ( !$clientProgram->clientMentor()->where('user_id', $mentor_detail['user_id'])->where('type', $mentor_detail['type'])->where('status', $mentor_detail['status'])->exists() )
+                    {
+                        $clientProgram->clientMentor()->attach($mentor_detail['user_id'], ['type' => $mentor_detail['type'], 'status' => $mentor_detail['status']]);
+                    }
+                }
+                // $clientProgram->clientMentor()->sync($mentorInfo, ['status' => $status]);
             }
         }
 
