@@ -31,7 +31,7 @@ use App\Http\Controllers\PaymentGatewayController;
 use App\Http\Controllers\ProgramPhaseController as V1APIProgramPhaseController;
 use App\Http\Controllers\Api\v1\MajorController as V1APIMajorController;
 
-Route::middleware(['throttle:120,1'])->group(function () {
+Route::middleware(['throttle:250,1'])->group(function () {
 
     # auth
     Route::post('auth/login', [V1APIAuthController::class, 'login']);

@@ -376,8 +376,6 @@ class GoogleSheetController extends Controller
                         '*.Reason Join' => ['nullable'],
                         '*.Expectation Join' => ['nullable'],
                         '*.Status' => ['required', 'in:Join,Attend'],
-                        '*.PIC' => ['nullable'],
-                        '*.Grade' => ['required_if:Audience,Student']
                     ];
     
     
