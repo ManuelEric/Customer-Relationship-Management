@@ -404,11 +404,11 @@ class StoreClientProgramRequest extends FormRequest
                         $fail('The submitted mentor was invalid mentor');
                     }
 
-                    if (UserClient::whereHas('clientMentor', function($query) use ($value) {
-                            $query->where('user_id', $value);
-                        })->where('tbl_client.id', $studentId)->count() > 0) {
-                        $fail('The choosen backup mentor has already exist');
-                    }
+                    // if (UserClient::whereHas('clientMentor', function($query) use ($value) {
+                    //         $query->where('user_id', $value);
+                    //     })->where('tbl_client.id', $studentId)->count() > 0) {
+                    //     $fail('The choosen backup mentor has already exist');
+                    // }
                 },
                 'required',
                 // 'required_if:status,1',
@@ -421,11 +421,11 @@ class StoreClientProgramRequest extends FormRequest
                     })->find($value)) {
                         $fail('The submitted mentor was invalid mentor');
                     }
-                    if (UserClient::whereHas('clientMentor', function($query) use ($value) {
-                        $query->where('user_id', $value);
-                    })->where('id', $studentId)->count() > 0) {
-                        $fail('The choosen backup mentor has already exist');
-                    }
+                    // if (UserClient::whereHas('clientMentor', function($query) use ($value) {
+                    //     $query->where('user_id', $value);
+                    // })->where('id', $studentId)->count() > 0) {
+                    //     $fail('The choosen backup mentor has already exist');
+                    // }
                 },
                 'nullable'
             ],
@@ -437,11 +437,11 @@ class StoreClientProgramRequest extends FormRequest
                         $fail('The submitted mentor was invalid mentor');
                     }
 
-                    if (UserClient::whereHas('clientMentor', function($query) use ($value) {
-                        $query->where('user_id', $value);
-                    })->where('id', $studentId)->count() > 0) {
-                        $fail('The choosen backup mentor has already exist');
-                    }
+                    // if (UserClient::whereHas('clientMentor', function($query) use ($value) {
+                    //     $query->where('user_id', $value);
+                    // })->where('id', $studentId)->count() > 0) {
+                    //     $fail('The choosen backup mentor has already exist');
+                    // }
                 },
                 'nullable',
                 // 'required_if:status,1',
@@ -455,11 +455,11 @@ class StoreClientProgramRequest extends FormRequest
                         $fail('The submitted mentor was invalid mentor');
                     }
 
-                    if (UserClient::whereHas('clientMentor', function($query) use ($value) {
-                        $query->where('user_id', $value);
-                    })->where('id', $studentId)->count() > 0) {
-                        $fail('The choosen backup mentor has already exist');
-                    }
+                    // if (UserClient::whereHas('clientMentor', function($query) use ($value) {
+                    //     $query->where('user_id', $value);
+                    // })->where('id', $studentId)->count() > 0) {
+                    //     $fail('The choosen backup mentor has already exist');
+                    // }
                 },
                 'nullable',
                 // 'required_if:status,1',

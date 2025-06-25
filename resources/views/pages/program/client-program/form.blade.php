@@ -820,6 +820,7 @@
 
                     renderCKEditor()
                     checkReferral()
+                    Swal.close()
                 })
 
                 onMounted(async () => {
