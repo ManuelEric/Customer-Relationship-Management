@@ -182,7 +182,7 @@ class User extends Authenticatable
     public function scopeRole(Builder $query, String $role): void
     {
         $query->whereHas('roles', function ($sub) use ($role) {
-            $sub->where('role_name', 'like', '%'.$role);
+            $sub->where('role_name', $role);
         });
     }
 

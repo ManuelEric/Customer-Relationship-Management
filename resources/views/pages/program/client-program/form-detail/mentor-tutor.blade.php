@@ -58,7 +58,7 @@
                 <div class="col-md-6">
                     <select name="subject_specialist_mentor" id="" class="select w-100" {{ $disabled }}>
                         <option data-placeholder="true"></option>
-                        @foreach ($mentors as $mentor)
+                        @foreach ($externalMentors as $mentor)
                             <option value="{{ $mentor->id }}" @selected(old('subject_specialist_mentor') == $mentor->id)
                                 @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 6)->latest()->first())->id == $mentor->id)>{{ $mentor->first_name . ' ' . $mentor->last_name }}
                             </option>

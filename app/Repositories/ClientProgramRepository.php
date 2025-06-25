@@ -979,7 +979,17 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     
                     if ( !$clientProgram->clientMentor()->where('user_id', $mentor_detail['user_id'])->where('type', $mentor_detail['type'])->where('status', $mentor_detail['status'])->exists() )
                     {
-                        $clientProgram->clientMentor()->attach($mentor_detail['user_id'], ['type' => $mentor_detail['type'], 'status' => $mentor_detail['status']]);
+                        // in case you've question why did you use create instead of attach?
+                        // the answer is, because I need to trigger the observer and because attach doesn't triggered the observer then I need to use `create`
+                        ClientMentor::create([
+                            'clientprog_id' => $clientProgram->clientprog_id,
+                            'user_id' => $mentor_detail['user_id'],
+                            'type' => $mentor_detail['type'],
+                            'status' => $mentor_detail['status'],
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now(),
+                        ]);
+                        // $clientProgram->clientMentor()->attach($mentor_detail['user_id'], ['type' => $mentor_detail['type'], 'status' => $mentor_detail['status']]);
                     }
                 }
                 // $clientProgram->clientMentor()->sync($mentorInfo, ['status' => $status]);
