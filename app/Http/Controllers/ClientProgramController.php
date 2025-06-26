@@ -192,11 +192,17 @@ class ClientProgramController extends Controller
         $sub_leads = $this->leadRepository->getAllKOLlead();
         $sub_leads = $this->clientProgramService->snMappingLeads($sub_leads, 'sub_lead');
         $conversion_leads = $main_leads->merge($sub_leads);
+        $testPreparationList = ['Group', 'Express', 'Bootcamp', 'Private', 'Semi Private', 'Hourly', 'Deposit Trial'];
+        $subjectTutoringList = ['Basic', 'Pro', 'Elite', 'Hourly', 'Free Trial', 'Deposit Trial', 'Bonus'];
+        $competitionList = ['Group'];
+        $skillsetTutoringList = ['Private', 'Deposit Trial'];
 
         return view('pages.program.client-program.index')->with(
             [
                 'programs' => $programs,
                 'mainPrograms' => $main_programs,
+                'packages' => array_merge($testPreparationList, $subjectTutoringList, $competitionList, $skillsetTutoringList),
+                'curriculums' => ['IBDP', 'IB MYP', 'Cambridge ALevel', 'Cambridge IGCSE', 'Advanced Placement', 'National'],
                 'schools' => $schools,
                 'conversion_leads' => $conversion_leads,
                 'mentor_tutors' => $mentor_tutors,

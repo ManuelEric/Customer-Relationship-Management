@@ -69,6 +69,16 @@
                             </select>
                         </div>
                         <div class="col-md-12 mb-2">
+                            <label>Package</label>
+                            <select name="package[]" class="select form-select form-select-sm w-100" multiple id="package">
+                                @foreach ($packages as $key => $value)
+                                    <option value="{{ $value }}"
+                                        @selected ($request->get('package') !== null && in_array($value, $request->get('package')))
+                                        >{{ $value }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-2">
                             <label for="">School Name</label>
                             <select name="school_name[]" class="select form-select form-select-sm w-100" multiple
                                 id="school-name">
@@ -439,7 +449,7 @@
                     },
                     {
                         data: 'lead_source',
-                        name: 'c.lead_source',
+                        name: 'cl.main_lead',
                         className: 'text-center'
                     },
                     {

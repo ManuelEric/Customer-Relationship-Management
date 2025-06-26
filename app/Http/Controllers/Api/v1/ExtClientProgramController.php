@@ -354,6 +354,7 @@ class ExtClientProgramController extends Controller
             },
             'clientMentor' => function ($query) {
                 $query->
+                    wherePivot('status', 1)->
                     select('users.id', 'phone', 'email', 'password', 'active');
             }
         ])->

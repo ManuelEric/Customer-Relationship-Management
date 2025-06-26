@@ -753,17 +753,19 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             $status = 1;
 
             if (isset($clientProgramDetails['tutor_1']))
+            {
                 $tutors['tutor_1'] = $clientProgramDetails['tutor_1'];
                 $tutors['timesheet_1'] = $clientProgramDetails['timesheet_1'];
                 $clientProgram->clientMentor()->attach($tutors['tutor_1'], ['type' => 5, 'status' => $status, 'timesheet_link' => $tutors['timesheet_1']]);
+            }
                 
             if (isset($clientProgramDetails['tutor_2']))
+            {
                 $tutors['tutor_2'] = $clientProgramDetails['tutor_2'];
                 $tutors['timesheet_2'] = $clientProgramDetails['timesheet_2'];
                 $clientProgram->clientMentor()->attach($tutors['tutor_2'], ['type' => 5, 'status' => $status, 'timesheet_link' => $tutors['timesheet_2']]);
+            }
             
-
-
         }
 
 

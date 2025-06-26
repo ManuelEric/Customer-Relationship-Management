@@ -210,11 +210,11 @@ class ClientProgram extends Model
         $query->
             where('tbl_client_prog.status', 1)->
             whereNot('tbl_client_prog.prog_running_status', 2)->
-            where(function ($query) {
-                $query->
-                    where('prog_end_date', '>=', Carbon::now())->
-                    orWhere('last_class', '>=', Carbon::now());
-            })->
+            // where(function ($query) {
+            //     $query->
+            //         where('prog_end_date', '>=', Carbon::now())->
+            //         orWhere('last_class', '>=', Carbon::now());
+            // })->
             where(function ($query2) {
                 $query2->has('invoice')->has('invoice.receipt');
             });
