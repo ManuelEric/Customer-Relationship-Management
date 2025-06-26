@@ -362,7 +362,7 @@ class ClientProgramController extends Controller
 
         DB::beginTransaction();
         try {
-            $updateClientProgramAction->execute($request, $client_program_id, $client_program_details, $student);
+            $updated_client_program = $updateClientProgramAction->execute($request, $client_program_id, $client_program_details, $student);
             DB::commit();
         } catch (Exception $e) {
 

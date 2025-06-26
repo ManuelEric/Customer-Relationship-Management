@@ -79,7 +79,7 @@ class UpdateClientProgramAction
             'status_program' => $client_program_details['status'],
             'old_status_program' => $old_client_program->status,
             'running_status_program' => isset($client_program_details['prog_running_status']) ? $client_program_details['prog_running_status'] : null,
-            'old_running_status_program' => isset($old_client_program->prog_running_status) ? $old_client_program->prog_running_status : null
+            'old_running_status_program' => $old_client_program->prog_running_status
         ];
 
         # trigger to insert log client

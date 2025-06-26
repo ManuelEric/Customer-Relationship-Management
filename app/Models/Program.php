@@ -198,7 +198,7 @@ class Program extends Model
 
     public function scopeSATACTProgList($query)
     {
-        return $query->where('prog_program', 'like', '%SAT%')->whereHas('sub_prog', function ($query) {
+        return $query->where('prog_program', 'like', '%SAT%')->orWhereHas('sub_prog', function ($query) {
             $query->where('sub_prog_name', 'like', '%SAT%')->orWhere('sub_prog_name', 'like', '%ACT%');
         });
     }

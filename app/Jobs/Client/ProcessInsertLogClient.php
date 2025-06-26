@@ -386,7 +386,7 @@ class ProcessInsertLogClient implements ShouldQueue
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Failed to insert log client : ' . $e->getMessage() . ' on line ' . $e->getLine());
+            Log::error('Failed to insert log client : ' . $e->getMessage() . ' on '. $e->getFile() .' at line ' . $e->getLine());
         }
 
         Log::notice('Successfully insert log client  : (' . json_encode($this->clients_data) . ')');
