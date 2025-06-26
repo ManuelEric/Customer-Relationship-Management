@@ -432,7 +432,9 @@ class UserClient extends Authenticatable
             whereRelation('clientProgram.program.main_prog', 'prog_name', 'Admissions Mentoring')->
             whereRelation('clientProgram', 'status', 1)->
             whereDoesntHave('clientProgram', function ($query) {
-                $query->where('prog_running_status', 2);
+                $query->whereHas('program.main_prog', function ($query) {
+                    $query->where('prog_name', 'Admissions Mentoring');
+                })->where('prog_running_status', 2);
             });
             // whereRelation('clientProgram', 'prog_running_status', '!=', 2)
     }

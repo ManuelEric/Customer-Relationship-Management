@@ -211,6 +211,7 @@
             <div class="col-md">
                 <div class="row">
                     <div class="col-md-6">
+                        {{ $clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->get() }}
                         <select name="tutor_2" class="select w-100" {{ $disabled }}>
                             <option data-placeholder="true"></option>
                             @foreach ($tutors as $tutor)
