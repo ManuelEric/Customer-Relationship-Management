@@ -224,7 +224,7 @@ class ProcessInsertLogClient implements ShouldQueue
 
                         $is_admission = $clientProgramRepository->checkProgramIsAdmission($client_data['clientprog_id']);
                         
-                        switch ($client_data['status_program']) {
+                        switch ((int) $client_data['status_program']) {
                             case 0: # pending
                                 unset($client_data['status_program']);
                                 $client_data['category'] = 'potential';
@@ -232,23 +232,19 @@ class ProcessInsertLogClient implements ShouldQueue
                                 break;
                                 
                             case 1: # success
-                                Log::warning("Test Insert Program");
                                 unset($client_data['status_program']);
                                 $client_data['category'] = 'potential';
                                 $clientRepository->createClientLog($client_data);
-                                Log::warning("Test Insert Program: ". $client_data['category']);
                                 
                                 $client_data['category'] = $is_admission ? 'mentee' : 'non-mentee';
                                 $clientRepository->createClientLog($client_data);
-                                Log::warning("Test Insert Program: ". $client_data['category']);
 
                                 // if running status program changed from 1 to 2
                                 // then student's category will be defined as alumni-mentee which will be processed using `defineCategoryClient`
-                                if ( $client_data['old_running_status_program'] == 1 && $client_data['running_status_program'] == 2 ) {
-                                    $client_data['category'] = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
-                                    $clientRepository->createClientLog($client_data);
-                                    Log::warning("Test Insert Program: ". $client_data['category']);
-                                }
+                                // if ( $client_data['old_running_status_program'] == 1 && $client_data['running_status_program'] == 2 ) {
+                                //     $client_data['category'] = $clientRepository->defineCategoryClient($client_data, $this->is_many_request)['category'];
+                                //     $clientRepository->createClientLog($client_data);
+                                // }
                                 
                                 break;
                                 
