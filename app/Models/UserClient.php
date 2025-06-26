@@ -446,8 +446,6 @@ class UserClient extends Authenticatable
         });
     }
 
-
-
     public function getLeadSource($parameter)
     {
         switch ($parameter) {

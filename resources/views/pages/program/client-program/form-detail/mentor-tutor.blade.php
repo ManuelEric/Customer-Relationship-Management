@@ -211,7 +211,6 @@
             <div class="col-md">
                 <div class="row">
                     <div class="col-md-6">
-                        {{ $clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->get() }}
                         <select name="tutor_2" class="select w-100" {{ $disabled }}>
                             <option data-placeholder="true"></option>
                             @foreach ($tutors as $tutor)
@@ -224,7 +223,7 @@
                                     }
                                 @endphp
                                 <option value="{{ $tutor->id }}" @selected(old('tutor_2') == $tutor->id)
-                                    @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->latest()->first())->id == $tutor->id && $clientProgram->clientMentor()->count() > 1)>
+                                    @selected(isset($clientProgram->clientMentor) && optional($clientProgram->clientMentor()->wherePivot('status', 1)->where('type', 5)->latest('number')->first())->id == $tutor->id && $clientProgram->clientMentor()->count() > 1)>
                                     {{ $tutor->first_name . ' ' . $tutor->last_name . (count($subjects) > 0 ? ' - ' . json_encode($subjects) : '') }}
                                 </option>
                             @endforeach
