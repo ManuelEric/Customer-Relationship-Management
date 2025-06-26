@@ -9,6 +9,7 @@ use App\Jobs\Client\ProcessDefineCategory;
 use App\Jobs\Client\ProcessInsertLogClient;
 use App\Models\Program;
 use App\Services\Program\ClientProgramService;
+use Illuminate\Support\Facades\Log;
 
 class CreateClientProgramAction
 {
@@ -68,6 +69,7 @@ class CreateClientProgramAction
             'clientprog_id' => $new_client_program_id,
             'status_program' => $client_program_details['status'],
         ];
+        Log::warning("Insert Log Client", $client_data_for_log_client);
 
         # trigger to insert log client
         ProcessInsertLogClient::dispatch($client_data_for_log_client)->onQueue('insert-log-client');
