@@ -295,10 +295,13 @@ class ExtClientProgramController extends Controller
         ])->
         whereHas('program', function ($query) {
             $query->whereHas('main_prog', function ($query) {
-                $query->where('prog_name', 'Test Preparation');
-            })->whereHas('sub_prog', function ($query) {
-                $query->whereIn('sub_prog_name', ['Academic Tutoring', 'Subject Tutoring']);
+                $query->whereIn('prog_name', ['Test Preparation', 'Subject Tutoring', 'Skillset Tutoring', 'Competition']);
             });
+
+            //! commented because Academic Tutoring and Subject Tutoring turns into main program
+            // ->whereHas('sub_prog', function ($query) {
+            //     $query->whereIn('sub_prog_name', ['Academic Tutoring', 'Subject Tutoring']);
+            // });
         })->
         pending()->
         getFreeTrial()->
