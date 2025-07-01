@@ -159,7 +159,7 @@ class ClientLog extends Model
     public function scopeTutoring(Builder $query): void
     {
         $query->whereHas('client_program.program.main_prog', function ($sub) {
-            $sub->where('prog_name', 'Academic & Test Preparation');
+            $sub->where('group_of', 'Tutoring');
         });
     }
 
