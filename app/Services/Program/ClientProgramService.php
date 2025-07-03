@@ -89,6 +89,8 @@ class ClientProgramService
         $data['emplUUID'] = array_filter($empl_uuid, fn ($value) => !is_null($value)) ?? null;;
         $data['startDate'] = $request->get('start_date') ?? null;
         $data['endDate'] = $request->get('end_date') ?? null;
+        $data['package'] = $request->get('package') ?? null;
+        $data['curriculum'] = $request->get('curriculum') ?? null;
 
         return $data;
     }

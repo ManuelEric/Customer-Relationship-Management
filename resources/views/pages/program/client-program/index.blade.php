@@ -79,6 +79,16 @@
                             </select>
                         </div>
                         <div class="col-md-12 mb-2">
+                            <label>Curriculum</label>
+                            <select name="curriculum[]" class="select form-select form-select-sm w-100" multiple id="curriculum">
+                                @foreach ($curriculums as $key => $value)
+                                    <option value="{{ $value }}"
+                                        @selected ($request->get('curriculum') !== null && in_array($value, $request->get('curriculum')))
+                                        >{{ $value }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-2">
                             <label for="">School Name</label>
                             <select name="school_name[]" class="select form-select form-select-sm w-100" multiple
                                 id="school-name">
@@ -189,6 +199,8 @@
                         <th>School</th>
                         <th>Grade</th>
                         <th>Program Name</th>
+                        <th>Package</th>
+                        <th>Curriculum</th>
                         <th>Register By</th>
                         <th>Parent Name</th>
                         <th>Parent Mail</th>
@@ -214,7 +226,7 @@
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="17"></td>
+                        <td colspan="19"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -415,6 +427,12 @@
                         //     return row.referral_type == "Out" ? row.additional_prog_name : row
                         //         .program_name
                         // }
+                    },
+                    {
+                        data: 'package',
+                    },
+                    {
+                        data: 'curriculum',
                     },
                     {
                         data: 'register_by',

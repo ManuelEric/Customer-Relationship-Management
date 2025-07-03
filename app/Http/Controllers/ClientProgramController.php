@@ -23,8 +23,10 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\LoggingTrait;
 use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\ClientProgramLogMailRepositoryInterface;
+use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\ProgramPhaseRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
+use App\Models\Curriculum;
 use App\Models\MainProg;
 use App\Models\Program;
 use App\Services\Log\LogService;
@@ -62,6 +64,7 @@ class ClientProgramController extends Controller
     private ClientProgramService $clientProgramService;
     private ProgramService $programService;
     private ProgramPhaseRepositoryInterface $programPhaseRepository;
+    private CurriculumRepositoryInterface $curriculumRepository;
     private $admission_prog_list;
     private $tutoring_prog_list;
     private $subject_tutoring_list;
@@ -71,7 +74,25 @@ class ClientProgramController extends Controller
 
     use CreateCustomPrimaryKeyTrait;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository, TagRepositoryInterface $tagRepository, ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ClientProgramService $clientProgramService, ProgramService $programService, ProgramPhaseRepositoryInterface $programPhaseRepository)
+    public function __construct(
+        ClientRepositoryInterface $clientRepository, 
+        ProgramRepositoryInterface $programRepository, 
+        LeadRepositoryInterface $leadRepository, 
+        EventRepositoryInterface $eventRepository, 
+        EdufLeadRepositoryInterface $edufLeadRepository, 
+        UserRepositoryInterface $userRepository, 
+        CorporateRepositoryInterface $corporateRepository, 
+        ReasonRepositoryInterface $reasonRepository, 
+        ClientProgramRepositoryInterface $clientProgramRepository, 
+        ClientEventRepositoryInterface $clientEventRepository, 
+        SchoolRepositoryInterface $schoolRepository, 
+        TagRepositoryInterface $tagRepository, 
+        ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository, 
+        ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, 
+        ClientProgramService $clientProgramService, 
+        ProgramService $programService, 
+        ProgramPhaseRepositoryInterface $programPhaseRepository,
+        CurriculumRepositoryInterface $curriculumRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->programRepository = $programRepository;
@@ -90,6 +111,7 @@ class ClientProgramController extends Controller
         $this->clientProgramService = $clientProgramService;
         $this->programService = $programService;
         $this->programPhaseRepository = $programPhaseRepository;
+        $this->curriculumRepository = $curriculumRepository;
 
         /* list of admissions program */
         $this->admission_prog_list = Program::admissionProgList()->pluck('prog_id')->toArray();
@@ -156,6 +178,10 @@ class ClientProgramController extends Controller
             return MainProg::orderBy('prog_name', 'asc')->get();
         });
 
+        // $curriculums = Cache::remember('client_program:curriculums', 60 * 15, function () {
+        //     return $this->curriculumRepository->getAllCurriculums();
+        // });
+
         return [
             'main_programs' => $main_programs,
             'programs' => $programs,
@@ -169,12 +195,12 @@ class ClientProgramController extends Controller
             'mentors' => $mentors,
             'externalMentors' => $external_mentors,
             'reasons' => $reasons,
+            // 'curriculums' => $curriculums,
         ];
     }
 
     public function index(Request $request)
     {
-
         $data_filter = $this->clientProgramService->snSetFilterDataIndex($request);
 
         if ($request->ajax()) {
@@ -201,7 +227,7 @@ class ClientProgramController extends Controller
             [
                 'programs' => $programs,
                 'mainPrograms' => $main_programs,
-                'packages' => array_merge($testPreparationList, $subjectTutoringList, $competitionList, $skillsetTutoringList),
+                'packages' => array_unique(array_merge($testPreparationList, $subjectTutoringList, $competitionList, $skillsetTutoringList)),
                 'curriculums' => ['IBDP', 'IB MYP', 'Cambridge ALevel', 'Cambridge IGCSE', 'Advanced Placement', 'National'],
                 'schools' => $schools,
                 'conversion_leads' => $conversion_leads,

@@ -354,6 +354,8 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         'p.main_prog_name',
                         'sch.sch_name AS school_name',
                         'p.program_name AS program_names',
+                        'tbl_client_prog.package',
+                        'tbl_client_prog.curriculum',
                         DB::raw("CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, '')) AS parent_fullname"),
                         'parent.phone as parent_phone',
                         'parent.mail as parent_mail',
@@ -477,6 +479,14 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         $query->whereHas('internalPic', function ($query2) use ($searchQuery) {
                             $query2->whereIn('users.id', $searchQuery['emplUUID']);
                         });
+                    })
+                    # search by package
+                    ->when(isset($searchQuery['package']) && count($searchQuery['package']) > 0, function ($query) use ($searchQuery) {
+                        $query->whereIn('package', $searchQuery['package']);
+                    })
+                    # search by curriculum
+                    ->when(isset($searchQuery['curriculum']) && count($searchQuery['curriculum']) > 0, function ($query) use ($searchQuery) {
+                        $query->whereIn('curriculum', $searchQuery['curriculum']);
                     })
                     ->groupBy('tbl_client_prog.clientprog_id');
 
