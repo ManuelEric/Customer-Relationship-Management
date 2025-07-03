@@ -395,6 +395,7 @@ class ExtClientProgramController extends Controller
                 'clientprog_id' => $clientprog_id,
                 'invoice_id' => $invoice_id,
                 'program_name' => $program_name,
+                'is_active' => $data->status == 1 && $data->prog_running_status != 2 ? 1 : 0,
                 'require' => $require,
                 'mentors' => $mentor_pics,
                 'client' => [

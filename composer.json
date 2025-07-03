@@ -25,6 +25,7 @@
         "laravel/tinker": "^2.9",
         "laravolt/indonesia": "^0.35.0",
         "league/flysystem-aws-s3-v3": "^3.29",
+        "livewire/livewire": "^3.6",
         "lwwcas/laravel-countries": "^3.5",
         "maatwebsite/excel": "^3.1",
         "mostafaznv/laracache": "^2.4",
@@ -45,7 +46,7 @@
         "laravel/sail": "^1.26",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.0",
-        "phpunit/phpunit": "^11.0.1",
+        "pestphp/pest": "^3.8",
         "spatie/laravel-ignition": "^2.8"
     },
     "autoload": {

@@ -25,6 +25,8 @@ class UserSubject extends Pivot
         'additional_fee',
         'agreement',
         'head',
+        'month_start',
+        'month_end',
         'year'
     ];
 

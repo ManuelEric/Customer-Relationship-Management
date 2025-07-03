@@ -46,6 +46,6 @@ class SubjectRepository implements SubjectRepositoryInterface
 
     public function rnGetAllSubjectsByRole(string $role)
     {
-        return Subject::where('role', $role)->get();
+        return Subject::where('role', $role)->orderBy('name', 'asc')->get();
     }
 }
