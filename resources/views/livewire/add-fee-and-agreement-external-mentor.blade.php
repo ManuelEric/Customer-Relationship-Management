@@ -29,42 +29,41 @@
                     <tr class="text-center">
                         <td>#</td>
                         <td>Periode</td>
-                        <td>Subject</td>
-                        <td>Grade</td>
+                        <td>Stream</td>
+                        <td>Package</td>
+                        <td>Engagement Type</td>
                         <td>Fee Individual</td>
-                        <td>Fee Group</td>
-                        <td>Head Count <i class="bi bi-question-circle" alt="group fee will be activated when total minimum of head count achieved"></i></td>
                         <td>Agreement</td>
                         <td>Action</td>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($user->user_subjects as $role_subject)
+                    @forelse($user->user_streams as $role_stream)
                         @php
-                            $file_path = 'project/crm/user/'.$user->id.'/'.$role_subject->agreement;
+                            $file_path = 'project/crm/user/'.$user->id.'/'.$role_stream->agreement;
                             $url = Storage::disk('s3')->temporaryUrl($file_path, now()->addMinutes(5));
                         @endphp
                         <tr>
                             <td>{{ $loop->iteration }}.</td>
                             <td class="text-center">
-                                {{ date('M', strtotime($role_subject->year.'-'.$role_subject->month_start.'-01')) 
+                                {{ date('M', strtotime($role_stream->year.'-'.$role_stream->month_start.'-01')) 
                                 . " - " 
-                                . date('M', strtotime($role_subject->year.'-'.$role_subject->month_end.'-01'))
+                                . date('M', strtotime($role_stream->year.'-'.$role_stream->month_end.'-01'))
                                 . " " 
-                                . $role_subject->year 
+                                . $role_stream->year 
                                 ?? 'n/a' }}
                             </td>
-                            <td>{{ $role_subject->subject->name ?? 'n/a' }}</td>
-                            <td class="text-center">{{ $role_subject->grade ?? 'n/a' }}</td>
-                            <td>{{ $role_subject->fee_individual ? "Rp. ".number_format($role_subject->fee_individual) : 'n/a' }}</td>
-                            <td>{{ $role_subject->fee_group ? "Rp. ".number_format($role_subject->fee_group) : 'n/a' }}</td>
-                            <td class="text-center">{{ $role_subject->head ?? 'n/a' }}</td>
-                            <td class="text-center">{!! $role_subject->agreement ? "<a href='{$url}' target='_blank'>view</a>" : 'n/a' !!}</td>
+                            <td>{{ $role_stream->stream->stream_name ?? 'n/a' }}</td>
+                            <td>{{ $role_stream->package ?? 'n/a' }}</td>
+                            <td class="text-center">{{ $role_stream->grade ?? 'n/a' }}</td>
+                            <td>{{ $role_stream->fee_individual ? "Rp. ".number_format($role_stream->fee_individual) : 'n/a' }}</td>
+                            <td class="text-center">{!! $role_stream->agreement ? "<a href='{$url}' target='_blank'>view</a>" : 'n/a' !!}</td>
                             <td class="text-center">
-                                <button type="button" class="btn btn-sm btn-warning" wire:click="edit({{ $role_subject->id }})" data-bs-toggle="modal" data-bs-target="#agreementForm"><i class="bi bi-pencil"></i></button>
+                                <button type="button" class="btn btn-sm btn-warning" wire:click="edit({{ $role_stream->id }})" data-bs-toggle="modal" data-bs-target="#agreementForm"><i class="bi bi-pencil"></i></button>
                                 <button type="button" class="btn btn-sm btn-danger ms-1" 
-                                x-data
-                                @click.prevent="if (confirm('Are you sure you want to delete? This cannot be undone.')) { $wire.delete({{ $role_subject->id }}) }"><i class="bi bi-trash"></i></button>
+                                    x-data
+                                    @click.prevent="if (confirm('Are you sure you want to delete? This cannot be undone.')) { $wire.delete({{ $role_stream->id }}) }"
+                                ><i class="bi bi-trash"></i></button>
                             </td>
                         </tr>
 
@@ -95,14 +94,30 @@
                         @csrf
                         <div class="row">
                             <div class="col-md-12 mb-2">
-                                <label for="">Subject <sup class="text-danger">*</sup></label>
-                                <select wire:model="subject_id" class="form-select form-select-sm w-100">
-                                    <option data-placeholder="true">Select Subject</option>
-                                    @forelse ($tutor_subjects as $subject)
-                                        <option value="{{ $subject->id }}">{{ $subject->name }}</option>
+                                <label for="">Stream <sup class="text-danger">*</sup></label>
+                                <select wire:model="stream_id" class="form-select form-select-sm w-100">
+                                    <option data-placeholder="true">Select Stream</option>
+                                    @forelse ($streams as $stream)
+                                        <option value="{{ $stream->id }}">{{ $stream->stream_name }}</option>
                                     
                                     @empty
-                                        <option>No subjects fetched</option>
+                                        <option>No streams fetched</option>
+                                    @endforelse
+                                </select>
+                                @error('subject_id')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-12 mb-2">
+                                <label for="">Package <sup class="text-danger">*</sup></label>
+                                <select wire:model="package" class="form-select form-select-sm w-100">
+                                    <option data-placeholder="true">Select Package</option>
+                                    @forelse ($packages as $key => $package)
+                                        <option value="{{ $package }}">{{ $package }}</option>
+                                    
+                                    @empty
+                                        <option>No streams fetched</option>
                                     @endforelse
                                 </select>
                                 @error('subject_id')
@@ -158,9 +173,9 @@
 
                             
                             
-                            <div class="col-md-2 mb-2">
+                            <div class="col-md-4 mb-2">
                                 <label for="">Grade</label>
-                                <select wire:model="grade" class="form-select form-select-sm">
+                                <select wire:model="grade" class="form-select form-select-sm" disabled>
                                     <option data-placeholder="true"></option>
                                     <option value="9-12">All</option>
                                     <option value="9-10">9-10</option>
@@ -170,17 +185,10 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            <div class="col-md-2 mb-2">
+                            <div class="col-md-4 mb-2">
                                 <label for="">Fee Individual (Gross) <sup class="text-danger">*</sup></label>
                                 <input class="form-control form-control-sm rounded" type="number" wire:model="fee_individual" placeholder="230625">
                                 @error('fee_individual')
-                                    <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror
-                            </div>
-                            <div class="col-md-2 mb-2">
-                                <label for="">Fee Group (Gross) <sup class="text-danger">*</sup></label>
-                                <input class="form-control form-control-sm rounded" type="number" wire:model="fee_group" placeholder="256250">
-                                @error('fee_group')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
@@ -191,14 +199,6 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div> --}}
-                            <div class="col-md-2 mb-2">
-                                <label for="">Head Count <i class="bi bi-question-circle" alt="group fee will be activated when total minimum of head count achieved"></i></label>
-                                <input class="form-control form-control-sm rounded" type="number" wire:model="head">
-                                @error('head')
-                                    <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror
-                            </div>
-
                             
                             <div class="col-md-4 mb-2">
                                 <label for="">Agreement File @if (!$isEdit)<sup class="text-danger">*</sup>@endif</label>

@@ -14,7 +14,7 @@ use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
-class AddFeeAndAgreement extends Component
+class AddFeeAndAgreementTutor extends Component
 {
     use WithFileUploads;
 
@@ -42,14 +42,14 @@ class AddFeeAndAgreement extends Component
         return [
             'subject_id' => 'required|exists:tbl_subjects,id',
             'month_start' => 'required|min:1|max:12',
-            'month_end' => 'required|min:1|max:12',
+            'month_end' => 'required|min:1|max:12|gte:month_start',
             'year' => 'required',
             'grade' => 'required',
             'fee_individual' => 'required',
             'fee_group' => 'required',
             'head' => 'required',
-            'agreement' => ['required', 'file', 'mimes:pdf', 'max:1024', function ($attribute, $value, $fail) {
-                if ( $this->isEdit == false )
+            'agreement' => ['sometimes', 'file', 'mimes:pdf', 'max:1024', function ($attribute, $value, $fail) {
+                if ( $this->isEdit == false && !$this->agreement )
                     $fail('The :attribute is required');
             }],
         ];
@@ -60,6 +60,8 @@ class AddFeeAndAgreement extends Component
         $this->user = $user;
         $this->user_role_id = $this->user->roles()->where('role_name', 'Tutor')->first()->pivot->id;
         $this->tutor_subjects = $subjectRepository->getAllSubjects();
+        
+        /* default value */
         $this->year = Carbon::now()->format('Y');
         $this->head = 2;
         $this->grade = "9-12";
@@ -94,7 +96,7 @@ class AddFeeAndAgreement extends Component
             if ( $this->agreement ) {
                 $fileName = 'Agreement-' . str_replace(' ', '_', $this->user->first_name . '_' . $this->user->last_name . '-' . $this->subject_id . '-' . Carbon::now()->format('Ymdhis') . '-' . $this->year);
                 $agreementPath = $fileName.'.'.$this->agreement->getClientOriginalExtension();
-                $this->agreement->storeAs('project/crm/user/'.$this->user->id, $agreementPath, 'public');
+                $this->agreement->storeAs('project/crm/user/'.$this->user->id, $agreementPath, 's3');
             }
             
     
@@ -176,7 +178,7 @@ class AddFeeAndAgreement extends Component
             $user_subject->grade = $this->grade;
             $user_subject->fee_individual = $this->fee_individual;
             $user_subject->fee_group = $this->fee_group;
-            $user_subject->savedd();
+            $user_subject->save();
     
             $this->resetFields();
             $this->dispatch('agreement-updated');
@@ -214,14 +216,6 @@ class AddFeeAndAgreement extends Component
         
     public function render()
     {
-        switch($this->role)
-        {
-            case "tutor":
-                return view('livewire.add-fee-and-agreement-tutor');
-
-            case "external-mentor":
-                // return view('livewire.add-fee-and-agreement-ext-mentor');
-        }
-        
+        return view('livewire.add-fee-and-agreement-tutor');
     }
 }

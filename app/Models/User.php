@@ -8,6 +8,7 @@ use App\Events\MessageSent;
 use App\Models\pivot\AgendaSpeaker;
 use App\Models\pivot\AssetUsed;
 use App\Models\pivot\UserRole;
+use App\Models\pivot\UserStream;
 use App\Models\pivot\UserSubject;
 use App\Models\pivot\UserTypeDetail;
 use App\Observers\UserObserver;
@@ -386,6 +387,11 @@ class User extends Authenticatable
     public function user_subjects()
     {
         return $this->hasManyThrough(UserSubject::class, UserRole::class, 'user_id', 'user_role_id', 'id', 'id')->with('subject', 'user_roles');
+    }
+
+    public function user_streams()
+    {
+        return $this->hasManyThrough(UserStream::class, UserRole::class, 'user_id', 'user_role_id', 'id', 'id')->with('stream', 'user_roles');
     }
 
     # applied when user from sales department

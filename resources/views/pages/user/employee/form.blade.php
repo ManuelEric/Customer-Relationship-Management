@@ -223,7 +223,11 @@
             </div>
 
             
-            <livewire:add-fee-and-agreement role="tutor" :$user/>
+            @if (Request::route('user_role') == 'tutor')
+                <livewire:add-fee-and-agreement-tutor :$user/>
+            @elseif (Request::route('user_role') == 'external-mentor')
+                <livewire:add-fee-and-agreement-external-mentor :$user />
+            @endif
 
         </div>
     </div>
