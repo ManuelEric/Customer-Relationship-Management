@@ -257,7 +257,7 @@ class ClientProgramController extends Controller
         $client_program = $this->clientProgramRepository->getClientProgramById($client_program_id);
 
         # If status program success && program is mentoring then fetch program bought
-        if($client_program->status == 1 && $client_program->program->main_prog_id == 1){
+        if($client_program->status == 1 && $client_program->program->main_prog_id == 1) {
             $program_phases = $this->programPhaseRepository->getProgramPhase();
         }
 
