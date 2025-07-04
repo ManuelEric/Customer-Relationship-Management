@@ -562,14 +562,14 @@
 
                 // Function 
                 const showLoading = () => {
-                    Swal.fire({
-                        allowOutsideClick: false,
-                        showConfirmButton: false,
-                        width: '100px',
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
+                    // Swal.fire({
+                    //     allowOutsideClick: false,
+                    //     showConfirmButton: false,
+                    //     width: '100px',
+                    //     didOpen: () => {
+                    //         Swal.showLoading();
+                    //     }
+                    // });
                 }
 
                 const notification = (status, message) => {
@@ -820,7 +820,6 @@
 
                     renderCKEditor()
                     checkReferral()
-                    Swal.close()
                 })
 
                 onMounted(async () => {

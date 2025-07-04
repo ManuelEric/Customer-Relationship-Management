@@ -81,7 +81,7 @@ class StoreUserRequest extends FormRequest
             'account_name' => 'required',
             'account_no' => 'required',
             'nik' => 'required',
-            'idcard' => 'required|mimes:pdf,jpeg,jpg,png|max:5000',
+            'idcard' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000',
             'npwp' => 'nullable',
             'tax' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000',
             'health_insurance' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000',
@@ -176,7 +176,7 @@ class StoreUserRequest extends FormRequest
         $user = $this->userRepository->rnGetUserById($userId);
 
         if ($user->idcard == null)
-            $rules['idcard'] = 'required|mimes:pdf,jpeg,jpg,png|max:5000';
+            $rules['idcard'] = 'nullable|mimes:pdf,jpeg,jpg,png|max:5000';
 
         // if ( $total_roles > 0 )
         // {
