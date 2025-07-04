@@ -22,37 +22,38 @@ class AddFeeAndAgreement extends Component
     public $isEdit = false;
     public $months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-    #[Validate('required|exists:tbl_subjects,id')]
     public $subject_id;
-
-    #[Validate('required|min:1|max:12')]
     public $month_start;
-
-    #[Validate('required|min:1|max:12')]
     public $month_end;
-
-    #[Validate('required')]
     public $year;
-
-    #[Validate('required')]
     public $grade;
-
-    #[Validate('required')]
     public $fee_individual;
-
-    #[Validate('required')]
     public $fee_group;
-
-    #[Validate('required')]
     public $head;
-
-    #[Validate('nullable|file|mimes:pdf|max:1024')]
     public $agreement;
 
 
 
     protected SubjectRepositoryInterface $subjectRepository;
     protected $log_service;
+
+    protected function rules()
+    {
+        return [
+            'subject_id' => 'required|exists:tbl_subjects,id',
+            'month_start' => 'required|min:1|max:12',
+            'month_end' => 'required|min:1|max:12',
+            'year' => 'required',
+            'grade' => 'required',
+            'fee_individual' => 'required',
+            'fee_group' => 'required',
+            'head' => 'required',
+            'agreement' => ['required', 'file', 'mimes:pdf', 'max:1024', function ($attribute, $value, $fail) {
+                if ( $this->isEdit == false )
+                    $fail('The :attribute is required');
+            }],
+        ];
+    }
 
     public function mount($user, SubjectRepositoryInterface $subjectRepository, LogService $log_service)
     {
@@ -152,7 +153,7 @@ class AddFeeAndAgreement extends Component
             if ( $this->agreement )
             {
                 // Delete old file if it exists
-                if ( $user_subject->agreement && Storage::disk('public')->exists('project/crm/user/'.$this->user->id.'/'.$user_subject->agreement)) {
+                if ( $user_subject->agreement && Storage::disk('s3')->exists('project/crm/user/'.$this->user->id.'/'.$user_subject->agreement)) {
                     // delete file
                     Storage::disk('public')->delete('project/crm/user/'.$this->user->id.'/'.$user_subject->agreement);
                 }
@@ -195,9 +196,9 @@ class AddFeeAndAgreement extends Component
         try {
             $user_subject = UserSubject::find($user_subject_id);
 
-            if (Storage::disk('public')->exists('project/crm/user/'.$this->user->id.'/'.$user_subject->agreement)) {
+            if (Storage::disk('s3')->exists('project/crm/user/'.$this->user->id.'/'.$user_subject->agreement)) {
                 // delete file
-                Storage::disk('public')->delete('project/crm/user/'.$this->user->id.'/'.$user_subject->agreement);
+                Storage::disk('s3')->delete('project/crm/user/'.$this->user->id.'/'.$user_subject->agreement);
             }
             // delete record
             $user_subject->delete();

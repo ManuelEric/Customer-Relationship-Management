@@ -40,7 +40,10 @@
                 </thead>
                 <tbody>
                     @forelse($user->user_subjects as $role_subject)
-
+                        @php
+                            $file_path = 'project/crm/user/'.$user->id.'/'.$role_subject->agreement;
+                            $url = Storage::disk('s3')->temporaryUrl($file_path, now()->addMinutes(5));
+                        @endphp
                         <tr>
                             <td>{{ $loop->iteration }}.</td>
                             <td class="text-center">
@@ -56,7 +59,7 @@
                             <td>{{ $role_subject->fee_individual ? "Rp. ".number_format($role_subject->fee_individual) : 'n/a' }}</td>
                             <td>{{ $role_subject->fee_group ? "Rp. ".number_format($role_subject->fee_group) : 'n/a' }}</td>
                             <td class="text-center">{{ $role_subject->head ?? 'n/a' }}</td>
-                            <td class="text-center">{!! $role_subject->agreement ? "<a href='#' target='_blank'>view</a>" : 'n/a' !!}</td>
+                            <td class="text-center">{!! $role_subject->agreement ? "<a href='{$url}' target='_blank'>view</a>" : 'n/a' !!}</td>
                             <td class="text-center">
                                 <button type="button" class="btn btn-sm btn-warning" wire:click="edit({{ $role_subject->id }})" data-bs-toggle="modal" data-bs-target="#agreementForm"><i class="bi bi-pencil"></i></button>
                                 <button type="button" class="btn btn-sm btn-danger ms-1" wire:click="delete({{ $role_subject->id }})" onclick="return confirm('Are you sure?')"><i class="bi bi-trash"></i></button>
