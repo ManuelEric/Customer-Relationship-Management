@@ -178,7 +178,7 @@ class ExtClientProgramController extends Controller
                 $query->select('clientprog_id', 'inv_id');
             },
             'program' => function ($query) {
-                $query->select('prog_id', 'main_prog_id', 'prog_program');
+                $query->select('prog_id', 'main_prog_id', 'prog_program', 'prog_mentor');
             }
         ])->
         whereHas('program', function ($query) use ($main_program, $sub_program) {

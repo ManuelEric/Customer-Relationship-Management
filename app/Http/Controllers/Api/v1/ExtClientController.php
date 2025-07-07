@@ -1940,28 +1940,59 @@ class ExtClientController extends Controller
             # fetch the roles
             foreach ($result->roles as $role) {
 
+                switch($role->role_name) {
+                    case "Tutor":
+                        $subjects_or_streams = $result->user_subjects->count() > 0 ? $result->user_subjects->map(function ($item) {
+                            return [
+                                'id' => $item->id,
+                                'subject' => $item->subject->name,
+                                'month_start' => $item->month_start,
+                                'month_end' => $item->month_end,
+                                'year' => $item->year,
+                                'grade' => $item->grade,
+                                'fee_individual' => $item->fee_individual,
+                                'head' => $item->head,
+                                'fee_group' => $item->fee_group,
+                                'additional_fee' => $item->additional_fee,
+                                'agreement' => $item->agreement,
+                            ];
+                        }) : null;
+                        break;
+                    case "External Mentor":
+                        // for external mentor, retrieve from user_streams
+                        $subjects_or_streams = $result->user_streams->count() > 0 ? $result->user_streams->map(function ($item) {
+                            return [
+                                'id' => $item->id,
+                                'stream' => $item->stream->stream_name,
+                                'package' => $item->package,
+                                'month_start' => $item->month_start,
+                                'month_end' => $item->month_end,
+                                'year' => $item->year,
+                                'fee_individual' => $item->fee_individual,
+                                'head' => $item->head,
+                                'grade' => $item->grade,
+                                'additional_fee' => $item->additional_fee,
+                                'agreement' => $item->agreement
+                            ];
+                        }) : null;
+                        break;
+
+                }
+
                 $mappedRoles[] = [
                     'role_name' => $role->role_name,
-                    'subjects' => $result->user_subjects && $role->role_name == 'Tutor' ? $result->user_subjects->map(function ($item) {
-                        return [
-                            'id' => $item->id,
-                            'subject' => $item->subject->name,
-                            'year' => $item->year,
-                            'agreement' => $item->agreement,
-                            'head' => $item->head,
-                            'additional_fee' => $item->additional_fee,
-                            'grade' => $item->grade,
-                            'fee_individual' => $item->fee_individual,
-                            'fee_group' => $item->fee_group,
-                        ];
-                    }) : null
+                    'subjects' => $subjects_or_streams
                 ];
             }
 
             $resultInArray = $result->toArray();
             $resultInArray['roles'] = $mappedRoles;
 
+            /* use unset in order to remove user_subjects or user_streams collection from array */
             unset($resultInArray['user_subjects']);
+            unset($resultInArray['user_streams']);
+
+            /* has_npwp used for determine value of tax */
             $resultInArray['has_npwp'] = $result->npwp ? true : false;
         }
 

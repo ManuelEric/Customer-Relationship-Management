@@ -31,7 +31,7 @@ use App\Http\Controllers\PaymentGatewayController;
 use App\Http\Controllers\ProgramPhaseController as V1APIProgramPhaseController;
 use App\Http\Controllers\Api\v1\MajorController as V1APIMajorController;
 
-Route::middleware(['throttle:250,1'])->group(function () {
+Route::middleware(['throttle:2500,1'])->group(function () {
 
     # auth
     Route::post('auth/login', [V1APIAuthController::class, 'login']);
@@ -153,14 +153,14 @@ Route::middleware(['throttle:250,1'])->group(function () {
     });
 
         # essay editing & timesheet API use
-        Route::middleware(['resource:timesheet,editing'])->group(function () {
+        // Route::middleware(['resource:timesheet,editing'])->group(function () {
             Route::get('auth/email/check', [ExtClientController::class, 'checkUserEmail']);
             Route::post('auth/token', [ExtClientController::class, 'validateCredentials']);
             Route::post('user/update', [ExtClientController::class, 'updateUser']);
-        });
+        // });
     
         # timesheet
-        Route::middleware(  ['resource:timesheet'])->group(function () {
+        // Route::middleware(  ['resource:timesheet'])->group(function () {
     
             Route::get('user/mentor-tutors', [ExtClientController::class, 'getMentorTutors']);
             Route::get('user/mentor-tutors/{uuid}', [ExtClientController::class, 'showMentorTutor']);
@@ -172,7 +172,7 @@ Route::middleware(['throttle:250,1'])->group(function () {
 
             Route::get('program/list/free-trial', [ExtClientProgramController::class, 'fnGetFreeTrialPrograms']);
             Route::get('client/information/{uuid}', [ExtClientController::class, 'getClientInformation']);
-        });
+        // });
     
         # mentoring 
         Route::middleware(['resource:mentoring'])->group(function () {

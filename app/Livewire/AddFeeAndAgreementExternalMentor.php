@@ -20,7 +20,7 @@ class AddFeeAndAgreementExternalMentor extends Component
     public $months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     /* engagement type */
-    public $packages = ['Professional Sharing 1on1', 'Professional Sharing 2-10 mentees', 'Professional Sharing >10 mentees', 'Competition Mentorship', 'Subject-Specific Project Mentorship', 'Essay Mentoring', 'Essay Program Development'];
+    public $packages = ['Professional Sharing 1-on-1', 'Professional Sharing 2-10 Mentees', 'Professional Sharing >10 Mentees', 'Competition Mentorship', 'Subject-Specific Project Mentorship', 'Essay Mentoring', 'Essay Program Development'];
 
     /* form request */
     public $stream_id, $package, $month_start, $month_end, $year, $grade, $fee_individual, $agreement;
