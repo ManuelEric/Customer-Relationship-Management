@@ -8,6 +8,7 @@
             {{ session('error') }}
         </div>
     @endif
+
     {{-- A good traveler has no fixed plans and is not intent upon arriving. --}}
     <div class="card mb-3">
         <div class="card-header d-flex align-items-center justify-content-between">
@@ -28,12 +29,14 @@
                 <thead class="bg-dark text-white">
                     <tr class="text-center">
                         <td>#</td>
-                        <td>Periode</td>
+                        <td>Active Date</td>
+                        <td>To</td>
                         <td>Subject</td>
+                        <td>Curriculum</td>
                         <td>Grade</td>
                         <td>Fee Individual</td>
                         <td>Fee Group</td>
-                        <td>Head Count <i class="bi bi-question-circle" alt="group fee will be activated when total minimum of head count achieved"></i></td>
+                        {{-- <td>Head Count <i class="bi bi-question-circle" alt="group fee will be activated when total minimum of head count achieved"></i></td> --}}
                         <td>Agreement</td>
                         <td>Action</td>
                     </tr>
@@ -46,19 +49,14 @@
                         @endphp
                         <tr>
                             <td>{{ $loop->iteration }}.</td>
-                            <td class="text-center">
-                                {{ date('M', strtotime($role_subject->year.'-'.$role_subject->month_start.'-01')) 
-                                . " - " 
-                                . date('M', strtotime($role_subject->year.'-'.$role_subject->month_end.'-01'))
-                                . " " 
-                                . $role_subject->year 
-                                ?? 'n/a' }}
-                            </td>
+                            <td class="text-center">{{ $role_subject->start_date ? date('d, M Y', strtotime($role_subject->start_date)) : 'n/a' }}</td>
+                            <td class="text-center">{{ $role_subject->end_date ? date('d, M Y', strtotime($role_subject->end_date)) : 'n/a' }}</td>
                             <td>{{ $role_subject->subject->name ?? 'n/a' }}</td>
+                            <td>{{ $role_subject->curriculum }}</td>
                             <td class="text-center">{{ $role_subject->grade ?? 'n/a' }}</td>
                             <td>{{ $role_subject->fee_individual ? "Rp. ".number_format($role_subject->fee_individual) : 'n/a' }}</td>
                             <td>{{ $role_subject->fee_group ? "Rp. ".number_format($role_subject->fee_group) : 'n/a' }}</td>
-                            <td class="text-center">{{ $role_subject->head ?? 'n/a' }}</td>
+                            {{-- <td class="text-center">{{ $role_subject->head ?? 'n/a' }}</td> --}}
                             <td class="text-center">{!! $role_subject->agreement ? "<a href='{$url}' target='_blank'>view</a>" : 'n/a' !!}</td>
                             <td class="text-center">
                                 <button type="button" class="btn btn-sm btn-warning" wire:click="edit({{ $role_subject->id }})" data-bs-toggle="modal" data-bs-target="#agreementForm"><i class="bi bi-pencil"></i></button>
@@ -70,7 +68,7 @@
 
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center">No data</td>
+                            <td colspan="10" class="text-center">No data</td>
                         </tr>
                 
                     @endforelse
@@ -94,10 +92,9 @@
                     <form id="live" wire:submit.prevent="{{ $isEdit ? 'update' : 'store' }}" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
-                            <div class="col-md-12 mb-2">
+                            <div class="col-md-6 mb-2">
                                 <label for="">Subject <sup class="text-danger">*</sup></label>
-                                <select wire:model="subject_id" class="form-select form-select-sm w-100">
-                                    <option data-placeholder="true">Select Subject</option>
+                                <select wire:model="subject_id" @if(!$isEdit) multiple @endif class="form-select form-select-sm w-100">
                                     @forelse ($tutor_subjects as $subject)
                                         <option value="{{ $subject->id }}">{{ $subject->name }}</option>
                                     
@@ -109,45 +106,38 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
+
+                            <div class="col-md-6 mb-2">
+                                <label for="">Curriculum <sup class="text-danger">*</sup></label>
+                                <select wire:model="selectedCurriculums" @if(!$isEdit) multiple @endif class="form-select form-select-sm w-100">
+                                    @forelse ($curriculums as $key => $curriculum)
+                                        <option value="{{ $curriculum }}">{{ $curriculum }}</option>
+                                    
+                                    @empty
+                                        <option>No curriculum fetched</option>
+                                    @endforelse
+                                </select>
+                                @error('selectedCurriculums')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
                             
                             <div>
                                 <div class="row px-3 py-2">
                                     <fieldset class="border p-3">
                                         <legend  class="float-none ps-2" style="width:80px; font-size: 14px; font-weight:500">Duration</legend>
                                         <div class="row">
-                                            <div class="col-md-4 mb-2">
+                                            <div class="col-md-6 mb-2">
                                                 <label for="">From <sup class="text-danger">*</sup></label>
-                                                <select wire:model="month_start" class="form-select form-select-sm w-100">
-                                                    <option data-placeholder="true">Select Month</option>
-                                                    @foreach ($months as $key => $month)
-                                                        <option value="{{ $key+1 }}">{{ $month }}</option>
-                                                    @endforeach
-                                                </select>
-                                                @error('month_start')
+                                                <input type="date" wire:model="start_date" class="form-control form-control-sm rounded" />
+                                                @error('start_date')
                                                     <small class="text-danger fw-light">{{ $message }}</small>
                                                 @enderror
                                             </div>
-                                            <div class="col-md-4 mb-2">
+                                            <div class="col-md-6 mb-2">
                                                 <label for="">To <sup class="text-danger">*</sup></label>
-                                                <select wire:model="month_end" class="form-select form-select-sm w-100">
-                                                    <option data-placeholder="true">Select Month</option>
-                                                    @foreach ($months as $key => $month)
-                                                        <option value="{{ $key+1 }}">{{ $month }}</option>
-                                                    @endforeach
-                                                </select>
-                                                @error('month_end')
-                                                    <small class="text-danger fw-light">{{ $message }}</small>
-                                                @enderror
-                                            </div>
-                                            <div class="col-md-4 mb-2">
-                                                <label for="">Year <sup class="text-danger">*</sup></label>
-                                                <select wire:model="year" class="form-select form-select-sm w-100">
-                                                    <option data-placeholder="true">Select Year</option>
-                                                    @for ($year = date('Y') - 3; $year <= date('Y') + 5; $year++)
-                                                        <option value="{{$year}}">{{ $year }}</option>
-                                                    @endfor
-                                                </select>
-                                                @error('year')
+                                                <input type="date" wire:model="end_date" class="form-control form-control-sm rounded" />
+                                                @error('end_date')
                                                     <small class="text-danger fw-light">{{ $message }}</small>
                                                 @enderror
                                             </div>
@@ -170,15 +160,15 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            <div class="col-md-2 mb-2">
+                            <div class="col-md-3 mb-2">
                                 <label for="">Fee Individual (Gross) <sup class="text-danger">*</sup></label>
                                 <input class="form-control form-control-sm rounded" type="number" wire:model="fee_individual" placeholder="230625">
                                 @error('fee_individual')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            <div class="col-md-2 mb-2">
-                                <label for="">Fee Group (Gross) <sup class="text-danger">*</sup></label>
+                            <div class="col-md-3 mb-2">
+                                <label for="">Fee Group (Gross) </label>
                                 <input class="form-control form-control-sm rounded" type="number" wire:model="fee_group" placeholder="256250">
                                 @error('fee_group')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -191,13 +181,13 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div> --}}
-                            <div class="col-md-2 mb-2">
+                            {{-- <div class="col-md-2 mb-2">
                                 <label for="">Head Count <i class="bi bi-question-circle" alt="group fee will be activated when total minimum of head count achieved"></i></label>
                                 <input class="form-control form-control-sm rounded" type="number" wire:model="head">
                                 @error('head')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
-                            </div>
+                            </div> --}}
 
                             
                             <div class="col-md-4 mb-2">
@@ -243,6 +233,9 @@ $wire.on('agreement-updated', () => {
     $("#agreementForm").modal('hide')
 });
 $wire.on('agreement-created', () => {
+    $("#agreementForm").modal('hide')
+});
+$wire.on('agreement-failed', () => {
     $("#agreementForm").modal('hide')
 });
 </script>

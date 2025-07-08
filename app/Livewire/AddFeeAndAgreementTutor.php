@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Enum\LogModule;
+use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\SubjectRepositoryInterface;
 use App\Models\pivot\UserSubject;
 use App\Services\Log\LogService;
@@ -19,13 +20,12 @@ class AddFeeAndAgreementTutor extends Component
     use WithFileUploads;
 
     public $user, $role, $tutor_subjects, $user_role_id, $user_subject_id;
+    public $curriculums = ['IBDP', 'IB MYP', 'Cambridge ALevel', 'Cambridge IGCSE', 'Advanced Placement', 'National'];
     public $isEdit = false;
-    public $months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-    public $subject_id;
-    public $month_start;
-    public $month_end;
-    public $year;
+    public $subject_id = []; // will hold multiple values
+    public $selectedCurriculums = []; // will hold multiple values
+    public $start_date;
+    public $end_date;
     public $grade;
     public $fee_individual;
     public $fee_group;
@@ -40,39 +40,41 @@ class AddFeeAndAgreementTutor extends Component
     protected function rules()
     {
         return [
-            'subject_id' => 'required|exists:tbl_subjects,id',
-            'month_start' => 'required|min:1|max:12',
-            'month_end' => 'required|min:1|max:12|gte:month_start',
-            'year' => 'required',
+            'subject_id.*' => 'required|exists:tbl_subjects,id',
+            'selectedCurriculums.*' => 'required',
+            'start_date' => 'required',
+            'end_date' => 'required|gte:start_date',
             'grade' => 'required',
             'fee_individual' => 'required',
-            'fee_group' => 'required',
-            'head' => 'required',
-            'agreement' => ['sometimes', 'file', 'mimes:pdf', 'max:1024', function ($attribute, $value, $fail) {
+            'fee_group' => 'nullable',
+            'head' => 'nullable',
+            'agreement' => ['nullable', 'file', 'mimes:pdf', 'max:1024', function ($attribute, $value, $fail) {
                 if ( $this->isEdit == false && !$this->agreement )
                     $fail('The :attribute is required');
             }],
         ];
     }
 
-    public function mount($user, SubjectRepositoryInterface $subjectRepository, LogService $log_service)
+    public function mount(
+        $user, 
+        SubjectRepositoryInterface $subjectRepository, 
+        LogService $log_service)
     {
         $this->user = $user;
         $this->user_role_id = $this->user->roles()->where('role_name', 'Tutor')->first()->pivot->id;
         $this->tutor_subjects = $subjectRepository->getAllSubjects();
         
         /* default value */
-        $this->year = Carbon::now()->format('Y');
-        $this->head = 2;
         $this->grade = "9-12";
         $this->log_service = $log_service;
     }
 
     public function resetFields()
     {
-        $this->subject_id = null;
-        $this->month_start = null;
-        $this->month_end = null;
+        $this->subject_id = [];
+        $this->selectedCurriculums = [];
+        $this->start_date = null;
+        $this->end_date = null;
         $this->fee_individual = null;
         $this->fee_group = null;
         $this->agreement = null;
@@ -94,25 +96,31 @@ class AddFeeAndAgreementTutor extends Component
 
             $agreementPath = null;
             if ( $this->agreement ) {
-                $fileName = 'Agreement-' . str_replace(' ', '_', $this->user->first_name . '_' . $this->user->last_name . '-' . $this->subject_id . '-' . Carbon::now()->format('Ymdhis') . '-' . $this->year);
+                $fileName = 'Agreement-' . str_replace(' ', '_', $this->user->first_name . '_' . $this->user->last_name . '-' . Carbon::now()->format('Ymdhis'));
                 $agreementPath = $fileName.'.'.$this->agreement->getClientOriginalExtension();
                 $this->agreement->storeAs('project/crm/user/'.$this->user->id, $agreementPath, 's3');
             }
             
+            foreach ($this->selectedCurriculums as $key => $curriculum) 
+            {
+                foreach ($this->subject_id as $index => $value)
+                {
+                    UserSubject::create([
+                        'user_role_id' => $this->user_role_id,
+                        'subject_id' => $value,
+                        'curriculum' => $curriculum,
+                        'start_date' => $this->start_date,
+                        'end_date' => $this->end_date,
+                        'agreement' => $agreementPath,
+                        'head' => $this->head,
+                        'additional_fee' => null,
+                        'grade' => $this->grade,
+                        'fee_individual' => $this->fee_individual,
+                        'fee_group' => $this->fee_group,
+                    ]);
+                }
+            }
     
-            UserSubject::create([
-                'user_role_id' => $this->user_role_id,
-                'subject_id' => $this->subject_id,
-                'month_start' => $this->month_start,
-                'month_end' => $this->month_end,
-                'year' => $this->year,
-                'agreement' => $agreementPath,
-                'head' => $this->head,
-                'additional_fee' => null,
-                'grade' => $this->grade,
-                'fee_individual' => $this->fee_individual,
-                'fee_group' => $this->fee_group,
-            ]);
     
             $this->resetFields();
             $this->dispatch('agreement-created');
@@ -120,6 +128,7 @@ class AddFeeAndAgreementTutor extends Component
             return session()->flash('success', 'Agreement has been created.');
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error($e->getMessage(). ' on '.$e->getFile() . ' line '. $e->getLine());
             // $this->log_service->createErrorLog(LogModule::STORE_USER_AGREEMENT, $e->getMessage(), $e->getLine(), $e->getFile());
             return session()->flash('error', 'Failed to create agreement.');   
         }
@@ -130,9 +139,9 @@ class AddFeeAndAgreementTutor extends Component
         $user_subject = UserSubject::findOrFail($user_subject_id);
         $this->user_subject_id = $user_subject->id;
         $this->subject_id = $user_subject->subject_id;
-        $this->month_start = $user_subject->month_start;
-        $this->month_end = $user_subject->month_end;
-        $this->year = $user_subject->year;
+        $this->selectedCurriculums = $user_subject->curriculum;
+        $this->start_date = $user_subject->start_date;
+        $this->end_date = $user_subject->end_date;
         $this->grade = $user_subject->grade ?? '9-12';
         $this->fee_individual = $user_subject->fee_individual;
         $this->fee_group = $user_subject->fee_group;
@@ -169,9 +178,9 @@ class AddFeeAndAgreementTutor extends Component
             }
     
             $user_subject->subject_id = $this->subject_id;
-            $user_subject->month_start = $this->month_start;
-            $user_subject->month_end = $this->month_end;
-            $user_subject->year = $this->year;
+            $user_subject->curriculum = $this->selectedCurriculums;
+            $user_subject->start_date = $this->start_date;
+            $user_subject->end_date = $this->end_date;
             $user_subject->agreement = $agreementPath;
             $user_subject->head = $this->head;
             $user_subject->additional_fee = null;
@@ -186,6 +195,7 @@ class AddFeeAndAgreementTutor extends Component
             return session()->flash('success', 'Agreement has been updated.');
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error($e->getMessage(). ' on '.$e->getFile() . ' line '. $e->getLine());
             // $this->log_service->createErrorLog(LogModule::UPDATE_USER_AGREEMENT, $e->getMessage(), $e->getLine(), $e->getFile());
             return session()->flash('error', 'Failed to update agreement.');    
         }

@@ -28,10 +28,12 @@
                 <thead class="bg-dark text-white">
                     <tr class="text-center">
                         <td>#</td>
-                        <td>Periode</td>
+                        <td>Active Period</td>
+                        <td>To</td>
                         <td>Stream</td>
-                        <td>Package</td>
                         <td>Engagement Type</td>
+                        <td>Package</td>
+                        <td>Grade</td>
                         <td>Fee Individual</td>
                         <td>Agreement</td>
                         <td>Action</td>
@@ -45,15 +47,10 @@
                         @endphp
                         <tr>
                             <td>{{ $loop->iteration }}.</td>
-                            <td class="text-center">
-                                {{ date('M', strtotime($role_stream->year.'-'.$role_stream->month_start.'-01')) 
-                                . " - " 
-                                . date('M', strtotime($role_stream->year.'-'.$role_stream->month_end.'-01'))
-                                . " " 
-                                . $role_stream->year 
-                                ?? 'n/a' }}
-                            </td>
+                            <td class="text-center">{{ $role_stream->start_date ? date('d, M Y', strtotime($role_stream->start_date)) : 'n/a' }}</td>
+                            <td class="text-center">{{ $role_stream->end_date ? date('d, M Y', strtotime($role_stream->end_date)) : 'n/a' }}</td>
                             <td>{{ $role_stream->stream->stream_name ?? 'n/a' }}</td>
+                            <td>{{ $role_stream->engagement_type->phase_detail_name }}</td>
                             <td>{{ $role_stream->package ?? 'n/a' }}</td>
                             <td class="text-center">{{ $role_stream->grade ?? 'n/a' }}</td>
                             <td>{{ $role_stream->fee_individual ? "Rp. ".number_format($role_stream->fee_individual) : 'n/a' }}</td>
@@ -108,6 +105,21 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
+                            <div class="col-md-12 mb-2">
+                                <label for="">Engagement Type <sup class="text-danger">*</sup></label>
+                                <select wire:model="engagement_type_id" class="form-select form-select-sm w-100">
+                                    <option data-placeholder="true">Select Engagement Type</option>
+                                    @forelse ($engagement_types as $engagement_type)
+                                        <option value="{{ $engagement_type->id }}">{{ $engagement_type->phase_detail_name }}</option>
+                                    
+                                    @empty
+                                        <option>No engagement type fetched</option>
+                                    @endforelse
+                                </select>
+                                @error('engagement_type_id')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
 
                             <div class="col-md-12 mb-2">
                                 <label for="">Package <sup class="text-danger">*</sup></label>
@@ -130,39 +142,17 @@
                                     <fieldset class="border p-3">
                                         <legend  class="float-none ps-2" style="width:80px; font-size: 14px; font-weight:500">Duration</legend>
                                         <div class="row">
-                                            <div class="col-md-4 mb-2">
+                                            <div class="col-md-6 mb-2">
                                                 <label for="">From <sup class="text-danger">*</sup></label>
-                                                <select wire:model="month_start" class="form-select form-select-sm w-100">
-                                                    <option data-placeholder="true">Select Month</option>
-                                                    @foreach ($months as $key => $month)
-                                                        <option value="{{ $key+1 }}">{{ $month }}</option>
-                                                    @endforeach
-                                                </select>
-                                                @error('month_start')
+                                                <input type="date" wire:model="start_date" class="form-control form-control-sm rounded" />
+                                                @error('start_date')
                                                     <small class="text-danger fw-light">{{ $message }}</small>
                                                 @enderror
                                             </div>
-                                            <div class="col-md-4 mb-2">
+                                            <div class="col-md-6 mb-2">
                                                 <label for="">To <sup class="text-danger">*</sup></label>
-                                                <select wire:model="month_end" class="form-select form-select-sm w-100">
-                                                    <option data-placeholder="true">Select Month</option>
-                                                    @foreach ($months as $key => $month)
-                                                        <option value="{{ $key+1 }}">{{ $month }}</option>
-                                                    @endforeach
-                                                </select>
-                                                @error('month_end')
-                                                    <small class="text-danger fw-light">{{ $message }}</small>
-                                                @enderror
-                                            </div>
-                                            <div class="col-md-4 mb-2">
-                                                <label for="">Year <sup class="text-danger">*</sup></label>
-                                                <select wire:model="year" class="form-select form-select-sm w-100">
-                                                    <option data-placeholder="true">Select Year</option>
-                                                    @for ($year = date('Y') - 3; $year <= date('Y') + 5; $year++)
-                                                        <option value="{{$year}}">{{ $year }}</option>
-                                                    @endfor
-                                                </select>
-                                                @error('year')
+                                                <input type="date" wire:model="end_date" class="form-control form-control-sm rounded" />
+                                                @error('end_date')
                                                     <small class="text-danger fw-light">{{ $message }}</small>
                                                 @enderror
                                             </div>

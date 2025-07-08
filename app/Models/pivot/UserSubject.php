@@ -19,14 +19,15 @@ class UserSubject extends Pivot
         'id',
         'user_role_id', 
         'subject_id', 
+        'curriculum',
         'fee_individual',
         'fee_group',
         'grade',
         'additional_fee',
         'agreement',
         'head',
-        'month_start',
-        'month_end',
+        'start_date',
+        'end_date',
         'year'
     ];
 

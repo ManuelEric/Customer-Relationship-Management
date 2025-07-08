@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Interfaces\StreamRepositoryInterface;
+use App\Models\PhaseDetail;
 use App\Models\pivot\UserStream;
 use Exception;
 use Illuminate\Support\Carbon;
@@ -17,35 +18,27 @@ class AddFeeAndAgreementExternalMentor extends Component
     
     public $user, $user_role_id, $streams, $user_stream_id;
     public $isEdit = false;
-    public $months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-    /* engagement type */
+ 
+    public $engagement_types;
     public $packages = ['Professional Sharing 1-on-1', 'Professional Sharing 2-10 Mentees', 'Professional Sharing >10 Mentees', 'Competition Mentorship', 'Subject-Specific Project Mentorship', 'Essay Mentoring', 'Essay Program Development'];
 
     /* form request */
-    public $stream_id, $package, $month_start, $month_end, $year, $grade, $fee_individual, $agreement;
+    public $stream_id, $engagement_type_id, $package, $start_date, $end_date, $grade, $fee_individual, $agreement;
 
     protected function rules()
     {
         return [
             'stream_id' => 'required|exists:streams,id',
+            'engagement_type_id' => 'required|exists:phase_details,id',
             'package' => 'required|string', // refer to packages that manually set
-            'month_start' => 'required|min:1|max:12',
-            'month_end' => 'required|min:1|max:12|gte:month_start',
-            'year' => 'required',
+            'start_date' => 'required',
+            'end_date' => 'required|gte:start_date',
             'grade' => 'required',
             'fee_individual' => 'required',
-            'agreement' => ['sometimes', 'file', 'mimes:pdf', 'max:1024', function ($attribute, $value, $fail) {
+            'agreement' => ['nullable', 'file', 'mimes:pdf', 'max:1024', function ($attribute, $value, $fail) {
                 if ( $this->isEdit == false && !$this->agreement )
                     $fail('The :attribute is required');
             }],
-        ];
-    }
-
-    protected function messages()
-    {
-        return [
-            'month_end.gte' => 'The :attribute must be greater than or equal to ' . $this->months[$this->month_start-1]
         ];
     }
 
@@ -53,22 +46,31 @@ class AddFeeAndAgreementExternalMentor extends Component
     {
         $this->user = $user;
         $this->user_role_id = $this->user->roles()->where('role_name', 'External Mentor')->first()->pivot->id;
+        /** 
+         * select phase detail:
+         * - student club
+         * - professional sharing
+         * - project-based competition mentoring
+         * - subject-specific project mentoring
+         * - essay editing hours
+         * - essay program development
+        */
+        $this->engagement_types = PhaseDetail::whereIn('id', [2, 3, 5, 6, 11, 13])->get();
         $this->streams = $streamRepository->rnGetAllStreams();
 
         /* default value */
         $this->grade = '9-12';
-        $this->year = Carbon::now()->format('Y');
     }
 
     public function resetFields()
     {
         $this->stream_id = null;
+        $this->engagement_type_id = null;
         $this->package = null;
-        $this->month_start = null;
-        $this->month_end = null;
+        $this->start_date = null;
+        $this->end_date = null;
         $this->fee_individual = null;
         $this->agreement = null;
-        $this->year = Carbon::now()->format('Y');
         $this->isEdit = false;
     }
 
@@ -81,7 +83,7 @@ class AddFeeAndAgreementExternalMentor extends Component
             
             $agreementPath = null;
             if ( $this->agreement ) {
-                $fileName = 'Agreement-' . str_replace(' ', '_', $this->user->first_name . '_' . $this->user->last_name . '-' . $this->stream_id . '-' . Carbon::now()->format('Ymdhis') . '-' . $this->year);
+                $fileName = 'Agreement-' . str_replace(' ', '_', $this->user->first_name . '_' . $this->user->last_name . '-' . $this->stream_id . '-' . Carbon::now()->format('Ymdhis') );
                 $agreementPath = $fileName.'.'.$this->agreement->getClientOriginalExtension();
                 $this->agreement->storeAs('project/crm/user/'.$this->user->id, $agreementPath, 's3');
             }
@@ -89,10 +91,10 @@ class AddFeeAndAgreementExternalMentor extends Component
             UserStream::create([
                 'user_role_id' => $this->user_role_id,
                 'stream_id' => $this->stream_id,
+                'engagement_type_id' => $this->engagement_type_id,
                 'package' => $this->package,
-                'month_start' => $this->month_start,
-                'month_end' => $this->month_end,
-                'year' => $this->year,
+                'start_date' => $this->start_date,
+                'end_date' => $this->end_date,
                 'grade' => $this->grade,
                 'fee_individual' => $this->fee_individual,
                 'agreement' => $agreementPath,
@@ -115,10 +117,10 @@ class AddFeeAndAgreementExternalMentor extends Component
         $user_stream = UserStream::findOrFail($user_stream_id);
         $this->user_stream_id = $user_stream_id;
         $this->stream_id = $user_stream->stream_id;
+        $this->engagement_type_id = $user_stream->engagement_type_id;
         $this->package = $user_stream->package;
-        $this->month_start = $user_stream->month_start;
-        $this->month_end = $user_stream->month_end;
-        $this->year = $user_stream->year;
+        $this->start_date = $user_stream->start_date;
+        $this->end_date = $user_stream->end_date;
         $this->fee_individual = $user_stream->fee_individual;
         $this->agreement = null; // reset uploaded agreement field
         $this->isEdit = true;
@@ -151,10 +153,10 @@ class AddFeeAndAgreementExternalMentor extends Component
             }
     
             $user_stream->stream_id = $this->stream_id;
+            $user_stream->engagement_type_id = $this->engagement_type_id;
             $user_stream->package = $this->package;
-            $user_stream->month_start = $this->month_start;
-            $user_stream->month_end = $this->month_end;
-            $user_stream->year = $this->year;
+            $user_stream->start_date = $this->start_date;
+            $user_stream->end_date = $this->end_date;
             $user_stream->agreement = $agreementPath;
             $user_stream->fee_individual = $this->fee_individual;
             $user_stream->save();

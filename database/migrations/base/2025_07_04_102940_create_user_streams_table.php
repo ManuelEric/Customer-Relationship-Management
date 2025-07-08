@@ -18,10 +18,12 @@ return new class extends Migration
             $table->foreignId('stream_id')->constrained(
                 table: 'streams', indexName: 'user_streams_stream_id'
             )->onUpdate('cascade')->onDelete('cascade');
-            $table->string('package')->comment('follow the packages from timesheet and filled if stream_id is professional sharing')->nullable();
-            $table->integer('month_start')->nullable();
-            $table->integer('month_end')->nullable();
-            $table->year('year')->nullable();
+            $table->foreignId('engagement_type_id')->nullable()->constrained(
+                table: "phase_details", indexName: "user_streams_engagement_type_id_foreign"
+            )->onUpdate('cascade')->onDelete('cascade');
+            $table->string('package')->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
             $table->text('agreement')->nullable();
             $table->integer('head')->nullable();
             $table->bigInteger('additional_fee')->nullable();
