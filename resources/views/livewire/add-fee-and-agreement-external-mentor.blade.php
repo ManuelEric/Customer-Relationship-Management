@@ -123,8 +123,7 @@
 
                             <div class="col-md-12 mb-2">
                                 <label for="">Package <sup class="text-danger">*</sup></label>
-                                <select wire:model="package" class="form-select form-select-sm w-100">
-                                    <option data-placeholder="true">Select Package</option>
+                                <select wire:model="package" @if (!$isEdit) multiple @endif class="form-select form-select-sm w-100">
                                     @forelse ($packages as $key => $package)
                                         <option value="{{ $package }}">{{ $package }}</option>
                                     

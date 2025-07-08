@@ -23,14 +23,15 @@ class AddFeeAndAgreementExternalMentor extends Component
     public $packages = ['Professional Sharing 1-on-1', 'Professional Sharing 2-10 Mentees', 'Professional Sharing >10 Mentees', 'Competition Mentorship', 'Subject-Specific Project Mentorship', 'Essay Mentoring', 'Essay Program Development'];
 
     /* form request */
-    public $stream_id, $engagement_type_id, $package, $start_date, $end_date, $grade, $fee_individual, $agreement;
+    public $stream_id, $engagement_type_id, $start_date, $end_date, $grade, $fee_individual, $agreement;
+    public $package = [];
 
     protected function rules()
     {
         return [
             'stream_id' => 'required|exists:streams,id',
             'engagement_type_id' => 'required|exists:phase_details,id',
-            'package' => 'required|string', // refer to packages that manually set
+            'package.*' => 'required|string', // refer to packages that manually set
             'start_date' => 'required',
             'end_date' => 'required|gte:start_date',
             'grade' => 'required',
@@ -66,7 +67,7 @@ class AddFeeAndAgreementExternalMentor extends Component
     {
         $this->stream_id = null;
         $this->engagement_type_id = null;
-        $this->package = null;
+        $this->package = [];
         $this->start_date = null;
         $this->end_date = null;
         $this->fee_individual = null;
@@ -88,17 +89,21 @@ class AddFeeAndAgreementExternalMentor extends Component
                 $this->agreement->storeAs('project/crm/user/'.$this->user->id, $agreementPath, 's3');
             }
 
-            UserStream::create([
-                'user_role_id' => $this->user_role_id,
-                'stream_id' => $this->stream_id,
-                'engagement_type_id' => $this->engagement_type_id,
-                'package' => $this->package,
-                'start_date' => $this->start_date,
-                'end_date' => $this->end_date,
-                'grade' => $this->grade,
-                'fee_individual' => $this->fee_individual,
-                'agreement' => $agreementPath,
-            ]);
+            foreach ( $this->package as $key => $value)
+            {
+                UserStream::create([
+                    'user_role_id' => $this->user_role_id,
+                    'stream_id' => $this->stream_id,
+                    'engagement_type_id' => $this->engagement_type_id,
+                    'package' => $value,
+                    'start_date' => $this->start_date,
+                    'end_date' => $this->end_date,
+                    'grade' => $this->grade,
+                    'fee_individual' => $this->fee_individual,
+                    'agreement' => $agreementPath,
+                ]);
+            }
+
 
             $this->resetFields();
             $this->dispatch('agreement-created');
