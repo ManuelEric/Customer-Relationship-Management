@@ -16,7 +16,6 @@
         $departmentThisUser = $departments->where('id', $departmentId)->first();
 @endphp
 
-
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('user/employee') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Employee
@@ -110,7 +109,7 @@
             @endif
 
             @if(isset($user) && (in_array(4, $user->roles()->pluck('role_id')->toArray()) || in_array(3, $user->roles()->pluck('role_id')->toArray()) || in_array(19, $user->roles()->pluck('role_id')->toArray()) || in_array(20, $user->roles()->pluck('role_id')->toArray()) || in_array(13, $user->roles()->pluck('role_id')->toArray()) || in_array(14, $user->roles()->pluck('role_id')->toArray()) || in_array(15, $user->roles()->pluck('role_id')->toArray())))
-                @include('pages.user.employee.form-detail.agreement')
+                {{-- @include('pages.user.employee.form-detail.agreement') --}}
             @endif
         </div>
 
@@ -214,6 +213,7 @@
                             
                         </div>
                     </form>
+
                     <div class="col-md-12 text-end">
                         <button type="submit" form="user-form" class="btn btn-sm btn-primary">
                             <i class="bi bi-save me-2"></i> Submit
@@ -221,6 +221,13 @@
                     </div>
                 </div>
             </div>
+
+            
+            @if (Request::route('user_role') == 'tutor')
+                <livewire:add-fee-and-agreement-tutor :$user/>
+            @elseif (Request::route('user_role') == 'external-mentor')
+                <livewire:add-fee-and-agreement-external-mentor :$user />
+            @endif
 
         </div>
     </div>

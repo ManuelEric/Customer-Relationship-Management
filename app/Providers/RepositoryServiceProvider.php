@@ -72,6 +72,7 @@ use App\Interfaces\SchoolProgramAttachRepositoryInterface;
 use App\Interfaces\SchoolProgramCollaboratorsRepositoryInterface;
 use App\Interfaces\SchoolVisitRepositoryInterface;
 use App\Interfaces\SeasonalProgramRepositoryInterface;
+use App\Interfaces\StreamRepositoryInterface;
 use App\Interfaces\SubjectRepositoryInterface;
 use App\Interfaces\SubProgRepositoryInterface;
 use App\Interfaces\SubSectorRepositoryInterface;
@@ -158,6 +159,7 @@ use App\Repositories\SchoolProgramAttachRepository;
 use App\Repositories\SchoolProgramCollaboratorsRepository;
 use App\Repositories\SchoolVisitRepository;
 use App\Repositories\SeasonalProgramRepository;
+use App\Repositories\StreamRepository;
 use App\Repositories\SubjectRepository;
 use App\Repositories\SubProgRepository;
 use App\Repositories\SubSectorRepository;
@@ -268,6 +270,8 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(ProgramPhaseRepositoryInterface::class, ProgramPhaseRepository::class);
         $this->app->bind(BankRepositoryInterface::class, BankRepository::class);
         $this->app->bind(MajorGroupRepositoryInterface::class, MajorGroupRepository::class);
+
+        $this->app->bind(StreamRepositoryInterface::class, StreamRepository::class);
     }
 
     /**

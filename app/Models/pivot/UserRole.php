@@ -41,4 +41,9 @@ class UserRole extends Pivot
     {
         return $this->hasMany(UserSubject::class, 'user_role_id');
     }
+
+    public function streams()
+    {
+        return $this->hasMany(UserStream::class, 'user_role_id');
+    }
 }

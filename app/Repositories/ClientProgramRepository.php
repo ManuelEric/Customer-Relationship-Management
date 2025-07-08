@@ -68,8 +68,8 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     $subQuery->
                         whereHas('internalPic', function ($query2) {
                             $query2->where('users.id', auth()->user()->id);
-                        })->
-                        orWhere('pic_client', auth()->user()->id);
+                        });
+                        // orWhere('pic_client', auth()->user()->id);
                 })->
                 when($searchQuery['clientId'], function ($query) use ($searchQuery) {
                     $query->where('tbl_client_prog.client_id', $searchQuery['clientId']);

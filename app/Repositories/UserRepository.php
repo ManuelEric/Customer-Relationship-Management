@@ -358,7 +358,7 @@ class UserRepository implements UserRepositoryInterface
         $end_period = $new_user_type_details['end_period'];
 
 
-        if ( $user->user_type()->wherePivot('user_type_id', $new_user_type)->wherePivot('status', 1)->wherePivot('deactivated_at', NULL)->wherePivot('start_date', $start_period)->wherePivot('end_date', $end_period)->count() == 0 )
+        if ( $user->user_type()->wherePivot('user_type_id', $new_user_type)->wherePivot('status', 1)->wherePivot('start_date', $start_period)->wherePivot('end_date', $end_period)->count() == 0 )
         {
             # deactivate the latest active type
             $active_type = $user->user_type()->where('tbl_user_type_detail.status', 1)->wherePivot('deactivated_at', NULL)->pluck('tbl_user_type_detail.user_type_id')->toArray();

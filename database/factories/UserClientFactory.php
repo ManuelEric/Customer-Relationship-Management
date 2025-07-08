@@ -27,9 +27,10 @@ class UserClientFactory extends Factory
             'phone' => $this->tnSetPhoneNumber(Str::random(11)),
             'st_grade' => rand(10, 12),
             'st_levelinterest' => array_rand(['Low', 'Medium', 'High'], 1),
-            'graduation_year' => rand(2022, 2023),
-            'st_abryear' => rand(2022, 2023),
-            'st_password' => Hash::make('12345678'),
+            'graduation_year' => rand(2025, 2026),
+            'st_abryear' => rand(2025, 2026),
+            'st_password' => Hash::make('password'),
+            'category' => 'raw'
         ];
     }
 }

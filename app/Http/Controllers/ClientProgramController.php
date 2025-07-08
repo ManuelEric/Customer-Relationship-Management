@@ -290,7 +290,6 @@ class ClientProgramController extends Controller
 
     public function store(StoreClientProgramRequest $request, CreateClientProgramAction $createClientProgramAction, LogService $log_service)
     {
-
         $student_id = $request->route('student');
         $student = $this->clientRepository->getClientById($student_id);
         if ($student->st_statusact != 1)
@@ -352,6 +351,7 @@ class ClientProgramController extends Controller
         $log_service->createSuccessLog(LogModule::STORE_CLIENT_PROGRAM, 'New client program has been added', $new_client_program->toArray());
 
         return Redirect::to('client/student/' . $student_id)->withSuccess('A new program has been submitted for ' . $student->fullname);
+
     }
 
     public function edit(Request $request)
@@ -409,7 +409,7 @@ class ClientProgramController extends Controller
         # create log success
         $log_service->createSuccessLog(LogModule::UPDATE_CLIENT_PROGRAM, 'Client program has been updated', $updated_client_program->toArray());
 
-        return Redirect::to('client/student/' . $student_id . '/program/' . $client_program_id.'/edit')->withSuccess('A program has been updated for ' . $student->fullname);
+        return Redirect::to('client/student/' . $student_id . '/program/' . $client_program_id)->withSuccess('A program has been updated for ' . $student->fullname);
     }
 
     public function destroy(Request $request, DeleteClientProgramAction $deleteClientProgramAction, LogService $log_service)

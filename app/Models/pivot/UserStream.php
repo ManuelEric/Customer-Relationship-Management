@@ -2,14 +2,12 @@
 
 namespace App\Models\pivot;
 
-use App\Models\Subject;
-use App\Models\Pivot\UserRole;
-use Illuminate\Database\Eloquent\Relations\Pivot;
+use App\Models\PhaseDetail;
+use App\Models\Stream;
+use Illuminate\Database\Eloquent\Model;
 
-class UserSubject extends Pivot
+class UserStream extends Model
 {
-    protected $table = 'tbl_user_subjects';
-
     /**
      * The attributes that should be visible in arrays.
      *
@@ -18,22 +16,21 @@ class UserSubject extends Pivot
     protected $fillable = [
         'id',
         'user_role_id', 
-        'subject_id', 
-        'curriculum',
+        'stream_id', 
+        'engagement_type_id',
+        'package',
         'fee_individual',
-        'fee_group',
         'grade',
         'additional_fee',
         'agreement',
         'head',
         'start_date',
         'end_date',
-        'year'
     ];
 
-    public function subject()
+    public function stream()
     {
-        return $this->belongsTo(Subject::class, 'subject_id', 'id');
+        return $this->belongsTo(Stream::class, 'stream_id', 'id');
     }
 
     public function user_roles()
@@ -41,4 +38,8 @@ class UserSubject extends Pivot
         return $this->belongsTo(UserRole::class, 'user_role_id', 'id')->with('role');
     }
 
+    public function engagement_type()
+    {
+        return $this->belongsTo(PhaseDetail::class, 'engagement_type_id', 'id');
+    }
 }
