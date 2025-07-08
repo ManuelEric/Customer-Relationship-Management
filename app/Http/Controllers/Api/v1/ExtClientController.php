@@ -1946,6 +1946,7 @@ class ExtClientController extends Controller
                             return [
                                 'id' => $item->id,
                                 'subject' => $item->subject->name,
+                                'curriculum' => $item->curriculum,
                                 'start_date' => $item->start_date,
                                 'end_date' => $item->end_date,
                                 'year' => $item->year,
