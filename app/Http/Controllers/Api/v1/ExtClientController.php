@@ -1946,8 +1946,8 @@ class ExtClientController extends Controller
                             return [
                                 'id' => $item->id,
                                 'subject' => $item->subject->name,
-                                'month_start' => $item->month_start,
-                                'month_end' => $item->month_end,
+                                'start_date' => $item->start_date,
+                                'end_date' => $item->end_date,
                                 'year' => $item->year,
                                 'grade' => $item->grade,
                                 'fee_individual' => $item->fee_individual,
@@ -1964,9 +1964,10 @@ class ExtClientController extends Controller
                             return [
                                 'id' => $item->id,
                                 'stream' => $item->stream->stream_name,
+                                'engagement_type_id' => $item->engagement_type_id,
                                 'package' => $item->package,
-                                'month_start' => $item->month_start,
-                                'month_end' => $item->month_end,
+                                'start_date' => $item->start_date,
+                                'end_date' => $item->end_date,
                                 'year' => $item->year,
                                 'fee_individual' => $item->fee_individual,
                                 'head' => $item->head,
