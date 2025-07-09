@@ -1978,6 +1978,8 @@ class ExtClientController extends Controller
                             ];
                         }) : null;
                         break;
+                    default:
+                        $subjects_or_streams = null;
 
                 }
 
