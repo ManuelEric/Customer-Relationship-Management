@@ -358,24 +358,36 @@ class UserRepository implements UserRepositoryInterface
         $end_period = $new_user_type_details['end_period'];
 
 
-        if ( $user->user_type()->wherePivot('user_type_id', $new_user_type)->wherePivot('status', 1)->wherePivot('start_date', $start_period)->wherePivot('end_date', $end_period)->count() == 0 )
-        {
-            # deactivate the latest active type
-            $active_type = $user->user_type()->where('tbl_user_type_detail.status', 1)->wherePivot('deactivated_at', NULL)->pluck('tbl_user_type_detail.user_type_id')->toArray();
-            foreach ($active_type as $key => $value) {
-                $user->user_type()->updateExistingPivot($value, ['status' => 0, 'deactivated_at' => Carbon::now()]);
-            }
+        // if ( $user->user_type()->wherePivot('user_type_id', $new_user_type)->wherePivot('status', 1)->wherePivot('start_date', $start_period)->wherePivot('end_date', $end_period)->count() == 0 )
+        // {
+        //     # deactivate the latest active type
+        //     $active_type = $user->user_type()->where('tbl_user_type_detail.status', 1)->wherePivot('deactivated_at', NULL)->pluck('tbl_user_type_detail.user_type_id')->toArray();
+        //     foreach ($active_type as $key => $value) {
+        //         $user->user_type()->updateExistingPivot($value, ['status' => 0, 'deactivated_at' => Carbon::now()]);
+        //     }
 
-            # store new user type to tbl_user_type
-            $user->user_type()->syncWithoutDetaching([[
-                'user_type_id' => $new_user_type,
-                'department_id' => $new_department,
-                'start_date' => $start_period,
-                'end_date' => $end_period,
-            ]]);
-        } else {
-            $user->user_type()->updateExistingPivot($new_user_type, ['status' => 1, 'department_id' => $new_department, 'deactivated_at' => NULL]);
-        }
+
+
+        //     # store new user type to tbl_user_type
+        //     $user->user_type()->syncWithoutDetaching([[
+        //         'user_type_id' => $new_user_type,
+        //         'department_id' => $new_department,
+        //         'start_date' => $start_period,
+        //         'end_date' => $end_period,
+        //     ]]);
+        // } else {
+        //     $user->user_type()->updateExistingPivot($new_user_type, ['status' => 1, 'department_id' => $new_department, 'deactivated_at' => NULL]);
+        // }
+
+        UserTypeDetail::where('user_id', $user->id)->update(['status' => 0, 'deactivated_at' => Carbon::now()]);
+
+        # store new user type to tbl_user_type
+        $user->user_type()->syncWithoutDetaching([[
+            'user_type_id' => $new_user_type,
+            'department_id' => $new_department,
+            'start_date' => $start_period,
+            'end_date' => $end_period,
+        ]]);
     }
 
     public function rnGetUserSubjectById($user_subject_id)

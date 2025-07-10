@@ -10,10 +10,6 @@ function showLoading()
 
 $('form:not(#live)').submit(function(e) {
     e.preventDefault();
-    Swal.fire({
-        width: 100,
-        backdrop: '#4e4e4e7d',
-        allowOutsideClick: false,
-    })
+    showLoading()
     this.closest('form').submit();
 })
