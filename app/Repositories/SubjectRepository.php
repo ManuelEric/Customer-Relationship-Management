@@ -16,7 +16,7 @@ class SubjectRepository implements SubjectRepositoryInterface
 
     public function getAllSubjects()
     {
-        return Subject::orderBy('name', 'ASC')->get();
+        return Subject::active()->orderBy('name', 'ASC')->get();
     }
 
     public function getSubjectById($subjectId)

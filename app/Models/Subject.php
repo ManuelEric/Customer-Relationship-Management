@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Events\MessageSent;
 use App\Models\pivot\UserSubject;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,7 +22,8 @@ class Subject extends Model
      */
     protected $fillable = [
         'id',
-        'name', 
+        'name',
+        'is_active', 
     ];
 
     # Modify methods Model
@@ -78,6 +80,11 @@ class Subject extends Model
         return Attribute::make(
             get: fn ($value) => date('M d, Y H:i:s', strtotime($value)),
         );
+    }
+
+    public function scopeActive(Builder $query)
+    {
+        $query->where('is_active', 1);
     }
 
     public function user()
