@@ -97,14 +97,14 @@ class SubjectController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            $log_service->createErrorLog(LogModule::STORE_SUBJECT, $e->getMessage(), $e->getLine(), $e->getFile(), $new_subject_details);
+            $log_service->createErrorLog(LogModule::UPDATE_SUBJECT, $e->getMessage(), $e->getLine(), $e->getFile(), $new_subject_details);
 
             return Redirect::to('master/subject')->withError('Failed to update a subject');
         }
 
         # Update success
         # create log success
-        $log_service->createSuccessLog(LogModule::STORE_SUBJECT, 'New subject has been added', $updated_subject->toArray());
+        $log_service->createSuccessLog(LogModule::UPDATE_SUBJECT, 'New subject has been added', $updated_subject->toArray());
 
         return Redirect::to('master/subject')->withSuccess('Subject successfully updated');
     }
