@@ -8,6 +8,7 @@ use App\Models\pivot\UserStream;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -112,6 +113,7 @@ class AddFeeAndAgreementExternalMentor extends Component
 
         } catch (Exception $e) {
             DB::rollBack();
+            Log::error('[STORE USER AGREEMENT] Failed to store ext-mentor\'s agreement : ' . $e->getMessage(). ' on '.$e->getFile() . ' line '. $e->getLine());
             // $this->log_service->createErrorLog(LogModule::STORE_USER_AGREEMENT, $e->getMessage(), $e->getLine(), $e->getFile());
             return session()->flash('error', 'Failed to create agreement.'); 
         }
@@ -150,7 +152,7 @@ class AddFeeAndAgreementExternalMentor extends Component
                 }
     
                 // Store new file
-                $fileName = 'Agreement-' . str_replace(' ', '_', $this->user->first_name . '_' . $this->user->last_name . '-' . $this->subject_id . '-' . Carbon::now()->format('Ymdhis') . '-' . $this->year);
+                $fileName = 'Agreement-' . str_replace(' ', '_', $this->user->first_name . '_' . $this->user->last_name . '-' . $this->stream_id . '-' . Carbon::now()->format('Ymdhis'));
                 $agreementPath = $fileName.'.'.$this->agreement->getClientOriginalExtension();
                 $this->agreement->storeAs('project/crm/user/'.$this->user->id, $agreementPath, 's3');
             } else {
@@ -171,7 +173,10 @@ class AddFeeAndAgreementExternalMentor extends Component
             DB::commit();
             return session()->flash('success', 'Agreement has been updated.');
         } catch (Exception $e) {
-
+            DB::rollBack();
+            Log::error('[UPDATE USER AGREEMENT] Failed to update ext-mentor\'s agreement : ' . $e->getMessage(). ' on '.$e->getFile() . ' line '. $e->getLine());
+            // $this->log_service->createErrorLog(LogModule::UPDATE_USER_AGREEMENT, $e->getMessage(), $e->getLine(), $e->getFile());
+            return session()->flash('error', 'Failed to update agreement.');
         }
     }
 
@@ -192,6 +197,7 @@ class AddFeeAndAgreementExternalMentor extends Component
             return session()->flash('success', 'Agreement Deleted Successfully');
         } catch (Exception $e) {
             DB::rollBack();
+            Log::error('[DELETE USER AGREEMENT] Failed to delete ext-mentor\'s agreement : ' . $e->getMessage(). ' on '.$e->getFile() . ' line '. $e->getLine());
             // $this->log_service->createErrorLog(LogModule::DELETE_USER_AGREEMENT, $e->getMessage(), $e->getLine(), $e->getFile());
             return session()->flash('error', 'Failed to delete agreement.');
         }

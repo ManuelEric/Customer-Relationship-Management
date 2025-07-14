@@ -73,7 +73,7 @@
                 </tbody>
             </table>
 
-            <div wire:loading class="text-center">Loading...</div>
+            <div wire:loading wire:target="delete" class="text-center">Loading...</div>
         </div>
     </div>
 
@@ -101,7 +101,7 @@
                                         <option>No streams fetched</option>
                                     @endforelse
                                 </select>
-                                @error('subject_id')
+                                @error('stream_id')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
@@ -131,7 +131,7 @@
                                         <option>No streams fetched</option>
                                     @endforelse
                                 </select>
-                                @error('subject_id')
+                                @error('package')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
@@ -192,7 +192,7 @@
                             <div class="col-md-4 mb-2">
                                 <label for="">Agreement File @if (!$isEdit)<sup class="text-danger">*</sup>@endif</label>
                                 <div class="file-agreement">
-                                    <input type="file" wire:model.defer="agreement" class="form-control form-control-sm rounded">
+                                    <input type="file" wire:model="agreement" class="form-control form-control-sm rounded">
                                 </div>
                                 @error('agreement')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -208,10 +208,13 @@
                                         Cancel
                                     </button>
                                     <div>
-                                        <div wire:loading>
+                                        <div wire:loading wire:target="edit,submit,update">
                                             Loading...
                                         </div>
-                                        <button type="submit" wire:loading.attr="disabled" class="btn btn-sm btn-primary rounded-3">
+                                        <div wire:loading wire:target="agreement">
+                                            Uploading file...
+                                        </div>
+                                        <button type="submit" wire:loading.attr="disabled" wire:target="edit,agreement" class="btn btn-sm btn-primary rounded-3">
                                             <i class="bi bi-save2"></i>
                                             Save
                                         </button>

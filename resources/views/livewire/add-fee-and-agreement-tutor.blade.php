@@ -75,7 +75,7 @@
                 </tbody>
             </table>
 
-            <div wire:loading class="text-center">Loading...</div>
+            <div wire:loading wire:target="delete" class="text-center">Loading...</div>
         </div>
     </div>
 
@@ -209,8 +209,11 @@
                                         Cancel
                                     </button>
                                     <div>
-                                        <div wire:loading>
+                                        <div wire:loading wire:target="edit,submit,update">
                                             Loading...
+                                        </div>
+                                        <div wire:loading wire:target="agreement">
+                                            Uploading file...
                                         </div>
                                         <button type="submit" wire:loading.attr="disabled" class="btn btn-sm btn-primary rounded-3">
                                             <i class="bi bi-save2"></i>

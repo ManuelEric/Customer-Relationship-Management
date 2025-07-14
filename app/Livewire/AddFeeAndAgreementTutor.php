@@ -128,8 +128,7 @@ class AddFeeAndAgreementTutor extends Component
             return session()->flash('success', 'Agreement has been created.');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error($e->getMessage(). ' on '.$e->getFile() . ' line '. $e->getLine());
-            // $this->log_service->createErrorLog(LogModule::STORE_USER_AGREEMENT, $e->getMessage(), $e->getLine(), $e->getFile());
+            Log::error('[STORE USER AGREEMENT] Failed to store tutor\'s agreement : ' . $e->getMessage(). ' on '.$e->getFile() . ' line '. $e->getLine());// $this->log_service->createErrorLog(LogModule::STORE_USER_AGREEMENT, $e->getMessage(), $e->getLine(), $e->getFile());
             return session()->flash('error', 'Failed to create agreement.');   
         }
     }
@@ -195,7 +194,7 @@ class AddFeeAndAgreementTutor extends Component
             return session()->flash('success', 'Agreement has been updated.');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error($e->getMessage(). ' on '.$e->getFile() . ' line '. $e->getLine());
+            Log::error('[UPDATE USER AGREEMENT] Failed to update tutor\'s agreement : ' . $e->getMessage(). ' on '.$e->getFile() . ' line '. $e->getLine());
             // $this->log_service->createErrorLog(LogModule::UPDATE_USER_AGREEMENT, $e->getMessage(), $e->getLine(), $e->getFile());
             return session()->flash('error', 'Failed to update agreement.');    
         }
@@ -219,6 +218,7 @@ class AddFeeAndAgreementTutor extends Component
             return session()->flash('success', 'Agreement Deleted Successfully');
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('[DELETE USER AGREEMENT] Failed to delete tutor\'s agreement : ' . $e->getMessage(). ' on '.$e->getFile() . ' line '. $e->getLine());
             // $this->log_service->createErrorLog(LogModule::DELETE_USER_AGREEMENT, $e->getMessage(), $e->getLine(), $e->getFile());
             return session()->flash('error', 'Failed to delete agreement.');
         }
