@@ -27,6 +27,8 @@ class RecycleClientController extends Controller
         ClientStudentService $clientStudentService
         )
     {
+        // $model = $this->clientRepository->getDeletedStudents(true, []);
+        // return $this->clientRepository->getDataTables($model, true);
         $target = $request->route('target');
         $entries = [];
         switch ($target) {

@@ -229,9 +229,9 @@ class ClientRepository implements ClientRepositoryInterface
             // // addColumn('children_name', function ($data) {
             // //     return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name . ' ' . $data->childrens()->first()->last_name : null;
             // // })->
-            // // addColumn('parent_name', function ($data) {
-            // //     return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
-            // // })->
+            // addColumn('parent_name', function ($data) {
+            //     return $data->parents()->count() > 0 ? $data->parents()->full_name : null;
+            // })->
             // // addColumn('parent_phone', function ($data) {
             // //     return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null;
             // // })->
@@ -273,15 +273,15 @@ class ClientRepository implements ClientRepositoryInterface
             //     return isset($response['data']) ? $response['data'] : 0;
             // })->
             rawColumns(['followup_status', 'address'])->
-            filterColumn('parent_name', function ($query, $keyword) {
-                $query->whereRaw("RTRIM(CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, ''))) like ?", "%{$keyword}%");
-            })->
-            filterColumn('parent_mail', function ($query, $keyword) {
-                $query->whereRaw("parent.mail like ?", "%{$keyword}%");
-            })->
-            filterColumn('parent_phone', function ($query, $keyword) {
-                $query->whereRaw("parent.phone like ?", "%{$keyword}%");
-            })->
+            // filterColumn('parent_name', function ($query, $keyword) {
+            //     $query->whereRaw("RTRIM(CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, ''))) like ?", "%{$keyword}%");
+            // })->
+            // filterColumn('parent_mail', function ($query, $keyword) {
+            //     $query->whereRaw("parent.mail like ?", "%{$keyword}%");
+            // })->
+            // filterColumn('parent_phone', function ($query, $keyword) {
+            //     $query->whereRaw("parent.phone like ?", "%{$keyword}%");
+            // })->
             filterColumn('children_name', function ($query, $keyword) {
                 $query->whereRaw("RTRIM(CONCAT(children.first_name, ' ', COALESCE(children.last_name, ''))) like ?", "%{$keyword}%");
             })->
@@ -1941,14 +1941,13 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getDeletedStudents($asDatatables = false, $advanced_filter = [])
     {
-        $query = UserClient::select([
-                    'tbl_client.*',
+        $query = Client::select([
+                    'client.*',
                     'parent.mail as parent_mail',
                     'parent.phone as parent_phone'
                 ])->
-                selectRaw('CONCAT(tbl_client.first_name, " ", COALESCE(tbl_client.last_name, "")) as full_name')->
                 selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
-                leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'tbl_client.id')->
+                leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'client.id')->
                 leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
                 whereHas('roles', function($subQuery) {
                     $subQuery->where('role_name', 'Student');
@@ -1957,31 +1956,31 @@ class ClientRepository implements ClientRepositoryInterface
                     $subQuery->whereIn('school_name', $advanced_filter['school_name']);
                 })->
                 when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
-                    $querySearch->whereIn('tbl_client.graduation_year_now', $advanced_filter['graduation_year']);
+                    $querySearch->whereIn('client.graduation_year_now', $advanced_filter['graduation_year']);
                 })->
                 when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                     $querySearch->whereIn('lead_source', $advanced_filter['leads']);
                 })->
                 when(!empty($advanced_filter['pic']), function ($querySearch) use ($advanced_filter) {
-                    $querySearch->whereIn('tbl_client.pic_id', $advanced_filter['pic']);
+                    $querySearch->whereIn('client.pic_id', $advanced_filter['pic']);
                 })->
                 when(!empty($advanced_filter['start_joined_date']) && empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
-                    $querySearch->whereDate('tbl_client.created_at', '>=', $advanced_filter['start_joined_date']);
+                    $querySearch->whereDate('client.created_at', '>=', $advanced_filter['start_joined_date']);
                 })->
                 when(!empty($advanced_filter['end_joined_date']) && empty($advanced_filter['start_joined_date']), function ($querySearch) use ($advanced_filter) {
-                    $querySearch->whereDate('tbl_client.created_at', '<=', $advanced_filter['end_joined_date']);
+                    $querySearch->whereDate('client.created_at', '<=', $advanced_filter['end_joined_date']);
                 })->
                 when(!empty($advanced_filter['start_joined_date']) && !empty($advanced_filter['end_joined_date']), function ($querySearch) use ($advanced_filter) {
-                    $querySearch->whereBetween('tbl_client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
+                    $querySearch->whereBetween('client.created_at', [$advanced_filter['start_joined_date'], $advanced_filter['end_joined_date']]);
                 })->
                 when(!empty($advanced_filter['start_deleted_date']) && empty($advanced_filter['end_deleted_date']), function ($querySearch) use ($advanced_filter) {
-                    $querySearch->whereDate('tbl_client.deleted_at', '>=', $advanced_filter['start_deleted_date']);
+                    $querySearch->whereDate('client.deleted_at', '>=', $advanced_filter['start_deleted_date']);
                 })->
                 when(!empty($advanced_filter['end_deleted_date']) && empty($advanced_filter['start_deleted_date']), function ($querySearch) use ($advanced_filter) {
-                    $querySearch->whereDate('tbl_client.deleted_at', '<=', $advanced_filter['end_deleted_date']);
+                    $querySearch->whereDate('client.deleted_at', '<=', $advanced_filter['end_deleted_date']);
                 })->
                 when(!empty($advanced_filter['start_deleted_date']) && !empty($advanced_filter['end_deleted_date']), function ($querySearch) use ($advanced_filter) {
-                    $querySearch->whereBetween('tbl_client.deleted_at', [$advanced_filter['start_deleted_date'], $advanced_filter['end_deleted_date']]);
+                    $querySearch->whereBetween('client.deleted_at', [$advanced_filter['start_deleted_date'], $advanced_filter['end_deleted_date']]);
                 })->
                 // orderBy('deleted_at', 'desc')->
                 onlyTrashed();

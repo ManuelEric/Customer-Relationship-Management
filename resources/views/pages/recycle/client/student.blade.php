@@ -342,17 +342,20 @@
                         data: 'parent_name',
                         name: 'parent_name',
                         defaultContent: '-',
+                        searchable: false,
                         orderable: true,
                     },
                     {
                         data: 'parent_mail',
                         name: 'parent_mail',
+                        searchable: false,
                         defaultContent: '-'
                     },
                     {
                         data: 'parent_phone',
                         name: 'parent_phone',
                         className: 'text-center',
+                        searchable: false,
                         defaultContent: '-'
                     },
                     {
