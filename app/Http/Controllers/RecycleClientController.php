@@ -63,7 +63,7 @@ class RecycleClientController extends Controller
                         'end_deleted_date' => $end_deleted_date
                     ];
 
-                    $model = $this->clientRepository->getDeletedStudents(true, $advanced_filter);
+                    return $this->clientRepository->getDeletedStudents(true, $advanced_filter);
                 }
 
                 $view = 'pages.recycle.client.student';

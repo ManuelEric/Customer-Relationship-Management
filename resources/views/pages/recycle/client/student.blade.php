@@ -326,9 +326,7 @@
                     },
                     {
                         data: 'full_name',
-                        render: function(data, type, row, meta) {
-                            return data
-                        }
+                        name: 'full_name',
                     },
                     {
                         data: 'mail',
@@ -361,7 +359,8 @@
                     {
                         data: 'pic_name',
                         name: 'pic_name',
-                        defaultContent: '-'
+                        defaultContent: '-',
+                        searchable: false,
                     },
                     {
                         data: 'school_name',
@@ -398,32 +397,38 @@
                     {
                         data: 'st_levelinterest',
                         className: 'text-center',
-                        defaultContent: '-'
+                        defaultContent: '-',
+                        searchable: false,
                     },
                     {
                         data: 'interest_prog',
                         className: 'text-center',
-                        defaultContent: '-'
+                        defaultContent: '-',
+                        searchable: false,
                     },
                     {
                         data: 'st_abryear',
                         className: 'text-center',
-                        defaultContent: '-'
+                        defaultContent: '-',
+                        searchable: false,
                     },
                     {
                         data: 'abr_country',
                         className: 'text-center',
-                        defaultContent: '-'
+                        defaultContent: '-',
+                        searchable: false,
                     },
                     {
                         data: 'dream_uni',
                         className: 'text-center',
-                        defaultContent: '-'
+                        defaultContent: '-',
+                        searchable: false,
                     },
                     {
                         data: 'dream_major',
                         className: 'text-center',
-                        defaultContent: '-'
+                        defaultContent: '-',
+                        searchable: false,
                     },
                     {
                         data: 'created_at',

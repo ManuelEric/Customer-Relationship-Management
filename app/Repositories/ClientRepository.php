@@ -11,7 +11,6 @@ use App\Models\UserClient;
 use App\Models\UserClientAdditionalInfo;
 use App\Models\v1\Student as CRMStudent;
 use App\Models\v1\StudentParent as CRMParent;
-use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Traits\StandardizePhoneNumberTrait;
@@ -24,6 +23,7 @@ use App\Models\User;
 use App\Models\ViewRawClient;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Session;
+use Yajra\DataTables\Facades\DataTables;
 
 class ClientRepository implements ClientRepositoryInterface
 {
@@ -60,7 +60,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getAllClientDataTables()
     {
-        return Datatables::eloquent(UserClient::query())->make(true);
+        return DataTables::eloquent(UserClient::query())->make(true);
     }
 
     public function getMaxGraduationYearFromClient()
@@ -304,27 +304,6 @@ class ClientRepository implements ClientRepositoryInterface
             return DataTables::of($model)->make(true);
 
         return DataTables::eloquent($model)->
-            // // addColumn('parent_name', function ($data) {
-            // //     return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
-            // // })->
-            // // addColumn('parent_mail', function ($data) {
-            // //     return $data->parents()->count() > 0 ? $data->parents()->first()->mail : null;
-            // // })->
-            // // addColumn('parent_phone', function ($data) {
-            // //     return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null;
-            // // })->
-            // // addColumn('children_name', function ($data) {
-            // //     return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name . ' ' . $data->childrens()->first()->last_name : null;
-            // // })->
-            // addColumn('parent_name', function ($data) {
-            //     return $data->parents()->count() > 0 ? $data->parents()->full_name : null;
-            // })->
-            // // addColumn('parent_phone', function ($data) {
-            // //     return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null;
-            // // })->
-            // // addColumn('children_name', function ($data) {
-            // //     return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name . ' ' . $data->childrens()->first()->last_name : null;
-            // // })->
             addColumn('followup_status', function (Client $client) {
                 if (!$latestId = $client->followupSchedule()->max('id'))
                     return '-';
@@ -341,24 +320,6 @@ class ClientRepository implements ClientRepositoryInterface
                 }
                 return '<a href="'. url('client/board?name='.$client->full_name) .'" target="_blank">'.$message.'</a>';
             })->
-            // addColumn('took_ia', function ($data) {
-            //     $endpoint = env('EDUALL_ASSESSMENT_URL') . 'api/get/took-ia/' . $data->uuid;
-
-            //     try {
-            //         # create 
-            //         $response = Http::get($endpoint);
-                            
-            //         # catch when sending the request to $endpoints failed
-            //         if ($response->failed() ) {
-            //             return 'error';
-            //         }
-
-            //     } catch (Exception $e) {
-            //         return 'error';
-            //     }
-    
-            //     return isset($response['data']) ? $response['data'] : 0;
-            // })->
             rawColumns(['followup_status', 'address'])->
             // filterColumn('parent_name', function ($query, $keyword) {
             //     $query->whereRaw("RTRIM(CONCAT(parent.first_name, ' ', COALESCE(parent.last_name, ''))) like ?", "%{$keyword}%");
@@ -372,15 +333,6 @@ class ClientRepository implements ClientRepositoryInterface
             filterColumn('children_name', function ($query, $keyword) {
                 $query->whereRaw("RTRIM(CONCAT(children.first_name, ' ', COALESCE(children.last_name, ''))) like ?", "%{$keyword}%");
             })->
-            # query for ordering client by status suggest (Hot --> Cold)
-            # orderColumn is used to handle sorting when user click javascript header
-            // orderColumn('status_lead', function ($query, $order) {
-            //     $query->orderBy('status_lead_score', $order);
-            // })->
-            // # order is used to handle sorting by default when page refreshed
-            // order(function ($query) {
-            //     $query->orderBy('status_lead_score', 'desc');
-            // })->
             toJson();
     }
 
@@ -2072,7 +2024,23 @@ class ClientRepository implements ClientRepositoryInterface
                 })->
                 // orderBy('deleted_at', 'desc')->
                 onlyTrashed();
-        return $asDatatables === false ? $query->get() : $query;
+        return $asDatatables === false 
+            ? $query->get() 
+            : DataTables::eloquent($query)->
+                filterColumn('full_name', function ($query, $keyword) {
+                    $query->whereRaw("CONCAT(tbl_client.first_name, ' ', COALESCE(tbl_client.last_name, '')) like ?", ["%{$keyword}%"]);
+                })->
+                filterColumn('school_name', function ($query, $keyword) {
+                    $query->whereHas('school', function ($subQuery) use ($keyword) {
+                        $subQuery->where('sch_name', 'like', "%{$keyword}%");
+                    });
+                })->
+                filterColumn('lead_source', function ($query, $keyword) {
+                    $query->whereHas('lead', function ($subQuery) use ($keyword) {
+                        $subQuery->where('main_lead', 'like', "%{$keyword}%");
+                    });
+                })->
+                toJson();
     }
 
     public function getDeletedParents($asDatatables = false)
