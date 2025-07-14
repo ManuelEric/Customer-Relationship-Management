@@ -159,6 +159,14 @@ enum LogModule: string
     case DELETE_SUBJECT = '[DELETE SUBJECT]';
 
     /**
+     * Streams
+     */
+    case SHOW_STREAM = '[SHOW STREAM]';
+    case STORE_STREAM = '[STORE STREAM]';
+    case UPDATE_STREAM = '[UPDATE STREAM]';
+    case DELETE_STREAM = '[DELETE STREAM]';
+
+    /**
      * Tags
      */
     case STORE_TAG = '[STORE TAG]';

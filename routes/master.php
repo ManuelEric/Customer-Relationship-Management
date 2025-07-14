@@ -22,7 +22,9 @@ use App\Http\Controllers\EdufReviewController;
 use App\Http\Controllers\EventSpeakerController;
 use App\Http\Controllers\SalesTargetController;
 use App\Http\Controllers\SeasonalProgramController;
+use App\Http\Controllers\StreamController;
 use App\Http\Controllers\SubjectController;
+use App\Livewire\MasterStream;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -94,3 +96,4 @@ Route::resource('university-tags', TagController::class);
 Route::resource('seasonal-program', SeasonalProgramController::class);
 
 Route::resource('subject', SubjectController::class);
+Route::resource('stream', StreamController::class);
