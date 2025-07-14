@@ -401,7 +401,7 @@ class UserController extends Controller
             return Redirect::back()->withError('Failed to delete user contract');
         }
 
-        $log_service->createSuccessLog(LogModule::DELETE_USER_CONTRACT, 'The user contract has been deleted', $deleted_user_type);
+        $log_service->createSuccessLog(LogModule::DELETE_USER_CONTRACT, 'The user contract has been deleted', $deleted_user_type->toArray());
         return Redirect::to('user/' . $request->route('user_role') . '/' . $user_id . '/edit')->withSuccess(ucfirst($request->route('user_role')) . ' has been updated');
     }
 

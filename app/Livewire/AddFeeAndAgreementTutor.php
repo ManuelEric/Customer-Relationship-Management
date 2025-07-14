@@ -166,13 +166,13 @@ class AddFeeAndAgreementTutor extends Component
                 // Delete old file if it exists
                 if ( $user_subject->agreement && Storage::disk('s3')->exists('project/crm/user/'.$this->user->id.'/'.$user_subject->agreement)) {
                     // delete file
-                    Storage::disk('public')->delete('project/crm/user/'.$this->user->id.'/'.$user_subject->agreement);
+                    Storage::disk('s3')->delete('project/crm/user/'.$this->user->id.'/'.$user_subject->agreement);
                 }
     
                 // Store new file
                 $fileName = 'Agreement-' . str_replace(' ', '_', $this->user->first_name . '_' . $this->user->last_name . '-' . $this->subject_id . '-' . Carbon::now()->format('Ymdhis') . '-' . $this->year);
                 $agreementPath = $fileName.'.'.$this->agreement->getClientOriginalExtension();
-                $this->agreement->storeAs('project/crm/user/'.$this->user->id, $agreementPath, 'public');
+                $this->agreement->storeAs('project/crm/user/'.$this->user->id, $agreementPath, 's3');
             } else {
                 $agreementPath = $user_subject->agreement;
             }
