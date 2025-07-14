@@ -166,6 +166,7 @@ class AddFeeAndAgreementExternalMentor extends Component
             $user_stream->end_date = $this->end_date;
             $user_stream->agreement = $agreementPath;
             $user_stream->fee_individual = $this->fee_individual;
+            $user_stream->updated_at = Carbon::now();
             $user_stream->save();
     
             $this->resetFields();

@@ -186,6 +186,7 @@ class AddFeeAndAgreementTutor extends Component
             $user_subject->grade = $this->grade;
             $user_subject->fee_individual = $this->fee_individual;
             $user_subject->fee_group = $this->fee_group;
+            $user_subject->updated_at = Carbon::now();
             $user_subject->save();
     
             $this->resetFields();
