@@ -2033,6 +2033,7 @@ class ClientRepository implements ClientRepositoryInterface
                     'parent.mail as parent_mail',
                     'parent.phone as parent_phone'
                 ])->
+                selectRaw('RTRIM(CONCAT(tbl_client.first_name, " ", COALESCE(tbl_client.last_name, ""))) as full_name')->
                 selectRaw('RTRIM(CONCAT(parent.first_name, " ", COALESCE(parent.last_name, ""))) as parent_name')->
                 leftJoin('tbl_client_relation as relation', 'relation.child_id', '=', 'tbl_client.id')->
                 leftJoin('tbl_client as parent', 'parent.id', '=', 'relation.parent_id')->
