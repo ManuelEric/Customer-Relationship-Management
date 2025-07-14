@@ -161,6 +161,7 @@
         }
 
         function checkMenus(param, menus_id) {
+            
             let department = $('#department').val()
             let user = $('#user_id').val()
             let menus = $('#menus_' + menus_id)
@@ -168,7 +169,7 @@
             let menu_data = menus.is(':checked')
             let copy_data = $("#copy_" + menus_id).is(':checked')
             let export_data = $("#export_" + menus_id).is(':checked')
-
+            
             // if user not choosen
             // then post into department menus
             if (!user) {

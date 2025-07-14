@@ -46,7 +46,7 @@ class MenuController extends Controller
 
     public function fnUpdateDepartmentAccess(UpdateDepartmentAccessRequest $request, MenuService $menu_service)
     {
-        $request_data = $request->only(['department_id', 'menu_id', 'menu_data', 'copy_data', 'export_data', 'param']);
+        $request_data = $request->safe()->only(['department_id', 'menu_id', 'menu_data', 'copy_data', 'export_data', 'param']);
        
         return $menu_service->snUpdateAccess($request_data, 'department');
     }
