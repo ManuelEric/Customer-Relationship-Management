@@ -159,6 +159,7 @@
 </div>
 
 <!-- Birthday -->
+@if (isset($birthDay))
 <div class="modal modal-lg fade" id="birthday" tabindex="-1" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -202,8 +203,10 @@
         </div>
     </div>
 </div>
+@endif
 
 <!-- Follow Up -->
+@if (isset($followUp))
 <div class="modal modal-lg fade" id="follow_up" tabindex="-1" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -279,6 +282,7 @@
         </div>
     </div>
 </div>
+@endif
 
 {{-- Follow Up Notes  --}}
 <div class="modal modal-md fade" id="follow_up_notes" tabindex="-1">
