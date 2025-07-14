@@ -14,6 +14,7 @@ interface ClientRepositoryInterface
     public function getAllClientByRoleAndStatusDataTables($roleName, $statusClient = null);
     public function getAllClientByRole($roleName, $month = NULL); # mentee, parent, teacher
     public function getDataTables($model, $raw = false);
+    public function getTrashDataTables($model, $raw = false);
 
     public function getMaxGraduationYearFromClient();
 

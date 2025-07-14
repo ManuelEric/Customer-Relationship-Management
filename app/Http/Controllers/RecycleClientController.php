@@ -90,7 +90,7 @@ class RecycleClientController extends Controller
         }
 
         if ($request->ajax()) 
-            return $this->clientRepository->getDataTables($model, true);
+            return $this->clientRepository->getTrashDataTables($model, true);
 
         return view($view)->with($entries);
     }
