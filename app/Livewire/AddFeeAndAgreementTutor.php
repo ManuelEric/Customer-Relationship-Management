@@ -169,7 +169,7 @@ class AddFeeAndAgreementTutor extends Component
                 }
     
                 // Store new file
-                $fileName = 'Agreement-' . str_replace(' ', '_', $this->user->first_name . '_' . $this->user->last_name . '-' . $this->subject_id . '-' . Carbon::now()->format('Ymdhis') . '-' . $this->year);
+                $fileName = 'Agreement-' . str_replace(' ', '_', $this->user->first_name . '_' . $this->user->last_name . '-' . $this->subject_id . '-' . Carbon::now()->format('Ymdhis') );
                 $agreementPath = $fileName.'.'.$this->agreement->getClientOriginalExtension();
                 $this->agreement->storeAs('project/crm/user/'.$this->user->id, $agreementPath, 's3');
             } else {

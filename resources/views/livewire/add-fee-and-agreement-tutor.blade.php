@@ -215,7 +215,7 @@
                                         <div wire:loading wire:target="agreement">
                                             Uploading file...
                                         </div>
-                                        <button type="submit" wire:loading.attr="disabled" class="btn btn-sm btn-primary rounded-3">
+                                        <button type="submit" wire:loading.attr="disabled" wire:target="agreement" class="btn btn-sm btn-primary rounded-3">
                                             <i class="bi bi-save2"></i>
                                             Save
                                         </button>
