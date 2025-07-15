@@ -26,6 +26,7 @@ class GraduatedMenteeCollectionResource extends ResourceCollection
      */
     public function toArray(Request $request): array
     {
+        $collections = [];
         foreach ($this->collection as $single)
         {
             $have_university_acceptance = count($single->universityAcceptance) > 0 ? true : false;
@@ -86,7 +87,7 @@ class GraduatedMenteeCollectionResource extends ResourceCollection
                 'total' => $this->total(),
             ];
         } else {
-            return [];
+            return $collections;
         }
     }
 

@@ -13,11 +13,12 @@ class ActiveMenteeCollectionResource extends ResourceCollection
 {
     use MentorTypeTrait;
 
-    public $paginate;
-    public function __construct($resource, $paginate)
+    public $paginate, $filter;
+    public function __construct($resource, $paginate, $filter = [])
     {
         parent::__construct($resource);
         $this->paginate = $paginate;
+        $this->filter = $filter;
     }
     /**
      * Transform the resource into an array.
@@ -26,6 +27,7 @@ class ActiveMenteeCollectionResource extends ResourceCollection
      */
     public function toArray(Request $request): array
     {
+        $collections = [];
         foreach ($this->collection as $single)
         {
             # determine which type of mentor does the user has

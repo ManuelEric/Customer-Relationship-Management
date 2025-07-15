@@ -2278,14 +2278,15 @@ class ExtClientController extends Controller
     public function fnGetActiveMentee(Request $request)
     {
         $terms = $request->get('terms');
+        $mentor_type = $request->get('mentor_type');
         $sorting_array = [
             'sort_by' => $request->get('sort_by'),
             'sort_order' => $request->get('sort_order')
         ];
-        $search = compact('terms', 'sorting_array');
+        $search = compact('terms', 'mentor_type', 'sorting_array');
         
         $active_mentees = $this->clientRepository->rnGetActiveMentees($search, $request->get('paginate'));
-        return response()->json(new ActiveMenteeCollectionResource($active_mentees, $request->get('paginate')));
+        return response()->json(new ActiveMenteeCollectionResource($active_mentees, $request->get('paginate'), compact('mentor_type')));
     }
 
     public function fnGetActiveMenteeGlobal(Request $request)
