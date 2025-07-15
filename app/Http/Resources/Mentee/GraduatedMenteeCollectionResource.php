@@ -86,7 +86,7 @@ class GraduatedMenteeCollectionResource extends ResourceCollection
                 'total' => $this->total(),
             ];
         } else {
-            return $collections;
+            return [];
         }
     }
 
