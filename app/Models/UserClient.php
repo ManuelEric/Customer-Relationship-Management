@@ -297,9 +297,10 @@ class UserClient extends Authenticatable
                 });
             });
         })->when($mentor_type, function ($query) use ($mentor_type) {
-            $query->whereHas('clientProgram.clientMentor', function ($query) use ($mentor_type) {
-                $query->where('users.id', auth()->guard('api')->user()->id)->whereIn('tbl_client_mentor.type', $mentor_type)->where('tbl_client_mentor.status', 1);
-            });
+            //! Column not found: 1054 Unknown column 'users.id' in 'where clause' 
+            // $query->whereHas('clientProgram.clientMentor', function ($query) use ($mentor_type) {
+            //     $query->where('users.id', auth()->guard('api')->user()->id)->whereIn('tbl_client_mentor.type', $mentor_type)->where('tbl_client_mentor.status', 1);
+            // });
         });
     }
 

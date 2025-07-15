@@ -545,8 +545,6 @@
                     var link = $('#followUpForm').attr('action')
                     var data = $('#followUpForm').serialize()
 
-                    console.log(link);
-
                     var obj = [{
                         "mark": true
                     }]
