@@ -263,7 +263,7 @@ class UserClient extends Authenticatable
         $terms = $search['terms'] ?? null;
         $uni = $search['uni'] ?? null;
         $major = $search['major'] ?? null;
-        $mentor_type = $search['mentor_type'] ?? null;
+        $mentor_type = $search['mentor_type'] ?? [];
 
         return $query->when($terms, function ($query) use ($terms) {
             /* previously, terms variable used in order to find name in active mentee mentoring app */
@@ -298,7 +298,7 @@ class UserClient extends Authenticatable
             });
         })->when($mentor_type, function ($query) use ($mentor_type) {
             $query->whereHas('clientProgram.clientMentor', function ($query) use ($mentor_type) {
-                $query->where('users.id', auth()->guard('api')->user()->id)->where('tbl_client_mentor.type', $mentor_type)->where('tbl_client_mentor.status', 1);
+                $query->where('users.id', auth()->guard('api')->user()->id)->whereIn('tbl_client_mentor.type', $mentor_type)->where('tbl_client_mentor.status', 1);
             });
         });
     }
