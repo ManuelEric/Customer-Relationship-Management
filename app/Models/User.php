@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Events\MessageSent;
 use App\Models\pivot\AgendaSpeaker;
 use App\Models\pivot\AssetUsed;
+use App\Models\pivot\EditorAgreement;
 use App\Models\pivot\UserRole;
 use App\Models\pivot\UserStream;
 use App\Models\pivot\UserSubject;
@@ -117,7 +118,7 @@ class User extends Authenticatable
 
         return $model;
     }
- 
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -166,7 +167,7 @@ class User extends Authenticatable
     protected function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->first_name . ' ' . $this->last_name,
+            get: fn($value) => $this->first_name . ' ' . $this->last_name,
         );
     }
 
@@ -190,7 +191,7 @@ class User extends Authenticatable
     public function scopeDepartment(Builder $query, String $department): void
     {
         $query->whereHas('department', function ($sub) use ($department) {
-            $sub->where('dept_name', 'like', '%'.$department.'%');
+            $sub->where('dept_name', 'like', '%' . $department . '%');
         });
     }
 
@@ -212,17 +213,15 @@ class User extends Authenticatable
     {
         $query->whereHas('roles', function ($sub) {
             $sub->where('role_name', 'Mentor');
-        })->
-        whereDoesntHave('roles', function ($sub) {
-            $sub->where('role_name', 'Employee');
-        });
+        })->whereDoesntHave('roles', function ($sub) {
+                $sub->where('role_name', 'Employee');
+            });
     }
 
     public function scopeInternship(Builder $query, $expected_end_date): void
     {
-        $query->whereHas('user_type', function($sub) use ($expected_end_date) {
-            $sub->
-                where('tbl_user_type_detail.status', 1)-> # dimana status contractnya active
+        $query->whereHas('user_type', function ($sub) use ($expected_end_date) {
+            $sub->where('tbl_user_type_detail.status', 1)-> # dimana status contractnya active
                 where('tbl_user_type_detail.end_date', $expected_end_date)-> # dimana end date nya sudah H-2 weeks
                 where('tbl_user_type.type_name', 'Internship');
         });
@@ -230,9 +229,8 @@ class User extends Authenticatable
 
     public function scopePartTime(Builder $query, $expected_end_date): void
     {
-        $query->whereHas('user_type', function($sub) use ($expected_end_date) {
-            $sub->
-                where('tbl_user_type_detail.status', 1)-> # dimana status contractnya active
+        $query->whereHas('user_type', function ($sub) use ($expected_end_date) {
+            $sub->where('tbl_user_type_detail.status', 1)-> # dimana status contractnya active
                 where('tbl_user_type_detail.end_date', $expected_end_date)-> # dimana end date nya sudah H-2 weeks
                 where('tbl_user_type.type_name', 'Part-Time');
         });
@@ -244,9 +242,10 @@ class User extends Authenticatable
         $query->where('active', 1);
     }
 
-    public function scopeWithAndWhereHas($query, $relation, $constraint){
+    public function scopeWithAndWhereHas($query, $relation, $constraint)
+    {
         return $query->whereHas($relation, $constraint)
-                     ->with([$relation => $constraint]);
+            ->with([$relation => $constraint]);
     }
 
     public function scopeIsAdminSales($query)
@@ -394,6 +393,11 @@ class User extends Authenticatable
         return $this->hasManyThrough(UserStream::class, UserRole::class, 'user_id', 'user_role_id', 'id', 'id')->with('stream', 'user_roles');
     }
 
+    public function editor_agreement()
+    {
+        return $this->hasManyThrough(EditorAgreement::class, UserRole::class, 'user_id', 'user_role_id', 'id', 'id')->with('user_roles');
+    }
+
     # applied when user from sales department
     public function handle()
     {
@@ -402,7 +406,6 @@ class User extends Authenticatable
 
     public function followupSchedule()
     {
-        return $this->hasMany(FollowupClient::class, 'user_id', 'id');   
+        return $this->hasMany(FollowupClient::class, 'user_id', 'id');
     }
-
 }
