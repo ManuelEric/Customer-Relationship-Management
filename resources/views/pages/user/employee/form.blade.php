@@ -12,8 +12,10 @@
     Request::route('user_role') == 'professional' ? $is_professional = 1 : null;
 
     if (isset($user) && $typeInfo = $user->user_type()->where('tbl_user_type_detail.status', 1)->first()) 
+    {
         $departmentId = $typeInfo->pivot->department_id;
         $departmentThisUser = $departments->where('id', $departmentId)->first();
+    }
 @endphp
 
     <div class="d-flex align-items-center justify-content-between mb-3">
@@ -223,9 +225,9 @@
             </div>
 
             
-            @if (Request::route('user_role') == 'tutor')
+            @if (Request::route('user_role') == 'tutor' && isset($user))
                 <livewire:add-fee-and-agreement-tutor :$user/>
-            @elseif (Request::route('user_role') == 'external-mentor')
+            @elseif (Request::route('user_role') == 'external-mentor' && isset($user))
                 <livewire:add-fee-and-agreement-external-mentor :$user />
             @endif
 

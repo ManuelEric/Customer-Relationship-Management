@@ -1935,7 +1935,9 @@ class ExtClientController extends Controller
 
         $result = $resultInArray = null;
         if ($query->exists()) {
-            $result = $query->select('id', 'first_name', 'last_name', 'email', 'phone', 'password', 'npwp', 'position_id', 'active')->first();
+            $result = $query->select('id', 'first_name', 'last_name', 'email', 'phone', 'password', 'npwp', 'position_id', 'active', 'account_name', 'account_no', 'bank_name')->
+                selectRaw("(SELECT code FROM banks WHERE bank_name = users.bank_name) as swift_code")->
+                first();
 
             # fetch the roles
             foreach ($result->roles as $role) {
