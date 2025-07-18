@@ -21,7 +21,7 @@ class AddFeeAndAgreementExternalMentor extends Component
     public $isEdit = false;
  
     public $engagement_types;
-    public $packages = ['Professional Sharing 1-on-1', 'Professional Sharing 2-10 Mentees', 'Professional Sharing >10 Mentees', 'Competition Mentoring', 'Subject-Specific Project Mentoring', 'Essay Mentoring', 'Essay Program Development'];
+    public $packages = ['Professional Sharing 1-on-1', 'Professional Sharing 2-10 Mentees', 'Professional Sharing >10 Mentees', 'Competition Mentoring', 'Subject-Specific Project Mentoring', 'Essay Mentoring', 'Essay Program Development', 'Passion Project Mentoring', 'Research Project Mentoring'];
 
     /* form request */
     public $stream_id, $engagement_type_id, $start_date, $end_date, $grade, $fee_individual, $agreement;

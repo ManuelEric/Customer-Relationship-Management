@@ -242,7 +242,7 @@ class UserController extends Controller
     public function edit(Request $request)
     {
         $userId = $request->route('user');
-        $user = $this->userRepository->rnGetUserById(userId: $userId);
+        $user = $this->userRepository->rnGetUserById($userId);
 
         $universities = Cache::remember('universities', 5 * 60, function () {
             return $this->universityRepository->getAllUniversities();

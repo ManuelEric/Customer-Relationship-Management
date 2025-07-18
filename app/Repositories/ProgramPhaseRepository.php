@@ -41,15 +41,24 @@ class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
     }
 
     public function rnIncrementUseProgramPhase(ClientProgram $clientprogram, int $phase_detail_id, $use)
-    {        
-        DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->increment('use', $use, ['updated_at' => Carbon::now()]);
+    {      
+        /**
+         * Legacy
+         *  
+         */  
+        // DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->increment('use', $use, ['updated_at' => Carbon::now()]);
+        // return DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->first();
 
-        return DB::table('client_program_details')->where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->first();
+        $details = ClientProgramDetail::where('clientprog_id', $clientprogram->clientprog_id)->where('phase_detail_id', $phase_detail_id)->first();
+        $details->use = $details->use == null ? 0 + $use : $details->use + $use;
+        $details->save();
+        return $details;
+
     }
 
     public function rnDecrementUseProgramPhase(ClientProgram $clientprogram, int $phase_detail_id, $use)
     {    
-        \Illuminate\Support\Facades\Log::debug('Get use quota', $clientprogram->phase_detail()->wherePivot('phase_detail_id', $phase_detail_id)->first()->toArray());    
+        // \Illuminate\Support\Facades\Log::debug('Get use quota', $clientprogram->phase_detail()->wherePivot('phase_detail_id', $phase_detail_id)->first()->toArray());    
         # prevent to decrement if the value is already at 0
         if ( $clientprogram->phase_detail()->wherePivot('phase_detail_id', $phase_detail_id)->first()->pivot->use > 0 )
         {

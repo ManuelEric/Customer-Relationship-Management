@@ -11,11 +11,12 @@
         Request::route('user_role') == 'editor' ? ($is_editor = 1) : null;
         Request::route('user_role') == 'professional' ? ($is_professional = 1) : null;
 
-        if (isset($user) && ($typeInfo = $user->user_type()->where('tbl_user_type_detail.status', 1)->first())) {
-            $departmentId = $typeInfo->pivot->department_id;
-        }
+    if (isset($user) && $typeInfo = $user->user_type()->where('tbl_user_type_detail.status', 1)->first()) 
+    {
+        $departmentId = $typeInfo->pivot->department_id;
         $departmentThisUser = $departments->where('id', $departmentId)->first();
-    @endphp
+    }
+@endphp
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('user/employee') }}" class="text-decoration-none text-muted">
@@ -143,8 +144,7 @@
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label for="">Last Name</label>
-                                <input type="text" name="last_name"
-                                    value="{{ isset($user->last_name) ? $user->last_name : old('first_name') }}"
+                                <input type="text" name="last_name" value="{{ isset($user->last_name) ? $user->last_name : old('last_name') }}"
                                     class="form-control form-control-sm rounded" placeholder="Doe">
                                 @error('last_name')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -242,12 +242,12 @@
                 </div>
             </div>
 
-
-            @if (Request::route('user_role') == 'tutor')
-                <livewire:add-fee-and-agreement-tutor :$user />
-            @elseif (Request::route('user_role') == 'external-mentor')
+            
+            @if (Request::route('user_role') == 'tutor' && isset($user))
+                <livewire:add-fee-and-agreement-tutor :$user/>
+            @elseif (Request::route('user_role') == 'external-mentor' && isset($user))
                 <livewire:add-fee-and-agreement-external-mentor :$user />
-            @elseif (Request::route('user_role') == 'editor')
+            @elseif (Request::route('user_role') == 'editor' && isset($user))
                 <livewire:add-fee-and-agreement-editor :$user />
             @endif
 
