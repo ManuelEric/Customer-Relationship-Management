@@ -46,30 +46,33 @@ class AddedPackageBoughtForAdmissionMentee extends Command
 
         /* get active mentees should be temporarily update by removing the getMentoredStudents to select all active mentees in database */
         $active_mentees = $this->clientRepository->rnGetActiveMentees([]);
+
         DB::beginTransaction();
         foreach ( $active_mentees as $mentee )
         {
-            $full_name = $mentee['full_name'];
-            $clientprog_id = $mentee['clientprog_id'];   
-            $grade = $mentee['grade'];
-            $this->info('');
-            $this->info('');
-            $this->info($full_name . ' has clientprog_id: ' . $clientprog_id);
+            $full_name = $mentee->full_name;
+            $client_programs = $mentee->clientProgram;
+            $grade = $mentee->grade_now;
 
-            $client_program_details = [];
-            foreach ( $packages as $package )
+            foreach ($client_programs as $client_program)
             {
-                $client_program_details[] = [
-                    'clientprog_id' => $clientprog_id,
-                    'phase_detail_id' => $package->id,
-                    'phase_lib_id' => NULL, //! change this into phase_lib_id whenever team sales want to track how many client goes to US, UK, etc.
-                    'quota' => 1,
-                    'use' => 0,
-                    'grade' => $grade,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                ];
+                $clientprog_id = $client_program->clientprog_id;
+                $client_program_details = [];
+                foreach ( $packages as $package )
+                {
+                    $client_program_details[] = [
+                        'clientprog_id' => $clientprog_id,
+                        'phase_detail_id' => $package->id,
+                        'phase_lib_id' => NULL, //! change this into phase_lib_id whenever team sales want to track how many client goes to US, UK, etc.
+                        'quota' => 1,
+                        'use' => 0,
+                        'grade' => $grade,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ];
+                }
             }
+
             try {
 
                 $this->programPhaseRepository->rnStoreBulkProgramPhase($client_program_details);

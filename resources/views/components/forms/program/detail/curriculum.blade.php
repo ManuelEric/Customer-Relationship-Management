@@ -1,5 +1,5 @@
 @php
-    $curriculumList = ['IBDP', 'IB MYP', 'Cambridge ALevel', 'Cambridge IGCSE', 'Advanced Placement', 'National'];
+    $curriculumList = ['IBDP', 'IB MYP', 'Cambridge ALevel', 'Cambridge IGCSE', 'Advanced Placement', 'National', 'SAT'];
 @endphp
 <select name="curriculum" class="form-select form-select-sm w-100 tutor-curriculum" @if(isset($disabled)) {{ $disabled }} @endif>
     <option value="" selected disabled>Select curriculum name</option>

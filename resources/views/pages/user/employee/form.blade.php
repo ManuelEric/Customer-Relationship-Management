@@ -138,7 +138,7 @@
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label for="">Last Name</label>
-                                <input type="text" name="last_name" value="{{ isset($user->last_name) ? $user->last_name : old('first_name') }}"
+                                <input type="text" name="last_name" value="{{ isset($user->last_name) ? $user->last_name : old('last_name') }}"
                                     class="form-control form-control-sm rounded" placeholder="Doe">
                                 @error('last_name')
                                     <small class="text-danger fw-light">{{ $message }}</small>

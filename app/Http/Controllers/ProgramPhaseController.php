@@ -147,7 +147,7 @@ class ProgramPhaseController extends Controller
 
         # select program admission
         $clientprogram = $this->clientProgramRepository->getClientProgramAdmissionByClientId($program_phase_details['mentee_id']);
-        
+
         if ( !$clientprogram ) 
         {
             $log_service->createErrorLog(LogModule::UPDATE_PROGRAM_PHASE, 'program admission not found', '-', '-', $program_phase_details);
