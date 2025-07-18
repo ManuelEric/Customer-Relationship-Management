@@ -1980,7 +1980,20 @@ class ExtClientController extends Controller
                             ];
                         }) : null;
                         break;
-                    default:
+                    case "Editor":
+                        // for editor, retrieve from editor_agreement
+                        $subjects_or_streams = $result->editor_agreement->count() > 0 ? $result->editor_agreement->map(function ($item) {
+                            return [
+                                'id' => $item->id,
+                                'category' => $item->category,
+                                'start_date' => $item->start_date,
+                                'end_date' => $item->end_date,
+                                'fee_individual' => $item->fee_individual,
+                                'agreement' => $item->agreement
+                            ];
+                        }) : null;
+                        break;
+                        default:
                         $subjects_or_streams = null;
 
                 }
