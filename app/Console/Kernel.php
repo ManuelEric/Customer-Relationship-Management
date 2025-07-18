@@ -103,6 +103,12 @@ class Kernel extends ConsoleKernel
          * Purge revoked and expired tokens and auth codes
          */
         $schedule->command('passport:purge')->withoutOverlapping()->hourly();
+
+        /**
+         * Generate client program package / phase detail
+         * to client program details
+         */
+        $schedule->command('generate:package-bought')->withoutOverlapping()->everyMinute();
     }
 
     /**

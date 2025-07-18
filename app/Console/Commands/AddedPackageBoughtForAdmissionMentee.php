@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\ProgramPhaseRepositoryInterface;
+use App\Models\pivot\ClientProgramDetail;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -46,20 +47,24 @@ class AddedPackageBoughtForAdmissionMentee extends Command
 
         /* get active mentees should be temporarily update by removing the getMentoredStudents to select all active mentees in database */
         $active_mentees = $this->clientRepository->rnGetActiveMentees([]);
+        $bar = $this->output->createProgressBar($active_mentees->count());
 
         DB::beginTransaction();
         foreach ( $active_mentees as $mentee )
         {
             $full_name = $mentee->full_name;
-            $client_programs = $mentee->clientProgram;
             $grade = $mentee->grade_now;
-
-            foreach ($client_programs as $client_program)
+            
+            foreach ($mentee->clientProgram as $client_program)
             {
                 $clientprog_id = $client_program->clientprog_id;
                 $client_program_details = [];
                 foreach ( $packages as $package )
                 {
+                    // check if exists
+                    if (ClientProgramDetail::where('clientprog_id', $clientprog_id)->where('phase_detail_id', $package->id)->exists())
+                        continue;
+
                     $client_program_details[] = [
                         'clientprog_id' => $clientprog_id,
                         'phase_detail_id' => $package->id,
@@ -72,10 +77,12 @@ class AddedPackageBoughtForAdmissionMentee extends Command
                     ];
                 }
             }
+            $bar->advance();
 
             try {
 
                 $this->programPhaseRepository->rnStoreBulkProgramPhase($client_program_details);
+                $this->newLine();
                 $this->info('Client program details stored successfully for ' . $full_name . ' with clientprog_id: ' . $clientprog_id);
                 DB::commit();
             } catch (\Exception $err) {
@@ -84,5 +91,8 @@ class AddedPackageBoughtForAdmissionMentee extends Command
                 break;
             }
         }
+
+        $this->info('Process done.');
+        $bar->finish();
     }
 }

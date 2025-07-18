@@ -5,6 +5,7 @@ namespace App\Actions\Users;
 use App\Http\Traits\UploadFileTrait;
 use App\Interfaces\UserRepositoryInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 class CreateUserAction
@@ -27,6 +28,10 @@ class CreateUserAction
     {
         # 1. store new user
         $new_user_details += ['number' => \App\Models\User::max('number') + 1];
+        if (!array_key_exists('password', $new_user_details))
+        {
+            $new_user_details += ['password' => Hash::make('password')];
+        }
         $new_user = $this->userRepository->rnCreateUser($new_user_details);
         $new_user_id = $new_user->id;
 
