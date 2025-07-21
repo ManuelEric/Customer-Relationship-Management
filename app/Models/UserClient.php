@@ -407,10 +407,10 @@ class UserClient extends Authenticatable
 
     public function scopeMentoring(Builder $query)
     {
-        $query->whereHas('clientProgram.program.main_prog', function ($query) {
-            $query->where('prog_name', 'Admissions Mentoring');
-        })->whereHas('clientProgram', function ($query) {
-            $query->where('status', 1);
+        $query->whereHas('clientProgram', function ($query) {
+            $query->where('status', 1)->whereHas('program.main_prog', function ($query) {
+                $query->where('prog_name', 'Admissions Mentoring');
+            });
         });
     }
 
