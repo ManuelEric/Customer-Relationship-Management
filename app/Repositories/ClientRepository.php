@@ -809,7 +809,7 @@ class ClientRepository implements ClientRepositoryInterface
         mentoring()->
         isActiveMentee()->
         search($search)->
-        // getMentoredStudents()->
+        getMentoredStudents()->
         orderByRaw(
             "
             CASE
