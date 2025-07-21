@@ -108,7 +108,7 @@ class AddFeeAndAgreementTutor extends Component
                     UserSubject::create([
                         'user_role_id' => $this->user_role_id,
                         'subject_id' => $value,
-                        'curriculum' => $curriculum,
+                        'curriculum' => $curriculum == "null" ? null : $curriculum,
                         'start_date' => $this->start_date,
                         'end_date' => $this->end_date,
                         'agreement' => $agreementPath,

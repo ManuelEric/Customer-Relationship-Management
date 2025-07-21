@@ -110,6 +110,7 @@
                             <div class="col-md-6 mb-2">
                                 <label for="">Curriculum <sup class="text-danger">*</sup></label>
                                 <select wire:model="selectedCurriculums" @if(!$isEdit) multiple @endif class="form-select form-select-sm w-100">
+                                    <option value="null">No Curriculum</option>
                                     @forelse ($curriculums as $key => $curriculum)
                                         <option value="{{ $curriculum }}">{{ $curriculum }}</option>
                                     
