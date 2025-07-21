@@ -449,8 +449,10 @@ class UserClient extends Authenticatable
 
     public function scopeGetMentoredStudents(Builder $query)
     {
-        $query->whereHas('clientProgram.clientMentor', function ($query) {
-            $query->where('users.id', auth()->guard('api')->user()->id)->where('tbl_client_mentor.status', 1);
+        $query->when(auth()->guard('api')->check(), function ($query) {
+            $query->whereHas('clientProgram.clientMentor', function ($query) {
+                $query->where('users.id', auth()->guard('api')->user()->id)->where('tbl_client_mentor.status', 1);
+            });
         });
     }
 
