@@ -409,6 +409,8 @@ class UserClient extends Authenticatable
     {
         $query->whereHas('clientProgram.program.main_prog', function ($query) {
             $query->where('prog_name', 'Admissions Mentoring');
+        })->whereHas('clientProgram', function ($query) {
+            $query->where('status', 1);
         });
     }
 
