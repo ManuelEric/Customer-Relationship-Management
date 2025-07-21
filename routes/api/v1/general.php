@@ -154,14 +154,14 @@ Route::middleware(['throttle:2500,1'])->group(function () {
     });
 
         # essay editing & timesheet API use
-        // Route::middleware(['resource:timesheet,editing'])->group(function () {
+        Route::middleware(['resource:timesheet,editing'])->group(function () {
             Route::get('auth/email/check', [ExtClientController::class, 'checkUserEmail']);
             Route::post('auth/token', [ExtClientController::class, 'validateCredentials']);
             Route::post('user/update', [ExtClientController::class, 'updateUser']);
-        // });
+        });
     
         # timesheet
-        // Route::middleware(  ['resource:timesheet'])->group(function () {
+        Route::middleware(  ['resource:timesheet'])->group(function () {
     
             Route::get('user/mentor-tutors', [ExtClientController::class, 'getMentorTutors']);
             Route::get('user/mentor-tutors/{uuid}', [ExtClientController::class, 'showMentorTutor']);
@@ -175,7 +175,7 @@ Route::middleware(['throttle:2500,1'])->group(function () {
             Route::get('client/information/{uuid}', [ExtClientController::class, 'getClientInformation']);
 
             Route::get('external-mentor/streams', [V1APIStreamController::class, 'all_streams']);
-        // });
+        });
     
         # mentoring 
         Route::middleware(['resource:mentoring'])->group(function () {
