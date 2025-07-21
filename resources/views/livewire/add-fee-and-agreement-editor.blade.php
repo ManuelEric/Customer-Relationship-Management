@@ -34,6 +34,7 @@
                         <td>Category</td>
                         <td>Fee Individual</td>
                         <td>Agreement</td>
+                        <td>Last Update</td>
                         <td>Action</td>
                     </tr>
                 </thead>
@@ -55,6 +56,7 @@
                             <td>{{ $role_stream->fee_individual ? 'Rp. ' . number_format($role_stream->fee_individual) : 'n/a' }}
                             </td>
                             <td class="text-center">{!! $role_stream->agreement ? "<a href='{$url}' target='_blank'>view</a>" : 'n/a' !!}</td>
+                            <td>{{ date('d F Y H:i:s', strtotime($role_stream->updated_at)) }}</td>
                             <td class="text-center">
                                 <button type="button" class="btn btn-sm btn-warning"
                                     wire:click="edit({{ $role_stream->id }})" data-bs-toggle="modal"
@@ -67,7 +69,7 @@
 
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center">No data</td>
+                            <td colspan="10" class="text-center">No data</td>
                         </tr>
                     @endforelse
                 </tbody>

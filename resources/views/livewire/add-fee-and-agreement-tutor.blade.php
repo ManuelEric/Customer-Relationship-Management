@@ -38,6 +38,7 @@
                         <td>Fee Group</td>
                         {{-- <td>Head Count <i class="bi bi-question-circle" alt="group fee will be activated when total minimum of head count achieved"></i></td> --}}
                         <td>Agreement</td>
+                        <td>Last Update</td>
                         <td>Action</td>
                     </tr>
                 </thead>
@@ -58,6 +59,7 @@
                             <td>{{ $role_subject->fee_group ? "Rp. ".number_format($role_subject->fee_group) : 'n/a' }}</td>
                             {{-- <td class="text-center">{{ $role_subject->head ?? 'n/a' }}</td> --}}
                             <td class="text-center">{!! $role_subject->agreement ? "<a href='{$url}' target='_blank'>view</a>" : 'n/a' !!}</td>
+                            <td>{{ date('d F Y H:i:s', strtotime($role_subject->updated_at)) }}</td>
                             <td class="text-center">
                                 <button type="button" class="btn btn-sm btn-warning" wire:click="edit({{ $role_subject->id }})" data-bs-toggle="modal" data-bs-target="#agreementForm"><i class="bi bi-pencil"></i></button>
                                 <button type="button" class="btn btn-sm btn-danger ms-1" 
@@ -68,7 +70,7 @@
 
                     @empty
                         <tr>
-                            <td colspan="10" class="text-center">No data</td>
+                            <td colspan="11" class="text-center">No data</td>
                         </tr>
                 
                     @endforelse
