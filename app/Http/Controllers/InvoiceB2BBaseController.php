@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Enum\LogModule;
 use App\Http\Traits\DirectorListTrait;
 use App\Http\Traits\LoggingTrait;
+use App\Interfaces\AxisRepositoryInterface;
 use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
+use App\Mail\Invb2b\SendToClientMail as Invb2bSendToClientMail;
+use App\Mail\SendToClientMail;
 use App\Services\Log\LogService;
 use Exception;
 use Illuminate\Http\Request;
@@ -22,6 +25,10 @@ class InvoiceB2BBaseController extends Controller
 {
     use DirectorListTrait;
     use LoggingTrait;
+
+    protected InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository;
+    protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
+    protected AxisRepositoryInterface $axisRepository;
 
     public function getModule()
     {
@@ -97,6 +104,13 @@ class InvoiceB2BBaseController extends Controller
         }
 
         return $this->module;
+    }
+
+    public function __construct(InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, AxisRepositoryInterface $axisRepository)
+    {
+        $this->invoiceAttachmentRepository = $invoiceAttachmentRepository;
+        $this->invoiceB2bRepository = $invoiceB2bRepository;
+        $this->axisRepository = $axisRepository;
     }
 
     public function export(Request $request)
@@ -354,14 +368,28 @@ class InvoiceB2BBaseController extends Controller
         #$data['recipient'] = $pic->pic_name;
 
         # validate the their pic email
-        if (!isset($invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['email']}) || $invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['email']} == '')
+        // if (!isset($invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['email']}) || $invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['email']} == '')
+        //     return response()->json(['message' => "Please complete their email in order to send the invoice mail"], 500);
+        
+        $any_email_exist = false;
+        // get pic that has mail only
+        foreach ($invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']} as $key => $value) {
+            if ($value->{$this->module['subject']['pic']['email']} !== null) {
+                $data['email'] = $value->{$this->module['subject']['pic']['email']};
+                $data['recipient'] = $value->{$this->module['subject']['pic']['name']};
+                $any_email_exist = true;
+            }
+        }
+
+        if (!$any_email_exist)
             return response()->json(['message' => "Please complete their email in order to send the invoice mail"], 500);
         
 
-        $data['email'] = $invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['email']}; # email to pic of the partner program
+        // $data['email'] = $invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['email']}; # email to pic of the partner program
         // $data['email'] = env('PARTNERSHIP_MAIL_1');
-        $data['recipient'] = $invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['name']}; # name of the pic of the partner program
-        $data['cc'] = [env('CEO_CC'), env('FINANCE_CC'), env('PARTNERSHIP_MAIL')];
+        // $data['recipient'] = $invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['sub_class']}[0]->{$this->module['subject']['pic']['name']}; # name of the pic of the partner program
+        // $data['cc'] = [env('CEO_CC'), env('FINANCE_CC'), env('PARTNERSHIP_MAIL')];
+        $data['cc'] = ['devi.kasih@edu-all.com', 'emilia@edu-all.com', 'theresia.avelina@edu-all.com'];
         $data['title'] = "Invoice of program " . $program_name;
         $data['param'] = [
             'invb2b_num' => $inv_num,
@@ -369,15 +397,15 @@ class InvoiceB2BBaseController extends Controller
             'fullname' => $invoice_b2b->{$this->module['name']}->{$this->module['subject']['class']}->{$this->module['subject']['attribute']},
             'program_name' => $param_program_name, # main prog name - sub prog name
         ];
-
         try {
+            
+            $view = 'pages.invoice.'.$this->module['segment'].'.mail.client-view';
+            $s3path = 'project/crm/invoice/'. $this->module['name'] .'/';
+            $filename = $invoice_attachment->attachment;
 
-            Mail::send('pages.invoice.'.$this->module['segment'].'.mail.client-view', $data, function ($message) use ($data, $invoice_attachment) {
-                $message->to($data['email'], $data['recipient'])
-                    ->cc($data['cc'])
-                    ->subject($data['title'])
-                    ->attach(Storage::url('invoice/'. $this->module['name'] . '/'. $invoice_attachment->attachment));
-            });
+            Mail::to($data['email'], $data['recipient'])
+                ->cc($data['cc'])
+                ->send(new Invb2bSendToClientMail($data, $s3path . $filename, $filename, $view) );
 
             $attachment_details = [
                 'send_to_client' => 'sent',
