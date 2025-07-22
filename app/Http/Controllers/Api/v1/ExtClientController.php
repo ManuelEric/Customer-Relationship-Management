@@ -2063,7 +2063,7 @@ class ExtClientController extends Controller
         $paginate = $request->get('paginate'); # true will return paginate results, false will return all results 
         $role = $request->get('role');
 
-        $user = \App\Models\User::query()->select('id', 'first_name', 'last_name', 'email', 'phone', 'npwp')->with([
+        $user = \App\Models\User::query()->select('id', 'first_name', 'last_name', 'email', 'phone', 'npwp', 'active')->with([
             'roles',
         ])->whereHas('roles', function ($query) use ($role) {
             $query->when($role, function ($sub) use ($role) {
@@ -2108,7 +2108,8 @@ class ExtClientController extends Controller
                 'email' => $data['email'],
                 'phone' => $data['phone'],
                 'has_npwp' => $data['npwp'] ? true : false,
-                'roles' => $acceptedRole
+                'roles' => $acceptedRole,
+                'active' => $data->active,
             ];
         });
 
