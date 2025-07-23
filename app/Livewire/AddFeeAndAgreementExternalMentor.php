@@ -54,10 +54,11 @@ class AddFeeAndAgreementExternalMentor extends Component
          * - professional sharing
          * - project-based competition mentoring
          * - subject-specific project mentoring
-         * - essay editing hours
+         * - essay editing hours (ID: 11) <- previously used but since editor has agreement as well and essay editing only can be selected from there then it is commented from external mentor
          * - essay program development
+         * - essay mentoring <- related to essay editing hours
         */
-        $this->engagement_types = PhaseDetail::whereIn('id', [2, 3, 5, 6, 11, 13])->get();
+        $this->engagement_types = PhaseDetail::whereIn('id', [2, 3, 5, 6, /*11,*/ 13, 14])->get();
         $this->streams = $streamRepository->rnGetAllStreams();
 
         /* default value */

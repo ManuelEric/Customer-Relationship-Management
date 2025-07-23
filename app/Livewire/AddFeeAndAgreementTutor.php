@@ -20,7 +20,7 @@ class AddFeeAndAgreementTutor extends Component
     use WithFileUploads;
 
     public $user, $role, $tutor_subjects, $user_role_id, $user_subject_id;
-    public $curriculums = ['IBDP', 'IB MYP', 'Cambridge ALevel', 'Cambridge IGCSE', 'Advanced Placement', 'National', 'SAT'];
+    public $curriculums = ['IBDP', 'IB MYP', 'Cambridge ALevel', 'Cambridge IGCSE', 'Advanced Placement', 'National', 'SAT', 'Competition']; // this curriculums has to be same as curriculums from timesheet database
     public $isEdit = false;
     public $subject_id = []; // will hold multiple values
     public $selectedCurriculums = []; // will hold multiple values
