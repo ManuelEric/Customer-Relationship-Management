@@ -20,8 +20,10 @@ class AddFeeAndAgreementEditor extends Component
 
     public $categories = [null, 'Essay Editing', 'Essay Mentoring', 'Program Development'];
 
+    public $category = 'Essay Editing';
+
     /* form request */
-    public $category, $start_date, $end_date, $fee_individual, $agreement;
+    public $start_date, $end_date, $fee_individual, $agreement;
 
     protected function rules()
     {
@@ -39,13 +41,14 @@ class AddFeeAndAgreementEditor extends Component
 
     public function mount($user)
     {
+        $this->category = 'Essay Editing';
         $this->user = $user;
         $this->user_role_id = $this->user->roles()->where('role_name', 'Editor')->first()->pivot->id;
     }
 
     public function resetFields()
     {
-        $this->category = null;
+        $this->category = 'Essay Editing';
         $this->start_date = null;
         $this->end_date = null;
         $this->fee_individual = null;

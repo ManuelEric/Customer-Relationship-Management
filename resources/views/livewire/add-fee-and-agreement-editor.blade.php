@@ -97,7 +97,9 @@
 
                             <div class="col-md-12 mb-2">
                                 <label for="">Category <sup class="text-danger">*</sup></label>
-                                <select wire:model="category" @if (!$isEdit)  @endif
+                                <input class="form-control form-control-sm rounded" type="text"
+                                    wire:model="category" readonly>
+                                {{-- <select wire:model="category" @if (!$isEdit)  @endif
                                     class="form-select form-select-sm w-100">
                                     @forelse ($categories as $key => $item)
                                         <option value="{{ $item }}">
@@ -105,7 +107,7 @@
                                     @empty
                                         <option>No categories fetched</option>
                                     @endforelse
-                                </select>
+                                </select> --}}
                                 @error('category')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
