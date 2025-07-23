@@ -46,11 +46,14 @@
                                 <div class="col">
                                     <select name="lead_source" id="leadSource" class="form-select form-select-sm"
                                         onchange="this.form.submit()">
-                                        <option value="" {{ isset($_GET['lead_source']) ? 'selected' : '' }}>Select
+                                        <option value=""
+                                            {{ isset($_GET['lead_source']) && $_GET['lead_source'] == '' ? 'selected' : '' }}>
+                                            Select
                                             Lead Source</option>
                                         @foreach ($lead_source as $key => $item)
                                             <option value="{{ $key }}"
-                                                {{ isset($_GET['lead_source']) ? 'selected' : '' }}>{{ $key }}
+                                                {{ isset($_GET['lead_source']) && $_GET['lead_source'] == $key ? 'selected' : '' }}>
+                                                {{ $key }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -58,11 +61,14 @@
                                 <div class="col">
                                     <select name="utm_content" id="utmContent" class="form-select form-select-sm "
                                         placeholder="Test" onchange="this.form.submit()">
-                                        <option value="" {{ isset($_GET['utm_content']) ? 'selected' : '' }}>Select
+                                        <option value=""
+                                            {{ isset($_GET['utm_content']) && $_GET['utm_content'] == '' ? 'selected' : '' }}>
+                                            Select
                                             UTM Content</option>
                                         @foreach ($utm_content as $key => $item)
                                             <option value="{{ $key }}"
-                                                {{ isset($_GET['utm_content']) ? 'selected' : '' }}>{{ $key }}
+                                                {{ isset($_GET['utm_content']) && $_GET['utm_content'] == $key ? 'selected' : '' }}>
+                                                {{ $key }}
                                             </option>
                                         @endforeach
                                     </select>
