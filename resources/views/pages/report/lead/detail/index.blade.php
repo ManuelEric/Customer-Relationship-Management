@@ -44,19 +44,26 @@
                         <form action="">
                             <div class="row row-cols-md-3 g-1">
                                 <div class="col">
-                                    <select name="lead_source" id="leadSource" class="form-select form-select-sm">
-                                        <option value="" disabled>Select Lead Source</option>
+                                    <select name="lead_source" id="leadSource" class="form-select form-select-sm"
+                                        onchange="this.form.submit()">
+                                        <option value="" {{ isset($_GET['lead_source']) ? 'selected' : '' }}>Select
+                                            Lead Source</option>
                                         @foreach ($lead_source as $key => $item)
-                                            <option value="{{ $key }}" {{ $_GET['lead_source'] ? 'selected' : '' }}>{{ $key }}</option>
+                                            <option value="{{ $key }}"
+                                                {{ isset($_GET['lead_source']) ? 'selected' : '' }}>{{ $key }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="col">
                                     <select name="utm_content" id="utmContent" class="form-select form-select-sm "
-                                        placeholder="Test">
-                                        <option value="" disabled>Select UTM Content</option>
+                                        placeholder="Test" onchange="this.form.submit()">
+                                        <option value="" {{ isset($_GET['utm_content']) ? 'selected' : '' }}>Select
+                                            UTM Content</option>
                                         @foreach ($utm_content as $key => $item)
-                                            <option value="{{ $key }}" {{ $_GET['utm_content'] ? 'selected' : '' }}>{{ $key }}</option>
+                                            <option value="{{ $key }}"
+                                                {{ isset($_GET['utm_content']) ? 'selected' : '' }}>{{ $key }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
