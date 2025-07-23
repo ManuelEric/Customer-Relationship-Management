@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\LeadTrackerController;
 use App\Http\Controllers\ReportController;
+use App\Livewire\LeadTrackerDetail;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,5 +33,6 @@ Route::get('program', [ReportController::class, 'fnProgramTracking'])->name('rep
 
 Route::get('lead', [ReportController::class, 'fnLeadTracking'])->name('report.lead');
 
-Route::get('lead/detail/', [ReportController::class, 'fnDetailLeadTracking'])->name('report.lead.detail');
+// Route::get('lead/detail', [ReportController::class, 'fnDetailLeadTracking'])->name('report.lead.detail');
+Route::get('lead/detail', LeadTrackerDetail::class)->name('report.lead.detail');
 

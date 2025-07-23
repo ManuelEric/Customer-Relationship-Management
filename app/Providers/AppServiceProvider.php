@@ -57,7 +57,6 @@ class AppServiceProvider extends ServiceProvider
 
         Paginator::defaultView('vendor.pagination.bootstrap-5');
 
-
         /* menu manager */
         view()->composer('*', function ($view) {
 
