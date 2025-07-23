@@ -156,6 +156,7 @@
                                 <select wire:model="grade" class="form-select form-select-sm">
                                     <option data-placeholder="true"></option>
                                     <option value="9-12">All</option>
+                                    <option value="1-6">1-6</option>
                                     <option value="9-10">9-10</option>
                                     <option value="11-12">11-12</option>
                                 </select>
