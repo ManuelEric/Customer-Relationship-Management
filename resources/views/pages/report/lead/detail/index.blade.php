@@ -66,9 +66,9 @@
                                             Select
                                             UTM Content</option>
                                         @foreach ($utm_content as $key => $item)
-                                            <option value="{{ $key }}"
+                                            <option value="{{ $key == '' ? '-' : $key }}"
                                                 {{ isset($_GET['utm_content']) && $_GET['utm_content'] == $key ? 'selected' : '' }}>
-                                                {{ $key }}
+                                                {{ $key == '' ? '-' : $key }}
                                             </option>
                                         @endforeach
                                     </select>
