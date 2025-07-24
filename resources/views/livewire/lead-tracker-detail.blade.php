@@ -36,45 +36,9 @@
                         <h4>Leads Tracker - {{ ucwords(str_replace('_', ' ', $requested_type)) }}</h4>
                     </div>
                     <div class="col-auto">
-                        {{-- <div class="row row-cols-md-3 g-1">
-                            <div class="col">
-                                <select name="lead_source" id="leadSource" class="form-select form-select-sm"
-                                    onchange="this.form.submit()">
-                                    <option value=""
-                                        {{ isset($_GET['lead_source']) && $_GET['lead_source'] == '' ? 'selected' : '' }}>
-                                        Select
-                                        Lead Source</option>
-                                    @foreach ($lead_source as $key => $item)
-                                        <option value="{{ $key }}"
-                                            {{ isset($_GET['lead_source']) && $_GET['lead_source'] == $key ? 'selected' : '' }}>
-                                            {{ $key }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col">
-                                <select name="utm_content" id="utmContent" class="form-select form-select-sm "
-                                    placeholder="Test" onchange="this.form.submit()">
-                                    <option value=""
-                                        {{ isset($_GET['utm_content']) && $_GET['utm_content'] == '' ? 'selected' : '' }}>
-                                        Select
-                                        UTM Content</option>
-                                    @foreach ($utm_content as $key => $item)
-                                        <option value="{{ $key == '' ? '-' : $key }}"
-                                            {{ isset($_GET['utm_content']) && $_GET['utm_content'] == $key ? 'selected' : '' }}>
-                                            {{ $key == '' ? '-' : $key }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col">
-                                <input type="text" id="search" name="search" placeholder="Search"
-                                    class="form-control form-control-sm" value="{{ $_GET['search'] ?? '' }}">
-                            </div>
-                        </div> --}}
                         <div class="row">
                             <div class="col">
-                                <select wire:model="lead_source" class="form-select form-select-sm" wire:change="doSearch">
+                                <select wire:model="lead_source" class="form-select form-select-sm" wire:change="doSearch" wire:loading.attr="disabled">
                                     <option value="">Select Lead Source</option>
                                     @foreach ($lead_sources as $key => $item)
                                         <option value="{{ $key }}">
@@ -84,7 +48,7 @@
                                 </select>
                             </div>
                             <div class="col">
-                                <select wire:model="utm_content" class="form-select form-select-sm" wire:change="doSearch">
+                                <select wire:model="utm_content" class="form-select form-select-sm" wire:change="doSearch" wire:loading.attr="disabled">
                                     <option value="">Select UTM Content</option>
                                     @foreach ($utm_content_list as $key => $item)
                                         <option value="{{ $key }}">
@@ -95,7 +59,7 @@
                             </div>
                             
                             <div class="col">
-                                <input type="text" placeholder="Search" class="form-control form-control-sm" wire:model="requested_search" wire:keydown.enter="doSearch">
+                                <input type="text" placeholder="Search" class="form-control form-control-sm" wire:loading.attr="disabled" wire:model="requested_search" wire:keydown.enter="doSearch">
                             </div>
                         </div>
                     </div>
@@ -140,7 +104,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="mt-4">
+            <div class="mt-4" wire:loading.remove>
                 {{ $leads_tracker->links() }}
             </div>
         </div>
