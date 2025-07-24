@@ -168,7 +168,7 @@
                             <label for="">PIC</label>
                             <select name="pic[]" class="select form-select form-select-sm w-100" multiple id="pic">
                                 @foreach ($pics as $pic)
-                                    <option value="{{ $pic->uuid }}" @selected($picUUID_arr !== null && in_array($pic->uuid, $picUUID_arr))>{{ $pic->pic_name }}
+                                    <option value="{{ $pic->id }}" @selected($picUUID_arr !== null && in_array($pic->id, $picUUID_arr))>{{ $pic->pic_name }}
                                     </option>
                                 @endforeach
                             </select>
