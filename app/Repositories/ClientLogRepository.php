@@ -1177,6 +1177,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
 
     public function getDetailLeadTracking(String $type, Carbon $start_date, Carbon $end_date, ?array $search = [])
     {
+        
         switch ($type) {
             # Unfiltered
             case 'unfiltered_leads_online_paid':

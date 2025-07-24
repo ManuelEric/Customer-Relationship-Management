@@ -32,7 +32,7 @@ class ClientLog extends Model
     public function update(array $attributes = [], array $options = [])
     {
         # set unique_key if null
-        if(!isset($attributes['unique_key']) || $attributes['unique_key'] == null)
+        if (!isset($attributes['unique_key']) || $attributes['unique_key'] == null)
             $attributes['unique_key'] = Str::ulid()->toBase32();
 
         $updated = parent::update($attributes);
@@ -43,7 +43,7 @@ class ClientLog extends Model
     public static function create(array $attributes = [])
     {
         # set unique_key if null
-        if(!isset($attributes['unique_key']) || $attributes['unique_key'] == null)
+        if (!isset($attributes['unique_key']) || $attributes['unique_key'] == null)
             $attributes['unique_key'] = Str::ulid()->toBase32();
 
         $model = static::query()->create($attributes);
@@ -57,14 +57,14 @@ class ClientLog extends Model
     public function formattedCreatedAt(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => date('M d, Y H:i:s', strtotime($this->created_at)),
+            get: fn($value) => date('M d, Y H:i:s', strtotime($this->created_at)),
         );
     }
 
     public function formattedUpdatedAt(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => date('M d, Y H:i:s', strtotime($this->updated_at)),
+            get: fn($value) => date('M d, Y H:i:s', strtotime($this->updated_at)),
         );
     }
 
@@ -95,11 +95,9 @@ class ClientLog extends Model
 
     public function scopeDealLeads(Builder $query, Carbon $start_date, Carbon $end_date): void
     {
-        $query->
-            whereIn('category', ['mentee', 'non-mentee'])->
-            whereHas('client_program', function ($sub) use ($start_date, $end_date) {
-                $sub->whereBetween('success_date', [$start_date, $end_date]);
-            });
+        $query->whereIn('category', ['mentee', 'non-mentee'])->whereHas('client_program', function ($sub) use ($start_date, $end_date) {
+            $sub->whereBetween('success_date', [$start_date, $end_date]);
+        });
     }
 
     public function scopeHasAgreement(Builder $query, Carbon $start_date, Carbon $end_date): void
@@ -172,7 +170,7 @@ class ClientLog extends Model
     }
 
 
-    public function scopeTookAssessment(Builder $query, Carbon $start_date, Carbon $end_date): void 
+    public function scopeTookAssessment(Builder $query, Carbon $start_date, Carbon $end_date): void
     {
         $query->whereHas('master_client', function ($sub) use ($start_date, $end_date) {
             $sub->where('took_ia', 1)->whereBetween('took_ia_date', [$start_date, $end_date]);
@@ -182,7 +180,7 @@ class ClientLog extends Model
 
     public function scopeInitialConsult(Builder $query): void
     {
-        $query->whereHas('client_program', function ($sub)  {
+        $query->whereHas('client_program', function ($sub) {
             // $sub->whereBetween('initconsult_date', [$start_date, $end_date]);
             $sub->whereNotNull('initconsult_date');
         });
@@ -200,7 +198,7 @@ class ClientLog extends Model
 
     public function scopeTrialDate(Builder $query, Carbon $start_date, Carbon $end_date): void
     {
-        $query->whereHas('client_program', function ($query) use ($start_date, $end_date)  {
+        $query->whereHas('client_program', function ($query) use ($start_date, $end_date) {
             $query->whereBetween('trial_date', [$start_date, $end_date]);
         });
     }
