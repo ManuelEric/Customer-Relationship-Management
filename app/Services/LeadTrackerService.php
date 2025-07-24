@@ -230,7 +230,7 @@ class LeadTrackerService
         ];
     }
 
-    public function detailLead(String $type, $date_range, $search = null)
+    public function detailLead(String $type, $date_range, ?array $search = [])
     {  
         [$start_date, $end_date] = ($date_range) ? array_map([$this, "castToCarbon"], explode('-', $date_range)) : $this->selectCurrentWeek();
         $end_date = $end_date->endOfDay();

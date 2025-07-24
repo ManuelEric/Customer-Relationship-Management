@@ -324,22 +324,22 @@ class ClientLog extends Model
         $query->referral()->alreadyPaidTheProgram($start_date, $end_date)->groupBy('clientprog_id');
     }
 
-    public function scopeSearch(Builder $query, $search = null)
+    public function scopeSearch(Builder $query, ?array $search = [])
     {
         $query->when($search, function ($query) use ($search) {
             $query->whereHas('master_client', function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
-                    $query->when($search['utm_content'], function ($query) use ($search) {
+                    $query->when(isset($search['utm_content']), function ($query) use ($search) {
                         $query
                             ->where('utm_content', 'like', '%' . $search['utm_content'] . '%');
                     });
-                    $query->when($search['lead_source'], function ($query) use ($search) {
+                    $query->when(isset($search['lead_source']), function ($query) use ($search) {
                         $query
                             ->whereHas('lead', function ($query) use ($search) {
                                 $query->where('main_lead', 'like', '%' . $search['lead_source'] . '%');
                             });
                     });
-                    $query->when($search['search'], function ($query) use ($search) {
+                    $query->when(isset($search['search']), function ($query) use ($search) {
                         $query
                             ->where('first_name', 'like', '%' . $search['search'] . '%')
                             ->orWhere('last_name', 'like', '%' . $search['search'] . '%')
@@ -347,13 +347,13 @@ class ClientLog extends Model
                     });
                 });
             })->orWhereHas('client_program', function ($query) use ($search) {
-                $query->when($search['lead_source'], function ($query) use ($search) {
+                $query->when(isset($search['lead_source']), function ($query) use ($search) {
                     $query
                         ->whereHas('lead', function ($query) use ($search) {
                             $query->where('main_lead', 'like', '%' . $search['lead_source'] . '%');
                         });
                 });
-                $query->when($search['search'], function ($query) use ($search) {
+                $query->when(isset($search['search']), function ($query) use ($search) {
                     $query->whereHas('program', function ($query) use ($search) {
                         $query->where('prog_program', 'like', '%' . $search['search'] . '%');
                     });
