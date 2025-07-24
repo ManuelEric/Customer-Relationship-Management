@@ -1175,7 +1175,7 @@ class ClientLogRepository implements ClientLogRepositoryInterface
         return $mapped->groupBy('pic_id');
     }
 
-    public function getDetailLeadTracking(String $type, Carbon $start_date, Carbon $end_date, $search = null)
+    public function getDetailLeadTracking(String $type, Carbon $start_date, Carbon $end_date, ?array $search = [])
     {
         switch ($type) {
             # Unfiltered
