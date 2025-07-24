@@ -32,18 +32,13 @@ class LeadTrackerDetail extends Component
 
     public function mount(LeadTrackerService $lead_tracker_service) 
     {
-        $this->search =  [
-            'search' => $this->requested_search,
-            // 'lead_source' => $this->lead_source,
-            'utm_content' => $this->utm_content
-        ];
-        $this->query_lead_tracker = $lead_tracker_service->detailLead($this->requested_type, $this->requested_daterange, $this->search);
-        $this->utm_content_list = $lead_tracker_service->detailLead($this->requested_type, $this->requested_daterange, null)->whereNotNull('utm_content')->map(function ($item) {
+        $this->query_lead_tracker = $lead_tracker_service->detailLead($this->requested_type, $this->requested_daterange);
+        $this->utm_content_list = $lead_tracker_service->detailLead($this->requested_type, $this->requested_daterange)->whereNotNull('utm_content')->map(function ($item) {
             return [
                 'utm_content' => $item['utm_content']
             ];
         })->sortBy('utm_content')->groupBy('utm_content');
-        $this->lead_sources = $lead_tracker_service->detailLead($this->requested_type, $this->requested_daterange, null)->map(function($item){
+        $this->lead_sources = $lead_tracker_service->detailLead($this->requested_type, $this->requested_daterange)->map(function($item){
             return [
                 'lead_source' => $item['lead_source']
             ];
