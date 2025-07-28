@@ -1,5 +1,5 @@
 @php
-    $testPreparationList = ['Group', 'Express', 'Bootcamp', 'Private', 'Semi Private', 'Hourly', 'Deposit Trial'];
+    $testPreparationList = [/*'Group', */'Express', 'Bootcamp', 'Private', 'Semi Private', 'Hourly', 'Deposit Trial'];
     $subjectTutoringList = ['Basic', 'Pro', 'Elite', 'Hourly', 'Free Trial', 'Deposit Trial', 'Bonus'];
     $competitionList = ['Group'];
     $skillsetTutoringList = ['Private', 'Deposit Trial'];
