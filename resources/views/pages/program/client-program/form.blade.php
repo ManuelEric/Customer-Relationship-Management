@@ -440,11 +440,11 @@
                         </div>
                         {{-- TUTORING DETAIL  --}}
                         <div class="program-detail" id="pending_tutoring"
-                            v-if="(main_prog==4 || main_prog==7 || main_prog==8 || main_prog==9) && (status==0 || status==1) && prog_id!='SATPREP'">
+                            v-if="(main_prog==4 || main_prog==7 || main_prog==8 || main_prog==9) && (status==0 || status==1) && (prog_id!='SATPREP' && prog_id!='SATCORE' && prog_id!='SATINT' && prog_id!='SATPRO')">
                             @include('pages.program.client-program.form-detail.tutoring')
                         </div>
                         {{-- SAT DETAIL  --}}
-                        <div class="program-detail" id="success_sat_act" v-if="main_prog==4 && prog_id=='SATPREP'">
+                        <div class="program-detail" id="success_sat_act" v-if="main_prog==4 && (prog_id=='SATPREP' || prog_id=='SATCORE' || prog_id=='SATINT' || prog_id=='SATPRO')">
                             @include('pages.program.client-program.form-detail.sat-act')
                         </div>
 
