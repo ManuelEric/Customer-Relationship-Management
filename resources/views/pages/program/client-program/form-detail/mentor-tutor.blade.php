@@ -160,7 +160,7 @@
             </div>
         </div>
     </div>
-    <div id="sat-act" v-if="main_prog==4 && prog_id=='SATPREP' && status==1">
+    <div id="sat-act" v-if="main_prog==4 && (prog_id=='SATPREP' || prog_id=='SATCORE' || prog_id=='SATINT' || prog_id=='SATPRO') && status==1">
         <div class="row mb-3">
             <div class="col-md-3">
                 <label for="">
