@@ -178,7 +178,7 @@ class Program extends Model
     {
         return $query->whereHas('sub_prog', function ($query) {
             $query->where('sub_prog_name', 'like', '%Tutoring%')->orWhere('sub_prog_name', 'like', '%Competition%');
-        })->orWhereRelation('main_prog', 'prog_name', 'Test Preparation')->whereNot('prog_id', 'SATPREP');
+        })->orWhereRelation('main_prog', 'prog_name', 'Test Preparation')->whereNotIn('prog_id', ['SATPREP', 'SATPRO', 'SATINT', 'SATCORE']);
     }
 
     public function scopeSubjectTutoringProgList($query)
