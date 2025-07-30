@@ -28,3 +28,4 @@ error_log
 .ftpquota
 .htaccess
 .deploy.php
+/.docker

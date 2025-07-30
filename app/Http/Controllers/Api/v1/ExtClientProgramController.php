@@ -50,6 +50,9 @@ class ExtClientProgramController extends Controller
             },
             'program' => function ($query) {
                 $query->select('prog_id', 'main_prog_id', 'prog_program', 'prog_mentor');
+            },
+            'internalPic' => function ($query) {
+                $query->select('id', 'first_name', 'last_name', 'phone');
             }
         ])->
         whereRelation('program.main_prog', 'group_of', $group_of)->
@@ -67,8 +70,7 @@ class ExtClientProgramController extends Controller
                 $query->where('users.id', $mentor_uuid);
             });
         })->
-        successAndPaid()->select('clientprog_id', 'prog_id', 'client_id', 'package', 'curriculum')->get();
-
+        successAndPaid()->select('clientprog_id', 'prog_id', 'client_id', 'package', 'curriculum', 'empl_id')->get();
         $mappedB2CPrograms = $b2cPrograms->map(function ($data) {
 
             $clientprog_id = $data->clientprog_id;
@@ -78,6 +80,8 @@ class ExtClientProgramController extends Controller
             $require = $data->program->prog_mentor;
             $package = $data->package;
             $curriculum = $data->curriculum;
+            $pic_fullname = $data->internalPic->full_name;
+            $pic_phone = $data->internalPic->phone;
             $client_id = $data->client->id;
             $client_fname = $data->client->first_name;
             $client_lname = $data->client->last_name;
@@ -92,6 +96,10 @@ class ExtClientProgramController extends Controller
                 'require' => $require,
                 'package' => $package,
                 'curriculum' => $curriculum,
+                'pic' => [
+                    'name' => $pic_fullname,
+                    'phone' => $pic_phone,
+                ],
                 'client' => [
                     'uuid' => $client_id,
                     'first_name' => $client_fname,
@@ -179,6 +187,9 @@ class ExtClientProgramController extends Controller
             },
             'program' => function ($query) {
                 $query->select('prog_id', 'main_prog_id', 'prog_program', 'prog_mentor');
+            },
+            'internalPic' => function ($query) {
+                $query->select('id', 'first_name', 'last_name', 'phone');
             }
         ])->
         whereHas('program', function ($query) use ($main_program, $sub_program) {
@@ -196,7 +207,7 @@ class ExtClientProgramController extends Controller
             });
         })->
         where('clientprog_id', $requested_clientprogram_id)->
-        select('clientprog_id', 'prog_id', 'client_id', 'package', 'curriculum')->get();
+        select('clientprog_id', 'prog_id', 'client_id', 'package', 'curriculum', 'empl_id')->get();
 
         $mappedB2CPrograms = $b2cPrograms->map(function ($data) {
 
@@ -205,6 +216,10 @@ class ExtClientProgramController extends Controller
             $program_name = $data->program->program_name;
             // $require = $data->program->main_prog->id == 4 ? "Tutor" : "Mentor";
             $require = $data->program->prog_mentor;
+            $package = $data->package;
+            $curriculum = $data->curriculum;
+            $pic_fullname = $data->internalPic->full_name;
+            $pic_phone = $data->internalPic->phone;
             $client_id = $data->client->id;
             $client_fname = $data->client->first_name;
             $client_lname = $data->client->last_name;
@@ -217,15 +232,19 @@ class ExtClientProgramController extends Controller
                 'invoice_id' => $invoice_id,
                 'program_name' => $program_name,
                 'require' => $require,
+                'package' => $package,
+                'curriculum' => $curriculum,
+                'pic' => [
+                    'name' => $pic_fullname,
+                    'phone' => $pic_phone,
+                ],
                 'client' => [
                     'uuid' => $client_id,
                     'first_name' => $client_fname,
                     'last_name' => $client_lname,
                     'school_name' => $school_name,
                     'grade' => $client_grade,
-                ],
-                'package' => $data->package,
-                'curriculum' => $data->curriculum,
+                ]
             ];
         });
 
@@ -291,6 +310,9 @@ class ExtClientProgramController extends Controller
             },
             'program' => function ($query) {
                 $query->select('prog_id', 'main_prog_id', 'prog_program', 'prog_mentor');
+            },
+            'internalPic' => function ($query) {
+                $query->select('id', 'first_name', 'last_name', 'phone');
             }
         ])->
         whereHas('program', function ($query) {
@@ -305,13 +327,17 @@ class ExtClientProgramController extends Controller
         })->
         pending()->
         getFreeTrial()->
-        select('clientprog_id', 'prog_id', 'client_id')->get();
+        select('clientprog_id', 'prog_id', 'client_id', 'package', 'curriculum', 'empl_id')->get();
 
         $mapped_program = $clients_who_own_free_trial_tutor->map(function ($data) {
 
             $clientprog_id = $data->clientprog_id;
             $program_name = $data->program->program_name;
             $require = $data->program->prog_mentor;
+            $package = $data->package;
+            $curriculum = $data->curriculum;
+            $pic_fullname = $data->internalPic->full_name;
+            $pic_phone = $data->internalPic->phone;
             $client_id = $data->client->id;
             $client_fname = $data->client->first_name;
             $client_lname = $data->client->last_name;
@@ -321,9 +347,14 @@ class ExtClientProgramController extends Controller
             return [
                 'category' => 'b2c',
                 'clientprog_id' => $clientprog_id,
-                'trial' => true,
                 'program_name' => $program_name,
                 'require' => $require,
+                'package' => $package,
+                'curriculum' => $curriculum,
+                'pic' => [
+                    'name' => $pic_fullname,
+                    'phone' => $pic_phone,
+                ],
                 'client' => [
                     'uuid' => $client_id,
                     'first_name' => $client_fname,
