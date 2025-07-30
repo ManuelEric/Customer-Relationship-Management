@@ -7,24 +7,24 @@ use Illuminate\Support\Str;
 
 trait GetGradeAndGraduationYear
 {
-    public function getRealGrade($ynow, $yinput, $mnow, $minput, $ginput)
+    public function getRealGrade($current_year, $submitted_year, $current_month, $submitted_month, $grade)
     {
-        $gradeNow = null;
-        if(($mnow >= 7 && $minput < 7) && ($ynow > $yinput)) {
-            $gradeNow = ($ynow - $yinput) + ($ginput + 1);
-        }else if (($mnow < 7 && $minput >= 7) && ($ynow > $yinput)) {
-            $gradeNow = ($ynow - $yinput) + ($ginput - 1);
-        }else if (($mnow >= 7 && $minput < 7) && ($ynow = $yinput)) {
-            $gradeNow = $ginput + 1;  
-        }else if (($mnow < 7 && $minput >= 7) && ($ynow = $yinput)) {
-            $gradeNow = ($ynow - $yinput) + ($ginput - 1);  
-        }else if ((($mnow < 7 && $minput < 7) || ($mnow >= 7 && $minput >= 7)) && ($ynow >= $yinput)){
-            $gradeNow = ($ynow - $yinput) + $ginput;
+        $expected_grade = null;
+        if(($current_month >= 7 && $submitted_month < 7) && ($current_year > $submitted_year)) {
+            $expected_grade = ($current_year - $submitted_year) + ($grade + 1);
+        }else if (($current_month < 7 && $submitted_month >= 7) && ($current_year > $submitted_year)) {
+            $expected_grade = ($current_year - $submitted_year) + ($grade - 1);
+        }else if (($current_month >= 7 && $submitted_month < 7) && ($current_year = $submitted_year)) {
+            $expected_grade = $grade + 1;  
+        }else if (($current_month < 7 && $submitted_month >= 7) && ($current_year = $submitted_year)) {
+            $expected_grade = ($current_year - $submitted_year) + ($grade - 1);  
+        }else if ((($current_month < 7 && $submitted_month < 7) || ($current_month >= 7 && $submitted_month >= 7)) && ($current_year >= $submitted_year)){
+            $expected_grade = ($current_year - $submitted_year) + $grade;
         }else{
-            $gradeNow = $ginput;  
+            $expected_grade = $grade;  
         } 
 
-        return $gradeNow;
+        return $expected_grade;
     }
 
     public function getGradeByGraduationYear($graduationYear)
