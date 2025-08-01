@@ -174,5 +174,6 @@ Route::get('log-test', function () {
     Log::info('this is info');
     Log::warning('this is warning');
     Log::error('this is error');
+    echo "Log recorded";
 });
 # ELK TEST END -----------------------------------------
