@@ -119,6 +119,15 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+
+        'logstash' => [
+            'driver' => 'monolog',
+            'handler' => Monolog\Handler\SocketHandler::class,
+            'with' => [
+                'connectionString' => 'tcp://localhost:5044',
+            ],
+            'formatter' => Monolog\Formatter\JsonFormatter::class,
+        ]
     ],
 
 ];

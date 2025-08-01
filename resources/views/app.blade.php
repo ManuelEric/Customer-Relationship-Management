@@ -170,6 +170,7 @@
                 },
                 processing: true,
                 serverSide: true,
+                autoWidth: false
             });
 
             // listen channel datatable for datatable
