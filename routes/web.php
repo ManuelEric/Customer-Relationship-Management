@@ -167,3 +167,12 @@ Route::get('paymentpage/web/payment-page/render-page', function (Request $reques
 })->name('payment-web.render-page');
 
 # PAYMENT GATEWAY END -------------------------------
+
+
+# ELK TEST START -----------------------------------------
+Route::get('log-test', function () {
+    Log::info('this is info');
+    Log::warning('this is warning');
+    Log::error('this is error');
+});
+# ELK TEST END -----------------------------------------
