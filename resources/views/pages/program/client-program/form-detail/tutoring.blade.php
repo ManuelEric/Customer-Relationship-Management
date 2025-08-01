@@ -32,6 +32,10 @@
                             <x-forms.program.detail.package program-type="skillset-tutoring" text-index="1"
                                 :disabled=$disabled :client-program=$clientProgram />
                         </div>
+                        <div v-if="main_prog==10">
+                            <x-forms.program.detail.package program-type="academic-enrichment" text-index="1"
+                                :disabled=$disabled :client-program=$clientProgram />
+                        </div>
                     </div>
 
                     <div class="col-md-12 mb-2" v-if="main_prog==7">

@@ -3,6 +3,7 @@
     $subjectTutoringList = ['Basic', 'Pro', 'Elite', 'Hourly', 'Free Trial', 'Deposit Trial', 'Bonus'];
     $competitionList = ['Group'];
     $skillsetTutoringList = ['Private', 'Deposit Trial'];
+    $juniorPackage = ['4 Hours', '8 Hours', '12 Hours'];
 @endphp
 <select name="package" class="form-select form-select-sm w-100 tutor-package"
     @if (isset($disabled)) {{ $disabled }} @endif>
@@ -33,6 +34,13 @@
             @foreach ($skillsetTutoringList as $key => $package)
                 <option value="{{ $package }}" @selected(isset($clientProgram) && $clientProgram->package == $package) @selected(old('package') == $package)>
                     {{ $package }}</option>
+            @endforeach
+        @break
+
+        @case('academic-enrichment')
+            @foreach ($juniorPackage as $key => $package)
+                <option value="{{ $package }}" @selected(isset($clientProgram) && $clientProgram->package == $package) @selected(old('package') == $package)>{{ $package }}
+                </option>
             @endforeach
         @break
 
