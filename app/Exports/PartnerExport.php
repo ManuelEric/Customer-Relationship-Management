@@ -16,20 +16,66 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class PartnerExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles, WithEvents, WithColumnFormatting
+class PartnerExport implements FromCollection, WithHeadings, ShouldAutoSize, WithStyles, WithEvents, WithColumnFormatting
 {
     /**
     * @return \Illuminate\Support\Collection
     */
     public function collection()
     {
-        return Corporate::with([
+        $partners = Corporate::with([
                 'pic' => function ($query) {
                     $query->select('corp_id', 'pic_name', 'pic_mail', 'pic_linkedin', 'pic_phone')->where('is_pic', 1);
                 },
             ])->select('corp_id', 'corp_name', 'corp_industry', 'corp_subsector_id', 'corp_mail', 'corp_phone', 'corp_site', 'corp_region', 'corp_city', 'corp_address', 'country_type', 'type', 'partnership_type', 'corp_status', 'created_at')->
             where('active_status', 1)->
             get();
+
+        return $partners->flatMap(function ($partner) {
+            if (count($partner->pic) > 0) {
+                return collect($partner->pic)->map(function ($pic) use ($partner) {
+                    return [
+                        $partner->corp_id,
+                        $partner->corp_name,
+                        $partner->industry?->name ?? null,
+                        $partner->subSector?->name ?? null,
+                        $partner->corp_mail,
+                        $partner->corp_phone,
+                        $partner->corp_site,
+                        $partner->corp_region,
+                        $partner->corp_city,
+                        $partner->corp_address,
+                        $partner->country_type,
+                        $partner->type,
+                        $partner->partnership_type,
+                        $partner->corp_status,
+                        $partner->created_at ? Carbon::parse($partner->created_at)->format('Y/m/d') : '',
+                        $pic->pic_name,
+                        $pic->pic_phone,
+                    ];
+                });
+            } else {
+                return [[
+                    $partner->corp_id,
+                    $partner->corp_name,
+                    $partner->industry?->name ?? null,
+                    $partner->subSector?->name ?? null,
+                    $partner->corp_mail,
+                    $partner->corp_phone,
+                    $partner->corp_site,
+                    $partner->corp_region,
+                    $partner->corp_city,
+                    $partner->corp_address,
+                    $partner->country_type,
+                    $partner->type,
+                    $partner->partnership_type,
+                    $partner->corp_status,
+                    $partner->created_at ? Carbon::parse($partner->created_at)->format('Y/m/d') : '',
+                    null, // pic_name
+                    null, // pic_phone
+                ]];
+            }
+        });
 
         // return CorporatePic::with('corporate')->where('is_pic', 1)->get();
     }
@@ -55,56 +101,6 @@ class PartnerExport implements FromCollection, WithHeadings, WithMapping, Should
             'PIC Name',
             'PIC Phone Number'
         ];
-    }
-
-    public function map($partner): array
-    {
-        if ($partner->pic->count() > 0)
-        {
-
-            foreach ($partner->pic as $pic)
-            {
-                return [
-                    $partner->corp_id,
-                    $partner->corp_name,
-                    $partner->industry?->name ?? null,
-                    $partner->subSector?->name ?? null,
-                    $partner->corp_mail,
-                    $partner->corp_phone,
-                    $partner->corp_site,
-                    $partner->corp_region,
-                    $partner->corp_city,
-                    $partner->corp_address,
-                    $partner->country_type,
-                    $partner->type,
-                    $partner->partnership_type,
-                    $partner->corp_status,
-                    $partner->created_at != null ? Carbon::parse($partner->created_at)->format('Y/m/d') : '',
-                    $pic->pic_name,
-                    $pic->pic_phone,
-                ];
-            }
-
-        } else {
-
-            return  [
-                $partner->corp_id,
-                $partner->corp_name,
-                $partner->industry?->name ?? null,
-                $partner->subSector?->name ?? null,
-                $partner->corp_mail,
-                $partner->corp_phone,
-                $partner->corp_site,
-                $partner->corp_region,
-                $partner->corp_city,
-                $partner->corp_address,
-                $partner->country_type,
-                $partner->type,
-                $partner->partnership_type,
-                $partner->corp_status,
-                $partner->created_at != null ? Carbon::parse($partner->created_at)->format('Y/m/d') : '',
-            ];
-        }
     }
 
     public function registerEvents(): array
