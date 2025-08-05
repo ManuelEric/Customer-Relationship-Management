@@ -74,6 +74,16 @@
                     },
                     {
                         data: 'partnership_name',
+                        render: function (data, type, row, meta) {
+                            var badge = '';
+                            if (row.active_status == 0)
+                                badge += '<span class="badge text-bg-danger" style="font-size:8px";>Inactive</span>';
+
+                            if (row.active_status == 1 && row.created_at == Date.now())
+                                badge += '<span class="badge text-bg-success" style="font-size: 8px;">New</span>';
+
+                            return data + ' ' + badge;
+                        }
                     },
                     {
                         data: 'industry_name',

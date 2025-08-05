@@ -6,6 +6,7 @@ use App\Http\Requests\StoreCorporateRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Models\Corporate;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 
 class CreateCorporateAction
@@ -29,7 +30,7 @@ class CreateCorporateAction
         $corporateDetails['corp_password'] = Hash::make($request->corp_password);
 
         # store new corporate
-        $new_corporate = $this->corporateRepository->createCorporate(['corp_id' => $corp_id_with_label] + $corporate_details);
+        $new_corporate = $this->corporateRepository->createCorporate(['corp_id' => $corp_id_with_label] + $corporate_details + ['created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
 
         return $new_corporate;
     }

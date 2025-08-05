@@ -23,13 +23,15 @@ class PartnerExport implements FromCollection, WithHeadings, WithMapping, Should
     */
     public function collection()
     {
-        // return Corporate::with([
-        //         'pic' => function ($query) {
-        //             $query->select('corp_id', 'pic_name', 'pic_mail', 'pic_linkedin', 'pic_phone')->where('is_pic', 1);
-        //         },
-        //     ])->select('corp_id', 'corp_name', 'corp_industry', 'corp_subsector_id', 'corp_mail', 'corp_phone', 'corp_site', 'corp_region', 'corp_city', 'corp_address', 'country_type', 'type', 'partnership_type', 'corp_status', 'created_at')->get();
+        return Corporate::with([
+                'pic' => function ($query) {
+                    $query->select('corp_id', 'pic_name', 'pic_mail', 'pic_linkedin', 'pic_phone')->where('is_pic', 1);
+                },
+            ])->select('corp_id', 'corp_name', 'corp_industry', 'corp_subsector_id', 'corp_mail', 'corp_phone', 'corp_site', 'corp_region', 'corp_city', 'corp_address', 'country_type', 'type', 'partnership_type', 'corp_status', 'created_at')->
+            where('active_status', 1)->
+            get();
 
-        return CorporatePic::with('corporate')->where('is_pic', 1)->get();
+        // return CorporatePic::with('corporate')->where('is_pic', 1)->get();
     }
 
     public function headings(): array
@@ -57,25 +59,52 @@ class PartnerExport implements FromCollection, WithHeadings, WithMapping, Should
 
     public function map($partner): array
     {
-        return [
-            $partner->corporate->corp_id,
-            $partner->corporate->corp_name,
-            $partner->corporate->industry?->name ?? null,
-            $partner->corporate->subSector?->name ?? null,
-            $partner->corporate->corp_mail,
-            $partner->corporate->corp_phone,
-            $partner->corporate->corp_site,
-            $partner->corporate->corp_region,
-            $partner->corporate->corp_city,
-            $partner->corporate->corp_address,
-            $partner->corporate->country_type,
-            $partner->corporate->type,
-            $partner->corporate->partnership_type,
-            $partner->corporate->corp_status,
-            Carbon::parse($partner->corporate->created_at)->format('Y/m/d'),
-            $partner->pic_name,
-            $partner->pic_phone
-        ];
+        if ($partner->pic->count() > 0)
+        {
+
+            foreach ($partner->pic as $pic)
+            {
+                return [
+                    $partner->corp_id,
+                    $partner->corp_name,
+                    $partner->industry?->name ?? null,
+                    $partner->subSector?->name ?? null,
+                    $partner->corp_mail,
+                    $partner->corp_phone,
+                    $partner->corp_site,
+                    $partner->corp_region,
+                    $partner->corp_city,
+                    $partner->corp_address,
+                    $partner->country_type,
+                    $partner->type,
+                    $partner->partnership_type,
+                    $partner->corp_status,
+                    $partner->created_at != null ? Carbon::parse($partner->created_at)->format('Y/m/d') : '',
+                    $pic->pic_name,
+                    $pic->pic_phone,
+                ];
+            }
+
+        } else {
+
+            return  [
+                $partner->corp_id,
+                $partner->corp_name,
+                $partner->industry?->name ?? null,
+                $partner->subSector?->name ?? null,
+                $partner->corp_mail,
+                $partner->corp_phone,
+                $partner->corp_site,
+                $partner->corp_region,
+                $partner->corp_city,
+                $partner->corp_address,
+                $partner->country_type,
+                $partner->type,
+                $partner->partnership_type,
+                $partner->corp_status,
+                $partner->created_at != null ? Carbon::parse($partner->created_at)->format('Y/m/d') : '',
+            ];
+        }
     }
 
     public function registerEvents(): array
