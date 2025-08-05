@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Events\MessageSent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -102,6 +103,11 @@ class Corporate extends Model
         );
     }
 
+    public function scopeActive(Builder $query): void
+    {
+        $query->where('active_status', 1);
+    }
+
 
     public static function whereCorpId($id)
     {
@@ -164,6 +170,11 @@ class Corporate extends Model
     public function asCollaboratorInSchoolProgram()
     {
         return $this->belongsToMany(SchoolProg::class, 'tbl_sch_prog_partner', 'corp_id', 'schprog_id')->withTimestamps();
+    }
+
+    public function industry()
+    {
+        return $this->belongsTo(Industry::class, 'corp_industry', 'id');
     }
 
     public function subSector()

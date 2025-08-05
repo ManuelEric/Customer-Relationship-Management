@@ -50,9 +50,13 @@
             var options = {
                 order: [[1, 'asc']],
                 buttons: [
-                    'pageLength', {
-                        extend: 'excel',
+                    'pageLength', 
+                    {
+                        // extend: 'excel',
                         text: 'Export to Excel',
+                        action: function (e, dt, node, config) {
+                            window.location.href = '/instance/corporate/export/xlsx';
+                        }
                     }
                 ],
                 fixedColumns: {

@@ -52,6 +52,7 @@ Route::prefix('school')->name('school.')->group(function() {
 Route::resource('corporate', CorporateController::class);
 Route::prefix('corporate')->name('corporate.')->group(function () {
 
+    Route::get('export/xlsx', [CorporateController::class, 'export'])->name('export');
     Route::resource('{corporate}/detail', CorporatePicController::class);
     Route::resource('{corporate}/agreement', PartnerAgreementController::class);
 });

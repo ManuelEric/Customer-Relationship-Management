@@ -6,6 +6,7 @@ use App\Actions\Corporates\CreateCorporateAction;
 use App\Actions\Corporates\DeleteCorporateAction;
 use App\Actions\Corporates\UpdateCorporateAction;
 use App\Enum\LogModule;
+use App\Exports\PartnerExport;
 use App\Http\Requests\StoreCorporateRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\CorporatePicRepositoryInterface;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CorporateController extends Controller
 {
@@ -243,5 +245,10 @@ class CorporateController extends Controller
         $log_service->createSuccessLog(LogModule::DELETE_CORPORATE, 'Corporate has been deleted', $deleted_corporate->toArray());
 
         return Redirect::to('instance/corporate')->withSuccess('Corporate successfully deleted');
+    }
+
+    public function export()
+    {
+        return Excel::download(new PartnerExport, 'partners.xlsx');
     }
 }
