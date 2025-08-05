@@ -52,7 +52,7 @@ class ActiveMenteeCollectionResource extends ResourceCollection
                 'sch_name' => $single->school->sch_name ?? null,
                 'sch_city' => $single->school->sch_city ?? null,
                 // 'grade' => $single->grade_now,
-                'grade' => $single->grade_now > 12 ? preg_match('/community college/i', $single->school->sch_name ? 'Community College' : $single->school->sch_name) : $single->grade_now,
+                'grade' => $single->grade_now > 12 ? preg_match('/community college/i', $single->school->sch_name) ? 'Community College' : 'in university/working' : $single->grade_now,
                 'application_year' => $single->application_year,
                 'mentoring_progress_status' => $single->mentoring_progress_status,
                 'clientprog_id' => $latest_admission->clientprog_id,
@@ -61,6 +61,8 @@ class ActiveMenteeCollectionResource extends ResourceCollection
                 'alias_array' => $mapped_mentor_type->plucK('alias')->toArray(),
                 'latest_update' => count($single->mentoringLogs) > 0 ? $single->mentoringLogs()->latest()->first()->updated_at : null,
                 'joining_year' => Carbon::parse($single->clientProgram()->whereRelation('program.main_prog', 'prog_name', 'Admissions Mentoring')->latest()->first()->success_date)->format('Y'),
+                'package' => $latest_admission->package,
+                'program_name' => $latest_admission->program->program_name,
             ];
         }
 
