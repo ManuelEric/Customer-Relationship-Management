@@ -52,7 +52,7 @@ class ActiveMenteeCollectionResource extends ResourceCollection
                 'sch_name' => $single->school->sch_name ?? null,
                 'sch_city' => $single->school->sch_city ?? null,
                 // 'grade' => $single->grade_now,
-                'grade' => $single->grade_now > 12 ? preg_match('/community college/i', $single->school->sch_name) : $single->grade_now,
+                'grade' => $single->grade_now > 12 ? preg_match('/community college/i', $single->school->sch_name ? 'Community College' : $single->school->sch_name) : $single->grade_now,
                 'application_year' => $single->application_year,
                 'mentoring_progress_status' => $single->mentoring_progress_status,
                 'clientprog_id' => $latest_admission->clientprog_id,
