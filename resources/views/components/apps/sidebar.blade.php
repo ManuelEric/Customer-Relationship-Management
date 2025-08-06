@@ -14,7 +14,6 @@
                     @elseif ($isFinance)
                         {{ url('dashboard/finance/outstanding-payment') }}">
                     @endif
-
                 <i class="bi bi-speedometer2 mx-2"></i>
                 <span class="menu-title">Dashboard</span>
             </a>
@@ -40,14 +39,9 @@
                                 $submenu_link = $submenu['submenu_link'];
                                 $explode = explode('/', $submenu_link);
                                 $length = count($explode);
-                            @endphp
-                            @if ($position = strpos($submenu['submenu_link'], '?'))
-                                @php
-                                    $submenu_link = substr($submenu['submenu_link'], 0, $position);
-                                @endphp
-                            @endif
 
-                            @php
+                                if ($position = strpos($submenu['submenu_link'], '?'))
+                                    $submenu_link = substr($submenu['submenu_link'], 0, $position);
                                 
                                 /* Removing the ? meaning GET params */
                                 $submenu_active = $submenu['submenu_link'];
@@ -68,6 +62,7 @@
                                 /* Condition for users menu */
                                 if (end($url) == 'employee')
                                     $submenu_active = 'user';
+
                                 
                                 
                             @endphp

@@ -633,7 +633,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
 
     public function updateClientEvents(array $clientEventIds, array $newClientEvents)
     {
-        $clientEvent = ClientEvent::whereIn($clientEventIds);
+        $clientEvent = ClientEvent::whereIn('clientevent_id', $clientEventIds);
         $clientEvent->update($newClientEvents);
 
         return $clientEvent;
