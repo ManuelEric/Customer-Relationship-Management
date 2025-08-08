@@ -29,15 +29,38 @@ class ProgramPhaseRepository implements ProgramPhaseRepositoryInterface
 
     public function rnDeleteProgramPhase(Array $program_phase_details)
     {
-        if ($program_phase_details['phase_lib_id'] != null){
-            $phase_library = PhaseLibrary::find($program_phase_details['phase_lib_id']);
-            ClientProgramDetail::where('clientprog_id', $program_phase_details['clientprog_id'])->where('phase_lib_id', $program_phase_details['phase_lib_id'])->delete();
-            return $phase_library;
-        }
+        $clientprog_id = $program_phase_details['clientprog_id'];
+        $phase_detail_id = $program_phase_details['phase_detail_id'];
+        $phase_lib_id = $program_phase_details['phase_lib_id'];
 
-        $phase_detail = PhaseDetail::find($program_phase_details['phase_detail_id']);
-        ClientProgramDetail::where('clientprog_id', $program_phase_details['clientprog_id'])->where('phase_detail_id', $program_phase_details['phase_detail_id'])->delete();
-        return $phase_detail;  
+        /**
+         * because there are 2 scenes
+         * scene 1: if all of packages (program bought) inserted by Sales team then function will be fine
+         * scene 2: if all of packages (program bought) inserted by system then function will break, since system doesn't add value to `phase_lib` so everytime query run, they'll find nothing because in checkPackage() > they will carry the phase-lib and inside the data itself doesn't have a phase-lib
+         * so in order to fix that..
+         * I added condition that will check if the phase_detail is exists.
+         * meaning, if user carry phase_lib_id but the phase_detail exists without the phase_lib_id. query still gonna executed
+         */
+        $client_program_details = ClientProgramDetail::where('clientprog_id', $clientprog_id)->where('phase_detail_id', $phase_detail_id);
+        if ($client_program_details->count() == 1 && $client_program_details->first()->phase_lib_id == null) 
+        {
+            // scene 2
+            $client_program_details->delete();
+            return $client_program_details;
+        } 
+        else 
+        {
+            // scene 1
+            if ($program_phase_details['phase_lib_id'] != null){
+                $phase_library = PhaseLibrary::find($program_phase_details['phase_lib_id']);
+                ClientProgramDetail::where('clientprog_id', $program_phase_details['clientprog_id'])->where('phase_lib_id', $program_phase_details['phase_lib_id'])->delete();
+                return $phase_library;
+            }
+    
+            $phase_detail = PhaseDetail::find($program_phase_details['phase_detail_id']);
+            ClientProgramDetail::where('clientprog_id', $program_phase_details['clientprog_id'])->where('phase_detail_id', $program_phase_details['phase_detail_id'])->delete();
+            return $phase_detail;  
+        }
     }
 
     public function rnIncrementUseProgramPhase(ClientProgram $clientprogram, int $phase_detail_id, $use)

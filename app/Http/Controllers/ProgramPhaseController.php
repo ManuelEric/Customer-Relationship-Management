@@ -63,7 +63,7 @@ class ProgramPhaseController extends Controller
         }
 
         # create log success
-        $log_service->createSuccessLog(LogModule::DELETE_PROGRAM_PHASE, 'Program phase has been deleted', $deleted_program_phase->toArray());
+        $log_service->createSuccessLog(LogModule::DELETE_PROGRAM_PHASE, 'Program phase has been deleted', $program_phase_details);
 
         return response()->json([
             'success' => true,

@@ -51,7 +51,7 @@ class ProcessInsertLogClient implements ShouldQueue
      */
     public function handle(ClientRepositoryInterface $clientRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientLogRepositoryInterface $clientLogRepository)
     {
-        DB::beginTransaction();
+        // DB::beginTransaction();
         try {
 
             foreach ($this->clients_data as $key => $client_data) {
@@ -382,10 +382,10 @@ class ProcessInsertLogClient implements ShouldQueue
             }
             
            
-            DB::commit();
+            // DB::commit();
         } catch (Exception $e) {
 
-            DB::rollBack();
+            // DB::rollBack();
             Log::error('Failed to insert log client : ' . $e->getMessage() . ' on '. $e->getFile() .' at line ' . $e->getLine());
         }
 
