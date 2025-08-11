@@ -53,7 +53,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single', 'sentry_logs', 'logstash'],
+            'channels' => ['single', 'sentry', 'logstash'],
             'ignore_exceptions' => false,
         ],
 
@@ -120,11 +120,12 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
-        'sentry_logs' => [
-            'driver' => 'sentry_logs',
+        'sentry' => [
+            'driver' => 'sentry',
             // The minimum logging level at which this handler will be triggered
             // Available levels: debug, info, notice, warning, error, critical, alert, emergency
-            'level' => env('LOG_LEVEL', 'info'), // defaults to `debug` if not set
+            'level' => env('LOG_LEVEL', 'error'),
+            'bubble' => true, // Whether the messages that are handled can bubble up the stack or not
         ],
 
         'logstash' => [
