@@ -37,5 +37,5 @@ test('user can create client program', function() {
     expect($latestClientProgram)
         ->prog_id->toBe($request['prog_id'])
         ->lead_id->toBe($request['lead_id'])
-        ->first_discuss_date->toBe($request['first_discuss_date'])
+        ->first_discuss_date->toBe($request['first_discuss_date']);
 });
