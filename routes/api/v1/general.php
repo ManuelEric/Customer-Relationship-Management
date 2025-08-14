@@ -161,7 +161,7 @@ Route::middleware(['throttle:2500,1'])->group(function () {
         });
     
         # timesheet
-        Route::middleware(  ['resource:timesheet'])->group(function () {
+        Route::middleware(['resource:timesheet'])->group(function () {
     
             Route::get('user/mentor-tutors', [ExtClientController::class, 'getMentorTutors']);
             Route::get('user/mentor-tutors/{uuid}', [ExtClientController::class, 'showMentorTutor']);

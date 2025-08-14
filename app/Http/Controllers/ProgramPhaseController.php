@@ -82,7 +82,7 @@ class ProgramPhaseController extends Controller
             # add new attribute 
             $program_phase_details['grade'] = $clientprogram->client->grade_now ?? null;
             $program_phase_details['quota'] = 0;
-
+            $program_phase_details['use'] = 0;
 
             $created_program_phase = $this->programPhaseRepository->rnStoreProgramPhase($program_phase_details);
 

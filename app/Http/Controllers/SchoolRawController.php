@@ -94,7 +94,7 @@ class SchoolRawController extends Controller
         # create log success
         $log_service->createSuccessLog(LogModule::UPDATE_SCHOOL_RAW, 'School raw has been updated', $updated_school_raw->toArray());
 
-        return Redirect::to('instance/school/raw')->   withSuccess('Convert raw school success');
+        return Redirect::to('instance/school/raw')->withSuccess('Convert raw school success');
     }
 
 

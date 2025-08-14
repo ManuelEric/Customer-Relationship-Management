@@ -71,6 +71,7 @@ class ExtClientProgramController extends Controller
             });
         })->
         successAndPaid()->select('clientprog_id', 'prog_id', 'client_id', 'package', 'curriculum', 'empl_id')->get();
+
         $mappedB2CPrograms = $b2cPrograms->map(function ($data) {
 
             $clientprog_id = $data->clientprog_id;
@@ -169,8 +170,8 @@ class ExtClientProgramController extends Controller
         $mentor_uuid = $request->get('k');
         $requested_main_program_name = $request->route('main_program_name');
         $requested_clientprogram_id = $request->route('clientprogram_id');
-        // dd($this->tnGetMainProgramName($requested_main_program_name));
-        [$main_program, $sub_program] = $this->tnGetMainProgramName($requested_main_program_name);
+        [$group_of, $sub_program] = $this->tnGetMainProgramName($requested_main_program_name);
+        // [$main_program, $sub_program] = $this->tnGetMainProgramName($requested_main_program_name);
         
         $b2cPrograms = \App\Models\ClientProgram::
         with([
@@ -192,15 +193,17 @@ class ExtClientProgramController extends Controller
                 $query->select('id', 'first_name', 'last_name', 'phone');
             }
         ])->
-        whereHas('program', function ($query) use ($main_program, $sub_program) {
-            $query->whereHas('main_prog', function ($query) use ($main_program) {
-                $query->where('group_of', $main_program);
-            })->whereHas('sub_prog', function ($query) use ($sub_program) {
-                $query->when($sub_program != 'all', function ($query) use ($sub_program) {
-                    $query->whereIn('sub_prog_name', $sub_program);
-                });
-            });
-        })->
+        whereRelation('program.main_prog', 'group_of', $group_of)->
+        // whereHas('program', function ($query) use ($main_program, $sub_program) {
+            // $query->whereHas('main_prog', function ($query) use ($main_program) {
+            //     $query->where('group_of', $main_program);
+            // })->
+            // whereHas('sub_prog', function ($query) use ($sub_program) {
+                // $query->when($sub_program != 'all', function ($query) use ($sub_program) {
+                //     $query->whereIn('sub_prog_name', $sub_program);
+                // });
+            // });
+        // })->
         when($mentor_uuid, function ($query) use ($mentor_uuid) {
             $query->whereHas('clientMentor', function ($query) use ($mentor_uuid) {
                 $query->where('users.id', $mentor_uuid);
@@ -250,7 +253,8 @@ class ExtClientProgramController extends Controller
 
         # take academic & test preparation b2b success program
         # if main program is 'Academic & Test Preparation'
-        if ( $main_program == 'Academic & Test Preparation' )
+        // if ( $main_program == 'Academic & Test Preparation' )
+        if ( $group_of == 'Tutoring' )
         {
 
             $b2bPrograms = \App\Models\SchoolProgram::
