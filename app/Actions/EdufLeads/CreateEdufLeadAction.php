@@ -22,7 +22,7 @@ class CreateEdufLeadAction
     {
 
         # store new eduf lead
-        $ext_pic_phone = $this->tnSetPhoneNumber($new_eduf_lead_details['ext_pic_phone']);
+        $ext_pic_phone = $this->tnNormalizePhoneNumber($new_eduf_lead_details['ext_pic_phone']);
 
         unset($new_eduf_lead_details['ext_pic_phone']); # remove the phone number that hasn't been updated into +62
         $new_eduf_lead_details['ext_pic_phone'] = $ext_pic_phone; # add new phone number 

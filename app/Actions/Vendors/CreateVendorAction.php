@@ -24,7 +24,7 @@ class CreateVendorAction
     )
     {
 
-        $new_vendor_details['vendor_phone'] = $this->tnSetPhoneNumber($request->vendor_phone);
+        $new_vendor_details['vendor_phone'] = $this->tnNormalizePhoneNumber($request->vendor_phone);
 
         $last_id = Vendor::max('vendor_id');
         $vendor_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 3) : 000;

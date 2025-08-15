@@ -21,7 +21,7 @@ class UpdateVendorAction
     )
     {
 
-        $new_vendor_details['vendor_phone'] = $this->tnSetPhoneNumber($new_vendor_details['vendor_phone']);
+        $new_vendor_details['vendor_phone'] = $this->tnNormalizePhoneNumber($new_vendor_details['vendor_phone']);
 
         $updated_tag = $this->vendorRepository->updateVendor($vendor_id, $new_vendor_details);
 

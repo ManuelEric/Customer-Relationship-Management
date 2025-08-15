@@ -25,7 +25,7 @@ class UpdateCorporatePicAction
     )
     {
         unset($corporate_pic_details['pic_phone']);
-        $picDetails['pic_phone'] = $this->tnSetPhoneNumber($request->pic_phone);
+        $picDetails['pic_phone'] = $this->tnNormalizePhoneNumber($request->pic_phone);
 
         $corporate_pic_details['corp_id'] = $corp_id;
 

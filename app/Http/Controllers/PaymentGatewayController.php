@@ -198,15 +198,15 @@ class PaymentGatewayController extends Controller
             'va_name' => ucwords($parent_name),
             'user_name' => ucwords($parent_name),
             'user_email' => $parent_email,
-            'user_phone_number' => $this->tnSetPhoneNumber($parent_phone),
+            'user_phone_number' => $this->tnNormalizePhoneNumber($parent_phone),
             'user_id' => $parent_id,
             'remarks' => $remarks,
             'user_device_id' => Browser::browserName(),
             'user_ip_address' => $request->ip(),
             'shipping_details' => json_encode([
                 'address' => $parent_address ?? "",
-                'telephoneNumber' => $this->tnSetPhoneNumber($parent_phone),
-                'handphoneNumber' => $this->tnSetPhoneNumber($parent_phone)
+                'telephoneNumber' => $this->tnNormalizePhoneNumber($parent_phone),
+                'handphoneNumber' => $this->tnNormalizePhoneNumber($parent_phone)
             ]),
             'invoice_number' => $invoice_number,
             'integration_type' => '01',

@@ -873,7 +873,7 @@ class ClientStudentController extends ClientController
             'phone'
         ]);
 
-        $parent_details['phone'] = $this->tnSetPhoneNumber($request->phone);
+        $parent_details['phone'] = $this->tnNormalizePhoneNumber($request->phone);
 
         DB::beginTransaction();
         try {
@@ -1000,7 +1000,7 @@ class ClientStudentController extends ClientController
             'first_name' => $name['firstname'],
             'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
             'mail' => $request->emailFinal,
-            'phone' => $this->tnSetPhoneNumber($request->phoneFinal),
+            'phone' => $this->tnNormalizePhoneNumber($request->phoneFinal),
             'graduation_year' => $request->graduationFinal,
             'sch_id' => $request->schoolFinal,
             'is_verified' => 'Y',
@@ -1013,7 +1013,7 @@ class ClientStudentController extends ClientController
                 'first_name' => $parent_name['firstname'],
                 'last_name' => isset($parent_name['lastname']) ? $parent_name['lastname'] : null,
                 'mail' => $request->parentMail,
-                'phone' => isset($request->parentPhone) ? $this->tnSetPhoneNumber($request->parentPhone) : null,
+                'phone' => isset($request->parentPhone) ? $this->tnNormalizePhoneNumber($request->parentPhone) : null,
                 'is_verified' => 'Y'
             ];
             $parent_id = $request->parentFinal;

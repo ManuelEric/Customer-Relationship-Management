@@ -58,8 +58,8 @@ class ImportStudent implements ShouldQueue
 
         foreach ($this->studentData as $key => $val) {
             $student = null;
-            $phoneNumber = isset($val['Phone Number']) ? $this->tnSetPhoneNumber($val['Phone Number']) : null;
-            isset($val['Parents Phone']) ? $parentPhone = $this->tnSetPhoneNumber($val['Parents Phone']) : $parentPhone = null;
+            $phoneNumber = isset($val['Phone Number']) ? $this->tnNormalizePhoneNumber($val['Phone Number']) : null;
+            isset($val['Parents Phone']) ? $parentPhone = $this->tnNormalizePhoneNumber($val['Parents Phone']) : $parentPhone = null;
 
             $studentName = $val['Full Name'] != null ? $this->explodeName($val['Full Name']) : null;
             $parentName = $val['Parents Name'] != null ? $this->explodeName($val['Parents Name']) : null;

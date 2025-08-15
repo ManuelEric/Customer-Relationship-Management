@@ -77,7 +77,7 @@ class Handler
                     'first_name' => $parentName['firstname'],
                     'last_name' => isset($parentName['lastname']) ? $parentName['lastname'] : null,
                     'mail' => $incoming_data['parent_email'],
-                    'phone' => $this->tnSetPhoneNumber($incoming_data['parent_phone']),
+                    'phone' => $this->tnNormalizePhoneNumber($incoming_data['parent_phone']),
                     'lead_id' => 'LS045', # facebook ads
                     'utm_content' => $identifier['utm_content'],
                 ];

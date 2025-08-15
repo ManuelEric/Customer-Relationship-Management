@@ -510,7 +510,7 @@ class ClientParentController extends ClientController
             'first_name' => $name['firstname'],
             'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
             'mail' => $request->emailFinal,
-            'phone' => $this->tnSetPhoneNumber($request->phoneFinal),
+            'phone' => $this->tnNormalizePhoneNumber($request->phoneFinal),
             'is_verified' => 'Y'
         ];
 

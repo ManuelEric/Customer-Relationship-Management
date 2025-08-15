@@ -60,7 +60,7 @@ class ClientController extends Controller
                 $parent_details['first_name'] = $request->pr_firstname;
                 $parent_details['last_name'] = $request->pr_lastname;
                 $parent_details['mail'] = $request->pr_mail;
-                $parent_details['phone'] = $this->tnSetPhoneNumber($request->pr_phone);
+                $parent_details['phone'] = $this->tnNormalizePhoneNumber($request->pr_phone);
                 $parent_details['dob'] = $request->pr_dob;
                 $parent_details['insta'] = $request->pr_insta;
                 $parent_details['is_verified'] = 'Y';
@@ -79,7 +79,7 @@ class ClientController extends Controller
                     'first_name' => $request->first_name,
                     'last_name' => $request->last_name,
                     'mail' => $request->mail,
-                    'phone' => $this->tnSetPhoneNumber($request->phone),
+                    'phone' => $this->tnNormalizePhoneNumber($request->phone),
                     'state' => $parent_details['state'],
                     'city' => $parent_details['city'],
                     'postal_code' => $parent_details['postal_code'],
@@ -140,7 +140,7 @@ class ClientController extends Controller
                 if (isset($request->is_funding))
                     $student_details['is_funding'] = $request->is_funding;
 
-                $student_details['phone'] = $this->tnSetPhoneNumber($request->phone);
+                $student_details['phone'] = $this->tnNormalizePhoneNumber($request->phone);
                 $student_details['is_verified'] = "Y";
                 // $student_details['st_abrcountry'] = json_encode($request->st_abrcountry);
 
@@ -158,7 +158,7 @@ class ClientController extends Controller
                 //     'first_name' => $request->pr_firstname,
                 //     'last_name' => $request->pr_lastname,
                 //     'mail' => $request->pr_mail,
-                //     'phone' => $this->tnSetPhoneNumber($request->pr_phone),
+                //     'phone' => $this->tnNormalizePhoneNumber($request->pr_phone),
                 //     'state' => $student_details['state'],
                 //     'city' => $student_details['city'],
                 //     'postal_code' => $student_details['postal_code'],
@@ -196,7 +196,7 @@ class ClientController extends Controller
                     'st_levelinterest',
                     'referral_code'
                 ]);
-                $teacher_details['phone'] = $this->tnSetPhoneNumber($request->phone);
+                $teacher_details['phone'] = $this->tnNormalizePhoneNumber($request->phone);
                 $teacher_details['is_verified'] = 'Y';
 
                 # set lead_id based on lead_id & kol_lead_id

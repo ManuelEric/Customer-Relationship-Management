@@ -524,7 +524,7 @@ class GoogleSheetController extends Controller
 
         switch ($type) {
             case 'main':
-                $phone = $this->tnSetPhoneNumber($row['Phone Number']);
+                $phone = $this->tnNormalizePhoneNumber($row['Phone Number']);
                 $existClient = $this->checkExistingClientImport($phone, $row['Email']);
                 
                 $email = $row['Email'];
@@ -532,7 +532,7 @@ class GoogleSheetController extends Controller
                 break;
                 
             case 'sub':
-                $phone = isset($row['Child or Parent Phone Number']) ? $this->tnSetPhoneNumber($row['Child or Parent Phone Number']) : null;
+                $phone = isset($row['Child or Parent Phone Number']) ? $this->tnNormalizePhoneNumber($row['Child or Parent Phone Number']) : null;
                 $email = isset($row['Child or Parent Email']) ? $row['Child or Parent Email'] : null;
                 $existClient = $this->checkExistingClientImport($phone, $email);
                 $fullname = $row['Child or Parent Name'];

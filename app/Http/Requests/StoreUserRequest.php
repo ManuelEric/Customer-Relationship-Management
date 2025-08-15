@@ -39,8 +39,8 @@ class StoreUserRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'phone' => $this->tnSetPhoneNumber($this->phone),
-            'emergency_contact_phone' => $this->emergency_contact_phone != null ? $this->tnSetPhoneNumber($this->emergency_contact_phone) : null,
+            'phone' => $this->tnNormalizePhoneNumber($this->phone),
+            'emergency_contact_phone' => $this->emergency_contact_phone != null ? $this->tnNormalizePhoneNumber($this->emergency_contact_phone) : null,
             'emergency_contact_relation_name' => $this->emergency_contact_relation_name,
             'position_id' => $this->position,
             'password' => null,

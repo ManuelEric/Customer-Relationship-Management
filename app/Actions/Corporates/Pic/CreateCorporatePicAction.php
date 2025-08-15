@@ -23,7 +23,7 @@ class CreateCorporatePicAction
     )
     {
         unset($pic_details['pic_phone']);
-        $pic_details['pic_phone'] = $this->tnSetPhoneNumber($request->pic_phone);
+        $pic_details['pic_phone'] = $this->tnNormalizePhoneNumber($request->pic_phone);
 
         $pic_details['corp_id'] = $request->route('corporate');
 

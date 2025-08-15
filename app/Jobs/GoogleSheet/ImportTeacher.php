@@ -55,7 +55,7 @@ class ImportTeacher implements ShouldQueue
 
         foreach ($this->teacherData as $key => $val) {
             $teacher = null;
-            $phoneNumber = $this->tnSetPhoneNumber($val['Phone Number']);
+            $phoneNumber = $this->tnNormalizePhoneNumber($val['Phone Number']);
 
             $teacherName = $this->explodeName($val['Full Name']);
 
